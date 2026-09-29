@@ -47871,3 +47871,22 @@ entries:
         loads, tables render, no page errors. Registered score row, launch date,
         CI workflow, category rule and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: fba-aged-inventory-fee-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built fba-aged-inventory-fee-analyzer: a browser-local tool
+        that reads the Amazon FBA Inventory Age report and, per SKU, simulates
+        storage fees and the aged-inventory surcharge month by month (oldest
+        units sell first) and compares hold, mark down 10/20/30%, remove the aged
+        units and remove everything on profit to sell-through, naming the best
+        option and its gain over holding. Flags negative margin, no-sales SKUs
+        and surcharge above storage. Fee tables (storage rates, surcharge tiers,
+        removal fee) are editable defaults typed from memory and stated as
+        unverified on the page, README and VENTURE.yaml; no real export was
+        available. Nothing is uploaded; independent-of-Amazon clause. Reciprocal
+        links from the reimbursement finder and the seller profit analyzer.
+        Registered score row, launch date, CI workflow and tree counts;
+        regenerated the mirror.
+    mrr_end: 0

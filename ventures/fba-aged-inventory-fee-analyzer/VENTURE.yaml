@@ -1,0 +1,85 @@
+name: fba-aged-inventory-fee-analyzer
+description: >-
+  Free browser tool that reads the Amazon FBA Inventory Age report and, per
+  SKU, projects storage fees and the aged-inventory surcharge and compares
+  holding, marking down, removing the aged units and removing everything,
+  naming the option with the best projected profit. The file is read locally
+  and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session, as the sibling of
+# fba-reimbursement-claim-finder (same seller, same report family, different
+# money): FBA sellers with slow stock pay monthly storage fees and, on old
+# units, an aged-inventory surcharge that rises with age, and the choice
+# between waiting, cutting the price and paying a removal fee is made per SKU
+# by feel. Existing answers: Seller Central's own recommendations (which do not
+# show the alternative's cost), paid inventory-management subscriptions, and
+# spreadsheets. The seller with hundreds of SKUs and thousands of aged units
+# has real money on the table, and the comparison is arithmetic on one report
+# they can download.
+#
+# First visitor: r/FulfillmentByAmazon and seller forums asking "should I
+# remove aged inventory", "aged inventory surcharge calculator", "FBA storage
+# fee calculator". Search volume not measured.
+#
+# What makes it more than a fee calculator: it simulates sell-through month by
+# month with oldest units first, so units age into higher surcharge tiers while
+# they wait; it compares four actions per SKU on profit to sell-through rather
+# than on fees alone (a removal is only right when the fees it avoids exceed the
+# removal fee plus the margin given up); and it flags negative margin, SKUs
+# with no sales, and surcharge exceeding storage instead of hiding them.
+#
+# Privacy is the liability boundary: the file never leaves the browser (a test
+# asserts no network calls), so the portfolio holds no seller data and needs no
+# Amazon credential or API access.
+#
+# Path to revenue (payment rails stay off): lead magnet into the other Amazon
+# seller tools in this portfolio. A paid tier, if usage appears, is history
+# across monthly reports and a per-SKU action tracker, local-only, behind an
+# env-var switch; not built. Not built: an SP-API integration that creates
+# removal orders, which needs credentials and terms review.
+#
+# Liability: arithmetic on the user's file and editable assumptions, model and
+# omissions stated on the page, no advice, no warranty, independent-of-Amazon
+# clause. The fee tables are typed defaults and the page says so and asks the
+# user to replace them.
+#
+# Unverified: the fee tables (storage rates, surcharge tiers, removal fee) and
+# the report's column names are from memory of public Seller Central
+# documentation and no real export was available; the first user report of an
+# unread file or a wrong fee tier is the priority fix.
+
+hypotheses:
+  - claim: >-
+      FBA sellers with slow stock will run a no-signup comparison of hold,
+      markdown and removal per SKU from their Inventory Age report rather than
+      decide by feel or pay for an inventory subscription.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the fees a SKU will accrue if held leads at least one seller to
+      create a removal order or a price cut, and the monthly re-run is the
+      reason to return.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a real export the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/fba-aged-inventory-fee-analyzer/
+  analytics: null
