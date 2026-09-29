@@ -279,6 +279,7 @@
     "package-exports-drift-check": "2026-09-09",
     "painting-bid-calculator": "2026-08-26",
     "parcel-dim-weight-calculator": "2026-09-18",
+    "parcel-late-delivery-refund-finder": "2026-09-29",
     "parking-lot-striping-bid-calculator": "2026-08-26",
     "patio-door-bid-calculator": "2026-08-26",
     "patreon-fee-calculator": "2026-09-25",

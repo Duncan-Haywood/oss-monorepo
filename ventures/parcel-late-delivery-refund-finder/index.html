@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Parcel Late-Delivery Refund Finder — Find UPS and FedEx Shipments You Can Claim a Refund On</title>
+  <meta name="description" content="Free tool for shippers: drop in your UPS or FedEx shipment report and see which parcels were delivered after the promised day, the shipping charge on each, the last day to file, and a draft claim request. Also flags duplicate charges. Runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Parcel Late-Delivery Refund Finder — free, private, in your browser">
+  <meta property="og:description" content="Find late parcels with a money-back guarantee, the charge on each, and the last day to file. Drafts the claim request. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Parcel Late-Delivery Refund Finder","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Reads a carrier shipment or invoice CSV and lists parcels delivered after the promised day, the shipping charge on each, the last day to file, duplicate charges and rate drift, then drafts a claim request. Runs entirely in your browser; the file is never uploaded.","featureList":"Late delivery check, claim deadline, excusing notes, duplicate charge check, rate drift, late rate by service, claim request draft, CSV download"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I get a refund for a late UPS or FedEx delivery?","acceptedAnswer":{"@type":"Answer","text":"Carriers with a money-back guarantee credit the transportation charge on a guaranteed service that arrives after the promised day, unless the delay was caused by something like weather, an address problem or a customer hold. You usually have to ask, within a short window that often starts at the invoice date. Drop in your shipment report here to list the deliveries that look late, the charge on each, the last day to file, and a draft request to send your carrier."}},{"@type":"Question","name":"Which services does this check?","acceptedAnswer":{"@type":"Answer","text":"Services with a fixed promise: next-day services such as UPS Next Day Air and FedEx Priority Overnight (1 business day), 2nd Day and 2Day services (2), and 3 Day Select and Express Saver (3). Ground services vary by zone, so they are judged only if you enter your typical ground transit days or the file has a promised-date or transit-days column. SmartPost, SurePost, Ground Economy and postal services carry no such promise and are never judged."}},{"@type":"Question","name":"Does this prove a refund is owed?","acceptedAnswer":{"@type":"Answer","text":"No. It lists shipments that look delivered after the promised day and adds up their shipping charges. Whether each one qualifies depends on the carrier's current guarantee terms, the service you bought, and any exception on the tracking record. The total is the most that could be affected, not a refund you are owed."}},{"@type":"Question","name":"What counts as a business day, and what about holidays?","acceptedAnswer":{"@type":"Answer","text":"Monday to Friday, skipping New Year's Day, Memorial Day, Independence Day, Labor Day, Thanksgiving and Christmas by default, a calendar large carriers generally follow but that is unverified here. Shipments that would be on time if another federal holiday were a delivery day are set apart as needing a check. Add any closure days you know about, such as a storm day, to the extra dates box."}},{"@type":"Question","name":"What file does it read?","acceptedAnswer":{"@type":"Answer","text":"Comma, semicolon, tab or pipe separated text with a header row and at least a ship date column and a delivery date column, plus a tracking number or a service column. It uses a charge column, an invoice date, a status or exception note, and a scheduled-delivery date or transit-days column when present. Carrier reports differ and no real UPS or FedEx export was available when this was written, so columns are matched by alias and unverified; a file that is not read says why."}},{"@type":"Question","name":"Is my shipment data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The file is read in this browser tab and never leaves your device. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1b6b4f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1d4d3c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1d4d3c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1d4d3c10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9c7b9; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1b6b4f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2efe8; color: #1d4d3c; }
+    button:disabled { opacity: .7; cursor: default; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1d4d3c; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f0f7f3; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1d4d3c; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #a9c7b9; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .few { color: #6a7580; font-style: italic; }
+    .bar { display: inline-block; height: 8px; background: #c4553a; border-radius: 4px; vertical-align: middle; margin-left: 6px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PARCEL LATE-DELIVERY REFUND FINDER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How many of your UPS and FedEx parcels arrived late, and what were you charged for them?</h1>
+    <p>Drop in your <strong>shipment report</strong> and see the parcels <strong>delivered after the promised day</strong> on next-day, 2-day and 3-day services, the <strong>shipping charge</strong> on each, the <strong>last day to file</strong>, and any <strong>duplicate charges</strong>. Then copy a <strong>draft claim request</strong> for your carrier. Refund-recovery services keep a share of what they find; this one is free.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Results are shipments to ask the carrier about, not findings that a refund is owed. Not legal, tax or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your shipment report</h2>
+    <p class="note">Needs a <strong>ship date</strong> and a <strong>delivery date</strong> column, and a tracking number or service column. A <strong>charge</strong>, <strong>invoice date</strong>, <strong>status or exception note</strong> and a <strong>scheduled-delivery date</strong> or <strong>transit-days</strong> column are used when present. <strong>Column names are matched by alias and are unverified against real carrier exports</strong>: if a file is not read, the page says which rows were skipped and why.</p>
+    <label for="file">Shipment CSV</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the report text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Tracking Number,Service,Ship Date,Delivery Date,Transportation Charge,Invoice Date"></textarea>
+    <div class="grid">
+      <div><label for="ground">Typical ground transit days (optional)</label><input type="number" id="ground" min="1" max="9" inputmode="numeric" placeholder="blank = ground not judged"></div>
+      <div><label for="window">Days after the invoice date to file</label><input type="number" id="window" min="1" max="365" value="15" inputmode="numeric"></div>
+      <div><label for="cal">Delivery calendar</label><select id="cal"><option value="carrier">Six carrier holidays (default)</option><option value="federal">All US federal holidays</option><option value="none">Weekdays only</option></select></div>
+    </div>
+    <label for="extra">Extra no-delivery dates, one per line (optional, e.g. a storm closure)</label>
+    <textarea id="extra" spellcheck="false" style="min-height:60px" placeholder="2026-08-18"></textarea>
+    <div class="grid">
+      <div><label for="who">Your name (for the letter, optional)</label><input type="text" id="who" autocomplete="off"></div>
+      <div><label for="company">Company (optional)</label><input type="text" id="company" autocomplete="off"></div>
+      <div><label for="carrier">Carrier (optional)</label><input type="text" id="carrier" autocomplete="off"></div>
+      <div><label for="account">Account number (optional)</label><input type="text" id="account" autocomplete="off"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Find late parcels</button>
+      <button type="button" class="secondary" id="load-example">Load sample report</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose the report file or paste it, then click Find late parcels.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Late rate by service</h3>
+    <div class="scroll"><table id="by-service"><thead><tr><th>Service</th><th class="n">Delivered</th><th class="n">Late</th><th class="n">Late rate</th><th class="n">Claimable</th></tr></thead><tbody></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <label for="letter">Draft claim request to the carrier</label>
+    <textarea id="letter" spellcheck="false" style="min-height:260px"></textarea>
+    <p><button type="button" class="secondary" id="copy">Copy letter</button> <button type="button" class="secondary" id="download">Download late shipments as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Promised day:</strong> ship date plus the service's business days: 1 for next-day services, 2 for 2nd Day and 2Day, 3 for 3 Day Select and Express Saver. A promised-date column or a transit-days column in the file overrides this. Ground is judged only with your ground setting or one of those columns.</li>
+      <li><strong>Late:</strong> delivered on a business day after the promised day. Weekends and the calendar's holidays never count as delivery days.</li>
+      <li><strong>Not counted:</strong> shipments whose status or note mentions weather, a recipient or address problem, a customer hold or a reschedule; shipments that already have a credit line for the same tracking number; late shipments whose claim window has passed.</li>
+      <li><strong>Claim window:</strong> the invoice date plus the days you set (15 by default; check your carrier's current terms). Without an invoice date the last day is unknown.</li>
+      <li><strong>Duplicates:</strong> the same tracking number with the same charge more than once. <strong>Rate drift:</strong> a charge over 1.75 times its service's median and at least $5 over, for services with six or more lines. There is no weight or zone column, so it cannot say why.</li>
+      <li><strong>Amount:</strong> the transportation charge column only. Carriers differ on whether fuel and other surcharges are refunded with it, and the total is the most that could be affected, not a refund you are owed.</li>
+      <li><strong>Not checked:</strong> lost or damaged parcels, the exact guarantee terms in your contract, weekend or Saturday service options, carrier-specific holiday calendars, and delivery times within a day.</li>
+      <li><strong>Unverified:</strong> column names are matched by alias, the six-holiday calendar is a common pattern rather than a published rule, and no real carrier export was available when this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I get a refund for a late UPS or FedEx delivery?</h3>
+    <p>Carriers with a money-back guarantee credit the transportation charge on a guaranteed service that arrives after the promised day, unless the delay was caused by something like weather, an address problem or a customer hold. You usually have to ask, within a short window that often starts at the invoice date. Drop in your shipment report here to list the deliveries that look late, the charge on each, the last day to file, and a draft request to send your carrier.</p>
+    <h3>Which services does this check?</h3>
+    <p>Services with a fixed promise: next-day services such as UPS Next Day Air and FedEx Priority Overnight (1 business day), 2nd Day and 2Day services (2), and 3 Day Select and Express Saver (3). Ground services vary by zone, so they are judged only if you enter your typical ground transit days or the file has a promised-date or transit-days column. SmartPost, SurePost, Ground Economy and postal services carry no such promise and are never judged.</p>
+    <h3>Does this prove a refund is owed?</h3>
+    <p>No. It lists shipments that look delivered after the promised day and adds up their shipping charges. Whether each one qualifies depends on the carrier's current guarantee terms, the service you bought, and any exception on the tracking record. The total is the most that could be affected, not a refund you are owed.</p>
+    <h3>What counts as a business day, and what about holidays?</h3>
+    <p>Monday to Friday, skipping New Year's Day, Memorial Day, Independence Day, Labor Day, Thanksgiving and Christmas by default, a calendar large carriers generally follow but that is unverified here. Shipments that would be on time if another federal holiday were a delivery day are set apart as needing a check. Add any closure days you know about, such as a storm day, to the extra dates box.</p>
+    <h3>What file does it read?</h3>
+    <p>Comma, semicolon, tab or pipe separated text with a header row and at least a ship date column and a delivery date column, plus a tracking number or a service column. It uses a charge column, an invoice date, a status or exception note, and a scheduled-delivery date or transit-days column when present. Carrier reports differ and no real UPS or FedEx export was available when this was written, so columns are matched by alias and unverified; a file that is not read says why.</p>
+    <h3>Is my shipment data uploaded anywhere?</h3>
+    <p>No. The file is read in this browser tab and never leaves your device. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your carrier's terms, your account representative or a qualified professional. Results are estimates that depend entirely on the files you provide and the values you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, before filing a claim, and before deducting anything from a payment. A flagged shipment is a question, not a finding that a refund is owed.</p>
+    <p><strong>Independent.</strong> Not affiliated with, endorsed by, or sponsored by UPS, FedEx, DHL, the United States Postal Service or any carrier. Carrier and service names appear only to describe the services on your own report.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your shipment report is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Shipping to marketplaces? The <a href="../parcel-dim-weight-calculator/">parcel dimensional weight calculator</a> shows what a box costs before it ships, and the <a href="../freight-accessorial-auditor/">freight accessorial auditor</a> checks LTL invoices.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, normalizeShipments, analyze, parseDate, reportCsv, claimLetter, sampleCsv, money, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    let last = null;
+
+    function settings() {
+      const g = parseInt($("#ground").value, 10), w = parseInt($("#window").value, 10);
+      const extra = $("#extra").value.split(/\r?\n/).map(parseDate).filter((x) => x !== null);
+      const now = new Date();
+      return { groundDays: g > 0 ? g : null, claimWindowDays: w > 0 ? w : 15, holidays: $("#cal").value, extraDates: extra, asOf: Math.floor(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86400000) };
+    }
+
+    function letter() {
+      if (!last) return;
+      $("#letter").value = claimLetter(last, { name: $("#who").value.trim(), company: $("#company").value.trim(), carrier: $("#carrier").value.trim(), account: $("#account").value.trim(), date: new Date().toISOString().slice(0, 10) });
+    }
+
+    let lastRecords = null, lastMeta = null;
+    function render() {
+      const a = analyze(lastRecords, settings());
+      last = a;
+      const s = a.summary;
+      const asks = a.findings.filter((f) => f.severity !== "info").length;
+      $("#big").innerHTML = [[usd(s.refundable), "in shipping charges to ask about"], [String(s.lateCount), "late shipment(s), all kinds"], [s.lateRate === null ? "–" : (s.lateRate * 100).toFixed(1) + "%", "of judged shipments were late"], [usd(s.spend), "shipping billed in the file"]].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-stats").textContent = `${s.lines} line(s) read, ${s.judged} judged against a promised day, ${asks} item(s) worth asking about. Checked: ${a.rulesChecked.join(", ")}. Amounts are the most that could be affected, not a refund owed.` + (s.maybe ? ` A further ${usd(s.maybe)} depends on whether the carrier delivered on a federal holiday.` : "") + (s.pastWindow ? ` ${usd(s.pastWindow)} is past the claim window.` : "");
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p>${f.lines.length ? `<p class="note">Lines: ${f.lines.slice(0, 40).join(", ")}${f.lines.length > 40 ? ", …" : ""}</p>` : ""}</div>`).join("") : `<p class="note">Nothing late and no duplicates in the shipments that could be judged.</p>`;
+      $("#by-service tbody").innerHTML = a.byService.map((r) => `<tr><td>${esc(r.service)}</td><td class="n">${r.shipments}</td><td class="n">${r.late}</td><td class="n">${r.lateRate === null ? "–" : (r.lateRate * 100).toFixed(0) + "%"}</td><td class="n">${usd(r.refundable)}</td></tr>`).join("");
+      const notes = [];
+      if (lastMeta.skipped.length) notes.push(`${lastMeta.skipped.length} row(s) were skipped: ` + lastMeta.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (lastMeta.skipped.length > 5 ? "; …" : "") + ".");
+      notes.push("Columns read: " + Object.entries(lastMeta.columns).map(([k, v]) => `${k} = “${v}”`).join(", ") + ".");
+      $("#skipped").textContent = notes.join(" ");
+      letter();
+      report.hidden = false;
+    }
+
+    function run(text) {
+      const n = normalizeShipments(parseCsv(text, detectDelimiter(text)));
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      lastRecords = n.records; lastMeta = n;
+      render();
+      status.textContent = `Read ${n.records.length} shipment(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    for (const id of ["#who", "#company", "#carrier", "#account"]) $(id).addEventListener("input", letter);
+    for (const id of ["#ground", "#window", "#cal", "#extra"]) $(id).addEventListener("change", () => { if (lastRecords) render(); });
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose the report file or paste it first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      const now = new Date();
+      const text = sampleCsv(Math.floor(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86400000));
+      $("#paste").value = text; $("#file").value = "";
+      if (run(text)) { record("example_loaded"); status.textContent = "Sample data: invented shipments, not a real account. One row is old on purpose, so its claim window shows as passed."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#paste", "#file", "#letter", "#who", "#company", "#carrier", "#account", "#ground", "#extra"]) $(id).value = ""; report.hidden = true; last = null; lastRecords = null; status.textContent = "Choose the report file or paste it, then click Find late parcels."; });
+    $("#copy").addEventListener("click", async () => {
+      const box = $("#letter");
+      try { await navigator.clipboard.writeText(box.value); status.textContent = "Letter copied."; }
+      catch { box.select(); status.textContent = "Select the letter text and copy it."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "late-shipments.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
