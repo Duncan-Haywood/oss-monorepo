@@ -1,0 +1,73 @@
+name: print-on-demand-profit-calculator
+description: >-
+  Free browser tool for print-on-demand sellers on Etsy, Shopify and eBay.
+  Type the selling price and the supplier's item and shipping cost (Printful,
+  Printify, Gelato) and get profit per sale after marketplace fees, refunds,
+  ad spend and samples, the price that hits a target margin, the most you can
+  pay per sale in ads with the break-even ROAS, a price ladder, and the same
+  sale on each platform. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Print-on-demand sellers
+# (t-shirts, mugs, posters through Printful, Printify, Gelato) operate on thin
+# per-unit margins that three layers of fees erode, and most price by feel.
+# Paid answers are seller-analytics suites (Sellerboard-style, EverBee, eRank)
+# at monthly fees; the free ones are single-platform fee calculators that
+# ignore the supplier's cost and refunds. None solves price-for-target-margin
+# and break-even ad spend together with the supplier cost in one page.
+#
+# Distinct from ventures/etsy-profit-calculator, shopify-fee-calculator and
+# ebay-fee-calculator (one platform, resale or handmade cost model) and
+# marketplace-fee-compare (fees only): this starts from the POD supplier's
+# per-unit charge and ends at a price and an ad budget.
+#
+# First visitor: searches like "printful profit calculator", "printify profit
+# margin calculator", "etsy print on demand pricing", "how much to charge for a
+# print on demand t-shirt", and r/printondemand and r/EtsySellers pricing
+# threads. Search volume not measured.
+#
+# Privacy: nothing is uploaded (tests assert no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet into the other seller
+# tools; GitHub Sponsors. A paid tier if usage appears would be saved product
+# lists and bulk CSV from a supplier catalogue, local-only; not built.
+#
+# Liability: arithmetic on user-typed numbers; fee presets are author recollection
+# marked "verify"; not tax, legal or financial advice; no warranty.
+#
+# Unverified: the platform fee presets were written from memory of the
+# published US schedules, not re-checked against the current pages, and are
+# labelled as such on the page.
+
+hypotheses:
+  - claim: >-
+      POD sellers searching for a Printful or Printify profit calculator will
+      use a no-signup tool that includes supplier cost, refunds and ad budget.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The price-for-target-margin and break-even ROAS answers, more than the
+      profit figure, are what visitors come back for.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a fee preset that is wrong, at which point the reference table needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/print-on-demand-profit-calculator/
+  analytics: null

@@ -797,6 +797,9 @@ workflows:
 - workflow: late-invoice-collections-kit-ci.yml
   classification: none
   publishes: []
+- workflow: print-on-demand-profit-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: lawn-care-bid-calculator-ci.yml
   classification: none
   publishes: []

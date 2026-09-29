@@ -2817,7 +2817,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `freelancer-schedule-c-categorizer` graduated (browser-local bank CSV to Schedule C lines).
     # +1: `self-employed-schedule-c-categorizer` graduated (browser-local bank CSV to Schedule C lines).
     # +1: `late-invoice-collections-kit` graduated (browser-local late-invoice fee, letters and break-even plan).
-    total = 447  # `infra/OWNER_CHECKLIST.md`'s own "N of the 447 tools" wording.
+    # +1: `print-on-demand-profit-calculator` graduated (browser-local print-on-demand profit, target price and ad limit).
+    total = 448  # `infra/OWNER_CHECKLIST.md`'s own "N of the 448 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
