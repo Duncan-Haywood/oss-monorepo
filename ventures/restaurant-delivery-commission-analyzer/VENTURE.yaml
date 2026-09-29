@@ -1,0 +1,90 @@
+name: restaurant-delivery-commission-analyzer
+description: >-
+  Free browser tool that turns a DoorDash, Uber Eats or Grubhub merchant payout
+  or order-level financial report CSV into per-platform and per-order effective
+  take rate (commission, delivery and service fees, promotions, ad spend and
+  error charges over food sales), net cash per order, net after food cost and
+  packaging, the orders that lost money, promo and ad return, weekday and
+  daypart patterns, the menu markup needed to match in-store margin, and what
+  the same sales would earn on your own ordering. The file is read locally and
+  never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Real money: an
+# independent restaurant on DoorDash, Uber Eats or Grubhub gives up 15-30% of
+# food sales in commission, plus delivery and service fees, promotions it funds,
+# ad spend and error charges, and a typical restaurant margin is well under
+# that. The owner's question is "is DoorDash worth it for my restaurant, and
+# which orders and platforms are losing me money?" Existing answers are the
+# platforms' own dashboards (which show payouts, not effective rate after food
+# cost), restaurant-finance SaaS that wants an account and a POS integration,
+# and spreadsheets. The owner already holds the file: every platform's merchant
+# portal exports a payout or order-level financial report.
+# delivery-app-margin-calculator prices one typical ticket across paths; nothing
+# in the portfolio reads the owner's own export. Linked both ways.
+#
+# First visitor: r/restaurateur, r/KitchenConfidential, r/smallbusiness threads
+# asking whether delivery apps are worth it; search phrases "doordash commission
+# calculator", "is doordash worth it restaurant", "uber eats merchant fees
+# breakdown". Volume not measured with an external tool.
+#
+# What makes it more than a sum: the take rate is effective (every charge in the
+# file over food sales), not the plan's headline; net after an owner-entered food
+# cost % and packaging shows which individual orders lose money; promo and ad
+# return is stated as profit-before-spend per $1 even in the best case that every
+# promoted order was new; the menu markup that restores in-store dollars per order
+# and a direct-ordering comparison at a typed fee turn the finding into a
+# decision; weekday and daypart findings ignore groups under five orders.
+#
+# Privacy is the differentiator and the liability boundary: the file never leaves
+# the browser (a test asserts the page has no network calls), so the portfolio
+# holds no restaurant or customer data and needs no partner API.
+#
+# Path to revenue (payment rails stay off): lead magnet, with a tie-in to the
+# delivery-app-margin-calculator already published. A paid version, if usage
+# appears, is a month-over-month platform diff behind an env-var switch; not built.
+#
+# Liability: arithmetic on the user's file and typed costs, model and omissions
+# stated on the page, not accounting or tax advice, no warranty, independent-of-
+# DoorDash-Uber-Grubhub clause.
+#
+# Unverified: column names are from memory of the three platforms' exports and
+# matched by alias; no real export was available, so the first user report of an
+# unread file is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Independent restaurant owners will run a no-signup analysis of a delivery
+      platform export they already hold, to see their effective take rate and
+      losing orders, before building a spreadsheet or paying for restaurant
+      finance software.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing net cash per order after food cost, and the markup or direct-order
+      alternative, changes at least one decision (reprice the delivery menu, drop
+      a promotion, or push customers to own ordering), which is the reason to
+      come back with each new export.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong take-rate or net figure, or a real export the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/restaurant-delivery-commission-analyzer/
+  analytics: null

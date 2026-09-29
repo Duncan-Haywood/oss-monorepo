@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Restaurant Delivery Commission Analyzer — What DoorDash Really Costs</title>
+  <meta name="description" content="Free analyzer for restaurants: drop in your DoorDash, Uber Eats or Grubhub payout or order-level CSV and see the real take rate per platform and per order, net after food cost and packaging, losing orders, promo return and the markup that matches in-store margin. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="Restaurant Delivery Commission Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="Effective take rate and net cash per order on DoorDash, Uber Eats and Grubhub after your real food cost. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Restaurant Delivery Commission Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a DoorDash, Uber Eats or Grubhub merchant payout or order-level financial report CSV into per-platform and per-order effective take rate, net cash per order, net after food cost and packaging, losing orders, promo and ad return, weekday and daypart patterns, the menu markup that matches in-store margin and a direct-ordering comparison. Runs entirely in your browser; the file is never uploaded.", "featureList": "Effective take rate per platform and order, net cash per order, net after food cost and packaging, losing orders, promo and ad return, weekday and daypart findings, menu markup needed, direct ordering comparison"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is DoorDash worth it for my restaurant?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on what each order leaves you after every charge and your own food cost, not on the headline commission. Export your payout or order-level financial report from the merchant portal and drop it here. The tool adds commission, delivery and service fees, promotions you funded, ad spend and error charges, divides by food sales for the effective take rate, then takes off your food cost and packaging to show net per order and the orders that lost money. Nothing is uploaded."}}, {"@type": "Question", "name": "What is my real DoorDash commission rate?", "acceptedAnswer": {"@type": "Answer", "text": "The effective rate is every charge in your file over food sales. It is usually higher than the plan's headline percentage because delivery and service fees, promotions you fund, ads and error charges are added on top. The tool computes it per platform and per order from your own export."}}, {"@type": "Question", "name": "How much should I raise delivery menu prices?", "acceptedAnswer": {"@type": "Answer", "text": "The tool finds the markup at which a platform order earns the same dollars as the same food sold in-store, given your food cost and packaging. Platforms may have rules about pricing parity in your agreement, and customers may order less at higher prices; treat the figure as a starting point to test."}}, {"@type": "Question", "name": "Are the column names right for my export?", "acceptedAnswer": {"@type": "Answer", "text": "They are matched by alias from memory of the three platforms' exports, and no real export was available when this was built. If your file is not read, the page names the rows it skipped and why; a sheet with the headers Order date, Subtotal, Commission, Delivery fee, Marketing fees, Ad spend and Error charges always works."}}, {"@type": "Question", "name": "Is this accounting or tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file and the costs you type and does not replace your own judgement or a qualified accountant. It is independent of DoorDash, Uber Eats and Grubhub and is not affiliated with or endorsed by any of them."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+</head>
+<body>
+  <header>
+    <p class="note">RESTAURANT DELIVERY COMMISSION ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What are DoorDash, Uber Eats and Grubhub really costing you?</h1>
+    <p>Drop in your <strong>merchant payout or order-level financial report CSV</strong> and get the <strong>effective take rate per platform and per order</strong> (commission, delivery and service fees, promotions, ad spend and error charges over food sales), <strong>net cash per order</strong>, net after your food cost and packaging, the <strong>orders that lost money</strong>, and the <strong>menu markup that matches in-store margin</strong>.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of DoorDash, Uber Eats and Grubhub: not affiliated with or endorsed by any of them. Column names are matched by alias from memory of those exports; if yours is not read, the page tells you which rows were skipped and why.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your platform file</h2>
+    <p class="note">Needs an <strong>order date or timestamp</strong> and a <strong>food sales</strong> amount (<strong>Subtotal</strong> or <strong>Food sales</strong>). Used when present: <strong>Commission</strong> (or Marketplace fee), <strong>Delivery fee</strong> / <strong>Service fee</strong>, <strong>Marketing fees</strong> / <strong>Promotions</strong>, <strong>Ad spend</strong>, <strong>Error charges</strong> / <strong>Refunds</strong>, <strong>Platform</strong> / <strong>Channel</strong>, <strong>Order status</strong>, <strong>Order ID</strong> and a payout column such as <strong>Net total</strong> (checked against the arithmetic, never used as it). US and day-first dates, comma, tab and semicolon files, quoted fields and UTF-16 exports are read. Rows that cannot be read are listed with their line number and reason. Load one file per platform together if you have several.</p>
+    <label for="file">Choose one or more CSV files</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv" multiple>
+    <label for="paste">…or paste the file text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Order ID,Platform,Order date,Status,Subtotal,Commission,Delivery fee,Marketing fees,Ad spend,Error charges,Net payout"></textarea>
+    <div class="grid">
+      <div><label for="platform">Platform, if the file does not say</label><select id="platform"><option value="auto">Detect (column, header or file name)</option><option value="doordash">DoorDash</option><option value="ubereats">Uber Eats</option><option value="grubhub">Grubhub</option><option value="other">Other or mixed</option></select></div>
+      <div><label for="from">From date (optional)</label><input type="date" id="from"></div>
+      <div><label for="to">To date (optional)</label><input type="date" id="to"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Your costs and options</h2>
+    <p class="note">Food cost is a percentage of the <em>in-store</em> menu price. Packaging is charged on every completed order. Leave both empty to see platform charges alone; the result then says net is overstated.</p>
+    <div class="grid">
+      <div><label for="foodpct">Food cost, % of in-store price</label><input type="number" id="foodpct" min="0" max="99" step="any" placeholder="e.g. 32"></div>
+      <div><label for="packaging">Packaging per order</label><input type="number" id="packaging" min="0" step="any" placeholder="e.g. 0.80"></div>
+      <div><label for="markupnow">Markup your delivery menu already has, %</label><input type="number" id="markupnow" min="0" step="any" placeholder="e.g. 10"></div>
+      <div><label for="directpct">Your own ordering: fee, % of sales</label><input type="number" id="directpct" min="0" max="99" step="any" value="3"></div>
+      <div><label for="directflat">Your own ordering: flat fee per order</label><input type="number" id="directflat" min="0" step="any" value="0.30"></div>
+    </div>
+    <p class="note">The own-ordering fee is what your processor or ordering tool charges you; the defaults are typical card-processing figures, not a quote. Check them against your own statement.</p>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>By platform</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Platform</th><th class="n" scope="col">Orders</th><th class="n" scope="col">Food sales</th><th class="n" scope="col">Commission</th><th class="n" scope="col">Delivery / service</th><th class="n" scope="col">Promotions</th><th class="n" scope="col">Ads</th><th class="n" scope="col">Errors / refunds</th><th class="n" scope="col">Take rate</th><th class="n" scope="col">Net cash</th><th class="n" scope="col">Net / order</th><th class="n" scope="col">After costs / order</th><th class="n" scope="col">Markup needed</th><th class="n" scope="col">Own ordering gain</th></tr></thead><tbody id="by-platform"></tbody></table></div>
+    <h3>By weekday</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Day</th><th class="n" scope="col">Orders</th><th class="n" scope="col">Food sales</th><th class="n" scope="col">Take rate</th><th class="n" scope="col">Net cash</th><th class="n" scope="col">After costs / order</th></tr></thead><tbody id="by-weekday"></tbody></table></div>
+    <h3>By daypart</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Daypart</th><th class="n" scope="col">Orders</th><th class="n" scope="col">Food sales</th><th class="n" scope="col">Take rate</th><th class="n" scope="col">Net cash</th><th class="n" scope="col">After costs / order</th></tr></thead><tbody id="by-daypart"></tbody></table></div>
+    <p class="note">Groups under five orders are shown but ignored in the findings.</p>
+    <h3>Ten orders with the lowest profit after costs</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Date</th><th scope="col">Platform</th><th scope="col">Order</th><th class="n" scope="col">Food sales</th><th class="n" scope="col">Charges</th><th class="n" scope="col">Take rate</th><th class="n" scope="col">Net cash</th><th class="n" scope="col">After costs</th></tr></thead><tbody id="worst"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download platform table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Effective take rate</strong> is commission plus delivery and service fees plus promotions you funded plus ad spend plus error and refund charges, over food sales. Charges are read as costs whatever their sign in the file.</li>
+      <li><strong>Reconciles.</strong> The per-platform rows add up to the totals at the top. Net cash is food sales minus those charges; net after costs also takes off food cost and packaging.</li>
+      <li><strong>Payout column.</strong> If the file has one it is compared with food sales minus charges and any gap is reported, but net cash never uses it: it can include sales tax, tips and adjustments this tool does not read.</li>
+      <li><strong>Promo and ad return</strong> is profit before the spend per $1 spent, on the orders that carried spend, assuming every one of them was an order you would not otherwise have had. That is the best case; under $1 means the spend lost money even then. The file cannot show which orders were truly new.</li>
+      <li><strong>Markup needed</strong> is the delivery menu price, over in-store, at which an order earns the same dollars as the same food in-store, treating charges as proportional to price. It assumes volume holds when prices rise.</li>
+      <li><strong>Own ordering</strong> applies your typed fee to the same sales at the same prices with the same food cost and packaging. It does not include a delivery driver, labour or the customers a platform brings you.</li>
+      <li><strong>Weekday and daypart</strong> use the file's own clock and are ranked only with five or more orders per group.</li>
+      <li><strong>Not modelled:</strong> sales tax and tips, pass-through fees you are not charged for, labour, rent, chargebacks disputed after the export, promotions funded by the platform, subscription plans, and anything not in the file.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Is DoorDash worth it for my restaurant?</h3>
+    <p>It depends on what each order leaves you after every charge and your own food cost, not on the headline commission. Export your payout or order-level financial report from the merchant portal and drop it here. The tool adds commission, delivery and service fees, promotions you funded, ad spend and error charges, divides by food sales for the effective take rate, then takes off your food cost and packaging to show net per order and the orders that lost money. Nothing is uploaded.</p>
+    <h3>What is my real DoorDash commission rate?</h3>
+    <p>The effective rate is every charge in your file over food sales. It is usually higher than the plan's headline percentage because delivery and service fees, promotions you fund, ads and error charges are added on top. The tool computes it per platform and per order from your own export.</p>
+    <h3>How much should I raise delivery menu prices?</h3>
+    <p>The tool finds the markup at which a platform order earns the same dollars as the same food sold in-store, given your food cost and packaging. Platforms may have rules about pricing parity in your agreement, and customers may order less at higher prices; treat the figure as a starting point to test.</p>
+    <h3>Are the column names right for my export?</h3>
+    <p>They are matched by alias from memory of the three platforms' exports, and no real export was available when this was built. If your file is not read, the page names the rows it skipped and why; a sheet with the headers Order date, Subtotal, Commission, Delivery fee, Marketing fees, Ad spend and Error charges always works.</p>
+    <h3>Is this accounting or tax advice?</h3>
+    <p>No. It applies arithmetic to the file and the costs you type and does not replace your own judgement or a qualified accountant. It is independent of DoorDash, Uber Eats and Grubhub and is not affiliated with or endorsed by any of them.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide and the costs you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business or tax decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with any delivery platform.</strong> DoorDash, Uber Eats and Grubhub are trademarks of their owners. This tool is independent and is not sponsored, endorsed or connected to DoorDash, Inc., Uber Technologies, Inc., Grubhub or any other platform in any way. Column names are matched by alias from memory of their exports and may not match every export.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Pricing one typical ticket rather than a history? See the <a href="../delivery-app-margin-calculator/">delivery app margin calculator</a> for dine-in, pickup and each delivery path side by side.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, sampleCsv, money, pct, dateStr } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const rate = (v) => (v === null || v === undefined ? "–" : money(v));
+    const mk = (m) => (m ? pct(m.total) : "–");
+    let last = null;
+
+    // sources: [{ text, name }]. Orders from every source are analysed together.
+    function run(sources) {
+      const orders = [], skipped = [], notes = [];
+      let cancelled = 0;
+      for (const src of sources) {
+        const delim = detectDelimiter(src.text);
+        const n = normalizeRows(parseCsv(src.text, delim), { decimalComma: delim === ";", platform: $("#platform").value, hint: src.name });
+        const tag = sources.length > 1 ? `${src.name}: ` : "";
+        if (n.error) { status.textContent = tag + n.error; report.hidden = true; return false; }
+        orders.push(...n.orders);
+        skipped.push(...n.skipped.map((x) => ({ ...x, file: tag })));
+        cancelled += n.cancelledCount;
+        if (n.dmy) notes.push(`${tag}dates were read day-first.`);
+        if (n.platformSource === "none") notes.push(`${tag}no platform named in the file, so its orders are shown as “Unlabelled platform”; choose one in step 1.`);
+      }
+      const day = (id) => { const v = $(id).value; return v ? Date.parse(v + "T00:00:00Z") : null; };
+      const r = analyze(orders, { foodPct: $("#foodpct").value, packaging: $("#packaging").value, markupNow: $("#markupnow").value, directPct: $("#directpct").value, directFlat: $("#directflat").value, from: day("#from"), to: day("#to") });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `${s.orders} orders on ${s.platforms} platform(s), ${dateStr(s.from)} to ${dateStr(s.to)}. Food sales $${money(s.gross)}, charges $${money(s.charges)} (<strong>take rate ${pct(s.takeRate)}</strong>), net cash $${money(s.net)}${s.costsEntered ? `, after food cost and packaging <strong>$${money(s.netAfter)}</strong> ($${rate(s.netAfterPerOrder)} per order)` : ""}.`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#by-platform").innerHTML = r.byPlatform.map((b) => `<tr><th scope="row">${esc(b.label)}</th><td class="n">${b.orders}</td><td class="n">${money(b.gross)}</td><td class="n">${money(b.commission)}</td><td class="n">${money(b.delivery)}</td><td class="n">${money(b.marketing)}</td><td class="n">${money(b.ads)}</td><td class="n">${money(b.errors)}</td><td class="n">${pct(b.takeRate)}</td><td class="n">${money(b.net)}</td><td class="n">${rate(b.netPerOrder)}</td><td class="n">${s.costsEntered ? rate(b.netAfterPerOrder) : "–"}</td><td class="n">${s.costsEntered ? mk(b.markup) : "–"}</td><td class="n">${s.costsEntered ? money(b.direct.gain) : "–"}</td></tr>`).join("");
+      const grp = (rows, empty) => rows.length ? rows.map((g) => `<tr><th scope="row">${esc(g.label)}${g.orders < 5 ? " (under 5, ignored)" : ""}</th><td class="n">${g.orders}</td><td class="n">${money(g.gross)}</td><td class="n">${pct(g.takeRate)}</td><td class="n">${money(g.net)}</td><td class="n">${s.costsEntered ? rate(g.netAfterPerOrder) : rate(g.netPerOrder)}</td></tr>`).join("") : `<tr><td colspan="6">${empty}</td></tr>`;
+      $("#by-weekday").innerHTML = grp(r.byWeekday, "No completed orders.");
+      $("#by-daypart").innerHTML = grp(r.byDaypart, "The file has no times of day.");
+      $("#worst").innerHTML = r.worstOrders.length ? r.worstOrders.map((o) => `<tr><td>${dateStr(o.t)}</td><td>${esc(o.platform)}</td><td>${esc(o.id || "line " + o.line)}</td><td class="n">${money(o.gross)}</td><td class="n">${money(o.charges)}</td><td class="n">${pct(o.takeRate)}</td><td class="n">${money(o.net)}</td><td class="n">${money(o.netAfter)}</td></tr>`).join("") : `<tr><td colspan="8">No completed orders.</td></tr>`;
+      if (skipped.length) notes.unshift(`${skipped.length} row(s) were skipped: ` + skipped.slice(0, 5).map((x) => `${x.file}line ${x.line} (${x.reason})`).join("; ") + (skipped.length > 5 ? "; …" : ""));
+      $("#skipped").textContent = notes.join(" ");
+      report.hidden = false;
+      status.textContent = `Read ${orders.length} orders.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const files = [...$("#file").files];
+      const sources = files.length ? await Promise.all(files.map(async (f) => ({ text: decodeBuffer(await f.arrayBuffer()), name: f.name }))) : [{ text: $("#paste").value, name: "" }];
+      if (sources.every((x) => !x.text.trim())) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(sources)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (!$("#foodpct").value) $("#foodpct").value = 32;
+      if (!$("#packaging").value) $("#packaging").value = 0.8;
+      if (!$("#markupnow").value) $("#markupnow").value = 0;
+      if (run([{ text: $("#paste").value, name: "" }])) { record("example_loaded"); status.textContent = "Worked example: synthetic orders on three platforms with sample costs filled in. Not a real account."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, then click Analyze."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+      const f = (v) => (v === null || v === undefined ? "" : v.toFixed(2));
+      const rows = ["platform,orders,food_sales,commission,delivery_service,promotions,ads,errors_refunds,take_rate,net_cash,net_per_order,net_after_costs"].concat(last.byPlatform.map((b) => [q(b.label), b.orders, b.gross.toFixed(2), b.commission.toFixed(2), b.delivery.toFixed(2), b.marketing.toFixed(2), b.ads.toFixed(2), b.errors.toFixed(2), b.takeRate === null ? "" : b.takeRate.toFixed(4), b.net.toFixed(2), f(b.netPerOrder), b.netAfter.toFixed(2)].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" }));
+      a.download = "delivery-commission-by-platform.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
