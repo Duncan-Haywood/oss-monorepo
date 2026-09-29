@@ -1,0 +1,87 @@
+name: ghost-members-export-analyzer
+description: >-
+  Free browser tool that turns a Ghost members export CSV into paid, free and
+  complimentary counts, free-to-paid conversion, engagement bands from email
+  open counts, the quiet free members to re-engage or remove with the sending
+  and member-pricing cost that saves, conversion and never-opened share by
+  label, paid members by tier, growth and removals by month, and the engaged
+  free members most likely to upgrade. The file is read locally and never
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session, next to the Substack
+# subscriber export analyzer. Ghost publishers (Ghost(Pro) or self-hosted) run
+# paid newsletters and memberships; Ghost Admin shows headline member counts and
+# a growth chart, and its member export holds per-member open counts, labels,
+# tiers, complimentary flags and Stripe ids. Ghost(Pro) is priced by member
+# count and self-hosters pay per email sent, so a list full of members who never
+# open costs money and hurts deliverability, and no Admin screen ranks them.
+# Existing answers are spreadsheets, list-hygiene services that want an API key
+# or an upload, and paid newsletter-analytics tools.
+#
+# First visitor: Ghost forum and r/Ghost threads on "clean inactive members" and
+# "reduce member count"; searches "ghost inactive members", "ghost members export
+# analysis", "remove unengaged subscribers ghost". Volume not measured with an
+# external tool.
+#
+# What makes it more than a count: engagement is judged only for members sent
+# enough email to tell; quiet members are free, still subscribed, unopened and
+# old enough, and paid or complimentary members are never listed; labels (often
+# the signup source) get conversion and never-opened share so the source worth
+# more effort shows; savings multiply flagged members by prices the publisher
+# types and are labelled as assumptions, because the export carries no prices and
+# open tracking undercounts when a mail app blocks it (the tool says to send one
+# re-engagement email before removing anyone).
+#
+# Privacy is the differentiator and the liability boundary: the file, which
+# holds member emails and names, never leaves the browser (a test asserts the
+# page has no network calls) and emails and names are dropped at parse, so the
+# portfolio holds no publisher or member data.
+#
+# Path to revenue (payment rails stay off): lead magnet, cross-linked with the
+# Substack analyzer and the newsletter sponsorship rate calculator. A paid
+# version, if usage appears, is a month-over-month export diff behind an
+# env-var switch; not built.
+#
+# Liability: arithmetic on the user's file and stated assumptions, model and
+# omissions stated on the page, no tax or financial advice, no warranty,
+# independent-of-Ghost clause.
+#
+# Unverified: column names and value wording are from memory of Ghost member
+# exports and matched by alias; no real export was available, so the first user
+# report of an unread file is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Ghost publishers will run a no-login analysis of the members export
+      they already hold to see which members never open and which free readers
+      are ready to pay, before paying for a list-hygiene or analytics tool.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the quiet-member list and the engaged free pool leads at least one
+      publisher to act (re-engagement email, list clean-up, upgrade push), which
+      is the reason to return with each new export.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a real export the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ghost-members-export-analyzer/
+  analytics: null

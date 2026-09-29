@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ghost Members Export Analyzer — Inactive Members, Conversion and List Cost</title>
+  <meta name="description" content="Free analyzer for Ghost publishers: drop in your members export CSV and see paid and free members, free-to-paid conversion, who never opens your emails, what cleaning the list saves, conversion by label and growth. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="Ghost Members Export Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="Which Ghost members never open, which free readers are ready to pay, and what a cleaner list saves. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Ghost Members Export Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Ghost members export CSV into paid, free and complimentary counts, free-to-paid conversion, email engagement bands, inactive members to re-engage or remove with the sending and plan cost they save, conversion by label, growth by month and the best free members to pitch a paid tier. Runs entirely in your browser; the file is never uploaded.", "featureList": "Member counts, conversion rate, engagement bands, inactive-member clean-up list size, savings estimate, conversion by label, paid prospects, growth by month, MRR estimate"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I find inactive members on my Ghost newsletter?", "acceptedAnswer": {"@type": "Answer", "text": "Export your members from Ghost Admin (Members, then the export button) and drop the CSV here. The tool uses each member's email_count and email_opened_count to split members into never opened, low, some and engaged, and lists the free, still-subscribed members who were sent plenty of email and opened none. The file is read in your browser and never uploaded."}}, {"@type": "Question", "name": "Should I remove members who never open my emails?", "acceptedAnswer": {"@type": "Answer", "text": "Often it helps, but carefully. Open tracking can undercount because some mail apps block it, so send one re-engagement email first and only then remove people who still show nothing. The tool never lists paid or complimentary members for removal, and the decision is yours."}}, {"@type": "Question", "name": "How much can cleaning my list save?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on what you pay. Type your cost per 1,000 emails (for example your Mailgun rate if you self-host) and, if your Ghost(Pro) plan is priced by member count, your plan cost and its member limit. The tool multiplies those by the members it flags. Both are assumptions you enter, not Ghost's actual pricing."}}, {"@type": "Question", "name": "Why do I have to type my price?", "acceptedAnswer": {"@type": "Answer", "text": "Ghost's members export shows whether a member has a Stripe customer and which tier they hold, but not what they pay. Enter one average monthly price; every revenue figure is a rough estimate built from it, and the page says so."}}, {"@type": "Question", "name": "Are the column names right for my export?", "acceptedAnswer": {"@type": "Answer", "text": "They are matched by alias from memory of Ghost member exports, and no real export was available when this was built. If your file is not read, the page names the rows it skipped and why; a sheet with the headers email, created_at, subscribed_to_emails, stripe_customer_id, labels, email_count and email_opened_count always works."}}, {"@type": "Question", "name": "Is this legal, tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to your file and the assumptions you enter. It is independent of Ghost and is not affiliated with or endorsed by the Ghost Foundation."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+</head>
+<body>
+  <header>
+    <p class="note">GHOST MEMBERS EXPORT ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which of your Ghost members are worth keeping, and which are ready to pay?</h1>
+    <p>Drop in your <strong>Ghost members export CSV</strong> and get <strong>paid, free and complimentary counts, free-to-paid conversion, engagement bands, the inactive members to re-engage or remove</strong> and what that saves, <strong>conversion by label</strong>, and the free members most likely to upgrade.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device; member emails and names are not shown or kept. Independent of Ghost: not affiliated with or endorsed by the Ghost Foundation. Column names are matched by alias from memory of Ghost exports; if yours is not read, the page tells you which rows were skipped and why. The export has no prices or billing history, so money figures use the numbers you type below.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your members export</h2>
+    <p class="note">Needs an <strong>email</strong> column and at least one of <strong>created_at</strong>, <strong>stripe_customer_id</strong>, <strong>email_count</strong> or <strong>subscribed_to_emails</strong>. Used when present: <strong>complimentary_plan</strong>, <strong>tiers</strong>, <strong>labels</strong>, <strong>email_opened_count</strong>, <strong>email_open_rate</strong> and <strong>deleted_at</strong>. Everything else is ignored. Engagement needs Ghost's email open tracking to have been on.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the file text</label>
+    <textarea id="paste" spellcheck="false" placeholder="email,subscribed_to_emails,complimentary_plan,stripe_customer_id,created_at,labels,tiers,email_count,email_opened_count"></textarea>
+    <div class="grid">
+      <div><label for="asof">Measure as of (optional)</label><input type="date" id="asof"></div>
+    </div>
+    <p class="note">Left blank, the latest signup or removal date in the file is used, so an old export is measured at the time it was taken.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Your price and costs (edit these)</h2>
+    <p class="note">Assumptions, not Ghost's terms. A judged member is one who was sent at least the minimum number of emails. Leave the plan cost at 0 if you self-host or do not want a member-pricing estimate. Check every figure against your own invoices.</p>
+    <div class="grid">
+      <div><label for="pmonthly">Average paid price ($ per month)</label><input type="number" id="pmonthly" min="0" step="any" value="8"></div>
+      <div><label for="procpct">Processing fee %</label><input type="number" id="procpct" min="0" max="100" step="any" value="2.9"></div>
+      <div><label for="procfixed">Processing fee per charge ($)</label><input type="number" id="procfixed" min="0" step="any" value="0.30"></div>
+      <div><label for="minsends">Minimum emails sent to judge a member</label><input type="number" id="minsends" min="1" step="1" value="10"></div>
+      <div><label for="quietdays">Joined at least this many days ago (to flag as quiet)</label><input type="number" id="quietdays" min="0" step="1" value="90"></div>
+      <div><label for="sends">Newsletters you send per month</label><input type="number" id="sends" min="0" step="any" value="4"></div>
+      <div><label for="cost1000">Cost per 1,000 emails sent ($)</label><input type="number" id="cost1000" min="0" step="any" value="1.00"></div>
+      <div><label for="plancost">Your plan cost ($ per month, 0 to skip)</label><input type="number" id="plancost" min="0" step="any" value="0"></div>
+      <div><label for="planlimit">Members your plan covers (0 to skip)</label><input type="number" id="planlimit" min="0" step="1" value="0"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Engagement (members sent enough emails to judge)</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Open rate</th><th class="n" scope="col">Members</th><th class="n" scope="col">Of them paid</th></tr></thead><tbody id="bands"></tbody></table></div>
+    <h3>Clean-up estimate (monthly)</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Line</th><th class="n" scope="col">Amount</th></tr></thead><tbody id="cleanup"></tbody></table></div>
+    <h3>By label (largest 12)</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Label</th><th class="n" scope="col">Members</th><th class="n" scope="col">Paid</th><th class="n" scope="col">Conversion</th><th class="n" scope="col">Never opened</th></tr></thead><tbody id="labels"></tbody></table></div>
+    <h3>Paid members by tier</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Tier</th><th class="n" scope="col">Paid members</th></tr></thead><tbody id="tiers"></tbody></table></div>
+    <h3>Growth by month (last 12 months in the file)</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Month</th><th class="n" scope="col">New members</th><th class="n" scope="col">Of them paid</th><th class="n" scope="col">Removed</th></tr></thead><tbody id="growth"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download growth table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Paid</strong> means a member who has a Stripe customer id or a named tier and is not complimentary. <strong>Comp</strong> members are counted but never as revenue or in conversion. Everyone else is <strong>free</strong>. Members with a deleted_at date on or before the as-of date are counted as removed.</li>
+      <li><strong>Reconciles.</strong> Free, paid and complimentary members add up to total members, and revenue minus estimated processing equals net.</li>
+      <li><strong>Revenue</strong> is paid members times the one price you type. Tiers, discounts, annual plans, coupons and price changes are not in the export and are not modelled. A Stripe customer id also exists for someone whose subscription has since ended, so the paid count can run high.</li>
+      <li><strong>Engagement</strong> uses opened over sent when both are in the file, otherwise the open rate column. Members sent fewer than the minimum are not judged. Open tracking undercounts when a mail app blocks it, so <strong>never opened</strong> means “no open recorded”.</li>
+      <li><strong>Quiet members</strong> are free, still subscribed, sent at least the minimum, no open recorded and joined at least your number of days before the file's latest date. Paid and complimentary members are never listed.</li>
+      <li><strong>Savings</strong> are the flagged members times your sends per month times your cost per 1,000 emails, plus flagged members times your plan cost per covered member if you entered both. Ghost's real pricing may not scale that way; check your invoice.</li>
+      <li><strong>Labels</strong> usually record where a member came from. Labels with under five members are shown but not used for suggestions.</li>
+      <li><strong>Not modelled:</strong> taxes, refunds, chargebacks, payout fees, churn history (the export shows each member's latest state only) and anything not in the file.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I find inactive members on my Ghost newsletter?</h3>
+    <p>Export your members from Ghost Admin (Members, then the export button) and drop the CSV here. The tool uses each member's email_count and email_opened_count to split members into never opened, low, some and engaged, and lists the free, still-subscribed members who were sent plenty of email and opened none. The file is read in your browser and never uploaded.</p>
+    <h3>Should I remove members who never open my emails?</h3>
+    <p>Often it helps, but carefully. Open tracking can undercount because some mail apps block it, so send one re-engagement email first and only then remove people who still show nothing. The tool never lists paid or complimentary members for removal, and the decision is yours.</p>
+    <h3>How much can cleaning my list save?</h3>
+    <p>It depends on what you pay. Type your cost per 1,000 emails (for example your Mailgun rate if you self-host) and, if your Ghost(Pro) plan is priced by member count, your plan cost and its member limit. The tool multiplies those by the members it flags. Both are assumptions you enter, not Ghost's actual pricing.</p>
+    <h3>Why do I have to type my price?</h3>
+    <p>Ghost's members export shows whether a member has a Stripe customer and which tier they hold, but not what they pay. Enter one average monthly price; every revenue figure is a rough estimate built from it, and the page says so.</p>
+    <h3>Are the column names right for my export?</h3>
+    <p>They are matched by alias from memory of Ghost member exports, and no real export was available when this was built. If your file is not read, the page names the rows it skipped and why; a sheet with the headers email, created_at, subscribed_to_emails, stripe_customer_id, labels, email_count and email_opened_count always works.</p>
+    <h3>Is this legal, tax or financial advice?</h3>
+    <p>No. It applies arithmetic to your file and the assumptions you enter. It is independent of Ghost and is not affiliated with or endorsed by the Ghost Foundation.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide and the assumptions you enter. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
+    <p><strong>Not affiliated with Ghost.</strong> Ghost is a trademark of its owner. This tool is independent and is not sponsored, endorsed or connected to the Ghost Foundation or any other platform in any way. Column names are matched by alias from memory of Ghost exports and may not match every export.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Selling sponsorships as well? See the <a href="../newsletter-sponsorship-rate-calculator/">newsletter sponsorship rate calculator</a>. Writing on Substack instead? Try the <a href="../substack-subscriber-export-analyzer/">Substack subscriber export analyzer</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, sampleCsv, money, pct, dateStr } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const rows = (id, html, cols) => { $(id).innerHTML = html || `<tr><td colspan="${cols}">Nothing to show.</td></tr>`; };
+    let last = null;
+
+    function run(text) {
+      const delim = detectDelimiter(text);
+      const n = normalizeRows(parseCsv(text, delim));
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const v = (id) => $(id).value;
+      const r = analyze(n.members, { monthlyPrice: v("#pmonthly"), processingPct: v("#procpct"), processingFixed: v("#procfixed"), minSends: v("#minsends"), quietDays: v("#quietdays"), sendsPerMonth: v("#sends"), costPer1000Emails: v("#cost1000"), planCostPerMonth: v("#plancost"), planMemberLimit: v("#planlimit"), asOf: v("#asof") ? Date.parse(v("#asof") + "T00:00:00Z") : undefined });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary, c = s.counts;
+      $("#report-stats").innerHTML = `As of ${dateStr(s.asOf)}: <strong>${c.total} members</strong>: ${c.paid} paid, ${c.free} free, ${c.comp} complimentary${c.removed ? `, ${c.removed} removed` : ""}. Free-to-paid conversion ${pct(s.conversion)}. <strong>About ${money(s.mrr)} a month</strong> from paid members at your typed price. ${s.hasEngagement ? `${s.judged} members were sent enough email to judge; ${s.quiet} free members look quiet.` : "This file has no email open data."}`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      rows("#bands", s.hasEngagement ? r.bands.map((d) => `<tr><th scope="row">${esc(d.label)}</th><td class="n">${d.count}</td><td class="n">${d.paid}</td></tr>`).join("") : "", 3);
+      const a = r.assumptions;
+      rows("#cleanup", [["Quiet free members (re-engage, then remove)", s.quiet, 0], ["Free members unsubscribed from email", s.unsubFree, 0], [`Emails not sent per month (${a.sendsPerMonth} sends each)`, s.emailsWasted, 0], ["Saved on sending", s.emailSavings, 1], ["Saved on member-based plan pricing", s.planSavings, 1]].map(([k, x, m]) => `<tr><th scope="row">${k}</th><td class="n">${m ? money(x) : Math.round(x).toLocaleString("en-US")}</td></tr>`).join(""), 2);
+      const small = (g) => (g.enough ? "" : " (few)");
+      rows("#labels", r.byLabel.map((g) => `<tr><th scope="row">${esc(g.label)}${small(g)}</th><td class="n">${g.members}</td><td class="n">${g.paid}</td><td class="n">${pct(g.conversion)}</td><td class="n">${pct(g.neverShare)}</td></tr>`).join(""), 5);
+      rows("#tiers", r.byTier.map((d) => `<tr><th scope="row">${esc(d.tier)}</th><td class="n">${d.members}</td></tr>`).join(""), 2);
+      rows("#growth", r.growth.map((d) => `<tr><th scope="row">${esc(d.month)}</th><td class="n">${d.joined}</td><td class="n">${d.paid}</td><td class="n">${d.removed}</td></tr>`).join(""), 4);
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      if (n.dmy) notes.push("Dates were read day-first.");
+      $("#skipped").textContent = notes.join(" ");
+      report.hidden = false;
+      status.textContent = `Read ${n.members.length} members.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: 500 synthetic members, not a real publication."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, then click Analyze."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const out = ["month,new_members,of_them_paid,removed"].concat(last.growth.map((g) => [g.month, g.joined, g.paid, g.removed].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([out.join("\n")], { type: "text/csv" }));
+      a.download = "ghost-growth-by-month.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1039,7 +1039,8 @@ const RELATIVE_SELF = relative(
 // +1: `rent-roll-delinquency-analyzer` graduated.
 // +1: `fba-aged-inventory-fee-analyzer` graduated.
 // +1: `client-profitability-time-analyzer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 416;
+// +1: `ghost-members-export-analyzer` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 417;
 
 let counter = 0;
 function fixture(source) {

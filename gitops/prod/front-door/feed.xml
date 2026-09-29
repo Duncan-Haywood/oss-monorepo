@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 437 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 438 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -141,6 +141,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free Fiverr fee calculator for sellers: drop in your earnings or revenue CSV and see the service fee actually taken, take-home per order, net revenue per gig, repeat buyers, refunds, withdrawal costs, funds still clearing and the price needed for a target take-home. Runs in your browser, the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Ghost Members Export Analyzer — Inactive Members, Conversion and List Cost</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ghost-members-export-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/ghost-members-export-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free analyzer for Ghost publishers: drop in your members export CSV and see paid and free members, free-to-paid conversion, who never opens your emails, what cleaning the list saves, conversion by label and growth. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Gig Driver Earnings Report Analyzer — Real Net Pay per Hour and Mile</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free cleaning fee calculator for Airbnb and VRBO hosts: the fee that covers your cleaner, host profit and guest total price by stay length, and whether to roll the fee into the nightly rate. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>STR Tax Loophole Calculator — 2026, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/str-tax-loophole-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/str-tax-loophole-calculator</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free calculator for short-term rental owners: does your Airbnb or VRBO escape rental-activity status (average stay of 7 days or less) and qualify as non-passive through material participation? Compare the $25,000 passive path and estimate first-year cost segregation depreciation with 100% bonus. Entirely client-side, nothing uploaded.</summary>
   </entry>
 </feed>

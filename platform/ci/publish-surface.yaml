@@ -632,6 +632,9 @@ workflows:
 - workflow: garmin-world-traveler-watchface-ci.yml
   classification: none
   publishes: []
+- workflow: ghost-members-export-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: gig-driver-earnings-report-analyzer-ci.yml
   classification: none
   publishes: []
