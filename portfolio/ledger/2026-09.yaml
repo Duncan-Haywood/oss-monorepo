@@ -47505,3 +47505,25 @@ entries:
         date, CI workflow, reciprocal links and tree counts; regenerated the
         mirror.
     mrr_end: 0
+  - venture: turo-earnings-report-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built turo-earnings-report-analyzer, a data-file archetype
+        for Turo hosts running one or more cars: a browser-local tool that reads
+        an earnings or trip-history CSV (file or paste; quoted fields, US and
+        day-first dates, comma, tab, semicolon and UTF-16; skipped rows reported
+        with line and reason) and shows per-vehicle and per-trip profit after
+        Turo's fee (read from a fee column, price minus earnings, or a stated
+        percentage), cleaning, fuel and delivery costs and each car's monthly
+        loan, insurance and depreciation, with utilization, break-even
+        utilization, revenue and net per rented day, cars losing money, and
+        weekday and booking-length findings. Cancelled trips are dropped or kept
+        by whether they paid. File never leaves the browser (a test asserts no
+        network calls); independent-of-Turo clause on the page. Column names are
+        matched by alias from memory of Turo exports and no real export was
+        available, stated on the page and in VENTURE.yaml. Linked both ways with
+        turo-host-payout-calculator. Registered score row, launch date, CI
+        workflow and tree counts; regenerated the mirror.
+    mrr_end: 0
