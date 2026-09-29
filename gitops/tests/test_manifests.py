@@ -2769,7 +2769,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # browser-local 2026 Schedule SE tax calculator. Static `index.html` only.
     # 393 -> 394: `backdoor-roth-pro-rata-calculator` graduated (browser-local
     # Form 8606 pro-rata calculator, static `index.html` only).
-    total = 394  # `infra/OWNER_CHECKLIST.md`'s own "N of the 394 tools" wording.
+    total = 395  # `infra/OWNER_CHECKLIST.md`'s own "N of the 395 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

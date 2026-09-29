@@ -992,7 +992,7 @@ const RELATIVE_SELF = relative(
 // 372 -> 373: `backdoor-roth-pro-rata-calculator` graduated -- one more
 // boilerplate `usage.mjs` under its own storage name. Re-derived by
 // `sync_tree_counts.py`.
-const SWITCHES_IN_THE_CATALOGUE = 373;
+const SWITCHES_IN_THE_CATALOGUE = 374;
 
 let counter = 0;
 function fixture(source) {

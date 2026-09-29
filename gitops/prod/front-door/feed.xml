@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 394 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 395 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -42,6 +42,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free calculator comparing the 2026 IRS standard mileage rate (72.5 cents per mile through June 30, 76 cents from July 1) with actual vehicle expenses for a self-employed business car. See which deduction is larger and what it is worth. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>SaaS Annual Plan Discount Calculator — Break-Even Prepay Discount, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/saas-annual-plan-discount-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/saas-annual-plan-discount-calculator</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free SaaS annual plan discount calculator: find the annual-prepay discount you can offer before it costs more than it brings in, given gross margin, monthly churn, renewal rate and cost of capital. Runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Self-Employment Tax Calculator 2026 — Schedule SE, Free</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free Facebook Marketplace seller fee calculator: 10% of the buyer-paid total (item price + shipping + tax collected) on a shipped checkout order, $0.80 minimum fee, $0 for local pickup, plus the flat $20 dispute penalty if one applies. Real profit, price for a target profit. Nothing leaves your browser.</summary>
-  </entry>
-  <entry>
-    <title>Hidden Unicode Check — find invisible and bidi characters in a file</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hidden-unicode-check/"/>
-    <id>tag:marisstella.dev,2026:tool/hidden-unicode-check</id>
-    <published>2026-09-24T00:00:00Z</published>
-    <updated>2026-09-24T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste CLAUDE.md, AGENTS.md, .cursorrules, copilot-instructions.md, a README, or any text and find zero-width characters, Unicode tag characters, and bidirectional (RLO/LRO) override characters hidden from human review -- the technique behind current AI-agent prompt-injection attacks and Trojan Source. Free, private, runs entirely in your browser.</summary>
   </entry>
 </feed>
