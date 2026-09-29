@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 431 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 432 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -233,6 +233,15 @@
     <summary type="text">Free analyzer for Poshmark sellers: load your My Sales Report CSV and see profit per item, brand and month after Poshmark&#39;s $2.95 / 20% fee, with effective fee rate, cost basis by SKU, shipping losses, days to sell and brands to stop sourcing. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
+    <title>Rent Roll Delinquency Analyzer — Unpaid Rent Aging by Unit</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rent-roll-delinquency-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/rent-roll-delinquency-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free analyzer for small landlords: load your rent ledger and see who owes what and how old it is, which units pay late, monthly collection rate and a late-fee upper bound. Runs in your browser, the file is never uploaded.</summary>
+  </entry>
+  <entry>
     <title>Restaurant Delivery Commission Analyzer — What DoorDash Really Costs</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/restaurant-delivery-commission-analyzer/"/>
     <id>tag:marisstella.dev,2026:tool/restaurant-delivery-commission-analyzer</id>
@@ -357,14 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free TikTok Shop fee calculator for sellers: drop in your sales CSV and see the service fee actually taken, take-home per order, net revenue per product, repeat buyers, refunds, withdrawal costs, funds still clearing and the price needed for a target take-home. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Turo Earnings Report Analyzer — Profit per Car After Fees and Costs</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/turo-earnings-report-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/turo-earnings-report-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free analyzer for Turo hosts: drop in your earnings or trip history CSV and see profit per car and per trip after Turo&#39;s fee, cleaning, fuel, delivery and monthly loan, insurance and depreciation, plus utilization and which cars lose money. Runs in your browser, the file is never uploaded.</summary>
   </entry>
 </feed>
