@@ -2781,9 +2781,13 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # orders export analyzer, static `index.html` plus ES modules).
     # 407 -> 408: `airbnb-earnings-report-analyzer` graduated (browser-local Airbnb
     # Transaction history analyzer, static `index.html` plus ES modules).
-    # 409 -> 410: `meta-ads-fatigue-analyzer` graduated (browser-local Meta Ads Manager
+    # 409 -> 410: `ebay-transaction-report-analyzer` graduated (browser-local eBay
+    # Transaction report analyzer, static `index.html` plus ES modules).
+    # 410 -> 411: `shopify-payments-fee-analyzer` graduated (browser-local Shopify
+    # Payments transactions fee-rate analyzer, static `index.html` plus ES modules).
+    # 412 -> 413: `meta-ads-fatigue-analyzer` graduated (browser-local Meta Ads Manager
     # export analyzer, static `index.html` plus ES modules).
-    total = 410  # `infra/OWNER_CHECKLIST.md`'s own "N of the 410 tools" wording.
+    total = 413  # `infra/OWNER_CHECKLIST.md`'s own "N of the 413 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
