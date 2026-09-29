@@ -1433,6 +1433,9 @@ workflows:
 - workflow: well-pump-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: whatnot-sales-report-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: whatnot-seller-payout-ci.yml
   classification: none
   publishes: []
@@ -1512,6 +1515,9 @@ gitops:
   unmet_secrets: []
   redirects: {}
 - workflow: gumroad-sales-fee-analyzer-ci.yml
+  classification: none
+  publishes: []
+- workflow: tiktok-shop-settlement-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: substack-subscriber-export-analyzer-ci.yml

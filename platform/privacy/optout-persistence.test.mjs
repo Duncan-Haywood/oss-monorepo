@@ -1026,8 +1026,11 @@ const RELATIVE_SELF = relative(
 // +1: `poshmark-sales-report-analyzer` graduated -- one more boilerplate
 // `usage.mjs` under its own storage name.
 // +1: `patreon-members-churn-analyzer` graduated.
+// +1: `whatnot-sales-report-analyzer` graduated.
+// +1: `tiktok-shop-settlement-analyzer` graduated -- one more boilerplate
+// `usage.mjs` under its own storage name.
 // +1: `substack-subscriber-export-analyzer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 403;
+const SWITCHES_IN_THE_CATALOGUE = 405;
 
 let counter = 0;
 function fixture(source) {
