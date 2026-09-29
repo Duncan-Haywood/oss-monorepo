@@ -1073,6 +1073,9 @@ workflows:
 - workflow: saas-annual-plan-discount-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: saas-cac-payback-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: saas-seat-true-up-ci.yml
   classification: none
   publishes: []
@@ -1431,5 +1434,8 @@ gitops:
   unmet_secrets: []
   redirects: {}
 - workflow: self-employment-tax-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: stripe-churn-cohort-analyzer-ci.yml
   classification: none
   publishes: []
