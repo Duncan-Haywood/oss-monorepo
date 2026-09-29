@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 429 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 430 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -159,6 +159,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free home office deduction calculator for the self-employed: compare the IRS simplified method ($5 per sq ft, max $1,500) with the regular Form 8829 method, including the gross income limit, depreciation and carryover. Runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Indie Game Payout Calculator — Steam vs Epic vs itch.io vs GOG</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/indie-game-payout-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/indie-game-payout-calculator</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator for indie game developers: what a game actually pays you on Steam, Epic Games Store, itch.io and GOG after tax, refunds, the store cut and fees, and how many copies you need to sell to break even. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>KDP Royalty Report Analyzer — Royalties per Book, Store and Format</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free analyzer for freelancers: drop in your Upwork transaction history CSV and see the service fee you actually paid, Connects, membership and withdrawal costs, what you keep by contract and by month, and net pay per hour. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Whatnot Sales Report Analyzer — Profit per Show and Category After Fees</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/whatnot-sales-report-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/whatnot-sales-report-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free analyzer for Whatnot sellers: load your orders CSV and see profit per sale, show and category after Whatnot commission and payment processing, with effective fee rate, cost basis by SKU, low-price sale drag and the shows and categories that lose money. Runs in your browser, the file is never uploaded.</summary>
   </entry>
 </feed>

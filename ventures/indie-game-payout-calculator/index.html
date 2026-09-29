@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Indie Game Payout Calculator — Steam vs Epic vs itch.io vs GOG</title>
+  <meta name="description" content="Free calculator for indie game developers: what a game actually pays you on Steam, Epic Games Store, itch.io and GOG after tax, refunds, the store cut and fees, and how many copies you need to sell to break even. Runs in your browser.">
+  <meta property="og:title" content="Indie Game Payout Calculator — free, private, in your browser">
+  <meta property="og:description" content="Same copies, four storefronts: what reaches you after tax, refunds and the store's cut, and copies to break even.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Indie Game Payout Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Shows what an indie game pays you on Steam, Epic Games Store, itch.io and GOG for the same copies sold, after tax, refunds, the store cut, processor fees and withholding, plus copies needed to break even. Runs in your browser.", "featureList": "Steam tiered revenue share, Epic zero-cut first million, itch.io chosen share plus processor fees, GOG split, refunds and VAT netted, withholding, break-even copies, copies for a target profit, wishlist conversion"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much of each sale does Steam keep?", "acceptedAnswer": {"@type": "Answer", "text": "Steam's headline revenue share is 30% of adjusted gross revenue (the buyer's payment after taxes and refunds) until a game passes $10 million lifetime, then 25% up to $50 million and 20% beyond. The tier applies to the revenue above each threshold, not to the whole game. There is also a $100 Steam Direct fee per title that is recouped once the title reaches $1,000 in adjusted gross revenue. Confirm the current terms in your own partner agreement."}}, {"@type": "Question", "name": "Is it cheaper to sell on Epic Games Store or itch.io than on Steam?", "acceptedAnswer": {"@type": "Answer", "text": "Per copy, usually yes: Epic's headline cut is 12% (with a zero-cut first million for titles that qualify) and itch.io lets you choose your own share, default 10%, plus payment-processor fees. But the same number of copies will not sell on every store. This tool shows the arithmetic for the same copies on each store side by side; it cannot tell you how many copies each store will sell."}}, {"@type": "Question", "name": "Why does the tool ask for tax and regional pricing?", "acceptedAnswer": {"@type": "Answer", "text": "Buyers in many regions pay a price that includes VAT or sales tax, and the store removes that tax before it takes its share. Regional pricing and sales also mean the average copy sells below list price. Leaving both at their defaults overstates what reaches you, so the tool asks for a blended tax rate and an average realised price."}}, {"@type": "Question", "name": "Are refunds deducted before or after the store's cut?", "acceptedAnswer": {"@type": "Answer", "text": "Before. A refunded copy is removed from your sales, so the store's percentage is only taken on copies that stayed sold. The refund rate is a number you type; six percent is a placeholder, not a benchmark."}}, {"@type": "Question", "name": "How many copies do I need to sell to break even?", "acceptedAnswer": {"@type": "Answer", "text": "Type what the game cost to make. The tool finds the smallest whole number of copies at which your profit on each store reaches zero, and, if you name a target profit, the copies needed to reach it. Break-even accounts for tier changes, the unrecouped Steam Direct fee, processor fees and withholding."}}, {"@type": "Question", "name": "Can I turn wishlists into a sales number?", "acceptedAnswer": {"@type": "Answer", "text": "There is a wishlist box that multiplies your wishlists by a conversion rate you type, and fills the copies field. It is a rule of thumb, not a forecast: the real rate varies enormously by genre, marketing and the discount you sell at."}}, {"@type": "Question", "name": "Is this tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the numbers and assumptions you enter. Store terms change and the defaults were not checked against a live payout statement, so verify them against your own agreement and payout reports. This tool is independent and is not affiliated with Valve, Epic Games, itch.io or GOG."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">INDIE GAME PAYOUT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does your game really pay you on Steam, Epic, itch.io and GOG?</h1>
+    <p>Type your price, copies and costs and see, for the <strong>same copies on each store</strong>, what reaches you after <strong>tax, refunds, the store's cut, processor fees and withholding</strong>, how many copies it takes to <strong>break even</strong>, and how many to reach a profit you name.</p>
+    <p class="note">Nothing you type leaves this tab. Independent of every store named: not affiliated with or endorsed by Valve, Epic Games, itch.io or GOG. Store rates are the headline terms as the author understands them and are not checked against a live payout statement, so confirm them in your own agreement.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your game</h2>
+    <div class="grid">
+      <div><label for="price">List price (USD)</label><input type="number" id="price" min="0" step="any" value="19.99"></div>
+      <div><label for="units">Copies sold</label><input type="number" id="units" min="0" step="1" value="5000"></div>
+      <div><label for="wishlists">…or wishlists (optional)</label><input type="number" id="wishlists" min="0" step="1" placeholder="e.g. 20000"></div>
+      <div><label for="conv">Wishlist to sale rate %</label><input type="number" id="conv" min="0" max="100" step="any" value="10"></div>
+      <div><label for="devCost">What the game cost to make</label><input type="number" id="devCost" min="0" step="any" value="0"></div>
+      <div><label for="targetProfit">Profit you are aiming for</label><input type="number" id="targetProfit" min="0" step="any" value="0"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Assumptions (edit these)</h2>
+    <p class="note">These decide how much of the buyer's money is yours. The defaults are placeholders, not benchmarks: use your own store reports.</p>
+    <div class="grid">
+      <div><label for="realizedPct">Average price realised, % of list</label><input type="number" id="realizedPct" min="1" max="100" step="any" value="80"></div>
+      <div><label for="refundPct">Refund rate %</label><input type="number" id="refundPct" min="0" max="99" step="any" value="6"></div>
+      <div><label for="taxPct">Tax inside the price %</label><input type="number" id="taxPct" min="0" max="99" step="any" value="0"></div>
+      <div><label for="withholdPct">Withheld from your payout %</label><input type="number" id="withholdPct" min="0" max="99" step="any" value="0"></div>
+      <div><label for="lifetimeBefore">Lifetime revenue already earned</label><input type="number" id="lifetimeBefore" min="0" step="any" value="0"></div>
+      <div><label for="steamFee">Steam Direct fee unrecouped</label><input type="number" id="steamFee" min="0" step="any" value="100"></div>
+      <div><label for="epicFreeUpTo">Epic zero-cut amount</label><input type="number" id="epicFreeUpTo" min="0" step="any" value="1000000"></div>
+      <div><label for="itchSharePct">Your itch.io share to itch %</label><input type="number" id="itchSharePct" min="0" max="100" step="any" value="10"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Calculate</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Reset</button>
+    </p>
+    <p class="note" id="form-status">Enter your numbers and click Calculate.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p id="report-stats"></p>
+    <div id="report-findings"></div>
+    <div class="scroll"><table><thead><tr><th scope="col">Store</th><th class="n" scope="col">Adjusted gross</th><th class="n" scope="col">Store cut</th><th class="n" scope="col">Fees</th><th class="n" scope="col">You receive</th><th class="n" scope="col">Take</th><th class="n" scope="col">Profit</th><th class="n" scope="col">Break-even copies</th><th class="n" scope="col">Copies for target</th></tr></thead><tbody id="stores"></tbody></table></div>
+    <p class="note" id="store-notes"></p>
+    <p><button type="button" class="secondary" id="download">Download the comparison as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Adjusted gross</strong> is copies × list price × the realised-price share, less refunds, less the tax inside the price.</li>
+      <li><strong>Store cut</strong> is taken on adjusted gross. Tiered terms (Steam's 30/25/20%, Epic's zero-cut first million) apply to the revenue above each threshold, starting from the lifetime revenue you say the game already earned.</li>
+      <li><strong>Fees</strong> are payment-processor charges (itch.io: 2.9% plus $0.30 per kept sale) and the unrecouped Steam Direct fee, which is charged until the title reaches $1,000 adjusted gross.</li>
+      <li><strong>Reconciles.</strong> You receive equals adjusted gross less the store cut, processor fees and withholding for every store; a test asserts it.</li>
+      <li><strong>Break-even</strong> is the smallest whole number of copies whose profit reaches zero, and is never shown as a forecast of sales.</li>
+      <li><strong>Not modelled:</strong> income tax you owe, payout timing and currency conversion, platform-specific sales and bundle terms, engine or middleware royalties, publisher splits, console and mobile stores, and how many copies each store will actually sell.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much of each sale does Steam keep?</h3>
+    <p>Steam's headline revenue share is 30% of adjusted gross revenue (the buyer's payment after taxes and refunds) until a game passes $10 million lifetime, then 25% up to $50 million and 20% beyond. The tier applies to the revenue above each threshold, not to the whole game. There is also a $100 Steam Direct fee per title that is recouped once the title reaches $1,000 in adjusted gross revenue. Confirm the current terms in your own partner agreement.</p>
+    <h3>Is it cheaper to sell on Epic Games Store or itch.io than on Steam?</h3>
+    <p>Per copy, usually yes: Epic's headline cut is 12% (with a zero-cut first million for titles that qualify) and itch.io lets you choose your own share, default 10%, plus payment-processor fees. But the same number of copies will not sell on every store. This tool shows the arithmetic for the same copies on each store side by side; it cannot tell you how many copies each store will sell.</p>
+    <h3>Why does the tool ask for tax and regional pricing?</h3>
+    <p>Buyers in many regions pay a price that includes VAT or sales tax, and the store removes that tax before it takes its share. Regional pricing and sales also mean the average copy sells below list price. Leaving both at their defaults overstates what reaches you, so the tool asks for a blended tax rate and an average realised price.</p>
+    <h3>Are refunds deducted before or after the store's cut?</h3>
+    <p>Before. A refunded copy is removed from your sales, so the store's percentage is only taken on copies that stayed sold. The refund rate is a number you type; six percent is a placeholder, not a benchmark.</p>
+    <h3>How many copies do I need to sell to break even?</h3>
+    <p>Type what the game cost to make. The tool finds the smallest whole number of copies at which your profit on each store reaches zero, and, if you name a target profit, the copies needed to reach it. Break-even accounts for tier changes, the unrecouped Steam Direct fee, processor fees and withholding.</p>
+    <h3>Can I turn wishlists into a sales number?</h3>
+    <p>There is a wishlist box that multiplies your wishlists by a conversion rate you type, and fills the copies field. It is a rule of thumb, not a forecast: the real rate varies enormously by genre, marketing and the discount you sell at.</p>
+    <h3>Is this tax or financial advice?</h3>
+    <p>No. It applies arithmetic to the numbers and assumptions you enter. Store terms change and the defaults were not checked against a live payout statement, so verify them against your own agreement and payout reports. This tool is independent and is not affiliated with Valve, Epic Games, itch.io or GOG.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the numbers and assumptions you enter. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
+    <p><strong>Not affiliated with any store.</strong> Steam and Valve, Epic Games Store, itch.io and GOG are trademarks of their owners. This tool is independent and is not sponsored, endorsed or connected to Valve Corporation, Epic Games, itch.io or GOG. The rates it starts with are the author's understanding of each store's headline terms and may be out of date.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Nothing you type is uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>payout_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Selling apps rather than games? The <a href="../app-store-sales-report-analyzer/">App Store sales report analyzer</a> and the <a href="../google-play-earnings-report-analyzer/">Google Play earnings report analyzer</a> read your own store reports. Pricing a subscription? See the <a href="../subscription-price-impact/">subscription price impact calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { readInputs, compareStores, findings, unitsFromWishlists, csvOf, money, DEFAULTS, INPUT_IDS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const cnt = (n) => (n === null ? "never" : n.toLocaleString("en-US"));
+    let last = null;
+
+    function run() {
+      const wl = $("#wishlists").value;
+      if (wl !== "") {
+        const u = unitsFromWishlists(wl, $("#conv").value);
+        if (u === null) { status.textContent = "Wishlists and the sale rate must be sensible numbers."; report.hidden = true; return false; }
+        $("#units").value = u;
+      }
+      const raw = Object.fromEntries(INPUT_IDS.map((id) => [id, $("#" + id).value]));
+      const r = readInputs(raw);
+      if (!r.ok) { status.textContent = r.errors[0]; report.hidden = true; return false; }
+      const v = r.values, rows = compareStores(v);
+      last = rows;
+      const best = rows[0];
+      $("#report-stats").innerHTML = `${v.units.toLocaleString("en-US")} copies at ${money(v.price)}: <strong>${esc(best.label)} leaves you the most, ${money(best.received)}</strong>, with profit ${money(best.profit)} after the game's cost. Ranking is the arithmetic on identical copies, not a prediction of where they will sell.`;
+      $("#report-findings").innerHTML = findings(v, rows).map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#stores").innerHTML = rows.map((p) => `<tr><th scope="row">${esc(p.label)}</th><td class="n">${money(p.adjustedGross)}</td><td class="n">${money(p.cut)}</td><td class="n">${money(p.processor + p.directFeeNet)}</td><td class="n">${money(p.received)}</td><td class="n">${p.takePct}%</td><td class="n">${money(p.profit)}</td><td class="n">${cnt(p.breakEvenUnits)}</td><td class="n">${p.targetUnits === null ? "—" : cnt(p.targetUnits)}</td></tr>`).join("");
+      $("#store-notes").textContent = rows.map((p) => p.note).join(" ");
+      report.hidden = false;
+      status.textContent = "Done.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#calc").addEventListener("click", () => { if (run()) record("payout_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      for (const id of INPUT_IDS) $("#" + id).value = { ...DEFAULTS, taxPct: 12, withholdPct: 0, devCost: 40000, targetProfit: 20000 }[id];
+      $("#wishlists").value = "";
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: a made-up $19.99 game costing $40,000 to make, not a real title."; }
+    });
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of INPUT_IDS) $("#" + id).value = DEFAULTS[id];
+      $("#wishlists").value = ""; report.hidden = true; last = null; status.textContent = "Enter your numbers and click Calculate.";
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([csvOf(last)], { type: "text/csv" }));
+      a.download = "indie-game-payout-comparison.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
