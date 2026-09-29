@@ -47953,3 +47953,28 @@ entries:
         page, README and VENTURE.yaml. Registered score row, launch date, CI
         workflow and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: subscription-audit-from-statement
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built subscription-audit-from-statement: a browser-local
+        tool that reads a bank or card statement CSV and lists every recurring
+        charge (weekly to yearly) with monthly and yearly cost, dated price
+        rises, same-day double charges, upcoming yearly renewals, charges that
+        seem to have stopped and overlapping streaming/storage/fitness
+        services, with a tick-to-cancel saving and CSV download. Sign
+        convention and date order are detected and overridable; weekly,
+        six-monthly and yearly charges must hold a steady price so a coffee
+        habit is not a subscription. Chosen after duplicate_check.py showed the
+        seller-report analyzers (Airbnb, Amazon, gig, Stripe) already built,
+        and aimed at anyone with a bank login instead of one trade. First
+        visitor expected from "find all my subscriptions from bank statement"
+        searches and r/personalfinance and r/frugal audit threads. Nothing is
+        uploaded (a test asserts no network calls); independent-of-every-bank
+        clause on the page. Column names are matched by alias and unverified
+        against real exports, stated on the page, README and VENTURE.yaml.
+        Registered score row, launch date, CI workflow and tree counts;
+        regenerated the mirror. Refreshed the gh-pages snapshot first (it was
+        behind main).
+    mrr_end: 0
