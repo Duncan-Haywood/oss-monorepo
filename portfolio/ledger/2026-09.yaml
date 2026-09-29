@@ -47712,6 +47712,25 @@ entries:
         score row, launch date, CI workflow and tree counts; regenerated the
         mirror.
     mrr_end: 0
+  - venture: app-store-sales-report-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built app-store-sales-report-analyzer, a data-file
+        archetype for iOS developers: a browser-local tool that reads an App
+        Store Connect Summary Sales report (file or paste, tab or comma) and
+        shows net proceeds by product, type of sale, country, month and payout
+        currency, refund rates by product, the share of customer price kept,
+        subscription units at the after-one-year rate, downloads against paid
+        units, and a Small Business Program signal, with exchange rates the
+        developer types (a currency without a rate is excluded and named). File
+        never leaves the browser (a test asserts no network calls);
+        independent-of-Apple clause on the page. Column names matched by alias
+        from memory and no real report was available, stated on the page, README
+        and VENTURE.yaml. Registered score row, launch date, CI workflow and
+        tree counts; regenerated the mirror.
+    mrr_end: 0
   - venture: bandcamp-sales-report-analyzer
     agent_spend_usd: null
     human_hours: 0
