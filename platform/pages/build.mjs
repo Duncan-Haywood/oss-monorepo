@@ -531,7 +531,7 @@ const CATEGORY_RULES = [
     // fields on every calculator in this section would never have seen it.
     // `home-service-lead-roi-analyzer` reads a trades owner's lead-buying log (Thumbtack, Angi, Google LSA) to
     // show which paid source books jobs; same reader as the bid calculators here, slug names no trade.
-    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate|home-service-lead-roi)/.test(slug),
+    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate|home-service-lead-roi|invoice-aging)/.test(slug),
   },
   {
     id: 'food-service',
@@ -3347,7 +3347,7 @@ const SUBCATEGORY_RULES = {
       // margin, the same job-costing shape as `job-margin` and
       // `shop-rate` for a licensed surveyor's boundary/ALTA retracement
       // work instead of a construction trade.
-      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate|land-survey|home-service-lead-roi)/.test(slug),
+      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate|land-survey|home-service-lead-roi|invoice-aging)/.test(slug),
     },
     {
       id: 'trades-cleaning',
