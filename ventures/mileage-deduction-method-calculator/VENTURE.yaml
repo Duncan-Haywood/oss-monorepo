@@ -1,0 +1,72 @@
+name: mileage-deduction-method-calculator
+description: >-
+  Free browser calculator comparing the 2026 IRS standard mileage rate
+  (72.5 cents per business mile through June 30, 76 cents from July 1) with
+  the actual-expense method for a self-employed person's business vehicle.
+  Prorates actual costs by business-use share, adds parking and tolls to
+  both, shows the break-even cost per mile and a rough tax value, and warns
+  about the first-year election rule. Entirely client-side, nothing
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29. duplicate_check.py scored no venture, screened-out row
+# or pipeline candidate above the 0.45 review bar. gig-driver-net-pay-calculator
+# is the nearest neighbour: it answers "is a gig shift worth it after gas",
+# while this compares two IRS deduction methods for a self-employed filer's
+# own vehicle. Neither screened-out.md nor ai-first-markets ideas.ts covers it.
+#
+# Why now: the IRS raised the business rate mid-year for the first time since
+# 2022 (Announcement 2026-11, issued 2026-07-13: 72.5 -> 76 cents effective
+# July 1). Generic mileage calculators that multiply a year of miles by one
+# rate are wrong for 2026; this one splits miles by half-year. Year-end tax
+# planning and the January filing season drive the search demand ("standard
+# mileage vs actual expenses 2026"). No search-volume tool was queried,
+# matching the pipeline's standing caveat at graduation.
+#
+# Figures verified 2026-09-29 via WebSearch/WebFetch: IRS.gov "Standard
+# mileage rates" page (both rate windows), IRS Topic no. 510 and Publication
+# 463 (first-year election, ineligibility, parking and tolls), Littler and the
+# Journal of Accountancy on Announcement 2026-11.
+#
+# Liability: numeric comparison of published rates against the user's own
+# numbers; scoped to Schedule C vehicle costs, with depreciation entered by
+# the user rather than computed. The costliest failure is choosing actual
+# expenses on a new car and losing the standard rate for its life, so that
+# lock-in is a standing finding on every result.
+
+hypotheses:
+  - claim: >-
+      A self-employed driver, contractor or salesperson choosing how to deduct
+      a business car will search "standard mileage vs actual expenses 2026"
+      and return to a free, no-signup calculator that applies the two 2026
+      mid-year rates correctly and compares against their own car costs.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Users will be surprised that choosing actual expenses in a car's first
+      business year forecloses the standard rate for that car, and will use
+      the comparison to decide before filing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: fixed arithmetic on numbers the user types in.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports choosing a deduction method wrongly based on this tool's output despite the disclaimers, at which point the disclosure wording itself needs revisiting, not just a bigger caveat.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mileage-deduction-method-calculator/
+  analytics: null
