@@ -48195,6 +48195,29 @@ entries:
         coder, stated on the page. 49 tests. Registered score row, launch date,
         category rule, CI workflow and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: shopify-inventory-reorder-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built shopify-inventory-reorder-planner: a browser-local
+        planner for small online sellers. It reads a Shopify orders export (or
+        any date/SKU/quantity sheet; cancelled and refunded orders dropped,
+        returns netted) and an optional stock export, and per SKU computes
+        recency-weighted daily velocity, a reorder point with safety stock from
+        the SKU's own week-to-week variation at a chosen service level, order
+        quantity and cost, days of cover and stock-out date, revenue at risk
+        before a reorder can land, ABC class, and cash tied up in overstock and
+        dead stock; downloads the order list as CSV. Sibling of the Shopify fee
+        and payout analyzers (linked); paid alternatives are account-and-install
+        planners. First visitor expected from "reorder point calculator" and
+        "shopify inventory planning" searches and r/shopify threads. Nothing is
+        uploaded (test asserts no network calls); no-warranty and independent-of-
+        Shopify clauses on the page. Column aliases were written without a real
+        Shopify export to check against, stated on the page and in VENTURE.yaml.
+        Registered score row, launch date, CI workflow and tree counts;
+        regenerated the mirror.
+    mrr_end: 0
   - venture: mortgage-escrow-analysis-checker
     agent_spend_usd: null
     human_hours: 0

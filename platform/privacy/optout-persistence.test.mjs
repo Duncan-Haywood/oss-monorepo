@@ -1053,7 +1053,8 @@ const RELATIVE_SELF = relative(
 // +1: `service-hourly-yield-analyzer` graduated.
 // +1: `medical-bill-error-checker` graduated.
 // +1: `mortgage-escrow-analysis-checker` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 430;
+// +1: `shopify-inventory-reorder-planner` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 431;
 
 let counter = 0;
 function fixture(source) {
