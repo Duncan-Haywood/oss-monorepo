@@ -47331,3 +47331,27 @@ entries:
         str-host-payout-calculator and str-cleaning-fee-pricing-calculator and
         tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: ebay-transaction-report-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built ebay-transaction-report-analyzer, a data-file
+        archetype aimed at eBay resellers (a market that already pays
+        Sellerboard-style and accounting-connector tools): a browser-local
+        tool that reads the Seller Hub Transaction report CSV (file or paste;
+        metadata preamble skipped, header found by name, fee columns counted as
+        costs whatever their sign, payouts excluded) and shows the fee
+        waterfall tied to the Net amount column (final value, international,
+        performance, Promoted Listings, listing, refunds, labels, unexplained
+        amounts as explicit adjustments), shipping charged vs label spend,
+        profit per item after the seller's own unit costs (matched by title,
+        custom label or item number), and findings. File never leaves the
+        browser; independent-of-eBay clause on the page. duplicate_check.py top
+        score 0.47 (amazon-seller-profit-analyzer, shared vocabulary only).
+        Verified against a synthetic export only (no real one was available;
+        column names are from memory and matched by alias, stated in
+        VENTURE.yaml). Registered score row, launch date, CI workflow, tree
+        counts and reciprocal link from ebay-fee-calculator; regenerated the
+        mirror.
+    mrr_end: 0

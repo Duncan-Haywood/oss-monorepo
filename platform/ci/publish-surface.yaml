@@ -1409,6 +1409,9 @@ workflows:
 - workflow: etsy-statement-profit-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: ebay-transaction-report-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: google-ads-wasted-spend-analyzer-ci.yml
   classification: none
   publishes: []

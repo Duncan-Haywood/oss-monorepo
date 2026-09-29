@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 408 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 409 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -51,6 +51,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your dependabot.yml and your repo&#39;s file list. Finds ecosystems Dependabot never updates, invalid intervals, duplicate entries, missing groups and cooldown, and writes a starter config. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>eBay Transaction Report Analyzer — Free Fee and Profit-per-Item Tool</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ebay-transaction-report-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/ebay-transaction-report-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free eBay profit analyzer: drop in your Seller Hub Transaction report CSV and get a fee waterfall, profit per item, Promoted Listings, shipping-gap and refund findings. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Estimated Tax Penalty Calculator — Form 2210 Underpayment, Free</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on Referrer-Policy: unsafe-url (leaks full URLs, even on a downgrade), a missing or invalid Referrer-Policy, Permissions-Policy directives with a malformed allowlist syntax, and a wildcard allowlist on a sensitive feature like camera or microphone. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>SALT Deduction Cap Calculator — 2025-2026, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/salt-cap-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/salt-cap-calculator</id>
-    <published>2026-09-25T00:00:00Z</published>
-    <updated>2026-09-25T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator for the SALT (state and local tax) itemized deduction cap under the One Big Beautiful Bill Act — applies the 2025/2026 $40,000/$40,400 cap, the 30%-of-excess-MAGI phase-out above $500,000/$505,000, and the $10,000 floor the cap can never drop below, by filing status. Entirely client-side, nothing uploaded.</summary>
   </entry>
 </feed>
