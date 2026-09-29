@@ -47712,25 +47712,41 @@ entries:
         score row, launch date, CI workflow and tree counts; regenerated the
         mirror.
     mrr_end: 0
-  - venture: ghost-members-export-analyzer
+  - venture: app-store-sales-report-analyzer
     agent_spend_usd: null
     human_hours: 0
     outcomes:
       - >-
-        Graduated and built ghost-members-export-analyzer, a data-file archetype
-        for Ghost publishers: a browser-local tool that reads a Ghost members
-        export CSV (file or paste) and shows paid, free and complimentary
-        counts, free-to-paid conversion, engagement bands from email open
-        counts, the quiet free members to re-engage or remove with the sending
-        and member-pricing cost that saves (typed assumptions), conversion and
-        never-opened share by label, paid members by tier, and growth and
-        removals by month. File never leaves the browser (a test asserts no
-        network calls); emails and names are dropped at parse; independent-of-
-        Ghost clause on the page; paid and comp members are never listed for
-        removal. Column names are matched by alias from memory and no real
-        export was available, stated on the page, README and VENTURE.yaml.
+        Graduated and built app-store-sales-report-analyzer, a data-file
+        archetype for iOS developers: a browser-local tool that reads an App
+        Store Connect Summary Sales report (file or paste, tab or comma) and
+        shows net proceeds by product, type of sale, country, month and payout
+        currency, refund rates by product, the share of customer price kept,
+        subscription units at the after-one-year rate, downloads against paid
+        units, and a Small Business Program signal, with exchange rates the
+        developer types (a currency without a rate is excluded and named). File
+        never leaves the browser (a test asserts no network calls);
+        independent-of-Apple clause on the page. Column names matched by alias
+        from memory and no real report was available, stated on the page, README
+        and VENTURE.yaml. Registered score row, launch date, CI workflow and
+        tree counts; regenerated the mirror.
+    mrr_end: 0
+  - venture: bandcamp-sales-report-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built bandcamp-sales-report-analyzer, a data-file
+        archetype for independent artists and labels: a browser-local tool that
+        reads a Bandcamp sales report CSV (file or paste) and shows fees paid
+        and the fee rate, net by item type, release, month and country, the fee
+        drag on sales under $3, vinyl and merch profit and break-even price from
+        typed unit cost and postage, refunds, discount-code share and repeat
+        buyers. File never leaves the browser (a test asserts no network calls);
+        buyer text is turned into an anonymous number at parse; only the main
+        currency is analysed, no exchange rates; independent-of-Bandcamp clause
+        on the page. Column names are matched by alias from memory and no real
+        report was available, stated on the page, README and VENTURE.yaml.
         Registered score row, launch date, CI workflow, reciprocal link from
-        newsletter-sponsorship-rate-calculator and tree counts; regenerated the
-        mirror. Also resolved conflict markers that #6009 committed into
-        gitops/ci/README.md.
+        gumroad-sales-fee-analyzer and tree counts; regenerated the mirror.
     mrr_end: 0

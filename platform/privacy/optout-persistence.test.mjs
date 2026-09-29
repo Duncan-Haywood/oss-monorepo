@@ -1030,8 +1030,10 @@ const RELATIVE_SELF = relative(
 // +1: `tiktok-shop-settlement-analyzer` graduated -- one more boilerplate
 // `usage.mjs` under its own storage name.
 // +1: `substack-subscriber-export-analyzer` graduated.
+// +1: `app-store-sales-report-analyzer` graduated.
+// +1: `bandcamp-sales-report-analyzer` graduated.
 // +1: `ghost-members-export-analyzer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 406;
+const SWITCHES_IN_THE_CATALOGUE = 408;
 
 let counter = 0;
 function fixture(source) {

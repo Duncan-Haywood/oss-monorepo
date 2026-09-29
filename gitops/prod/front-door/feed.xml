@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 427 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 429 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -35,6 +35,15 @@
     <summary type="text">Free Amazon seller profit analyzer: drop in your Seller Central Transaction report CSV and get profit per SKU, a fee waterfall, ad spend, refund and reimbursement findings. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
+    <title>App Store Sales Report Analyzer — Proceeds, Refunds and Countries</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/app-store-sales-report-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/app-store-sales-report-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free analyzer for iOS developers: drop in your App Store Connect Summary Sales report and see net proceeds by product, country and month, refund rates, subscription renewals, and whether you show the Small Business Program rate. Runs in your browser, the file is never uploaded.</summary>
+  </entry>
+  <entry>
     <title>Backdoor Roth Pro-Rata Calculator — Form 8606, Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/backdoor-roth-pro-rata-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/backdoor-roth-pro-rata-calculator</id>
@@ -42,6 +51,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free calculator for the backdoor Roth pro-rata rule: how much of your Roth conversion is taxable given your after-tax basis and your December 31 traditional, SEP and SIMPLE IRA balance, plus the tax you could avoid by rolling pre-tax money into a 401(k). Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Bandcamp Sales Report Analyzer — Fees, Net per Item and Profit</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bandcamp-sales-report-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/bandcamp-sales-report-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free analyzer for Bandcamp artists and labels: drop in your sales report CSV and see fees paid, net per item, small-sale fee drag, vinyl and merch profit after your costs, best releases and repeat buyers. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Card Surcharge vs Cash Discount Calculator — Free, Runs in Your Browser</title>
@@ -103,7 +121,7 @@
     <id>tag:marisstella.dev,2026:tool/ghost-members-export-analyzer</id>
     <published>2026-09-29T00:00:00Z</published>
     <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
+    <category term="More free tools"/>
     <summary type="text">Free analyzer for Ghost publishers: drop in your members export CSV and see paid and free members, free-to-paid conversion, who never opens your emails, what cleaning the list saves, conversion by label and growth. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
@@ -348,23 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free analyzer for Whatnot sellers: load your orders CSV and see profit per sale, show and category after Whatnot commission and payment processing, with effective fee rate, cost basis by SKU, low-price sale drag and the shows and categories that lose money. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>YouTube Revenue and RPM Analyzer — Which Videos Actually Pay</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/youtube-revenue-rpm-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/youtube-revenue-rpm-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free analyzer for YouTube creators: drop in your Studio analytics CSV and see RPM by video, country or day, where your revenue concentrates, which videos pay under half your median, and which pay well but get little traffic. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Solo 401(k) Contribution Calculator — 2026, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/solo-401k-contribution-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/solo-401k-contribution-calculator</id>
-    <published>2026-09-28T00:00:00Z</published>
-    <updated>2026-09-28T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator for the 2026 Solo 401(k) contribution limit for a sole proprietor or single-member LLC — employee elective deferral (up to $24,500, or $32,500/$35,750 with catch-up), employer profit-sharing contribution (20% of net self-employment earnings), and the combined $72,000/$80,000/$83,250 overall limit. Entirely client-side, nothing uploaded.</summary>
   </entry>
 </feed>

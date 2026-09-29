@@ -20225,7 +20225,8 @@ ventures:
       network calls) and emails are not kept in memory beyond parsing, so the
       portfolio holds no writer or subscriber data. Ethics: purely
       informational, helps a writer see their own retention.
-  - slug: ghost-members-export-analyzer
+  - slug: bandcamp-sales-report-analyzer
+  - slug: app-store-sales-report-analyzer
     scores:
       ai_leverage: 1
       autonomous_ops: 10
@@ -20239,27 +20240,42 @@ ventures:
     floor_dimension: ai_leverage
     floor_note: >-
       No model in the product, deliberately. Every figure is deterministic
-      arithmetic on rows of the user's own file and the price and cost
-      assumptions they can edit.
+      arithmetic on rows of the user's own file and the costs they can edit.
     basis: >-
       Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
-      full write-up in this venture's own VENTURE.yaml comment. Ghost Admin
-      shows headline member counts and growth; nothing ranks members by email
-      engagement or prices what an inactive list costs in sending and
-      member-based plan fees. Distribution 6: "ghost inactive members" and
-      "ghost members export" style threads on the Ghost forum are recurring;
-      volume not measured with an external tool. Defensibility 3: the
-      local-only stance is the differentiator against list-hygiene services
-      that want an API key or an upload.
+      full write-up in this venture's own VENTURE.yaml comment. Bandcamp's sales
+      report is one row per sale; nothing reads it to answer fee rate by format,
+      small-sale fee drag or physical profit. Distribution 6: "bandcamp fees",
+      "bandcamp sales report" and musician community threads are recurring
+      queries; volume not measured with an external tool. Defensibility 3: the
+      local-only stance is the differentiator against tools that want a
+      Bandcamp login.
+      arithmetic on rows of the user's own report and the exchange rates they
+      type.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Sales and Trends
+      shows charts and daily downloads; nothing reads the Summary Sales report to
+      reconcile net proceeds across payout currencies, refunds by product and the
+      Small Business Program signal. Distribution 6: "app store connect sales
+      report", "app store proceeds by country" and indie-developer community
+      threads are recurring queries; volume not measured with an external tool.
+      Defensibility 3: the local-only stance is the differentiator against
+      analytics tools that want an App Store Connect API key.
     gates:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Liability: arithmetic on the user's own file and editable assumptions with
-      model and omissions stated; no tax or financial advice, no warranty,
-      independent-of-Ghost clause on the page; removal is only ever suggested
-      after a re-engagement email and never for paid or complimentary members.
-      The file, which holds member emails and names, never leaves the browser (a
-      test asserts no network calls) and they are not kept beyond parsing, so
-      the portfolio holds no publisher or member data. Ethics: purely
-      informational, helps a publisher keep an honest list.
+      Liability: arithmetic on the user's own file and editable cost assumptions
+      with model and omissions stated; no tax or financial advice, no warranty,
+      independent-of-Bandcamp clause on the page. The file, which holds buyer
+      names and emails, never leaves the browser (a test asserts no network
+      calls) and buyer text is turned into an anonymous number at parse, so the
+      portfolio holds no artist or buyer data. Ethics: purely informational,
+      helps an artist see their own margins.
+      Liability: arithmetic on the user's own file and editable exchange rates
+      with model and omissions stated; no tax or financial advice, no warranty,
+      independent-of-Apple clause on the page. The file never leaves the browser
+      (a test asserts no network calls), so the portfolio holds no developer or
+      customer data. Ethics: purely informational, helps a developer see their
+      own proceeds.

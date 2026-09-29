@@ -131,6 +131,9 @@ workflows:
 - workflow: android-data-safety-check-ci.yml
   classification: none
   publishes: []
+- workflow: app-store-sales-report-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: app-store-screenshot-check-ci.yml
   classification: none
   publishes: []
@@ -186,6 +189,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: backup-verification-evidence-ci.yml
+  classification: none
+  publishes: []
+- workflow: bandcamp-sales-report-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: basement-finishing-bid-calculator-ci.yml
