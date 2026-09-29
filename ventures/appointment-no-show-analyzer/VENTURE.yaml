@@ -1,0 +1,88 @@
+name: appointment-no-show-analyzer
+description: >-
+  Free browser tool that reads an appointment or booking export (Square
+  Appointments, Acuity, Calendly, Vagaro, Fresha or Booksy style) and reports
+  the no-show rate and late-cancel rate, the revenue lost, the same by weekday,
+  hour of day, service and lead time, the repeat no-show clients with the dollars
+  they cost, and what a deposit or no-show fee would recover under typed
+  assumptions. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Appointment businesses
+# (salons, barbers, dentists and chiropractors, tutors, trainers, mobile
+# detailers) lose real money to empty slots, and every scheduling app already
+# exports the booking list; turning it into "which day, hour, service and client
+# is the problem" is a manual pivot table, or a paid analytics tier. The tool
+# helps an owner earn more: it prices the leak and points at the fix.
+#
+# Distinct from ventures/no-show-fee-calculator and
+# ventures/appointment-deposit-calculator, which take typed numbers and design
+# the policy. This one ingests the export and measures the problem first; the
+# three link to each other.
+#
+# First visitor: r/salons, r/Barber and r/smallbusiness threads about clients
+# who no-show, and searches like "no show rate from Square Appointments export"
+# and "how much do no-shows cost my salon". Search volume not measured.
+#
+# What makes it more than a count: cancellations are split into late (under a
+# typed notice window, needs a cancelled-at column) and unknown-notice, never
+# guessed; bookings cancelled by the business and still-open bookings are left
+# out of every rate; a missing price falls back to the service average in the
+# same file, then to a typed placeholder that is flagged; groups under five
+# bookings are marked and never named "worst"; duplicates are dropped and
+# counted; the fee what-if is labelled as the user's assumption, not a forecast.
+#
+# Privacy is the liability boundary: the export (which names clients) never
+# leaves the browser (a test asserts no network calls), so the portfolio holds
+# no client data and needs no scheduling-app credential or API access.
+#
+# Path to revenue (payment rails stay off): lead magnet into the no-show fee
+# calculator and appointment deposit calculator. A paid tier, if usage appears,
+# is multi-month trend comparison, local-only, behind an env-var switch; not
+# built. Not built: a Square/Acuity/Calendly API integration, which needs
+# credentials and terms review.
+#
+# Liability: arithmetic on the user's file and typed assumptions, model and
+# omissions stated on the page, no advice, no warranty, independent of the named
+# vendors, the default price flagged as a placeholder, the fee effect flagged as
+# the user's assumption; repeat-offender names are shown only on the user's own
+# device and the page says a policy change is the owner's decision.
+#
+# Unverified: column names and status words are matched by alias and no real
+# Square Appointments, Acuity, Calendly, Vagaro, Fresha or Booksy export was
+# available; the first user report of an unread file is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Owners of appointment businesses will drop a booking export into a
+      no-signup tool to see their no-show rate and repeat offenders rather than
+      build a pivot table or pay for an analytics tier.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the dollars lost, and the clients and time slots behind them, leads
+      at least one owner to adopt a deposit or no-show fee, and re-running the
+      export each month is the reason to return.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a real export the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/appointment-no-show-analyzer/
+  analytics: null

@@ -48039,6 +48039,31 @@ entries:
         rules of thumb. 33 tests. Registered score row, launch date, CI workflow
         and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: appointment-no-show-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built appointment-no-show-analyzer: a browser-local tool
+        that reads a booking export (Square Appointments, Acuity, Calendly,
+        Vagaro, Fresha, Booksy style) and reports no-show rate, late-cancel rate
+        (typed notice window, needs a cancelled-at column, else counted as
+        unknown notice) and revenue lost, by weekday, hour, service and lead
+        time, lists repeat no-show clients with dollars lost, and estimates what
+        a typed deposit or no-show fee would recover (fee %, share prevented and
+        share collected all flagged as the user's assumptions). Status aliases,
+        ISO / M/D/YYYY / 12-hour dates, quoted CSV, BOM, UTF-16, duplicates,
+        missing prices (service average, then a typed placeholder) handled.
+        Distinct from no-show-fee-calculator and appointment-deposit-calculator
+        (typed-number policy design), linked reciprocally in both directions.
+        First visitor expected from r/salons, r/Barber and searches like "no
+        show rate from Square Appointments export". Nothing is uploaded (a test
+        asserts no network calls); independent-of-vendors clause on the page.
+        Column names and status words are matched by alias and unverified
+        against real exports, stated on the page, README and VENTURE.yaml.
+        Registered score row, launch date, category rule, CI workflow and tree
+        counts; regenerated the mirror.
+    mrr_end: 0
   - venture: freelancer-schedule-c-categorizer
     agent_spend_usd: null
     human_hours: 0

@@ -146,6 +146,9 @@ workflows:
 - workflow: appointment-deposit-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: appointment-no-show-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: artificial-turf-bid-calculator-ci.yml
   classification: none
   publishes: []
