@@ -47458,3 +47458,26 @@ entries:
         row, launch date, CI workflow, reciprocal link and tree counts;
         regenerated the mirror.
     mrr_end: 0
+  - venture: amazon-ppc-search-term-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built amazon-ppc-search-term-analyzer, a data-file archetype for Amazon sellers
+        (a large market whose ad console reports terms one row at a time and
+        whose paid PPC tools all need account access): a browser-local tool that
+        reads a Sponsored Products search term report (file or paste; 7/14/30 day
+        headers, comma, tab, semicolon and UTF-16; skipped rows reported with line
+        and reason) and shows spend with no orders graded proven, overspent or
+        too-little-data from the account's own click-to-order rate,
+        negative-keyword candidates per campaign and ad group, exact-match harvest
+        candidates with a bid capped at break-even, bids above break-even, and
+        terms served by several of the seller's own campaigns. File never leaves
+        the browser; independent-of-Amazon clause on the page. First visitor:
+        r/FulfillmentByAmazon and r/AmazonSeller PPC threads; search "amazon ppc
+        search term report analysis". duplicate_check.py top score 0.31
+        (google-ads-wasted-spend-analyzer). Column names matched by alias; no real
+        export was available, stated in VENTURE.yaml. Registered score row, launch
+        date, CI workflow, reciprocal links and tree counts; regenerated the
+        mirror.
+    mrr_end: 0

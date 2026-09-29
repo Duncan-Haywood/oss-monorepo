@@ -803,6 +803,9 @@ workflows:
 - workflow: merchant-feed-check-ci.yml
   classification: none
   publishes: []
+- workflow: amazon-ppc-search-term-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: meta-ads-fatigue-analyzer-ci.yml
   classification: none
   publishes: []

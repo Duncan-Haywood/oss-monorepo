@@ -1,0 +1,86 @@
+name: amazon-ppc-search-term-analyzer
+description: >-
+  Free browser tool that turns an Amazon Sponsored Products search term report CSV
+  into spend with no orders graded by evidence, negative-keyword candidates, search
+  terms worth harvesting into exact match with a break-even bid, spend above a
+  target ACOS, and terms served by more than one of the seller's own campaigns.
+  The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Amazon sellers are a large,
+# money-motivated niche whose PPC spend is routinely 10-30% of revenue, and the
+# paid tools around it (Helium 10 Adtomic, Perpetua, Teikametrics, Jungle Scout
+# ads, Pacvue) all want Seller Central or Ads API access first. The buyer already
+# has the file: Campaign Manager -> Sponsored ads reports -> Search term. This is
+# the free diagnostic that answers "which search terms are burning budget and which
+# should move to exact" before any tool is connected. duplicate_check.py top score
+# 0.31 (google-ads-wasted-spend-analyzer, the search-terms sibling for Google;
+# amazon-seller-profit-analyzer covers fees and margin, not ad reports; both
+# linked).
+#
+# First visitor: Amazon FBA sellers and PPC freelancers on r/FulfillmentByAmazon,
+# r/AmazonSeller and seller Facebook groups asking "how do I find wasted ad spend",
+# "which search terms to negate", "when to move a keyword to exact"; search phrases
+# "amazon ppc search term report analysis", "amazon negative keywords wasted spend",
+# "amazon ppc harvesting". Volume not measured with an external tool.
+#
+# What makes it more than a pivot table: waste is graded by the account's own
+# click-to-order rate (a term with 12 clicks and no order is not called waste, one
+# with 60 is), the harvest bid is capped at order value x click-to-order rate x
+# target ACOS so it cannot suggest a bid that loses money at the observed
+# conversion, and negatives and harvest are judged at different levels (a negative
+# applies to one campaign and ad group; harvest looks across all of them). All
+# tested.
+#
+# Privacy is the differentiator and the liability boundary: the file never leaves
+# the browser (a test asserts the page has no network calls), so the portfolio
+# holds no seller data and needs no Amazon Ads API access or app review.
+#
+# Path to revenue (payment rails stay off): lead magnet. The paid version, if usage
+# appears, is a recurring report-to-report diff and an Ads API connected version
+# behind an env-var switch; neither is built.
+#
+# Liability: arithmetic on the user's file, stated model and omissions on the page,
+# no advice, no warranty, independent-of-Amazon clause.
+#
+# Unverified: the column names are from memory of the Search term report and
+# matched tolerantly (attribution prefix, unit suffix, UTF-16, day-first dates); no
+# real export was available, so the first user report of an unread file is the
+# priority fix. Auto-campaign targeting labels (close-match, loose-match,
+# substitutes, complements) are also from memory.
+
+hypotheses:
+  - claim: >-
+      Amazon sellers and PPC freelancers will run a no-signup, no-account-access
+      analysis of a downloaded search term report before connecting an advertising
+      tool to their Seller Central account.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A negative list graded by the account's own click-to-order rate, plus a
+      harvest list with a break-even bid, is trusted more than a fixed
+      "10 clicks and no sales" rule, which is the reason to come back after each
+      monthly report.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a negative or harvest flag that contradicts a real report, at which point the model needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/amazon-ppc-search-term-analyzer/
+  analytics: null
