@@ -1051,7 +1051,8 @@ const RELATIVE_SELF = relative(
 // +1: `late-invoice-collections-kit` graduated.
 // +1: `print-on-demand-profit-calculator` graduated.
 // +1: `service-hourly-yield-analyzer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 428;
+// +1: `medical-bill-error-checker` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 429;
 
 let counter = 0;
 function fixture(source) {

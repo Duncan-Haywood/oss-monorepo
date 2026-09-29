@@ -48174,3 +48174,24 @@ entries:
         presets unverified, stated on the page and in VENTURE.yaml. Registered
         score row, launch date, CI workflow and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: medical-bill-error-checker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built medical-bill-error-checker: a browser-local tool that
+        reads an itemized medical bill CSV and flags possible duplicate lines,
+        once-a-day codes billed twice, lab-panel components billed with the panel
+        (80053, 80048, 80061, 85025, 93000; a distinct-service modifier downgrades
+        to information), two levels of one visit family on a date, and lines whose
+        charge less paid less adjustment differs from patient responsibility, then
+        drafts a billing-review request with a collections hold. Amount in
+        question capped at the bill total and labelled not a refund. New niche:
+        duplicate_check.py top match 0.19. First visitor expected from
+        r/personalfinance and r/HealthInsurance dispute threads and searches like
+        "how to check medical bill for errors". Bill never uploaded (a test asserts
+        no network calls); CPT trademark and independence stated. Column aliases
+        and the rule lists are unverified against real exports and by a certified
+        coder, stated on the page. 49 tests. Registered score row, launch date,
+        category rule, CI workflow and tree counts; regenerated the mirror.
+    mrr_end: 0

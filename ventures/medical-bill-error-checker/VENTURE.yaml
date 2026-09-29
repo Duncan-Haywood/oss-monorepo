@@ -1,0 +1,84 @@
+name: medical-bill-error-checker
+description: >-
+  Free browser tool that reads an itemized medical bill (CSV from a patient
+  portal or typed from a statement) and flags possible duplicate charges, codes
+  normally billed once a day that appear twice, lab-panel components billed
+  alongside the panel that includes them, two levels of the same visit on one
+  date, and lines whose charge, insurance payment and adjustment do not add up
+  to the patient balance, then drafts a billing-review request to the provider.
+  The bill is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. duplicate_check.py: top
+# match 0.19 (unrelated), so no sibling. Patients are told to "ask for an
+# itemized bill and check it" and given no tool for doing so; the paid
+# alternatives are advocate services that take a share of savings.
+#
+# First visitor: r/personalfinance and r/HealthInsurance threads asking how to
+# dispute a hospital bill, and searches like "how to check medical bill for
+# errors", "medical bill unbundling" and "duplicate charges hospital bill".
+# Search volume not measured with an external tool.
+#
+# What makes it more than a checklist: rules run on the user's own lines and
+# carry the reason for each flag; findings are ranked; a distinct-service
+# modifier downgrades an unbundling flag to information with no dollars; the
+# dollar figure is "the most in question", capped at the bill total, never a
+# refund estimate; a bill with no codes gets an info finding asking for the
+# itemized statement rather than a guess; the letter asks questions and a
+# collections hold and never alleges error or fraud.
+#
+# Privacy is the liability boundary: a bill is health information. It never
+# leaves the browser (tests assert no network calls), so the portfolio holds no
+# health data and needs no portal credential.
+#
+# Path to revenue (payment rails stay off): lead magnet. A paid tier, if usage
+# appears, is a larger curated coding-edit table and EOB-versus-bill matching,
+# local-only, behind an env-var switch; not built. Not built: portal
+# integrations, which need credentials and terms review; a price-fairness
+# benchmark, which needs licensed data.
+#
+# Liability: flags are questions, not findings; not medical, legal or insurance
+# advice; the CPT trademark and independence stated; rule table is a short
+# list of well-known relationships, documented on the page with what it leaves
+# out (medical necessity, full NCCI tables, other modifiers, facility versus
+# professional billing).
+#
+# Unverified: column names are matched by alias and no real hospital or clinic
+# export was available; the panel-component and once-a-day lists are from
+# public coding knowledge and have not been checked by a certified coder. The
+# first report of an unread file or a wrong flag is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Patients holding a confusing hospital or specialist bill will paste it
+      into a no-signup tool that names the lines to question, rather than
+      paying an advocate a share of savings or doing nothing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The draft billing-review request is what gets used: patients copy it and
+      send it, and the flagged lines are the reason they come back with the
+      next bill.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A coder or user reports a materially wrong flag, or a real bill format the tool cannot read, at which point the rule table and parser need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/medical-bill-error-checker/
+  analytics: null
