@@ -128,6 +128,9 @@ workflows:
 - workflow: amazon-fba-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: amazon-ppc-search-term-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: amazon-seller-profit-analyzer-ci.yml
   classification: none
   publishes: []
@@ -620,6 +623,9 @@ workflows:
 - workflow: freelance-writer-rate-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: freelancer-schedule-c-categorizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: freight-accessorial-auditor-ci.yml
   classification: none
   publishes: []
@@ -710,9 +716,6 @@ workflows:
 - workflow: home-service-lead-roi-analyzer-ci.yml
   classification: none
   publishes: []
-- workflow: invoice-aging-late-payer-analyzer-ci.yml
-  classification: none
-  publishes: []
 - workflow: home-staging-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -747,6 +750,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: interior-door-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: invoice-aging-late-payer-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: invoice-payment-terms-calculator-ci.yml
@@ -800,19 +806,13 @@ workflows:
 - workflow: late-invoice-collections-kit-ci.yml
   classification: none
   publishes: []
-- workflow: like-kind-exchange-1031-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: mortgage-escrow-analysis-checker-ci.yml
-  classification: none
-  publishes: []
-- workflow: print-on-demand-profit-calculator-ci.yml
-  classification: none
-  publishes: []
 - workflow: lawn-care-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: license-drift-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: like-kind-exchange-1031-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: link-contrast-ci.yml
@@ -866,9 +866,6 @@ workflows:
 - workflow: merchant-feed-check-ci.yml
   classification: none
   publishes: []
-- workflow: amazon-ppc-search-term-analyzer-ci.yml
-  classification: none
-  publishes: []
 - workflow: meta-ads-fatigue-analyzer-ci.yml
   classification: none
   publishes: []
@@ -888,6 +885,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: mold-remediation-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: mortgage-escrow-analysis-checker-ci.yml
   classification: none
   publishes: []
 - workflow: moving-bid-calculator-ci.yml
@@ -966,6 +966,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: parcel-dim-weight-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: parcel-late-delivery-refund-finder-ci.yml
   classification: none
   publishes: []
 - workflow: parking-lot-striping-bid-calculator-ci.yml
@@ -1069,6 +1072,9 @@ workflows:
 - workflow: print-atelier-ci.yml
   classification: none
   publishes: []
+- workflow: print-on-demand-profit-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: process-server-fee-calculator-ci.yml
   classification: none
   publishes: []
@@ -1140,16 +1146,13 @@ workflows:
 - workflow: rent-roll-delinquency-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: rental-property-schedule-e-categorizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: repository-branch-hygiene-ci.yml
   classification: none
   publishes: []
 - workflow: required-checks-drift-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: rental-property-schedule-e-categorizer-ci.yml
-  classification: none
-  publishes: []
-- workflow: freelancer-schedule-c-categorizer-ci.yml
   classification: none
   publishes: []
 - workflow: restaurant-delivery-commission-analyzer-ci.yml
@@ -1469,9 +1472,6 @@ workflows:
 - workflow: upwork-earnings-fee-analyzer-ci.yml
   classification: none
   publishes: []
-- workflow: youtube-revenue-rpm-analyzer-ci.yml
-  classification: none
-  publishes: []
 - workflow: vector-db-cost-calculator-ci.yml
   classification: none
   publishes: []
@@ -1503,6 +1503,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: vscode-extension-drift-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: wage-garnishment-limit-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: walk-in-shower-bid-calculator-ci.yml
@@ -1560,6 +1563,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: world-clock-widget-ci.yml
+  classification: none
+  publishes: []
+- workflow: youtube-revenue-rpm-analyzer-ci.yml
   classification: none
   publishes: []
 gitops:
