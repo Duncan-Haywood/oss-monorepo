@@ -1062,7 +1062,8 @@ const RELATIVE_SELF = relative(
 // +1: `medicare-irmaa-cliff-calculator` graduated.
 // +1: `rmd-calculator` graduated.
 // +1: `rsu-withholding-gap-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 439;
+// +1: `travel-nurse-contract-comparison-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 440;
 
 let counter = 0;
 function fixture(source) {

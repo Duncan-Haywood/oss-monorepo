@@ -1625,3 +1625,6 @@ gitops:
 - workflow: rmd-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: travel-nurse-contract-comparison-calculator-ci.yml
+  classification: none
+  publishes: []

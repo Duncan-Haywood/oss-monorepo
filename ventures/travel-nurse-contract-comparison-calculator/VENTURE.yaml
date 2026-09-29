@@ -1,0 +1,68 @@
+name: travel-nurse-contract-comparison-calculator
+description: >-
+  Free browser tool for travel nurses and locum clinicians that compares up to
+  three contract offers by real take-home pay: taxable rate, stipends, hours
+  guarantee, cancelled-shift risk, health premium, housing, travel and unpaid
+  gaps, plus the taxable rate a weaker offer needs to match the best. Nothing
+  is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. duplicate_check.py: top
+# match 0.11 (unrelated), no travel-nurse or locum tool in ventures/. Travel
+# clinicians choose among several agency offers every 13 weeks, each quoted as
+# a weekly gross that mixes taxable wages with untaxed stipends, and the
+# ranking by gross is often wrong once cancelled shifts, unpaid gaps, housing
+# cost and overtime (paid on the low taxable rate) are counted.
+#
+# First visitor: r/travelnursing and r/nursing threads asking "which offer
+# should I take" and "is this pay package good", travel-nurse Facebook groups,
+# and searches like "travel nurse pay calculator", "travel nurse stipend
+# calculator" and "travel nurse contract comparison". Volume not measured with
+# an external tool. Recruiters' apps are the incumbents and each shows only
+# its own offers.
+#
+# Path to revenue (payment rails stay off): lead magnet and audience for
+# clinician-income tools (locum, per-diem, licence-compact). A paid tier, if
+# usage appears, is saved offer histories and a printable comparison for a
+# recruiter, local only, behind an env-var switch; not built. Agency referral
+# fees are not built and would need an owner decision.
+#
+# Liability: illustrative estimates, not tax advice; tax-home status is the
+# visitor's own statement and the page says it cannot decide it; per-diem
+# rates are typed in, never hardcoded; omissions stated on the page.
+# Unverified: arithmetic checked by hand calculation only, not against a real
+# payroll stub. The first real stub that disagrees is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Travel clinicians comparing several offers will use a no-signup tool
+      that shows take-home per week including gaps and cancellation risk,
+      rather than comparing recruiters' weekly gross figures.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The cancelled-shift table and the rate-needed-to-match figure change
+      which offer people pick and what they negotiate for.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a real pay stub the tool contradicts on a point of arithmetic, at which point the tax or stipend handling needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/travel-nurse-contract-comparison-calculator/
+  analytics: null
