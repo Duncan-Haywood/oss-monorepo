@@ -1000,9 +1000,11 @@ const RELATIVE_SELF = relative(
 // boilerplate `usage.mjs` under its own storage name.
 // 383 -> 384: `google-ads-wasted-spend-analyzer` graduated -- one more
 // boilerplate `usage.mjs` under its own storage name.
-// 384 -> 385: `airbnb-earnings-report-analyzer` graduated -- one more
+// 384 -> 385: `shopify-discount-leakage-analyzer` graduated -- one more
 // boilerplate `usage.mjs` under its own storage name.
-const SWITCHES_IN_THE_CATALOGUE = 385;
+// 385 -> 386: `airbnb-earnings-report-analyzer` graduated -- one more
+// boilerplate `usage.mjs` under its own storage name.
+const SWITCHES_IN_THE_CATALOGUE = 386;
 
 let counter = 0;
 function fixture(source) {
