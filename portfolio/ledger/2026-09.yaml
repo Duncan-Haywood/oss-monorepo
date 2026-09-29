@@ -47258,6 +47258,29 @@ entries:
         score row, launch date, CI workflow, reciprocal link from
         merchant-feed-check and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: shopify-discount-leakage-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built shopify-discount-leakage-analyzer, a data-file
+        archetype for a market that already pays for this (Lifetimely, Triple
+        Whale, Peel): a browser-local tool that reads the Shopify orders export
+        (one row per line item grouped into orders, cancelled and voided orders
+        excluded, stacked codes split) and reports per-code discount given,
+        average discount, refund rate and the break-even share of orders that
+        must be new sales, d(1-fee)/m, or "never" when the discount is deeper
+        than the margin; discount depth bands; discount value that went to
+        customers who had already ordered (within the file, stated as a lower
+        bound); orders that lost money after product cost, fees and refunds.
+        File and customer emails never leave the browser (test asserts no
+        network calls); independent-of-Shopify clause. duplicate_check.py top
+        score 0.19. Also repaired venture-scores.yaml, where three concurrent
+        graduations had merged into one malformed block that failed
+        score_ventures.py --check on main. Registered launch date, CI
+        workflow, reciprocal link from shopify-fee-calculator and tree
+        counts; regenerated the mirror.
+    mrr_end: 0
   - venture: mileage-log
     agent_spend_usd: null
     human_hours: 0
