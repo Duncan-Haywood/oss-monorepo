@@ -2811,7 +2811,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `fba-aged-inventory-fee-analyzer` graduated.
     # +1: `ghost-members-export-analyzer` graduated.
     # +1: `restaurant-pos-menu-mix-analyzer` graduated (browser-local POS export analyzer).
-    total = 440  # `infra/OWNER_CHECKLIST.md`'s own "N of the 440 tools" wording.
+    total = 441  # `infra/OWNER_CHECKLIST.md`'s own "N of the 441 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
