@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 411 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 412 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -78,6 +78,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free Etsy profit analyzer: drop in your Payment Account statement and Sold Order Items CSV and get a fee waterfall, profit per listing, Offsite Ads and refund findings. Runs in your browser, the files are never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Gig Driver Earnings Report Analyzer — Real Net Pay per Hour and Mile</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/gig-driver-earnings-report-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/gig-driver-earnings-report-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free earnings analyzer for Uber, Lyft, DoorDash and Instacart drivers: drop in your trip history CSV and see net pay per hour and per mile after vehicle cost, which app, weekday and time of day pays best, and which trips cost more to drive than they paid. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Google Ads Wasted Spend Analyzer — Free Search Terms Report Tool</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Free calculator for Patreon creators: find real monthly take-home after your plan&#39;s platform fee (10% Standard, or 5/8/12% on a legacy Lite/Pro/Premium page) and per-charge payment processing, see whether per-creation billing is quietly costing you more in fees than monthly billing, and check how many more patrons close a monthly income gap.</summary>
-  </entry>
-  <entry>
-    <title>PyPI Provenance Check — Which of Your Python Dependencies Lack Trusted Publishing?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pypi-provenance-check/"/>
-    <id>tag:marisstella.dev,2026:tool/pypi-provenance-check</id>
-    <published>2026-09-25T00:00:00Z</published>
-    <updated>2026-09-25T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste a requirements.txt, a PEP 621 pyproject.toml, or a plain package list and see which Python packages were published with a PyPI provenance attestation (trusted publishing / OIDC via GitHub Actions or another supported CI) and which still rely on a classic, stealable API token. Free, no account, two read-only requests per package to the public PyPI API.</summary>
   </entry>
 </feed>

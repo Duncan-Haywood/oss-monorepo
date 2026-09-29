@@ -47395,3 +47395,26 @@ entries:
         reciprocal link from shopify-fee-calculator and tree counts;
         regenerated the mirror.
     mrr_end: 0
+  - venture: gig-driver-earnings-report-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built gig-driver-earnings-report-analyzer, a data-file
+        archetype for Uber, Lyft, DoorDash and Instacart drivers (a large market
+        that already pays Gridwise, Everlance, Stride): a browser-local tool that
+        reads a trip history CSV (file or paste; US and day-first dates, comma,
+        tab, semicolon and UTF-16; km converted; duration from minutes, h:mm or
+        start/end times; skipped rows reported with line and reason) and shows
+        net pay per hour and per mile after the driver's own cost per mile, by
+        app, weekday and time of day, the ten trips that paid worst after
+        vehicle cost, and a floor-per-hour screen. Partial miles or minutes
+        columns never drag rates toward zero and are named in findings; entered
+        hours online replace trip minutes in the headline. File never leaves the
+        browser; independent-of-every-app clause on the page. duplicate_check.py
+        top score 0.31 (gig-driver-net-pay-calculator, linked both ways).
+        Verified in Chromium against the synthetic example (no real export was
+        available; column names matched by alias, stated in VENTURE.yaml).
+        Registered score row, launch date, CI workflow, reciprocal links and
+        tree counts; regenerated the mirror.
+    mrr_end: 0
