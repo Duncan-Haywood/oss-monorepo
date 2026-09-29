@@ -949,7 +949,12 @@ const CATEGORY_RULES = [
     // the crawlable-orphan gap a new venture otherwise opens. Named by exact
     // slug prefix rather than folded into a wider pattern, for the same reason
     // as its neighbours here.
-    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|tow-motor-club)/.test(
+    // `parcel-late-delivery-refund` is filed here on its first commit: it reads
+    // the same shipper's carrier report after the parcel has shipped and audits
+    // what was billed for it, `freight-accessorial-auditor`'s parcel-tier
+    // counterpart and `parcel-dim-weight`'s after-the-fact partner (the two
+    // cross-link).
+    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club)/.test(
       slug,
     ),
   },

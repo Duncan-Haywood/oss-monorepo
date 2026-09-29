@@ -1,0 +1,87 @@
+name: parcel-late-delivery-refund-finder
+description: >-
+  Free browser tool that reads a UPS, FedEx or other carrier shipment or invoice
+  CSV and lists the parcels delivered after the promised day on next-day, 2-day
+  and 3-day services (and ground, with a transit-days setting), the shipping
+  charge on each, the last day to file, and duplicate charges and rate drift,
+  then drafts a claim request to the carrier. The file is read locally and
+  never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Nearest siblings:
+# parcel-dim-weight-calculator (pre-ship box sizing) and
+# freight-accessorial-auditor (LTL invoice lines against a contract); neither
+# reads delivery dates or the service guarantee, so this is a new question:
+# "which of my shipments arrived late and what was I charged for them".
+#
+# Copies a proven paid business model at a lower price and a narrower door:
+# parcel-audit and refund-recovery services (ShipWatch, Refund Retriever,
+# Shipware and similar) find late-delivery refunds for shippers and keep a
+# share, typically 20-30 percent, and need carrier API access or account
+# credentials. Small shippers below their minimums have nothing. This takes the
+# CSV they already download and keeps it on the device.
+#
+# First visitor: ecommerce operators and small manufacturers shipping a few
+# hundred to a few thousand express parcels a month, searching "UPS late
+# delivery refund", "FedEx money back guarantee claim" and "how to get a refund
+# for late FedEx". Search volume not measured with an external tool.
+#
+# What makes it more than a checklist: promised day computed with business
+# days on a holiday calendar the user can change and extend with closure dates;
+# late cases are separated into claimable, past the claim window, excused by a
+# weather/recipient/address note, already credited, and depends-on-a-holiday, so
+# the dollar figure only counts the first; exact duplicates are judged once;
+# a per-shipment promised-date or transit-days column overrides the service
+# table; late rate by service shows which service to stop buying; the letter
+# asks the carrier to review and never alleges fault.
+#
+# Path to revenue (payment rails stay off): lead magnet and, if usage appears,
+# a local-only paid tier for recurring monthly runs with saved carrier rules and
+# a per-carrier claim-status tracker. Not built: carrier API pulls, which need
+# credentials and terms review; automated claim filing.
+#
+# Liability: the output is a list of shipments to ask about, not a finding that
+# a refund is owed; no guarantee terms are asserted as current, and the page
+# says to check the carrier's own; independence from carriers stated.
+#
+# Unverified: no real UPS or FedEx export was available, so column aliases are
+# guesses; the six-holiday carrier calendar is a common pattern, not a
+# published rule; guarantee eligibility (which accounts, which services, what
+# is refunded) is carrier- and contract-specific and is not modelled. The first
+# report of an unread file or a wrong late call is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Small and mid-size shippers with a carrier-billing export will paste it
+      into a no-signup tool that names the late parcels and claim deadlines,
+      rather than paying a recovery service a share of the refund or doing
+      nothing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The draft claim request and the late-rate-by-service table are what get
+      used: shippers send the request monthly and use the table to renegotiate
+      or drop a service, which is the reason they return with the next report.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a real carrier export the tool cannot read, or a materially wrong late call, at which point the column aliases and promise table need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/parcel-late-delivery-refund-finder/
+  analytics: null

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 455 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 456 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -323,6 +323,15 @@
     <summary type="text">Free tool for homeowners: enter your tax and insurance bills and the numbers on your annual escrow statement, and see the payment they support, your shortage, the largest allowed cushion and a twelve-month schedule, with a draft request for the servicer&#39;s worksheet. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Parcel Late-Delivery Refund Finder — Find UPS and FedEx Shipments You Can Claim a Refund On</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/parcel-late-delivery-refund-finder/"/>
+    <id>tag:marisstella.dev,2026:tool/parcel-late-delivery-refund-finder</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Logistics, freight &amp; cloud cost"/>
+    <summary type="text">Free tool for shippers: drop in your UPS or FedEx shipment report and see which parcels were delivered after the promised day, the shipping charge on each, the last day to file, and a draft claim request. Also flags duplicate charges. Runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Patreon Members Churn Analyzer — Churn, MRR and Fees from Your Export</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/patreon-members-churn-analyzer/"/>
     <id>tag:marisstella.dev,2026:tool/patreon-members-churn-analyzer</id>
@@ -357,14 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free property tax appeal calculator: adjust comparable sales to your home, compare with your assessed value, and see the yearly tax saved, the break-even odds and what an appeal firm would keep. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Rent Roll Delinquency Analyzer — Unpaid Rent Aging by Unit</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rent-roll-delinquency-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/rent-roll-delinquency-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free analyzer for small landlords: load your rent ledger and see who owes what and how old it is, which units pay late, monthly collection rate and a late-fee upper bound. Runs in your browser, the file is never uploaded.</summary>
   </entry>
 </feed>
