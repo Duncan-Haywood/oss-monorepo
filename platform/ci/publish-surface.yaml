@@ -500,6 +500,9 @@ workflows:
 - workflow: estate-tax-exemption-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: estimated-tax-penalty-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: etsy-profit-calculator-ci.yml
   classification: none
   publishes: []

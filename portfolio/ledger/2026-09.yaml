@@ -47013,7 +47013,7 @@ entries:
         self-employment tax saved). Rules verified against IRS.gov;
         duplicate_check.py top score 0.13. Registered build category, score
         row, launch date, CI workflow, reciprocal link from
-        solo-401k-contribution-calculator, and tree counts (389 tools / 368
+        solo-401k-contribution-calculator, and tree counts (393 tools / 372
         switches); regenerated the mirror.
       - >-
         Verified locally per the starvation checklist: venture suite 24/24;
@@ -47040,6 +47040,20 @@ entries:
         excess-business-loss-calculator and depreciation-recapture-calculator,
         and tree counts (391 tools / 370 switches); regenerated the mirror.
     mrr_end: 0
+  - venture: estimated-tax-penalty-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built estimated-tax-penalty-calculator: a browser-local
+        Form 2210 (regular method) underpayment penalty estimator -- 90% /
+        100% / 110% safe harbor, $1,000 threshold, four installments with
+        dated payments applied oldest-first, daily rate to the return due
+        date, per-installment penalty and cumulative catch-up. Complements
+        quarterly-estimated-tax-calendar (forward planner, 0.61 duplicate
+        score; different mechanic, reciprocal link added). Registered build
+        category, score row, launch date, CI workflow and tree counts.
+    mrr_end: 0
   - venture: self-employment-tax-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -47053,6 +47067,6 @@ entries:
         Rules verified against IRS Tax Topic 554 and SSA 2026 figures;
         duplicate_check.py found no existing SE-tax venture. Registered build
         category, score row, launch date, CI workflow, reciprocal link from
-        home-office-deduction-calculator, tree counts (392 tools / 371
+        home-office-deduction-calculator, tree counts (393 tools / 372
         switches); regenerated the mirror.
     mrr_end: 0
