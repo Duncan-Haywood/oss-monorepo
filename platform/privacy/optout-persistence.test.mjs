@@ -1019,9 +1019,11 @@ const RELATIVE_SELF = relative(
 // 394 -> 395: `amazon-ppc-search-term-analyzer` graduated too.
 // +1: `turo-earnings-report-analyzer` graduated -- one more boilerplate
 // `usage.mjs` under its own storage name.
+// +1: `fiverr-earnings-fee-analyzer` graduated -- one more boilerplate
+// `usage.mjs` under its own storage name.
 // +1: `poshmark-sales-report-analyzer` graduated -- one more boilerplate
 // `usage.mjs` under its own storage name.
-const SWITCHES_IN_THE_CATALOGUE = 397;
+const SWITCHES_IN_THE_CATALOGUE = 398;
 
 let counter = 0;
 function fixture(source) {

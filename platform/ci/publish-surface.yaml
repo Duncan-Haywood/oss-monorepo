@@ -563,6 +563,9 @@ workflows:
 - workflow: fireplace-insert-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: fiverr-earnings-fee-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: flaky-test-finder-ci.yml
   classification: none
   publishes: []
