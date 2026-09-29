@@ -18996,6 +18996,43 @@ ventures:
       filed return. No warranty and no-advice disclaimers on the page.
       Ethics: purely informational, helps a filer claim a deduction they are
       entitled to; no scraped or personal data, nothing adversarial.
+  - slug: str-tax-loophole-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every result is deterministic
+      arithmetic against published IRS rules -- an average-stay test,
+      participation-hour tests, a phased allowance and a depreciation table --
+      never an inference step.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md; write-up in this
+      venture's VENTURE.yaml comment. duplicate_check.py scored every
+      venture, screened-out row and candidate at or below 0.17. Distribution
+      7: "short term rental tax loophole" and "cost segregation short term
+      rental" are high-intent, high-dollar queries from W-2 earners buying
+      Airbnb properties, amplified by permanent 100% bonus depreciation.
+      Search volume not measured with an external tool. Defensibility 2: a
+      published IRS ruleset applied by arithmetic, trivially replicated.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: applies published rules to the user's own numbers, never a
+      filed return; audit exposure (time logs, average stay), the 27.5 vs 39
+      year question, recapture, state decoupling and the at-risk and excess
+      business loss limits are standing findings; no-warranty and no-advice
+      disclaimers on the page. Ethics: informational, helps an owner
+      understand a lawful, IRS-published rule; no personal data leaves the
+      browser, no externality.
   - slug: self-employment-tax-calculator
     scores:
       ai_leverage: 1

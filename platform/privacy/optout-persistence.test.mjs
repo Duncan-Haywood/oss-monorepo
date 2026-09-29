@@ -980,9 +980,12 @@ const RELATIVE_SELF = relative(
 // 368 -> 369: `home-office-deduction-calculator` also graduated -- one more
 // `usage.mjs`, keyed under its own `home-office-deduction-calculator-usage`.
 //
-// 369 -> 370: `self-employment-tax-calculator` also graduated -- one more
+// 369 -> 370: `str-tax-loophole-calculator` also graduated -- one more
+// `usage.mjs`, keyed under its own `str-tax-loophole-calculator-usage`.
+//
+// 370 -> 371: `self-employment-tax-calculator` also graduated -- one more
 // `usage.mjs`, keyed under its own `self-employment-tax-calculator-usage`.
-const SWITCHES_IN_THE_CATALOGUE = 370;
+const SWITCHES_IN_THE_CATALOGUE = 371;
 
 let counter = 0;
 function fixture(source) {
