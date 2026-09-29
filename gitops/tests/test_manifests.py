@@ -2771,7 +2771,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # Form 8606 pro-rata calculator, static `index.html` only).
     # 397 -> 398: `dependabot-config-check` graduated (Node CLI + browser
     # page that lints dependabot.yml; static `index.html` plus ES modules).
-    total = 400  # `infra/OWNER_CHECKLIST.md`'s own "N of the 400 tools" wording.
+    # 400 -> 401: `roth-conversion-bracket-fill-calculator` graduated (browser-local
+    # 2026 Roth conversion calculator, static `index.html` only).
+    total = 401  # `infra/OWNER_CHECKLIST.md`'s own "N of the 401 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

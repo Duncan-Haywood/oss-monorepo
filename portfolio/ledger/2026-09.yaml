@@ -47163,6 +47163,23 @@ entries:
         different problem). Registered build category, score row, launch date,
         CI workflow and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: roth-conversion-bracket-fill-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built roth-conversion-bracket-fill-calculator: a
+        browser-local 2026 Roth conversion calculator that returns the exact
+        conversion filling a chosen bracket (solved by bisection), the tax on
+        it, room in every bracket, years to convert an IRA balance, the 65+
+        senior-deduction 6% phase-out (real rate = bracket x 1.06) and the
+        Medicare IRMAA first-tier cliff. Brackets verified against Rev. Proc.
+        2025-32 and 2026 IRMAA tiers. First visitor source: "roth conversion
+        calculator" Q4 searches and FIRE/Bogleheads forums. duplicate_check.py
+        top score 0.27. Registered build category, score row, launch date, CI
+        workflow, reciprocal link from backdoor-roth-pro-rata-calculator and
+        tree counts (401 tools / 380 switches); regenerated the mirror.
+    mrr_end: 0
   - venture: str-cleaning-fee-pricing-calculator
     agent_spend_usd: null
     human_hours: 0
