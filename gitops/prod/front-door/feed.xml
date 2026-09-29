@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 417 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 418 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -87,6 +87,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free Etsy profit analyzer: drop in your Payment Account statement and Sold Order Items CSV and get a fee waterfall, profit per listing, Offsite Ads and refund findings. Runs in your browser, the files are never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Fiverr Earnings Fee Analyzer — Your Real Take-Home per Order</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fiverr-earnings-fee-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/fiverr-earnings-fee-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free Fiverr fee calculator for sellers: drop in your earnings or revenue CSV and see the service fee actually taken, take-home per order, net revenue per gig, repeat buyers, refunds, withdrawal costs, funds still clearing and the price needed for a target take-home. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Gig Driver Earnings Report Analyzer — Real Net Pay per Hour and Mile</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free calculator for the 2026 FLSA white-collar overtime-exemption salary threshold — checks a weekly salary against the federal $684/week figure and the higher state threshold in California, Washington, New York, Maine, or Alaska, including New York&#39;s professional-exemption carve-out. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Final Paycheck Deadline Calculator — By State, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/final-paycheck-deadline-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/final-paycheck-deadline-calculator</id>
-    <published>2026-09-25T00:00:00Z</published>
-    <updated>2026-09-25T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free calculator for the legal deadline on a departing employee&#39;s final paycheck — by US state and separation type (fired/laid off vs. quit), including California&#39;s notice-based rule, Minnesota&#39;s demand-triggered 24-hour rule, and whether the state requires accrued unused vacation/PTO to be paid out. Entirely client-side, nothing uploaded.</summary>
   </entry>
 </feed>
