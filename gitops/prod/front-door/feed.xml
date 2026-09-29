@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 436 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 437 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -69,6 +69,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free credit card surcharge vs cash discount calculator for small merchants: see monthly processing cost, the surcharge that recovers it, and how many customers you can lose before each option stops paying off. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Client Profitability Time Analyzer — What Each Client Really Pays Per Hour</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/client-profitability-time-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/client-profitability-time-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free analyzer for freelancers, consultants and agencies: load a time export from Toggl, Clockify, Harvest or a spreadsheet and see each client&#39;s effective hourly rate against your target, unbilled time, flat-fee scope creep and which clients to reprice. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Dependabot Config Check — Lint dependabot.yml and Find Ecosystems It Misses</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free calculator for short-term rental owners: does your Airbnb or VRBO escape rental-activity status (average stay of 7 days or less) and qualify as non-passive through material participation? Compare the $25,000 passive path and estimate first-year cost segregation depreciation with 100% bonus. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Stripe Churn and Cohort Analyzer — Free CSV Retention Tool</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/stripe-churn-cohort-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/stripe-churn-cohort-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free Stripe churn and cohort analyzer: drop in your Stripe subscriptions CSV and get MRR, new vs churned MRR, monthly churn and a cohort retention table. Runs in your browser, the file is never uploaded.</summary>
   </entry>
 </feed>

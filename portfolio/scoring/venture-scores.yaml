@@ -20576,3 +20576,36 @@ ventures:
       this is not legal, rate or financial advice, plus an independent-of-every-club
       clause. Nothing is uploaded (a test asserts no network calls). Ethics:
       purely informational, helps an operator see what a call pays them.
+  - slug: client-profitability-time-analyzer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on a time export the user supplies and a target rate they type.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Freelancers,
+      consultants and small agencies track time but rarely divide each client's
+      revenue by the hours that client consumed, so poor clients hide behind a
+      healthy blended rate. Distribution 6: "client profitability report" and
+      "effective hourly rate freelance" are recurring searches in freelancer
+      communities; volume not measured with an external tool. Defensibility 3:
+      simple division anyone can copy; the edge is flat-fee handling, scope-creep
+      detection and being free with no tracker login.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's file and one typed rate with model and
+      omissions stated; no advice, no warranty, independent-of-every-time-tracker
+      clause; the upside figure is labelled an upper bound, not a forecast.
+      Nothing is uploaded. Ethics: helps an owner see their own client economics.

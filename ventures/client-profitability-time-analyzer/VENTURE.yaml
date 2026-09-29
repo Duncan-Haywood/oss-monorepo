@@ -1,0 +1,78 @@
+name: client-profitability-time-analyzer
+description: >-
+  Free browser tool that turns a time-tracker export (Toggl, Clockify, Harvest,
+  or a spreadsheet) into each client's effective hourly rate against a target
+  rate, unbilled time, flat-fee scope creep, hour concentration and a reprice
+  list. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Freelancers, consultants
+# and small agencies track time but rarely divide what each client paid by the
+# hours the client consumed, so the worst clients hide behind a healthy blended
+# rate. Existing answers are the tracker's own reports (hours and billable
+# amount, no target-rate gap, no flat-fee handling), profitability add-ons
+# inside paid agency suites, and spreadsheets. Buyers are the owners
+# themselves, and the output is a decision: reprice this client, cap that
+# retainer, drop the one paying half your target.
+#
+# First visitor: r/freelance, r/consulting, r/agency and designer/developer
+# communities asking "which clients are worth it", "effective hourly rate
+# freelance"; search phrases "client profitability report", "effective hourly
+# rate calculator". Volume not measured.
+#
+# What makes it more than a total: revenue is divided by *all* hours including
+# non-billable, flat-fee and retainer revenue is added per client so fixed
+# price work is judged honestly, scope creep is flagged when flat-fee hours
+# grow between the two halves of the period, and the gap to a target rate is
+# stated as an upper bound rather than a forecast.
+#
+# Privacy is the liability boundary: the export, which holds client names and
+# amounts, never leaves the browser (a test asserts no network calls), so the
+# portfolio holds no customer data.
+#
+# Path to revenue (payment rails stay off): lead magnet into the retainer,
+# bid and invoice-aging tools, whose audience is the same owner. A paid
+# version, if usage appears, is saved multi-period history with cost-of-
+# delivery per client behind an env-var switch; not built.
+#
+# Liability: arithmetic on the user's file and one typed rate, model and
+# omissions stated on the page, no business or financial advice, no warranty,
+# independent-of-every-time-tracker clause.
+#
+# Unverified: column names are matched by alias and no real Toggl, Clockify or
+# Harvest export was available; the first user report of an unread file is the
+# priority fix.
+
+hypotheses:
+  - claim: >-
+      Freelancers and small agencies will run a no-signup analysis of a time
+      export they already have to see what each client really pays per hour.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the gap to a target rate per client leads at least one owner to
+      reprice, cap a retainer or drop a client, which is the reason to return
+      with each new export.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a real export the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/client-profitability-time-analyzer/
+  analytics: null
