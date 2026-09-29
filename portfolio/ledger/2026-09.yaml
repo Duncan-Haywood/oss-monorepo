@@ -47350,28 +47350,11 @@ entries:
         str-host-payout-calculator and str-cleaning-fee-pricing-calculator and
         tree counts; regenerated the mirror.
     mrr_end: 0
-  - venture: meta-ads-fatigue-analyzer
   - venture: ebay-transaction-report-analyzer
     agent_spend_usd: null
     human_hours: 0
     outcomes:
       - >-
-        Graduated and built meta-ads-fatigue-analyzer, a data-file archetype
-        aimed at small advertisers and freelance paid-social managers (a market
-        that already pays Motion, Triple Whale, Madgicx): a browser-local tool
-        that reads a Meta Ads Manager ad-level CSV (file or paste; aliased
-        columns, currency suffix in the header, thousands separators, month-first
-        and day-first dates, comma, tab and semicolon, UTF-8 BOM and UTF-16;
-        skipped rows reported with line and reason) and shows cost per result,
-        ROAS and CTR per ad, creative-fatigue flags (high frequency plus a weak
-        CTR, cost per result or daily CTR trend against the account median),
-        no-result spend graded proven, overspent or watch, scale candidates and a
-        per-campaign summary. File never leaves the browser; independent-of-Meta
-        clause on the page. duplicate_check.py top score 0.19. Verified against
-        a synthetic export (no real export was available; column names are from
-        memory and matched by alias, stated in VENTURE.yaml). Registered score
-        row, launch date, CI workflow, reciprocal link with
-        google-ads-wasted-spend-analyzer and tree counts; regenerated the mirror.
         Graduated and built ebay-transaction-report-analyzer, a data-file
         archetype aimed at eBay resellers (a market that already pays
         Sellerboard-style and accounting-connector tools): a browser-local
@@ -47434,4 +47417,26 @@ entries:
         available; column names matched by alias, stated in VENTURE.yaml).
         Registered score row, launch date, CI workflow, reciprocal links and
         tree counts; regenerated the mirror.
+    mrr_end: 0
+  - venture: meta-ads-fatigue-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built meta-ads-fatigue-analyzer, a data-file archetype
+        aimed at small advertisers and freelance paid-social managers (a market
+        that already pays Motion, Triple Whale, Madgicx): a browser-local tool
+        that reads a Meta Ads Manager ad-level CSV (file or paste; aliased
+        columns, currency suffix in the header, thousands separators, month-first
+        and day-first dates, comma, tab and semicolon, UTF-8 BOM and UTF-16;
+        skipped rows reported with line and reason) and shows cost per result,
+        ROAS and CTR per ad, creative-fatigue flags (high frequency plus a weak
+        CTR, cost per result or daily CTR trend against the account median),
+        no-result spend graded proven, overspent or watch, scale candidates and a
+        per-campaign summary. File never leaves the browser; independent-of-Meta
+        clause on the page. duplicate_check.py top score 0.19. Verified against
+        a synthetic export (no real export was available; column names are from
+        memory and matched by alias, stated in VENTURE.yaml). Registered score
+        row, launch date, CI workflow, reciprocal link with
+        google-ads-wasted-spend-analyzer and tree counts; regenerated the mirror.
     mrr_end: 0
