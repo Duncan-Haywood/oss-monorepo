@@ -33,29 +33,29 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 545729 bytes
-#   portfolio-front-tools-1: 92 files, 554480 bytes
-#   portfolio-front-tools-2: 144 files, 552442 bytes
-#   portfolio-front-tools-3: 131 files, 554401 bytes
-#   portfolio-front-tools-4: 141 files, 556072 bytes
-#   portfolio-front-tools-5: 126 files, 548987 bytes
-#   portfolio-front-tools-6: 128 files, 555738 bytes
-#   portfolio-front-tools-7: 139 files, 556902 bytes
-#   portfolio-front-tools-8: 121 files, 556475 bytes
-#   portfolio-front-tools-9: 136 files, 555317 bytes
-#   portfolio-front-tools-10: 133 files, 553560 bytes
-#   portfolio-front-tools-11: 122 files, 546586 bytes
-#   portfolio-front-tools-12: 119 files, 556574 bytes
-#   portfolio-front-tools-13: 120 files, 555807 bytes
-#   portfolio-front-tools-14: 127 files, 553217 bytes
-#   portfolio-front-tools-15: 130 files, 549476 bytes
-#   portfolio-front-tools-16: 134 files, 553603 bytes
-#   portfolio-front-tools-17: 127 files, 548471 bytes
-#   portfolio-front-tools-18: 102 files, 553378 bytes
-#   portfolio-front-tools-19: 118 files, 551684 bytes
-#   portfolio-front-tools-20: 128 files, 552558 bytes
-#   portfolio-front-tools-21: 107 files, 504710 bytes
-#   portfolio-front-tools-22: 50 files, 264908 bytes
+#   portfolio-front-tools-0: 145 files, 545708 bytes
+#   portfolio-front-tools-1: 92 files, 554496 bytes
+#   portfolio-front-tools-2: 144 files, 552453 bytes
+#   portfolio-front-tools-3: 131 files, 554435 bytes
+#   portfolio-front-tools-4: 141 files, 556079 bytes
+#   portfolio-front-tools-5: 128 files, 556857 bytes
+#   portfolio-front-tools-6: 127 files, 553538 bytes
+#   portfolio-front-tools-7: 139 files, 553517 bytes
+#   portfolio-front-tools-8: 120 files, 551041 bytes
+#   portfolio-front-tools-9: 136 files, 556376 bytes
+#   portfolio-front-tools-10: 133 files, 556839 bytes
+#   portfolio-front-tools-11: 125 files, 556286 bytes
+#   portfolio-front-tools-12: 119 files, 556517 bytes
+#   portfolio-front-tools-13: 120 files, 555741 bytes
+#   portfolio-front-tools-14: 127 files, 553404 bytes
+#   portfolio-front-tools-15: 130 files, 549505 bytes
+#   portfolio-front-tools-16: 134 files, 553621 bytes
+#   portfolio-front-tools-17: 127 files, 548421 bytes
+#   portfolio-front-tools-18: 102 files, 553376 bytes
+#   portfolio-front-tools-19: 118 files, 551717 bytes
+#   portfolio-front-tools-20: 128 files, 552604 bytes
+#   portfolio-front-tools-21: 107 files, 504657 bytes
+#   portfolio-front-tools-22: 50 files, 264894 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -867,6 +867,9 @@ configMapGenerator:
       - automatic-driveway-gate-bid-calculator__usage.mjs.gz=automatic-driveway-gate-bid-calculator__usage.mjs.gz
       - automatic-driveway-gate-bid-calculator__vs-a-flat-4500-special.html.gz=automatic-driveway-gate-bid-calculator__vs-a-flat-4500-special.html.gz
       - automatic-driveway-gate-bid-calculator__vs-jobber.html.gz=automatic-driveway-gate-bid-calculator__vs-jobber.html.gz
+      - backdoor-roth-pro-rata-calculator__calc.mjs.gz=backdoor-roth-pro-rata-calculator__calc.mjs.gz
+      - backdoor-roth-pro-rata-calculator__index.html.gz=backdoor-roth-pro-rata-calculator__index.html.gz
+      - backdoor-roth-pro-rata-calculator__usage.mjs.gz=backdoor-roth-pro-rata-calculator__usage.mjs.gz
       - backflow-test-fee-calculator__calc.mjs.gz=backflow-test-fee-calculator__calc.mjs.gz
       - backflow-test-fee-calculator__how-to-price-a-multi-device-backflow-test-visit.html.gz=backflow-test-fee-calculator__how-to-price-a-multi-device-backflow-test-visit.html.gz
       - backflow-test-fee-calculator__index.html.gz=backflow-test-fee-calculator__index.html.gz
@@ -881,12 +884,12 @@ configMapGenerator:
       - backup-file-exposure-check__vs-checking-by-hand.html.gz=backup-file-exposure-check__vs-checking-by-hand.html.gz
       - backup-file-exposure-check__why-backup-files-end-up-in-web-roots.html.gz=backup-file-exposure-check__why-backup-files-end-up-in-web-roots.html.gz
       - basement-finishing-bid-calculator__calc.mjs.gz=basement-finishing-bid-calculator__calc.mjs.gz
-      - basement-finishing-bid-calculator__how-much-to-charge-to-finish-a-basement.html.gz=basement-finishing-bid-calculator__how-much-to-charge-to-finish-a-basement.html.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - basement-finishing-bid-calculator__how-much-to-charge-to-finish-a-basement.html.gz=basement-finishing-bid-calculator__how-much-to-charge-to-finish-a-basement.html.gz
       - basement-finishing-bid-calculator__index.html.gz=basement-finishing-bid-calculator__index.html.gz
       - basement-finishing-bid-calculator__should-i-charge-30-a-square-foot-to-finish-a-basement.html.gz=basement-finishing-bid-calculator__should-i-charge-30-a-square-foot-to-finish-a-basement.html.gz
       - basement-finishing-bid-calculator__usage.mjs.gz=basement-finishing-bid-calculator__usage.mjs.gz
@@ -1013,13 +1016,13 @@ configMapGenerator:
       - carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz=carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz
       - carpet-install-bid-calculator__index.html.gz=carpet-install-bid-calculator__index.html.gz
       - carpet-install-bid-calculator__should-i-charge-2-a-yard-to-install-carpet.html.gz=carpet-install-bid-calculator__should-i-charge-2-a-yard-to-install-carpet.html.gz
-      - carpet-install-bid-calculator__should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html.gz=carpet-install-bid-calculator__should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html.gz
-      - carpet-install-bid-calculator__usage.mjs.gz=carpet-install-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - carpet-install-bid-calculator__should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html.gz=carpet-install-bid-calculator__should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html.gz
+      - carpet-install-bid-calculator__usage.mjs.gz=carpet-install-bid-calculator__usage.mjs.gz
       - carpet-install-bid-calculator__vs-a-flat-rate-per-yard.html.gz=carpet-install-bid-calculator__vs-a-flat-rate-per-yard.html.gz
       - carpet-install-bid-calculator__vs-jobber.html.gz=carpet-install-bid-calculator__vs-jobber.html.gz
       - carpet-install-bid-calculator__vs-measuresquare.html.gz=carpet-install-bid-calculator__vs-measuresquare.html.gz
@@ -1157,13 +1160,13 @@ configMapGenerator:
       - coverage-drop-check__compare.mjs.gz=coverage-drop-check__compare.mjs.gz
       - coverage-drop-check__index.html.gz=coverage-drop-check__index.html.gz
       - coverage-drop-check__usage.mjs.gz=coverage-drop-check__usage.mjs.gz
-      - coverage-drop-check__vs-a-flat-coverage-floor.html.gz=coverage-drop-check__vs-a-flat-coverage-floor.html.gz
-      - coverage-drop-check__vs-codecov.html.gz=coverage-drop-check__vs-codecov.html.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - coverage-drop-check__vs-a-flat-coverage-floor.html.gz=coverage-drop-check__vs-a-flat-coverage-floor.html.gz
+      - coverage-drop-check__vs-codecov.html.gz=coverage-drop-check__vs-codecov.html.gz
       - coverage-drop-check__why-did-my-pr-drop-coverage.html.gz=coverage-drop-check__why-did-my-pr-drop-coverage.html.gz
       - cra-evidence-desk__index.html.gz=cra-evidence-desk__index.html.gz
       - cra-evidence-desk__match.mjs.gz=cra-evidence-desk__match.mjs.gz
@@ -1282,14 +1285,14 @@ configMapGenerator:
       - docker-base-image-pin-check__check.py.gz=docker-base-image-pin-check__check.py.gz
       - docker-base-image-pin-check__classify.mjs.gz=docker-base-image-pin-check__classify.mjs.gz
       - docker-base-image-pin-check__how-to-pin-a-docker-base-image-to-a-digest.html.gz=docker-base-image-pin-check__how-to-pin-a-docker-base-image-to-a-digest.html.gz
-      - docker-base-image-pin-check__index.html.gz=docker-base-image-pin-check__index.html.gz
-      - docker-base-image-pin-check__usage.mjs.gz=docker-base-image-pin-check__usage.mjs.gz
-      - docker-base-image-pin-check__vs-hadolint.html.gz=docker-base-image-pin-check__vs-hadolint.html.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - docker-base-image-pin-check__index.html.gz=docker-base-image-pin-check__index.html.gz
+      - docker-base-image-pin-check__usage.mjs.gz=docker-base-image-pin-check__usage.mjs.gz
+      - docker-base-image-pin-check__vs-hadolint.html.gz=docker-base-image-pin-check__vs-hadolint.html.gz
       - docker-base-image-pin-check__vs-reading-a-dockerfile-by-hand.html.gz=docker-base-image-pin-check__vs-reading-a-dockerfile-by-hand.html.gz
       - docker-build-secrets-check__check.py.gz=docker-build-secrets-check__check.py.gz
       - docker-build-secrets-check__classify.mjs.gz=docker-build-secrets-check__classify.mjs.gz
@@ -1423,14 +1426,14 @@ configMapGenerator:
       - email-auth-check__usage.mjs.gz=email-auth-check__usage.mjs.gz
       - email-auth-check__vs-checking-dns-records-by-hand.html.gz=email-auth-check__vs-checking-dns-records-by-hand.html.gz
       - email-auth-check__vs-mxtoolbox.html.gz=email-auth-check__vs-mxtoolbox.html.gz
-      - employee-cost-calculator__calc.mjs.gz=employee-cost-calculator__calc.mjs.gz
-      - employee-cost-calculator__index.html.gz=employee-cost-calculator__index.html.gz
-      - employee-cost-calculator__usage.mjs.gz=employee-cost-calculator__usage.mjs.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - employee-cost-calculator__calc.mjs.gz=employee-cost-calculator__calc.mjs.gz
+      - employee-cost-calculator__index.html.gz=employee-cost-calculator__index.html.gz
+      - employee-cost-calculator__usage.mjs.gz=employee-cost-calculator__usage.mjs.gz
       - employee-cost-calculator__vs-a-flat-burden-percentage.html.gz=employee-cost-calculator__vs-a-flat-burden-percentage.html.gz
       - employee-cost-calculator__when-does-futa-suta-stop-accruing.html.gz=employee-cost-calculator__when-does-futa-suta-stop-accruing.html.gz
       - entry-door-bid-calculator__calc.mjs.gz=entry-door-bid-calculator__calc.mjs.gz
@@ -1561,14 +1564,14 @@ configMapGenerator:
       - fleet-repair-or-replace-planner__calc.mjs.gz=fleet-repair-or-replace-planner__calc.mjs.gz
       - fleet-repair-or-replace-planner__index.html.gz=fleet-repair-or-replace-planner__index.html.gz
       - fleet-repair-or-replace-planner__is-it-cheaper-to-repair-or-replace-a-work-truck.html.gz=fleet-repair-or-replace-planner__is-it-cheaper-to-repair-or-replace-a-work-truck.html.gz
-      - fleet-repair-or-replace-planner__usage.mjs.gz=fleet-repair-or-replace-planner__usage.mjs.gz
-      - fleet-repair-or-replace-planner__vs-comparing-the-repair-bill-to-a-new-price.html.gz=fleet-repair-or-replace-planner__vs-comparing-the-repair-bill-to-a-new-price.html.gz
-      - fleet-repair-or-replace-planner__vs-fleet-management-software.html.gz=fleet-repair-or-replace-planner__vs-fleet-management-software.html.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - fleet-repair-or-replace-planner__usage.mjs.gz=fleet-repair-or-replace-planner__usage.mjs.gz
+      - fleet-repair-or-replace-planner__vs-comparing-the-repair-bill-to-a-new-price.html.gz=fleet-repair-or-replace-planner__vs-comparing-the-repair-bill-to-a-new-price.html.gz
+      - fleet-repair-or-replace-planner__vs-fleet-management-software.html.gz=fleet-repair-or-replace-planner__vs-fleet-management-software.html.gz
       - fleet-repair-or-replace-planner__vs-spreadsheet.html.gz=fleet-repair-or-replace-planner__vs-spreadsheet.html.gz
       - flooring-bid-calculator__calc.mjs.gz=flooring-bid-calculator__calc.mjs.gz
       - flooring-bid-calculator__how-much-to-charge.html.gz=flooring-bid-calculator__how-much-to-charge.html.gz

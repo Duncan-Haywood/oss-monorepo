@@ -18923,3 +18923,37 @@ ventures:
       retirement contribution they are already entitled to make; no
       scraped or personal data, nothing adversarial, scales with zero
       externality -- one filer's calculation does not affect another's.
+  - slug: backdoor-roth-pro-rata-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every result is the IRS's own
+      Form 8606 Part I arithmetic applied to the filer's balances, never an
+      inference step.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring
+      process; write-up in this venture's own VENTURE.yaml comment.
+      duplicate_check.py scored every venture, screened-out row and
+      pipeline candidate at or below 0.21. Distribution 7: "backdoor roth
+      pro rata" is a high-intent, evergreen search among high-earning
+      W-2 filers with a Q4 (roll-in before Dec 31) and Q1 (Form 8606
+      filing) spike; no external search-volume tool was queried.
+      Defensibility 2, as its siblings: a published IRS formula.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: federal-only, scope limits stated on the page; inputs are
+      figures the filer already has; output is an estimate of a form the
+      filer still files themselves. No-warranty and no-advice disclaimers on
+      the page. Ethics: purely informational, helps a filer avoid an
+      unintended tax bill; no personal data, nothing adversarial.

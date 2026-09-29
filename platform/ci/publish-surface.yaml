@@ -170,6 +170,9 @@ workflows:
 - workflow: automatic-driveway-gate-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: backdoor-roth-pro-rata-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: backflow-test-fee-calculator-ci.yml
   classification: none
   publishes: []

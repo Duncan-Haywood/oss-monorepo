@@ -971,7 +971,12 @@ const RELATIVE_SELF = relative(
 // added `usage.mjs`, no deletions. Total re-derived here by
 // `sync_tree_counts.py` against the fully merged tree rather than by
 // hand.
-const SWITCHES_IN_THE_CATALOGUE = 367;
+//
+// 367 -> 368: `backdoor-roth-pro-rata-calculator` graduated -- one more
+// `usage.mjs` of the same boilerplate shape, keyed under its own
+// `backdoor-roth-pro-rata-calculator-usage` storage name. Exactly one added
+// `usage.mjs`, no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 368;
 
 let counter = 0;
 function fixture(source) {
