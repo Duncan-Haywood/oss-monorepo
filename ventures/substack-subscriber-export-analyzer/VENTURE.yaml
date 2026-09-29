@@ -1,0 +1,82 @@
+name: substack-subscriber-export-analyzer
+description: >-
+  Free browser tool that turns a Substack subscribers export CSV into paid,
+  free, comp and former counts, free-to-paid conversion, paid churn and
+  retention, monthly revenue by plan from prices the writer types, annual and
+  founding renewals coming due, growth by month, time to first payment, engaged
+  free subscribers as the upgrade pool, and a fee estimate. The file is read
+  locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Paid newsletter writers
+# live on free-to-paid conversion and paid retention, and Substack's dashboard
+# shows headline counts and a growth chart, not cohort retention, renewals due
+# or a revenue and fee view built from the plan mix. The export holds per-
+# subscriber plan, active flag, expiry, first-payment date and activity rating,
+# which is enough for all of it. Existing answers are spreadsheets and paid
+# newsletter-analytics tools that ask for a Substack login or an API key.
+#
+# First visitor: r/Substack and newsletter-writer communities asking "what is a
+# normal free to paid conversion" and "how many paid subscribers do I lose";
+# search phrases "substack subscriber export analysis", "substack churn rate",
+# "substack conversion rate". Volume not measured with an external tool.
+#
+# What makes it more than a count: paid retention counts only subscribers old
+# enough to be measured; renewals due are the revenue at stake in the next 30,
+# 60 and 90 days; engaged free subscribers (by the export's activity rating)
+# are sized as the upgrade pool with the revenue of each 1% who convert; groups
+# under five never drive a suggestion; prices and fee percentages are typed and
+# labelled as assumptions because the export carries no prices.
+#
+# Privacy is the differentiator and the liability boundary: the file, which
+# holds subscriber emails, never leaves the browser (a test asserts the page has
+# no network calls) and emails are dropped at parse, so the portfolio holds no
+# writer or subscriber data.
+#
+# Path to revenue (payment rails stay off): lead magnet, with a tie-in to
+# newsletter-sponsorship-rate-calculator already published. A paid version, if
+# usage appears, is a month-over-month export diff behind an env-var switch;
+# not built.
+#
+# Liability: arithmetic on the user's file and stated assumptions, model and
+# omissions stated on the page, no tax or financial advice, no warranty,
+# independent-of-Substack clause.
+#
+# Unverified: column names and value wording are from memory of Substack
+# subscriber exports and matched by alias; no real export was available, so the
+# first user report of an unread file is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Paid newsletter writers will run a no-login analysis of the subscribers
+      export they already hold to see conversion, paid retention and renewals
+      due before paying for a newsletter analytics tool.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing renewals due and the engaged free pool leads at least one writer to
+      act (renewal note, upgrade push), which is the reason to return with each
+      new export.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a real export the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/substack-subscriber-export-analyzer/
+  analytics: null

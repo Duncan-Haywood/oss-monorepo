@@ -1520,3 +1520,6 @@ gitops:
 - workflow: tiktok-shop-settlement-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: substack-subscriber-export-analyzer-ci.yml
+  classification: none
+  publishes: []

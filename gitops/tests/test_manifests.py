@@ -2801,7 +2801,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `whatnot-sales-report-analyzer` graduated (browser-local Whatnot orders CSV analyzer).
     # +1: `tiktok-shop-settlement-analyzer` graduated (browser-local TikTok Shop
     # settlement CSV analyzer, static `index.html` plus ES modules).
-    total = 425  # `infra/OWNER_CHECKLIST.md`'s own "N of the 425 tools" wording.
+    # +1: `substack-subscriber-export-analyzer` graduated.
+    total = 426  # `infra/OWNER_CHECKLIST.md`'s own "N of the 426 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

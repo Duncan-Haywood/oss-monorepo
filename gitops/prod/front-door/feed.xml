@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 425 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 426 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -296,6 +296,15 @@
     <summary type="text">Free Stripe failed payment recovery analyzer: drop in your Stripe payments CSV and see how much failed-payment revenue you recover, what you lose, by decline reason and how fast. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
+    <title>Substack Subscriber Export Analyzer — Conversion, Churn and Revenue</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/substack-subscriber-export-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/substack-subscriber-export-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free analyzer for Substack writers: drop in your subscribers export CSV and see paid, free and former subscribers, free-to-paid conversion, paid retention, revenue by plan, annual renewals due and growth. Runs in your browser, the file is never uploaded.</summary>
+  </entry>
+  <entry>
     <title>TikTok Shop Settlement Analyzer — Your Real Take-Home per Order</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tiktok-shop-settlement-analyzer/"/>
     <id>tag:marisstella.dev,2026:tool/tiktok-shop-settlement-analyzer</id>
@@ -357,14 +366,5 @@
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free checker for whether your company still owes a federal Corporate Transparency Act beneficial ownership report after FinCEN&#39;s August 2026 final rule permanently exempted every U.S.-formed entity. Applies to foreign-formed entities registered to do business in the U.S. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Bonus Depreciation vs. Section 179 Calculator — 2025-2026, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bonus-depreciation-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/bonus-depreciation-calculator</id>
-    <published>2026-09-25T00:00:00Z</published>
-    <updated>2026-09-25T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator comparing 100% bonus depreciation, a Section 179 election, and plain MACRS depreciation for a new equipment or asset purchase — with the 2025/2026 OBBBA dollar limits and phase-out, the net-operating-loss vs. carryforward distinction, and cash tax savings for each path. Entirely client-side, nothing uploaded.</summary>
   </entry>
 </feed>
