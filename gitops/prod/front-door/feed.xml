@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 396 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 398 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -62,6 +62,15 @@
     <summary type="text">Free SaaS annual plan discount calculator: find the annual-prepay discount you can offer before it costs more than it brings in, given gross margin, monthly churn, renewal rate and cost of capital. Runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>SaaS CAC Payback Calculator — Churn-Adjusted Payback and LTV:CAC, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/saas-cac-payback-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/saas-cac-payback-calculator</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free SaaS CAC payback calculator: churn-adjusted payback months, LTV, LTV:CAC and the most you can spend to acquire a customer for a target payback. Runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Self-Employment Tax Calculator 2026 — Schedule SE, Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/self-employment-tax-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/self-employment-tax-calculator</id>
@@ -78,6 +87,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free calculator for short-term rental owners: does your Airbnb or VRBO escape rental-activity status (average stay of 7 days or less) and qualify as non-passive through material participation? Compare the $25,000 passive path and estimate first-year cost segregation depreciation with 100% bonus. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Stripe Churn and Cohort Analyzer — Free CSV Retention Tool</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/stripe-churn-cohort-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/stripe-churn-cohort-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free Stripe churn and cohort analyzer: drop in your Stripe subscriptions CSV and get MRR, new vs churned MRR, monthly churn and a cohort retention table. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Solo 401(k) Contribution Calculator — 2026, Free</title>
@@ -348,23 +366,5 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free Depop seller fee calculator for the US and UK schedule (0% selling fee, 3.3%+$0.45 or 2.9%+£0.30 processing on item price + shipping) and the rest-of-world flat 10% schedule, plus Boosted Listings. Real profit, price for a target profit, and a region-by-region comparison. Nothing leaves your browser.</summary>
-  </entry>
-  <entry>
-    <title>Economic Nexus Threshold Tracker — Which States Have You Crossed?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/economic-nexus-threshold-tracker/"/>
-    <id>tag:marisstella.dev,2026:tool/economic-nexus-threshold-tracker</id>
-    <published>2026-09-24T00:00:00Z</published>
-    <updated>2026-09-24T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free browser tracker for online and multi-channel sellers: enter trailing-12-month gross sales and transaction count by state, and see which states&#39; economic-nexus sales-tax-registration thresholds you&#39;ve crossed, per state, against each state&#39;s own published $100k/$250k/$500k and 200-transaction figures. Runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Employee vs. Contractor Cost Calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/employee-cost-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/employee-cost-calculator</id>
-    <published>2026-09-24T00:00:00Z</published>
-    <updated>2026-09-24T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator comparing the fully-loaded cost of a W-2 employee against a 1099 contractor for the same role — FICA, capped FUTA/SUTA, workers&#39; comp, PTO, benefits, payroll admin, and one-time onboarding, plus the contractor rate at which the two cost the same. Nothing leaves your browser.</summary>
   </entry>
 </feed>
