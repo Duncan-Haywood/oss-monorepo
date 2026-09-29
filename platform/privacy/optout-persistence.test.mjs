@@ -1006,7 +1006,9 @@ const RELATIVE_SELF = relative(
 // its own storage name.
 // 386 -> 387: `airbnb-earnings-report-analyzer` graduated -- one more
 // boilerplate `usage.mjs` under its own storage name.
-const SWITCHES_IN_THE_CATALOGUE = 388;
+// 388 -> 389: `meta-ads-fatigue-analyzer` graduated -- one more boilerplate
+// `usage.mjs` under its own storage name.
+const SWITCHES_IN_THE_CATALOGUE = 389;
 
 let counter = 0;
 function fixture(source) {

@@ -119,7 +119,13 @@ workflows:
   - job: deploy
     step: runs 'npm run deploy'
     gates: []
+- workflow: airbnb-earnings-report-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: amazon-fba-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: amazon-seller-profit-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: android-data-safety-check-ci.yml
@@ -243,6 +249,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: card-processing-fee-audit-ci.yml
+  classification: none
+  publishes: []
+- workflow: card-surcharge-vs-cash-discount-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: carpet-cleaning-bid-calculator-ci.yml
@@ -512,6 +521,9 @@ workflows:
 - workflow: etsy-profit-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: etsy-statement-profit-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: ev-charger-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -603,6 +615,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: git-exposure-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: google-ads-wasted-spend-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: grant-deadline-tracker-ci.yml
@@ -782,10 +797,16 @@ workflows:
 - workflow: merchant-feed-check-ci.yml
   classification: none
   publishes: []
+- workflow: meta-ads-fatigue-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: metal-roof-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: mileage-deduction-method-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: mileage-log-ci.yml
   classification: none
   publishes: []
 - workflow: mini-split-bid-calculator-ci.yml
@@ -1067,6 +1088,9 @@ workflows:
 - workflow: roofing-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: roth-conversion-bracket-fill-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: s-corp-reasonable-compensation-calculator-ci.yml
   classification: none
   publishes: []
@@ -1106,6 +1130,9 @@ workflows:
 - workflow: security-txt-check-ci.yml
   classification: none
   publishes: []
+- workflow: self-employment-tax-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: self-storage-rate-increase-calculator-ci.yml
   classification: none
   publishes: []
@@ -1133,7 +1160,13 @@ workflows:
 - workflow: shopify-a11y-evidence-ci.yml
   classification: none
   publishes: []
+- workflow: shopify-discount-leakage-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: shopify-fee-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: shopify-payout-profit-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: shopify-permission-drift-ci.yml
@@ -1214,6 +1247,9 @@ workflows:
 - workflow: storage-auction-max-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: str-cleaning-fee-pricing-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: str-host-payout-calculator-ci.yml
   classification: none
   publishes: []
@@ -1221,6 +1257,12 @@ workflows:
   classification: none
   publishes: []
 - workflow: str-tax-loophole-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: stripe-churn-cohort-analyzer-ci.yml
+  classification: none
+  publishes: []
+- workflow: stripe-failed-payment-recovery-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: structured-data-drift-check-ci.yml
@@ -1385,38 +1427,6 @@ workflows:
 - workflow: world-clock-widget-ci.yml
   classification: none
   publishes: []
-- workflow: self-employment-tax-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: card-surcharge-vs-cash-discount-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: stripe-churn-cohort-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: stripe-failed-payment-recovery-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: roth-conversion-bracket-fill-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: str-cleaning-fee-pricing-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: amazon-seller-profit-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: etsy-statement-profit-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: google-ads-wasted-spend-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: shopify-payout-profit-analyzer-ci.yml
-- workflow: airbnb-earnings-report-analyzer-ci.yml
-- workflow: shopify-discount-leakage-analyzer-ci.yml
-  classification: none
-  publishes: []
 gitops:
 - application: agents
   path: gitops/agents
@@ -1465,6 +1475,3 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
-- workflow: mileage-log-ci.yml
-  classification: none
-  publishes: []
