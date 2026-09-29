@@ -345,6 +345,7 @@
     "str-host-payout-calculator": "2026-08-26",
     "str-occupancy-tax-calculator": "2026-09-24",
     "str-tax-loophole-calculator": "2026-09-29",
+    "stripe-churn-cohort-analyzer": "2026-09-29",
     "structured-data-drift-check": "2026-09-09",
     "stucco-repair-bid-calculator": "2026-08-26",
     "subcontractor-cashflow-planner": "2026-08-26",

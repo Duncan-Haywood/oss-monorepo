@@ -47087,6 +47087,7 @@ entries:
         launch date, CI workflow and tree counts; regenerated the mirror.
     mrr_end: 0
   - venture: saas-cac-payback-calculator
+  - venture: stripe-churn-cohort-analyzer
     agent_spend_usd: null
     human_hours: 0
     outcomes:
@@ -47099,4 +47100,17 @@ entries:
         Registered build category, score row, launch date, CI workflow, tree
         counts and a reciprocal link from saas-annual-plan-discount-calculator;
         regenerated the mirror.
+        Graduated and built stripe-churn-cohort-analyzer, a deliberately
+        non-calculator archetype: a browser-local tool that reads a Stripe
+        subscriptions CSV export (file or paste, tolerant header aliases,
+        skipped rows reported with line and reason) and derives the MRR
+        waterfall (reconciled every month), logo and revenue churn, cohort
+        retention heatmap, implied lifetime and findings (early-life churn,
+        rising churn, MRR concentration, plan gaps), with CSV download. File
+        never leaves the browser (test asserts no network calls). First
+        visitor source named in VENTURE.yaml: indie-SaaS communities and the
+        "stripe cohort analysis csv" search. duplicate_check.py top score
+        0.22. Verified in Chromium. Registered build category, score row,
+        launch date, CI workflow, reciprocal link from mrr-waterfall-calculator
+        and tree counts; regenerated the mirror.
     mrr_end: 0
