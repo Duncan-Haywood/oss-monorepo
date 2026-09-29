@@ -1,0 +1,91 @@
+name: restaurant-pos-menu-mix-analyzer
+description: >-
+  Free browser tool that reads a restaurant POS item-sales export (Toast, Square
+  or Clover style) and classifies each menu item as Star, Plowhorse, Puzzle or
+  Dog from menu mix and contribution margin per plate, prices a rise on
+  Plowhorses with a typed volume-loss assumption, lists items to cut or
+  re-promote, and rolls up by category. The file is read locally and never
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Restaurant owners already
+# have the data menu engineering needs -- every POS exports an item sales
+# report -- but turning it into a Star/Plowhorse/Puzzle/Dog table means a
+# manual pivot table, or a paid restaurant-analytics subscription that wants
+# a POS integration. Restaurants have real money and thin margins (a few
+# points of contribution margin on the highest-volume items is the classic
+# menu-engineering win), so this is squarely a tool that helps the owner earn
+# more.
+#
+# Distinct from ventures/menu-engineering-calculator, which is a manual
+# per-dish calculator (type prices, costs and units for up to 40 dishes). This
+# one ingests the POS export, merges duplicate and refund rows, takes costs
+# from a column or a pasted list, and rolls up by category. The two link to
+# each other, and the calculator remains the place to work through one dish.
+#
+# First visitor: r/restaurateur and r/KitchenConfidential threads about
+# menu engineering and menu costing, and searches like "menu engineering from
+# Toast report" and "menu mix analysis from POS report". Search volume not
+# measured.
+#
+# What makes it more than a total: popularity uses the 70%-of-even-share
+# convention on the count of items actually sold; the margin bar is the
+# weighted average, not the mean of item margins; refunds net against the
+# item; voided and modifier rows are skipped and counted; duplicate item rows
+# merge; every item is tagged with where its cost came from and items on the
+# placeholder default or with a zero cost are flagged rather than silently
+# classified.
+#
+# Privacy is the liability boundary: the export never leaves the browser (a
+# test asserts no network calls), so the portfolio holds no sales data and
+# needs no POS credential or API access.
+#
+# Path to revenue (payment rails stay off): lead magnet into the menu
+# engineering calculator and pour cost calculator. A paid tier, if usage
+# appears, is multi-period comparison (last quarter's classes against this
+# quarter's), local-only, behind an env-var switch; not built. Not built: a
+# Toast/Square/Clover API integration, which needs credentials and terms
+# review.
+#
+# Liability: arithmetic on the user's file and typed assumptions, model and
+# omissions stated on the page, no advice, no warranty, independent of
+# Toast/Square/Clover clause, the default food cost flagged as a placeholder,
+# the volume loss flagged as the user's assumption.
+#
+# Unverified: column names are matched by alias and no real Toast, Square or
+# Clover export was available; the first user report of an unread file is the
+# priority fix.
+
+hypotheses:
+  - claim: >-
+      Restaurant owners will drop a POS item-sales export into a no-signup tool
+      to see which items are Plowhorses and Dogs rather than build a pivot table
+      or pay for an analytics subscription.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing a dollar figure for a small rise on the Plowhorses leads at least
+      one owner to reprice, and re-running each month is the reason to return.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a real export the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/restaurant-pos-menu-mix-analyzer/
+  analytics: null

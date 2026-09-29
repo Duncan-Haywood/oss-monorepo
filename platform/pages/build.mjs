@@ -620,6 +620,11 @@ const CATEGORY_RULES = [
       'food-truck-event-margin-calculator',
       'pour-cost-calculator',
       'commissary-kitchen-cost-split-calculator',
+      // `restaurant-pos-menu-mix-analyzer` added 2026-09-29: the POS-export
+      // sibling of `menu-engineering-calculator`, same owner reading the same
+      // matrix. The `restaurant-delivery-commission` prefix is the marketplace
+      // section's, so this slug is listed by name.
+      'restaurant-pos-menu-mix-analyzer',
     ].includes(slug),
   },
   {
