@@ -115,3 +115,8 @@ test("page links to the medical bill error checker, which links back", () => {
   const theirs = readFileSync(new URL("../medical-bill-error-checker/index.html", import.meta.url), "utf8");
   assert.match(theirs, /href="\.\.\/hsa-contribution-limit-calculator\/"/);
 });
+
+test("page links to the ACA subsidy cliff calculator, which links back", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /href="\.\.\/aca-subsidy-cliff-calculator\/"/);
+});

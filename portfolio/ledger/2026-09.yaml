@@ -48239,3 +48239,22 @@ entries:
         VENTURE.yaml. 24 tests. Registered score row, launch date, category
         rule, CI workflow and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: aca-subsidy-cliff-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built aca-subsidy-cliff-calculator: a browser-local tool
+        for the 2026 ACA premium tax credit now that the enhanced credits have
+        expired. From household size, region, MAGI and the benchmark premium it
+        shows the credit, distance to the 400%-of-poverty cliff, the credit lost
+        by crossing it, whether the user's available HSA / solo 401(k) / SEP
+        deductions are enough to get back under, and a credit table at nearby
+        incomes. Applicable percentages from Rev. Proc. 2025-25 and 2025 poverty
+        guidelines, checked by web search 2026-09-29; interpolation not checked
+        against real Form 8962 output. New niche: duplicate_check.py top match
+        0.13. First visitor expected from "ACA subsidy cliff 2026" searches and
+        r/ACA, r/selfemployed. 35 tests, nothing uploaded. Registered score row,
+        launch date, category rule, CI workflow and tree counts; regenerated the
+        mirror.
+    mrr_end: 0
