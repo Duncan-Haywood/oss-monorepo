@@ -48020,3 +48020,25 @@ entries:
         README and VENTURE.yaml. Registered score row, launch date, CI workflow
         and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: freelancer-schedule-c-categorizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built freelancer-schedule-c-categorizer: a browser-local
+        tool that reads a bank or card CSV and sorts every transaction into an
+        IRS Schedule C line, sharing the parsing engine of its landlord sibling
+        but with its own categories and findings. Owner draws, transfers,
+        estimated-tax payments, loan principal, health insurance, retirement
+        contributions and equipment are held out of the expenses; meals count at
+        50% with the amount spent shown; deposits that look like Stripe, PayPal
+        or Etsy payouts raise a gross-receipts-versus-net warning; equipment is
+        flagged, never decided; uncategorised rows and duplicates are listed;
+        the CSV names the rule behind every row. First visitor expected from
+        r/freelance and r/smallbusiness, and searches like "bank statement to
+        Schedule C". Nothing is uploaded (a test asserts no network calls);
+        independent-of-banks-and-the-IRS clause on the page. Column names are
+        matched by alias and unverified against real exports, stated on the
+        page, README and VENTURE.yaml. Registered score row, launch date, CI
+        workflow and tree counts; regenerated the mirror.
+    mrr_end: 0
