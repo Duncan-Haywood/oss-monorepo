@@ -1017,7 +1017,9 @@ const RELATIVE_SELF = relative(
 // 393 -> 394: `youtube-revenue-rpm-analyzer` graduated -- one more boilerplate
 // `usage.mjs` under its own storage name.
 // 394 -> 395: `amazon-ppc-search-term-analyzer` graduated too.
-const SWITCHES_IN_THE_CATALOGUE = 395;
+// +1: `turo-earnings-report-analyzer` graduated -- one more boilerplate
+// `usage.mjs` under its own storage name.
+const SWITCHES_IN_THE_CATALOGUE = 396;
 
 let counter = 0;
 function fixture(source) {
