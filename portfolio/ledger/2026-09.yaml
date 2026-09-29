@@ -47001,3 +47001,24 @@ entries:
         submission window had only ever seen a 403'd proxy. Recorded the
         pages_state.py reading.
     mrr_end: 0
+  - venture: home-office-deduction-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built home-office-deduction-calculator: a browser-local
+        comparison of the IRS simplified home office deduction ($5/sq ft, 300
+        sq ft cap) with the regular Form 8829 method (gross income limit
+        order, 39-year depreciation, carryforward, estimated income plus
+        self-employment tax saved). Rules verified against IRS.gov;
+        duplicate_check.py top score 0.13. Registered build category, score
+        row, launch date, CI workflow, reciprocal link from
+        solo-401k-contribution-calculator, and tree counts (389 tools / 368
+        switches); regenerated the mirror.
+      - >-
+        Verified locally per the starvation checklist: venture suite 24/24;
+        platform/marketing+pages 1290/1290; privacy+webcheck 140/140;
+        gitops/tests 613 passed/25 skipped (nginx-dependent); regen.mjs
+        --verify, checklist_coverage.py, clauses.mjs, router/validate.py,
+        score_ventures.py --check clean.
+    mrr_end: 0
