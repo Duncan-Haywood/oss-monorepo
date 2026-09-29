@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 430 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 431 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -168,6 +168,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free analyzer for plumbers, electricians, HVAC and other home-service pros: load your Thumbtack, Angi, Google Local Services, Yelp or ad leads and see cost per lead, close rate, cost per booked job and profit per source, and which paid sources lose money. Runs in your browser, the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Indie Game Payout Calculator — Steam vs Epic vs itch.io vs GOG</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/indie-game-payout-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/indie-game-payout-calculator</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator for indie game developers: what a game actually pays you on Steam, Epic Games Store, itch.io and GOG after tax, refunds, the store cut and fees, and how many copies you need to sell to break even. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>KDP Royalty Report Analyzer — Royalties per Book, Store and Format</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free analyzer for Turo hosts: drop in your earnings or trip history CSV and see profit per car and per trip after Turo&#39;s fee, cleaning, fuel, delivery and monthly loan, insurance and depreciation, plus utilization and which cars lose money. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Upwork Earnings and Fee Analyzer — What You Really Keep</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/upwork-earnings-fee-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/upwork-earnings-fee-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free analyzer for freelancers: drop in your Upwork transaction history CSV and see the service fee you actually paid, Connects, membership and withdrawal costs, what you keep by contract and by month, and net pay per hour. Runs in your browser, the file is never uploaded.</summary>
   </entry>
 </feed>

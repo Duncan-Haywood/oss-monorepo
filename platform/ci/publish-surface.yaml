@@ -1535,3 +1535,6 @@ gitops:
 - workflow: google-play-earnings-report-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: indie-game-payout-calculator-ci.yml
+  classification: none
+  publishes: []
