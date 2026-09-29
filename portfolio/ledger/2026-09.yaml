@@ -48218,3 +48218,24 @@ entries:
         Registered score row, launch date, CI workflow and tree counts;
         regenerated the mirror.
     mrr_end: 0
+  - venture: like-kind-exchange-1031-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built like-kind-exchange-1031-calculator: a browser-local Section 1031
+        exchange calculator. From the sale price, costs, payoff, basis, and the
+        planned replacement it gives the 45-day identification and 180-day
+        closing dates (flagging when the tax return due date cuts the 180 days
+        short), cash boot, mortgage boot (debt relief netted only against cash
+        added), recognized versus deferred gain, replacement basis, estimated
+        tax with and without the exchange at user-typed rates, and checks the
+        three-property, 200% and 95% identification rules. New niche: no 1031
+        tool existed in the tree. First visitor expected from BiggerPockets and
+        r/realestateinvesting threads on boot and the 45-day rule. Nothing is
+        uploaded (a test asserts no network calls); not-advice clauses and a
+        qualified-intermediary warning on the page. Rules written from published
+        IRS guidance without professional review, stated on the page and in
+        VENTURE.yaml. 24 tests. Registered score row, launch date, category
+        rule, CI workflow and tree counts; regenerated the mirror.
+    mrr_end: 0
