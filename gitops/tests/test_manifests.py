@@ -2791,7 +2791,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # export analyzer, static `index.html` plus ES modules).
     # +1: `turo-earnings-report-analyzer` graduated (browser-local Turo earnings
     # CSV analyzer, static `index.html` plus ES modules).
-    total = 417  # `infra/OWNER_CHECKLIST.md`'s own "N of the 417 tools" wording.
+    # +1: `restaurant-delivery-commission-analyzer` graduated (browser-local delivery
+    # platform payout CSV analyzer, static `index.html` plus ES modules).
+    total = 418  # `infra/OWNER_CHECKLIST.md`'s own "N of the 418 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

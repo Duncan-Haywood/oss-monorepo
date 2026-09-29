@@ -1071,6 +1071,9 @@ workflows:
 - workflow: required-checks-drift-check-ci.yml
   classification: none
   publishes: []
+- workflow: restaurant-delivery-commission-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: retail-pilot-intel-ci.yml
   classification: none
   publishes: []
