@@ -48281,3 +48281,24 @@ entries:
         rule, CI workflow and tree counts; reciprocal link with
         property-tax-appeal-calculator; regenerated the mirror.
     mrr_end: 0
+  - venture: social-security-claiming-age-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built social-security-claiming-age-calculator: a browser-local tool that takes a
+        benefit at full retirement age from an SSA statement and compares claiming
+        at 62 to 70 for one person or a couple, with break-even ages and a
+        month-by-month household simulation of the spousal top-up and the survivor
+        benefit. For couples it searches every pair of claim ages under four
+        scenarios (planning ages, both die at 80, both live to 95, higher earner
+        dies at 75 and the other lives to 95) and reports the best pair. Rules
+        read from SSA's published text; omissions (tax, Medicare surcharges,
+        earnings test) stated on the page. New niche: duplicate_check.py top match
+        0.21. First visitor expected from Bogleheads and r/retirement claiming
+        threads and searches like "best age to claim social security married".
+        Numbers never uploaded (a test asserts no network calls). Arithmetic
+        verified against hand calculation only, stated on the page. 38 tests.
+        Registered score row, launch date, category rule, CI workflow and tree
+        counts; regenerated the mirror.
+    mrr_end: 0
