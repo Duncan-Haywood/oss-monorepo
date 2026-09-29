@@ -1022,7 +1022,12 @@ const RELATIVE_SELF = relative(
 // +1: `patreon-members-churn-analyzer` graduated -- one more boilerplate
 // +1: `fiverr-earnings-fee-analyzer` graduated -- one more boilerplate
 // `usage.mjs` under its own storage name.
-const SWITCHES_IN_THE_CATALOGUE = 398;
+const SWITCHES_IN_THE_CATALOGUE = 400;
+// +1: `kdp-royalty-report-analyzer` graduated -- one more boilerplate
+// `usage.mjs` under its own storage name.
+// +1: `poshmark-sales-report-analyzer` graduated -- one more boilerplate
+// `usage.mjs` under its own storage name.
+const SWITCHES_IN_THE_CATALOGUE = 400;
 
 let counter = 0;
 function fixture(source) {
