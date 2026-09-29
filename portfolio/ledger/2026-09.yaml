@@ -47086,3 +47086,17 @@ entries:
         or subscription-price-impact. Registered build category, score row,
         launch date, CI workflow and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: dependabot-config-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built dependabot-config-check: a zero-dependency Node
+        CLI plus browser page that lints .github/dependabot.yml and compares
+        it with a pasted file list to find manifests no update entry covers,
+        flags invalid or duplicate entries, and generates a starter config.
+        First visitor source: maintainers searching "dependabot not updating
+        subdirectory" / "dependabot.yml monorepo". duplicate_check.py top
+        score 0.08. Registered build category, score row, launch date, CI
+        workflow and tree counts; regenerated the mirror.
+    mrr_end: 0
