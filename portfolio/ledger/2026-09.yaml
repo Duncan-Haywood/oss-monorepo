@@ -47258,3 +47258,27 @@ entries:
         score row, launch date, CI workflow, reciprocal link from
         merchant-feed-check and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: airbnb-earnings-report-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built airbnb-earnings-report-analyzer, a data-file
+        archetype aimed at short-term-rental hosts (a market that already pays
+        Hostaway, Beyond, Stessa): a browser-local tool that reads the Airbnb
+        Transaction history CSV (file or paste; US and day-first dates, comma,
+        tab, semicolon and UTF-16 exports; payouts ignored, adjustments listed
+        apart, skipped rows reported with line and reason) and shows net
+        earnings, fee share, ADR, net per night and occupancy per listing,
+        monthly seasonality, and profit per night by length of stay after the
+        host's own turnover cost, plus a cleaning-fee-vs-cleaning-cost finding.
+        File never leaves the browser; independent-of-Airbnb clause on the
+        page. duplicate_check.py top score 0.21. Verified in Chromium against
+        a synthetic export (no real export was available; column names are
+        from memory and matched by alias, stated in VENTURE.yaml). Also
+        repaired main's venture-scores.yaml, where the google-ads score row had
+        been merged into the etsy row and score_ventures.py --check was red.
+        Registered score row, launch date, CI workflow, reciprocal links from
+        str-host-payout-calculator and str-cleaning-fee-pricing-calculator and
+        tree counts; regenerated the mirror.
+    mrr_end: 0
