@@ -48301,6 +48301,24 @@ entries:
         Registered score row, launch date, category rule, CI workflow and tree
         counts; regenerated the mirror.
     mrr_end: 0
+  - venture: rmd-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built rmd-calculator: a browser-local required minimum
+        distribution planner. Computes the RMD from IRA and employer-plan
+        balances with the IRS Uniform Lifetime Table and SECURE 2.0 start ages,
+        projects it to a chosen age, prices delaying the first RMD to April 1
+        (two RMDs in one year), shows the QCD effect on taxable RMD, and
+        estimates the 25%/10% excise tax on a missed RMD. New niche:
+        duplicate_check.py top match 0.15. First visitor expected from searches
+        like "rmd calculator" and "should I delay my first rmd". Numbers never
+        uploaded. Arithmetic verified by hand only, stated on the page. 33 tests.
+        Reciprocal links with the Roth conversion, Medicare IRMAA and Social
+        Security calculators; registered score row, launch date, category rule,
+        CI workflow and tree counts; regenerated the mirror.
+    mrr_end: 0
   - venture: wage-garnishment-limit-calculator
     agent_spend_usd: null
     human_hours: 0

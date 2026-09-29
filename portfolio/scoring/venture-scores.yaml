@@ -21145,6 +21145,39 @@ ventures:
       sale, AMT, credits and state brackets stated as out of scope on the page.
       Numbers never leave the browser. Ethics: helps an employee withhold the tax
       they owe; nothing is filed on their behalf.
+  - slug: rmd-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types from their own statements.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Retirees face
+      a hard annual deadline, a 25% excise tax for missing it, and a first-year
+      delay choice that stacks two RMDs into one tax year. Distribution 7:
+      "rmd calculator", "required minimum distribution calculator" and "should
+      I delay my first rmd" are recurring queries; volume not measured with an
+      external tool. Defensibility 3: the table is public; the edge is a
+      private, no-signup projection that prices the delay and a QCD.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimates not advice, no warranty, independence
+      from the IRS stated, table cited from Pub. 590-B, omissions stated on the
+      page, custodian's figure named as the one to follow. Balances never leave
+      the browser. Ethics: helps a retiree meet an obligation they already have;
+      no product is sold and no referral is made.
   - slug: print-on-demand-profit-calculator
     scores:
       ai_leverage: 1

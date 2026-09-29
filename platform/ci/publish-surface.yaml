@@ -1622,3 +1622,6 @@ gitops:
 - workflow: social-security-claiming-age-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: rmd-calculator-ci.yml
+  classification: none
+  publishes: []
