@@ -1175,6 +1175,9 @@ const CATEGORY_RULES = [
       // `self-employed-schedule-c-categorizer` is the same bank-file-to-tax-lines job for a sole proprietor's
       // Schedule C, and its page sits next to `1099k-reconciliation-worksheet` and the landlord version.
       || slug === 'self-employed-schedule-c-categorizer'
+      // `freelancer-schedule-c-categorizer` is the same after-the-year bank-file reconciliation for a
+      // sole proprietor's Schedule C, filed beside its landlord sibling.
+      || slug === 'freelancer-schedule-c-categorizer'
       // `dental-ppo-writeoff-calculator` measures what a signed contract
       // actually paid over a period already billed — the same after-the-sale
       // reconciliation job as `card-processing-fee-audit` (splitting a

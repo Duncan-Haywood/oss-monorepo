@@ -1128,6 +1128,9 @@ workflows:
 - workflow: rental-property-schedule-e-categorizer-ci.yml
   classification: none
   publishes: []
+- workflow: freelancer-schedule-c-categorizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: restaurant-delivery-commission-analyzer-ci.yml
   classification: none
   publishes: []

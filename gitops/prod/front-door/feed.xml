@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 445 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 446 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -150,6 +150,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free Fiverr fee calculator for sellers: drop in your earnings or revenue CSV and see the service fee actually taken, take-home per order, net revenue per gig, repeat buyers, refunds, withdrawal costs, funds still clearing and the price needed for a target take-home. Runs in your browser, the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Freelancer Schedule C Categorizer — Sort Your Bank CSV Into Schedule C Lines</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freelancer-schedule-c-categorizer/"/>
+    <id>tag:marisstella.dev,2026:tool/freelancer-schedule-c-categorizer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free tool for freelancers and sole proprietors: drop in your bank or card CSV and get income and expenses sorted into Schedule C lines, with estimated tax, equipment, health insurance and transfers held out, meals at 50%, a payment-platform payout warning and a CSV to hand your preparer. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Ghost Members Export Analyzer — Inactive Members, Conversion and List Cost</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free SaaS annual plan discount calculator: find the annual-prepay discount you can offer before it costs more than it brings in, given gross margin, monthly churn, renewal rate and cost of capital. Runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>SaaS CAC Payback Calculator — Churn-Adjusted Payback and LTV:CAC, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/saas-cac-payback-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/saas-cac-payback-calculator</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free SaaS CAC payback calculator: churn-adjusted payback months, LTV, LTV:CAC and the most you can spend to acquire a customer for a target payback. Runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>
