@@ -1,0 +1,82 @@
+name: property-tax-appeal-calculator
+description: >-
+  Free browser tool for homeowners and small landlords: enter the assessed
+  value and a few recent comparable sales, and it adjusts each sale to the
+  subject home, compares the indicated value with the market value the
+  assessment implies, runs a second equity test on assessed value per square
+  foot, and turns the gap into tax saved per year, net gain after filing costs,
+  the win probability an appeal needs to break even, and what a contingency
+  appeal firm would keep. Nothing typed is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Property tax is the
+# largest recurring bill most owners cannot change any other way, boards accept
+# appeals on comparable-sales and equity evidence, and most owners never file
+# because building the comp grid is tedious. The paid answers are contingency
+# firms (Ownwell, Propertyshark-style services, local "tax consultants") that
+# keep roughly 25-50% of the first year's saving, and an appraiser at a few
+# hundred dollars up front. Free county pages explain the process but do not
+# do the arithmetic.
+#
+# What makes it more than a form: each comp is adjusted with the user's own
+# rates and flagged weak past 25% gross / 15% net adjustment; the value is
+# weighted by how little each comp needed adjusting; a lower-quartile scenario
+# shows whether the case survives a hostile comp set; the assessment ratio is
+# honoured, so a 100% and a 40% jurisdiction both work; the equity test is
+# separate; and the money section says plainly what the appeal needs to win
+# and what a contingency firm would keep, which is the number that makes
+# doing it yourself concrete.
+#
+# First visitor: r/personalfinance, r/homeowners, r/realestate, and searches
+# like "property tax appeal calculator", "is my assessment too high", "how to
+# appeal property taxes comparable sales". Search volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet into the seller net
+# sheet and Schedule E tools; GitHub Sponsors. A paid tier, if usage appears,
+# would be a printable evidence packet in a board's format, jurisdiction by
+# jurisdiction, behind an env-var switch; not built. Not built: pulling
+# assessor or MLS data, which needs data licences and terms review.
+#
+# Liability: arithmetic on figures the user types, the rates are the user's and
+# labelled rules of thumb, no appraisal, no tax or legal advice, no forecast of
+# a board's ruling, independent-of-assessors-and-appeal-firms clause, deadlines
+# stated as the notice's to give.
+#
+# Unverified: the default adjustment rates are generic and not calibrated to
+# any market; the page tells the reader so. The first report of a materially
+# wrong figure is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Homeowners who think their assessment is high will fill in a comp grid
+      themselves if the tool does the adjustments and tells them what a
+      contingency firm would keep, rather than pay a firm or skip the appeal.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The break-even win probability, not the verdict, is the number that
+      decides whether a visitor files, so it is the figure people share and
+      return for at next year's notice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a jurisdiction rule the model cannot express, at which point the model needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/property-tax-appeal-calculator/
+  analytics: null

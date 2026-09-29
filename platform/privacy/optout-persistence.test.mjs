@@ -1042,10 +1042,12 @@ const RELATIVE_SELF = relative(
 // +1: `ghost-members-export-analyzer` graduated.
 // +1: `restaurant-pos-menu-mix-analyzer` graduated.
 // +1: `rental-property-schedule-e-categorizer` graduated.
+// +1: `property-tax-appeal-calculator` graduated.
 // +1: `subscription-audit-from-statement` graduated.
 // +1: `restaurant-labor-cost-daypart-analyzer` graduated.
+// +1: `appointment-no-show-analyzer` graduated.
 // +1: `self-employed-schedule-c-categorizer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 422;
+const SWITCHES_IN_THE_CATALOGUE = 424;
 
 let counter = 0;
 function fixture(source) {
