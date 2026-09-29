@@ -1250,6 +1250,9 @@ workflows:
 - workflow: shopify-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: shopify-inventory-reorder-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: shopify-payments-fee-analyzer-ci.yml
   classification: none
   publishes: []

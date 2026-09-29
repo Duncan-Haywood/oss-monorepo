@@ -42,3 +42,7 @@ test("page script parses and every element id it reads exists", () => {
 test("the venture never calls out of the browser", () => {
   for (const f of ["calc.mjs", "usage.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|https?:\/\//);
 });
+
+test("page links to the inventory reorder planner", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/shopify-inventory-reorder-planner\/"/);
+});
