@@ -1,0 +1,95 @@
+name: self-employed-schedule-c-categorizer
+description: >-
+  Free browser tool that reads a bank or card CSV export and sorts every
+  transaction into an IRS Schedule C (Form 1040) line for freelancers, sole
+  proprietors and gig workers, holding the owner's own estimated-tax payments,
+  health insurance and retirement contributions, equipment, loans and transfers
+  out of the expenses. Warns that Stripe, PayPal and marketplace deposits are
+  net of fees, compares deposits with the gross on a 1099, counts meals at 50
+  percent, flags equipment-like purchases and personal-looking rows, and
+  downloads every row with its category for a preparer. The file is read
+  locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session, as the self-employed
+# sibling of rental-property-schedule-e-categorizer. Roughly 30 million US
+# taxpayers file a Schedule C, and every February the work is the same: export
+# the bank CSV, sort a year of transactions into lines by hand, and work out
+# which of them are not expenses at all. The paid answers are Keeper, Found,
+# QuickBooks Self-Employed, Bench and Wave (bookkeeping subscriptions built
+# around connecting a bank login) or a CPA's hourly bookkeeping. Nothing free
+# does the one-off job of "here is my bank file, give me the Schedule C lines"
+# without an account and a bank link.
+#
+# Distinct from mileage-log, home-office-deduction-calculator and
+# quarterly-estimated-tax-calendar (single deductions or the payment calendar)
+# and from 1099k-reconciliation-worksheet (one form): this is the categorising
+# step between the bank file and those.
+#
+# First visitor: r/freelance, r/smallbusiness, r/Etsy, r/tax and gig-worker
+# forums on "how do I do Schedule C from my bank statements", and searches like
+# "bank statement to Schedule C", "categorize business expenses csv", "why is my
+# 1099-K higher than my deposits". Search volume not measured.
+#
+# What makes it more than a keyword sorter: it holds out what is NOT a Schedule C
+# expense (estimated-tax payments, Schedule 1 health and retirement, equipment,
+# loan principal, transfers) instead of dumping it in the totals; it says that
+# processor deposits understate gross receipts and lets the owner type the 1099
+# gross to see the gap; meals are shown at 50 percent with the amount spent;
+# nothing ambiguous is guessed, it is listed as uncategorised; every row in the
+# CSV names the rule that decided it, so a preparer can audit it.
+#
+# Privacy is the liability boundary: the file never leaves the browser (a test
+# asserts no network calls), so the portfolio holds no bank data and needs no
+# bank credential or aggregator.
+#
+# Path to revenue (payment rails stay off): lead magnet into the estimated-tax,
+# mileage, home-office and 1099-K tools; GitHub Sponsors. A paid tier, if usage
+# appears, is saved rule sets and multi-year comparison, local-only, behind an
+# env-var switch; not built. Not built: bank aggregation (Plaid), which needs
+# credentials and terms review.
+#
+# Liability: arithmetic and keyword matching on the user's file, model and
+# omissions stated on the page, no tax advice, no warranty, independent-of-
+# every-bank-and-the-IRS clause, equipment versus expense flagged and never
+# decided, self-employment tax and depreciation not modelled.
+#
+# Unverified: column names are matched by alias and no real bank export was
+# available; the Schedule C line numbers are those of the 2024-era form and the
+# page tells the reader to check their year's form. The first user report of an
+# unread file is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Freelancers and sole proprietors will drop a year of bank CSVs into a
+      no-signup tool to get Schedule C line totals rather than build the pivot by
+      hand or pay for a bookkeeping subscription.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The "your deposits are net of platform fees" check against the 1099 gross
+      is what people share, because it explains the gap they were already
+      confused by.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong line, or a real bank export the tool cannot read, at which point the parser or the rules need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/self-employed-schedule-c-categorizer/
+  analytics: null

@@ -48086,3 +48086,28 @@ entries:
         page, README and VENTURE.yaml. Registered score row, launch date, CI
         workflow and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: self-employed-schedule-c-categorizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built self-employed-schedule-c-categorizer: a browser-local
+        tool that reads a bank or card CSV and sorts every transaction into an IRS
+        Schedule C line for freelancers, sole proprietors and gig workers, with
+        built-in and user keyword rules, business rules and a tax-year filter.
+        Estimated-tax payments, health insurance and retirement contributions,
+        equipment, loans and transfers are held out; meals are shown at 50
+        percent; deposits from Stripe, PayPal and marketplaces are flagged as
+        probably net of fees, with a box for the 1099 gross to show the gap;
+        equipment-like and personal-looking rows are flagged, never decided; a
+        CSV names the rule behind every row. Sibling of
+        rental-property-schedule-e-categorizer, linked to the estimated-tax,
+        mileage, home-office and 1099-K tools. First visitor expected from
+        r/freelance, r/Etsy and r/smallbusiness, and searches like "bank
+        statement to Schedule C" and "why is my 1099-K higher than my deposits".
+        Nothing is uploaded (a test asserts no network calls);
+        independent-of-banks-and-the-IRS clause on the page. Column names are
+        matched by alias and unverified against real exports, stated on the page,
+        README and VENTURE.yaml. Registered score row, launch date, CI workflow
+        and tree counts; regenerated the mirror.
+    mrr_end: 0
