@@ -47851,3 +47851,23 @@ entries:
         score row, launch date, CI workflow and tree counts; regenerated the
         mirror.
     mrr_end: 0
+  - venture: client-profitability-time-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built client-profitability-time-analyzer: a browser-local tool that turns a
+        time-tracker export (Toggl, Clockify, Harvest or a sheet) into each
+        client's effective hourly rate against a typed target, with flat-fee
+        and retainer revenue typed per client, non-billable share, scope-creep
+        detection on flat-fee clients, hour concentration and a gap-to-target
+        upper bound. Revenue is divided by all tracked hours; client hours and
+        revenue reconcile to the totals. Tests cover duration shapes, flat-fee
+        parsing (a thousands separator is not a column split), rate-times-hours,
+        creep, unmatched flat-fee clients and the example. Nothing is uploaded
+        (a test asserts no network calls). Column names are matched by alias
+        and unverified against real exports, stated on the page, README and
+        VENTURE.yaml. Reciprocal link from invoice-aging-late-payer-analyzer.
+        Registered score row, launch date, CI workflow and tree counts;
+        regenerated the mirror.
+    mrr_end: 0
