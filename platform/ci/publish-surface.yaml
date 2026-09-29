@@ -776,6 +776,9 @@ workflows:
 - workflow: metal-roof-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: mileage-deduction-method-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: mini-split-bid-calculator-ci.yml
   classification: none
   publishes: []

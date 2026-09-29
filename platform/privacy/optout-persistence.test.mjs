@@ -972,11 +972,14 @@ const RELATIVE_SELF = relative(
 // `sync_tree_counts.py` against the fully merged tree rather than by
 // hand.
 //
-// 367 -> 368: `home-office-deduction-calculator` also graduated -- one more
-// `usage.mjs`, the same boilerplate opt-out toggle keyed under its own
-// `home-office-deduction-calculator-usage` storage name. Exactly one added
-// `usage.mjs`, no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 368;
+// 367 -> 368: `mileage-deduction-method-calculator` graduated -- one more
+// boilerplate `usage.mjs` opt-out toggle, keyed under its own
+// `mileage-deduction-method-calculator-usage` storage name. Exactly one
+// added `usage.mjs`, no deletions. Re-derived by `sync_tree_counts.py`.
+//
+// 368 -> 369: `home-office-deduction-calculator` also graduated -- one more
+// `usage.mjs`, keyed under its own `home-office-deduction-calculator-usage`.
+const SWITCHES_IN_THE_CATALOGUE = 369;
 
 let counter = 0;
 function fixture(source) {

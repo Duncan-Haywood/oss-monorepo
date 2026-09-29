@@ -18923,6 +18923,42 @@ ventures:
       retirement contribution they are already entitled to make; no
       scraped or personal data, nothing adversarial, scales with zero
       externality -- one filer's calculation does not affect another's.
+  - slug: mileage-deduction-method-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every result is deterministic
+      arithmetic on two published IRS per-mile rates and the user's own
+      costs, never an inference step.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md; write-up in this
+      venture's VENTURE.yaml comment. duplicate_check.py scored every
+      venture, screened-out row and candidate at or below 0.23. Distribution
+      6: the IRS raised the business rate mid-year (Announcement 2026-11), a
+      fresh news hook for "standard mileage vs actual expenses 2026", plus
+      year-end and filing-season demand; rates confirmed against IRS.gov,
+      Topic 510, Publication 463, Littler and the Journal of Accountancy.
+      Defensibility 2, as for its siblings: a published IRS rate applied by
+      arithmetic, trivially replicated.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: scoped to a sole proprietor or single-member LLC deducting
+      vehicle costs; depreciation is user-entered, not computed; the
+      first-year lock-in and ineligibility rules are standing findings on
+      every result; no-warranty and no-advice disclaimers on the page.
+      Ethics: purely informational, helps a filer pick the deduction they
+      are entitled to; no personal data leaves the browser, no externality.
   - slug: home-office-deduction-calculator
     scores:
       ai_leverage: 1
