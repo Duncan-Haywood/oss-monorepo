@@ -48281,3 +48281,21 @@ entries:
         rule, CI workflow and tree counts; reciprocal link with
         property-tax-appeal-calculator; regenerated the mirror.
     mrr_end: 0
+  - venture: medicare-irmaa-cliff-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built medicare-irmaa-cliff-calculator: a browser-local tool for 2026 Medicare
+        IRMAA. From filing status (single, joint, MFS lived with spouse), MAGI
+        from two years ago and an optional planned Roth conversion, gain or IRA
+        distribution it shows the Part B and Part D tier, the surcharge, dollars
+        to the next cliff up and down, the cost of one dollar over, how much of
+        the planned amount fits under the tier, the two-year lookback, all
+        tiers, and an SSA-44 life-changing-event checklist with draft text.
+        2026 figures confirmed against published summaries of the CMS numbers
+        2026-09-29, not the CMS notice itself. Sibling of
+        aca-subsidy-cliff-calculator. 41 tests, nothing uploaded. Registered
+        score row, launch date, category rule, CI workflow and tree counts;
+        regenerated the mirror.
+    mrr_end: 0

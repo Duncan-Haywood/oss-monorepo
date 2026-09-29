@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 454 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 455 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -287,6 +287,15 @@
     <summary type="text">Free tool for patients: paste or drop your itemized medical bill and see possible duplicate charges, codes billed twice in a day, unbundled lab panels, two visit levels on one date and lines that do not add up, with a draft request to send the billing office. Runs in your browser, the bill is never uploaded.</summary>
   </entry>
   <entry>
+    <title>Medicare IRMAA Cliff Calculator — 2026, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/medicare-irmaa-cliff-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/medicare-irmaa-cliff-calculator</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free 2026 Medicare IRMAA calculator: enter your MAGI from two years ago to see your Part B and Part D tier, the surcharge, how many dollars until the next cliff, how much Roth conversion fits under it, and an SSA-44 appeal checklist. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Meta Ads Fatigue Analyzer — Free Ads Manager CSV Tool</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/meta-ads-fatigue-analyzer/"/>
     <id>tag:marisstella.dev,2026:tool/meta-ads-fatigue-analyzer</id>
@@ -357,14 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free property tax appeal calculator: adjust comparable sales to your home, compare with your assessed value, and see the yearly tax saved, the break-even odds and what an appeal firm would keep. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Rent Roll Delinquency Analyzer — Unpaid Rent Aging by Unit</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rent-roll-delinquency-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/rent-roll-delinquency-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free analyzer for small landlords: load your rent ledger and see who owes what and how old it is, which units pay late, monthly collection rate and a late-fee upper bound. Runs in your browser, the file is never uploaded.</summary>
   </entry>
 </feed>
