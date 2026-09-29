@@ -480,7 +480,7 @@ const CATEGORY_RULES = [
     // bare `marketplace-fee-compare` alternative does not prefix-match, so
     // it would otherwise sit in the catch-all for the same reason those two
     // did.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|shopify-payments-fee|shopify-discount|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace)/.test(slug),
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|shopify-payments-fee|shopify-discount|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace)/.test(slug),
   },
   {
     id: 'trades',

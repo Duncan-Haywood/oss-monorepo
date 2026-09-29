@@ -47612,3 +47612,25 @@ entries:
         available, stated on the page. Registered score row, launch date, CI workflow and
         tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: restaurant-delivery-commission-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built restaurant-delivery-commission-analyzer, a data-file
+        archetype for independent restaurants: a browser-local tool that reads
+        one or more DoorDash, Uber Eats or Grubhub payout or order-level CSVs
+        (file or paste; quoted fields, US and day-first dates, comma, tab,
+        semicolon and UTF-16; skipped rows reported with line and reason) and
+        shows per-platform and per-order effective take rate (commission,
+        delivery and service, promotions, ads, error charges over food sales),
+        net cash per order, net after typed food cost and packaging, losing
+        orders, promo and ad return, weekday and daypart findings (groups under
+        five orders ignored), the menu markup that matches in-store margin and a
+        direct-ordering comparison at a typed fee. File never leaves the browser
+        (a test asserts no network calls); independent-of-the-platforms clause.
+        Column names are matched by alias from memory and no real export was
+        available, stated on the page and in VENTURE.yaml. Linked both ways with
+        delivery-app-margin-calculator. Registered score row, launch date, CI
+        workflow and tree counts; regenerated the mirror.
+    mrr_end: 0
