@@ -7060,8 +7060,7 @@ entries:
         vs-ServiceTitan page") had merged with unresolved git conflict
         markers committed directly into
         `ventures/boiler-replacement-bid-calculator/index.html` --
-        `<<<<<<< HEAD` / `=======` / `>>>>>>> origin/main` literal text in
-        the page footer, already deployed (a merge to `main` is the Argo CD
+        `        the page footer, already deployed (a merge to `main` is the Argo CD
         deploy). `platform/ci/check_conflict_markers.py` and page-integrity
         both fail on `main`'s own tip for this reason, surfaced while
         chasing an unrelated CI failure on #2918. Opened and merged #2921 as
@@ -47851,7 +47850,9 @@ entries:
         score row, launch date, CI workflow and tree counts; regenerated the
         mirror.
     mrr_end: 0
+<<<<<<< HEAD
   - venture: client-profitability-time-analyzer
+  - venture: rent-roll-delinquency-analyzer
     agent_spend_usd: null
     human_hours: 0
     outcomes:
@@ -47870,4 +47871,18 @@ entries:
         VENTURE.yaml. Reciprocal link from invoice-aging-late-payer-analyzer.
         Registered score row, launch date, CI workflow and tree counts;
         regenerated the mirror.
+        Graduated and built rent-roll-delinquency-analyzer, a new-niche data-file
+        tool for small landlords: a browser-local tool that reads a rent ledger
+        CSV (file or paste; quoted fields, US and day-first dates, comma, tab,
+        semicolon and UTF-16; skipped rows reported with line and reason) and
+        shows unpaid rent by age bucket and by unit, habitually late units (three
+        late charges and half of a unit's charges), monthly collected and on-time
+        rates, part-payments and overpayments, and a late-fee upper bound from a
+        fee the user types, labelled with the local-law caveat. Ledger (tenant
+        names) never leaves the browser (a test asserts no network calls);
+        not-legal-advice and independent-of-every-product clauses on the page.
+        Column names matched by alias and no real export was available, stated on
+        the page, README and VENTURE.yaml. Checked in headless Chromium: example
+        loads, tables render, no page errors. Registered score row, launch date,
+        CI workflow, category rule and tree counts; regenerated the mirror.
     mrr_end: 0

@@ -1157,6 +1157,10 @@ const CATEGORY_RULES = [
     test: (slug) =>
       /(break-even|reconciliation-check|reconciliation-workbench)$/.test(slug)
       || slug === '1099k-reconciliation-worksheet'
+      // `rent-roll-delinquency-analyzer` reads a landlord's rent ledger after the rent fell due
+      // (what is unpaid, how old, who pays late) -- the same after-the-fact reconciliation job
+      // as `cam-reconciliation-check` above, for tenants' payments instead of a CAM statement.
+      || slug === 'rent-roll-delinquency-analyzer'
       // `dental-ppo-writeoff-calculator` measures what a signed contract
       // actually paid over a period already billed — the same after-the-sale
       // reconciliation job as `card-processing-fee-audit` (splitting a
