@@ -93,3 +93,7 @@ test("the Keeper comparison page links back, names the incumbent honestly, and c
   assert.match(vsKeeper, /Best-effort hosting, no SLA/);
   assert.match(vsKeeper, /github\.com\/sponsors\/Duncan-Haywood/);
 });
+
+test("index links one hop to the mileage-deduction-calculator sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/mileage-deduction-calculator\/"/);
+});

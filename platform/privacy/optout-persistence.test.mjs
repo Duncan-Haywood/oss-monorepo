@@ -971,7 +971,10 @@ const RELATIVE_SELF = relative(
 // added `usage.mjs`, no deletions. Total re-derived here by
 // `sync_tree_counts.py` against the fully merged tree rather than by
 // hand.
-const SWITCHES_IN_THE_CATALOGUE = 367;
+// mileage-deduction-calculator (2026-09-29): 367 -> 368, one new venture
+// shipping one `usage.mjs` with its own opt-out. Exactly one added module,
+// no deletions; total re-derived by `sync_tree_counts.py`.
+const SWITCHES_IN_THE_CATALOGUE = 368;
 
 let counter = 0;
 function fixture(source) {
