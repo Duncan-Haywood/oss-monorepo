@@ -218,6 +218,7 @@
     "k8s-resource-limits-check": "2026-09-24",
     "k8s-rollout-safety-check": "2026-09-11",
     "kdp-royalty-calculator": "2026-09-07",
+    "kdp-royalty-report-analyzer": "2026-09-29",
     "kickstarter-fee-calculator": "2026-09-24",
     "kitchen-tile-backsplash-bid-calculator": "2026-08-25",
     "land-survey-bid-calculator": "2026-09-16",

@@ -743,6 +743,9 @@ workflows:
 - workflow: kdp-royalty-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: kdp-royalty-report-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: kickstarter-fee-calculator-ci.yml
   classification: none
   publishes: []
