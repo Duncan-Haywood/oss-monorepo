@@ -33,30 +33,30 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 545940 bytes
-#   portfolio-front-tools-1: 92 files, 554885 bytes
+#   portfolio-front-tools-0: 145 files, 545932 bytes
+#   portfolio-front-tools-1: 92 files, 554888 bytes
 #   portfolio-front-tools-2: 144 files, 552554 bytes
-#   portfolio-front-tools-3: 131 files, 554545 bytes
-#   portfolio-front-tools-4: 140 files, 551883 bytes
-#   portfolio-front-tools-5: 125 files, 556279 bytes
-#   portfolio-front-tools-6: 131 files, 542463 bytes
-#   portfolio-front-tools-7: 134 files, 547317 bytes
-#   portfolio-front-tools-8: 122 files, 556361 bytes
-#   portfolio-front-tools-9: 135 files, 552722 bytes
-#   portfolio-front-tools-10: 134 files, 556752 bytes
-#   portfolio-front-tools-11: 121 files, 557031 bytes
-#   portfolio-front-tools-12: 119 files, 556257 bytes
-#   portfolio-front-tools-13: 119 files, 541153 bytes
-#   portfolio-front-tools-14: 119 files, 556966 bytes
-#   portfolio-front-tools-15: 132 files, 556505 bytes
-#   portfolio-front-tools-16: 126 files, 555141 bytes
-#   portfolio-front-tools-17: 141 files, 553899 bytes
-#   portfolio-front-tools-18: 106 files, 556459 bytes
-#   portfolio-front-tools-19: 115 files, 556419 bytes
-#   portfolio-front-tools-20: 125 files, 555255 bytes
-#   portfolio-front-tools-21: 122 files, 542695 bytes
-#   portfolio-front-tools-22: 71 files, 342463 bytes
-#   portfolio-front-tools-23: 50 files, 264903 bytes
+#   portfolio-front-tools-3: 131 files, 554543 bytes
+#   portfolio-front-tools-4: 140 files, 551882 bytes
+#   portfolio-front-tools-5: 125 files, 556308 bytes
+#   portfolio-front-tools-6: 131 files, 542455 bytes
+#   portfolio-front-tools-7: 134 files, 547304 bytes
+#   portfolio-front-tools-8: 122 files, 556381 bytes
+#   portfolio-front-tools-9: 135 files, 552709 bytes
+#   portfolio-front-tools-10: 134 files, 556777 bytes
+#   portfolio-front-tools-11: 121 files, 556987 bytes
+#   portfolio-front-tools-12: 119 files, 556190 bytes
+#   portfolio-front-tools-13: 119 files, 541160 bytes
+#   portfolio-front-tools-14: 119 files, 556937 bytes
+#   portfolio-front-tools-15: 132 files, 556532 bytes
+#   portfolio-front-tools-16: 126 files, 555191 bytes
+#   portfolio-front-tools-17: 141 files, 553851 bytes
+#   portfolio-front-tools-18: 106 files, 556409 bytes
+#   portfolio-front-tools-19: 115 files, 556410 bytes
+#   portfolio-front-tools-20: 125 files, 555171 bytes
+#   portfolio-front-tools-21: 122 files, 542685 bytes
+#   portfolio-front-tools-22: 71 files, 342464 bytes
+#   portfolio-front-tools-23: 53 files, 281721 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3093,3 +3093,6 @@ configMapGenerator:
       - world-clock-widget__usage.mjs.gz=world-clock-widget__usage.mjs.gz
       - world-clock-widget__vs-your-phones-clock-app.html.gz=world-clock-widget__vs-your-phones-clock-app.html.gz
       - world-clock-widget__why-is-indias-time-zone-utc-5-30.html.gz=world-clock-widget__why-is-indias-time-zone-utc-5-30.html.gz
+      - youtube-revenue-rpm-analyzer__calc.mjs.gz=youtube-revenue-rpm-analyzer__calc.mjs.gz
+      - youtube-revenue-rpm-analyzer__index.html.gz=youtube-revenue-rpm-analyzer__index.html.gz
+      - youtube-revenue-rpm-analyzer__usage.mjs.gz=youtube-revenue-rpm-analyzer__usage.mjs.gz

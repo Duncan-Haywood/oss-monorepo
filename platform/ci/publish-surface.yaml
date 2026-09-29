@@ -1352,6 +1352,9 @@ workflows:
 - workflow: upwork-earnings-fee-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: youtube-revenue-rpm-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: vector-db-cost-calculator-ci.yml
   classification: none
   publishes: []
