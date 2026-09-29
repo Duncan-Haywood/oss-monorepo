@@ -791,6 +791,9 @@ workflows:
 - workflow: landscape-lighting-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: late-invoice-collections-kit-ci.yml
+  classification: none
+  publishes: []
 - workflow: lawn-care-bid-calculator-ci.yml
   classification: none
   publishes: []
