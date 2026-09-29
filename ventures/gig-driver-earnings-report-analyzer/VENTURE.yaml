@@ -1,0 +1,81 @@
+name: gig-driver-earnings-report-analyzer
+description: >-
+  Free browser tool that turns a rideshare or delivery trip-history CSV into true
+  net pay per hour and per mile after vehicle cost, by app, weekday and time of
+  day, and lists the trips that paid less than they cost to drive. The file is
+  read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Gig drivers (Uber, Lyft,
+# DoorDash, Instacart, Grubhub) are a very large, cost-sensitive market that
+# already pays for mileage and earnings trackers (Gridwise, Everlance, Stride,
+# Hurdlr), all of which want an account or a phone app first. Drivers already
+# hold the file: a trip history export, a mileage-app export or their own sheet.
+# This is the free diagnostic that answers "what do I make per hour after the
+# car, on which app and at what time" before another subscription is bought.
+# duplicate_check.py top score 0.31 (gig-driver-net-pay-calculator models one
+# typed shift; nothing reads a driver's own history) and links here both ways.
+#
+# First visitor: r/uberdrivers, r/doordash_drivers, r/Lyft, r/InstacartShoppers
+# and driver Facebook groups asking "am I actually making minimum wage after gas";
+# search phrases "uber driver earnings per hour calculator", "doordash net pay
+# per mile", "rideshare profit after expenses". Volume not measured with an
+# external tool.
+#
+# What makes it more than a sum: vehicle cost is charged per trip from that trip's
+# miles, so the trips that lose money after the car are named; per-hour rates use
+# only trips that report minutes (a half-empty column cannot drag a rate toward
+# zero) and the driver can enter total hours online so waiting time is counted;
+# weekday, time-of-day and app rankings ignore groups under five trips and say
+# that trip minutes exclude waiting.
+#
+# Privacy is the differentiator and the liability boundary: the file never leaves
+# the browser (a test asserts the page has no network calls), so the portfolio
+# holds no driver data and needs no partner API.
+#
+# Path to revenue (payment rails stay off): lead magnet, with a tie-in to the
+# mileage-log and deduction-method calculators already published. The paid
+# version, if usage appears, is a week-over-week diff and a merged multi-app
+# view behind an env-var switch; neither is built.
+#
+# Liability: arithmetic on the user's file, stated model and omissions on the
+# page, default cost per mile stated as the IRS 2025 rate with a note to check the
+# current one, no tax advice, no warranty, independent-of-every-app clause.
+#
+# Unverified: column names are from memory of app exports and matched by alias;
+# no real export was available, so the first user report of an unread file is the
+# priority fix.
+
+hypotheses:
+  - claim: >-
+      Gig drivers will run a no-signup analysis of a trip history they already
+      exported before installing another earnings tracker.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Net pay per hour by app and time of day, after vehicle cost, changes at
+      least one decision about when or where a driver works, which is the reason
+      to come back with each new export.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong pay figure, or a real export the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/gig-driver-earnings-report-analyzer/
+  analytics: null
