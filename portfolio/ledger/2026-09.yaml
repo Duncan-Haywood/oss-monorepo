@@ -47258,11 +47258,30 @@ entries:
         score row, launch date, CI workflow, reciprocal link from
         merchant-feed-check and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: shopify-payout-profit-analyzer
   - venture: shopify-discount-leakage-analyzer
     agent_spend_usd: null
     human_hours: 0
     outcomes:
       - >-
+        Graduated and built shopify-payout-profit-analyzer, the third
+        data-file archetype after amazon-seller-profit-analyzer and
+        etsy-statement-profit-analyzer: a browser-local tool that reads the
+        Shopify Payments Transactions export (and optionally the Orders
+        export) and produces a fee waterfall where every row lands in exactly
+        one bucket (charges, processing, third-party gateway, refunds,
+        chargebacks, dispute fees, adjustments, other; unrecognised types
+        visible, unreadable rows listed with line and reason), net to bank per
+        order, effective fee rate by card and payment method, profit per
+        product with editable unit costs (order net split across line items
+        after the discount, joined by order name), discount-code cost, and
+        findings (refunds, disputes, adjustments, foreign-currency cards, other
+        gateways, pending payouts). Files never leave the browser (test asserts
+        no network calls); independent-of-Shopify clause on the page. Parser
+        written from Shopify's documented export layouts and tested on
+        synthetic fixtures, not a real shop. duplicate_check.py top score 0.32.
+        Registered score row, launch date, CI workflow, reciprocal link from
+        shopify-fee-calculator and tree counts; regenerated the mirror.
         Graduated and built shopify-discount-leakage-analyzer, a data-file
         archetype for a market that already pays for this (Lifetimely, Triple
         Whale, Peel): a browser-local tool that reads the Shopify orders export
@@ -47330,6 +47349,30 @@ entries:
         Registered score row, launch date, CI workflow, reciprocal links from
         str-host-payout-calculator and str-cleaning-fee-pricing-calculator and
         tree counts; regenerated the mirror.
+    mrr_end: 0
+  - venture: ebay-transaction-report-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built ebay-transaction-report-analyzer, a data-file
+        archetype aimed at eBay resellers (a market that already pays
+        Sellerboard-style and accounting-connector tools): a browser-local
+        tool that reads the Seller Hub Transaction report CSV (file or paste;
+        metadata preamble skipped, header found by name, fee columns counted as
+        costs whatever their sign, payouts excluded) and shows the fee
+        waterfall tied to the Net amount column (final value, international,
+        performance, Promoted Listings, listing, refunds, labels, unexplained
+        amounts as explicit adjustments), shipping charged vs label spend,
+        profit per item after the seller's own unit costs (matched by title,
+        custom label or item number), and findings. File never leaves the
+        browser; independent-of-eBay clause on the page. duplicate_check.py top
+        score 0.47 (amazon-seller-profit-analyzer, shared vocabulary only).
+        Verified against a synthetic export only (no real one was available;
+        column names are from memory and matched by alias, stated in
+        VENTURE.yaml). Registered score row, launch date, CI workflow, tree
+        counts and reciprocal link from ebay-fee-calculator; regenerated the
+        mirror.
     mrr_end: 0
   - venture: gig-driver-earnings-report-analyzer
     agent_spend_usd: null

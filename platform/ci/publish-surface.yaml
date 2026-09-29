@@ -464,6 +464,9 @@ workflows:
 - workflow: ebay-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: ebay-transaction-report-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: economic-nexus-threshold-tracker-ci.yml
   classification: none
   publishes: []
@@ -1164,6 +1167,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: shopify-fee-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: shopify-payout-profit-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: shopify-permission-drift-ci.yml
