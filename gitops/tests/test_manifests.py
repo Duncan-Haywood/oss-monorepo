@@ -2822,7 +2822,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `medical-bill-error-checker` graduated (browser-local itemized medical bill checker).
     # +1: `mortgage-escrow-analysis-checker` graduated (browser-local mortgage escrow statement checker).
     # +1: `shopify-inventory-reorder-planner` graduated (browser-local reorder-point and dead-stock planner).
-    total = 452  # `infra/OWNER_CHECKLIST.md`'s own "N of the 452 tools" wording.
+    # +1: `like-kind-exchange-1031-calculator` graduated (browser-local 1031 exchange deadline, boot and basis calculator).
+    total = 453  # `infra/OWNER_CHECKLIST.md`'s own "N of the 453 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

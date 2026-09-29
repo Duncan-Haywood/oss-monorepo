@@ -797,6 +797,9 @@ workflows:
 - workflow: late-invoice-collections-kit-ci.yml
   classification: none
   publishes: []
+- workflow: like-kind-exchange-1031-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: mortgage-escrow-analysis-checker-ci.yml
   classification: none
   publishes: []
