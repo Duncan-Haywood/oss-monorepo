@@ -33,30 +33,30 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 545957 bytes
-#   portfolio-front-tools-1: 92 files, 554906 bytes
-#   portfolio-front-tools-2: 144 files, 552555 bytes
-#   portfolio-front-tools-3: 131 files, 554644 bytes
-#   portfolio-front-tools-4: 140 files, 551886 bytes
-#   portfolio-front-tools-5: 123 files, 556222 bytes
-#   portfolio-front-tools-6: 134 files, 553948 bytes
-#   portfolio-front-tools-7: 136 files, 553384 bytes
-#   portfolio-front-tools-8: 122 files, 556250 bytes
-#   portfolio-front-tools-9: 135 files, 552633 bytes
-#   portfolio-front-tools-10: 134 files, 556811 bytes
-#   portfolio-front-tools-11: 119 files, 557003 bytes
-#   portfolio-front-tools-12: 118 files, 556777 bytes
-#   portfolio-front-tools-13: 121 files, 555261 bytes
-#   portfolio-front-tools-14: 119 files, 550436 bytes
-#   portfolio-front-tools-15: 130 files, 555929 bytes
-#   portfolio-front-tools-16: 125 files, 557045 bytes
-#   portfolio-front-tools-17: 136 files, 556586 bytes
-#   portfolio-front-tools-18: 121 files, 556807 bytes
-#   portfolio-front-tools-19: 103 files, 553976 bytes
-#   portfolio-front-tools-20: 124 files, 553072 bytes
-#   portfolio-front-tools-21: 124 files, 547845 bytes
-#   portfolio-front-tools-22: 97 files, 464032 bytes
-#   portfolio-front-tools-23: 53 files, 281759 bytes
+#   portfolio-front-tools-0: 145 files, 545967 bytes
+#   portfolio-front-tools-1: 92 files, 554909 bytes
+#   portfolio-front-tools-2: 144 files, 552625 bytes
+#   portfolio-front-tools-3: 131 files, 554640 bytes
+#   portfolio-front-tools-4: 140 files, 551887 bytes
+#   portfolio-front-tools-5: 124 files, 557056 bytes
+#   portfolio-front-tools-6: 134 files, 556344 bytes
+#   portfolio-front-tools-7: 135 files, 550125 bytes
+#   portfolio-front-tools-8: 122 files, 556261 bytes
+#   portfolio-front-tools-9: 135 files, 552593 bytes
+#   portfolio-front-tools-10: 134 files, 556779 bytes
+#   portfolio-front-tools-11: 119 files, 556950 bytes
+#   portfolio-front-tools-12: 118 files, 556775 bytes
+#   portfolio-front-tools-13: 121 files, 555270 bytes
+#   portfolio-front-tools-14: 119 files, 550470 bytes
+#   portfolio-front-tools-15: 130 files, 555925 bytes
+#   portfolio-front-tools-16: 125 files, 557047 bytes
+#   portfolio-front-tools-17: 136 files, 556650 bytes
+#   portfolio-front-tools-18: 121 files, 556799 bytes
+#   portfolio-front-tools-19: 103 files, 554032 bytes
+#   portfolio-front-tools-20: 125 files, 556919 bytes
+#   portfolio-front-tools-21: 124 files, 554736 bytes
+#   portfolio-front-tools-22: 99 files, 473305 bytes
+#   portfolio-front-tools-23: 53 files, 281814 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -879,12 +879,12 @@ configMapGenerator:
       - automatic-driveway-gate-bid-calculator__vs-jobber.html.gz=automatic-driveway-gate-bid-calculator__vs-jobber.html.gz
       - backdoor-roth-pro-rata-calculator__calc.mjs.gz=backdoor-roth-pro-rata-calculator__calc.mjs.gz
       - backdoor-roth-pro-rata-calculator__index.html.gz=backdoor-roth-pro-rata-calculator__index.html.gz
+      - backdoor-roth-pro-rata-calculator__usage.mjs.gz=backdoor-roth-pro-rata-calculator__usage.mjs.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - backdoor-roth-pro-rata-calculator__usage.mjs.gz=backdoor-roth-pro-rata-calculator__usage.mjs.gz
       - backflow-test-fee-calculator__calc.mjs.gz=backflow-test-fee-calculator__calc.mjs.gz
       - backflow-test-fee-calculator__how-to-price-a-multi-device-backflow-test-visit.html.gz=backflow-test-fee-calculator__how-to-price-a-multi-device-backflow-test-visit.html.gz
       - backflow-test-fee-calculator__index.html.gz=backflow-test-fee-calculator__index.html.gz
@@ -1018,12 +1018,12 @@ configMapGenerator:
       - card-surcharge-vs-cash-discount-calculator__calc.mjs.gz=card-surcharge-vs-cash-discount-calculator__calc.mjs.gz
       - card-surcharge-vs-cash-discount-calculator__index.html.gz=card-surcharge-vs-cash-discount-calculator__index.html.gz
       - card-surcharge-vs-cash-discount-calculator__usage.mjs.gz=card-surcharge-vs-cash-discount-calculator__usage.mjs.gz
+      - carpet-cleaning-bid-calculator__calc.mjs.gz=carpet-cleaning-bid-calculator__calc.mjs.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - carpet-cleaning-bid-calculator__calc.mjs.gz=carpet-cleaning-bid-calculator__calc.mjs.gz
       - carpet-cleaning-bid-calculator__how-to-price-carpet-cleaning.html.gz=carpet-cleaning-bid-calculator__how-to-price-carpet-cleaning.html.gz
       - carpet-cleaning-bid-calculator__index.html.gz=carpet-cleaning-bid-calculator__index.html.gz
       - carpet-cleaning-bid-calculator__share.mjs.gz=carpet-cleaning-bid-calculator__share.mjs.gz
@@ -2831,12 +2831,12 @@ configMapGenerator:
       - subpath-robots-check__usage.mjs.gz=subpath-robots-check__usage.mjs.gz
       - subpath-robots-check__vs-checking-robots-txt-by-eye.html.gz=subpath-robots-check__vs-checking-robots-txt-by-eye.html.gz
       - subpath-robots-check__why-a-subpath-site-cannot-govern-its-robots-txt.html.gz=subpath-robots-check__why-a-subpath-site-cannot-govern-its-robots-txt.html.gz
+      - sump-pump-bid-calculator__calc.mjs.gz=sump-pump-bid-calculator__calc.mjs.gz
   - name: portfolio-front-tools-21
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - sump-pump-bid-calculator__calc.mjs.gz=sump-pump-bid-calculator__calc.mjs.gz
       - sump-pump-bid-calculator__how-much-to-charge-to-install-a-sump-pump.html.gz=sump-pump-bid-calculator__how-much-to-charge-to-install-a-sump-pump.html.gz
       - sump-pump-bid-calculator__index.html.gz=sump-pump-bid-calculator__index.html.gz
       - sump-pump-bid-calculator__share.mjs.gz=sump-pump-bid-calculator__share.mjs.gz
@@ -2877,6 +2877,9 @@ configMapGenerator:
       - terraform-plan-secret-exposure-check__vs-gitleaks.html.gz=terraform-plan-secret-exposure-check__vs-gitleaks.html.gz
       - terraform-plan-secret-exposure-check__vs-manually-reading-the-plan-json.html.gz=terraform-plan-secret-exposure-check__vs-manually-reading-the-plan-json.html.gz
       - terraform-plan-secret-exposure-check__why-terraform-plan-json-leaks-secrets.html.gz=terraform-plan-secret-exposure-check__why-terraform-plan-json-leaks-secrets.html.gz
+      - tiktok-shop-settlement-analyzer__calc.mjs.gz=tiktok-shop-settlement-analyzer__calc.mjs.gz
+      - tiktok-shop-settlement-analyzer__index.html.gz=tiktok-shop-settlement-analyzer__index.html.gz
+      - tiktok-shop-settlement-analyzer__usage.mjs.gz=tiktok-shop-settlement-analyzer__usage.mjs.gz
       - tip-pool-compliance-calculator__calc.mjs.gz=tip-pool-compliance-calculator__calc.mjs.gz
       - tip-pool-compliance-calculator__can-managers-be-in-a-tip-pool.html.gz=tip-pool-compliance-calculator__can-managers-be-in-a-tip-pool.html.gz
       - tip-pool-compliance-calculator__index.html.gz=tip-pool-compliance-calculator__index.html.gz
@@ -2958,13 +2961,13 @@ configMapGenerator:
       - vendor-change-watch__usage.mjs.gz=vendor-change-watch__usage.mjs.gz
       - vendor-change-watch__vs-changedetection-io.html.gz=vendor-change-watch__vs-changedetection-io.html.gz
       - vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz=vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz
-      - vinyl-liner-bid-calculator__calc.mjs.gz=vinyl-liner-bid-calculator__calc.mjs.gz
-      - vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz=vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz
   - name: portfolio-front-tools-22
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vinyl-liner-bid-calculator__calc.mjs.gz=vinyl-liner-bid-calculator__calc.mjs.gz
+      - vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz=vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz
       - vinyl-liner-bid-calculator__index.html.gz=vinyl-liner-bid-calculator__index.html.gz
       - vinyl-liner-bid-calculator__share.mjs.gz=vinyl-liner-bid-calculator__share.mjs.gz
       - vinyl-liner-bid-calculator__usage.mjs.gz=vinyl-liner-bid-calculator__usage.mjs.gz
