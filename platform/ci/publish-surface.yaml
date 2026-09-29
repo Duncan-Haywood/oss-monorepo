@@ -830,6 +830,9 @@ workflows:
 - workflow: mcp-supply-chain-watch-ci.yml
   classification: none
   publishes: []
+- workflow: medical-bill-error-checker-ci.yml
+  classification: none
+  publishes: []
 - workflow: medical-courier-route-margin-ci.yml
   classification: none
   publishes: []

@@ -86,3 +86,7 @@ node --test
 `stage: prototype` in [`VENTURE.yaml`](VENTURE.yaml). The calculator and its
 test suite are done; no external user contact has happened yet — see
 `kill_criteria` in `VENTURE.yaml`.
+
+## Related
+
+Before paying a medical bill from an HSA, check it with [`medical-bill-error-checker`](../medical-bill-error-checker/): it reads an itemized bill in the browser, nothing uploaded.

@@ -2816,7 +2816,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `appointment-no-show-analyzer` graduated (browser-local booking export analyzer).
     # +1: `freelancer-schedule-c-categorizer` graduated (browser-local bank CSV to Schedule C lines).
     # +1: `self-employed-schedule-c-categorizer` graduated (browser-local bank CSV to Schedule C lines).
-    total = 446  # `infra/OWNER_CHECKLIST.md`'s own "N of the 446 tools" wording.
+    # +1: `medical-bill-error-checker` graduated (browser-local itemized medical bill checker).
+    total = 447  # `infra/OWNER_CHECKLIST.md`'s own "N of the 447 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

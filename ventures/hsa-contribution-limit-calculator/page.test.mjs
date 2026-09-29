@@ -108,3 +108,10 @@ test("the worked example in the page script matches calc.mjs's own arithmetic", 
   assert.match(html, /els\.months\.value = "6"/);
   assert.match(html, /\$4,875/);
 });
+
+test("page links to the medical bill error checker, which links back", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /href="\.\.\/medical-bill-error-checker\/"/);
+  const theirs = readFileSync(new URL("../medical-bill-error-checker/index.html", import.meta.url), "utf8");
+  assert.match(theirs, /href="\.\.\/hsa-contribution-limit-calculator\/"/);
+});

@@ -20928,3 +20928,39 @@ ventures:
       business flagged, never decided; self-employment tax and depreciation not
       modelled. Nothing is uploaded and no bank credential is requested. Ethics:
       helps an owner report their own income and expenses accurately.
+  - slug: medical-bill-error-checker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every flag is a deterministic rule on
+      lines the patient supplies.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Patients are told
+      to request an itemized bill and check it, and get no tool for the checking;
+      the paid alternatives are advocates taking a share of savings. Distribution
+      7: "how to check a medical bill for errors", "medical bill unbundling" and
+      "duplicate charges hospital bill" are recurring consumer queries and
+      r/personalfinance and r/HealthInsurance threads; volume not measured with an
+      external tool. Defensibility 3: rules are public coding knowledge; the edge
+      is a private, no-signup checker that ranks questions and drafts the letter.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: flags are questions not findings, no medical, legal or insurance
+      advice, no warranty, CPT trademark and independence stated, rule table and
+      what it omits documented on the page, amount in question capped at the
+      bill total and never presented as a refund. The bill (health information)
+      never leaves the browser and no portal credential is requested. Ethics:
+      helps a patient ask for a correct bill through the provider's own review;
+      the letter asks questions and a collections hold and alleges nothing.
