@@ -1403,6 +1403,15 @@ workflows:
 - workflow: str-cleaning-fee-pricing-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: amazon-seller-profit-analyzer-ci.yml
+  classification: none
+  publishes: []
+- workflow: etsy-statement-profit-analyzer-ci.yml
+  classification: none
+  publishes: []
+- workflow: google-ads-wasted-spend-analyzer-ci.yml
+  classification: none
+  publishes: []
 gitops:
 - application: agents
   path: gitops/agents
@@ -1451,9 +1460,3 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
-- workflow: amazon-seller-profit-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: etsy-statement-profit-analyzer-ci.yml
-  classification: none
-  publishes: []

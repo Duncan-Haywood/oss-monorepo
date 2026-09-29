@@ -19434,6 +19434,7 @@ ventures:
       no network calls), so the portfolio holds no seller data. Ethics:
       purely informational, helps a seller see their own margins.
   - slug: etsy-statement-profit-analyzer
+  - slug: google-ads-wasted-spend-analyzer
     scores:
       ai_leverage: 1
       autonomous_ops: 10
@@ -19458,6 +19459,17 @@ ventures:
       tool market behind them; volume not measured with an external tool.
       Defensibility 3: the local-only stance is the differentiator against
       tools that need shop API access.
+      arithmetic on rows of the user's own file, never an inference step.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment.
+      duplicate_check.py top score 0.21 (no venture analyses advertising
+      data). Distribution 7: "google ads wasted spend", "search terms report
+      negative keywords" and r/PPC / r/googleads threads are recurring queries
+      with a paid-tool market (Optmyzr, Adalysis, WordStream, Opteo) behind
+      them; volume not measured with an external tool. Defensibility 3: the
+      no-account-access stance and the evidence-graded waste line are the
+      differentiators against tools that need OAuth to the ad account.
     gates:
       liability_containment: pass
       ethical_robustness: pass
@@ -19467,3 +19479,8 @@ ventures:
       on the page. The files never leave the browser (a test asserts no network
       calls), so the portfolio holds no seller or buyer data. Ethics: purely
       informational, helps a seller see their own margins.
+      Liability: arithmetic on the user's own report with model and omissions
+      stated; no advice, no warranty, independent-of-Google clause on the
+      page. The file never leaves the browser (a test asserts no network
+      calls), so the portfolio holds no advertiser data. Ethics: purely
+      informational, helps an advertiser stop paying for irrelevant clicks.
