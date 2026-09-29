@@ -47216,3 +47216,25 @@ entries:
         workflow, reciprocal link from amazon-fba-calculator and tree counts;
         regenerated the mirror.
     mrr_end: 0
+  - venture: google-ads-wasted-spend-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built google-ads-wasted-spend-analyzer, a data-file
+        archetype aimed at a market that already pays for this (Optmyzr,
+        Adalysis, WordStream): a browser-local tool that reads the Google Ads
+        Search terms report (file or paste; title, date-range and Total rows
+        handled; comma, tab, semicolon and UTF-16 exports; skipped rows reported
+        with line and reason) and splits zero-conversion spend into proven
+        (clicks needed derived from the account's own conversion rate,
+        (1-p)^n < 5%), overspent (above target or average cost per conversion)
+        and too-little-data, proposes word and exact negative keywords that never
+        appear in a converting term (core words protectable), lists converting
+        terms reached only via broad or phrase match, and breaks down by match
+        type and campaign. File never leaves the browser (test asserts no
+        network calls); independent-of-Google clause on the page.
+        duplicate_check.py top score 0.21. Verified in Chromium. Registered
+        score row, launch date, CI workflow, reciprocal link from
+        merchant-feed-check and tree counts; regenerated the mirror.
+    mrr_end: 0
