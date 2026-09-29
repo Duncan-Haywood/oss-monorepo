@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 451 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 455 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-09-29T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>ACA Subsidy Cliff Calculator — 2026, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/aca-subsidy-cliff-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/aca-subsidy-cliff-calculator</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free 2026 ACA subsidy cliff calculator: enter household size, MAGI and your benchmark premium to see your premium tax credit, how far you are from the 400% of poverty cliff, and how much a dollar over it costs. Entirely client-side, nothing uploaded.</summary>
+  </entry>
   <entry>
     <title>Airbnb Earnings Report Analyzer — Free Transaction History CSV Tool</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/airbnb-earnings-report-analyzer/"/>
@@ -260,6 +269,15 @@
     <summary type="text">Free tool for freelancers and small agencies with an overdue invoice: late fee and interest today and on later dates, four ready-to-copy letters (reminder, firm notice, final demand, referral) with your numbers, a small-claims break-even, and .ics reminders. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>1031 Exchange Calculator — Deadlines, Boot and Deferred Gain, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/like-kind-exchange-1031-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/like-kind-exchange-1031-calculator</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free 1031 like-kind exchange calculator for real estate investors: your 45-day identification and 180-day closing dates, cash and mortgage boot, recognized versus deferred gain, replacement property basis and the estimated tax you defer. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Medical Bill Error Checker — Find Duplicate Charges and Unbundled Codes in an Itemized Bill</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/medical-bill-error-checker/"/>
     <id>tag:marisstella.dev,2026:tool/medical-bill-error-checker</id>
@@ -294,6 +312,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free mileage log for self-employed drivers and contractors: log trips or track with GPS, price them at the IRS standard rate by date (the 2026 rate changed July 1), check the log for audit gaps, export CSV. Works offline, data stays on your device.</summary>
+  </entry>
+  <entry>
+    <title>Mortgage Escrow Analysis Checker — Why Your Escrow Payment Went Up and What Is In Question</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mortgage-escrow-analysis-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/mortgage-escrow-analysis-checker</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free tool for homeowners: enter your tax and insurance bills and the numbers on your annual escrow statement, and see the payment they support, your shortage, the largest allowed cushion and a twelve-month schedule, with a draft request for the servicer&#39;s worksheet. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Parcel Late-Delivery Refund Finder — Find UPS and FedEx Shipments You Can Claim a Refund On</title>
@@ -339,32 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free property tax appeal calculator: adjust comparable sales to your home, compare with your assessed value, and see the yearly tax saved, the break-even odds and what an appeal firm would keep. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Rent Roll Delinquency Analyzer — Unpaid Rent Aging by Unit</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rent-roll-delinquency-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/rent-roll-delinquency-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free analyzer for small landlords: load your rent ledger and see who owes what and how old it is, which units pay late, monthly collection rate and a late-fee upper bound. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Rental Property Schedule E Categorizer — Sort Your Bank CSV Into Schedule E Lines</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rental-property-schedule-e-categorizer/"/>
-    <id>tag:marisstella.dev,2026:tool/rental-property-schedule-e-categorizer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free tool for landlords: drop in your bank or card CSV and get rental income and expenses sorted into Schedule E lines per property, with mortgage interest split out, repairs-versus-improvement flags, missing-rent months and a CSV to hand your preparer. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Restaurant Delivery Commission Analyzer — What DoorDash Really Costs</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/restaurant-delivery-commission-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/restaurant-delivery-commission-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free analyzer for restaurants: drop in your DoorDash, Uber Eats or Grubhub payout or order-level CSV and see the real take rate per platform and per order, net after food cost and packaging, losing orders, promo return and the markup that matches in-store margin. Runs in your browser, the file is never uploaded.</summary>
   </entry>
 </feed>
