@@ -33,31 +33,31 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 546186 bytes
-#   portfolio-front-tools-1: 92 files, 554986 bytes
+#   portfolio-front-tools-0: 145 files, 546192 bytes
+#   portfolio-front-tools-1: 92 files, 554996 bytes
 #   portfolio-front-tools-2: 144 files, 552762 bytes
 #   portfolio-front-tools-3: 131 files, 554576 bytes
-#   portfolio-front-tools-4: 142 files, 556785 bytes
-#   portfolio-front-tools-5: 121 files, 552332 bytes
-#   portfolio-front-tools-6: 129 files, 554258 bytes
-#   portfolio-front-tools-7: 131 files, 551210 bytes
-#   portfolio-front-tools-8: 127 files, 556262 bytes
-#   portfolio-front-tools-9: 125 files, 544525 bytes
-#   portfolio-front-tools-10: 138 files, 545158 bytes
-#   portfolio-front-tools-11: 117 files, 547906 bytes
-#   portfolio-front-tools-12: 119 files, 553404 bytes
-#   portfolio-front-tools-13: 116 files, 550058 bytes
-#   portfolio-front-tools-14: 118 files, 554300 bytes
-#   portfolio-front-tools-15: 121 files, 553048 bytes
-#   portfolio-front-tools-16: 127 files, 554457 bytes
-#   portfolio-front-tools-17: 129 files, 555069 bytes
-#   portfolio-front-tools-18: 131 files, 556987 bytes
-#   portfolio-front-tools-19: 105 files, 554917 bytes
-#   portfolio-front-tools-20: 109 files, 554298 bytes
-#   portfolio-front-tools-21: 123 files, 553848 bytes
-#   portfolio-front-tools-22: 124 files, 556720 bytes
-#   portfolio-front-tools-23: 108 files, 517866 bytes
-#   portfolio-front-tools-24: 53 files, 281848 bytes
+#   portfolio-front-tools-4: 142 files, 556789 bytes
+#   portfolio-front-tools-5: 121 files, 552364 bytes
+#   portfolio-front-tools-6: 129 files, 554270 bytes
+#   portfolio-front-tools-7: 131 files, 551217 bytes
+#   portfolio-front-tools-8: 127 files, 556295 bytes
+#   portfolio-front-tools-9: 125 files, 544522 bytes
+#   portfolio-front-tools-10: 138 files, 545146 bytes
+#   portfolio-front-tools-11: 117 files, 547959 bytes
+#   portfolio-front-tools-12: 119 files, 553385 bytes
+#   portfolio-front-tools-13: 116 files, 550127 bytes
+#   portfolio-front-tools-14: 118 files, 554325 bytes
+#   portfolio-front-tools-15: 121 files, 553112 bytes
+#   portfolio-front-tools-16: 127 files, 554528 bytes
+#   portfolio-front-tools-17: 129 files, 555098 bytes
+#   portfolio-front-tools-18: 131 files, 556993 bytes
+#   portfolio-front-tools-19: 105 files, 555038 bytes
+#   portfolio-front-tools-20: 109 files, 554348 bytes
+#   portfolio-front-tools-21: 123 files, 553761 bytes
+#   portfolio-front-tools-22: 124 files, 556784 bytes
+#   portfolio-front-tools-23: 111 files, 534600 bytes
+#   portfolio-front-tools-24: 53 files, 281779 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3091,6 +3091,9 @@ configMapGenerator:
       - vscode-extension-drift-check__vs-vscan.html.gz=vscode-extension-drift-check__vs-vscan.html.gz
       - vscode-extension-drift-check__vs-vsix-audit.html.gz=vscode-extension-drift-check__vs-vsix-audit.html.gz
       - vscode-extension-drift-check__why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html.gz=vscode-extension-drift-check__why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html.gz
+      - wage-garnishment-limit-calculator__calc.mjs.gz=wage-garnishment-limit-calculator__calc.mjs.gz
+      - wage-garnishment-limit-calculator__index.html.gz=wage-garnishment-limit-calculator__index.html.gz
+      - wage-garnishment-limit-calculator__usage.mjs.gz=wage-garnishment-limit-calculator__usage.mjs.gz
       - walk-in-shower-bid-calculator__calc.mjs.gz=walk-in-shower-bid-calculator__calc.mjs.gz
       - walk-in-shower-bid-calculator__how-much-to-charge-to-install-a-walk-in-shower.html.gz=walk-in-shower-bid-calculator__how-much-to-charge-to-install-a-walk-in-shower.html.gz
       - walk-in-shower-bid-calculator__index.html.gz=walk-in-shower-bid-calculator__index.html.gz

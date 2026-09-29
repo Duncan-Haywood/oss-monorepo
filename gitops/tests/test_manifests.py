@@ -2824,7 +2824,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `shopify-inventory-reorder-planner` graduated (browser-local reorder-point and dead-stock planner).
     # +1: `like-kind-exchange-1031-calculator` graduated (browser-local 1031 exchange deadline, boot and basis calculator).
     # +1: `aca-subsidy-cliff-calculator` graduated (browser-local 2026 ACA premium tax credit and 400% FPL cliff).
-    total = 456  # `infra/OWNER_CHECKLIST.md`'s own "N of the 456 tools" wording.
+    # +1: `wage-garnishment-limit-calculator` graduated (browser-local federal wage garnishment cap calculator).
+    total = 457  # `infra/OWNER_CHECKLIST.md`'s own "N of the 457 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

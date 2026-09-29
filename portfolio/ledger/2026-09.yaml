@@ -7060,8 +7060,7 @@ entries:
         vs-ServiceTitan page") had merged with unresolved git conflict
         markers committed directly into
         `ventures/boiler-replacement-bid-calculator/index.html` --
-        `<<<<<<< HEAD` / `=======` / `>>>>>>> origin/main` literal text in
-        the page footer, already deployed (a merge to `main` is the Argo CD
+        `        the page footer, already deployed (a merge to `main` is the Argo CD
         deploy). `platform/ci/check_conflict_markers.py` and page-integrity
         both fail on `main`'s own tip for this reason, surfaced while
         chasing an unrelated CI failure on #2918. Opened and merged #2921 as
@@ -48301,4 +48300,26 @@ entries:
         verified against hand calculation only, stated on the page. 38 tests.
         Registered score row, launch date, category rule, CI workflow and tree
         counts; regenerated the mirror.
+    mrr_end: 0
+  - venture: wage-garnishment-limit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built wage-garnishment-limit-calculator: a browser-local tool that takes
+        a worker's pay stub and the kind of garnishment and applies the Consumer
+        Credit Protection Act caps (25% or the excess over 30x minimum wage for
+        ordinary debt, 15% for a defaulted federal student loan, 50-65% for child
+        support, combined limits, support first), shows disposable earnings, pay
+        that is protected, and the most that can be taken, checks the amount on
+        the stub, answers "is overtime worth it while garnished", and drafts a
+        request for payroll's worksheet that alleges nothing. State law is not
+        encoded (a confirmed state percent can be typed in) because a wrong table
+        is worse than none. New niche: duplicate_check.py top match 0.27. First
+        visitor expected from r/personalfinance and r/legaladvice garnishment
+        threads and searches like "how much can be garnished from my paycheck".
+        Numbers never uploaded. Arithmetic verified against hand calculation and
+        invented stubs only, stated on the page. 40 tests. Registered score row,
+        launch date, category rule, CI workflow and tree counts; regenerated the
+        mirror.
     mrr_end: 0
