@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 441 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 442 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -287,6 +287,15 @@
     <summary type="text">Free analyzer for small landlords: load your rent ledger and see who owes what and how old it is, which units pay late, monthly collection rate and a late-fee upper bound. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
+    <title>Rental Property Schedule E Categorizer — Sort Your Bank CSV Into Schedule E Lines</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rental-property-schedule-e-categorizer/"/>
+    <id>tag:marisstella.dev,2026:tool/rental-property-schedule-e-categorizer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free tool for landlords: drop in your bank or card CSV and get rental income and expenses sorted into Schedule E lines per property, with mortgage interest split out, repairs-versus-improvement flags, missing-rent months and a CSV to hand your preparer. Runs in your browser, the file is never uploaded.</summary>
+  </entry>
+  <entry>
     <title>Restaurant Delivery Commission Analyzer — What DoorDash Really Costs</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/restaurant-delivery-commission-analyzer/"/>
     <id>tag:marisstella.dev,2026:tool/restaurant-delivery-commission-analyzer</id>
@@ -357,14 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free Shopify discount code analyzer: drop in your orders export and see how much each code gave away, the share of its orders that must be new sales to pay for itself, refund rates by code and discounts that went to repeat customers. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Shopify Payments Fee Analyzer — Free Effective-Rate and Fee Waterfall Tool</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/shopify-payments-fee-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/shopify-payments-fee-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free Shopify Payments fee analyzer: drop in your Transactions export CSV and see your real effective rate, fees by card brand and card source, refund and chargeback cost, and what-if rates. Runs in your browser, the file is never uploaded.</summary>
   </entry>
 </feed>

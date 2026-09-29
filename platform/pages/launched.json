@@ -316,6 +316,7 @@
     "redirect-chain-check": "2026-09-11",
     "referrer-permissions-policy-check": "2026-09-25",
     "rent-roll-delinquency-analyzer": "2026-09-29",
+    "rental-property-schedule-e-categorizer": "2026-09-29",
     "repository-branch-hygiene": "2026-08-24",
     "required-checks-drift-check": "2026-09-17",
     "restaurant-delivery-commission-analyzer": "2026-09-29",
