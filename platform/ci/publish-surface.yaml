@@ -1471,3 +1471,6 @@ gitops:
 - workflow: mileage-log-ci.yml
   classification: none
   publishes: []
+- workflow: shopify-payments-fee-analyzer-ci.yml
+  classification: none
+  publishes: []
