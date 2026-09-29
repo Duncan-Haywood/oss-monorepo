@@ -1002,7 +1002,9 @@ const RELATIVE_SELF = relative(
 // boilerplate `usage.mjs` under its own storage name.
 // 384 -> 385: `shopify-discount-leakage-analyzer` graduated -- one more
 // boilerplate `usage.mjs` under its own storage name.
-const SWITCHES_IN_THE_CATALOGUE = 385;
+// 385 -> 386: `mileage-log` graduated -- one more boilerplate `usage.mjs` under
+// its own storage name.
+const SWITCHES_IN_THE_CATALOGUE = 386;
 
 let counter = 0;
 function fixture(source) {

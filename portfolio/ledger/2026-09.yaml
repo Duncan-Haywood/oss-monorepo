@@ -47281,3 +47281,29 @@ entries:
         workflow, reciprocal link from shopify-fee-calculator and tree
         counts; regenerated the mirror.
     mrr_end: 0
+  - venture: mileage-log
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built mileage-log, an installable-and-offline stateful app rather
+        than another calculator or file analyzer, aimed at a market that already
+        pays $6-15 a month (MileIQ, Everlance, TripLog): a browser mileage log
+        (odometer, typed miles or foreground GPS with jitter and accuracy
+        filtering), priced per trip date so the 2026 mid-year rate change (72.5c
+        to 76c on July 1) is applied correctly, the Schedule C Part IV split from
+        year-start and year-end odometers, audit-readiness findings (missing
+        purpose or destination, contradictory odometers, duplicates, round-number
+        logs, late entries, unlogged miles), CSV export, JSON backup and restore,
+        print view. Rates reused from the irs.gov-verified table in
+        mileage-deduction-method-calculator; every rate overridable. No network
+        calls (test asserts); GPS positions not stored. duplicate_check.py top
+        score 0.18. Verified in Chromium at phone width (add, edit, reload
+        persistence, example year). Two CSV-analyzer builds earlier in the same
+        session (etsy statement, google ads search terms) were dropped because
+        other sessions merged the same niches minutes earlier (#5983, #5985); this
+        one was checked against origin/main immediately before registering.
+        Registered score row, launch date, CI workflow, category, reciprocal link
+        from mileage-deduction-method-calculator and tree counts; regenerated the
+        mirror.
+    mrr_end: 0

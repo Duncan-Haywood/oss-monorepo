@@ -74,3 +74,7 @@ test("the worked example in the page matches calc.mjs's arithmetic", async () =>
   assert.match(html, /\$7,625\.00/);
   assert.match(html, /\$235\.00/);
 });
+
+test("footer points to the mileage log for the trips behind the miles", () => {
+  assert.match(page("index.html"), /href="\.\.\/mileage-log\/"/);
+});
