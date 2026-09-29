@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 421 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 422 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -114,6 +114,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free Google Ads wasted spend analyzer: drop in your search terms report CSV and see how much you spent on terms that never converted, which negative keywords are safe to add, and which converting terms deserve exact match. Runs in your browser, the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Gumroad Sales Fee Analyzer — Your Real Take-Home per Order</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/gumroad-sales-fee-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/gumroad-sales-fee-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free Gumroad fee calculator for sellers: drop in your sales CSV and see the service fee actually taken, take-home per order, net revenue per product, repeat buyers, refunds, withdrawal costs, funds still clearing and the price needed for a target take-home. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Home Office Deduction Calculator — Simplified vs Regular, Free</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a Claude Code hooks configuration and see which command strings match known-dangerous shapes: a remote download piped straight into a shell, a credential file read and sent over the network, an unguarded recursive delete, TLS verification disabled, and more. Free, runs entirely in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>EITC Calculator — Free 2025/2026 Earned Income Tax Credit Estimator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eitc-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/eitc-calculator</id>
-    <published>2026-09-25T00:00:00Z</published>
-    <updated>2026-09-25T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator for the federal Earned Income Tax Credit (EITC): the phase-in, plateau, and phase-out by number of qualifying children and filing status, the investment income limit, the married-filing-separately living-apart exception, and the AGI-vs-earned-income rule most hand calculations skip. Entirely client-side, nothing uploaded.</summary>
   </entry>
 </feed>
