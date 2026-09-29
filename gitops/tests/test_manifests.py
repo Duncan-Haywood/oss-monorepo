@@ -2800,7 +2800,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `patreon-members-churn-analyzer` graduated (browser-local Patreon Members export analyzer).
     # +1: `tiktok-shop-settlement-analyzer` graduated (browser-local TikTok Shop
     # settlement CSV analyzer, static `index.html` plus ES modules).
-    total = 423  # `infra/OWNER_CHECKLIST.md`'s own "N of the 423 tools" wording.
+    total = 424  # `infra/OWNER_CHECKLIST.md`'s own "N of the 424 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
