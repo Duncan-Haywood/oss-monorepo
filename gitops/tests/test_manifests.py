@@ -2779,7 +2779,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # search terms report analyzer, static `index.html` plus ES modules).
     # 405 -> 406: `shopify-discount-leakage-analyzer` graduated (browser-local Shopify
     # orders export analyzer, static `index.html` plus ES modules).
-    total = 407  # `infra/OWNER_CHECKLIST.md`'s own "N of the 407 tools" wording.
+    # 407 -> 408: `airbnb-earnings-report-analyzer` graduated (browser-local Airbnb
+    # Transaction history analyzer, static `index.html` plus ES modules).
+    total = 408  # `infra/OWNER_CHECKLIST.md`'s own "N of the 408 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

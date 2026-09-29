@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Airbnb Earnings Report Analyzer — Free Transaction History CSV Tool</title>
+  <meta name="description" content="Free Airbnb earnings analyzer: drop in your Transaction history CSV and see net earnings, fee share, nightly rate and occupancy per listing, which months and stay lengths earn the most, and whether your cleaning fee covers your cleaning cost. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="Airbnb Earnings Report Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="Per-listing net earnings, fees, ADR, occupancy, seasonality and profit by stay length from your Airbnb Transaction history. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Airbnb Earnings Report Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns an Airbnb Transaction history CSV into per-listing net earnings, fee share, ADR, occupancy, monthly seasonality and profit by length of stay. Runs entirely in your browser; the file is never uploaded.", "featureList": "Per-listing earnings, fee waterfall, ADR and net per night, occupancy, monthly seasonality, profit by length of stay, cleaning fee vs cleaning cost"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I see which Airbnb listing earns the most?", "acceptedAnswer": {"@type": "Answer", "text": "Download your Transaction history CSV from Airbnb (Menu, Account, Payments, Transaction history, Download CSV, or the Earnings tab), and drop it here. The tool groups the Reservation rows by listing and shows gross earnings, Airbnb's fees, net earnings, average daily rate, net per booked night and occupancy for each. Nothing is uploaded; the file is read in your browser."}}, {"@type": "Question", "name": "How does it work out net earnings and the fee share?", "acceptedAnswer": {"@type": "Answer", "text": "Net is the Amount column on each reservation row, which is what Airbnb pays after its service fee. If that column is missing it is gross earnings minus the service fee and any Fast Pay fee. Fee share is service plus Fast Pay fees divided by gross earnings. Occupancy taxes are shown for reference and never counted as earnings."}}, {"@type": "Question", "name": "Which stay length makes the most money per night?", "acceptedAnswer": {"@type": "Answer", "text": "Short stays earn more per night on paper because the cleaning fee is spread over fewer nights, but each one costs a turnover. Enter what you pay for one cleaning and the tool shows profit per night for 1-2, 3-4, 5-6, 7-27 and 28+ night stays, so you can see whether a longer minimum stay or a higher cleaning fee is worth testing."}}, {"@type": "Question", "name": "What does the tool not know?", "acceptedAnswer": {"@type": "Answer", "text": "Your mortgage or rent, utilities, supplies, platform subscriptions, blocked nights, taxes you owe and any income booked outside Airbnb. Occupancy is nights booked divided by the days between a listing's first check-in and last check-out in the file unless you enter the days available, so it overstates occupancy if you blocked the calendar. Months are by check-in date."}}, {"@type": "Question", "name": "Is this tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file you provide and does not replace your own judgement or a qualified adviser. It is independent of Airbnb and is not affiliated with or endorsed by it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+</head>
+<body>
+  <header>
+    <p class="note">AIRBNB EARNINGS REPORT ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which of your Airbnb listings, months and stay lengths actually make money?</h1>
+    <p>Drop in the <strong>Transaction history</strong> you downloaded from Airbnb and get <strong>net earnings per listing</strong>, the share Airbnb's fees took, average daily rate, net per booked night, occupancy, your best and worst months, and <strong>profit per night by length of stay</strong> once you tell it what a cleaning costs, without giving a third-party dashboard access to your host account.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Airbnb: not affiliated with or endorsed by Airbnb, Inc.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your Transaction history</h2>
+    <p class="note">Airbnb → Menu → Account → Payments → Transaction history → Download CSV (or Earnings → Download). Needs Start date, Nights or End date, and Amount or Gross earnings; Listing, Type, Service fee, Fast pay fee, Cleaning fee and Occupancy taxes are used when present. Reservation rows become stays; payouts are ignored; adjustments and resolutions are shown separately. US and day-first dates, comma, tab and semicolon files, and UTF-16 exports are read.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the file text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Date,Type,Confirmation code,Start date,End date,Nights,Listing,Amount,Gross earnings"></textarea>
+    <div class="grid">
+      <div><label for="cleaning">What you pay for one turnover clean (optional)</label><input type="number" id="cleaning" min="0" step="any" placeholder="blank = leave cleaning cost out"></div>
+      <div><label for="days">Days each listing was open to book (optional)</label><input type="number" id="days" min="1" step="1" placeholder="blank = first check-in to last check-out"></div>
+      <div><label for="from">Check-in from (optional)</label><input type="date" id="from"></div>
+      <div><label for="to">Check-in to (optional)</label><input type="date" id="to"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>By listing</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Listing</th><th class="n" scope="col">Stays</th><th class="n" scope="col">Nights</th><th class="n" scope="col">Gross</th><th class="n" scope="col">Fees</th><th class="n" scope="col">Net</th><th class="n" scope="col">ADR</th><th class="n" scope="col">Net / night</th><th class="n" scope="col">Occupancy</th></tr></thead><tbody id="by-listing"></tbody></table></div>
+    <h3>By month of check-in</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Month</th><th class="n" scope="col">Stays</th><th class="n" scope="col">Nights</th><th class="n" scope="col">Gross</th><th class="n" scope="col">Net</th><th class="n" scope="col">ADR</th><th class="n" scope="col">Net / night</th></tr></thead><tbody id="by-month"></tbody></table></div>
+    <h3>By length of stay</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Stay length</th><th class="n" scope="col">Stays</th><th class="n" scope="col">Nights</th><th class="n" scope="col">Net</th><th class="n" scope="col">Net / night</th><th class="n" scope="col" id="th-profit">Profit / night</th></tr></thead><tbody id="by-los"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download listing table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Stays</strong> are Reservation rows. Payout rows are ignored so nothing is counted twice; adjustments, resolutions and refunds are listed apart and are not subtracted from stay figures.</li>
+      <li><strong>Reconciles.</strong> The per-listing, per-month and per-length rows each add up to the totals at the top.</li>
+      <li><strong>Net</strong> is the Amount Airbnb reports for the stay, or gross earnings minus the service fee and Fast Pay fee if that column is missing. <strong>Fee share</strong> is those fees over gross earnings.</li>
+      <li><strong>ADR</strong> is gross earnings over nights booked (it includes the cleaning fee guests paid). <strong>Net per night</strong> is net over nights booked.</li>
+      <li><strong>Profit</strong> subtracts the turnover cost you enter once per stay. Nothing else is subtracted.</li>
+      <li><strong>Occupancy</strong> is nights booked over days between a listing's first check-in and last check-out (or the days you enter). It cannot see nights you blocked.</li>
+      <li><strong>Not modelled:</strong> rent or mortgage, utilities, supplies, taxes owed, income booked off Airbnb, and future bookings. Months are by check-in date.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I see which Airbnb listing earns the most?</h3>
+    <p>Download your Transaction history CSV from Airbnb (Menu, Account, Payments, Transaction history, Download CSV, or the Earnings tab), and drop it here. The tool groups the Reservation rows by listing and shows gross earnings, Airbnb's fees, net earnings, average daily rate, net per booked night and occupancy for each. Nothing is uploaded; the file is read in your browser.</p>
+    <h3>How does it work out net earnings and the fee share?</h3>
+    <p>Net is the Amount column on each reservation row, which is what Airbnb pays after its service fee. If that column is missing it is gross earnings minus the service fee and any Fast Pay fee. Fee share is service plus Fast Pay fees divided by gross earnings. Occupancy taxes are shown for reference and never counted as earnings.</p>
+    <h3>Which stay length makes the most money per night?</h3>
+    <p>Short stays earn more per night on paper because the cleaning fee is spread over fewer nights, but each one costs a turnover. Enter what you pay for one cleaning and the tool shows profit per night for 1-2, 3-4, 5-6, 7-27 and 28+ night stays, so you can see whether a longer minimum stay or a higher cleaning fee is worth testing.</p>
+    <h3>What does the tool not know?</h3>
+    <p>Your mortgage or rent, utilities, supplies, platform subscriptions, blocked nights, taxes you owe and any income booked outside Airbnb. Occupancy is nights booked divided by the days between a listing's first check-in and last check-out in the file unless you enter the days available, so it overstates occupancy if you blocked the calendar. Months are by check-in date.</p>
+    <h3>Is this tax or financial advice?</h3>
+    <p>No. It applies arithmetic to the file you provide and does not replace your own judgement or a qualified adviser. It is independent of Airbnb and is not affiliated with or endorsed by it.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business or pricing decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with Airbnb.</strong> Airbnb is a trademark of Airbnb, Inc. This tool is independent and is not sponsored, endorsed or connected to Airbnb in any way.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also hosting short-term rentals? See the <a href="../str-host-payout-calculator/">STR host payout calculator</a> and the <a href="../str-cleaning-fee-pricing-calculator/">cleaning fee pricing calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, sampleCsv, money, pct, dateStr } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function run(text) {
+      const delim = detectDelimiter(text);
+      const n = normalizeRows(parseCsv(text, delim), { decimalComma: delim === ";" });
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const day = (id) => { const v = $(id).value; return v ? Date.parse(v + "T00:00:00Z") : null; };
+      const r = analyze(n.stays, n.adjustments, { cleaningCost: Number($("#cleaning").value) || 0, daysAvailable: Number($("#days").value) || null, from: day("#from"), to: day("#to") });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary, cur = n.currency ? `${esc(n.currency)} ` : "";
+      $("#report-stats").innerHTML = `${s.stays} stays across ${s.listings} listing(s), ${s.nights} nights, ${dateStr(s.from)} to ${dateStr(s.to)}. Gross ${cur}${money(s.gross)}, Airbnb fees ${cur}${money(s.fees)} (${pct(s.feeShare)}), <strong>net ${cur}${money(s.net)}</strong> (${cur}${money(s.netPerNight)} per booked night, ADR ${cur}${money(s.adr)}, average stay ${s.los.toFixed(1)} nights).` + (s.cleaningCost ? ` After ${s.stays} turnovers at ${cur}${money(s.cleaningCost)}: <strong>${cur}${money(s.profit)}</strong>.` : "");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#by-listing").innerHTML = r.byListing.map((l) => `<tr><th scope="row">${esc(l.key)}</th><td class="n">${l.stays}</td><td class="n">${l.nights}</td><td class="n">${money(l.gross)}</td><td class="n">${money(l.fees)}</td><td class="n">${money(l.net)}</td><td class="n">${money(l.adr)}</td><td class="n">${money(l.netPerNight)}</td><td class="n">${l.occupancy === null ? "–" : pct(l.occupancy)}</td></tr>`).join("");
+      $("#by-month").innerHTML = r.byMonth.map((m) => `<tr><th scope="row">${m.key}</th><td class="n">${m.stays}</td><td class="n">${m.nights}</td><td class="n">${money(m.gross)}</td><td class="n">${money(m.net)}</td><td class="n">${money(m.adr)}</td><td class="n">${money(m.netPerNight)}</td></tr>`).join("");
+      $("#th-profit").textContent = s.cleaningCost ? "Profit / night (after cleaning)" : "Profit / night (needs cleaning cost)";
+      $("#by-los").innerHTML = r.byLos.map((b) => `<tr><th scope="row">${b.label}</th><td class="n">${b.stays}</td><td class="n">${b.nights}</td><td class="n">${money(b.net)}</td><td class="n">${money(b.netPerNight)}</td><td class="n">${s.cleaningCost ? money(b.profitPerNight) : "–"}</td></tr>`).join("");
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      if (n.adjustments.length) notes.push(`${n.adjustments.length} adjustment row(s) totalling ${money(s.adjTotal)} are not in the figures above.`);
+      if (n.dmy) notes.push("Dates were read day-first.");
+      $("#skipped").textContent = notes.join(" ");
+      report.hidden = false;
+      status.textContent = `Read ${n.stays.length} stays.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic data for three made-up listings. Not a real account."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, then click Analyze."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+      const rows = ["listing,stays,nights,gross,fees,net,adr,net_per_night,occupancy"].concat(last.byListing.map((l) => [q(l.key), l.stays, l.nights, l.gross.toFixed(2), l.fees.toFixed(2), l.net.toFixed(2), l.adr.toFixed(2), l.netPerNight.toFixed(2), l.occupancy === null ? "" : l.occupancy.toFixed(3)].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" }));
+      a.download = "airbnb-earnings-by-listing.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
