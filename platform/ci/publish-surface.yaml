@@ -1529,3 +1529,6 @@ gitops:
 - workflow: bandcamp-sales-report-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: google-play-earnings-report-analyzer-ci.yml
+  classification: none
+  publishes: []
