@@ -170,6 +170,10 @@ views/clones once this is deployed, which belongs in
 [`portfolio/usage/usage.yaml`](../../portfolio/usage/usage.yaml) after
 launch.
 
+## Related
+
+To measure your own no-show rate from a booking export first, see [`appointment-no-show-analyzer`](../appointment-no-show-analyzer/): it reads the export in the browser, nothing uploaded.
+
 ## License
 
 MIT — see [`LICENSE`](LICENSE).

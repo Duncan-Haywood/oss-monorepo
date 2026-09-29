@@ -38,6 +38,10 @@ Everything runs in your browser. Data is never uploaded. The optional local coun
 
 Optional support: [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood). Refusing does not change the calculator.
 
+## Related
+
+To measure your own no-show rate from a booking export first, see [`appointment-no-show-analyzer`](../appointment-no-show-analyzer/): it reads the export in the browser, nothing uploaded.
+
 ## License
 
 MIT, see `LICENSE`.

@@ -20819,3 +20819,40 @@ ventures:
       no tax or legal advice, no forecast of a board ruling, no warranty,
       independent-of-assessors clause. Ethics: helps an owner contest an
       assessment they believe is wrong through the public process.
+  - slug: appointment-no-show-analyzer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on a booking export the owner supplies and assumptions they type.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Salons,
+      barbers, clinics, tutors and trainers lose real money to empty slots and
+      every scheduling app already exports the booking list; turning it into
+      "which day, hour, service and client" is a manual pivot or a paid tier.
+      Distribution 6: "no show rate from Square Appointments export" and "how
+      much do no-shows cost my salon" are recurring owner-forum queries; volume
+      not measured with an external tool. Defensibility 3: the arithmetic is
+      simple; the edge is ingesting the export, honest handling of unknown
+      notice and missing prices, and being free with no scheduling-app access.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's file and editable assumptions with
+      model and omissions stated; no advice, no warranty, independent-of-the-
+      named-vendors clause, default price flagged as a placeholder and the fee
+      effect flagged as the user's assumption. Nothing is uploaded and no
+      scheduling-app credential is requested. Ethics: informational, helps an
+      owner see where slots are lost; the page says a policy change or refusing
+      a client is the owner's decision.
