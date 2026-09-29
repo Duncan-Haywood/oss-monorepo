@@ -7060,7 +7060,8 @@ entries:
         vs-ServiceTitan page") had merged with unresolved git conflict
         markers committed directly into
         `ventures/boiler-replacement-bid-calculator/index.html` --
-        `        the page footer, already deployed (a merge to `main` is the Argo CD
+        `<<<<<<< HEAD` / `=======` / `>>>>>>> origin/main` literal text in
+        the page footer, already deployed (a merge to `main` is the Argo CD
         deploy). `platform/ci/check_conflict_markers.py` and page-integrity
         both fail on `main`'s own tip for this reason, surfaced while
         chasing an unrelated CI failure on #2918. Opened and merged #2921 as
@@ -47829,6 +47830,26 @@ entries:
         export was available, stated on the page, README and VENTURE.yaml.
         Reciprocal link from freelance-retainer-calculator. Registered score row,
         launch date, CI workflow and tree counts; regenerated the mirror.
+    mrr_end: 0
+  - venture: fba-reimbursement-claim-finder
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built fba-reimbursement-claim-finder: a browser-local tool
+        that compares an Amazon FBA Inventory Ledger with the Reimbursements
+        report and lists, per SKU, lost and damaged units neither found nor
+        reimbursed, valued from the seller's own reimbursements (else a typed
+        default), aged against an editable claim window (expiring first) with a
+        draft Seller Support case text. Reimbursements are matched oldest loss
+        first, reversals add units back, customer-return reasons are ignored;
+        tests cover netting, aging, overpayment, unknown events and a late-
+        starting reimbursement file. Nothing is uploaded (a test asserts no
+        network calls); independent-of-Amazon clause on the page. Column names
+        and the 18-month/45-day defaults are from memory of public documentation
+        and unverified, stated on the page, README and VENTURE.yaml. Registered
+        score row, launch date, CI workflow and tree counts; regenerated the
+        mirror.
     mrr_end: 0
   - venture: rent-roll-delinquency-analyzer
     agent_spend_usd: null

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 433 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 434 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -105,6 +105,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free Etsy profit analyzer: drop in your Payment Account statement and Sold Order Items CSV and get a fee waterfall, profit per listing, Offsite Ads and refund findings. Runs in your browser, the files are never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>FBA Reimbursement Claim Finder — Lost &amp; Damaged Inventory Amazon Never Paid For</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fba-reimbursement-claim-finder/"/>
+    <id>tag:marisstella.dev,2026:tool/fba-reimbursement-claim-finder</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free tool for Amazon FBA sellers: load your Inventory Ledger and Reimbursements report and see the lost and damaged units that look unreimbursed, what they are worth, and which claims expire first. Runs in your browser, the files are never uploaded.</summary>
   </entry>
   <entry>
     <title>Fiverr Earnings Fee Analyzer — Your Real Take-Home per Order</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free Stripe failed payment recovery analyzer: drop in your Stripe payments CSV and see how much failed-payment revenue you recover, what you lose, by decline reason and how fast. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Substack Subscriber Export Analyzer — Conversion, Churn and Revenue</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/substack-subscriber-export-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/substack-subscriber-export-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free analyzer for Substack writers: drop in your subscribers export CSV and see paid, free and former subscribers, free-to-paid conversion, paid retention, revenue by plan, annual renewals due and growth. Runs in your browser, the file is never uploaded.</summary>
   </entry>
 </feed>
