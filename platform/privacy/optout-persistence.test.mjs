@@ -1057,7 +1057,8 @@ const RELATIVE_SELF = relative(
 // +1: `like-kind-exchange-1031-calculator` graduated.
 // +1: `aca-subsidy-cliff-calculator` graduated.
 // +1: `parcel-late-delivery-refund-finder` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 434;
+// +1: `wage-garnishment-limit-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 435;
 
 let counter = 0;
 function fixture(source) {
