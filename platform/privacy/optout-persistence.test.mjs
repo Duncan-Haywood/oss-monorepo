@@ -1027,7 +1027,9 @@ const RELATIVE_SELF = relative(
 // `usage.mjs` under its own storage name.
 // +1: `patreon-members-churn-analyzer` graduated.
 // +1: `whatnot-sales-report-analyzer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 403;
+// +1: `tiktok-shop-settlement-analyzer` graduated -- one more boilerplate
+// `usage.mjs` under its own storage name.
+const SWITCHES_IN_THE_CATALOGUE = 404;
 
 let counter = 0;
 function fixture(source) {
