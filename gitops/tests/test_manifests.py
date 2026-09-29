@@ -2785,7 +2785,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # Transaction report analyzer, static `index.html` plus ES modules).
     # 410 -> 411: `shopify-payments-fee-analyzer` graduated (browser-local Shopify
     # Payments transactions fee-rate analyzer, static `index.html` plus ES modules).
-    total = 412  # `infra/OWNER_CHECKLIST.md`'s own "N of the 412 tools" wording.
+    # 412 -> 413: `upwork-earnings-fee-analyzer` graduated (browser-local Upwork
+    # transaction history fee analyzer, static `index.html` plus ES modules).
+    total = 413  # `infra/OWNER_CHECKLIST.md`'s own "N of the 413 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
