@@ -988,7 +988,11 @@ const RELATIVE_SELF = relative(
 //
 // 371 -> 372: `self-employment-tax-calculator` also graduated -- one more
 // `usage.mjs`, keyed under its own `self-employment-tax-calculator-usage`.
-const SWITCHES_IN_THE_CATALOGUE = 372;
+//
+// 372 -> 373: `backdoor-roth-pro-rata-calculator` graduated -- one more
+// boilerplate `usage.mjs` under its own storage name. Re-derived by
+// `sync_tree_counts.py`.
+const SWITCHES_IN_THE_CATALOGUE = 373;
 
 let counter = 0;
 function fixture(source) {

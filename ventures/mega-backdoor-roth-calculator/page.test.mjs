@@ -157,3 +157,13 @@ test('index links one hop to the solo-401k-contribution-calculator sibling', () 
     'index must link ../solo-401k-contribution-calculator/ so crawlers reach it in one hop',
   );
 });
+
+// backdoor-roth-pro-rata-calculator graduated on 2026-09-29 with no inbound
+// link of its own -- this link keeps it off siblings.test.mjs's orphan budget.
+test('index links one hop to the backdoor-roth-pro-rata-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/backdoor-roth-pro-rata-calculator\/"/,
+    'index must link ../backdoor-roth-pro-rata-calculator/ so crawlers reach it in one hop',
+  );
+});
