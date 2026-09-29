@@ -1523,3 +1523,6 @@ gitops:
 - workflow: substack-subscriber-export-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: app-store-sales-report-analyzer-ci.yml
+  classification: none
+  publishes: []
