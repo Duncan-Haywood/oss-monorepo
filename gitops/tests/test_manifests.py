@@ -2781,7 +2781,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # orders export analyzer, static `index.html` plus ES modules).
     # 407 -> 408: `airbnb-earnings-report-analyzer` graduated (browser-local Airbnb
     # Transaction history analyzer, static `index.html` plus ES modules).
-    total = 409  # `infra/OWNER_CHECKLIST.md`'s own "N of the 409 tools" wording.
+    total = 410  # `infra/OWNER_CHECKLIST.md`'s own "N of the 410 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

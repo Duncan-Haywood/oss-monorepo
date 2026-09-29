@@ -1468,3 +1468,6 @@ gitops:
 - workflow: mileage-log-ci.yml
   classification: none
   publishes: []
+- workflow: ebay-transaction-report-analyzer-ci.yml
+  classification: none
+  publishes: []

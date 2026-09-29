@@ -47350,3 +47350,26 @@ entries:
         str-host-payout-calculator and str-cleaning-fee-pricing-calculator and
         tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: ebay-transaction-report-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built ebay-transaction-report-analyzer, the eBay member of
+        the marketplace-file archetype (Amazon, Etsy, Shopify, Airbnb siblings
+        already on main): a browser tool that reads a Seller Hub Transaction
+        report (header row found below the preamble, tolerant date and column
+        aliases), puts every row in exactly one bucket, ties label, refund and
+        Promoted Listings rows back to items through the order number, and
+        reports a fee waterfall, profit per item from typed unit costs, the
+        free-shipping label gap, refund and ad-rate findings, monthly table and
+        CSV export. Reconciliation is tested: waterfall equals the sum of every
+        non-payout net amount, and anything eBay reports that the fee columns do
+        not explain shows as "tax and adjustments" instead of vanishing. No
+        network calls (test asserts); file never leaves the browser. 25 tests;
+        verified in Chromium at phone width (example load, table render, no
+        console errors). Unverified: column names are from memory of eBay's
+        export, no real file was available. Registered score row, launch date,
+        CI workflow and reciprocal link from ebay-fee-calculator; regenerated
+        the mirror.
+    mrr_end: 0
