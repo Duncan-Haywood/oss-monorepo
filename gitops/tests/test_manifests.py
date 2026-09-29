@@ -2752,10 +2752,20 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # limit. Static `index.html` only, no comparison page, from its first
     # commit. Total re-derived here by `sync_tree_counts.py` against the
     # fully merged tree rather than by hand.
-    # 388 -> 389: `backdoor-roth-pro-rata-calculator` graduated -- a
-    # browser-local calculator applying Form 8606 Part I's pro-rata rule to
-    # a Roth conversion. Static `index.html` only, from its first commit.
-    total = 389  # `infra/OWNER_CHECKLIST.md`'s own "N of the 389 tools" wording.
+    #
+    # 388 -> 389: `mileage-deduction-method-calculator` graduated -- a
+    # browser-local calculator comparing the 2026 IRS standard mileage rate
+    # (72.5 then 76 cents) with actual vehicle expenses. Static `index.html`
+    # only, from its first commit. Total re-derived by `sync_tree_counts.py`.
+    # 389 -> 390: `home-office-deduction-calculator` also graduated -- a
+    # browser-local simplified-vs-regular (Form 8829) home office deduction
+    # comparison. Static `index.html` only.
+    # 390 -> 391: `str-tax-loophole-calculator` also graduated -- a
+    # browser-local short-term-rental passive/non-passive and cost
+    # segregation calculator. Static `index.html` only.
+    # 391 -> 392: `backdoor-roth-pro-rata-calculator` graduated -- a
+    # browser-local Form 8606 pro-rata calculator, static `index.html` only.
+    total = 392  # `infra/OWNER_CHECKLIST.md`'s own "N of the 392 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

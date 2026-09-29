@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 389 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 392 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,33 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free calculator for the backdoor Roth pro-rata rule: how much of your Roth conversion is taxable given your after-tax basis and your December 31 traditional, SEP and SIMPLE IRA balance, plus the tax you could avoid by rolling pre-tax money into a 401(k). Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Home Office Deduction Calculator — Simplified vs Regular, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/home-office-deduction-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/home-office-deduction-calculator</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free home office deduction calculator for the self-employed: compare the IRS simplified method ($5 per sq ft, max $1,500) with the regular Form 8829 method, including the gross income limit, depreciation and carryover. Runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Mileage Deduction Method Calculator — 2026, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mileage-deduction-method-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/mileage-deduction-method-calculator</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator comparing the 2026 IRS standard mileage rate (72.5 cents per mile through June 30, 76 cents from July 1) with actual vehicle expenses for a self-employed business car. See which deduction is larger and what it is worth. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>STR Tax Loophole Calculator — 2026, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/str-tax-loophole-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/str-tax-loophole-calculator</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free calculator for short-term rental owners: does your Airbnb or VRBO escape rental-activity status (average stay of 7 days or less) and qualify as non-passive through material participation? Compare the $25,000 passive path and estimate first-year cost segregation depreciation with 100% bonus. Entirely client-side, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Solo 401(k) Contribution Calculator — 2026, Free</title>
@@ -339,32 +366,5 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free Kickstarter fee calculator. 5% platform fee plus per-pledge processing (3% + $0.20 standard, 5% + $0.05 under $10) -- see why more, smaller pledges keep less of the same total raised. Nothing leaves your browser.</summary>
-  </entry>
-  <entry>
-    <title>LLM API Pricing Calculator — compare Claude, GPT, Gemini token costs</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/llm-api-pricing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/llm-api-pricing-calculator</id>
-    <published>2026-09-24T00:00:00Z</published>
-    <updated>2026-09-24T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Compare the monthly dollar cost of calling different LLM APIs (Claude, GPT, Gemini, or a custom provider) for your own workload -- modelling fresh input, cached input, and output tokens separately, since cached tokens are billed far below fresh input and usually dominate agentic workloads. Free, private, no signup.</summary>
-  </entry>
-  <entry>
-    <title>MCP Config Risk Check — audit an mcp.json for risky server settings</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mcp-config-risk-check/"/>
-    <id>tag:marisstella.dev,2026:tool/mcp-config-risk-check</id>
-    <published>2026-09-24T00:00:00Z</published>
-    <updated>2026-09-24T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste an mcp.json, claude_desktop_config.json, or any MCP server config and get every risky pattern flagged: servers granted broad filesystem/shell access, API keys hardcoded instead of referenced from env, missing version pins, and duplicate tool names across servers. Free, private, runs entirely in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Mega Backdoor Roth 401(k) Calculator -- After-Tax Contribution Headroom</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mega-backdoor-roth-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/mega-backdoor-roth-calculator</id>
-    <published>2026-09-24T00:00:00Z</published>
-    <updated>2026-09-24T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free browser calculator for the mega backdoor Roth 401(k) strategy: enter your YTD elective deferral, employer contributions, and after-tax contributions and get your remaining after-tax headroom under the 2025/2026 IRS 415(c) limit, plus the per-paycheck amount to use it up by year-end. Runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>
