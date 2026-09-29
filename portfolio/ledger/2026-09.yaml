@@ -47750,3 +47750,26 @@ entries:
         Registered score row, launch date, CI workflow, reciprocal link from
         gumroad-sales-fee-analyzer and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: google-play-earnings-report-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built google-play-earnings-report-analyzer, the Android
+        counterpart to app-store-sales-report-analyzer: a browser-local tool that
+        reads Google Play Console Earnings reports (one or several files, or
+        paste; the older Estimated sales report also works with a labelled fee
+        estimate) and shows net earnings by product, product type, country and
+        month, effective Google fee overall and per product type, refunds and
+        fee refunds netted, refund rate per product, three-month trend and
+        concentration findings. Every group table reconciles to the summary net
+        (a test asserts it); a second merchant currency without a typed rate is
+        excluded and named. File never leaves the browser (a test asserts no
+        network calls); buyer location and order fields are never read;
+        independent-of-Google clause on the page. Column names and transaction
+        wording are matched by alias from memory and no real report was
+        available, stated on the page, README and VENTURE.yaml. Reciprocal links
+        from app-store-sales-report-analyzer and subscription-price-impact.
+        Registered score row, launch date, CI workflow and tree counts;
+        regenerated the mirror.
+    mrr_end: 0

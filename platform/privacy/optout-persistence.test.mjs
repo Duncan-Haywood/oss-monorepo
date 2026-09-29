@@ -1032,7 +1032,8 @@ const RELATIVE_SELF = relative(
 // +1: `substack-subscriber-export-analyzer` graduated.
 // +1: `app-store-sales-report-analyzer` graduated.
 // +1: `bandcamp-sales-report-analyzer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 407;
+// +1: `google-play-earnings-report-analyzer` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 408;
 
 let counter = 0;
 function fixture(source) {
