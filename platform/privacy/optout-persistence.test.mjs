@@ -976,7 +976,10 @@ const RELATIVE_SELF = relative(
 // boilerplate `usage.mjs` opt-out toggle, keyed under its own
 // `mileage-deduction-method-calculator-usage` storage name. Exactly one
 // added `usage.mjs`, no deletions. Re-derived by `sync_tree_counts.py`.
-const SWITCHES_IN_THE_CATALOGUE = 368;
+//
+// 368 -> 369: `home-office-deduction-calculator` also graduated -- one more
+// `usage.mjs`, keyed under its own `home-office-deduction-calculator-usage`.
+const SWITCHES_IN_THE_CATALOGUE = 369;
 
 let counter = 0;
 function fixture(source) {

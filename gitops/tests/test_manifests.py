@@ -2757,7 +2757,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # browser-local calculator comparing the 2026 IRS standard mileage rate
     # (72.5 then 76 cents) with actual vehicle expenses. Static `index.html`
     # only, from its first commit. Total re-derived by `sync_tree_counts.py`.
-    total = 389  # `infra/OWNER_CHECKLIST.md`'s own "N of the 389 tools" wording.
+    # 389 -> 390: `home-office-deduction-calculator` also graduated -- a
+    # browser-local simplified-vs-regular (Form 8829) home office deduction
+    # comparison. Static `index.html` only.
+    total = 390  # `infra/OWNER_CHECKLIST.md`'s own "N of the 390 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
