@@ -389,6 +389,9 @@ workflows:
 - workflow: dental-ppo-writeoff-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: dependabot-config-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: dependency-confusion-check-ci.yml
   classification: none
   publishes: []

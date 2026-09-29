@@ -19235,6 +19235,38 @@ ventures:
       spending recommendation; the page states the model and omissions.
       No-warranty and no-advice disclaimers on the page. Ethics: purely
       informational; no personal data leaves the browser, no externality.
+  - slug: dependabot-config-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic comparison of two texts the visitor pastes. A manifest is
+      either covered by an update entry or it is not; a model in the path
+      would make the verdict less reproducible.
+    basis: >-
+      Graduated 2026-09-29 as a free dev-tool CLI/browser check for
+      .github/dependabot.yml. duplicate_check.py top score 0.08. Distribution
+      5: "dependabot not updating subdirectory" and "dependabot.yml monorepo"
+      are recurring maintainer queries, volume not measured with an external
+      tool. Defensibility 3: small rule table, easily replicated, but nothing
+      else offers the config-versus-file-list comparison as a local paste or
+      CLI. Autonomous ops 10 / gross margin 10: nothing to host.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: read-only text comparison, no network calls, no claim about
+      which dependencies are outdated or vulnerable, no-warranty disclaimer on
+      the page. Ethics: helps a maintainer keep their own dependencies
+      current; nothing adversarial, no personal data.
   - slug: card-surcharge-vs-cash-discount-calculator
     scores:
       ai_leverage: 1
