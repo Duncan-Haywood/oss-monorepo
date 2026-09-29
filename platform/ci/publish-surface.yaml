@@ -131,6 +131,9 @@ workflows:
 - workflow: android-data-safety-check-ci.yml
   classification: none
   publishes: []
+- workflow: app-store-sales-report-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: app-store-screenshot-check-ci.yml
   classification: none
   publishes: []
@@ -186,6 +189,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: backup-verification-evidence-ci.yml
+  classification: none
+  publishes: []
+- workflow: bandcamp-sales-report-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: basement-finishing-bid-calculator-ci.yml
@@ -629,6 +635,9 @@ workflows:
 - workflow: google-ads-wasted-spend-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: google-play-earnings-report-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: grant-deadline-tracker-ci.yml
   classification: none
   publishes: []
@@ -639,6 +648,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: gravel-driveway-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: gumroad-sales-fee-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: gutter-cleaning-bid-calculator-ci.yml
@@ -705,6 +717,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: import-landed-cost-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: indie-game-payout-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: influencer-media-kit-generator-ci.yml
@@ -1313,6 +1328,9 @@ workflows:
 - workflow: subscription-price-impact-ci.yml
   classification: none
   publishes: []
+- workflow: substack-subscriber-export-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: substitute-supply-ci.yml
   classification: none
   publishes: []
@@ -1338,6 +1356,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: tiktok-shop-fee-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: tiktok-shop-settlement-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: tip-pool-compliance-calculator-ci.yml
@@ -1517,24 +1538,3 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
-- workflow: gumroad-sales-fee-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: tiktok-shop-settlement-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: substack-subscriber-export-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: app-store-sales-report-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: bandcamp-sales-report-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: google-play-earnings-report-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: indie-game-payout-calculator-ci.yml
-  classification: none
-  publishes: []
