@@ -122,6 +122,9 @@ workflows:
 - workflow: airbnb-earnings-report-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: amazon-ads-search-term-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: amazon-fba-calculator-ci.yml
   classification: none
   publishes: []

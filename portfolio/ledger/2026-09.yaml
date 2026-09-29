@@ -47458,3 +47458,27 @@ entries:
         row, launch date, CI workflow, reciprocal link and tree counts;
         regenerated the mirror.
     mrr_end: 0
+  - venture: amazon-ads-search-term-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built amazon-ads-search-term-analyzer, a data-file
+        archetype aimed at Amazon sellers and freelance PPC managers (a market
+        that already pays Helium 10, Perpetua and Teikametrics): a browser-local
+        tool that reads a Sponsored Products search term report (file or paste;
+        aliased columns, currency column, month-name, month-first and day-first
+        dates, comma, tab and semicolon, UTF-8 BOM and UTF-16; skipped rows
+        reported with line and reason) and shows no-order spend graded proven,
+        overspent or watch from the account's own click-to-order rate and the
+        seller's break-even ACOS, a downloadable per-campaign negative exact
+        keyword list, converting terms above the ACOS line with their excess
+        spend, exact-match harvest candidates, and campaign and match-type
+        summaries. File never leaves the browser; independent-of-Amazon clause
+        on the page. duplicate_check.py top score 0.38 (google-ads-wasted-spend-
+        analyzer, the Google sibling). Verified in Chromium against a synthetic
+        report (no real report was available; column names are from memory and
+        matched by alias, stated in VENTURE.yaml). Registered score row, launch
+        date, CI workflow, reciprocal links from google-ads-wasted-spend-analyzer
+        and meta-ads-fatigue-analyzer and tree counts; regenerated the mirror.
+    mrr_end: 0

@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Amazon Ads Search Term Analyzer — Free Search Term Report Tool</title>
+  <meta name="description" content="Free Amazon Ads search term report analyzer: drop in your Sponsored Products search term CSV and see which search terms wasted spend, which to add as negative keywords, which run above break-even ACOS, and which converting terms to harvest as exact match. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="Amazon Ads Search Term Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="Wasted spend, negative keyword candidates, break-even ACOS check and exact-match harvest terms from an Amazon Ads search term report. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Amazon Ads Search Term Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns an Amazon Ads search term report into graded wasted spend, negative-keyword candidates, terms above break-even ACOS and exact-match harvest candidates. Runs entirely in your browser; the file is never uploaded.", "featureList": "Wasted spend by evidence tier, negative keyword export, break-even ACOS check, exact-match harvest candidates, per-campaign and per-match-type tables"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I find wasted spend in an Amazon Ads search term report?", "acceptedAnswer": {"@type": "Answer", "text": "Download the Sponsored Products search term report from the Ads console (Measurement and reporting, Sponsored ads reports, Search term, CSV) and drop it here. The tool adds up spend on customer search terms that got clicks but no orders and grades it: proven when the term had enough clicks that, at your account's own click-to-order rate, seeing no order would be chance less than 5% of the time; overspent when it spent more than one average order can carry at your break-even ACOS; watch when there is too little data. Nothing is uploaded."}}, {"@type": "Question", "name": "Which search terms should I add as negative keywords?", "acceptedAnswer": {"@type": "Answer", "text": "The tool lists proven and overspent no-order terms, per campaign and ad group, and lets you download them as a negative exact list. Terms in the watch tier are left out on purpose: a handful of clicks with no order is not evidence. Check each one still fits your product before adding it. That is a judgement the file cannot make."}}, {"@type": "Question", "name": "What is break-even ACOS and why enter it?", "acceptedAnswer": {"@type": "Answer", "text": "Break-even ACOS is the share of a sale you can spend on ads before you lose money: your margin before advertising. Entering it lets the tool judge each term against what a sale really pays for instead of against your account's own average ACOS, which can itself be unprofitable."}}, {"@type": "Question", "name": "Which columns and file formats does it read?", "acceptedAnswer": {"@type": "Answer", "text": "Customer Search Term, Spend, Clicks and an orders column (7, 14 or 30 day total orders) are required. Campaign Name, Ad Group Name, Targeting, Match Type, Impressions, sales, Currency and the report dates are used when present. Column names are matched loosely, dates may be month names, month-first, day-first or ISO, and comma, tab and semicolon files in UTF-8 or UTF-16 are read. Rows that cannot be read are listed with a line number."}}, {"@type": "Question", "name": "Is this advertising or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file you provide and does not replace your own judgement or a qualified adviser. It is independent of Amazon and is not affiliated with or endorsed by it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+</head>
+<body>
+  <header>
+    <p class="note">AMAZON ADS SEARCH TERM ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which Amazon ad search terms are burning money, and what should be a negative keyword?</h1>
+    <p>Drop in your <strong>Sponsored Products search term report</strong> and get <strong>spend on search terms with no orders</strong> graded by how sure you can be, a <strong>ready-to-paste negative keyword list</strong>, the <strong>terms running above your break-even ACOS</strong> and the <strong>converting terms worth harvesting as exact match</strong>, without giving a third-party tool access to your advertising account.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Amazon: not affiliated with or endorsed by Amazon.com, Inc.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your search term report</h2>
+    <p class="note">Ads console → Measurement &amp; reporting → Sponsored ads reports → Create report → Search term → run for a period with plenty of clicks (30 days is a good start) → download CSV. Needs Customer Search Term, Spend, Clicks and Orders; Campaign Name, Ad Group Name, Targeting, Match Type, sales, Currency and the report dates are used when present. Column names are matched loosely; a currency column, month-name, month-first or day-first dates and comma, tab or semicolon files (UTF-8 or UTF-16) are read.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the report text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Campaign Name,Ad Group Name,Targeting,Match Type,Customer Search Term,Impressions,Clicks,Spend,7 Day Total Sales,7 Day Total Orders (#)"></textarea>
+    <div class="grid">
+      <div><label for="be">Break-even ACOS % (optional)</label><input type="number" id="be" min="1" max="100" step="any" placeholder="your margin before ads, e.g. 30"></div>
+      <div><label for="minclicks">Minimum clicks to judge a converting term</label><input type="number" id="minclicks" min="1" step="1" placeholder="default 10"></div>
+      <div><label for="minorders">Minimum orders for a harvest candidate</label><input type="number" id="minorders" min="1" step="1" placeholder="default 2"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste report text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Where the money went</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Bucket</th><th class="n" scope="col">Spend</th><th class="n" scope="col">Share of spend</th></tr></thead><tbody id="buckets"></tbody></table></div>
+    <h3>Negative keyword candidates</h3>
+    <p class="note">Search terms with no orders that are proven or overspent, per campaign and ad group. Review each before adding it: a term can be irrelevant to your listing or merely early.</p>
+    <div class="scroll"><table><thead><tr><th scope="col">Search term</th><th scope="col">Campaign / ad group</th><th class="n" scope="col">Spend</th><th class="n" scope="col">Clicks</th><th scope="col">Evidence</th></tr></thead><tbody id="zero"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download-neg">Download negative keywords as CSV</button></p>
+    <h3>Converting terms above the ACOS line</h3>
+    <p class="note">Orders, but an ACOS over your break-even (or over 1.5 times the account ACOS if none is entered). Excess is spend beyond what the sales carry at the reference ACOS.</p>
+    <div class="scroll"><table><thead><tr><th scope="col">Search term</th><th scope="col">Campaign / ad group</th><th class="n" scope="col">Spend</th><th class="n" scope="col">Sales</th><th class="n" scope="col">Orders</th><th class="n" scope="col">ACOS</th><th class="n" scope="col">Excess spend</th></tr></thead><tbody id="high"></tbody></table></div>
+    <h3>Harvest as exact match</h3>
+    <p class="note">At least the minimum orders and an ACOS at least 20% under the reference, reached through auto, broad or phrase targeting rather than an exact keyword.</p>
+    <div class="scroll"><table><thead><tr><th scope="col">Search term</th><th scope="col">Campaign / ad group</th><th scope="col">Reached via</th><th class="n" scope="col">Spend</th><th class="n" scope="col">Orders</th><th class="n" scope="col">ACOS</th></tr></thead><tbody id="harvest"></tbody></table></div>
+    <h3>By campaign</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Campaign</th><th class="n" scope="col">Terms</th><th class="n" scope="col">Spend</th><th class="n" scope="col">Sales</th><th class="n" scope="col">Orders</th><th class="n" scope="col">ACOS</th><th class="n" scope="col">No-order spend</th></tr></thead><tbody id="by-campaign"></tbody></table></div>
+    <h3>By match type</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Match type</th><th class="n" scope="col">Terms</th><th class="n" scope="col">Spend</th><th class="n" scope="col">Sales</th><th class="n" scope="col">Orders</th><th class="n" scope="col">ACOS</th><th class="n" scope="col">No-order spend</th></tr></thead><tbody id="by-match"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download every term as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Per term:</strong> rows are combined by campaign, ad group and search term, so the same query in two ad groups stays separate (negatives are set per campaign or ad group). ACOS is spend over sales; click-to-order rate is orders over clicks.</li>
+      <li><strong>Reconciles.</strong> Spend on terms with orders, plus the proven, overspent and watch tiers, adds up to your total spend, and the three tiers add up to the no-order figure.</li>
+      <li><strong>Proven</strong> no-order spend means the fewest clicks n with (1 − rate)<sup>n</sup> under 0.05 at the account's click-to-order rate. <strong>Overspent</strong> is more than one average order can carry at the reference ACOS (average order value × ACOS) with none; <strong>watch</strong> is everything else.</li>
+      <li><strong>Reference ACOS</strong> is your break-even if you enter it, otherwise the account's own ACOS, which can itself be unprofitable.</li>
+      <li><strong>Harvest candidate:</strong> at least the minimum orders, ACOS at least 20% under the reference, and not already an exact-match keyword. It describes the report period only.</li>
+      <li><strong>Not modelled:</strong> the attribution window and delayed orders, orders placed for a different advertised SKU, organic rank and halo sales, lifetime value and repeat purchases, seasonality, bid and budget changes, relevance of a term to your product, and what a negative keyword does to reach. Amazon may mask or omit some search terms.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I find wasted spend in an Amazon Ads search term report?</h3>
+    <p>Download the Sponsored Products search term report from the Ads console (Measurement and reporting, Sponsored ads reports, Search term, CSV) and drop it here. The tool adds up spend on customer search terms that got clicks but no orders and grades it: proven when the term had enough clicks that, at your account's own click-to-order rate, seeing no order would be chance less than 5% of the time; overspent when it spent more than one average order can carry at your break-even ACOS; watch when there is too little data. Nothing is uploaded.</p>
+    <h3>Which search terms should I add as negative keywords?</h3>
+    <p>The tool lists proven and overspent no-order terms, per campaign and ad group, and lets you download them as a negative exact list. Terms in the watch tier are left out on purpose: a handful of clicks with no order is not evidence. Check each one still fits your product before adding it. That is a judgement the file cannot make.</p>
+    <h3>What is break-even ACOS and why enter it?</h3>
+    <p>Break-even ACOS is the share of a sale you can spend on ads before you lose money: your margin before advertising. Entering it lets the tool judge each term against what a sale really pays for instead of against your account's own average ACOS, which can itself be unprofitable.</p>
+    <h3>Which columns and file formats does it read?</h3>
+    <p>Customer Search Term, Spend, Clicks and an orders column (7, 14 or 30 day total orders) are required. Campaign Name, Ad Group Name, Targeting, Match Type, Impressions, sales, Currency and the report dates are used when present. Column names are matched loosely, dates may be month names, month-first, day-first or ISO, and comma, tab and semicolon files in UTF-8 or UTF-16 are read. Rows that cannot be read are listed with a line number.</p>
+    <h3>Is this advertising or financial advice?</h3>
+    <p>No. It applies arithmetic to the file you provide and does not replace your own judgement or a qualified adviser. It is independent of Amazon and is not affiliated with or endorsed by it.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business decision you make, including adding negative keywords or changing any bid or budget. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with Amazon.</strong> Amazon, Amazon Ads and Sponsored Products are trademarks of Amazon.com, Inc. or its affiliates. This tool is independent and is not sponsored, endorsed or connected to Amazon in any way.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also running paid ads or selling online? See the <a href="../google-ads-wasted-spend-analyzer/">Google Ads wasted spend analyzer</a>, the <a href="../meta-ads-fatigue-analyzer/">Meta Ads fatigue analyzer</a>, the <a href="../amazon-seller-profit-analyzer/">Amazon seller profit analyzer</a> and the <a href="../amazon-fba-calculator/">Amazon FBA calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, negativesCsv, termsCsv, sampleCsv, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const where = (a) => esc([a.campaign, a.adgroup].filter(Boolean).join(" / ") || "–");
+    const rowsOr = (list, cols, fn, msg) => (list.length ? list.map(fn).join("") : `<tr><td colspan="${cols}">${msg}</td></tr>`);
+    const groupRow = (g) => `<tr><th scope="row">${esc(g.key)}</th><td class="n">${g.terms}</td><td class="n">${money(g.spend)}</td><td class="n">${money(g.sales)}</td><td class="n">${g.orders}</td><td class="n">${pct(g.acos)}</td><td class="n">${money(g.zeroSpend)}</td></tr>`;
+
+    function run(text) {
+      const delim = detectDelimiter(text);
+      const n = normalizeRows(parseCsv(text, delim), { decimalComma: delim === ";" });
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const be = Number($("#be").value);
+      const r = analyze(n.rows, {
+        breakEvenAcos: be > 0 ? be / 100 : null,
+        minClicks: $("#minclicks").value === "" ? 10 : Number($("#minclicks").value),
+        minOrders: Number($("#minorders").value) || 2,
+      });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary, cur = n.currency ? `${esc(n.currency)} ` : "";
+      const span = n.period ? ` (${n.period.from} to ${n.period.to})` : "";
+      $("#report-stats").innerHTML = `${s.terms} search terms${span}, ${cur}${money(s.spend)} spent, ${cur}${money(s.sales)} in sales (ACOS ${pct(s.acos)}), ${s.orders} orders from ${s.clicks} clicks (${pct(s.convRate)}), average order ${cur}${money(s.aov)}. <strong>${cur}${money(s.zeroSpend)} (${pct(s.zeroShare)}) went to terms with no orders</strong>; <strong>${s.highAcosCount} converting term(s) run above the ACOS line (${cur}${money(s.excessSpend)} over)</strong>.`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const names = { withOrders: "Terms with orders", proven: "No orders, proven (enough clicks)", overspent: "No orders, overspent (above one order's ad cost)", watch: "No orders, too little data" };
+      $("#buckets").innerHTML = Object.entries(r.buckets).map(([k, v]) => `<tr><th scope="row">${names[k]}</th><td class="n">${money(v)}</td><td class="n">${pct(v / s.spend)}</td></tr>`).join("");
+      const ev = { proven: "proven: enough clicks", overspent: "spent over one order's ad cost", watch: "too little data (not listed for export)" };
+      $("#zero").innerHTML = rowsOr(r.zero, 5, (a) => `<tr><th scope="row">${esc(a.term)}</th><td>${where(a)}</td><td class="n">${money(a.spend)}</td><td class="n">${a.clicks}</td><td>${ev[a.tier]}</td></tr>`, "Every search term in this file has at least one order.");
+      $("#high").innerHTML = rowsOr(r.highAcos, 7, (a) => `<tr><th scope="row">${esc(a.term)}</th><td>${where(a)}</td><td class="n">${money(a.spend)}</td><td class="n">${money(a.sales)}</td><td class="n">${a.orders}</td><td class="n">${pct(a.acos)}</td><td class="n">${money(a.excess)}</td></tr>`, "No converting term with enough clicks runs above the line.");
+      $("#harvest").innerHTML = rowsOr(r.harvest, 6, (a) => `<tr><th scope="row">${esc(a.term)}</th><td>${where(a)}</td><td>${esc(a.targets.join(", ") || "–")}${a.matches.length ? " (" + esc(a.matches.join(", ")) + ")" : ""}</td><td class="n">${money(a.spend)}</td><td class="n">${a.orders}</td><td class="n">${pct(a.acos)}</td></tr>`, "No term clears the bar: enough orders, a clearly better ACOS, and not already exact match.");
+      $("#by-campaign").innerHTML = rowsOr(r.byCampaign, 7, groupRow, "No campaign column in this file.");
+      $("#by-match").innerHTML = rowsOr(r.byMatch, 7, groupRow, "No match type column in this file.");
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      if (n.totalsRows) notes.push(`${n.totalsRows} row(s) without a search term (totals) were ignored.`);
+      $("#skipped").textContent = notes.join(" ");
+      report.hidden = false;
+      status.textContent = `Read ${n.rows.length} rows.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    const save = (text, name) => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type: "text/csv" }));
+      a.download = name;
+      a.click();
+    };
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste report text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (!$("#be").value) $("#be").value = "30";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic data for an imaginary bottle brand, break-even ACOS 30%. Not a real account."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste report text, then click Analyze."; });
+    $("#download").addEventListener("click", () => { if (last) save(termsCsv(last), "amazon-search-term-report.csv"); });
+    $("#download-neg").addEventListener("click", () => { if (last) save(negativesCsv(last), "amazon-negative-keywords.csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

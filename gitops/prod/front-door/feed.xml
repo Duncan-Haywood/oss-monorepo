@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 414 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 415 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free Airbnb earnings analyzer: drop in your Transaction history CSV and see net earnings, fee share, nightly rate and occupancy per listing, which months and stay lengths earn the most, and whether your cleaning fee covers your cleaning cost. Runs in your browser, the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Amazon Ads Search Term Analyzer — Free Search Term Report Tool</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/amazon-ads-search-term-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/amazon-ads-search-term-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free Amazon Ads search term report analyzer: drop in your Sponsored Products search term CSV and see which search terms wasted spend, which to add as negative keywords, which run above break-even ACOS, and which converting terms to harvest as exact match. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Amazon Seller Profit Analyzer — Free Transaction Report Tool</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free calculator for the OBBBA gambling loss deduction limit: your allowable Schedule A deduction is the lesser of your actual losses or 90% of your winnings, starting with 2026 tax returns. See exactly how much of your winnings becomes taxable &quot;phantom income&quot; even if you broke even or lost overall. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>HSA Contribution Limit Calculator — 2026, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hsa-contribution-limit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/hsa-contribution-limit-calculator</id>
-    <published>2026-09-25T00:00:00Z</published>
-    <updated>2026-09-25T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator for the 2026 HSA contribution limit — self-only $4,400 or family $8,750, the $1,000 age-55 catch-up, HDHP qualification bounds, monthly proration for partial-year eligibility, and the last-month rule&#39;s testing-period tradeoff. Entirely client-side, nothing uploaded.</summary>
   </entry>
 </feed>
