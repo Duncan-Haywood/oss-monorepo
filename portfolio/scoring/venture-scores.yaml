@@ -20226,7 +20226,6 @@ ventures:
       portfolio holds no writer or subscriber data. Ethics: purely
       informational, helps a writer see their own retention.
   - slug: bandcamp-sales-report-analyzer
-  - slug: app-store-sales-report-analyzer
     scores:
       ai_leverage: 1
       autonomous_ops: 10
@@ -20250,6 +20249,31 @@ ventures:
       queries; volume not measured with an external tool. Defensibility 3: the
       local-only stance is the differentiator against tools that want a
       Bandcamp login.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own file and editable cost assumptions
+      with model and omissions stated; no tax or financial advice, no warranty,
+      independent-of-Bandcamp clause on the page. The file, which holds buyer
+      names and emails, never leaves the browser (a test asserts no network
+      calls) and buyer text is turned into an anonymous number at parse, so the
+      portfolio holds no artist or buyer data. Ethics: purely informational,
+      helps an artist see their own margins.
+  - slug: app-store-sales-report-analyzer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
       arithmetic on rows of the user's own report and the exchange rates they
       type.
     basis: >-
@@ -20266,16 +20290,220 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Liability: arithmetic on the user's own file and editable cost assumptions
-      with model and omissions stated; no tax or financial advice, no warranty,
-      independent-of-Bandcamp clause on the page. The file, which holds buyer
-      names and emails, never leaves the browser (a test asserts no network
-      calls) and buyer text is turned into an anonymous number at parse, so the
-      portfolio holds no artist or buyer data. Ethics: purely informational,
-      helps an artist see their own margins.
       Liability: arithmetic on the user's own file and editable exchange rates
       with model and omissions stated; no tax or financial advice, no warranty,
       independent-of-Apple clause on the page. The file never leaves the browser
       (a test asserts no network calls), so the portfolio holds no developer or
       customer data. Ethics: purely informational, helps a developer see their
       own proceeds.
+  - slug: google-play-earnings-report-analyzer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on rows of the user's own report and the assumptions they can
+      edit.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Play Console's
+      graphs do not show effective fee by product type, refund rate per product
+      or per-country net from the downloadable Earnings report. Distribution 6:
+      "google play service fee", "play console earnings report" and indie
+      Android community threads are recurring queries; volume not measured with
+      an external tool. Defensibility 3: the no-login, no-API-access stance is
+      the differentiator against analytics products.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own report and editable assumptions
+      with model and omissions stated; no tax or financial advice, no warranty,
+      independent-of-Google clause on the page. The report never leaves the
+      browser (a test asserts no network calls) and buyer location and order
+      fields are never read, so the portfolio holds no developer financial data.
+      Ethics: purely informational, helps a developer see their own earnings.
+  - slug: indie-game-payout-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on the numbers and editable store terms the user types.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Indie game
+      developers quote a store's headline cut but the amount that reaches them
+      depends on tax, refunds, tiers and fees. Distribution 6: "steam revenue
+      share", "steam cut calculator" and "epic store vs steam" are recurring
+      developer queries; volume not measured with an external tool.
+      Defensibility 2: simple arithmetic anyone can copy; the edge is tiered
+      break-even and four stores in one view.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed numbers and editable assumptions with model
+      and omissions stated; no tax or financial advice, no warranty,
+      independent-of-every-store clause, store terms flagged as unverified.
+      Nothing is uploaded. Ethics: purely informational, helps a developer see
+      what they keep.
+  - slug: home-service-lead-roi-analyzer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on rows of the user's own file and a margin they type.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Trades owners buy
+      leads at $25-$100 each and platform dashboards do not report which became
+      jobs. Distribution 7: "thumbtack roi", "is angi worth it" and "cost per
+      booked job" are recurring contractor queries and the audience gathers in
+      identifiable trade forums; volume not measured with an external tool.
+      Defensibility 3: the local-only stance and no-CRM-required are the
+      differentiators against CRM marketing-ROI modules.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own file and a typed margin with model
+      and omissions stated; no financial advice, no warranty, independent-of-every-
+      platform clause, no claim any platform will credit a lead. The file, which
+      may hold customer names and phone numbers, never leaves the browser (a test
+      asserts no network calls), so the portfolio holds no customer data. Ethics:
+      purely informational, helps an owner see their own spend.
+  - slug: invoice-aging-late-payer-analyzer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on rows of the user's own file and two rates they type.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Small service
+      businesses wait 45-90 days on net-30 invoices; accounting suites show aging
+      buckets but not each client's habit, and dunning services need signup and
+      integration. Distribution 7: "accounts receivable aging report",
+      "days sales outstanding calculator" and "client always pays late" are
+      recurring queries and the audience gathers in identifiable freelance and
+      small-business forums; volume not measured with an external tool.
+      Defensibility 3: the local-only stance and per-client forecast are the
+      differentiators against suite reports.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own file and typed rates with model
+      and omissions stated; no financial or legal advice, no warranty,
+      independent-of-every-accounting-product clause, late fees described as
+      contract- and jurisdiction-dependent. The file, which holds client names
+      and amounts, never leaves the browser (a test asserts no network calls), so
+      the portfolio holds no customer data. Ethics: purely informational, helps
+      an owner see their own receivables.
+  - slug: fba-reimbursement-claim-finder
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on two reports the seller supplies and values they type.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Amazon FBA
+      sellers lose units in the warehouse and Amazon reimburses only part of
+      it automatically; recovering the rest is a paid-service category that
+      keeps a percentage and needs account access. Distribution 6: "FBA
+      reimbursement report", "inventory ledger lost units" and "did Amazon
+      reimburse lost inventory" are recurring seller-forum queries; volume not
+      measured with an external tool. Defensibility 3: simple netting anyone can
+      copy; the edge is oldest-first allocation, claim-window aging and being
+      free with no account access.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's files and editable assumptions with
+      model and omissions stated; no advice, no warranty, independent-of-Amazon
+      clause, "Amazon decides every claim", claim window flagged as editable.
+      Nothing is uploaded and no seller credential is requested. Ethics: helps
+      a seller see money Amazon may owe them; the case text asserts only what
+      the ledger shows and asks Amazon to check.
+  - slug: rent-roll-delinquency-analyzer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on rows of the user's own file and numbers they type.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Small landlords
+      chase unpaid rent from a ledger that shows charges but not age or pattern.
+      Distribution 6: "rent delinquency report", "unpaid rent aging" and "tenant
+      late payment tracker" are recurring landlord queries and the audience
+      gathers in identifiable forums; volume not measured with an external tool.
+      Defensibility 3: the local-only stance and no-account-required are the
+      differentiators against property-management suites.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own file and typed numbers with model
+      and omissions stated; not legal advice, lease- and jurisdiction-specific
+      rules are not modelled and the late-fee figure is labelled an upper bound;
+      no warranty, independent-of-every-product clause. The ledger, which holds
+      tenant names, never leaves the browser (a test asserts no network calls), so
+      the portfolio holds no tenant data. Ethics: informational, helps a landlord
+      see their own receivables; no tenant screening, no collection or eviction
+      filing, no scoring of individuals for third parties.

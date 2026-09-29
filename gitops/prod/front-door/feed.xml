@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 429 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 435 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -107,6 +107,15 @@
     <summary type="text">Free Etsy profit analyzer: drop in your Payment Account statement and Sold Order Items CSV and get a fee waterfall, profit per listing, Offsite Ads and refund findings. Runs in your browser, the files are never uploaded.</summary>
   </entry>
   <entry>
+    <title>FBA Reimbursement Claim Finder — Lost &amp; Damaged Inventory Amazon Never Paid For</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fba-reimbursement-claim-finder/"/>
+    <id>tag:marisstella.dev,2026:tool/fba-reimbursement-claim-finder</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free tool for Amazon FBA sellers: load your Inventory Ledger and Reimbursements report and see the lost and damaged units that look unreimbursed, what they are worth, and which claims expire first. Runs in your browser, the files are never uploaded.</summary>
+  </entry>
+  <entry>
     <title>Fiverr Earnings Fee Analyzer — Your Real Take-Home per Order</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fiverr-earnings-fee-analyzer/"/>
     <id>tag:marisstella.dev,2026:tool/fiverr-earnings-fee-analyzer</id>
@@ -121,7 +130,7 @@
     <id>tag:marisstella.dev,2026:tool/ghost-members-export-analyzer</id>
     <published>2026-09-29T00:00:00Z</published>
     <updated>2026-09-29T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free analyzer for Ghost publishers: drop in your members export CSV and see paid and free members, free-to-paid conversion, who never opens your emails, what cleaning the list saves, conversion by label and growth. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
@@ -143,6 +152,15 @@
     <summary type="text">Free Google Ads wasted spend analyzer: drop in your search terms report CSV and see how much you spent on terms that never converted, which negative keywords are safe to add, and which converting terms deserve exact match. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
+    <title>Google Play Earnings Report Analyzer — Fees, Refunds and Net</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/google-play-earnings-report-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/google-play-earnings-report-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free analyzer for Android developers: drop in your Google Play Console Earnings report and see net earnings by app, product type, country and month, the effective Google fee and refund rate. Runs in your browser, the file is never uploaded.</summary>
+  </entry>
+  <entry>
     <title>Gumroad Sales Fee Analyzer — Your Real Take-Home per Order</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/gumroad-sales-fee-analyzer/"/>
     <id>tag:marisstella.dev,2026:tool/gumroad-sales-fee-analyzer</id>
@@ -159,6 +177,33 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free home office deduction calculator for the self-employed: compare the IRS simplified method ($5 per sq ft, max $1,500) with the regular Form 8829 method, including the gross income limit, depreciation and carryover. Runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Home Service Lead ROI Analyzer — Cost per Booked Job by Lead Source</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/home-service-lead-roi-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/home-service-lead-roi-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free analyzer for plumbers, electricians, HVAC and other home-service pros: load your Thumbtack, Angi, Google Local Services, Yelp or ad leads and see cost per lead, close rate, cost per booked job and profit per source, and which paid sources lose money. Runs in your browser, the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Indie Game Payout Calculator — Steam vs Epic vs itch.io vs GOG</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/indie-game-payout-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/indie-game-payout-calculator</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator for indie game developers: what a game actually pays you on Steam, Epic Games Store, itch.io and GOG after tax, refunds, the store cut and fees, and how many copies you need to sell to break even. Runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Invoice Aging &amp; Late Payer Analyzer — Who Owes You and Who Pays Late</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/invoice-aging-late-payer-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/invoice-aging-late-payer-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free analyzer for freelancers, agencies and small businesses: load an invoice export from QuickBooks, FreshBooks, Wave, Xero or a spreadsheet and see accounts receivable aging, days sales outstanding, how long each client really takes to pay, the cost of late payment and when the open balance is likely to arrive. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>KDP Royalty Report Analyzer — Royalties per Book, Store and Format</title>
@@ -213,6 +258,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free analyzer for Poshmark sellers: load your My Sales Report CSV and see profit per item, brand and month after Poshmark&#39;s $2.95 / 20% fee, with effective fee rate, cost basis by SKU, shipping losses, days to sell and brands to stop sourcing. Runs in your browser, the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Rent Roll Delinquency Analyzer — Unpaid Rent Aging by Unit</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rent-roll-delinquency-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/rent-roll-delinquency-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free analyzer for small landlords: load your rent ledger and see who owes what and how old it is, which units pay late, monthly collection rate and a late-fee upper bound. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Restaurant Delivery Commission Analyzer — What DoorDash Really Costs</title>
@@ -312,59 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free Stripe churn and cohort analyzer: drop in your Stripe subscriptions CSV and get MRR, new vs churned MRR, monthly churn and a cohort retention table. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Stripe Failed Payment Recovery Analyzer — Free CSV Dunning Report</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/stripe-failed-payment-recovery-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/stripe-failed-payment-recovery-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free Stripe failed payment recovery analyzer: drop in your Stripe payments CSV and see how much failed-payment revenue you recover, what you lose, by decline reason and how fast. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Substack Subscriber Export Analyzer — Conversion, Churn and Revenue</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/substack-subscriber-export-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/substack-subscriber-export-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free analyzer for Substack writers: drop in your subscribers export CSV and see paid, free and former subscribers, free-to-paid conversion, paid retention, revenue by plan, annual renewals due and growth. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>TikTok Shop Settlement Analyzer — Your Real Take-Home per Order</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tiktok-shop-settlement-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/tiktok-shop-settlement-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free TikTok Shop fee calculator for sellers: drop in your sales CSV and see the service fee actually taken, take-home per order, net revenue per product, repeat buyers, refunds, withdrawal costs, funds still clearing and the price needed for a target take-home. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Turo Earnings Report Analyzer — Profit per Car After Fees and Costs</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/turo-earnings-report-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/turo-earnings-report-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free analyzer for Turo hosts: drop in your earnings or trip history CSV and see profit per car and per trip after Turo&#39;s fee, cleaning, fuel, delivery and monthly loan, insurance and depreciation, plus utilization and which cars lose money. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Upwork Earnings and Fee Analyzer — What You Really Keep</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/upwork-earnings-fee-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/upwork-earnings-fee-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free analyzer for freelancers: drop in your Upwork transaction history CSV and see the service fee you actually paid, Connects, membership and withdrawal costs, what you keep by contract and by month, and net pay per hour. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Whatnot Sales Report Analyzer — Profit per Show and Category After Fees</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/whatnot-sales-report-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/whatnot-sales-report-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free analyzer for Whatnot sellers: load your orders CSV and see profit per sale, show and category after Whatnot commission and payment processing, with effective fee rate, cost basis by SKU, low-price sale drag and the shows and categories that lose money. Runs in your browser, the file is never uploaded.</summary>
   </entry>
 </feed>

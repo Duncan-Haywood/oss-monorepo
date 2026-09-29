@@ -551,6 +551,9 @@ workflows:
 - workflow: faire-wholesale-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: fba-reimbursement-claim-finder-ci.yml
+  classification: none
+  publishes: []
 - workflow: fence-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -638,6 +641,9 @@ workflows:
 - workflow: google-ads-wasted-spend-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: google-play-earnings-report-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: grant-deadline-tracker-ci.yml
   classification: none
   publishes: []
@@ -689,6 +695,12 @@ workflows:
 - workflow: home-office-deduction-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: home-service-lead-roi-analyzer-ci.yml
+  classification: none
+  publishes: []
+- workflow: invoice-aging-late-payer-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: home-staging-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -714,6 +726,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: import-landed-cost-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: indie-game-payout-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: influencer-media-kit-generator-ci.yml
@@ -1087,6 +1102,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: register-change-rate-ci.yml
+  classification: none
+  publishes: []
+- workflow: rent-roll-delinquency-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: repository-branch-hygiene-ci.yml

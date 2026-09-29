@@ -1,0 +1,70 @@
+name: indie-game-payout-calculator
+description: >-
+  Free browser calculator for indie game developers: for the same copies sold,
+  what a game pays on Steam (30/25/20% tiers and the Steam Direct fee), Epic
+  Games Store (0% on the first million, then 12%), itch.io (chosen share plus
+  processor fees) and GOG (30%), after refunds, tax inside the price, regional
+  pricing and payout withholding, with break-even copies and copies for a target
+  profit. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Indie game developers
+# choose storefronts and set prices on a headline "30%" or "12%", but the
+# number that reaches them depends on tax removed from the buyer's price,
+# refunds, regional pricing, the Steam Direct fee and tiered terms that apply
+# to revenue above thresholds. Existing answers are scattered spreadsheets and
+# forum threads; no tool in this portfolio covered game storefronts.
+#
+# First visitor: r/gamedev, r/indiegaming and itch.io / Steam developer forum
+# threads asking "steam cut", "how much do I make per copy", "epic store vs
+# steam revenue share". Volume not measured with an external tool.
+#
+# What makes it more than one percentage: marginal tiers from lifetime revenue
+# already earned, refunds before the cut, tax netted, per-sale processor fees,
+# withholding, and a monotone search for break-even copies that crosses tier
+# boundaries. A test asserts every store's payout reconciles.
+#
+# Path to revenue (payment rails stay off): lead magnet with reciprocal links to
+# app-store-sales-report-analyzer and google-play-earnings-report-analyzer. A
+# paid tier, if usage appears, is a Steam sales-report CSV analyzer behind an
+# env-var switch; not built.
+#
+# Liability: arithmetic on typed numbers, model and omissions stated, no tax or
+# financial advice, no warranty, independent-of-every-store clause.
+#
+# Unverified: all store terms are from memory of public documentation and were
+# not checked against a live payout statement; every rate is editable on the page.
+
+hypotheses:
+  - claim: >-
+      Indie developers will use a no-login comparison of what the same copies pay
+      across Steam, Epic, itch.io and GOG, including tax, refunds and tiers, before
+      choosing a launch store or price.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Break-even copies against a typed development cost is the number developers
+      come back to as their cost or price changes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A store changes its headline terms and a developer reports a payout that does not match, at which point the constants need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/indie-game-payout-calculator/
+  analytics: null
