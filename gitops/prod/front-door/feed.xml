@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 440 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 441 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -296,6 +296,15 @@
     <summary type="text">Free analyzer for restaurants: drop in your DoorDash, Uber Eats or Grubhub payout or order-level CSV and see the real take rate per platform and per order, net after food cost and packaging, losing orders, promo return and the markup that matches in-store margin. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
+    <title>Restaurant Labor Cost Analyzer — Labor % and Sales per Labor Hour by Daypart From Your POS Reports</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/restaurant-labor-cost-daypart-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/restaurant-labor-cost-daypart-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free tool for restaurant owners: drop in your hourly sales and time-entry exports and see labor % of sales and sales per labor hour by daypart, weekday and hour, plus the labor above your target you could trim without going under a minimum crew. Runs in your browser, files are never uploaded.</summary>
+  </entry>
+  <entry>
     <title>Restaurant POS Menu Mix Analyzer — Menu Engineering From Your Toast, Square or Clover Report</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/restaurant-pos-menu-mix-analyzer/"/>
     <id>tag:marisstella.dev,2026:tool/restaurant-pos-menu-mix-analyzer</id>
@@ -357,14 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free Shopify Payments fee analyzer: drop in your Transactions export CSV and see your real effective rate, fees by card brand and card source, refund and chargeback cost, and what-if rates. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Shopify Payout Profit Analyzer — Free Fee and Profit-per-Product Tool</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/shopify-payout-profit-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/shopify-payout-profit-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free Shopify payout analyzer: drop in your Shopify Payments Transactions CSV and Orders export and get a fee waterfall, net to bank per order, profit per product, discount code cost and chargeback findings. Runs in your browser, the files are never uploaded.</summary>
   </entry>
 </feed>

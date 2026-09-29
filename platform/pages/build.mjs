@@ -625,6 +625,9 @@ const CATEGORY_RULES = [
       // matrix. The `restaurant-delivery-commission` prefix is the marketplace
       // section's, so this slug is listed by name.
       'restaurant-pos-menu-mix-analyzer',
+      // `restaurant-labor-cost-daypart-analyzer` added 2026-09-29: the labor
+      // half of the restaurant owner's cost picture, next to the menu tools.
+      'restaurant-labor-cost-daypart-analyzer',
     ].includes(slug),
   },
   {
