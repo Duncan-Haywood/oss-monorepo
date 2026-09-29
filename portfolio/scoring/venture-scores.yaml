@@ -18996,3 +18996,36 @@ ventures:
       filed return. No warranty and no-advice disclaimers on the page.
       Ethics: purely informational, helps a filer claim a deduction they are
       entitled to; no scraped or personal data, nothing adversarial.
+  - slug: self-employment-tax-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 8
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every result is deterministic
+      arithmetic against published IRS and SSA rules -- never an inference
+      step.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring
+      process; full write-up in this venture's own VENTURE.yaml comment.
+      duplicate_check.py found no existing venture computing SE tax itself.
+      Distribution 8: "self employment tax calculator" is a high-volume
+      evergreen query for freelancers and gig workers, peaking quarterly.
+      Search volume not measured with an external tool. Defensibility 2: a
+      published formula applied via arithmetic, trivially replicated.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: 2026-only, states the simplified income-tax estimate and
+      exclusions on the page; every input is a figure the filer already has;
+      output applies published rules, never a filed return. No warranty and
+      no-advice disclaimers on the page. Ethics: purely informational; no
+      scraped or personal data, nothing adversarial.
