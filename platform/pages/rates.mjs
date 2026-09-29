@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'restaurant-labor-cost-daypart-analyzer':
+    'hourlyWage is only the default for shifts whose time entries carry no pay, and burdenRate is a placeholder for payroll tax on wages already in the export; there is no overhead or margin, and the analysis reads labor cost from a file rather than pricing a job',
   // The trap in the set, and the reason this map exists rather than a bare
   // allowlist: `overheadRate` here is the *canonical id* but asks "Overhead (%
   // of revenue)", a different base from the spec's percentage of direct cost.

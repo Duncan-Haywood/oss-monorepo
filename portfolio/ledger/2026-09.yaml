@@ -47953,3 +47953,27 @@ entries:
         page, README and VENTURE.yaml. Registered score row, launch date, CI
         workflow and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: restaurant-labor-cost-daypart-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built restaurant-labor-cost-daypart-analyzer: a browser-local tool that
+        reads a sales-by-hour export and a POS time-entry export (Toast, Square,
+        Clover, 7shifts style), spreads each shift across the clock hours it
+        covers by minutes, and reports labor % of sales and sales per labor hour
+        by daypart, weekday and weekday-by-hour slot, with an upper-bound
+        estimate of labor above a typed target that could be trimmed without
+        going under a typed minimum crew. Handles overnight shifts and a
+        business-day start hour, burden and default wage as flagged
+        placeholders, role exclusion, day-only hours, mismatched date coverage,
+        and downloads CSV. Distinct from the menu tools (item margin, not
+        labor); linked reciprocally with menu-engineering-calculator. First
+        visitor expected from r/restaurantowners and r/KitchenConfidential and
+        searches like "labor cost percentage by daypart" and "sales per labor
+        hour restaurant". Nothing is uploaded (a test asserts no network
+        calls); independent-of-Toast/Square/Clover/7shifts clause on the page.
+        Column names are matched by alias and unverified against real exports,
+        stated on the page, README and VENTURE.yaml. Registered score row,
+        launch date, CI workflow and tree counts; regenerated the mirror.
+    mrr_end: 0

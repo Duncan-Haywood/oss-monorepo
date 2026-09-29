@@ -20643,3 +20643,74 @@ ventures:
       Square-Clover clause, default food cost and volume loss flagged as
       placeholders. Nothing is uploaded and no POS credential is requested.
       Ethics: purely informational, helps an owner see which items earn.
+  - slug: ghost-members-export-analyzer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on rows of the user's own members export and the price and
+      fee assumptions they can edit.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Ghost Admin
+      shows headline member counts and a growth chart; nothing ranks the quiet
+      free members who cost sending and member-pricing money. Distribution 6:
+      "ghost inactive members" and Ghost forum threads on cleaning the list are
+      recurring queries; volume not measured with an external tool.
+      Defensibility 3: the local-only stance is the differentiator against
+      list-hygiene services that want an API key or an upload. Row added by a
+      later session after the venture graduated without one.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's file and editable assumptions, model
+      and omissions stated on the page, no advice, no warranty, independent of
+      Ghost. Nothing is uploaded and no Ghost credential is requested. Ethics:
+      informational; paid and complimentary members are never listed for
+      removal.
+  - slug: restaurant-labor-cost-daypart-analyzer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on two exports the owner supplies and assumptions they type.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Labor is the
+      largest controllable cost after food and every POS already exports sales
+      by hour and time entries; lining them up by daypart is a manual
+      spreadsheet job or a paid labor-management subscription. Distribution 6:
+      "labor cost percentage by daypart" and "sales per labor hour" are
+      recurring owner-forum queries; volume not measured with an external
+      tool. Defensibility 3: the arithmetic is public; the edge is shift-to-hour
+      allocation, a minimum-crew cap on the trimmable estimate, and being free
+      with no POS access.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's files and editable assumptions with
+      model and omissions stated; trimmable stated as an upper-bound screen, not
+      a schedule; no advice, no warranty, independent-of-Toast-Square-Clover-
+      7shifts clause, burden and default wage flagged as placeholders. Nothing
+      is uploaded and no POS credential is requested. Ethics: informational; it
+      names hours over a labor target, it does not decide anyone's hours.
