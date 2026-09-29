@@ -1385,6 +1385,24 @@ workflows:
 - workflow: world-clock-widget-ci.yml
   classification: none
   publishes: []
+- workflow: self-employment-tax-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: card-surcharge-vs-cash-discount-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: stripe-churn-cohort-analyzer-ci.yml
+  classification: none
+  publishes: []
+- workflow: stripe-failed-payment-recovery-analyzer-ci.yml
+  classification: none
+  publishes: []
+- workflow: roth-conversion-bracket-fill-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: str-cleaning-fee-pricing-calculator-ci.yml
+  classification: none
+  publishes: []
 gitops:
 - application: agents
   path: gitops/agents
@@ -1433,16 +1451,3 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
-- workflow: self-employment-tax-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: card-surcharge-vs-cash-discount-calculator-ci.yml
-- workflow: stripe-churn-cohort-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: stripe-failed-payment-recovery-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: roth-conversion-bracket-fill-calculator-ci.yml
-  classification: none
-  publishes: []

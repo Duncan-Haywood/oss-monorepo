@@ -1,0 +1,57 @@
+name: str-cleaning-fee-pricing-calculator
+description: >-
+  Free browser calculator for Airbnb and VRBO hosts: the cleaning fee that
+  covers the cleaner after platform fees, a separate cleaning fee versus
+  rolling it into the nightly rate, host profit and guest all-in price for
+  stays from 1 to 14 nights, and the shortest stay that makes money.
+  Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. duplicate_check.py top
+# score 0.33 (str-host-payout-calculator, which computes payout from a
+# booking, not the cleaning-fee structure decision).
+#
+# Distribution: hosts ask "how much should I charge for a cleaning fee" and
+# "cleaning fee vs higher nightly rate" in r/AirBnB, r/airbnb_hosts and host
+# Facebook groups after each platform fee-display change. Search volume was
+# not measured with an external tool, matching the pipeline's standing caveat.
+#
+# Model is documented on the page and README; minimum profitable stay is exact
+# because profit is linear in nights, checked by test.
+#
+# Liability: arithmetic on the host's own inputs, never advice. No platform
+# rules are asserted beyond the fee percentages the host types in.
+
+hypotheses:
+  - claim: >-
+      Short-term rental hosts choosing between a separate cleaning fee and a
+      higher nightly rate will use a free, no-signup calculator that shows
+      their profit by stay length and the fee that covers the cleaner.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Showing that 1-night stays lose money at the host's own costs changes
+      whether they set a 2-night minimum.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure from this tool's output despite the disclaimers, at which point the model or its wording needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/str-cleaning-fee-pricing-calculator/
+  analytics: null

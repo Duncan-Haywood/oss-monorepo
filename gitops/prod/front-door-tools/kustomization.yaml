@@ -33,29 +33,29 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 545748 bytes
-#   portfolio-front-tools-1: 92 files, 554482 bytes
-#   portfolio-front-tools-2: 144 files, 552432 bytes
-#   portfolio-front-tools-3: 131 files, 554508 bytes
-#   portfolio-front-tools-4: 141 files, 556097 bytes
-#   portfolio-front-tools-5: 128 files, 556963 bytes
+#   portfolio-front-tools-0: 145 files, 545852 bytes
+#   portfolio-front-tools-1: 92 files, 554493 bytes
+#   portfolio-front-tools-2: 144 files, 552453 bytes
+#   portfolio-front-tools-3: 131 files, 554517 bytes
+#   portfolio-front-tools-4: 141 files, 556106 bytes
+#   portfolio-front-tools-5: 128 files, 556966 bytes
 #   portfolio-front-tools-6: 128 files, 542433 bytes
-#   portfolio-front-tools-7: 136 files, 555808 bytes
-#   portfolio-front-tools-8: 121 files, 553593 bytes
+#   portfolio-front-tools-7: 136 files, 555810 bytes
+#   portfolio-front-tools-8: 121 files, 553614 bytes
 #   portfolio-front-tools-9: 136 files, 549621 bytes
-#   portfolio-front-tools-10: 136 files, 554482 bytes
-#   portfolio-front-tools-11: 122 files, 553952 bytes
-#   portfolio-front-tools-12: 120 files, 556092 bytes
-#   portfolio-front-tools-13: 117 files, 553015 bytes
-#   portfolio-front-tools-14: 126 files, 553539 bytes
-#   portfolio-front-tools-15: 129 files, 548919 bytes
-#   portfolio-front-tools-16: 132 files, 555968 bytes
-#   portfolio-front-tools-17: 133 files, 548586 bytes
-#   portfolio-front-tools-18: 104 files, 555761 bytes
-#   portfolio-front-tools-19: 115 files, 551503 bytes
-#   portfolio-front-tools-20: 127 files, 551921 bytes
-#   portfolio-front-tools-21: 120 files, 543383 bytes
-#   portfolio-front-tools-22: 77 files, 392004 bytes
+#   portfolio-front-tools-10: 136 files, 554477 bytes
+#   portfolio-front-tools-11: 122 files, 553929 bytes
+#   portfolio-front-tools-12: 120 files, 556102 bytes
+#   portfolio-front-tools-13: 117 files, 552976 bytes
+#   portfolio-front-tools-14: 126 files, 553618 bytes
+#   portfolio-front-tools-15: 129 files, 548920 bytes
+#   portfolio-front-tools-16: 132 files, 555965 bytes
+#   portfolio-front-tools-17: 133 files, 548590 bytes
+#   portfolio-front-tools-18: 104 files, 555765 bytes
+#   portfolio-front-tools-19: 115 files, 551514 bytes
+#   portfolio-front-tools-20: 128 files, 553329 bytes
+#   portfolio-front-tools-21: 122 files, 551805 bytes
+#   portfolio-front-tools-22: 77 files, 391938 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2728,6 +2728,9 @@ configMapGenerator:
       - storage-auction-max-bid-calculator__usage.mjs.gz=storage-auction-max-bid-calculator__usage.mjs.gz
       - storage-auction-max-bid-calculator__vs-bidding-a-flat-percentage.html.gz=storage-auction-max-bid-calculator__vs-bidding-a-flat-percentage.html.gz
       - storage-auction-max-bid-calculator__vs-storagetreasures.html.gz=storage-auction-max-bid-calculator__vs-storagetreasures.html.gz
+      - str-cleaning-fee-pricing-calculator__calc.mjs.gz=str-cleaning-fee-pricing-calculator__calc.mjs.gz
+      - str-cleaning-fee-pricing-calculator__index.html.gz=str-cleaning-fee-pricing-calculator__index.html.gz
+      - str-cleaning-fee-pricing-calculator__usage.mjs.gz=str-cleaning-fee-pricing-calculator__usage.mjs.gz
       - str-occupancy-tax-calculator__calc.mjs.gz=str-occupancy-tax-calculator__calc.mjs.gz
       - str-occupancy-tax-calculator__how-much-occupancy-tax-will-i-have-to-self-file-this-year.html.gz=str-occupancy-tax-calculator__how-much-occupancy-tax-will-i-have-to-self-file-this-year.html.gz
       - str-occupancy-tax-calculator__how-to-find-your-platforms-collection-agreements.html.gz=str-occupancy-tax-calculator__how-to-find-your-platforms-collection-agreements.html.gz
@@ -2839,13 +2842,13 @@ configMapGenerator:
       - trump-account-calculator__index.html.gz=trump-account-calculator__index.html.gz
       - trump-account-calculator__usage.mjs.gz=trump-account-calculator__usage.mjs.gz
       - trump-account-calculator__vs-doing-the-math-by-hand.html.gz=trump-account-calculator__vs-doing-the-math-by-hand.html.gz
-      - tuckpointing-bid-calculator__calc.mjs.gz=tuckpointing-bid-calculator__calc.mjs.gz
-      - tuckpointing-bid-calculator__how-much-to-charge-for-tuckpointing.html.gz=tuckpointing-bid-calculator__how-much-to-charge-for-tuckpointing.html.gz
   - name: portfolio-front-tools-21
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - tuckpointing-bid-calculator__calc.mjs.gz=tuckpointing-bid-calculator__calc.mjs.gz
+      - tuckpointing-bid-calculator__how-much-to-charge-for-tuckpointing.html.gz=tuckpointing-bid-calculator__how-much-to-charge-for-tuckpointing.html.gz
       - tuckpointing-bid-calculator__index.html.gz=tuckpointing-bid-calculator__index.html.gz
       - tuckpointing-bid-calculator__usage.mjs.gz=tuckpointing-bid-calculator__usage.mjs.gz
       - tuckpointing-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=tuckpointing-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
