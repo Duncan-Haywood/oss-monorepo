@@ -1,0 +1,66 @@
+name: amazon-seller-profit-analyzer
+description: >-
+  Free browser tool that turns an Amazon Seller Central Transaction report CSV
+  into profit per SKU, a fee waterfall (referral, FBA, refunds, ads, storage,
+  subscription), refund-fee and reimbursement tallies and plain-language
+  findings. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session, a data-file archetype
+# rather than another arithmetic calculator: the value is the analysis paid
+# seller tools (Sellerboard, Helium 10 Profits, Jungle Scout, Sellerise) do,
+# minus granting a third party API access to the seller's Amazon account.
+# duplicate_check.py top score 0.27 (shopify-fee-calculator); amazon-fba-calculator
+# models one hypothetical listing from typed inputs, this one derives real
+# per-SKU results from the seller's own report rows.
+#
+# First visitor: FBA and FBM sellers on r/FulfillmentByAmazon, r/AmazonSeller
+# and seller forums asking how to get true profit per SKU from the transaction
+# or settlement report; search phrases "amazon transaction report profit per
+# sku", "amazon settlement report analyzer", "amazon date range report
+# advertising cost". Volume not measured with an external tool.
+#
+# Privacy is the differentiator and the liability boundary: the file never
+# leaves the browser (a test asserts the page has no network calls), so the
+# portfolio holds no order or customer data. Page carries an independent-of-
+# Amazon trademark clause.
+#
+# Path to revenue (payments stay off): free tool -> lead magnet for a
+# donation-supported open-source repo. If the free tool earns repeat visitors,
+# the natural paid step is multi-period comparison and FBA-reimbursement claim
+# lists, still local-only.
+
+hypotheses:
+  - claim: >-
+      Amazon sellers who want profit per SKU will prefer a no-signup,
+      no-API-access tool that reads the Transaction CSV locally over
+      connecting a seller-tools vendor to their Seller Central account.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The refund-fee, ad-share and reimbursement findings surface money the
+      seller did not know they were losing, which is the reason to return after
+      each monthly export.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong per-SKU figure from a real Transaction report, at which point the column mapping or classification needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/amazon-seller-profit-analyzer/
+  analytics: null
