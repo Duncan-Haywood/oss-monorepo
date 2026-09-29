@@ -1023,7 +1023,9 @@ const RELATIVE_SELF = relative(
 // `usage.mjs` under its own storage name.
 // +1: `kdp-royalty-report-analyzer` graduated -- one more boilerplate
 // `usage.mjs` under its own storage name.
-const SWITCHES_IN_THE_CATALOGUE = 398;
+// +1: `poshmark-sales-report-analyzer` graduated -- one more boilerplate
+// `usage.mjs` under its own storage name.
+const SWITCHES_IN_THE_CATALOGUE = 399;
 
 let counter = 0;
 function fixture(source) {
