@@ -2807,8 +2807,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `google-play-earnings-report-analyzer` graduated.
     # +1: `indie-game-payout-calculator` graduated.
     # +1: `home-service-lead-roi-analyzer` graduated (browser-local lead log analyzer).
-    # +1: `tow-motor-club-call-calculator` graduated (motor-club dispatch calculator).
-    total = 432  # `infra/OWNER_CHECKLIST.md`'s own "N of the 432 tools" wording.
+    total = 434  # `infra/OWNER_CHECKLIST.md`'s own "N of the 434 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

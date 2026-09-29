@@ -551,6 +551,9 @@ workflows:
 - workflow: faire-wholesale-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: fba-reimbursement-claim-finder-ci.yml
+  classification: none
+  publishes: []
 - workflow: fence-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -690,6 +693,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: home-service-lead-roi-analyzer-ci.yml
+  classification: none
+  publishes: []
+- workflow: invoice-aging-late-payer-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: home-staging-bid-calculator-ci.yml

@@ -47809,6 +47809,48 @@ entries:
         shop-rate-calculator. Registered score row, launch date, CI workflow and
         tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: invoice-aging-late-payer-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built invoice-aging-late-payer-analyzer, a new-niche
+        data-file tool for freelancers, agencies and trades who invoice on
+        terms: a browser-local tool that reads an invoice export CSV (file or
+        paste; quoted fields, US and day-first dates, comma, tab, semicolon and
+        UTF-16; skipped rows reported with line and reason) and shows an aging
+        report whose buckets reconcile to the open total, days sales
+        outstanding, per-client median days to pay, habitual and worsening late
+        payers, a chase list ranked by balance times days late, a 30/60-day
+        collection forecast from each client's own history (invoices already past
+        that pattern split out as exceptions), and the cost of waiting at a typed
+        rate. File never leaves the browser (a test asserts no network calls);
+        independent-of-every-accounting-product clause; late fees stated as
+        contract- and law-dependent. Column names matched by alias and no real
+        export was available, stated on the page, README and VENTURE.yaml.
+        Reciprocal link from freelance-retainer-calculator. Registered score row,
+        launch date, CI workflow and tree counts; regenerated the mirror.
+    mrr_end: 0
+  - venture: fba-reimbursement-claim-finder
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built fba-reimbursement-claim-finder: a browser-local tool
+        that compares an Amazon FBA Inventory Ledger with the Reimbursements
+        report and lists, per SKU, lost and damaged units neither found nor
+        reimbursed, valued from the seller's own reimbursements (else a typed
+        default), aged against an editable claim window (expiring first) with a
+        draft Seller Support case text. Reimbursements are matched oldest loss
+        first, reversals add units back, customer-return reasons are ignored;
+        tests cover netting, aging, overpayment, unknown events and a late-
+        starting reimbursement file. Nothing is uploaded (a test asserts no
+        network calls); independent-of-Amazon clause on the page. Column names
+        and the 18-month/45-day defaults are from memory of public documentation
+        and unverified, stated on the page, README and VENTURE.yaml. Registered
+        score row, launch date, CI workflow and tree counts; regenerated the
+        mirror.
+    mrr_end: 0
   - venture: tow-motor-club-call-calculator
     agent_spend_usd: null
     human_hours: 0
