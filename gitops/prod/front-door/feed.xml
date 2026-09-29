@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 399 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 400 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -87,6 +87,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free 2026 self-employment tax calculator for freelancers and sole proprietors: Social Security and Medicare, the $184,500 wage base, W-2 wages, Additional Medicare Tax, and how much of every payment to set aside. Runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Short-Term Rental Cleaning Fee Calculator — Free, Runs in Your Browser</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/str-cleaning-fee-pricing-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/str-cleaning-fee-pricing-calculator</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free cleaning fee calculator for Airbnb and VRBO hosts: the fee that covers your cleaner, host profit and guest total price by stay length, and whether to roll the fee into the nightly rate. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>STR Tax Loophole Calculator — 2026, Free</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Type what a Claude Agent Skill should do and when Claude should use it, plus any scripts, references, or assets it bundles, and get a starter SKILL.md with valid YAML frontmatter and a suggested folder layout -- checked for the common authoring mistakes that keep a skill from triggering. Free, runs entirely in your browser, nothing uploaded, no model call.</summary>
-  </entry>
-  <entry>
-    <title>Cloud Bucket Exposure Checker — is your S3/GCS/Azure bucket publicly listable?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cloud-bucket-exposure-check/"/>
-    <id>tag:marisstella.dev,2026:tool/cloud-bucket-exposure-check</id>
-    <published>2026-09-24T00:00:00Z</published>
-    <updated>2026-09-24T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free tool: run a CLI that sends one real, read-only request to an AWS S3 bucket, a Google Cloud Storage bucket, or an Azure Blob container you name, then paste the JSON here for a plain-English report on whether anyone on the internet can list its contents with no credentials. Never fetches an object&#39;s own content, only the listing. Nothing uploaded.</summary>
   </entry>
 </feed>

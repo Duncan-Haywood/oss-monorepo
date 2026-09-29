@@ -19301,3 +19301,34 @@ ventures:
       state. No warranty and no-advice disclaimers on the page. Ethics:
       helps a merchant compare pricing options they already have; no
       personal data leaves the browser.
+  - slug: str-cleaning-fee-pricing-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every result is deterministic
+      arithmetic on the host's own inputs, never an inference step.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring
+      process; write-up in this venture's own VENTURE.yaml comment.
+      duplicate_check.py top score 0.33 (str-host-payout-calculator), a
+      different question (payout from a booking, not the cleaning-fee
+      structure). Distribution 6: hosts ask about cleaning fee versus
+      nightly rate in host communities; search volume not measured with an
+      external tool. Defensibility 2: simple arithmetic, trivially replicated.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the host's own inputs, never advice; no
+      platform rules asserted beyond fee percentages the host enters. No
+      warranty and no-advice disclaimers on the page. Ethics: helps a host
+      price transparently; no personal data leaves the browser.
