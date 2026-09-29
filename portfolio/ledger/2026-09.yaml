@@ -47013,7 +47013,7 @@ entries:
         self-employment tax saved). Rules verified against IRS.gov;
         duplicate_check.py top score 0.13. Registered build category, score
         row, launch date, CI workflow, reciprocal link from
-        solo-401k-contribution-calculator, and tree counts (389 tools / 368
+        solo-401k-contribution-calculator, and tree counts (393 tools / 372
         switches); regenerated the mirror.
       - >-
         Verified locally per the starvation checklist: venture suite 24/24;
@@ -47021,6 +47021,54 @@ entries:
         gitops/tests 613 passed/25 skipped (nginx-dependent); regen.mjs
         --verify, checklist_coverage.py, clauses.mjs, router/validate.py,
         score_ventures.py --check clean.
+    mrr_end: 0
+  - venture: str-tax-loophole-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built str-tax-loophole-calculator: a browser-local
+        short-term-rental calculator for the 7-day average-stay exception,
+        material participation tests 1-3, the $25,000 passive allowance and
+        its phase-out, and first-year cost segregation depreciation with 100%
+        bonus, tax saved and usable loss on the non-passive and passive
+        paths, with at-risk and excess business loss limits ($256,000 /
+        $512,000 for 2026). Figures verified against IRS Pub 925 and 527,
+        Treas. Reg. 1.469-5T, the IRS bonus depreciation release and Rev.
+        Proc. 2025-32; duplicate_check.py top score 0.17. Registered build
+        category, score row, launch date, CI workflow, reciprocal links from
+        excess-business-loss-calculator and depreciation-recapture-calculator,
+        and tree counts (391 tools / 370 switches); regenerated the mirror.
+    mrr_end: 0
+  - venture: estimated-tax-penalty-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built estimated-tax-penalty-calculator: a browser-local
+        Form 2210 (regular method) underpayment penalty estimator -- 90% /
+        100% / 110% safe harbor, $1,000 threshold, four installments with
+        dated payments applied oldest-first, daily rate to the return due
+        date, per-installment penalty and cumulative catch-up. Complements
+        quarterly-estimated-tax-calendar (forward planner, 0.61 duplicate
+        score; different mechanic, reciprocal link added). Registered build
+        category, score row, launch date, CI workflow and tree counts.
+    mrr_end: 0
+  - venture: self-employment-tax-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built self-employment-tax-calculator: a browser-local
+        2026 Schedule SE calculator (92.35% net earnings, 12.4% Social
+        Security to the $184,500 wage base reduced by W-2 wages, 2.9%
+        Medicare, deductible half, Additional Medicare Tax by filing status,
+        marginal SE rate, percent-of-income set-aside and quarterly figure).
+        Rules verified against IRS Tax Topic 554 and SSA 2026 figures;
+        duplicate_check.py found no existing SE-tax venture. Registered build
+        category, score row, launch date, CI workflow, reciprocal link from
+        home-office-deduction-calculator, tree counts (393 tools / 372
+        switches); regenerated the mirror.
     mrr_end: 0
   - venture: saas-annual-plan-discount-calculator
     agent_spend_usd: null

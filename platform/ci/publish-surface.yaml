@@ -170,6 +170,9 @@ workflows:
 - workflow: automatic-driveway-gate-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: backdoor-roth-pro-rata-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: backflow-test-fee-calculator-ci.yml
   classification: none
   publishes: []
@@ -498,6 +501,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: estate-tax-exemption-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: estimated-tax-penalty-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: etsy-profit-calculator-ci.yml
@@ -1208,6 +1214,9 @@ workflows:
 - workflow: str-occupancy-tax-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: str-tax-loophole-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: structured-data-drift-check-ci.yml
   classification: none
   publishes: []
@@ -1418,3 +1427,6 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
+- workflow: self-employment-tax-calculator-ci.yml
+  classification: none
+  publishes: []

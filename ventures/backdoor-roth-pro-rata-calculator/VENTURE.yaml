@@ -1,0 +1,65 @@
+name: backdoor-roth-pro-rata-calculator
+description: >-
+  Free browser calculator for the Form 8606 pro-rata rule behind the
+  backdoor Roth IRA: given the after-tax basis, the December 31 balance of
+  all traditional, SEP and SIMPLE IRAs, and the amount converted, it shows
+  the taxable and tax-free parts of the conversion, the basis carried
+  forward, the estimated tax at the filer's marginal rate, and how much of
+  that tax a 401(k) roll-in before year-end would avoid. Entirely
+  client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session (session_gate.py: the
+# build-now pipeline is empty). duplicate_check.py scored every venture,
+# screened-out row and pipeline candidate at 0.21 or below; the closest,
+# mega-backdoor-roth-calculator, is a different mechanism (after-tax
+# contributions inside an employer 401(k)) for a different question (how
+# much room, not how much tax). Neither screened-out.md nor the pipeline
+# mentions the pro-rata rule or Form 8606.
+#
+# Distribution channel, named rather than assumed: "backdoor roth pro
+# rata" and "form 8606 pro rata calculator" are evergreen searches by
+# high-earning W-2 filers who cannot contribute to a Roth directly, with a
+# Q4 spike (the fix -- rolling pre-tax IRA money into a 401(k) -- must
+# complete before December 31) and a Q1-Q2 spike at filing time. No
+# external search-volume tool was queried, matching the pipeline's standing
+# caveat. The 2026 IRA limits ($7,500; $1,100 catch-up) were verified
+# against IRS.gov's Notice 2025-67 announcement; the Form 8606 line logic
+# is the IRS's own published form.
+#
+# Liability: same shape as the sibling tax tools -- a formula applied to
+# numbers the filer supplies. The riskiest failure is a filer relying on a
+# tax-free result they do not have (for example by forgetting an IRA at
+# another custodian), so the page says to include every traditional, SEP
+# and SIMPLE IRA across every custodian in two places, and lists what it
+# does not model.
+
+hypotheses:
+  - claim: >-
+      A high-earning W-2 filer about to do a backdoor Roth conversion will
+      search for the pro-rata rule, use a free no-signup calculator to see
+      how much tax an old rollover IRA would cost them, and act on the
+      401(k) roll-in finding before December 31.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: a fixed formula over numbers the user types.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports relying on a tax-free result that was wrong despite the disclaimers, at which point the disclosure wording itself needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/backdoor-roth-pro-rata-calculator/
+  analytics: null

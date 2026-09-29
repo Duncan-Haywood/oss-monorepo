@@ -1,12 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 391 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 395 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-09-29T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Backdoor Roth Pro-Rata Calculator — Form 8606, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/backdoor-roth-pro-rata-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/backdoor-roth-pro-rata-calculator</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator for the backdoor Roth pro-rata rule: how much of your Roth conversion is taxable given your after-tax basis and your December 31 traditional, SEP and SIMPLE IRA balance, plus the tax you could avoid by rolling pre-tax money into a 401(k). Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Estimated Tax Penalty Calculator — Form 2210 Underpayment, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/estimated-tax-penalty-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/estimated-tax-penalty-calculator</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free estimated tax penalty calculator: see your IRS Form 2210 underpayment penalty installment by installment, check the 90% and prior-year safe harbors, and get a catch-up plan. Runs in your browser, nothing uploaded.</summary>
+  </entry>
   <entry>
     <title>Home Office Deduction Calculator — Simplified vs Regular, Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/home-office-deduction-calculator/"/>
@@ -33,6 +51,24 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free SaaS annual plan discount calculator: find the annual-prepay discount you can offer before it costs more than it brings in, given gross margin, monthly churn, renewal rate and cost of capital. Runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Self-Employment Tax Calculator 2026 — Schedule SE, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/self-employment-tax-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/self-employment-tax-calculator</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free 2026 self-employment tax calculator for freelancers and sole proprietors: Social Security and Medicare, the $184,500 wage base, W-2 wages, Additional Medicare Tax, and how much of every payment to set aside. Runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>STR Tax Loophole Calculator — 2026, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/str-tax-loophole-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/str-tax-loophole-calculator</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free calculator for short-term rental owners: does your Airbnb or VRBO escape rental-activity status (average stay of 7 days or less) and qualify as non-passive through material participation? Compare the $25,000 passive path and estimate first-year cost segregation depreciation with 100% bonus. Entirely client-side, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Solo 401(k) Contribution Calculator — 2026, Free</title>
@@ -330,41 +366,5 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free Facebook Marketplace seller fee calculator: 10% of the buyer-paid total (item price + shipping + tax collected) on a shipped checkout order, $0.80 minimum fee, $0 for local pickup, plus the flat $20 dispute penalty if one applies. Real profit, price for a target profit. Nothing leaves your browser.</summary>
-  </entry>
-  <entry>
-    <title>Hidden Unicode Check — find invisible and bidi characters in a file</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hidden-unicode-check/"/>
-    <id>tag:marisstella.dev,2026:tool/hidden-unicode-check</id>
-    <published>2026-09-24T00:00:00Z</published>
-    <updated>2026-09-24T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste CLAUDE.md, AGENTS.md, .cursorrules, copilot-instructions.md, a README, or any text and find zero-width characters, Unicode tag characters, and bidirectional (RLO/LRO) override characters hidden from human review -- the technique behind current AI-agent prompt-injection attacks and Trojan Source. Free, private, runs entirely in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Kubernetes Resource Limits Check — What Can Take Down a Node</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/k8s-resource-limits-check/"/>
-    <id>tag:marisstella.dev,2026:tool/k8s-resource-limits-check</id>
-    <published>2026-09-24T00:00:00Z</published>
-    <updated>2026-09-24T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste or load Kubernetes manifest YAML and get a deterministic report of every container missing a memory limit, memory request, CPU request, or ephemeral-storage limit -- the specific gaps that let one container starve or crowd out everything else on its node -- plus any request set above its own limit, which kubectl apply rejects outright. Free, runs entirely in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Kickstarter Fee Calculator — What a Funded Campaign Actually Keeps</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/kickstarter-fee-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/kickstarter-fee-calculator</id>
-    <published>2026-09-24T00:00:00Z</published>
-    <updated>2026-09-24T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free Kickstarter fee calculator. 5% platform fee plus per-pledge processing (3% + $0.20 standard, 5% + $0.05 under $10) -- see why more, smaller pledges keep less of the same total raised. Nothing leaves your browser.</summary>
-  </entry>
-  <entry>
-    <title>LLM API Pricing Calculator — compare Claude, GPT, Gemini token costs</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/llm-api-pricing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/llm-api-pricing-calculator</id>
-    <published>2026-09-24T00:00:00Z</published>
-    <updated>2026-09-24T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Compare the monthly dollar cost of calling different LLM APIs (Claude, GPT, Gemini, or a custom provider) for your own workload -- modelling fresh input, cached input, and output tokens separately, since cached tokens are billed far below fresh input and usually dominate agentic workloads. Free, private, no signup.</summary>
   </entry>
 </feed>
