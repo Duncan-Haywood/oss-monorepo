@@ -64,3 +64,7 @@ test("usage events named on the page are the ones the code records", () => {
     assert.match(html, new RegExp(`<code>${e}</code>`));
   }
 });
+
+test("page links to the late invoice collections kit for a single overdue invoice", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/late-invoice-collections-kit\/"/);
+});
