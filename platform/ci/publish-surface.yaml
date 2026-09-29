@@ -1440,6 +1440,9 @@ gitops:
 - workflow: stripe-churn-cohort-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: stripe-failed-payment-recovery-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: roth-conversion-bracket-fill-calculator-ci.yml
   classification: none
   publishes: []
