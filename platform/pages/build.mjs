@@ -1166,6 +1166,9 @@ const CATEGORY_RULES = [
       // (what is unpaid, how old, who pays late) -- the same after-the-fact reconciliation job
       // as `cam-reconciliation-check` above, for tenants' payments instead of a CAM statement.
       || slug === 'rent-roll-delinquency-analyzer'
+      // `rental-property-schedule-e-categorizer` sorts a landlord's bank file after the year is over
+      // into tax lines: the same after-the-fact reconciliation job, next to the rent ledger reader.
+      || slug === 'rental-property-schedule-e-categorizer'
       // `dental-ppo-writeoff-calculator` measures what a signed contract
       // actually paid over a period already billed — the same after-the-sale
       // reconciliation job as `card-processing-fee-audit` (splitting a

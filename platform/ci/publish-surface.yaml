@@ -1119,6 +1119,9 @@ workflows:
 - workflow: required-checks-drift-check-ci.yml
   classification: none
   publishes: []
+- workflow: rental-property-schedule-e-categorizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: restaurant-delivery-commission-analyzer-ci.yml
   classification: none
   publishes: []

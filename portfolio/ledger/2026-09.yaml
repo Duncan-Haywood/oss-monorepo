@@ -47953,3 +47953,26 @@ entries:
         page, README and VENTURE.yaml. Registered score row, launch date, CI
         workflow and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: rental-property-schedule-e-categorizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built rental-property-schedule-e-categorizer: a
+        browser-local tool that reads a bank or card CSV and sorts every
+        transaction into an IRS Schedule E Part I line per rental property, with
+        built-in and user keyword rules, property rules, tax-year filter, and a
+        Form 1098 interest step that keeps mortgage principal out of expenses.
+        Mortgage payments, capital improvements, transfers and security deposits
+        are held out; repair-like items over a threshold or worded like a remodel
+        are flagged, never decided; months with no rent, duplicate rows and
+        uncategorised rows are listed; a CSV names the rule behind every row.
+        Distinct from rent-roll-delinquency-analyzer and the depreciation
+        calculators, linked from the page. First visitor expected from r/landlord
+        and BiggerPockets, and searches like "bank statement to Schedule E".
+        Nothing is uploaded (a test asserts no network calls);
+        independent-of-banks-and-the-IRS clause on the page. Column names are
+        matched by alias and unverified against real exports, stated on the page,
+        README and VENTURE.yaml. Registered score row, launch date, CI workflow
+        and tree counts; regenerated the mirror.
+    mrr_end: 0
