@@ -1059,7 +1059,8 @@ const RELATIVE_SELF = relative(
 // +1: `parcel-late-delivery-refund-finder` graduated.
 // +1: `social-security-claiming-age-calculator` graduated.
 // +1: `wage-garnishment-limit-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 436;
+// +1: `medicare-irmaa-cliff-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 437;
 
 let counter = 0;
 function fixture(source) {

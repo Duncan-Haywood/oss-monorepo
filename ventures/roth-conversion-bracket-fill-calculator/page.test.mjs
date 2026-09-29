@@ -39,3 +39,8 @@ test("robots and sitemap let crawlers find the page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
 });
+
+test("page links to the Medicare IRMAA cliff calculator, which links back", () => {
+  assert.match(page("index.html"), /href="\.\.\/medicare-irmaa-cliff-calculator\/"/);
+  assert.match(page("../medicare-irmaa-cliff-calculator/index.html"), /href="\.\.\/roth-conversion-bracket-fill-calculator\/"/);
+});
