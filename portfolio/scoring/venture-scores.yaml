@@ -19398,3 +19398,38 @@ ventures:
       platform rules asserted beyond fee percentages the host enters. No
       warranty and no-advice disclaimers on the page. Ethics: helps a host
       price transparently; no personal data leaves the browser.
+  - slug: amazon-seller-profit-analyzer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on rows of the user's own file, never an inference step.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment.
+      duplicate_check.py top score 0.27 (shopify-fee-calculator; no venture
+      derives per-SKU profit from a seller's own report). Distribution 7:
+      "amazon transaction report profit per sku", "amazon settlement report
+      analyzer" and r/FulfillmentByAmazon threads are recurring seller
+      queries with a paid-tool market (Sellerboard, Helium 10 Profits, Jungle
+      Scout) behind them; volume not measured with an external tool.
+      Defensibility 3: the local-only stance is the differentiator against
+      tools that need Amazon account access.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own report with model and omissions
+      stated; no tax or legal advice, no warranty, independent-of-Amazon
+      clause on the page. The file never leaves the browser (a test asserts
+      no network calls), so the portfolio holds no seller data. Ethics:
+      purely informational, helps a seller see their own margins.

@@ -1451,3 +1451,6 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
+- workflow: amazon-seller-profit-analyzer-ci.yml
+  classification: none
+  publishes: []

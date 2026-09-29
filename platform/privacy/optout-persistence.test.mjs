@@ -996,7 +996,7 @@ const RELATIVE_SELF = relative(
 // `usage.mjs` under its own storage name. Re-derived by `sync_tree_counts.py`.
 // 379 -> 380: `roth-conversion-bracket-fill-calculator` graduated -- one more
 // boilerplate `usage.mjs` under its own storage name.
-const SWITCHES_IN_THE_CATALOGUE = 381;
+const SWITCHES_IN_THE_CATALOGUE = 382;
 
 let counter = 0;
 function fixture(source) {

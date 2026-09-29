@@ -47196,3 +47196,23 @@ entries:
         rate; volume not measured externally. Registered score row, launch
         date, CI workflow and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: amazon-seller-profit-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built amazon-seller-profit-analyzer, a data-file archetype
+        aimed at a market that already pays for this (Sellerboard, Helium 10
+        Profits): a browser-local tool that reads the Seller Central Transaction
+        CSV (file or paste, header aliases, preamble lines skipped, skipped rows
+        reported with line and reason) and derives profit per SKU with editable
+        unit costs, a fee waterfall that reconciles to the file's total column,
+        ad, subscription, storage and reimbursement buckets, refund admin fee
+        kept (matched by order id), and findings (ad share, loss-makers, thin
+        margins, refund-heavy SKUs, storage share, fee drift, concentration).
+        File never leaves the browser (test asserts no network calls);
+        independent-of-Amazon clause on the page. duplicate_check.py top score
+        0.27. Verified in Chromium. Registered score row, launch date, CI
+        workflow, reciprocal link from amazon-fba-calculator and tree counts;
+        regenerated the mirror.
+    mrr_end: 0
