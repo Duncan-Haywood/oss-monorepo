@@ -1008,7 +1008,9 @@ const RELATIVE_SELF = relative(
 // boilerplate `usage.mjs` under its own storage name.
 // 388 -> 389: `ebay-transaction-report-analyzer` graduated -- one more
 // boilerplate `usage.mjs` under its own storage name.
-const SWITCHES_IN_THE_CATALOGUE = 389;
+// 389 -> 390: `shopify-payments-fee-analyzer` graduated -- one more
+// boilerplate `usage.mjs` under its own storage name.
+const SWITCHES_IN_THE_CATALOGUE = 390;
 
 let counter = 0;
 function fixture(source) {

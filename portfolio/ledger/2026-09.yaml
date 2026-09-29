@@ -47374,3 +47374,24 @@ entries:
         counts and reciprocal link from ebay-fee-calculator; regenerated the
         mirror.
     mrr_end: 0
+  - venture: shopify-payments-fee-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built shopify-payments-fee-analyzer, the third
+        data-file archetype after amazon-seller-profit-analyzer and
+        etsy-statement-profit-analyzer: a browser-local tool that reads the
+        Shopify Payments Transactions export and produces a fee waterfall
+        where every row lands in exactly one bucket (charge, refund, dispute,
+        dispute won, adjustment, reserve, other, payout excluded), effective
+        rate by card brand, card source, payment method and domestic vs
+        international, refund cost (fees not returned, matched by order),
+        dispute and chargeback cost and rate, a foreign-currency premium, a
+        monthly table, editable what-ifs (plan rate, international share) and
+        plain-language findings. The file never leaves the browser (test
+        asserts no network calls); independent-of-Shopify clause on the page.
+        Verified in Chromium. Registered score row, launch date, CI workflow,
+        reciprocal link from shopify-fee-calculator and tree counts;
+        regenerated the mirror.
+    mrr_end: 0
