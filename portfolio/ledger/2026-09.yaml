@@ -48111,11 +48111,31 @@ entries:
         README and VENTURE.yaml. Registered score row, launch date, CI workflow
         and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: late-invoice-collections-kit
   - venture: service-hourly-yield-analyzer
     agent_spend_usd: null
     human_hours: 0
     outcomes:
       - >-
+        Graduated and built late-invoice-collections-kit: a browser-local tool
+        for freelancers and small agencies with an overdue invoice. From amount,
+        due date, client type and state it computes late fee and simple interest
+        today and on later dates (contract rate, or a labelled state statutory
+        reference for 11 fixed-rate states, each marked verify with your state
+        statute and dated 2026-09-29), builds a four-step escalation schedule
+        (reminder, firm notice, final demand, referral) with copy-ready letters
+        carrying the running balance on each send date, an is-it-worth-suing
+        break-even and collections-agency comparison from user-set fee, time and
+        odds, and downloads the plan as .ics reminders and text. Distinct from
+        invoice-aging-late-payer-analyzer (whole receivables export) and
+        invoice-payment-terms-calculator (terms before invoicing), both linked.
+        First visitor expected from searches "late payment fee calculator" and
+        "invoice overdue letter template", and r/freelance and r/smallbusiness
+        threads on chasing a client who went quiet. Nothing is uploaded (a test
+        asserts no network calls); not-legal-advice and independent-of-courts
+        clauses on the page. State rates were written from memory and are
+        unverified, stated on the page and in VENTURE.yaml. Registered score
+        row, launch date, CI workflow and tree counts; regenerated the mirror.
         Graduated and built service-hourly-yield-analyzer: a browser-local tool
         that reads a booking or sales export (Square Appointments, Acuity,
         Vagaro, Fresha, Booksy, Mindbody, Jobber style) and reports revenue per
