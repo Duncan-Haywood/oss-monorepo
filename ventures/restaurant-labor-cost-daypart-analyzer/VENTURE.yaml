@@ -1,0 +1,87 @@
+name: restaurant-labor-cost-daypart-analyzer
+description: >-
+  Free browser tool that reads a restaurant sales-by-hour export and a POS
+  time-entry export (Toast, Square, Clover or 7shifts style), spreads each shift
+  across the clock hours it covers, and reports labor % of sales and sales per
+  labor hour by daypart, weekday and hour, plus an upper-bound estimate of the
+  labor above a target that could be trimmed without going under a minimum
+  crew. Files are read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session
+# (portfolio/pipeline/duplicate_check.py: closest existing venture 0.27, the
+# menu-mix analyzer, which is about item margin not labor). Labor is the
+# largest controllable cost after food for a restaurant, and every POS already
+# exports sales by hour and time entries; lining the two up by hour is a manual
+# spreadsheet job, or a paid labor-management subscription that wants a POS
+# integration. Restaurants have real money and thin margins, and cutting a few
+# labor hours in dead dayparts is the classic quick win -- a tool that helps
+# the owner earn more.
+#
+# First visitor: r/restaurantowners and r/KitchenConfidential threads about
+# labor cost percentage and scheduling, and searches like "labor cost
+# percentage by daypart", "sales per labor hour restaurant" and "restaurant
+# labor cost calculator". Search volume not measured.
+#
+# What makes it more than a total: shifts are allocated to hours by minutes
+# worked, not by the hour they started; overnight shifts and a business-day
+# start hour keep a 1am sale on the right weekday; slots are averaged over how
+# many of that weekday the data holds; the trimmable figure is capped by a
+# minimum crew so it never recommends an empty floor; the two files are checked
+# for covering the same days; shifts using the placeholder default wage, shifts
+# with no cost at all, day-only hours and role exclusions are each flagged
+# rather than silently folded in.
+#
+# Privacy is the liability boundary: neither file leaves the browser (a test
+# asserts no network calls), so the portfolio holds no sales or payroll data and
+# needs no POS credential or API access.
+#
+# Path to revenue (payment rails stay off): lead magnet into the menu tools.
+# A paid tier, if usage appears, is multi-period comparison and a schedule
+# suggestion, local-only, behind an env-var switch; not built. Not built: a
+# Toast/Square/Clover/7shifts API integration, which needs credentials and
+# terms review.
+#
+# Liability: arithmetic on the user's files and typed assumptions, model and
+# omissions stated on the page, no advice, no warranty, independent-of-Toast-
+# Square-Clover-7shifts clause, burden and default wage flagged as
+# placeholders, trimmable stated as an upper-bound screen not a schedule.
+#
+# Unverified: column names are matched by alias and no real Toast, Square,
+# Clover or 7shifts export was available; the first user report of an unread
+# file is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Restaurant owners will drop two POS exports into a no-signup tool to see
+      labor % by daypart rather than line them up in a spreadsheet or pay for a
+      labor-management subscription.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing a dollar figure for the labor above target in named weekday-and-hour
+      slots leads at least one owner to cut a shift, and re-running each month is
+      the reason to return.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a real export the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/restaurant-labor-cost-daypart-analyzer/
+  analytics: null

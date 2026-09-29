@@ -1125,6 +1125,9 @@ workflows:
 - workflow: restaurant-delivery-commission-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: restaurant-labor-cost-daypart-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: restaurant-pos-menu-mix-analyzer-ci.yml
   classification: none
   publishes: []
