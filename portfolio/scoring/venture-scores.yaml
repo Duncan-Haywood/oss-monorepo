@@ -19535,6 +19535,41 @@ ventures:
       calls), so the portfolio holds no merchant or customer data. Ethics:
       purely informational, helps a merchant see what their own discounts
       cost.
+  - slug: mileage-log
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Rates, sums and audit checks are
+      deterministic arithmetic on the user's own trips, never an inference step.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment.
+      duplicate_check.py top score 0.18; the sibling mileage calculator does not
+      keep a log. Distribution 7: "free mileage log", "irs mileage log
+      requirements" and gig-driver threads are recurring queries with a paid
+      market (MileIQ, Everlance, TripLog); volume not measured with an external
+      tool. Defensibility 3: free, private and offline is the wedge against
+      subscription trackers; background tracking is the gap a web page cannot
+      close.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: applies published IRS rates to the user's own trips, states the
+      model and its omissions, and says it is not tax advice; the page tells the
+      user to confirm rates at irs.gov. No location data leaves the browser
+      (test asserts no network calls) and GPS positions are not stored. Ethics:
+      helps a taxpayer keep an honest record; the checks push toward accurate,
+      contemporaneous entries rather than reconstruction.
   - slug: airbnb-earnings-report-analyzer
     scores:
       ai_leverage: 1
