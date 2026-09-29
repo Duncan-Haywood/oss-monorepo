@@ -18923,3 +18923,40 @@ ventures:
       retirement contribution they are already entitled to make; no
       scraped or personal data, nothing adversarial, scales with zero
       externality -- one filer's calculation does not affect another's.
+  - slug: home-office-deduction-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every result is deterministic
+      arithmetic against published IRS rules -- a per-square-foot rate, a
+      Form 8829 limit ordering and a depreciation table -- never an
+      inference step.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring
+      process; full write-up in this venture's own VENTURE.yaml comment.
+      duplicate_check.py scored every venture at or below 0.13. Distribution
+      7: "home office deduction calculator" and "simplified vs regular home
+      office deduction" are evergreen high-intent queries peaking in filing
+      season, for an audience of freelancers and sole proprietors. Search
+      volume not measured with an external tool. Defensibility 2: a
+      published IRS formula applied via arithmetic, trivially replicated.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: scoped to self-employed filers, states exclusive-and-
+      regular-use, the sale-of-home recapture consequence and the tax
+      estimate's simplifications on the page; every input is a figure the
+      filer already has; output compares two published IRS methods, never a
+      filed return. No warranty and no-advice disclaimers on the page.
+      Ethics: purely informational, helps a filer claim a deduction they are
+      entitled to; no scraped or personal data, nothing adversarial.
