@@ -692,6 +692,9 @@ workflows:
 - workflow: home-service-lead-roi-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: invoice-aging-late-payer-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: home-staging-bid-calculator-ci.yml
   classification: none
   publishes: []
