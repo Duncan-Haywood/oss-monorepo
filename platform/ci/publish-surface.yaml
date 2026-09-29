@@ -551,6 +551,9 @@ workflows:
 - workflow: faire-wholesale-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: fba-aged-inventory-fee-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: fba-reimbursement-claim-finder-ci.yml
   classification: none
   publishes: []
