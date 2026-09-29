@@ -47258,3 +47258,27 @@ entries:
         score row, launch date, CI workflow, reciprocal link from
         merchant-feed-check and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: shopify-payout-profit-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built shopify-payout-profit-analyzer, the third
+        data-file archetype after amazon-seller-profit-analyzer and
+        etsy-statement-profit-analyzer: a browser-local tool that reads the
+        Shopify Payments Transactions export (and optionally the Orders
+        export) and produces a fee waterfall where every row lands in exactly
+        one bucket (charges, processing, third-party gateway, refunds,
+        chargebacks, dispute fees, adjustments, other; unrecognised types
+        visible, unreadable rows listed with line and reason), net to bank per
+        order, effective fee rate by card and payment method, profit per
+        product with editable unit costs (order net split across line items
+        after the discount, joined by order name), discount-code cost, and
+        findings (refunds, disputes, adjustments, foreign-currency cards, other
+        gateways, pending payouts). Files never leave the browser (test asserts
+        no network calls); independent-of-Shopify clause on the page. Parser
+        written from Shopify's documented export layouts and tested on
+        synthetic fixtures, not a real shop. duplicate_check.py top score 0.32.
+        Registered score row, launch date, CI workflow, reciprocal link from
+        shopify-fee-calculator and tree counts; regenerated the mirror.
+    mrr_end: 0

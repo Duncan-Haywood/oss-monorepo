@@ -1,0 +1,77 @@
+name: shopify-payout-profit-analyzer
+description: >-
+  Free browser tool that turns a Shopify Payments Transactions CSV (and,
+  optionally, the Orders export CSV) into a fee waterfall, net to bank per
+  order, effective fee rate by card and gateway, profit per product after unit
+  costs, discount-code cost and chargeback and refund findings. The files are
+  read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session, the third data-file
+# archetype after amazon-seller-profit-analyzer and
+# etsy-statement-profit-analyzer. The value is what paid Shopify profit apps
+# (BeProfit, Lifetimely, TrueProfit, Triple Whale-style dashboards) do for a
+# merchant's payouts, minus installing an app with access to the store.
+# shopify-fee-calculator models one typed order before it sells; this derives
+# real fees, dispute cost and per-product profit from the merchant's own
+# exports. duplicate_check.py checked before building (top score 0.32, the
+# sibling analyzers and shopify-fee-calculator).
+#
+# First visitor: Shopify merchants asking r/shopify and the Shopify community
+# why a payout is smaller than sales, what chargebacks really cost, how much
+# discount codes cost, or which product actually earns money. Search phrases
+# "shopify payments transactions report analysis", "shopify payout
+# reconciliation", "shopify profit per product spreadsheet". Volume not
+# measured with an external tool.
+#
+# Privacy is the differentiator and the liability boundary: the files never
+# leave the browser (a test asserts the venture has no network calls), so the
+# portfolio holds no order, buyer or payout data. The page carries an
+# independent-of-Shopify trademark clause and says it is not tax or accounting
+# advice.
+#
+# Column and row-type matching was written from Shopify's documented export
+# layouts and synthetic fixtures, not from a live shop; unrecognised types land
+# in an "other" bucket and unreadable rows are listed with line and reason, so
+# a format drift shows up as a visible bucket rather than a wrong total.
+#
+# Path to revenue (payments stay off): free tool -> lead magnet for a
+# donation-supported open-source repo. If it earns repeat visitors, the
+# natural paid step is multi-month comparison and a discount-code break-even
+# suggestion, still local-only.
+
+hypotheses:
+  - claim: >-
+      Shopify merchants who want profit per product and a payout
+      reconciliation will prefer a no-signup, no-app-install tool that reads
+      their own CSV exports locally over connecting a profit dashboard to
+      their store.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing fees by card type, chargeback cost and discount-code cost as a
+      share of sales, with the per-product effect, changes pricing and promo
+      decisions and is the reason to return after each monthly export.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in file) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure from a real Shopify Payments transactions export, at which point the row classification or column mapping needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/shopify-payout-profit-analyzer/
+  analytics: null

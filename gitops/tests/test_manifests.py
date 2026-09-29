@@ -2777,7 +2777,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # statement CSV analyzer, static `index.html` plus ES modules).
     # 404 -> 405: `google-ads-wasted-spend-analyzer` graduated (browser-local Google Ads
     # search terms report analyzer, static `index.html` plus ES modules).
-    total = 405  # `infra/OWNER_CHECKLIST.md`'s own "N of the 405 tools" wording.
+    # 405 -> 406: `shopify-payout-profit-analyzer` graduated (browser-local Shopify
+    # Payments transactions CSV analyzer, static `index.html` plus ES modules).
+    total = 406  # `infra/OWNER_CHECKLIST.md`'s own "N of the 406 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -1412,6 +1412,9 @@ workflows:
 - workflow: google-ads-wasted-spend-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: shopify-payout-profit-analyzer-ci.yml
+  classification: none
+  publishes: []
 gitops:
 - application: agents
   path: gitops/agents
