@@ -1226,6 +1226,9 @@ workflows:
 - workflow: septic-pumping-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: service-hourly-yield-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: sewer-hydrojet-bid-calculator-ci.yml
   classification: none
   publishes: []
