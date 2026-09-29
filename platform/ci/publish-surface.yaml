@@ -1433,6 +1433,9 @@ workflows:
 - workflow: well-pump-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: whatnot-sales-report-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: whatnot-seller-payout-ci.yml
   classification: none
   publishes: []
