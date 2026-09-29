@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 413 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 414 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -105,6 +105,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free home office deduction calculator for the self-employed: compare the IRS simplified method ($5 per sq ft, max $1,500) with the regular Form 8829 method, including the gross income limit, depreciation and carryover. Runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Meta Ads Fatigue Analyzer — Free Ads Manager CSV Tool</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/meta-ads-fatigue-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/meta-ads-fatigue-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free Meta Ads fatigue analyzer: drop in your Ads Manager ad-level CSV and see cost per result, ROAS and CTR per ad, which creatives show fatigue signals, how much spend produced no results, and which ads beat the account median. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Mileage Deduction Method Calculator — 2026, Free</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free calculator for the 2026 HSA contribution limit — self-only $4,400 or family $8,750, the $1,000 age-55 catch-up, HDHP qualification bounds, monthly proration for partial-year eligibility, and the last-month rule&#39;s testing-period tradeoff. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>MRR Waterfall Calculator — Net &amp; Gross Revenue Retention</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mrr-waterfall-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/mrr-waterfall-calculator</id>
-    <published>2026-09-25T00:00:00Z</published>
-    <updated>2026-09-25T00:00:00Z</updated>
-    <category term="More free tools"/>
-    <summary type="text">Break starting MRR into new, expansion, reactivation, contraction, and churned MRR, then get ending MRR, gross and net revenue retention, and your growth-to-loss quick ratio. Runs entirely in your browser.</summary>
   </entry>
 </feed>

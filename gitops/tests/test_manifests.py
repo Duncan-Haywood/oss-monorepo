@@ -2787,7 +2787,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # Payments transactions fee-rate analyzer, static `index.html` plus ES modules).
     # 412 -> 413: `upwork-earnings-fee-analyzer` graduated (browser-local Upwork
     # transaction history fee analyzer, static `index.html` plus ES modules).
-    total = 413  # `infra/OWNER_CHECKLIST.md`'s own "N of the 413 tools" wording.
+    # 413 -> 414: `meta-ads-fatigue-analyzer` graduated (browser-local Meta Ads Manager
+    # export analyzer, static `index.html` plus ES modules).
+    total = 414  # `infra/OWNER_CHECKLIST.md`'s own "N of the 414 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -1,0 +1,80 @@
+name: meta-ads-fatigue-analyzer
+description: >-
+  Free browser tool that turns a Meta (Facebook and Instagram) Ads Manager ad-level
+  CSV export into per-ad cost per result, ROAS and CTR, creative-fatigue flags
+  (high frequency with weak CTR or cost per result against the account median),
+  spend with no results graded by evidence, and scale candidates. The file is read
+  locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Paid social is a large paid
+# category (Motion, Triple Whale, Madgicx, Northbeam, Revealbot, plus agencies
+# selling creative audits) and every one of them wants ad-account access first.
+# The buyer, a small DTC brand or a freelance paid-social manager spending real
+# money per day, already has the file: Ads Manager -> Export table data. This is
+# the free diagnostic that answers "which creatives are worn out and how much spend
+# got nothing" before any tool is connected. duplicate_check.py top score 0.19
+# (no venture analyses Meta ad data; google-ads-wasted-spend-analyzer is the
+# search-terms sibling and is linked both ways).
+#
+# First visitor: DTC operators and freelance media buyers on r/FacebookAds,
+# r/PPC and agency Slack communities asking "how do I know when a creative is
+# fatigued", "what frequency is too high"; search phrases "facebook ads creative
+# fatigue", "meta ads frequency too high", "facebook ads wasted spend calculator".
+# Volume not measured with an external tool.
+#
+# What makes it more than a pivot table: fatigue is judged against the account's
+# own medians instead of a fixed benchmark, needs a high frequency AND a weak
+# signal (a high frequency alone is not flagged), and the no-result spend is
+# graded by the account's own click-to-result rate, so an ad with 4 clicks and no
+# purchase is not called waste and one with 90 is. Both are tested.
+#
+# Privacy is the differentiator and the liability boundary: the file never leaves
+# the browser (a test asserts the page has no network calls), so the portfolio
+# holds no advertiser data and needs no Meta Marketing API access or app review.
+#
+# Path to revenue (payment rails stay off): lead magnet. The paid version, if
+# usage appears, is a recurring creative-health diff between exports and a
+# Marketing API connected version behind an env-var switch; neither is built.
+#
+# Liability: arithmetic on the user's file, stated model and omissions on the page,
+# no advice, no warranty, independent-of-Meta clause.
+#
+# Unverified: the column names are from memory of Ads Manager's export and matched
+# tolerantly (aliases, currency suffix, day-first dates, UTF-16); no real export
+# was available, so the first user report of an unread file is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Small advertisers and freelance paid-social managers will run a no-signup,
+      no-account-access analysis of a downloaded Ads Manager export before
+      connecting a creative-analytics tool to their Meta ad account.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A fatigue flag judged against the account's own medians, with an
+      evidence-graded no-result figure, is trusted more than a fixed frequency
+      benchmark, which is the reason to come back after each export.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a fatigue or scale flag that contradicts a real export, at which point the model needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/meta-ads-fatigue-analyzer/
+  analytics: null

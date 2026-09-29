@@ -1012,7 +1012,9 @@ const RELATIVE_SELF = relative(
 // boilerplate `usage.mjs` under its own storage name.
 // 390 -> 391: `gig-driver-earnings-report-analyzer` graduated -- one more
 // boilerplate `usage.mjs` under its own storage name.
-const SWITCHES_IN_THE_CATALOGUE = 392;
+// 392 -> 393: `meta-ads-fatigue-analyzer` graduated -- one more boilerplate
+// `usage.mjs` under its own storage name.
+const SWITCHES_IN_THE_CATALOGUE = 393;
 
 let counter = 0;
 function fixture(source) {
