@@ -2812,8 +2812,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `ghost-members-export-analyzer` graduated.
     # +1: `restaurant-pos-menu-mix-analyzer` graduated (browser-local POS export analyzer).
     # +1: `rental-property-schedule-e-categorizer` graduated (browser-local bank CSV to Schedule E lines).
+    # +1: `property-tax-appeal-calculator` graduated (browser-local property tax appeal comps and equity check).
     # +1: `freelancer-schedule-c-categorizer` graduated (browser-local bank CSV to Schedule C lines).
-    total = 443  # `infra/OWNER_CHECKLIST.md`'s own "N of the 443 tools" wording.
+    total = 444  # `infra/OWNER_CHECKLIST.md`'s own "N of the 444 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -1051,6 +1051,9 @@ workflows:
 - workflow: propane-delivery-route-margin-ci.yml
   classification: none
   publishes: []
+- workflow: property-tax-appeal-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: proposal-module-ci.yml
   classification: none
   publishes: []

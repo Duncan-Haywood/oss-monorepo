@@ -48020,6 +48020,25 @@ entries:
         README and VENTURE.yaml. Registered score row, launch date, CI workflow
         and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: property-tax-appeal-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built property-tax-appeal-calculator: a browser-local tool
+        that adjusts comparable home sales to the subject (time drift, size,
+        rooms, lot, age) at user-set rates, flags weak comps, weights by
+        adjustment size, compares the indicated value with the market value the
+        assessment implies (assessment ratio honoured), runs a separate equity
+        test on assessed $/sq ft, and turns the gap into tax saved per year, net
+        after filing costs, break-even win probability and what a contingency
+        appeal firm would keep. New niche outside the CSV-analyzer run:
+        homeowners and small landlords, spring notice season. Nothing is
+        uploaded (a test asserts no network calls); no-warranty, not-an-appraisal
+        and independent-of-assessors clauses on the page; default rates stated as
+        rules of thumb. 33 tests. Registered score row, launch date, CI workflow
+        and tree counts; regenerated the mirror.
+    mrr_end: 0
   - venture: freelancer-schedule-c-categorizer
     agent_spend_usd: null
     human_hours: 0

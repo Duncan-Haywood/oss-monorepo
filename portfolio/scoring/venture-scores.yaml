@@ -20784,6 +20784,41 @@ ventures:
       depreciation not modelled. Nothing is uploaded and no bank credential is
       requested. Ethics: helps an owner report their own rental income and
       expenses accurately.
+  - slug: property-tax-appeal-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on values the owner types in.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Property tax is
+      a large recurring bill, boards accept comparable-sales and equity
+      evidence, and the paid alternatives are contingency firms keeping a share
+      of the saving. Distribution 7: "property tax appeal" and "is my
+      assessment too high" are seasonal, high-intent searches every spring when
+      notices land; volume not measured with an external tool. Defensibility 3:
+      the arithmetic is easy to copy; the edge is the break-even and
+      contingency-firm comparison, the equity test and being free with no data
+      entered anywhere.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed figures with model and omissions
+      stated; rates are the user's and labelled rules of thumb; no appraisal,
+      no tax or legal advice, no forecast of a board ruling, no warranty,
+      independent-of-assessors clause. Ethics: helps an owner contest an
+      assessment they believe is wrong through the public process.
   - slug: freelancer-schedule-c-categorizer
     scores:
       ai_leverage: 1
