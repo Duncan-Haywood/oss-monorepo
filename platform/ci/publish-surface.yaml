@@ -1049,6 +1049,12 @@ workflows:
 - workflow: photos-import-tools-ci.yml
   classification: none
   publishes: []
+- workflow: physician-wrvu-compensation-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: physician-wrvu-contract-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: pinned-actions-check-ci.yml
   classification: none
   publishes: []
@@ -1676,7 +1682,7 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
-- workflow: physician-wrvu-contract-calculator-ci.yml
+- workflow: dental-associate-pay-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: veterinarian-associate-pay-calculator-ci.yml

@@ -22027,6 +22027,76 @@ ventures:
       benchmark asserted, contract attorney recommended, omissions stated.
       Offers never leave the browser. Ethics: helps a physician check a large
       contract; nothing is sold and no referral is made.
+  - slug: physician-wrvu-compensation-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Employed
+      physicians and APPs sign multi-year wRVU contracts whose headline base
+      hides the threshold, conversion factor, shortfall repayment and
+      clawback; the tool shows break-even wRVUs and exposure privately before
+      a paid contract review. Distribution 7: "wRVU conversion factor
+      calculator" and "physician contract wRVU break even" are recurring
+      queries and contract-review threads in r/Residency and
+      r/physicianassistant; volume not measured with an external tool.
+      Defensibility 3: the arithmetic is public; the edge is a private,
+      no-signup, contract-shaped comparison with no benchmark data to go stale.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimate from the visitor's own numbers, cannot
+      read the contract, not legal or financial advice, no warranty, no
+      compensation-survey figures shipped or invented. Offer terms never leave
+      the browser. Ethics: helps a clinician understand a contract before
+      signing; nothing is sold and no recruiter or law-firm referral is made.
+  - slug: dental-associate-pay-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Associate
+      dentists compare percentage-plus-guarantee offers from a headline
+      percentage; the tool shows the effective percentage after lab fees and
+      collections, the guarantee breakeven and the crossover against another
+      offer. Distribution 6: "dental associate pay calculator" and
+      contract-review threads are recurring queries; volume not measured with
+      an external tool. Defensibility 3: the arithmetic is simple; the edge is a
+      private, no-signup answer with no benchmark claims.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimates not advice, no warranty, independence
+      from practices, DSOs and recruiters stated, no market percentage or
+      benchmark asserted, contract attorney recommended, omissions stated.
+      Offers never leave the browser. Ethics: helps an associate dentist check a large
+      contract; nothing is sold and no referral is made.
   - slug: veterinarian-associate-pay-calculator
     scores:
       ai_leverage: 1
