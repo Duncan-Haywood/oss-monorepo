@@ -425,6 +425,9 @@ workflows:
 - workflow: demand-signal-reachability-ci.yml
   classification: none
   publishes: []
+- workflow: dental-associate-pay-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: dental-ppo-writeoff-calculator-ci.yml
   classification: none
   publishes: []
@@ -1271,6 +1274,9 @@ workflows:
 - workflow: section-174a-catchup-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: section-83b-election-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: security-camera-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -1538,6 +1544,9 @@ workflows:
 - workflow: upwork-earnings-fee-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: van-westendorp-pricing-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: vector-db-cost-calculator-ci.yml
   classification: none
   publishes: []
@@ -1557,6 +1566,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: vendor-watch-ci.yml
+  classification: none
+  publishes: []
+- workflow: veterinarian-associate-pay-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: vinyl-liner-bid-calculator-ci.yml
@@ -1682,12 +1694,3 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
-- workflow: dental-associate-pay-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: veterinarian-associate-pay-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: section-83b-election-calculator-ci.yml
-  classification: none
-  publishes: []

@@ -1,0 +1,55 @@
+name: van-westendorp-pricing-analyzer
+description: >-
+  Free browser tool for founders, product managers and pricing consultants:
+  paste four-question price survey answers (too cheap, cheap, expensive, too
+  expensive) and get the Van Westendorp acceptable price range, optimal price
+  point and indifference price, a chart of the four curves, and bootstrap
+  confidence bands. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "Van Westendorp price sensitivity meter survey analyzer for SaaS pricing":
+# top match 0.16 (saas-annual-plan-discount-calculator, unrelated). The
+# existing pricing ventures are cost-plus bid and discount calculators; none
+# analyses survey data. Buyers have money and a recurring problem: every
+# product launch and price change needs a defensible range, and the paid
+# alternatives are survey platforms and pricing consultants.
+#
+# First visitor: r/SaaS, r/startups, r/ProductManagement and Indie Hackers
+# threads on "how do I price my product", searches "van westendorp calculator"
+# and "price sensitivity meter"; volume not measured with an external tool.
+#
+# Privacy is the liability boundary: survey responses never leave the browser
+# (tests assert no network calls). No survey vendor is named.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: analysis of stated opinions, not advice; the page says it does not
+# predict demand or revenue. Unverified: hand calculation and unit tests only.
+
+hypotheses:
+  - claim: >-
+      Founders and product managers running a price survey will use a no-signup
+      tool that turns pasted responses into the four price points and a
+      confidence band, and will return for each new survey.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a price point contradicts their own hand calculation on the same responses.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/van-westendorp-pricing-analyzer/
+  analytics: null
