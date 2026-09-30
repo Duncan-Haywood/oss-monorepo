@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cost Segregation Calculator — Is a Study Worth the Fee? Free</title>
+  <meta name="description" content="Free cost segregation study calculator for rental and commercial property owners. Estimates first-year extra depreciation, tax saved at your bracket, fee payback, the recapture bill on sale and a present-value net. Illustrative; an engineer and your CPA decide. Nothing uploaded.">
+  <meta property="og:title" content="Cost Segregation Calculator — free, private">
+  <meta property="og:description" content="See what a cost segregation study could save in year one, what the fee and recapture take back, and the net. Runs in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Cost Segregation Study Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Estimates the first-year extra depreciation, tax saved, study fee payback and extra recapture tax from a cost segregation study on a rental or commercial property, using stated assumptions. Illustrative only. Runs in your browser.", "featureList": "first-year deduction with and without a study, tax saved at your bracket, fee payback, recapture on sale, present value, year-by-year table"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a cost segregation study?", "acceptedAnswer": {"@type": "Answer", "text": "It is an engineering-based analysis that splits a building's cost into components with shorter tax lives, such as 5-year personal property and 15-year land improvements, instead of depreciating everything over 27.5 or 39 years. The shorter lives move deductions into the early years. It changes when you deduct, not the total you can deduct."}}, {"@type": "Question", "name": "How much can a cost segregation study save?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the property, but studies commonly reclassify roughly 15% to 35% of the depreciable basis. With 100% bonus depreciation, that reclassified amount can be deducted in year one. This tool shows the first-year deduction and tax saved at your bracket, then nets off the study fee and the extra tax on sale."}}, {"@type": "Question", "name": "Is bonus depreciation still 100% in 2026?", "acceptedAnswer": {"@type": "Answer", "text": "Under the 2025 tax law, 100% bonus depreciation was restored for qualifying property acquired after 19 January 2025. Older acquisitions used the phase-down rates of 40% to 80%. You can change the bonus rate in this tool, and your CPA should confirm which applies to your property."}}, {"@type": "Question", "name": "What is the catch with cost segregation?", "acceptedAnswer": {"@type": "Answer", "text": "Depreciation recapture. When you sell, depreciation taken on reclassified property is generally taxed at ordinary rates rather than the lower rate for building depreciation. A 1031 exchange, or holding the property, can defer that. This tool shows the extra recapture charge so the net figure is honest."}}, {"@type": "Question", "name": "Can I use the losses against my other income?", "acceptedAnswer": {"@type": "Answer", "text": "Not automatically. Rental losses are usually passive and limited unless you qualify as a real estate professional, meet the short-term rental rules, or have passive income to absorb them. Set the share you can use now and the tool carries the rest until a taxable sale."}}, {"@type": "Question", "name": "Is this tax advice or an engineering study?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is an illustrative estimate from stated assumptions and typical reclassification ranges. A real study is prepared by a qualified engineer or cost segregation firm and your CPA decides what to claim."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">COST SEGREGATION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is a cost segregation study worth the fee?</h1>
+    <p>For owners of rental and commercial property: the <strong>extra depreciation</strong> a study could pull into
+    year one, the tax that saves at your bracket, what the study fee and the recapture on a sale take back, and the
+    net in today's dollars.</p>
+    <p class="note"><strong>Estimate only, not tax advice.</strong> A real study is prepared by a qualified engineer or
+    cost segregation firm and your CPA decides what to claim. Nothing you type leaves this browser.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The property</h2>
+    <div class="grid">
+      <div>
+        <label for="price">Purchase or construction cost ($)</label>
+        <input type="number" id="price" step="any" placeholder="e.g. 1500000" min="0">
+      </div>
+      <div>
+        <label for="land-share">Land share of the price (%)</label>
+        <input type="number" id="land-share" step="any" placeholder="20" min="0" max="95">
+      </div>
+      <div>
+        <label for="property-type">Property type</label>
+        <select id="property-type">
+          <option value="single-family">Single-family rental</option>
+          <option value="multifamily">Multifamily (5+ units)</option>
+          <option value="short-term-rental">Short-term rental (furnished)</option>
+          <option value="office">Office</option>
+          <option value="retail">Retail / restaurant</option>
+          <option value="industrial">Industrial / self-storage</option>
+        </select>
+      </div>
+      <div>
+        <label for="month">Month placed in service</label>
+        <select id="month">
+          <option value="1">January</option>
+          <option value="2">February</option>
+          <option value="3">March</option>
+          <option value="4">April</option>
+          <option value="5">May</option>
+          <option value="6">June</option>
+          <option value="7">July</option>
+          <option value="8">August</option>
+          <option value="9">September</option>
+          <option value="10">October</option>
+          <option value="11">November</option>
+          <option value="12">December</option>
+        </select>
+      </div>
+      <div>
+        <label for="five-share">Reclassified to 5-year property (% of building)</label>
+        <input type="number" id="five-share" step="any" placeholder="uses the type's typical range" min="0" max="90">
+      </div>
+      <div>
+        <label for="fifteen-share">Reclassified to 15-year land improvements (%)</label>
+        <input type="number" id="fifteen-share" step="any" placeholder="uses the type's typical range" min="0" max="90">
+      </div>
+    </div>
+    <p class="note">The reclassification shares are typical published ranges, not a finding about your building. Leave them blank for the type's default, or enter the figures from a preliminary estimate.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Tax and fee</h2>
+    <div class="grid">
+      <div>
+        <label for="bracket">Combined marginal tax rate (%)</label>
+        <input type="number" id="bracket" step="any" placeholder="35" min="0" max="60">
+      </div>
+      <div>
+        <label for="bonus">Bonus depreciation rate (%)</label>
+        <input type="number" id="bonus" step="any" placeholder="100" min="0" max="100">
+      </div>
+      <div>
+        <label for="fee">Study fee ($)</label>
+        <input type="number" id="fee" step="any" placeholder="e.g. 6000" min="0">
+      </div>
+      <div>
+        <label for="usable">Share of the extra deduction you can use now (%)</label>
+        <input type="number" id="usable" step="any" placeholder="100" min="0" max="100">
+      </div>
+      <div>
+        <label for="hold-years">Years you expect to hold</label>
+        <input type="number" id="hold-years" step="any" placeholder="10" min="1" max="40">
+      </div>
+      <div>
+        <label for="discount">Discount rate for today's dollars (%)</label>
+        <input type="number" id="discount" step="any" placeholder="5" min="0" max="25">
+      </div>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="defer">
+      <label for="defer">I expect to defer recapture (1031 exchange, or hold for life)</label>
+    </div>
+    <p class="note">Assumptions: 27.5-year (residential) or 39-year (nonresidential) straight line with mid-month convention; 5 and 15-year MACRS half-year tables for what bonus does not cover; recapture taxed at your rate on reclassified property and at up to 25% on the building. Confirm each against current IRS rules and your own return.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Estimate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter the purchase price, then click Estimate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result (illustrative)</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+    <h3>Year by year</h3>
+    <div class="scroll"><table><thead><tr><th>Year</th><th>Straight line</th><th>With study</th><th>Extra deduction</th><th>Tax saved</th><th>Cumulative saved</th></tr></thead><tbody id="year-table"></tbody></table></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not an engineering study.</strong> The reclassified shares are typical ranges. A real study inspects the property and can find far more or far less.</li>
+      <li><strong>Passive loss and at-risk rules.</strong> Whether the loss offsets other income depends on your status; the box above is your assumption, not a determination.</li>
+      <li><strong>Recapture is simplified.</strong> Actual character depends on property class and how you dispose of it; the tool is deliberately conservative.</li>
+      <li><strong>State tax, AMT, section 179, mid-quarter convention, look-back (Form 3115) and net investment income tax</strong> are not modelled.</li>
+      <li><strong>Point-in-time assumptions.</strong> Bonus rates and rules change by law and by acquisition date.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a cost segregation study?</h3>
+    <p>It is an engineering-based analysis that splits a building's cost into components with shorter tax lives, such as 5-year personal property and 15-year land improvements, instead of depreciating everything over 27.5 or 39 years. The shorter lives move deductions into the early years. It changes when you deduct, not the total you can deduct.</p>
+    <h3>How much can a cost segregation study save?</h3>
+    <p>It depends on the property, but studies commonly reclassify roughly 15% to 35% of the depreciable basis. With 100% bonus depreciation, that reclassified amount can be deducted in year one. This tool shows the first-year deduction and tax saved at your bracket, then nets off the study fee and the extra tax on sale.</p>
+    <h3>Is bonus depreciation still 100% in 2026?</h3>
+    <p>Under the 2025 tax law, 100% bonus depreciation was restored for qualifying property acquired after 19 January 2025. Older acquisitions used the phase-down rates of 40% to 80%. You can change the bonus rate in this tool, and your CPA should confirm which applies to your property.</p>
+    <h3>What is the catch with cost segregation?</h3>
+    <p>Depreciation recapture. When you sell, depreciation taken on reclassified property is generally taxed at ordinary rates rather than the lower rate for building depreciation. A 1031 exchange, or holding the property, can defer that. This tool shows the extra recapture charge so the net figure is honest.</p>
+    <h3>Can I use the losses against my other income?</h3>
+    <p>Not automatically. Rental losses are usually passive and limited unless you qualify as a real estate professional, meet the short-term rental rules, or have passive income to absorb them. Set the share you can use now and the tool carries the rest until a taxable sale.</p>
+    <h3>Is this tax advice or an engineering study?</h3>
+    <p>No. It is an illustrative estimate from stated assumptions and typical reclassification ranges. A real study is prepared by a qualified engineer or cost segregation firm and your CPA decides what to claim.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace an engineer, a cost segregation firm or a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own tax position before claiming any deduction. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>study_estimated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: the <a href="../bonus-depreciation-calculator/">bonus depreciation calculator</a>, the <a href="../depreciation-recapture-calculator/">depreciation recapture calculator</a>, the <a href="../like-kind-exchange-1031-calculator/">1031 exchange calculator</a> and the <a href="../str-tax-loophole-calculator/">short-term rental tax loophole calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { costSegEstimate, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const ids = { price: "price", landShare: "land-share", propertyType: "property-type", month: "month", fiveShare: "five-share", fifteenShare: "fifteen-share", bracket: "bracket", bonus: "bonus", fee: "fee", usable: "usable", holdYears: "hold-years", discount: "discount" };
+    const els = {};
+    for (const [key, id] of Object.entries(ids)) els[key] = document.getElementById(id);
+    const defer = document.getElementById("defer");
+    const status = $("#form-status"), report = $("#report"), stats = $("#report-stats");
+    const resultTable = $("#result-table"), findings = $("#report-findings"), yearTable = $("#year-table");
+    const pct = (el, fallback) => (el.value === "" ? fallback : Number(el.value) / 100);
+    const optional = (el) => (el.value === "" ? undefined : Number(el.value) / 100);
+
+    function renderFindings(container, list) {
+      container.innerHTML = list.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runEstimate() {
+      const r = costSegEstimate({
+        price: Number(els.price.value) || 0,
+        landShare: pct(els.landShare, 0.2),
+        propertyType: els.propertyType.value,
+        month: Number(els.month.value) || 1,
+        fiveShare: optional(els.fiveShare),
+        fifteenShare: optional(els.fifteenShare),
+        bracket: pct(els.bracket, 0.35),
+        bonus: pct(els.bonus, 1),
+        fee: Number(els.fee.value) || 0,
+        usableShare: pct(els.usable, 1),
+        holdYears: Number(els.holdYears.value) || 10,
+        discount: pct(els.discount, 0.05),
+        deferRecapture: defer.checked,
+      });
+      stats.innerHTML = `A study on this ${r.propertyLabel.toLowerCase()} could add about <strong>${money(r.year1Extra)}</strong> of first-year deduction, saving about <strong>${money(r.year1Saved)}</strong> in tax that year at a ${(r.bracket * 100).toFixed(0)}% rate. Net over ${r.hold} years, after the fee and recapture: <strong>${money(r.netUndiscounted)}</strong> (${money(r.netPV)} in today's dollars).`;
+      resultTable.innerHTML = [
+        `<tr><th scope="row">Depreciable basis</th><td>${money(r.basis)} (${r.life}-year property)</td></tr>`,
+        `<tr><th scope="row">Reclassified: 5-year / 15-year</th><td>${money(r.five)} / ${money(r.fifteen)}</td></tr>`,
+        `<tr><th scope="row">Year-one deduction, straight line</th><td>${money(r.year1Baseline)}</td></tr>`,
+        `<tr><th scope="row">Year-one deduction, with a study</th><td>${money(r.year1CostSeg)}</td></tr>`,
+        `<tr><th scope="row"><strong>Year-one tax saved</strong></th><td><strong>${money(r.year1Saved)}</strong></td></tr>`,
+        `<tr><th scope="row">Tax saved over ${r.hold} years</th><td>${money(r.cumTaxSaved)}${r.releasedAtSale ? ` plus ${money(r.releasedAtSale)} released at sale` : ""}</td></tr>`,
+        `<tr><th scope="row">Study fee</th><td>${money(r.fee)}${r.paybackYear && r.fee ? ` (paid back in year ${r.paybackYear})` : ""}</td></tr>`,
+        `<tr><th scope="row">Extra tax on sale (recapture)</th><td>${money(r.extraRecapture)}</td></tr>`,
+        `<tr><th scope="row"><strong>Net after fee and recapture</strong></th><td><strong>${money(r.netUndiscounted)}</strong> (${money(r.netPV)} in today's dollars)</td></tr>`,
+      ].join("");
+      yearTable.innerHTML = r.rows.map((row) => `<tr><td>${row.year}</td><td>${money(row.baseline)}</td><td>${money(row.costSeg)}</td><td>${money(row.extra)}</td><td>${money(row.taxSaved)}</td><td>${money(row.cumTaxSaved)}</td></tr>`).join("");
+      renderFindings(findings, r.findings);
+      report.hidden = false;
+      status.textContent = "";
+      record("study_estimated");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runEstimate);
+
+    $("#load-example").addEventListener("click", () => {
+      const example = { price: "1500000", landShare: "20", propertyType: "multifamily", month: "3", fiveShare: "", fifteenShare: "", bracket: "37", bonus: "100", fee: "8000", usable: "100", holdYears: "10", discount: "5" };
+      for (const [key, value] of Object.entries(example)) els[key].value = value;
+      defer.checked = false;
+      runEstimate();
+      record("example_loaded");
+      status.textContent = "Worked example: a $1.5M multifamily building, 20% land, 37% bracket, $8,000 study, ten-year hold.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      for (const el of Object.values(els)) if (el.tagName === "INPUT") el.value = "";
+      defer.checked = false;
+      report.hidden = true;
+      status.textContent = "Enter the purchase price, then click Estimate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

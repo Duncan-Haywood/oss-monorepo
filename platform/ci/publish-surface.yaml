@@ -377,6 +377,9 @@ workflows:
 - workflow: cors-misconfig-check-ci.yml
   classification: none
   publishes: []
+- workflow: cost-segregation-study-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: countertop-bid-calculator-ci.yml
   classification: none
   publishes: []
