@@ -1119,7 +1119,8 @@ const RELATIVE_SELF = relative(
 // +1: `quote-follow-up-timing` graduated.
 // +1: `rental-rent-optimizer` graduated.
 // +1: `mechanics-lien-deadline-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 502;
+// +1: `route-account-pruner` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 503;
 
 let counter = 0;
 function fixture(source) {
