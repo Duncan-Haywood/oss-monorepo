@@ -1104,6 +1104,7 @@ const RELATIVE_SELF = relative(
 // +1: `clearance-markdown-planner` graduated.
 // +1: `price-elasticity-estimator` graduated.
 // +1: `bid-win-rate-optimizer` graduated.
+// +1: `rental-rent-optimizer` graduated.
 // +1: `liquidation-pallet-bid-calculator` graduated.
 // +1: `ad-incrementality-test-analyzer` graduated.
 // +1: `seasonal-buy-quantity-optimizer` graduated.
@@ -1111,7 +1112,7 @@ const RELATIVE_SELF = relative(
 // +1: `shift-cover-optimizer` graduated.
 // +1: `client-rebooking-predictor` graduated.
 // +1: `crew-dispatch-optimizer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 494;
+const SWITCHES_IN_THE_CATALOGUE = 495;
 
 let counter = 0;
 function fixture(source) {

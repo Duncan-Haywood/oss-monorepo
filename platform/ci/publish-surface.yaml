@@ -1263,6 +1263,9 @@ workflows:
 - workflow: rental-property-schedule-e-categorizer-ci.yml
   classification: none
   publishes: []
+- workflow: rental-rent-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: repository-branch-hygiene-ci.yml
   classification: none
   publishes: []

@@ -23295,3 +23295,44 @@ ventures:
       stated. Customer locations never leave the browser. Ethics: helps a small
       operator cut drive time and see what a missing crew costs; nothing is sold, no
       customer data is collected and no referral is made.
+  - slug: rental-rent-optimizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical learning (a censored exponential survival fit by Newton-Raphson
+      with a shrinkage prior, and a seeded bootstrap, run in the browser) but no
+      language model and no paid API; the days-to-lease curve, its ranges and the
+      refusal to read a slope out of rents that never varied are the product, not
+      an add-on.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Small landlords
+      paste asking rent, days on market and leased or still vacant, plus market
+      rent and their vacancy and turnover costs, and get the asking rent with the
+      highest expected net income, a profit curve with a bootstrap range, the cost
+      of asking 5% too high and a hold-out back-test. Distribution 6: "what rent
+      should I ask" and "what does a vacancy cost" are recurring small-landlord
+      queries and landlord forums are active (volume not measured with an
+      external tool). Defensibility 4: survival regression is standard and a
+      spreadsheet can average days on market; the edge is the private no-upload
+      workflow, censoring handled correctly, shrinkage for short histories and the
+      plain refusal when rents never varied.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical estimate of supplied data, not legal, financial or
+      fair-housing advice, no warranty, rent control and local caps stated as not
+      modelled, independence from vendors stated and an unidentified verdict when
+      the data cannot support a slope. Listings never leave the browser. Ethics:
+      helps a small landlord see what their own rent choices cost in vacancy; no
+      tenant data is collected and nothing is sold.
