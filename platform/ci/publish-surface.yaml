@@ -197,6 +197,9 @@ workflows:
 - workflow: automatic-driveway-gate-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: aws-commitment-breakeven-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: backdoor-roth-pro-rata-calculator-ci.yml
   classification: none
   publishes: []
@@ -414,6 +417,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: custom-farm-rate-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: customer-lifetime-value-predictor-ci.yml
   classification: none
   publishes: []
 - workflow: cut-list-optimizer-ci.yml
@@ -788,10 +794,10 @@ workflows:
 - workflow: influencer-media-kit-generator-ci.yml
   classification: none
   publishes: []
-- workflow: interior-door-bid-calculator-ci.yml
+- workflow: insurance-agency-book-valuation-calculator-ci.yml
   classification: none
   publishes: []
-- workflow: insurance-agency-book-valuation-calculator-ci.yml
+- workflow: interior-door-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: invoice-aging-late-payer-analyzer-ci.yml
@@ -1457,10 +1463,10 @@ workflows:
 - workflow: standby-generator-bid-calculator-ci.yml
   classification: none
   publishes: []
-- workflow: startup-option-value-calculator-ci.yml
+- workflow: startup-exit-waterfall-calculator-ci.yml
   classification: none
   publishes: []
-- workflow: startup-exit-waterfall-calculator-ci.yml
+- workflow: startup-option-value-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: stockx-seller-payout-calculator-ci.yml
@@ -1739,6 +1745,3 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
-- workflow: aws-commitment-breakeven-calculator-ci.yml
-  classification: none
-  publishes: []

@@ -22659,3 +22659,105 @@ ventures:
       warranty, independence from lenders stated, omissions and unverified
       status stated. Figures never leave the browser. Ethics: helps an investor
       price their own deal; nothing is sold and no referral is made.
+  - slug: customer-lifetime-value-predictor
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.667
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical machine learning (maximum-likelihood BG/NBD and Gamma-Gamma
+      models fitted in the browser) but no language model and no paid API; the
+      fitting is the product, not an add-on.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Owners and
+      analysts of repeat-purchase online shops upload an order export and get a
+      predicted lifetime value per customer, probability of still being active,
+      at-risk big spenders, the value of a new customer and a back-test.
+      Distribution 6: "customer lifetime value calculator" and "CLV
+      prediction" are recurring queries and the tool is reachable from
+      e-commerce communities (volume not measured with an external tool).
+      Defensibility 5: the models are published; the edge is the private,
+      no-upload workflow and the visible back-test, and a hosted refresh or
+      API would be a later moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical forecast of supplied data, not advice, no
+      warranty, independence from platforms stated, limits stated. Customer
+      emails in the file never leave the browser. Ethics: helps a shop keep
+      customers it would otherwise lose and pay a sane price to acquire new
+      ones; nothing is sold and no referral is made.
+  - slug: merchant-cash-advance-true-cost-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on the terms the visitor enters.
+    basis: >-
+      Screened 2026-09-30; full write-up in this venture's own VENTURE.yaml
+      comment. Small-business owners with a merchant cash advance or factoring
+      quote convert it to an annualised cost, early-payoff cost and a bank-loan
+      comparison. Distribution 7: "merchant cash advance calculator" and
+      "factor rate to APR" are high-intent recurring queries (volume not
+      measured with an external tool). Defensibility 3: the arithmetic is
+      public; the edge is no lender ties, no referral fee and no signup.
+      Row added by a later session after the venture merged without one.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on entered terms, not advice or a recommendation,
+      no lender named or ranked, omissions stated. Figures never leave the
+      browser. Ethics: helps an owner see the real cost of a quote; nothing is
+      sold and no referral fee is taken.
+  - slug: aws-commitment-breakeven-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on the usage and discounts the visitor enters.
+    basis: >-
+      Screened 2026-09-30; full write-up in this venture's own VENTURE.yaml
+      comment. Engineers and FinOps practitioners paste usage and discount
+      options and get the commitment level that saves most, break-even
+      utilization, upfront payback and a downside stress test. Distribution 6:
+      "savings plan vs reserved instance calculator" is a recurring query
+      (volume not measured with an external tool). Defensibility 3: the
+      arithmetic is public; the edge is modelling the visitor's own usage
+      curve with no signup. Row added by a later session after the venture
+      merged without one.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on entered figures, not financial advice, no
+      warranty, no cloud vendor endorsed, omissions stated. Usage data never
+      leaves the browser. Ethics: helps a team avoid over-committing; nothing
+      is sold and no referral is made.
