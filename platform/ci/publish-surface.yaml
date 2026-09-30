@@ -359,6 +359,9 @@ workflows:
 - workflow: clearance-markdown-planner-ci.yml
   classification: none
   publishes: []
+- workflow: client-rebooking-predictor-ci.yml
+  classification: none
+  publishes: []
 - workflow: client-profitability-time-analyzer-ci.yml
   classification: none
   publishes: []
@@ -1395,6 +1398,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: shed-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: route-stop-optimizer-ci.yml
   classification: none
   publishes: []
 - workflow: shift-cover-optimizer-ci.yml

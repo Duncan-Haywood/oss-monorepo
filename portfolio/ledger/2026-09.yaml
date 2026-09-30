@@ -48712,6 +48712,53 @@ entries:
         counts; inbound link from restaurant-labor-cost-daypart-analyzer;
         regenerated the mirror.
     mrr_end: 0
+  - venture: route-stop-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built route-stop-optimizer: a browser-local route
+        sequencer for mobile trades, couriers, inspectors and reps. Paste stops
+        as lat/lng with service minutes and customer time windows; finds the
+        drive-time-minimising order (exact Held-Karp with windows up to 12
+        stops, multi-start 2-opt/Or-opt beyond), splits stops across up to 20
+        drivers, and reports arrival times, the saving against the pasted order
+        in miles, hours, fuel and labor per day and per year, and what the
+        windows cost. Exports CSV and Google Maps links. New niche:
+        duplicate_check.py best match propane-delivery-route-margin at 0.23
+        (that one prices a fixed propane route). Stops never leave the browser.
+        Unverified against real routes: tests compare the solver with brute
+        force on random problems and assert no network calls. Registered score
+        row, launch date, category rule, CI workflow and tree counts.
+    mrr_end: 0
+  - venture: client-rebooking-predictor
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built client-rebooking-predictor: a browser-local tool
+        for salons, barbers, groomers, physio, dental and cleaning businesses.
+        Paste or upload client, visit date and amount rows; learns each client's
+        own rebooking rhythm (lognormal gaps, empirical-Bayes shrinkage toward
+        the shop rhythm), fits by maximum likelihood the chance a visit is
+        followed by a return, and splits clients into on track, due, overdue
+        but recoverable and probably lost, with a win-back list ranked by chance
+        still active times spend and an est. yearly value of the lost. A
+        hold-out back-test refits one window earlier and scores AUC and Brier
+        against the base rate and a plain recency rule, and the page says
+        "unidentified" when it cannot beat chance. Refuses fewer than 30
+        clients, 40 return gaps or 180 days. New niche: duplicate_check.py best
+        match no-show-fee-calculator at 0.22; booking systems only offer a flat
+        "lapsed over 90 days" report. First visitor expected from "lapsed
+        client report" and "win back inactive clients" searches and salon and
+        barber forums. Client lists never leave the browser; the page states
+        the tool contacts no one and that marketing messages carry consent
+        rules. Unverified against a published dataset: tests use simulated
+        businesses with known rhythms and departures (AUC above recency, flagged
+        lost are true leavers, continuation probability recovered) and
+        no-network assertions. Registered score row, launch date, category rule,
+        CI workflow and tree counts; regenerated the mirror.
+    mrr_end: 0
   - venture: crew-dispatch-optimizer
     agent_spend_usd: null
     human_hours: 0
