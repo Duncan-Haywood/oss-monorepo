@@ -22831,6 +22831,44 @@ ventures:
       a do-not-trust warning when the back-test fails. Sales files never leave
       the browser. Ethics: helps an owner see a cash gap coming and plan for
       it; nothing is sold and no referral is made.
+  - slug: ad-spend-saturation-optimizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.667
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical machine learning (nonlinear least-squares response curves,
+      AIC model choice, bootstrap intervals and an exact budget optimiser, all
+      in the browser) but no language model and no paid API; the fitting is the
+      product, not an add-on.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Owners and
+      marketers of multi-channel ad accounts upload weekly spend and revenue per
+      channel and get a diminishing-returns curve for each, the marginal return
+      on the next dollar, a better split of the same budget and a back-test.
+      Distribution 6: "marginal ROAS" and "how to split ad budget between
+      channels" are recurring queries and the tool is reachable from PPC and
+      e-commerce communities (volume not measured with an external tool).
+      Defensibility 5: the methods are published; the edge is the private,
+      no-upload workflow and the visible back-test, and a hosted refresh or API
+      would be a later moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical fit of supplied data, not advice, no warranty,
+      independence from ad platforms stated, limits stated. Spend and revenue
+      figures never leave the browser. Ethics: helps a business stop paying for
+      saturated spend and put it where it still earns; nothing is sold and no
+      referral is made.
   - slug: liquidation-pallet-bid-calculator
     scores:
       ai_leverage: 3
