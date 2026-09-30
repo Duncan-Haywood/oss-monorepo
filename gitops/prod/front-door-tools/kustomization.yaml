@@ -33,31 +33,31 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 546204 bytes
-#   portfolio-front-tools-1: 92 files, 554995 bytes
-#   portfolio-front-tools-2: 144 files, 552762 bytes
-#   portfolio-front-tools-3: 131 files, 554741 bytes
-#   portfolio-front-tools-4: 141 files, 553323 bytes
-#   portfolio-front-tools-5: 122 files, 557029 bytes
-#   portfolio-front-tools-6: 128 files, 549582 bytes
-#   portfolio-front-tools-7: 129 files, 542415 bytes
-#   portfolio-front-tools-8: 127 files, 554121 bytes
-#   portfolio-front-tools-9: 128 files, 553220 bytes
-#   portfolio-front-tools-10: 138 files, 555700 bytes
-#   portfolio-front-tools-11: 121 files, 555538 bytes
-#   portfolio-front-tools-12: 118 files, 554306 bytes
-#   portfolio-front-tools-13: 118 files, 553193 bytes
-#   portfolio-front-tools-14: 116 files, 549240 bytes
-#   portfolio-front-tools-15: 117 files, 542538 bytes
-#   portfolio-front-tools-16: 131 files, 556073 bytes
-#   portfolio-front-tools-17: 122 files, 548025 bytes
-#   portfolio-front-tools-18: 131 files, 555292 bytes
-#   portfolio-front-tools-19: 122 files, 544040 bytes
-#   portfolio-front-tools-20: 96 files, 540537 bytes
+#   portfolio-front-tools-0: 145 files, 546221 bytes
+#   portfolio-front-tools-1: 92 files, 554997 bytes
+#   portfolio-front-tools-2: 144 files, 552773 bytes
+#   portfolio-front-tools-3: 131 files, 554828 bytes
+#   portfolio-front-tools-4: 141 files, 553312 bytes
+#   portfolio-front-tools-5: 121 files, 551492 bytes
+#   portfolio-front-tools-6: 128 files, 556315 bytes
+#   portfolio-front-tools-7: 133 files, 554556 bytes
+#   portfolio-front-tools-8: 127 files, 554208 bytes
+#   portfolio-front-tools-9: 128 files, 553265 bytes
+#   portfolio-front-tools-10: 138 files, 555665 bytes
+#   portfolio-front-tools-11: 121 files, 555539 bytes
+#   portfolio-front-tools-12: 118 files, 554341 bytes
+#   portfolio-front-tools-13: 118 files, 553086 bytes
+#   portfolio-front-tools-14: 116 files, 549230 bytes
+#   portfolio-front-tools-15: 117 files, 542451 bytes
+#   portfolio-front-tools-16: 131 files, 555986 bytes
+#   portfolio-front-tools-17: 122 files, 548037 bytes
+#   portfolio-front-tools-18: 131 files, 555230 bytes
+#   portfolio-front-tools-19: 122 files, 544297 bytes
+#   portfolio-front-tools-20: 96 files, 540697 bytes
 #   portfolio-front-tools-21: 117 files, 555584 bytes
-#   portfolio-front-tools-22: 125 files, 555888 bytes
-#   portfolio-front-tools-23: 119 files, 555940 bytes
-#   portfolio-front-tools-24: 104 files, 524027 bytes
+#   portfolio-front-tools-22: 125 files, 555811 bytes
+#   portfolio-front-tools-23: 119 files, 555921 bytes
+#   portfolio-front-tools-24: 104 files, 524082 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -879,12 +879,12 @@ configMapGenerator:
       - auto-repair-effective-labor-rate__should-i-keep-taking-warranty-work.html.gz=auto-repair-effective-labor-rate__should-i-keep-taking-warranty-work.html.gz
       - auto-repair-effective-labor-rate__usage.mjs.gz=auto-repair-effective-labor-rate__usage.mjs.gz
       - auto-repair-effective-labor-rate__vs-autoleap.html.gz=auto-repair-effective-labor-rate__vs-autoleap.html.gz
-      - auto-repair-effective-labor-rate__vs-dividing-labor-sales-by-hours.html.gz=auto-repair-effective-labor-rate__vs-dividing-labor-sales-by-hours.html.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - auto-repair-effective-labor-rate__vs-dividing-labor-sales-by-hours.html.gz=auto-repair-effective-labor-rate__vs-dividing-labor-sales-by-hours.html.gz
       - auto-repair-effective-labor-rate__vs-shop-ware.html.gz=auto-repair-effective-labor-rate__vs-shop-ware.html.gz
       - auto-repair-effective-labor-rate__vs-shopmonkey.html.gz=auto-repair-effective-labor-rate__vs-shopmonkey.html.gz
       - auto-repair-effective-labor-rate__vs-tekmetric.html.gz=auto-repair-effective-labor-rate__vs-tekmetric.html.gz
@@ -982,6 +982,9 @@ configMapGenerator:
       - bridal-hair-makeup-pricing-calculator__vs-flat-day-rate.html.gz=bridal-hair-makeup-pricing-calculator__vs-flat-day-rate.html.gz
       - bridal-hair-makeup-pricing-calculator__vs-honeybook.html.gz=bridal-hair-makeup-pricing-calculator__vs-honeybook.html.gz
       - bridal-hair-makeup-pricing-calculator__why-a-priced-booking-can-still-be-impossible.html.gz=bridal-hair-makeup-pricing-calculator__why-a-priced-booking-can-still-be-impossible.html.gz
+      - brrrr-calculator__calc.mjs.gz=brrrr-calculator__calc.mjs.gz
+      - brrrr-calculator__index.html.gz=brrrr-calculator__index.html.gz
+      - brrrr-calculator__usage.mjs.gz=brrrr-calculator__usage.mjs.gz
       - caa-record-check__analyze.mjs.gz=caa-record-check__analyze.mjs.gz
       - caa-record-check__check.mjs.gz=caa-record-check__check.mjs.gz
       - caa-record-check__how-caa-blocks-certificate-issuance.html.gz=caa-record-check__how-caa-blocks-certificate-issuance.html.gz
@@ -1009,15 +1012,15 @@ configMapGenerator:
       - call-recording-consent-check__engine.mjs.gz=call-recording-consent-check__engine.mjs.gz
       - call-recording-consent-check__index.html.gz=call-recording-consent-check__index.html.gz
       - call-recording-consent-check__share.mjs.gz=call-recording-consent-check__share.mjs.gz
-      - call-recording-consent-check__usage.mjs.gz=call-recording-consent-check__usage.mjs.gz
-      - call-recording-consent-check__vs-checking-each-states-statute-by-hand.html.gz=call-recording-consent-check__vs-checking-each-states-statute-by-hand.html.gz
-      - call-recording-consent-check__why-call-recording-consent-laws-differ-by-state.html.gz=call-recording-consent-check__why-call-recording-consent-laws-differ-by-state.html.gz
-      - canonical-tag-check__analyze.mjs.gz=canonical-tag-check__analyze.mjs.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - call-recording-consent-check__usage.mjs.gz=call-recording-consent-check__usage.mjs.gz
+      - call-recording-consent-check__vs-checking-each-states-statute-by-hand.html.gz=call-recording-consent-check__vs-checking-each-states-statute-by-hand.html.gz
+      - call-recording-consent-check__why-call-recording-consent-laws-differ-by-state.html.gz=call-recording-consent-check__why-call-recording-consent-laws-differ-by-state.html.gz
+      - canonical-tag-check__analyze.mjs.gz=canonical-tag-check__analyze.mjs.gz
       - canonical-tag-check__index.html.gz=canonical-tag-check__index.html.gz
       - canonical-tag-check__usage.mjs.gz=canonical-tag-check__usage.mjs.gz
       - canonical-tag-check__vs-checking-canonicals-by-view-source.html.gz=canonical-tag-check__vs-checking-canonicals-by-view-source.html.gz

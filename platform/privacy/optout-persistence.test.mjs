@@ -1077,7 +1077,7 @@ const RELATIVE_SELF = relative(
 // +1: `rental-dscr-calculator` graduated.
 // +1: `rd-tax-credit-calculator` graduated.
 // +1: `heat-pump-vs-furnace-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 454;
+const SWITCHES_IN_THE_CATALOGUE = 455;
 
 let counter = 0;
 function fixture(source) {
