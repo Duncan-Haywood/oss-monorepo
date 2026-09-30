@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Rule 72(t) SEPP Calculator — Early IRA Withdrawals Without the 10% Penalty</title>
+  <meta name="description" content="Free Rule 72(t) SEPP calculator. Enter your age, IRA balance and interest rate to see substantially equal periodic payments under the RMD method and fixed amortization, how long you are locked in, the balance you need for your income target, and the penalty exposure if you break the schedule. Runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Rule 72(t) SEPP Calculator — free, private, in your browser">
+  <meta property="og:description" content="How much can you take from an IRA before 59½ without the 10% penalty, and what happens if you stop?">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Rule 72(t) SEPP Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Calculate substantially equal periodic payments under IRS Rule 72(t) for early IRA withdrawals: RMD method and fixed amortization side by side, the lock-in length, the balance needed for your income target, and the 10% penalty exposure if the schedule is broken. Runs in your browser.", "featureList": "72(t) SEPP calculator, RMD method, fixed amortization, early retirement withdrawals before 59 1/2, balance needed for income target, modification penalty exposure, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is Rule 72(t) and a SEPP?", "acceptedAnswer": {"@type": "Answer", "text": "Section 72(t) of the tax code adds a 10% additional tax to most withdrawals from an IRA or 401(k) before age 59\u00bd. One exception lets you avoid it by taking substantially equal periodic payments (SEPP) from an IRA, calculated with one of three IRS-approved methods. You still owe ordinary income tax on every payment."}}, {"@type": "Question", "name": "How long do the payments have to continue?", "acceptedAnswer": {"@type": "Answer", "text": "For the later of five full years or until you reach age 59\u00bd. Someone who starts at 50 is locked in for 10 years; someone who starts at 57 is locked in for 5. The count is in payment years measured from the first payment, so check the exact end date with a professional."}}, {"@type": "Question", "name": "What are the three SEPP methods and which does this tool model?", "acceptedAnswer": {"@type": "Answer", "text": "The RMD method divides the prior year-end balance by a life expectancy factor every year, so payments change each year. Fixed amortization pays a level amount computed as a loan over the life expectancy. Fixed annuitization pays a level amount using an annuity factor from an IRS mortality table. This tool models the RMD method and fixed amortization. Annuitization needs the IRS mortality table and usually lands close to amortization."}}, {"@type": "Question", "name": "What interest rate should I enter?", "acceptedAnswer": {"@type": "Answer", "text": "For the fixed methods, the IRS lets you use any rate up to the greater of 5% or 120% of the federal mid-term rate for either of the two months before the first payment. A higher rate produces a higher payment, so most people use the maximum allowed. This tool does not know the current federal rate: it warns when you enter more than 5% and you must confirm the ceiling yourself."}}, {"@type": "Question", "name": "What happens if I change or stop the payments?", "acceptedAnswer": {"@type": "Answer", "text": "If you modify the schedule before the lock-in ends (other than by death or disability), the 10% additional tax applies retroactively to every distribution you took under the plan, plus interest. The exposure table shows that 10% figure for each year you might stop. Interest is not modelled."}}, {"@type": "Question", "name": "Why does the balance needed to fund my income differ by method?", "acceptedAnswer": {"@type": "Answer", "text": "The RMD method's first payment is the balance divided by roughly your remaining life expectancy in years, about 2.5% to 3.5% at ages 45 to 55. Fixed amortization at 5% pays about 5.5% to 6.5% of the starting balance. Amortization therefore needs a smaller account for the same income, but its payment can never adjust if markets fall."}}, {"@type": "Question", "name": "Can I split my IRA to control the payment size?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, many people carve out a separate IRA sized to the income they need and leave the rest untouched. The SEPP rules apply to the account you use for the schedule. The tool works on the balance you enter, so try a smaller balance to see the payment."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Income and state taxes, the exact federal mid-term rate, the one-time switch to the RMD method the IRS allows, the annuitization method, payments taken monthly rather than annually, a 401(k) that has not been rolled to an IRA, beneficiary or joint life tables, and interest on a broken schedule. It is arithmetic on figures you enter, not a plan."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">RULE 72(T) SEPP · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much can you take from an IRA before 59½ without the 10% penalty?</h1>
+    <p>Rule 72(t) lets you take <strong>substantially equal periodic payments</strong> at any age, if you keep them going for the later of five years or age 59½. Enter your numbers and see the <strong>RMD method</strong> and <strong>fixed amortization</strong> side by side, the <strong>balance you need</strong> for your income target, and the <strong>penalty exposure</strong> if you ever break the schedule.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Illustrative arithmetic, not tax advice. Not legal, tax, or financial advice: a broken SEPP schedule is expensive, so have a tax professional confirm yours before the first payment.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your numbers</h2>
+    <div class="grid">
+    <div>
+      <label for="age">Your age at the first payment (40 to 59)</label>
+      <input id="age" type="text" inputmode="decimal" value="50" autocomplete="off">
+      <label for="balance">IRA balance used for the schedule ($)</label>
+      <input id="balance" type="text" inputmode="decimal" value="800000" autocomplete="off">
+      <label for="rate">SEPP interest rate (%) — for the fixed method</label>
+      <input id="rate" type="text" inputmode="decimal" value="5" autocomplete="off">
+
+    </div>
+    <div>
+      <label for="growth">Assumed annual return on the remaining balance (%)</label>
+      <input id="growth" type="text" inputmode="decimal" value="5" autocomplete="off">
+      <label for="target">Income you need per year ($, optional)</label>
+      <input id="target" type="text" inputmode="decimal" value="40000" autocomplete="off">
+
+    </div>
+    </div>
+    <p class="note">The IRS lets the fixed method use any rate up to the greater of 5% or 120% of the federal mid-term rate. Look up the current ceiling; this tool only warns above 5%. Payments are assumed to start each year on the anniversary of the first one.</p>
+    <button type="button" id="run">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <p id="form-status" role="status" class="note">Edit the numbers, then click Calculate.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>Year by year</h3>
+    <div class="scroll"><table id="rows"><thead><tr><th>Year</th><th>Age</th><th class="n">RMD method payment</th><th class="n">Fixed amortization</th><th class="n">RMD start balance</th><th class="n">Amortization start balance</th><th class="n">Penalty exposure if broken after this year</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>The lock-in is the later of 5 years and reaching age 59½. The <strong>RMD method</strong> pays the prior year-end balance divided by the IRS Single Life Table factor for your age that year (Treas. Reg. 1.401(a)(9)-9, Table I, effective 2022). The <strong>fixed amortization method</strong> pays the level amount that would pay off your balance over the life expectancy factor at your first age, at the interest rate you choose. Penalty exposure is 10% of the payments taken so far, which is what the additional tax would be if the schedule were modified. Remaining balances grow at your assumed return after each payment.</p>
+    <p><strong>Not modelled:</strong> the fixed annuitization method (needs the IRS mortality table), the one-time switch from a fixed method to the RMD method, income and state tax, the exact federal mid-term rate, monthly payments, employer plans that have not been rolled to an IRA, joint life tables, and interest on a broken schedule. <strong>Unverified:</strong> checked by hand calculation and unit tests only; the life expectancy factors were entered from the regulation table and should be confirmed against the current IRS publication.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is Rule 72(t) and a SEPP?</h3>
+    <p>Section 72(t) of the tax code adds a 10% additional tax to most withdrawals from an IRA or 401(k) before age 59½. One exception lets you avoid it by taking substantially equal periodic payments (SEPP) from an IRA, calculated with one of three IRS-approved methods. You still owe ordinary income tax on every payment.</p>
+    <h3>How long do the payments have to continue?</h3>
+    <p>For the later of five full years or until you reach age 59½. Someone who starts at 50 is locked in for 10 years; someone who starts at 57 is locked in for 5. The count is in payment years measured from the first payment, so check the exact end date with a professional.</p>
+    <h3>What are the three SEPP methods and which does this tool model?</h3>
+    <p>The RMD method divides the prior year-end balance by a life expectancy factor every year, so payments change each year. Fixed amortization pays a level amount computed as a loan over the life expectancy. Fixed annuitization pays a level amount using an annuity factor from an IRS mortality table. This tool models the RMD method and fixed amortization. Annuitization needs the IRS mortality table and usually lands close to amortization.</p>
+    <h3>What interest rate should I enter?</h3>
+    <p>For the fixed methods, the IRS lets you use any rate up to the greater of 5% or 120% of the federal mid-term rate for either of the two months before the first payment. A higher rate produces a higher payment, so most people use the maximum allowed. This tool does not know the current federal rate: it warns when you enter more than 5% and you must confirm the ceiling yourself.</p>
+    <h3>What happens if I change or stop the payments?</h3>
+    <p>If you modify the schedule before the lock-in ends (other than by death or disability), the 10% additional tax applies retroactively to every distribution you took under the plan, plus interest. The exposure table shows that 10% figure for each year you might stop. Interest is not modelled.</p>
+    <h3>Why does the balance needed to fund my income differ by method?</h3>
+    <p>The RMD method's first payment is the balance divided by roughly your remaining life expectancy in years, about 2.5% to 3.5% at ages 45 to 55. Fixed amortization at 5% pays about 5.5% to 6.5% of the starting balance. Amortization therefore needs a smaller account for the same income, but its payment can never adjust if markets fall.</p>
+    <h3>Can I split my IRA to control the payment size?</h3>
+    <p>Yes, many people carve out a separate IRA sized to the income they need and leave the rest untouched. The SEPP rules apply to the account you use for the schedule. The tool works on the balance you enter, so try a smaller balance to see the payment.</p>
+    <h3>What does this leave out?</h3>
+    <p>Income and state taxes, the exact federal mid-term rate, the one-time switch to the RMD method the IRS allows, the annuitization method, payments taken monthly rather than annually, a 401(k) that has not been rolled to an IRA, beneficiary or joint life tables, and interest on a broken schedule. It is arithmetic on figures you enter, not a plan.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are illustrative arithmetic on the figures you enter, not a projection of your future balance or a determination that a payment schedule qualifies under the tax code. You are responsible for reviewing and verifying them, ideally with a tax professional, before taking a payment. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the IRS, any custodian, brokerage or financial adviser, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only on this device, never with any of your data, and can be switched off below; Do Not Track is honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Planning retirement withdrawals? See the <a href="../rmd-calculator/">RMD calculator</a>, the <a href="../roth-conversion-bracket-fill-calculator/">Roth conversion bracket-fill calculator</a> and the <a href="../social-security-claiming-age-calculator/">Social Security claiming age calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, samplePlan, money, pct, modificationExposure } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const FIELDS = ["age", "balance", "rate", "growth", "target"];
+    let last = null;
+
+    const read = () => Object.fromEntries(FIELDS.map((f) => [f, document.getElementById(f).value]));
+    const fill = (p) => FIELDS.forEach((f) => (document.getElementById(f).value = p[f]));
+
+    function run() {
+      const r = analyze(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#big").innerHTML = [
+        [money(r.amort), "Fixed amortization, every year"],
+        [money(r.rmd), "RMD method, first year (changes yearly)"],
+        [r.years + " years", "Lock-in, to age " + r.endAge],
+        [money(r.totals.amort * 0.1), "10% penalty avoided over the lock-in (fixed)"],
+      ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      const f = [];
+      f.push({ severity: "info", title: "Fixed amortization pays " + pct(r.amortRate, 2) + " of the balance a year; the RMD method's first year pays " + pct(r.rmd / r.balance, 2), detail: "The fixed method is level for " + r.years + " years and can never adjust. The RMD method recalculates on each year's balance, so it falls when markets do and cannot run out, but it may pay less than you need." });
+      if (r.target > 0) f.push({ severity: "info", title: "To reach " + money(r.target) + " a year you need about " + money(r.need.amort) + " (fixed) or " + money(r.need.rmd) + " (RMD method) in the account", detail: "Your entered balance is " + money(r.balance) + ". " + (r.balance >= r.need.amort ? "It covers the target under fixed amortization." : "It falls short of the target even under fixed amortization, by " + money(r.need.amort - r.balance) + ".") });
+      f.push({ severity: "medium", title: "Balance when the lock-in ends, at your assumed return: " + money(r.endBalance.amort) + " (fixed) vs " + money(r.endBalance.rmd) + " (RMD method)", detail: "Remaining balance after the last scheduled payment at " + pct(r.growth) + " a year. A negative real return can leave the fixed method drawing down faster than the account grows." });
+      if (r.rateWarning) f.push({ severity: "medium", title: "Your rate is above 5%", detail: "The IRS caps the fixed-method rate at the greater of 5% or 120% of the federal mid-term rate for either of the two months before the first payment. Confirm that ceiling before using this rate." });
+      $("#report-findings").innerHTML = f.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      $("#rows tbody").innerHTML = r.rows.map((x) => { const e = modificationExposure(r, x.year); return `<tr><td>${x.year}</td><td>${x.age}</td><td class="n">${money(x.rmd)}</td><td class="n">${money(x.amort)}</td><td class="n">${money(x.rmdBalance)}</td><td class="n">${money(x.amortBalance)}</td><td class="n">${money(e.amort)}</td></tr>`; }).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#run").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(samplePlan());
+      if (run()) { record("example_loaded"); status.textContent = "Sample figures: invented, not a real account."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "rule-72t-sepp-schedule.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

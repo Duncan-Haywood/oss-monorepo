@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 491 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 492 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -177,6 +177,15 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free rental property DSCR calculator for investors. Enter price, rent, loan terms and costs to see DSCR both ways, cash-on-cash, cap rate, break-even occupancy, the largest loan a target DSCR allows, and how a higher rate changes it. Runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Rule 72(t) SEPP Calculator — Early IRA Withdrawals Without the 10% Penalty</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rule-72t-sepp-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/rule-72t-sepp-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free Rule 72(t) SEPP calculator. Enter your age, IRA balance and interest rate to see substantially equal periodic payments under the RMD method and fixed amortization, how long you are locked in, the balance you need for your income target, and the penalty exposure if you break the schedule. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>SAFE Dilution Calculator — Cap Table After Your Round, Free</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free analyzer for freelancers, consultants and agencies: load a time export from Toggl, Clockify, Harvest or a spreadsheet and see each client&#39;s effective hourly rate against your target, unbilled time, flat-fee scope creep and which clients to reprice. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Dependabot Config Check — Lint dependabot.yml and Find Ecosystems It Misses</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dependabot-config-check/"/>
-    <id>tag:marisstella.dev,2026:tool/dependabot-config-check</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your dependabot.yml and your repo&#39;s file list. Finds ecosystems Dependabot never updates, invalid intervals, duplicate entries, missing groups and cooldown, and writes a starter config. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>

@@ -1259,6 +1259,9 @@ workflows:
 - workflow: rsu-withholding-gap-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: rule-72t-sepp-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: s-corp-reasonable-compensation-calculator-ci.yml
   classification: none
   publishes: []
