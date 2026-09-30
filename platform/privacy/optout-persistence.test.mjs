@@ -1092,7 +1092,8 @@ const RELATIVE_SELF = relative(
 // +1: `usage-based-pricing-simulator` graduated.
 // +1: `rule-72t-sepp-calculator` graduated.
 // +1: `locum-tenens-vs-employed-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 472;
+// +1: `startup-exit-waterfall-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 473;
 
 let counter = 0;
 function fixture(source) {

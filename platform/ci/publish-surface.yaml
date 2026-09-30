@@ -1448,6 +1448,9 @@ workflows:
 - workflow: startup-option-value-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: startup-exit-waterfall-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: stockx-seller-payout-calculator-ci.yml
   classification: none
   publishes: []
