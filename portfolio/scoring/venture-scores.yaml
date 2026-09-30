@@ -21625,3 +21625,37 @@ ventures:
       provider invoice stays the record, the log never leaves the browser.
       Ethics: exists only to help the user pay less; no affiliate link or vendor
       favoured.
+  - slug: home-sale-exclusion-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 8
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Every US home
+      seller faces the section 121 exclusion; sellers a few months short of two
+      years or with gains above $250,000 have real money at stake and the tool
+      prices waiting and the break-even sale price. Distribution 8: "home sale
+      capital gains", "$250,000 exclusion" and "sell before 2 years" are
+      recurring high-volume queries on r/personalfinance, r/RealEstate and
+      Bogleheads; volume not measured with an external tool. Defensibility 3:
+      the rules are public; the edge is a private, no-signup answer.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimates not advice, no warranty, independence
+      from the IRS and brokerages stated, 2026 parameters and omissions stated on
+      the page. Income and home details never leave the browser. Ethics: helps a
+      seller understand a tax they owe anyway; nothing is sold and no agent
+      referral is made.

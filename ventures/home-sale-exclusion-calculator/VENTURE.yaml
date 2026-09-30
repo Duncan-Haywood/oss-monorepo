@@ -1,0 +1,60 @@
+name: home-sale-exclusion-calculator
+description: >-
+  Free browser tool for people selling their main home that shows how much gain the
+  section 121 exclusion covers, the federal tax on the rest, and what waiting to meet
+  the two-year test would save. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py: top match
+# 0.34 (depreciation-recapture-calculator, a different transaction). A first draft of
+# an ESPP tool was dropped after #6052 merged the same hour; this is the widest
+# consumer audience of the tax gaps left: every US home seller.
+# Homeowners in hot markets are the ones whose gain exceeds the exclusion, and sellers
+# a few months short of two years leave real money on the table without knowing it.
+# The differentiator is the wait-and-save figure plus break-even price.
+#
+# First visitor: r/personalfinance, r/RealEstate, r/tax, Bogleheads threads on "home
+# sale capital gains", "$250,000 exclusion", "sell before 2 years"; volume not measured.
+#
+# Privacy is the liability boundary: income and home details never leave the browser
+# (tests assert no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet. A paid tier, if usage
+# appears, is a saved multi-scenario sale plan, local only; not built.
+#
+# Liability: illustrative estimates, not advice; 2026 parameters and omissions stated
+# on the page. Unverified: hand calculation and unit tests only, not Publication 523.
+# The first return that disagrees is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Home sellers a few months short of the two-year test will use a no-signup tool
+      that prices the wait rather than reading a generic Section 121 explainer.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Sellers in high-appreciation markets are surprised to owe tax above the
+      exclusion; showing the break-even sale price changes listing decisions.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a Publication 523 worksheet figure the tool contradicts on a point of arithmetic, at which point the exclusion handling needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/home-sale-exclusion-calculator/
+  analytics: null
