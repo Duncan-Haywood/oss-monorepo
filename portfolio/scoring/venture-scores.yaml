@@ -22462,3 +22462,36 @@ ventures:
       stated, omissions stated. Figures never leave the browser. Ethics:
       helps a founder check a price shape; nothing is sold and no referral
       is made.
+  - slug: startup-exit-waterfall-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on terms the visitor enters.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Founders,
+      employees and angels see what each class is paid at a sale price, with
+      liquidation preferences, participation caps, seniority and options.
+      Distribution 6: "liquidation preference calculator" and "exit waterfall"
+      are recurring queries; volume not measured with an external tool.
+      Defensibility 3: the arithmetic is public; the edge is the exact
+      conversion equilibrium and breakpoints with no signup.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on entered terms, not legal, tax or investment
+      advice, no statement of what anyone is owed, no warranty, independence
+      from cap table platforms stated, omissions stated. Figures never leave the
+      browser. Ethics: helps a person read a term sheet or an offer; nothing is
+      sold and no referral is made.
