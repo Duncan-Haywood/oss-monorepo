@@ -48759,3 +48759,30 @@ entries:
         no-network assertions. Registered score row, launch date, category rule,
         CI workflow and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: crew-dispatch-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built crew-dispatch-optimizer: a browser-local dispatch
+        planner for plumbing, HVAC, electrical, cleaning and other small service
+        fleets. Paste jobs (location, hours, skill, optional value) and crews
+        (start, hours, hourly cost, skills); it assigns jobs to crews and orders each
+        route at the lowest labor-plus-driving-plus-mileage cost, exactly for up to 12
+        jobs (Held-Karp per crew, subset DP across crews) and by seeded multi-start
+        insertion with relocate/swap/2-opt beyond that. Skips jobs that cost more
+        than their stated value and says why each job is unplanned. Compares with
+        nearest-crew dispatch in listed and in best order, re-plans with each crew
+        out, one extra crew, and jobs 10-30% longer, and exports the dispatch list as
+        CSV. On the invented sample day it saves about $121 against nearest-crew
+        dispatch. New niche: duplicate_check.py best match locksmith-bid-calculator
+        at 0.22 (prices a job; none of the route tools pick routes). First visitor
+        expected from "route optimizer for plumbers" and "schedule technicians by
+        location" searches and trade owner groups. Customer locations never leave
+        the browser. Unverified against a real operator's routes: tests compare the
+        exact solver with brute force on 33 random problems, the heuristic with the
+        exact solver, and assert no network calls, no crew over its hours, no skill
+        mismatch. Registered score row, launch date, category rule, CI workflow and
+        tree counts; inbound links from which-job-first and pool-route-pricing;
+        regenerated the mirror.
+    mrr_end: 0

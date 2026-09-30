@@ -431,6 +431,9 @@ workflows:
 - workflow: crawl-space-encapsulation-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: crew-dispatch-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: cron-dst-drift-check-ci.yml
   classification: none
   publishes: []
