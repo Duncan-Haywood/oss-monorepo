@@ -23549,3 +23549,38 @@ ventures:
     gate_note: >-
       Liability: statistical estimate of the user's own data, no warranty, not
       advice. Ethics: no customer data collected or sold; nothing leaves the browser.
+  - slug: mechanics-lien-deadline-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately: every result is fixed state-statute
+      timing rules applied to dates the user types.
+    basis: >-
+      Screened 2026-09-30. duplicate_check.py best match 0.25 (final-paycheck-
+      deadline-calculator, a different jurisdictional deadline table). Distribution
+      7: "[state] preliminary notice deadline" and "how long to file a mechanics
+      lien" are recurring subcontractor and supplier queries that lien-service and
+      law-firm pages already rank for (seen via WebSearch; volume not measured with
+      an external tool), and the need recurs on every unpaid job. Defensibility 3:
+      the five-state table is reproducible from public statutes; the edge is a
+      free, private, no-signup lookup with cautious-date handling, where incumbents
+      mostly gate it behind paid notice filing.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: date lookup only, not legal advice, no warranty; five states each
+      verified against agreeing sources, first-tier claimants only, unsupported
+      states refuse, cautious dates, and the limits (second tier, public projects,
+      notice content, foreclosure) stated in three places. Prepares and files
+      nothing. Ethics: helps small trades keep payment rights they already have;
+      nothing leaves the browser.

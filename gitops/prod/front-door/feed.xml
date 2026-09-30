@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 523 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 524 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -269,6 +269,15 @@
     <summary type="text">Free locum tenens vs employed calculator for physicians, NPs, PAs and CRNAs. Compare a 1099 locum contract with a W-2 offer: take-home after federal tax, self-employment tax, malpractice tail, benefits, unpaid gaps, and the break-even locum hourly rate. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Mechanics Lien Deadline Calculator — Free, 5 States</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mechanics-lien-deadline-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/mechanics-lien-deadline-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free calculator for the preliminary notice and lien filing deadlines a subcontractor or supplier faces in California, Texas, Florida, Arizona, and Washington. Enter your first and last day on the job; see both dates, weekend flags, and days left. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Merchant Cash Advance True Cost Calculator — Factor Rate to APR, Factoring Cost</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/merchant-cash-advance-true-cost-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/merchant-cash-advance-true-cost-calculator</id>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free lease renewal rent calculator for small landlords. Paste your past renewal offers (current rent, offered rent, renewed or left) to see how your tenants&#39; chance of staying falls as the increase rises, what a move-out really costs, and the rent increase with the highest expected income. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Rental Property DSCR Calculator — Cash-on-Cash, Cap Rate, Max Loan</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rental-dscr-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/rental-dscr-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free rental property DSCR calculator for investors. Enter price, rent, loan terms and costs to see DSCR both ways, cash-on-cash, cap rate, break-even occupancy, the largest loan a target DSCR allows, and how a higher rate changes it. Runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

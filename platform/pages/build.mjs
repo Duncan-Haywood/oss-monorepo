@@ -1109,6 +1109,10 @@ const CATEGORY_RULES = [
     // catches, so it is added by exact match rather than widening the
     // suffix list to a word this is the only user of.
     //
+    // `mechanics-lien-deadline-calculator` joined 2026-09-30: a five-state (CA, TX, FL, AZ, WA) date lookup for the preliminary-notice and
+    // lien-filing clocks an unpaid subcontractor faces, same not-legal-advice reference-table posture as
+    // `final-paycheck-deadline-calculator` right above; added by exact slug, not a new suffix.
+    //
     // `boi-reporting-exemption-checker` joined 2026-09-25, concurrently,
     // filed here on its first commit rather than after a spell in the
     // catch-all -- what `build.test.mjs`'s catch-all bound is for. Its
@@ -1130,6 +1134,7 @@ const CATEGORY_RULES = [
       || slug === '1099-k-threshold-checker'
       || slug === 'osha-trir-dart-calculator'
       || slug === 'final-paycheck-deadline-calculator'
+      || slug === 'mechanics-lien-deadline-calculator'
       || slug === 'boi-reporting-exemption-checker',
   },
   {
