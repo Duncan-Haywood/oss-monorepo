@@ -33,31 +33,31 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 546185 bytes
-#   portfolio-front-tools-1: 92 files, 554985 bytes
-#   portfolio-front-tools-2: 144 files, 552762 bytes
-#   portfolio-front-tools-3: 131 files, 554665 bytes
-#   portfolio-front-tools-4: 142 files, 556784 bytes
-#   portfolio-front-tools-5: 121 files, 552378 bytes
-#   portfolio-front-tools-6: 129 files, 554182 bytes
-#   portfolio-front-tools-7: 131 files, 551084 bytes
-#   portfolio-front-tools-8: 127 files, 556196 bytes
-#   portfolio-front-tools-9: 125 files, 544514 bytes
-#   portfolio-front-tools-10: 140 files, 554801 bytes
-#   portfolio-front-tools-11: 118 files, 551383 bytes
-#   portfolio-front-tools-12: 119 files, 553369 bytes
-#   portfolio-front-tools-13: 116 files, 550148 bytes
-#   portfolio-front-tools-14: 119 files, 552804 bytes
-#   portfolio-front-tools-15: 119 files, 549747 bytes
-#   portfolio-front-tools-16: 129 files, 556401 bytes
-#   portfolio-front-tools-17: 126 files, 556742 bytes
-#   portfolio-front-tools-18: 129 files, 554527 bytes
-#   portfolio-front-tools-19: 118 files, 554217 bytes
+#   portfolio-front-tools-0: 145 files, 546190 bytes
+#   portfolio-front-tools-1: 92 files, 554984 bytes
+#   portfolio-front-tools-2: 144 files, 552760 bytes
+#   portfolio-front-tools-3: 131 files, 554680 bytes
+#   portfolio-front-tools-4: 142 files, 556791 bytes
+#   portfolio-front-tools-5: 121 files, 552410 bytes
+#   portfolio-front-tools-6: 129 files, 554154 bytes
+#   portfolio-front-tools-7: 131 files, 555176 bytes
+#   portfolio-front-tools-8: 127 files, 556557 bytes
+#   portfolio-front-tools-9: 128 files, 551975 bytes
+#   portfolio-front-tools-10: 140 files, 554808 bytes
+#   portfolio-front-tools-11: 118 files, 551409 bytes
+#   portfolio-front-tools-12: 119 files, 553366 bytes
+#   portfolio-front-tools-13: 116 files, 550138 bytes
+#   portfolio-front-tools-14: 119 files, 552895 bytes
+#   portfolio-front-tools-15: 119 files, 549761 bytes
+#   portfolio-front-tools-16: 129 files, 556415 bytes
+#   portfolio-front-tools-17: 126 files, 556641 bytes
+#   portfolio-front-tools-18: 129 files, 554506 bytes
+#   portfolio-front-tools-19: 118 files, 554218 bytes
 #   portfolio-front-tools-20: 103 files, 549179 bytes
-#   portfolio-front-tools-21: 118 files, 556736 bytes
-#   portfolio-front-tools-22: 122 files, 551466 bytes
-#   portfolio-front-tools-23: 118 files, 556680 bytes
-#   portfolio-front-tools-24: 71 files, 362291 bytes
+#   portfolio-front-tools-21: 118 files, 556828 bytes
+#   portfolio-front-tools-22: 122 files, 551346 bytes
+#   portfolio-front-tools-23: 118 files, 556683 bytes
+#   portfolio-front-tools-24: 71 files, 362292 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1052,6 +1052,9 @@ configMapGenerator:
       - carpet-install-bid-calculator__vs-a-flat-rate-per-yard.html.gz=carpet-install-bid-calculator__vs-a-flat-rate-per-yard.html.gz
       - carpet-install-bid-calculator__vs-jobber.html.gz=carpet-install-bid-calculator__vs-jobber.html.gz
       - carpet-install-bid-calculator__vs-measuresquare.html.gz=carpet-install-bid-calculator__vs-measuresquare.html.gz
+      - cash-balance-plan-calculator__calc.mjs.gz=cash-balance-plan-calculator__calc.mjs.gz
+      - cash-balance-plan-calculator__index.html.gz=cash-balance-plan-calculator__index.html.gz
+      - cash-balance-plan-calculator__usage.mjs.gz=cash-balance-plan-calculator__usage.mjs.gz
       - cat-adjuster-fee-calculator__calc.mjs.gz=cat-adjuster-fee-calculator__calc.mjs.gz
       - cat-adjuster-fee-calculator__index.html.gz=cat-adjuster-fee-calculator__index.html.gz
       - cat-adjuster-fee-calculator__is-this-cat-adjuster-fee-schedule-worth-it.html.gz=cat-adjuster-fee-calculator__is-this-cat-adjuster-fee-schedule-worth-it.html.gz
@@ -1147,14 +1150,14 @@ configMapGenerator:
       - concrete-lifting-bid-calculator__vs-a-flat-rate-special.html.gz=concrete-lifting-bid-calculator__vs-a-flat-rate-special.html.gz
       - concrete-lifting-bid-calculator__vs-quoteiq.html.gz=concrete-lifting-bid-calculator__vs-quoteiq.html.gz
       - consent-change-record__calc.mjs.gz=consent-change-record__calc.mjs.gz
-      - consent-change-record__index.html.gz=consent-change-record__index.html.gz
-      - consent-change-record__style.css.gz=consent-change-record__style.css.gz
-      - consent-change-record__tool__har-diff.mjs.gz=consent-change-record__tool__har-diff.mjs.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - consent-change-record__index.html.gz=consent-change-record__index.html.gz
+      - consent-change-record__style.css.gz=consent-change-record__style.css.gz
+      - consent-change-record__tool__har-diff.mjs.gz=consent-change-record__tool__har-diff.mjs.gz
       - consent-change-record__tool__index.html.gz=consent-change-record__tool__index.html.gz
       - consent-change-record__tool__trackers.mjs.gz=consent-change-record__tool__trackers.mjs.gz
       - consent-change-record__tool__usage.mjs.gz=consent-change-record__tool__usage.mjs.gz
@@ -1279,14 +1282,14 @@ configMapGenerator:
       - dependabot-config-check__check.mjs.gz=dependabot-config-check__check.mjs.gz
       - dependabot-config-check__cli.mjs.gz=dependabot-config-check__cli.mjs.gz
       - dependabot-config-check__index.html.gz=dependabot-config-check__index.html.gz
-      - dependabot-config-check__usage.mjs.gz=dependabot-config-check__usage.mjs.gz
-      - dependency-confusion-check__check.py.gz=dependency-confusion-check__check.py.gz
-      - dependency-confusion-check__classify.mjs.gz=dependency-confusion-check__classify.mjs.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - dependabot-config-check__usage.mjs.gz=dependabot-config-check__usage.mjs.gz
+      - dependency-confusion-check__check.py.gz=dependency-confusion-check__check.py.gz
+      - dependency-confusion-check__classify.mjs.gz=dependency-confusion-check__classify.mjs.gz
       - dependency-confusion-check__index.html.gz=dependency-confusion-check__index.html.gz
       - dependency-confusion-check__usage.mjs.gz=dependency-confusion-check__usage.mjs.gz
       - dependency-confusion-check__vs-checking-configs-by-hand.html.gz=dependency-confusion-check__vs-checking-configs-by-hand.html.gz
