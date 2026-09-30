@@ -21725,3 +21725,34 @@ ventures:
       no warranty, 2026 limits stated as assumptions, actuary needed. Inputs
       never leave the browser. Ethics: helps an owner weigh a plan before a
       sales call; nothing is sold and no advisor or TPA referral is made.
+  - slug: cost-segregation-study-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Firms sell
+      cost segregation studies at roughly $5k-$15k and quote only the year-one
+      deduction; owners have no free way to see the net after fee, passive-loss
+      limits and recapture. Distribution 7: "cost segregation calculator" is a
+      recurring query among real estate investors; volume not measured with an
+      external tool. Defensibility 3: the arithmetic is a simplification; the
+      edge is a private, no-signup answer.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimate not an engineering study, not tax advice,
+      no warranty, assumptions stated, CPA and engineer needed. Inputs never
+      leave the browser. Ethics: helps an owner weigh a study before buying one;
+      nothing is sold and no firm referral is made.
