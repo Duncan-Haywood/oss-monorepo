@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 502 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 503 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -60,6 +60,15 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free cash balance plan calculator for self-employed and small-practice owners aged 40+. Estimates a 2026 contribution range by age, stacked with a 401(k) and profit sharing, tax savings, employee cost and a multi-year projection. Illustrative; an actuary sets the real number. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Clearance Markdown Planner — when and how deep to cut price on leftover stock</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/clearance-markdown-planner/"/>
+    <id>tag:marisstella.dev,2026:tool/clearance-markdown-planner</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free clearance markdown planner for retailers and sellers. Enter the units you have left and the weeks you have; it estimates price elasticity from your own sales history and plans the week-by-week markdown that maximises expected revenue. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Commercial Lease Effective Rent Calculator — Compare Lease Offers, Net Effective Rent</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free Van Westendorp price sensitivity meter. Paste survey answers for too cheap, cheap, expensive and too expensive and get the acceptable price range, the optimal price point and the indifference price, with a chart and bootstrap bands. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Veterinarian Associate Pay Calculator — Compare Two Offers</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/veterinarian-associate-pay-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/veterinarian-associate-pay-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free veterinarian associate pay calculator. Compare two offers, salary, percentage of production or base plus percentage above a threshold, at the production you expect: yearly value, real percentage after exclusions, hourly rate and where the offers cross. Runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
