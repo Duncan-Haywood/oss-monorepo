@@ -1101,8 +1101,9 @@ const RELATIVE_SELF = relative(
 // +1: `customer-lifetime-value-predictor` graduated.
 // +1: `commercial-lease-effective-rent-calculator` graduated.
 // +1: `sales-seasonality-forecaster` graduated.
+// +1: `clearance-markdown-planner` graduated.
 // +1: `price-elasticity-estimator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 483;
+const SWITCHES_IN_THE_CATALOGUE = 484;
 
 let counter = 0;
 function fixture(source) {

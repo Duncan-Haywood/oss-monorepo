@@ -1,0 +1,62 @@
+name: clearance-markdown-planner
+description: >-
+  Free browser tool for retailers and online sellers with leftover stock: enter
+  units, weeks left and salvage value, paste date,price,units history, and get a
+  week-by-week markdown schedule from a stochastic dynamic program using the
+  price elasticity measured from your own sales, compared against fixed-discount
+  rules, with a behind/ahead-of-plan table and a robustness check on the
+  elasticity. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "clearance markdown planner price elasticity from own sales history for small
+# retailers": unique, nothing above 0.15. Adjacent ventures are
+# shopify-inventory-reorder-planner (how much to buy, not how to clear),
+# fba-aged-inventory-fee-analyzer (Amazon storage fees on aged stock) and
+# sales-seasonality-forecaster (forecast a business, not price a SKU); none
+# optimises a markdown schedule. Alternatives: enterprise markdown-optimization
+# suites (Revionics, Kibo, Blue Yonder; priced for chains with data teams), the
+# platforms' own "automatic discounts", and a round-number sale.
+#
+# First visitor: boutique, sporting-goods and garden-centre owners, Shopify,
+# Etsy and Amazon sellers with seasonal stock, liquidation-minded resellers.
+# Searches: "how much should I mark down", "clearance pricing strategy",
+# "markdown schedule", "end of season sale planning", "price elasticity
+# calculator". Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: sales files never leave the browser (tests
+# assert no network calls). No pricing vendor is named.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be multi-SKU batch planning from a catalogue export
+# (ranking which SKUs to cut first under a shared deadline); not built.
+# Liability: statistical plan from supplied figures, not advice; limits and the
+# unverified status are on the page.
+
+hypotheses:
+  - claim: >-
+      Owners of seasonal or one-off inventory will use a private, no-signup
+      markdown planner that measures price response from their own sales, and
+      will return each season.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a plan that a brute-force search over the same inputs and assumptions beats.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/clearance-markdown-planner/
+  analytics: null

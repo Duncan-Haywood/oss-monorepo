@@ -48536,6 +48536,33 @@ entries:
         workflow and tree counts; reciprocal link from
         customer-lifetime-value-predictor; regenerated the mirror.
     mrr_end: 0
+  - venture: clearance-markdown-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built clearance-markdown-planner: a browser-local markdown
+        planner for retailers and marketplace sellers with leftover stock. Enter
+        units, weeks left, cost, salvage value, price floor and deepest discount;
+        paste date,price,units history (daily or weekly; ISO, slash and
+        month-name dates; quoted currency fields) and it fits a log-log price
+        elasticity with a time-trend control, shrunk toward a typical retail
+        prior by inverse variance, then solves a stochastic dynamic program over
+        (week, stock, price level) with negative-binomial demand and markdown-only
+        moves to give the week-by-week schedule. Also: exact comparison against
+        hold / one cut / ladder / half-off rules from the same recursion, a
+        behind-or-ahead-of-plan table, a 4000-season simulated range, and a
+        robustness table re-optimising at the 80% ends of the elasticity. New
+        niche: duplicate_check.py found no match above 0.15. First visitor
+        expected from "markdown schedule", "clearance pricing" and "price
+        elasticity calculator" searches and seller communities. Sales files never
+        leave the browser. Unverified against a published dataset: tests use
+        simulated histories with a known elasticity, a closed-form one-week case,
+        DP-versus-simulation agreement within 2% and no-network assertions.
+        Registered score row, launch date, category rule, CI workflow and tree
+        counts; inbound link from shopify-inventory-reorder-planner; regenerated
+        the mirror.
+    mrr_end: 0
   - venture: price-elasticity-estimator
     agent_spend_usd: null
     human_hours: 0
