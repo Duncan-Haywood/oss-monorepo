@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 465 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 466 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free ESPP tax calculator. Enter your offering and purchase prices, discount and lookback to see the after-tax profit of selling at purchase, after a year, or at a qualifying date, and the price where waiting stops paying. Runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Home Sale Exclusion Calculator — How Much Tax Will You Owe Selling Your House?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/home-sale-exclusion-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/home-sale-exclusion-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free home sale tax calculator. Enter your sale price, purchase price and improvements to see how much gain the $250,000 or $500,000 exclusion covers, the tax on the rest, and what waiting to reach two years would save. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Job Offer Total Compensation Calculator — Compare Offers With Equity and Hours</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free mileage log for self-employed drivers and contractors: log trips or track with GPS, price them at the IRS standard rate by date (the 2026 rate changed July 1), check the log for audit gaps, export CSV. Works offline, data stays on your device.</summary>
-  </entry>
-  <entry>
-    <title>Mortgage Escrow Analysis Checker — Why Your Escrow Payment Went Up and What Is In Question</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mortgage-escrow-analysis-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/mortgage-escrow-analysis-checker</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free tool for homeowners: enter your tax and insurance bills and the numbers on your annual escrow statement, and see the payment they support, your shortage, the largest allowed cushion and a twelve-month schedule, with a draft request for the servicer&#39;s worksheet. Runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
