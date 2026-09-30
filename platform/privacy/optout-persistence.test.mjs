@@ -1088,7 +1088,8 @@ const RELATIVE_SELF = relative(
 // +1: `augusta-rule-calculator` graduated.
 // +1: `gabor-granger-price-analyzer` graduated.
 // +1: `sales-commission-plan-comparison-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 468;
+// +1: `insurance-agency-book-valuation-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 469;
 
 let counter = 0;
 function fixture(source) {
