@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 515 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 516 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -332,6 +332,15 @@
     <summary type="text">Free R&amp;D tax credit calculator for startups and small companies. Paste staff wages and time on research, compare the regular and simplified credit, see the Section 280C cost and the payroll-tax offset. Illustrative; nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Renewal Rent Optimizer — how much to raise rent before tenants leave</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/renewal-rent-optimizer/"/>
+    <id>tag:marisstella.dev,2026:tool/renewal-rent-optimizer</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free lease renewal rent calculator for small landlords. Paste your past renewal offers (current rent, offered rent, renewed or left) to see how your tenants&#39; chance of staying falls as the increase rises, what a move-out really costs, and the rent increase with the highest expected income. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Rental Property DSCR Calculator — Cash-on-Cash, Cap Rate, Max Loan</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rental-dscr-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/rental-dscr-calculator</id>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free Rule 72(t) SEPP calculator. Enter your age, IRA balance and interest rate to see substantially equal periodic payments under the RMD method and fixed amortization, how long you are locked in, the balance you need for your income target, and the penalty exposure if you break the schedule. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>SAFE Dilution Calculator — Cap Table After Your Round, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/safe-dilution-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/safe-dilution-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free SAFE dilution calculator for startup founders. Model post-money and pre-money SAFEs with caps and discounts converting in a priced round with an option pool top-up: your cap table, what each SAFE cost you, valuation sensitivity and an exit waterfall. Illustrative; nothing uploaded.</summary>
   </entry>
 </feed>
