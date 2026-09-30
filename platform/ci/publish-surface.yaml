@@ -347,6 +347,9 @@ workflows:
 - workflow: freight-accessorial-auditor-ci.yml
   classification: none
   publishes: []
+- workflow: gabor-granger-price-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: garmin-world-traveler-watchface-ci.yml
   classification: none
   publishes: []
