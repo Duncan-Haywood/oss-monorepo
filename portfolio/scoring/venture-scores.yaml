@@ -23365,3 +23365,44 @@ ventures:
       stated, limits stated. Job data never leaves the browser. Ethics: helps a small
       operator cut return trips and dead stock; nothing is sold, no data is
       collected and no referral is made.
+  - slug: renewal-rent-optimizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical learning (logistic regression by Newton-Raphson and a seeded
+      stratified bootstrap run in the browser) but no language model and no paid
+      API; the renewal curve, its ranges and the refusal to answer on flat offers
+      are the product, not an add-on.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Small landlords
+      paste past renewals and a unit's vacancy and turnover costs and get a
+      renewal-chance curve by rent increase, what a move-out costs, the increase
+      with the highest expected income inside the range they have offered, and a
+      hold-out back-test. Distribution 6: "how much to raise rent at renewal" and
+      "tenant turnover cost" are recurring landlord queries and the rental
+      calculators in this catalogue are natural feeders (volume not measured with
+      an external tool). Defensibility 4: logistic regression is standard and a
+      spreadsheet can tabulate renewals by increase band; the edge is the private
+      no-upload workflow, the vacancy-and-turnover economics, bootstrap ranges and
+      the plain refusal when offers never varied.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical estimate of supplied data, not advice, no warranty,
+      independence from vendors stated, limits stated (including that no
+      rent-control cap or notice rule is known) and an unidentified verdict when the
+      data cannot support an answer. Rent rolls never leave the browser. Ethics:
+      helps a small landlord see how tenants respond to rent increases before
+      setting one, including the cost of losing a good tenant; nothing is sold, no
+      tenant data is collected and no referral is made.

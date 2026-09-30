@@ -1113,7 +1113,8 @@ const RELATIVE_SELF = relative(
 // +1: `crew-dispatch-optimizer` graduated.
 // +1: `bundle-discount-optimizer` graduated.
 // +1: `service-van-stock-optimizer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 496;
+// +1: `renewal-rent-optimizer` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 497;
 
 let counter = 0;
 function fixture(source) {
