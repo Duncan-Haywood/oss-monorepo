@@ -48460,3 +48460,32 @@ entries:
         Also added the missing score row for merchant-cash-advance-true-cost-calculator,
         which had left `score_ventures.py --check` red on main.
     mrr_end: 0
+  - venture: ad-spend-saturation-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built ad-spend-saturation-optimizer: a browser-local ad
+        budget optimizer for multi-channel advertisers. Upload or paste weekly or
+        daily spend and revenue per channel (columns found by header name); a
+        saturating-exponential and an S-shaped Hill response curve are fitted per
+        channel by nonlinear least squares and chosen by small-sample AIC, giving
+        the marginal return on the next dollar at today's spend, seeded bootstrap
+        ranges, an exact dynamic-programme split of the same total budget, the
+        weekly total where contribution peaks at the visitor's margin, and a
+        back-test that refits on earlier weeks and predicts the last 4-12 weeks
+        against a flat-ROAS line; SVG curves and a spreadsheet-injection-safe CSV.
+        New niche: the first idea (reorder-point planner) duplicated
+        shopify-inventory-reorder-planner, so a different one was taken;
+        duplicate_check.py top match 0.16, no cross-channel response-curve tool
+        in ventures/. First visitor expected from "marginal ROAS", "diminishing
+        returns ad spend" and "how to split ad budget" searches, r/PPC and
+        r/ecommerce. Spend and revenue never leave the browser. Unverified against
+        a published dataset: 30 calc tests use parameter recovery on simulated
+        data with known curves, an analytic equal-marginal-return optimum, a
+        brute-force check on S-curves and a check that the recommended split beats
+        the current one under the true curves; page run in Chromium with no
+        external requests. Registered score row, launch date, category rule, CI
+        workflow and tree counts; reciprocal link from
+        customer-lifetime-value-predictor; regenerated the mirror.
+    mrr_end: 0
