@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Client Rebooking Predictor — find overdue and lapsed clients from your own booking history</title>
+  <meta name="description" content="Free lapsed-client report for salons, barbers, groomers, physio, dental and cleaning businesses. Paste your visits (client, date, amount) to see who is overdue and still worth a call, who has probably gone, and a back-test that says whether to trust the ranking. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Client Rebooking Predictor — free, private, in your browser">
+  <meta property="og:description" content="Judge every client against their own rebooking rhythm: who is due, who is overdue but recoverable, who has gone. Honest back-test included.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Client Rebooking Predictor", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste or upload client, visit date and amount. Learns each client's own rebooking rhythm, estimates who is due, who is overdue but still recoverable and who has probably gone, ranks a win-back list by value, and back-tests the ranking against a plain recency rule. Runs entirely in your browser.", "featureList": "lapsed client report, client retention analysis, win-back list, rebooking interval per client, churn probability, salon and barber client retention, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a lapsed client?", "acceptedAnswer": {"@type": "Answer", "text": "A client who has stopped coming back. Most booking systems flag anyone who has not visited in a fixed 60 or 90 days, which treats a monthly regular and a twice-a-year client the same. This tool compares each client's time since the last visit with that client's own usual gap, and with how often clients in your business simply disappear."}}, {"@type": "Question", "name": "How does it tell overdue from gone?", "acceptedAnswer": {"@type": "Answer", "text": "Every client has a usual rhythm, and every visit carries some chance that the client never returns. The longer someone stays quiet beyond their usual gap, the less likely they are still active. The tool fits both pieces from your own history: the rhythm of each client (leaning on the shop-wide rhythm when a client has only one or two visits) and the share of visits that were followed by a return. Overdue means still plausibly active but late; lost means under a 20% chance of still being active."}}, {"@type": "Question", "name": "How accurate is it?", "acceptedAnswer": {"@type": "Answer", "text": "The page shows a back-test. It pretends it is one window earlier, predicts who will come back, then checks who did, and compares that with simply ranking clients by how recently they visited. If the ranking is barely better than chance, the page says so and tells you not to use it. On simulated businesses the ranking is well above a recency rule, but your business is not a simulation, so read the back-test on your own file."}}, {"@type": "Question", "name": "What do I need in the file?", "acceptedAnswer": {"@type": "Answer", "text": "One row per visit: a client identifier (name, email or id), the visit date, and optionally the amount spent. At least 30 clients, at least 40 cases of a client coming back, and at least 180 days of history. A longer history and more repeat visits give a better answer."}}, {"@type": "Question", "name": "Will it contact my clients?", "acceptedAnswer": {"@type": "Answer", "text": "No. It never sends anything and has no access to your contacts. It gives you a list to work from. If you then email or text clients, marketing messages are subject to consent and opt-out rules such as CAN-SPAM, TCPA and GDPR depending on where you and your clients are."}}, {"@type": "Question", "name": "Does it work for one-off services?", "acceptedAnswer": {"@type": "Answer", "text": "Not well. The method assumes clients are meant to return on a rhythm: haircuts, grooming, cleanings, lawn care, physio, tutoring. For roofing or weddings the gap between visits is years and irregular, so most clients look lost, and the page will warn you when gaps are very irregular."}}, {"@type": "Question", "name": "Is my client list uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your client list. It works offline once the page has loaded. Using an id or first name instead of a full name is a good habit anyway."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CLIENT REBOOKING PREDICTOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Who is overdue to rebook, and who has already left?</h1>
+    <p>Paste or upload your visit history: <strong>client, visit date and (best) amount spent</strong>. The tool learns <strong>each client's own rebooking rhythm</strong>, the chance that a quiet client has silently gone, and gives you a <strong>win-back list ranked by value</strong>, a list of who is due this month, and the clients you can stop chasing. It <strong>back-tests itself</strong> against a plain "days since last visit" rule and says so when it cannot beat it.</p>
+    <p class="note">Your client list never leaves this browser tab and this tool never contacts anyone. Statistical estimate from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your visits</h2>
+    <label for="file">Upload a CSV export</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste rows (header optional: client, date, amount)</label>
+    <textarea id="rows" spellcheck="false" placeholder="client,date,amount&#10;C001,2026-01-05,85&#10;C001,2026-02-09,85"></textarea>
+    <div class="row3">
+      <div><label for="horizon">Look-ahead window (days)</label><input id="horizon" inputmode="numeric" value="45"></div>
+      <div><label for="asof">Measure from (optional date)</label><input id="asof" placeholder="defaults to your newest visit, e.g. 2026-09-30"></div>
+    </div>
+    <p class="note">One row per visit. A client can be a name, email or id; first names or ids keep the file light on personal data. Same-day rows merge. At least 30 clients, 40 cases of a client coming back, and 180 days of history. Overdue is measured from the newest date in the file, so export fresh data.</p>
+    <button type="button" id="analyze">Analyse</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your visits, then click Analyse.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div id="trust"></div>
+    <h3>Overdue but still recoverable</h3>
+    <p class="note">Still likely active, at least 1.25x their own usual gap since the last visit. Sorted by chance still active times average spend. First 25 shown; the CSV has everyone.</p>
+    <div class="scroll"><table id="t-overdue"><thead><tr><th>Client</th><th class="n">Visits</th><th>Last visit</th><th class="n">Usual gap</th><th class="n">Quiet for</th><th class="n">Still active</th><th class="n">Avg spend</th></tr></thead><tbody></tbody></table></div>
+    <h3>Due now</h3>
+    <div class="scroll"><table id="t-due"><thead><tr><th>Client</th><th class="n">Visits</th><th>Last visit</th><th class="n">Usual gap</th><th class="n">Quiet for</th><th class="n">Back in window</th><th class="n">Avg spend</th></tr></thead><tbody></tbody></table></div>
+    <h3>Probably lost</h3>
+    <p class="note">Under a 20% chance of still being active. Biggest past customers first.</p>
+    <div class="scroll"><table id="t-lost"><thead><tr><th>Client</th><th class="n">Visits</th><th>Last visit</th><th class="n">Usual gap</th><th class="n">Quiet for</th><th class="n">Still active</th><th class="n">Est. value a year</th></tr></thead><tbody></tbody></table></div>
+    <h3>Back-test</h3>
+    <div id="bt-note" class="note"></div>
+    <div id="bt-table" class="scroll"></div>
+    <button type="button" id="download">Download list CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Model:</strong> the gap between a client's visits is lognormal. A client's own average log-gap is shrunk toward the shop-wide average by an empirical-Bayes weight, so a client with one or two visits borrows your shop's rhythm and a client with ten visits mostly uses their own. After every visit a client either returns (probability π) or has silently gone (1 − π); π is fitted by maximum likelihood over every client's whole history. A client quiet for t days is still active with probability π·S(t) ÷ (π·S(t) + 1 − π), where S(t) is the chance a gap that long happens, and the chance they are back within your window is that, times the chance the visit lands inside the window given it has not happened yet. <strong>Segments:</strong> lost under 20% still active; overdue still plausibly active and at least 1.25x the client's usual gap with two or more visits; due near the usual gap. <strong>Value:</strong> average spend times visits per year (capped at weekly) gives a yearly value; these are history, not a forecast of what a message will win back. <strong>Back-test:</strong> refit at a cut-off one window ago, predict who returns in the window, and score by AUC and Brier score against the plain base rate and against ranking by recency alone.</p>
+    <p><strong>Not modelled:</strong> seasonality, price changes, a stylist or provider leaving, moves, one-off services, referrals, and whether a message would change anyone's mind. This is prediction from past behaviour, not an experiment. <strong>Unverified:</strong> checked against simulated businesses with known rhythms and departures in unit tests, not against a published dataset or a commercial tool.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a lapsed client?</h3>
+    <p>A client who has stopped coming back. Most booking systems flag anyone who has not visited in a fixed 60 or 90 days, which treats a monthly regular and a twice-a-year client the same. This tool compares each client's time since the last visit with that client's own usual gap, and with how often clients in your business simply disappear.</p>
+    <h3>How does it tell overdue from gone?</h3>
+    <p>Every client has a usual rhythm, and every visit carries some chance that the client never returns. The longer someone stays quiet beyond their usual gap, the less likely they are still active. The tool fits both pieces from your own history: the rhythm of each client (leaning on the shop-wide rhythm when a client has only one or two visits) and the share of visits that were followed by a return. Overdue means still plausibly active but late; lost means under a 20% chance of still being active.</p>
+    <h3>How accurate is it?</h3>
+    <p>The page shows a back-test. It pretends it is one window earlier, predicts who will come back, then checks who did, and compares that with simply ranking clients by how recently they visited. If the ranking is barely better than chance, the page says so and tells you not to use it. On simulated businesses the ranking is well above a recency rule, but your business is not a simulation, so read the back-test on your own file.</p>
+    <h3>What do I need in the file?</h3>
+    <p>One row per visit: a client identifier (name, email or id), the visit date, and optionally the amount spent. At least 30 clients, at least 40 cases of a client coming back, and at least 180 days of history. A longer history and more repeat visits give a better answer.</p>
+    <h3>Will it contact my clients?</h3>
+    <p>No. It never sends anything and has no access to your contacts. It gives you a list to work from. If you then email or text clients, marketing messages are subject to consent and opt-out rules such as CAN-SPAM, TCPA and GDPR depending on where you and your clients are.</p>
+    <h3>Does it work for one-off services?</h3>
+    <p>Not well. The method assumes clients are meant to return on a rhythm: haircuts, grooming, cleanings, lawn care, physio, tutoring. For roofing or weddings the gap between visits is years and irregular, so most clients look lost, and the page will warn you when gaps are very irregular.</p>
+    <h3>Is my client list uploaded anywhere?</h3>
+    <p>No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your client list. It works offline once the page has loaded. Using an id or first name instead of a full name is a good habit anyway.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are statistical estimates from the visits you supply; they do not guarantee that any client will return or that contacting a client will bring them back. You are responsible for reviewing and verifying its output before relying on it, and for complying with consent and opt-out rules when you contact clients.</p>
+    <p><strong>Independent.</strong> Not affiliated with any booking, scheduling or CRM vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your client list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../appointment-no-show-analyzer/">appointment no-show analyzer</a>, the <a href="../sales-seasonality-forecaster/">sales seasonality forecaster</a> and the <a href="../no-show-fee-calculator/">no-show fee calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseRows, parseDay, dayToIso, analyze, reportCsv, sampleText, num, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const SHOW = 25;
+
+    function rowsHtml(list, kind) {
+      if (!list.length) return `<tr><td colspan="7" class="note">Nobody in this group.</td></tr>`;
+      return list.slice(0, SHOW).map((c) => `<tr><td>${esc(c.client)}</td><td class="n">${c.visits}</td><td>${dayToIso(c.last)}</td><td class="n">${num(c.typicalGap)} d</td><td class="n">${num(c.quiet)} d</td><td class="n">${pct(kind === "due" ? c.pBack : c.pActive, 0)}</td><td class="n">${kind === "lost" ? (c.perYear === null ? "—" : money(c.perYear)) : (c.avg === null ? "—" : money(c.avg))}</td></tr>`).join("") +
+        (list.length > SHOW ? `<tr><td colspan="7" class="note">and ${list.length - SHOW} more in the CSV</td></tr>` : "");
+    }
+
+    function run() {
+      const parsed = parseRows($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const h = Number($("#horizon").value);
+      const asOfText = $("#asof").value.trim();
+      const asOf = asOfText === "" ? undefined : parseDay(asOfText);
+      if (asOfText !== "" && Number.isNaN(asOf)) { status.textContent = "Could not read the measure-from date. Use a form like 2026-09-30."; report.hidden = true; return false; }
+      const r = analyze(parsed.rows, { hasAmount: parsed.hasAmount, horizon: h, asOf });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary;
+      $("#notices").innerHTML = [...parsed.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = [
+        [`${s.counts.overdue} overdue`, `Still likely active but late${r.hasAmount ? `; about ${money(s.overdueValuePerVisit)} of one more visit each, weighted by chance still active (${money(s.overdueValuePerYear)} a year if all returned to their rhythm)` : ""}`],
+        [`${s.counts.due} due`, `At or near their usual gap, ready to book within the window`],
+        [`${s.counts.lost} probably lost`, r.hasAmount ? `Used to be worth about ${money(s.lostValuePerYear)} a year` : "Under a 20% chance still active"],
+        [`${num(s.medianGap)} days`, `Typical gap between visits across the shop; ${pct(s.pi, 0)} of visits are followed by another`],
+      ];
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      const pill = r.verdict === "usable" ? ["good", "usable"] : r.verdict === "weak" ? ["medium", "weak evidence"] : r.verdict === "unverified" ? ["info", "unverified"] : ["high", "unidentified"];
+      const msg = r.verdict === "usable" ? "On the back-test the ranking beat both the plain base rate and a recency rule. Still an estimate from past behaviour: use it to decide who to contact first, not to predict any single person." : r.verdict === "weak" ? "The ranking was somewhat better than chance on the back-test but not convincingly. Use it as a tie-breaker, not as a verdict on a client." : r.verdict === "unverified" ? "There was not enough history to hold out a test window, so the ranking is untested on your data." : "The back-test did not show a useful ranking. Do not use this list to decide who to contact.";
+      $("#trust").innerHTML = `<div class="warn ${r.verdict === "unidentified" ? "stop" : ""}"><span class="pill ${pill[0]}">${pill[1]}</span>${esc(msg)}</div>`;
+      $("#t-overdue tbody").innerHTML = rowsHtml(r.overdue, "overdue");
+      $("#t-due tbody").innerHTML = rowsHtml(r.due, "due");
+      $("#t-lost tbody").innerHTML = rowsHtml(r.lost, "lost");
+      const t = r.test;
+      $("#bt-note").textContent = t ? `Refit using only visits up to ${dayToIso(t.cutoff)}, then scored on whether each of ${t.n} clients came back in the next ${s.horizon} days (${pct(t.backRate, 0)} did). Ranking quality (AUC, 50% is a coin flip): ${pct(t.auc, 0)} for this model, ${pct(t.aucRecency, 0)} for ranking by days since last visit alone. Brier score ${t.brier.toFixed(3)} against ${t.brierBase.toFixed(3)} for always guessing the base rate (lower is better).` : "Not enough history to hold out a test window.";
+      $("#bt-table").innerHTML = t ? `<table><thead><tr><th>Group of clients</th><th class="n">Predicted to return</th><th class="n">Actually returned</th></tr></thead><tbody>${t.groups.map((g, i) => `<tr><td>${["Least likely third", "Middle third", "Most likely third"][i]} (${g.n})</td><td class="n">${pct(g.predicted, 0)}</td><td class="n">${pct(g.observed, 0)}</td></tr>`).join("")}</tbody></table>` : "";
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = sampleText(); $("#asof").value = "";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 220 invented clients of one salon, not a real business."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Analyse.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your visits, then click Analyse."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "client-rebooking-list.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
