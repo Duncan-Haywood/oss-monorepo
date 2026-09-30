@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Veterinarian Associate Pay Calculator — Compare Two Offers</title>
+  <meta name="description" content="Free veterinarian associate pay calculator. Compare two offers, salary, percentage of production or base plus percentage above a threshold, at the production you expect: yearly value, real percentage after exclusions, hourly rate and where the offers cross. Runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Veterinarian Associate Pay Calculator — free, private, in your browser">
+  <meta property="og:description" content="Salary vs percentage of production: yearly value, real percentage after exclusions, hourly rate and crossover production for two vet associate offers.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Veterinarian Associate Pay Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compares two veterinary associate offers, salary, a percentage of production with a guaranteed minimum, or a base plus a percentage above a threshold: yearly value at your expected production, effective percentage after exclusions, hourly rate, and the production where the offers pay the same. Runs in your browser.", "featureList": "veterinary associate pay, percentage of production, guaranteed base, excluded production, offer comparison, crossover production, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do veterinary associates usually get paid?", "acceptedAnswer": {"@type": "Answer", "text": "Most associate contracts pay a salary, a percentage of production or collections (often with a guaranteed minimum), or a base plus a percentage of production above a threshold. This tool applies exactly those three formulas to the numbers in your offer and compares two offers side by side."}}, {"@type": "Question", "name": "What does the greater-of structure mean?", "acceptedAnswer": {"@type": "Answer", "text": "You are paid the larger of a guaranteed base and a percentage of adjusted production. Until your production is high enough for the percentage to beat the base, you are effectively on a salary. The tool shows the production level where the percentage takes over."}}, {"@type": "Question", "name": "Why is my percentage lower than the number in the contract?", "acceptedAnswer": {"@type": "Answer", "text": "Many contracts apply the percentage only to production after excluding items such as lab work, outside services, pharmacy or discounted procedures. A 22 percent offer with 10 percent excluded pays 19.8 percent of what you bill. Enter the excluded share and the tool shows the real percentage."}}, {"@type": "Question", "name": "Should I enter production or collections?", "acceptedAnswer": {"@type": "Answer", "text": "Enter whichever your contract pays on. Collections are usually lower than production because of discounts and unpaid balances; if your offer pays on collections, enter your expected collections."}}, {"@type": "Question", "name": "Does the tool say what a fair percentage or salary is?", "acceptedAnswer": {"@type": "Answer", "text": "No. It contains no benchmark data and states no market rate. Enter the numbers in your own offers and compare them with survey data you trust and the advice of a contract reviewer."}}, {"@type": "Question", "name": "What is not modelled?", "acceptedAnswer": {"@type": "Answer", "text": "Benefits beyond the yearly amount you enter, malpractice and tail coverage, ownership tracks, taxes, non-compete and restrictive covenant terms, and repayment or clawback of sign-on and relocation money."}}, {"@type": "Question", "name": "Is my offer uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .best td { background: #e3f1e6; font-weight: 600; }
+    td.hot { background: #e3f1e6; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">VETERINARIAN ASSOCIATE PAY CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What is this vet associate offer actually worth, next to the other one?</h1>
+    <p>Enter two offers and the production you expect to generate. You get the <strong>yearly value of each</strong>, the <strong>real percentage after exclusions</strong>, your <strong>hourly rate</strong>, and the <strong>production where the offers pay the same</strong>.</p>
+    <p class="note">Nothing you type leaves this browser tab. Illustrative estimates, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your expected work</h2>
+    <div class="grid">
+      <div><label for="prod">Yearly production or collections you expect to generate, dollars</label><input type="text" id="prod" inputmode="decimal" placeholder="800000" autocomplete="off"></div>
+      <div><label for="hours">Hours worked per week</label><input type="text" id="hours" inputmode="decimal" placeholder="40" autocomplete="off"></div>
+      <div><label for="weeks">Weeks worked per year</label><input type="text" id="weeks" inputmode="decimal" placeholder="48" autocomplete="off"></div>
+      <div><label for="stayYears">Years you expect to stay (spreads the sign-on bonus)</label><input type="text" id="stayYears" inputmode="decimal" placeholder="3" autocomplete="off"></div>
+      <div><label for="target">Cash pay you want, dollars a year (optional)</label><input type="text" id="target" inputmode="decimal" placeholder="150000" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Offer A</h2>
+    <div class="grid">
+      <div><label for="modeA">How this offer pays</label><select id="modeA"><option value="salary">Salary only</option><option value="greater">Greater of a base or a percentage of production</option><option value="plus">Base plus a percentage above a threshold</option></select></div>
+      <div><label for="baseA">Base salary or guaranteed minimum, dollars a year</label><input type="text" id="baseA" inputmode="decimal" placeholder="120000" autocomplete="off"></div>
+      <div><label for="pctA">Percentage of production or collections (blank for salary)</label><input type="text" id="pctA" inputmode="decimal" placeholder="22" autocomplete="off"></div>
+      <div><label for="exclA">Share of production excluded before the percentage, percent (lab, outside services)</label><input type="text" id="exclA" inputmode="decimal" placeholder="10" autocomplete="off"></div>
+      <div><label for="thresholdA">Production threshold, dollars a year (base-plus offers only)</label><input type="text" id="thresholdA" inputmode="decimal" placeholder="400000" autocomplete="off"></div>
+      <div><label for="signOnA">Sign-on bonus, dollars</label><input type="text" id="signOnA" inputmode="decimal" placeholder="10000" autocomplete="off"></div>
+      <div><label for="otherA">Other yearly value (CE allowance, dues, licences, malpractice paid), dollars</label><input type="text" id="otherA" inputmode="decimal" placeholder="3000" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Offer B</h2>
+    <div class="grid">
+      <div><label for="modeB">How this offer pays</label><select id="modeB"><option value="salary">Salary only</option><option value="greater">Greater of a base or a percentage of production</option><option value="plus">Base plus a percentage above a threshold</option></select></div>
+      <div><label for="baseB">Base salary or guaranteed minimum, dollars a year</label><input type="text" id="baseB" inputmode="decimal" placeholder="120000" autocomplete="off"></div>
+      <div><label for="pctB">Percentage of production or collections (blank for salary)</label><input type="text" id="pctB" inputmode="decimal" placeholder="22" autocomplete="off"></div>
+      <div><label for="exclB">Share of production excluded before the percentage, percent (lab, outside services)</label><input type="text" id="exclB" inputmode="decimal" placeholder="10" autocomplete="off"></div>
+      <div><label for="thresholdB">Production threshold, dollars a year (base-plus offers only)</label><input type="text" id="thresholdB" inputmode="decimal" placeholder="400000" autocomplete="off"></div>
+      <div><label for="signOnB">Sign-on bonus, dollars</label><input type="text" id="signOnB" inputmode="decimal" placeholder="10000" autocomplete="off"></div>
+      <div><label for="otherB">Other yearly value (CE allowance, dues, licences, malpractice paid), dollars</label><input type="text" id="otherB" inputmode="decimal" placeholder="3000" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <button type="button" id="analyze">Compare</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Fill in your expected production and both offers, then click Compare.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>If your production is different</h3>
+    <div class="scroll"><table id="size-table"><thead><tr><th>Scenario</th><th class="n">Production</th><th class="n">Offer A</th><th class="n">Offer B</th><th class="n">A minus B</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>Adjusted production = production less the excluded share. Salary pays the base. Greater-of pays the larger of the base and the percentage of adjusted production. Base-plus pays the base plus the percentage of adjusted production above the threshold. Yearly value = cash pay + other yearly value + the sign-on bonus divided by the years you expect to stay; hourly = yearly value over hours per week times weeks. The crossover is any production level where the two yearly values are equal.</p>
+    <p><strong>Not modelled:</strong> benefits beyond the yearly amount you enter, malpractice tail, ownership tracks, taxes, repayment or clawback of sign-on and relocation money, and restrictive covenants. <strong>Unverified:</strong> checked by hand calculation and unit tests only. Have a contract attorney review the actual agreement.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do veterinary associates usually get paid?</h3>
+    <p>Most associate contracts pay a salary, a percentage of production or collections (often with a guaranteed minimum), or a base plus a percentage of production above a threshold. This tool applies exactly those three formulas to the numbers in your offer and compares two offers side by side.</p>
+    <h3>What does the greater-of structure mean?</h3>
+    <p>You are paid the larger of a guaranteed base and a percentage of adjusted production. Until your production is high enough for the percentage to beat the base, you are effectively on a salary. The tool shows the production level where the percentage takes over.</p>
+    <h3>Why is my percentage lower than the number in the contract?</h3>
+    <p>Many contracts apply the percentage only to production after excluding items such as lab work, outside services, pharmacy or discounted procedures. A 22 percent offer with 10 percent excluded pays 19.8 percent of what you bill. Enter the excluded share and the tool shows the real percentage.</p>
+    <h3>Should I enter production or collections?</h3>
+    <p>Enter whichever your contract pays on. Collections are usually lower than production because of discounts and unpaid balances; if your offer pays on collections, enter your expected collections.</p>
+    <h3>Does the tool say what a fair percentage or salary is?</h3>
+    <p>No. It contains no benchmark data and states no market rate. Enter the numbers in your own offers and compare them with survey data you trust and the advice of a contract reviewer.</p>
+    <h3>What is not modelled?</h3>
+    <p>Benefits beyond the yearly amount you enter, malpractice and tail coverage, ownership tracks, taxes, non-compete and restrictive covenant terms, and repayment or clawback of sign-on and relocation money.</p>
+    <h3>Is my offer uploaded anywhere?</h3>
+    <p>No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are illustrative estimates that depend on the numbers you enter; real pay depends on the written contract, your production and how the practice defines it. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any veterinary practice, hospital group, corporate consolidator, recruiter or compensation survey publisher, and no company is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>comparison_calculated</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Comparing physician offers? The <a href="../physician-wrvu-contract-calculator/">physician wRVU contract calculator</a> is the sibling tool. Weighing a whole job package? See the <a href="../travel-nurse-contract-comparison-calculator/">travel nurse contract comparison</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, reportCsv, sampleInput, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    const KEYS = ["modeA", "baseA", "pctA", "exclA", "thresholdA", "signOnA", "otherA", "modeB", "baseB", "pctB", "exclB", "thresholdB", "signOnB", "otherB", "prod", "stayYears", "hours", "weeks", "target"];
+    let last = null;
+
+    function read() { return Object.fromEntries(KEYS.map((k) => [k, $("#" + k).value])); }
+    function fill(x) { KEYS.forEach((k) => { $("#" + k).value = x[k] ?? (k.startsWith("mode") ? "salary" : ""); }); }
+
+    function run() {
+      const a = analyze(read());
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a;
+      const [da, db] = a.detail;
+      const tiles = [[usd(da.total), "Offer A yearly value"], [usd(db.total), "Offer B yearly value"], ["$" + da.hourly.toFixed(2), "A value per hour worked"], ["$" + db.hourly.toFixed(2), "B value per hour worked"], [(da.cashShareOfProduction * 100).toFixed(1) + "%", "A cash pay as % of production"], [(db.cashShareOfProduction * 100).toFixed(1) + "%", "B cash pay as % of production"]];
+      if (a.crossovers.length) tiles.push([usd(a.crossovers[0]), "production where A and B first pay the same"]);
+      $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#size-table tbody").innerHTML = a.scenarios.map((s) => `<tr class="${s.label === "Your expected production" ? "best" : ""}"><td>${esc(s.label)}</td><td class="n">${usd(s.prod)}</td><td class="n">${usd(s.a)}</td><td class="n">${usd(s.b)}</td><td class="n">${usd(s.diff)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("comparison_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: two invented offers, not a real contract."; }
+    });
+    $("#clear-all").addEventListener("click", () => { fill({}); report.hidden = true; last = null; status.textContent = "Fill in your expected production and both offers, then click Compare."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "vet-associate-offer-comparison.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
