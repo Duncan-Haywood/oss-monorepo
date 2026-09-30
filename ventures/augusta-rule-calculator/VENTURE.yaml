@@ -1,0 +1,58 @@
+name: augusta-rule-calculator
+description: >-
+  Free browser tool for business owners who own their home: prices the Augusta
+  rule (renting the home to your own business for 14 days or fewer). Reports
+  the rent excluded from income, federal, self-employment and state tax saved,
+  net saving after documentation costs, and the saving if the daily rate is
+  cut back. Every tax rate is an editable input. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. No slug or README in
+# ventures/ covers the 14-day home-rental rule (nearest: s-corp-reasonable-
+# compensation-calculator, solo-401k-contribution-calculator, qbi-deduction-
+# calculator, which are different levers). An owner renting a home for 12 days
+# at a defensible $1,000-$2,000 a day moves $12k-$24k out of the tax base, so
+# the saving is thousands of dollars a year for a niche with money and a real
+# question ("is the paperwork worth it, and what if the rate is challenged?").
+#
+# First visitor: S-corp and single-member-LLC owners, small-business tax
+# forums and blogs, searches "Augusta rule calculator" and "Augusta rule tax
+# savings"; volume not measured with an external tool.
+#
+# Privacy is the liability boundary: figures never leave the browser (tests
+# assert no network calls). No tax rate or rule is asserted as current: every
+# rate is an input, and the 14-day ceiling is enforced by refusing more.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only; no
+# referral fees, so the tool carries no conflict of interest. Liability:
+# illustrative estimates, not advice; warns that the rate must be a defensible
+# fair price and that qualification depends on facts; omissions stated.
+# Unverified: hand calculation and unit tests only.
+
+hypotheses:
+  - claim: >-
+      Business owners weighing the Augusta rule will use a no-signup tool that
+      shows the tax saved net of costs and the effect of a lower rate, instead
+      of a promoter's sales calculator.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the result contradicts their own arithmetic on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/augusta-rule-calculator/
+  analytics: null

@@ -1634,6 +1634,21 @@ workflows:
 - workflow: youtube-revenue-rpm-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: dental-associate-pay-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: veterinarian-associate-pay-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: section-83b-election-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: pslf-vs-refinance-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: augusta-rule-calculator-ci.yml
+  classification: none
+  publishes: []
 gitops:
 - application: agents
   path: gitops/agents
@@ -1682,15 +1697,3 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
-- workflow: dental-associate-pay-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: veterinarian-associate-pay-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: section-83b-election-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: pslf-vs-refinance-calculator-ci.yml
-  classification: none
-  publishes: []
