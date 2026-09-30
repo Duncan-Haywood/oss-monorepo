@@ -48460,3 +48460,25 @@ entries:
         Also added the missing score row for merchant-cash-advance-true-cost-calculator,
         which had left `score_ventures.py --check` red on main.
     mrr_end: 0
+  - venture: commercial-lease-effective-rent-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built commercial-lease-effective-rent-calculator: a browser-local comparison of up
+        to three commercial lease offers for small-business tenants. Free rent,
+        TI allowance, rent escalations, NNN / CAM growth, fit-out shortfall,
+        one-time costs and the returned deposit go into a monthly schedule;
+        output is net effective rent, levelized present-value all-in cost per
+        square foot per year (the ranking), an early-exit cost curve, year-by-year
+        tables, findings (cheapest headline is not cheapest lease, thin TI cover,
+        heavy NNN share, total commitment) and the exact base rent at which a
+        worse offer would match the best one; CSV download. New niche: repo
+        search for "effective rent", "commercial lease" and "tenant improvement"
+        found nothing. First visitor expected from "net effective rent
+        calculator" and "NNN lease calculator" searches and small-business
+        communities. Unverified against a broker model: 16 hand-checked
+        calculation tests plus 17 page tests; page run in Chromium with axe
+        (scrollable-region fix applied). Registered score row, launch date, CI
+        workflow and tree counts; regenerated the mirror.
+    mrr_end: 0

@@ -22761,3 +22761,36 @@ ventures:
       warranty, no cloud vendor endorsed, omissions stated. Usage data never
       leaves the browser. Ethics: helps a team avoid over-committing; nothing
       is sold and no referral is made.
+  - slug: commercial-lease-effective-rent-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on the lease terms the visitor enters.
+    basis: >-
+      Screened 2026-09-30; full write-up in this venture's own VENTURE.yaml
+      comment. Small-business tenants holding two or three lease offers get
+      net effective rent, levelized all-in cost per square foot, early-exit
+      cost and the base rent that would match the best offer. Distribution 7:
+      "net effective rent calculator", "commercial lease comparison" and "NNN
+      lease calculator" are high-intent recurring queries (volume not measured
+      with an external tool). Defensibility 3: the arithmetic is public; the
+      edge is tenant-side framing, a counter-offer number and no signup.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on entered terms, not legal or financial advice, no
+      warranty, no landlord or broker named or ranked, omissions stated.
+      Figures never leave the browser. Ethics: helps a tenant see what a lease
+      really costs before negotiating; nothing is sold and no referral fee is
+      taken.
