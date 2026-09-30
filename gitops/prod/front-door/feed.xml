@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 504 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 506 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -69,6 +69,15 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free cash balance plan calculator for self-employed and small-practice owners aged 40+. Estimates a 2026 contribution range by age, stacked with a 401(k) and profit sharing, tax savings, employee cost and a multi-year projection. Illustrative; an actuary sets the real number. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Clearance Markdown Planner — when and how deep to cut price on leftover stock</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/clearance-markdown-planner/"/>
+    <id>tag:marisstella.dev,2026:tool/clearance-markdown-planner</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free clearance markdown planner for retailers and sellers. Enter the units you have left and the weeks you have; it estimates price elasticity from your own sales history and plans the week-by-week markdown that maximises expected revenue. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Commercial Lease Effective Rent Calculator — Compare Lease Offers, Net Effective Rent</title>
@@ -242,6 +251,15 @@
     <summary type="text">Free physician wRVU contract calculator. Enter two job offers, base salary, incentive threshold and dollars per wRVU, to see what each pays at your expected volume, where they cross, and your effective rate per wRVU. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Price Elasticity Estimator — find the price that earns the most from your sales</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/price-elasticity-estimator/"/>
+    <id>tag:marisstella.dev,2026:tool/price-elasticity-estimator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free price elasticity calculator for sellers. Paste your sales history (date, price, units) to estimate how demand reacts to price, get a confidence interval, the profit-maximising price within what you have tested, and a back-test that says whether to trust it. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>PSLF vs Refinance Calculator — Should You Refinance Federal Loans?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pslf-vs-refinance-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/pslf-vs-refinance-calculator</id>
@@ -348,23 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free startup stock option calculator. See what an offer&#39;s options are really worth after dilution, liquidation preferences, vesting cliff, exercise cost and tax, weighted by the exit odds you choose. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Tax-Loss Harvesting Calculator — How Much Would Selling Losers Save You</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tax-loss-harvesting-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/tax-loss-harvesting-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free tax-loss harvesting calculator. Enter your realized gains, carried-forward losses and the positions you could sell at a loss to see the tax saved this year, the $3,000 ordinary deduction, the carryforward and wash-sale risk. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Usage-Based Pricing Simulator — Compare Metered Pricing Plans on Your Customers</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/usage-based-pricing-simulator/"/>
-    <id>tag:marisstella.dev,2026:tool/usage-based-pricing-simulator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free usage-based pricing simulator. Compare up to three metered plans (platform fee, included units, overage price, volume tier) against your customer usage distribution and see revenue, margin, bill shock, customers below cost, revenue if customers pick their cheapest plan, and revenue as usage grows. Runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

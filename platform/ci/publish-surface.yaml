@@ -347,6 +347,9 @@ workflows:
 - workflow: cleaning-dilution-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: clearance-markdown-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: client-profitability-time-analyzer-ci.yml
   classification: none
   publishes: []
@@ -1148,6 +1151,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: pressure-washing-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: price-elasticity-estimator-ci.yml
   classification: none
   publishes: []
 - workflow: print-atelier-ci.yml

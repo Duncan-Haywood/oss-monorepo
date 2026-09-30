@@ -2848,8 +2848,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `customer-lifetime-value-predictor` graduated (browser-local CLV predictor, BG/NBD and Gamma-Gamma).
     # +1: `commercial-lease-effective-rent-calculator` graduated (browser-local commercial lease offer comparison).
     # +1: `sales-seasonality-forecaster` graduated (browser-local seasonal sales forecast, Holt-Winters, cash cushion).
+    # +1: `clearance-markdown-planner` graduated (browser-local markdown schedule planner, price elasticity and dynamic programming).
     # +1: `liquidation-pallet-bid-calculator` graduated (browser-local liquidation pallet max bid, Monte Carlo recovery simulation).
-    total = 504  # `infra/OWNER_CHECKLIST.md`'s own "N of the 504 tools" wording.
+    total = 506  # `infra/OWNER_CHECKLIST.md`'s own "N of the 506 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
