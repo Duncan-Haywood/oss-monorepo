@@ -1682,6 +1682,9 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
+- workflow: dental-associate-pay-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: section-83b-election-calculator-ci.yml
   classification: none
   publishes: []
