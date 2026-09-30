@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 506 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 507 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free A/B test significance calculator. Enter visitors and conversions to get the p-value, confidence interval, sample ratio mismatch check, Bayesian chance to beat control and an always-valid result for tests you peeked at. Plans sample size too. Nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Ad Incrementality Test Analyzer — did your ads cause the sales?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ad-incrementality-test-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/ad-incrementality-test-analyzer</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free ad incrementality calculator for geo and store holdout tests. Paste sales by region, name the test regions and the start date to get the incremental lift with an interval, incremental ROAS, profit after ad spend and the smallest lift your test could detect. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Ad Spend Saturation Optimizer — marginal ROAS by channel</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free startup exit waterfall calculator. Enter the sale price and your cap table (common, options, preferred series with liquidation preference, participation caps, seniority and dividends) and see what each class is paid, the exit price where each series converts, and a sweep across exit prices. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Startup Stock Option Value Calculator — What Are Your Options Worth?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/startup-option-value-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/startup-option-value-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free startup stock option calculator. See what an offer&#39;s options are really worth after dilution, liquidation preferences, vesting cliff, exercise cost and tax, weighted by the exit odds you choose. Runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
