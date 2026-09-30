@@ -1,0 +1,52 @@
+name: locum-tenens-vs-employed-calculator
+description: >-
+  Free browser tool for physicians, NPs, PAs and CRNAs comparing a locum
+  tenens (1099) contract with an employed (W-2) offer: annual take-home after
+  rough federal tax, self-employment tax, malpractice tail, benefits and
+  unpaid gaps, the break-even locum hourly rate, and a sensitivity table on
+  weeks worked. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. Neighbours in the tree:
+# travel-nurse-contract-comparison-calculator (nurse travel contracts, not
+# locum 1099 vs W-2) and physician-wrvu-contract-calculator (employed
+# compensation only). Neither compares a 1099 locum year against an employed
+# offer. Audience: clinicians with high incomes and a real, recurring decision.
+#
+# First visitor: r/medicine, r/Residency, r/physicianassistant, r/CRNA and
+# locum-focused forum threads on "locum vs employed", "1099 vs W-2 physician";
+# search volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: rough federal arithmetic on figures the visitor enters, not tax
+# advice; the page lists what is not modelled. Unverified: hand calculation
+# and unit tests only; 2026 constants were copied from sibling ventures.
+# Figures never leave the browser.
+
+hypotheses:
+  - claim: >-
+      Clinicians will use a no-signup locum-vs-employed calculator that
+      includes self-employment tax, benefits, malpractice tail and unpaid
+      gaps, and will return to rerun it for each offer they receive.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a take-home or break-even figure contradicts their own hand calculation on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/locum-tenens-vs-employed-calculator/
+  analytics: null
