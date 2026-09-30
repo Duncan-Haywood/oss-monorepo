@@ -22027,3 +22027,37 @@ ventures:
       benchmark asserted, contract attorney recommended, omissions stated.
       Offers never leave the browser. Ethics: helps a physician check a large
       contract; nothing is sold and no referral is made.
+  - slug: section-83b-election-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Founders and
+      early employees decide an 83(b) election once, inside 30 days; the tool
+      shows tax at grant, tax at vest, break-even and forfeiture risk.
+      Distribution 6: "83(b) election calculator" and founder-forum threads are
+      recurring queries; volume not measured with an external tool.
+      Defensibility 3: arithmetic is simple; the edge is a private, no-signup
+      answer with the deadline and forfeiture risk stated.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimates not advice, no warranty, independence
+      from the IRS, law firms and equity platforms stated, no valuation
+      asserted, tax professional recommended, omissions stated, deadline
+      stated conservatively. Grants never leave the browser. Ethics: helps a
+      founder check a one-time tax choice; nothing is sold and no referral is
+      made.
