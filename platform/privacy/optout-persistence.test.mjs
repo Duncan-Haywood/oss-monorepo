@@ -1081,8 +1081,9 @@ const RELATIVE_SELF = relative(
 // +1: `physician-wrvu-compensation-calculator` graduated.
 // +1: `dental-associate-pay-calculator` graduated.
 // +1: `section-83b-election-calculator` graduated.
+// +1: `startup-option-value-calculator` graduated.
 // +1: `pslf-vs-refinance-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 462;
+const SWITCHES_IN_THE_CATALOGUE = 463;
 
 let counter = 0;
 function fixture(source) {
