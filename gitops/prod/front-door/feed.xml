@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 510 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 511 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -287,6 +287,15 @@
     <summary type="text">Free price elasticity calculator for sellers. Paste your sales history (date, price, units) to estimate how demand reacts to price, get a confidence interval, the profit-maximising price within what you have tested, and a back-test that says whether to trust it. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Project Estimate Calibrator — how much to pad your next estimate</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/project-estimate-calibrator/"/>
+    <id>tag:marisstella.dev,2026:tool/project-estimate-calibrator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free estimate buffer calculator for freelancers, agencies and contractors. Paste your finished projects (estimate and actual) to see how your estimates really miss, the hours or price that covers 80% of outcomes on the next job, and the chance a fixed price loses money. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>PSLF vs Refinance Calculator — Should You Refinance Federal Loans?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pslf-vs-refinance-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/pslf-vs-refinance-calculator</id>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free newsvendor calculator for sellers of seasonal, holiday and one-time products. Enter past seasons or a low, likely and high guess, your price, cost and supplier price breaks to get the order quantity that maximises expected profit, the chance of selling out or losing money, and a back-test on your own history. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>83(b) Election Calculator — Tax With vs Without, Restricted Stock</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/section-83b-election-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/section-83b-election-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free 83(b) election calculator for founders and startup employees with vesting stock. See tax due at grant, tax at each vest date, the break-even sale value, the tax wasted if you leave early, and your 30-day deadline. Runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
