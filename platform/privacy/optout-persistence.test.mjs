@@ -1117,7 +1117,8 @@ const RELATIVE_SELF = relative(
 // +1: `trial-conversion-timing-analyzer` graduated.
 // +1: `str-nightly-rate-optimizer` graduated.
 // +1: `quote-follow-up-timing` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 500;
+// +1: `rental-rent-optimizer` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 501;
 
 let counter = 0;
 function fixture(source) {
