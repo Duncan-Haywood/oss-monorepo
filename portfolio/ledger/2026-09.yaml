@@ -48892,3 +48892,28 @@ entries:
         Registered score row, launch date, category rule and CI workflow; inbound
         links from self-storage-rate-increase-calculator and rental-dscr-calculator.
     mrr_end: 0
+  - venture: str-nightly-rate-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built str-nightly-rate-optimizer: a browser-local tool for
+        short-term rental hosts. Paste or upload listed nights (nightly price and
+        booked or empty) and enter the platform fee, turnover cost per stay,
+        average stay and cost per guest night; fits a logistic booking-chance curve
+        on ln(price) (Newton-Raphson with a tiny ridge, inverse-Hessian 95% interval
+        on the slope), finds the nightly price with the highest expected profit per
+        listed night searched only inside the range actually listed (edge-of-range
+        warning), 300 seeded outcome-stratified bootstrap resamples for the 80%
+        ranges of the best price and the gain, a what-if table, observed-vs-fitted
+        booking rate by quarter of prices, and a 75/25 hold-out back-test on
+        log-loss. Refuses fewer than 40 nights, fewer than 8 booked or empty, or
+        prices that barely varied; flags a non-negative slope (prices raised on
+        nights already in demand), perfect separation and a usual price outside the
+        tested range. New niche: duplicate_check.py best match
+        str-host-payout-calculator at 0.39 (what a booking nets, no price choice).
+        First visitor expected from "what should I charge per night airbnb" searches
+        and host forums. Bookings never leave the browser. Unverified against a real
+        host's history: tests use simulated nights with known curves and no-network
+        assertions. Registered score row, launch date, category rule and CI workflow.
+    mrr_end: 0

@@ -23406,3 +23406,43 @@ ventures:
       helps a small landlord see how tenants respond to rent increases before
       setting one, including the cost of losing a good tenant; nothing is sold, no
       tenant data is collected and no referral is made.
+  - slug: str-nightly-rate-optimizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical learning (logistic regression by Newton-Raphson and a seeded
+      stratified bootstrap run in the browser) but no language model and no paid
+      API; the booking curve, its ranges and the refusal to answer on flat prices
+      are the product, not an add-on.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Short-term rental
+      hosts paste listed nights (price and booked or empty) and their fee and
+      turnover costs and get a booking-chance curve by price, the nightly price
+      with the highest expected profit per listed night inside the range they have
+      listed, and a hold-out back-test. Distribution 6: "what should I charge per
+      night" and "airbnb nightly rate calculator" are recurring host queries and
+      the STR calculators in this catalogue are natural feeders (volume not
+      measured with an external tool). Defensibility 4: logistic regression is
+      standard and paid dynamic-pricing services use market data this does not; the
+      edge is free, private, no-upload use, the fee-and-turnover economics,
+      bootstrap ranges and the plain refusal when prices never varied.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical estimate of supplied data, not advice, no warranty,
+      independence from platforms and vendors stated, limits stated (taxes,
+      licensing and platform rules not known) and an unidentified verdict when the
+      data cannot support an answer. Bookings never leave the browser. Ethics: helps
+      a small host see how their own bookings respond to price; nothing is sold, no
+      guest data is collected and no referral is made.
