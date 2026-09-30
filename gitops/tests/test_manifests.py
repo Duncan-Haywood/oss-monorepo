@@ -2838,7 +2838,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `gabor-granger-price-analyzer` graduated (browser-local Gabor-Granger willingness-to-pay analyzer).
     # +1: `sales-commission-plan-comparison-calculator` graduated (browser-local sales offer comparison across quota attainment).
     # +1: `rule-72t-sepp-calculator` graduated (browser-local Rule 72(t) SEPP early IRA withdrawal calculator).
-    total = 489  # `infra/OWNER_CHECKLIST.md`'s own "N of the 489 tools" wording.
+    total = 490  # `infra/OWNER_CHECKLIST.md`'s own "N of the 490 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
