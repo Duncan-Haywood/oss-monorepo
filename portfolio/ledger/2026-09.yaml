@@ -48810,3 +48810,27 @@ entries:
         tests use a hand-worked Kaplan-Meier calculation and invented books.
         Regenerated the mirror.
     mrr_end: 0
+  - venture: bundle-discount-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built bundle-discount-optimizer: a browser-local bundle
+        pricing tool for Shopify, Etsy, Amazon and other small sellers. Paste
+        an order export (order id, sku) and product price and cost; it counts which
+        pairs are already bought together, prices each pairing (the discount's cost
+        on orders that already pair against the profit from a higher attach rate),
+        searches the discount with the best estimated profit, and reports the
+        break-even attach-rate rise the discount must cause, profit at 5-20% off,
+        a newest-30% hold-out check that the pairing persists, and 300-resample
+        bootstrap ranges. The response to a discount is a stated assumption because
+        past orders contain no discounted bundle. On the invented 420-order sample it
+        ranks the two planted pairings first. New niche: duplicate_check.py best match
+        shopify-payout-profit-analyzer at 0.22 (no venture prices a bundle).
+        First visitor expected from "bundle discount calculator" and "which
+        products to bundle" searches and r/shopify, r/EtsySellers. Orders never leave
+        the browser. Unverified against a real store: tests check the profit algebra
+        against hand calculations and the break-even against zero profit, pair counts
+        against brute force, and assert no network calls. Registered score row, launch
+        date, category rule, CI workflow and tree counts; regenerated the mirror.
+    mrr_end: 0
