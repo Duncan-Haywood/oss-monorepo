@@ -21736,6 +21736,7 @@ ventures:
     composite: 6.0
     rater_b: null
     floor: 1
+    floor_dimension: ai_leverage
     floor_note: >-
       No model in the product, deliberately. Every figure is deterministic
       arithmetic on numbers the visitor types.
