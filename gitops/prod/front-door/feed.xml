@@ -184,7 +184,7 @@
     <id>tag:marisstella.dev,2026:tool/van-westendorp-pricing-analyzer</id>
     <published>2026-09-30T00:00:00Z</published>
     <updated>2026-09-30T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free Van Westendorp price sensitivity meter. Paste survey answers for too cheap, cheap, expensive and too expensive and get the acceptable price range, the optimal price point and the indifference price, with a chart and bootstrap bands. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
