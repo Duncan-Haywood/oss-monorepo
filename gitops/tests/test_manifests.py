@@ -2828,7 +2828,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `medicare-irmaa-cliff-calculator` graduated (browser-local 2026 Medicare IRMAA tier, cliff distance and SSA-44 checklist).
     # +1: `rmd-calculator` graduated (browser-local required minimum distribution planner).
     # +1: `rsu-withholding-gap-calculator` graduated (browser-local RSU withholding gap calculator).
-    total = 462  # `infra/OWNER_CHECKLIST.md`'s own "N of the 462 tools" wording.
+    # +1: `espp-tax-calculator` graduated (browser-local ESPP sell-or-hold tax calculator).
+    total = 463  # `infra/OWNER_CHECKLIST.md`'s own "N of the 463 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
