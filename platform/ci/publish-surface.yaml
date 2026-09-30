@@ -92,6 +92,9 @@ workflows:
 - workflow: affiliate-disclosure-checker-ci.yml
   classification: none
   publishes: []
+- workflow: agent-brokerage-split-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: agent-cross-review.yml
   classification: none
   publishes: []
@@ -530,6 +533,9 @@ workflows:
 - workflow: error-rate-disclosure-ci.yml
   classification: none
   publishes: []
+- workflow: espp-tax-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: estate-sale-net-proceeds-calculator-ci.yml
   classification: none
   publishes: []
@@ -713,6 +719,9 @@ workflows:
 - workflow: home-office-deduction-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: home-sale-exclusion-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: home-service-lead-roi-analyzer-ci.yml
   classification: none
   publishes: []
@@ -767,10 +776,16 @@ workflows:
 - workflow: irrigation-winterization-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: iso-exercise-amt-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: janitorial-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: job-margin-variance-ci.yml
+  classification: none
+  publishes: []
+- workflow: job-offer-total-comp-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: junk-removal-bid-calculator-ci.yml
@@ -819,6 +834,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: llm-api-pricing-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: llm-usage-log-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: llms-txt-generator-ci.yml
@@ -1072,9 +1090,6 @@ workflows:
 - workflow: print-atelier-ci.yml
   classification: none
   publishes: []
-- workflow: rsu-withholding-gap-calculator-ci.yml
-  classification: none
-  publishes: []
 - workflow: print-on-demand-profit-calculator-ci.yml
   classification: none
   publishes: []
@@ -1190,10 +1205,16 @@ workflows:
 - workflow: reverb-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: rmd-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: roofing-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: roth-conversion-bracket-fill-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: rsu-withholding-gap-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: s-corp-reasonable-compensation-calculator-ci.yml
@@ -1314,6 +1335,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: social-preview-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: social-security-claiming-age-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: sod-install-bid-calculator-ci.yml
@@ -1446,6 +1470,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: translator-project-quote-ci.yml
+  classification: none
+  publishes: []
+- workflow: travel-nurse-contract-comparison-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: tree-service-bid-calculator-ci.yml
@@ -1619,24 +1646,3 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
-- workflow: social-security-claiming-age-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: rmd-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: travel-nurse-contract-comparison-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: iso-exercise-amt-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: espp-tax-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: home-sale-exclusion-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: job-offer-total-comp-calculator-ci.yml
-  classification: none
-  publishes: []
