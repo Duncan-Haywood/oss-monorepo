@@ -1,0 +1,55 @@
+name: sales-commission-plan-comparison-calculator
+description: >-
+  Free browser tool for account executives, SDRs and sales managers weighing
+  offers: enter two commission plans (base, target variable, threshold,
+  accelerator, cap, signing bonus, ramp) and see pay at every quota
+  attainment, where the plans cross, and which pays more at the attainment
+  you expect. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "sales commission plan comparison accelerators quota attainment calculator
+# for account executives": top match 0.12, unrelated. Existing compensation
+# ventures cover physicians, dentists, vets and travel nurses; none covers
+# quota-carrying sales roles, the largest group paid on a variable plan.
+# Users have money and a real decision: an offer with a 50% threshold or a
+# 2x cap can pay tens of thousands less than a same-OTE offer at the
+# attainment most reps land.
+#
+# First visitor: r/sales, r/techsales and sales-comp threads on "OTE vs base",
+# searches "commission calculator", "sales compensation plan comparison",
+# "accelerator commission calculator"; volume not measured with an external
+# tool.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: arithmetic on plan terms the visitor enters, not advice or a
+# prediction of earnings; the page says what it leaves out. Unverified: hand
+# calculation and unit tests only. Figures never leave the browser.
+
+hypotheses:
+  - claim: >-
+      Salespeople comparing offers will use a no-signup tool that shows pay
+      across quota attainment, not just at OTE, and will return for each new
+      offer or plan change.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a pay figure contradicts their own hand calculation on the same plan terms.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/sales-commission-plan-comparison-calculator/
+  analytics: null

@@ -2836,7 +2836,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `heat-pump-vs-furnace-calculator` graduated (browser-local homeowner heat pump vs gas furnace calculator).
     # +1: `van-westendorp-pricing-analyzer` graduated (browser-local Van Westendorp price survey analyzer).
     # +1: `gabor-granger-price-analyzer` graduated (browser-local Gabor-Granger willingness-to-pay analyzer).
-    total = 488  # `infra/OWNER_CHECKLIST.md`'s own "N of the 488 tools" wording.
+    # +1: `sales-commission-plan-comparison-calculator` graduated (browser-local sales offer comparison across quota attainment).
+    total = 489  # `infra/OWNER_CHECKLIST.md`'s own "N of the 489 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

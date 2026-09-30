@@ -1274,6 +1274,9 @@ workflows:
 - workflow: salary-range-posting-check-ci.yml
   classification: none
   publishes: []
+- workflow: sales-commission-plan-comparison-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: salt-cap-calculator-ci.yml
   classification: none
   publishes: []
