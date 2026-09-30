@@ -1066,11 +1066,12 @@ const RELATIVE_SELF = relative(
 // +1: `iso-exercise-amt-calculator` graduated.
 // +1: `espp-tax-calculator` graduated.
 // +1: `job-offer-total-comp-calculator` graduated.
+// +1: `cash-balance-plan-calculator` graduated.
 // +1: `llm-usage-log-analyzer` graduated.
 // +1: `agent-brokerage-split-calculator` graduated.
 // +1: `home-sale-exclusion-calculator` graduated.
 // +1: `tax-loss-harvesting-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 447;
+const SWITCHES_IN_THE_CATALOGUE = 448;
 
 let counter = 0;
 function fixture(source) {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 468 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 469 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free real estate brokerage split calculator for agents. Compare up to three brokerages by what you net after the split, cap, transaction and monthly fees, franchise royalty and referral fees, and see the deal count where each plan wins. Runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Cash Balance Plan Calculator — 2026 Contribution Estimate, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cash-balance-plan-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/cash-balance-plan-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free cash balance plan calculator for self-employed and small-practice owners aged 40+. Estimates a 2026 contribution range by age, stacked with a 401(k) and profit sharing, tax savings, employee cost and a multi-year projection. Illustrative; an actuary sets the real number. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>ESPP Tax Calculator — Sell Now or Hold? Qualifying vs Disqualifying</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free 2026 Medicare IRMAA calculator: enter your MAGI from two years ago to see your Part B and Part D tier, the surcharge, how many dollars until the next cliff, how much Roth conversion fits under it, and an SSA-44 appeal checklist. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Meta Ads Fatigue Analyzer — Free Ads Manager CSV Tool</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/meta-ads-fatigue-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/meta-ads-fatigue-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free Meta Ads fatigue analyzer: drop in your Ads Manager ad-level CSV and see cost per result, ROAS and CTR per ad, which creatives show fatigue signals, how much spend produced no results, and which ads beat the account median. Runs in your browser, the file is never uploaded.</summary>
   </entry>
 </feed>

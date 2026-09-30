@@ -21693,3 +21693,35 @@ ventures:
       the page. Income and home details never leave the browser. Ethics: helps a
       seller understand a tax they owe anyway; nothing is sold and no agent
       referral is made.
+  - slug: cash-balance-plan-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. High-income
+      owners aged 40+ are pitched cash balance plans and have no free way to
+      size one; the tool gives a range, the 401(k) stack, tax saved and
+      employee cost. Distribution 7: "cash balance plan calculator" is a
+      recurring query among dentists, physicians and consultants; volume not
+      measured with an external tool. Defensibility 3: the arithmetic is a
+      simplification; the edge is a private, no-signup answer.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative range not an actuarial valuation, not tax advice,
+      no warranty, 2026 limits stated as assumptions, actuary needed. Inputs
+      never leave the browser. Ethics: helps an owner weigh a plan before a
+      sales call; nothing is sold and no advisor or TPA referral is made.

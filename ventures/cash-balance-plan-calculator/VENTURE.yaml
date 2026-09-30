@@ -1,0 +1,63 @@
+name: cash-balance-plan-calculator
+description: >-
+  Free browser tool that estimates a range for a 2026 cash balance plan
+  contribution by age, stacked with a 401(k) and profit sharing, with tax
+  savings at a chosen bracket, employee contribution cost and a multi-year
+  projection. Illustrative only; nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. ls ventures and
+# screened-out.md show no cash balance or defined-benefit tool; the nearest
+# siblings are solo-401k-contribution-calculator (sole proprietor DC limit) and
+# mega-backdoor-roth-calculator, which cover different plan types.
+# Owners with high income and few staff (doctors, dentists, consultants, 40+)
+# are pitched cash balance plans by TPAs and have no free way to size one
+# before a sales call. The tool gives a range, the stack with a 401(k), the tax
+# saved and the employee cost, and says plainly an actuary sets the real number.
+#
+# First visitor: r/Dentistry, r/FinancialPlanning, physician-finance forums and
+# "cash balance plan calculator" searches; volume not measured.
+#
+# Privacy is the liability boundary: inputs never leave the browser (tests
+# assert no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet; a paid tier, if usage
+# appears, is saved scenarios and a printable summary for an actuary, local
+# only; not built. No referral to TPAs or advisors.
+#
+# Liability: illustrative range from a simplified model, not tax advice and not
+# an actuarial valuation; 2026 limits are stated assumptions, not verified.
+# Unverified: hand calculation and unit tests only.
+
+hypotheses:
+  - claim: >-
+      Owners aged 40+ will use a no-signup tool to size a cash balance plan
+      before speaking to a TPA or actuary.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The tax-saved versus employee-cost comparison is the number people
+      screenshot or send to their accountant.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the estimate contradicts their actuary's figure by more than the stated range without the page's assumptions explaining it.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/cash-balance-plan-calculator/
+  analytics: null
