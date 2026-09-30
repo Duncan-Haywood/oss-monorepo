@@ -1,0 +1,74 @@
+name: safe-dilution-calculator
+description: >-
+  Free browser tool that converts post-money and pre-money SAFEs (caps and
+  discounts) through a priced round with an option pool top-up, and shows the
+  resulting cap table, what each SAFE cost the founders, a valuation
+  sensitivity table, a follow-on round and a 1x non-participating exit
+  waterfall. Illustrative only; nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. ls ventures and
+# screened-out.md show no SAFE, cap table or dilution tool; the nearest
+# siblings are qsbs-exclusion-calculator (founder exit tax), cash-runway-planner
+# and saas-cac-payback-calculator, none of which model equity.
+# Early-stage founders raising on SAFEs (YC, Techstars and accelerator batches
+# and the wider pre-seed market) size dilution in spreadsheets or in paid cap
+# table products (Carta, Pulley) that want an account and a plan. The tool is
+# the free, private, no-signup version of the one question asked before every
+# raise: "after this round, how much do I own, and what do I take home?".
+# The SAFE-plus-pool-plus-round-price circularity is what spreadsheets get
+# wrong, which is the reason to solve it properly.
+#
+# First visitor: r/startups, r/ycombinator, Indie Hackers and "SAFE dilution
+# calculator" / "post-money SAFE calculator" searches; volume not measured.
+#
+# Privacy is the liability boundary: inputs never leave the browser (tests
+# assert no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet for founders; a paid
+# tier, if usage appears, is saved scenarios, multi-round modelling and a
+# shareable term-sheet comparison, all local-first; not built. No referrals to
+# lawyers or investors.
+#
+# Liability: illustrative model of the standard YC SAFE and a plain priced
+# round, not legal or financial advice; explicit list of what it skips (pro
+# rata, MFN, side letters, participating preferred, several rounds).
+# Verified: unit tests including the published YC post-money example
+# ($1M at $10M cap on 10M shares = 1,111,111 shares), a grid convergence test
+# and browser checks (no axe violations, label escaping). Not reviewed by a
+# lawyer.
+
+hypotheses:
+  - claim: >-
+      Founders raising on SAFEs will use a free no-signup tool that solves
+      SAFE conversion, the pool top-up and the round price together, because
+      spreadsheets get the circularity wrong and cap table products want an
+      account.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The exit waterfall and valuation sensitivity tables are what founders
+      screenshot into a co-founder or advisor conversation.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a cap table or conversion result that contradicts their lawyer's or Carta's figure for a standard YC SAFE without the page's stated conventions explaining it.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/safe-dilution-calculator/
+  analytics: null
