@@ -620,6 +620,9 @@ workflows:
 - workflow: fiverr-earnings-fee-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: fix-and-flip-deal-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: flaky-test-finder-ci.yml
   classification: none
   publishes: []
@@ -987,6 +990,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: oidc-trust-policy-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: online-business-valuation-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: openapi-breaking-change-check-ci.yml

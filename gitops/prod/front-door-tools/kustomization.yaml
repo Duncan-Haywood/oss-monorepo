@@ -33,32 +33,32 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 546264 bytes
-#   portfolio-front-tools-1: 92 files, 555012 bytes
-#   portfolio-front-tools-2: 144 files, 552771 bytes
-#   portfolio-front-tools-3: 131 files, 554877 bytes
-#   portfolio-front-tools-4: 141 files, 555114 bytes
-#   portfolio-front-tools-5: 123 files, 555170 bytes
-#   portfolio-front-tools-6: 127 files, 554389 bytes
-#   portfolio-front-tools-7: 133 files, 556263 bytes
-#   portfolio-front-tools-8: 125 files, 554274 bytes
-#   portfolio-front-tools-9: 129 files, 556705 bytes
-#   portfolio-front-tools-10: 141 files, 555439 bytes
-#   portfolio-front-tools-11: 119 files, 556850 bytes
-#   portfolio-front-tools-12: 118 files, 551696 bytes
-#   portfolio-front-tools-13: 122 files, 555757 bytes
-#   portfolio-front-tools-14: 114 files, 544183 bytes
-#   portfolio-front-tools-15: 119 files, 555535 bytes
-#   portfolio-front-tools-16: 128 files, 542025 bytes
-#   portfolio-front-tools-17: 121 files, 543381 bytes
-#   portfolio-front-tools-18: 135 files, 555983 bytes
-#   portfolio-front-tools-19: 124 files, 554348 bytes
-#   portfolio-front-tools-20: 98 files, 554732 bytes
-#   portfolio-front-tools-21: 116 files, 556386 bytes
-#   portfolio-front-tools-22: 124 files, 556978 bytes
+#   portfolio-front-tools-0: 145 files, 546262 bytes
+#   portfolio-front-tools-1: 92 files, 555002 bytes
+#   portfolio-front-tools-2: 144 files, 552775 bytes
+#   portfolio-front-tools-3: 131 files, 554840 bytes
+#   portfolio-front-tools-4: 141 files, 555103 bytes
+#   portfolio-front-tools-5: 123 files, 555143 bytes
+#   portfolio-front-tools-6: 127 files, 554439 bytes
+#   portfolio-front-tools-7: 133 files, 556330 bytes
+#   portfolio-front-tools-8: 125 files, 554260 bytes
+#   portfolio-front-tools-9: 129 files, 556731 bytes
+#   portfolio-front-tools-10: 141 files, 555407 bytes
+#   portfolio-front-tools-11: 118 files, 557004 bytes
+#   portfolio-front-tools-12: 119 files, 553205 bytes
+#   portfolio-front-tools-13: 122 files, 556842 bytes
+#   portfolio-front-tools-14: 117 files, 554087 bytes
+#   portfolio-front-tools-15: 119 files, 555455 bytes
+#   portfolio-front-tools-16: 131 files, 554056 bytes
+#   portfolio-front-tools-17: 121 files, 543332 bytes
+#   portfolio-front-tools-18: 135 files, 555977 bytes
+#   portfolio-front-tools-19: 124 files, 554113 bytes
+#   portfolio-front-tools-20: 98 files, 554749 bytes
+#   portfolio-front-tools-21: 116 files, 556439 bytes
+#   portfolio-front-tools-22: 124 files, 556955 bytes
 #   portfolio-front-tools-23: 123 files, 546616 bytes
-#   portfolio-front-tools-24: 103 files, 499821 bytes
-#   portfolio-front-tools-25: 53 files, 281707 bytes
+#   portfolio-front-tools-24: 103 files, 499795 bytes
+#   portfolio-front-tools-25: 53 files, 281796 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1635,6 +1635,9 @@ configMapGenerator:
       - fiverr-earnings-fee-analyzer__calc.mjs.gz=fiverr-earnings-fee-analyzer__calc.mjs.gz
       - fiverr-earnings-fee-analyzer__index.html.gz=fiverr-earnings-fee-analyzer__index.html.gz
       - fiverr-earnings-fee-analyzer__usage.mjs.gz=fiverr-earnings-fee-analyzer__usage.mjs.gz
+      - fix-and-flip-deal-analyzer__calc.mjs.gz=fix-and-flip-deal-analyzer__calc.mjs.gz
+      - fix-and-flip-deal-analyzer__index.html.gz=fix-and-flip-deal-analyzer__index.html.gz
+      - fix-and-flip-deal-analyzer__usage.mjs.gz=fix-and-flip-deal-analyzer__usage.mjs.gz
       - flaky-test-finder__check.py.gz=flaky-test-finder__check.py.gz
       - flaky-test-finder__classify.mjs.gz=flaky-test-finder__classify.mjs.gz
       - flaky-test-finder__index.html.gz=flaky-test-finder__index.html.gz
@@ -1682,15 +1685,15 @@ configMapGenerator:
       - foundation-repair-bid-calculator__share.mjs.gz=foundation-repair-bid-calculator__share.mjs.gz
       - foundation-repair-bid-calculator__usage.mjs.gz=foundation-repair-bid-calculator__usage.mjs.gz
       - foundation-repair-bid-calculator__vs-a-flat-price-per-pier.html.gz=foundation-repair-bid-calculator__vs-a-flat-price-per-pier.html.gz
-      - foundation-repair-bid-calculator__vs-jobber.html.gz=foundation-repair-bid-calculator__vs-jobber.html.gz
-      - freelance-platform-fee-calculator__calc.mjs.gz=freelance-platform-fee-calculator__calc.mjs.gz
-      - freelance-platform-fee-calculator__how-much-does-fiverr-take.html.gz=freelance-platform-fee-calculator__how-much-does-fiverr-take.html.gz
-      - freelance-platform-fee-calculator__how-much-does-upwork-take.html.gz=freelance-platform-fee-calculator__how-much-does-upwork-take.html.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - foundation-repair-bid-calculator__vs-jobber.html.gz=foundation-repair-bid-calculator__vs-jobber.html.gz
+      - freelance-platform-fee-calculator__calc.mjs.gz=freelance-platform-fee-calculator__calc.mjs.gz
+      - freelance-platform-fee-calculator__how-much-does-fiverr-take.html.gz=freelance-platform-fee-calculator__how-much-does-fiverr-take.html.gz
+      - freelance-platform-fee-calculator__how-much-does-upwork-take.html.gz=freelance-platform-fee-calculator__how-much-does-upwork-take.html.gz
       - freelance-platform-fee-calculator__index.html.gz=freelance-platform-fee-calculator__index.html.gz
       - freelance-platform-fee-calculator__share.mjs.gz=freelance-platform-fee-calculator__share.mjs.gz
       - freelance-platform-fee-calculator__usage.mjs.gz=freelance-platform-fee-calculator__usage.mjs.gz
@@ -1806,14 +1809,14 @@ configMapGenerator:
       - gutter-install-bid-calculator__share.mjs.gz=gutter-install-bid-calculator__share.mjs.gz
       - gutter-install-bid-calculator__usage.mjs.gz=gutter-install-bid-calculator__usage.mjs.gz
       - gutter-install-bid-calculator__vs-a-flat-per-foot-special.html.gz=gutter-install-bid-calculator__vs-a-flat-per-foot-special.html.gz
-      - gutter-install-bid-calculator__vs-jobnimbus.html.gz=gutter-install-bid-calculator__vs-jobnimbus.html.gz
-      - hardwood-refinishing-bid-calculator__calc.mjs.gz=hardwood-refinishing-bid-calculator__calc.mjs.gz
-      - hardwood-refinishing-bid-calculator__how-much-to-charge-to-refinish-hardwood-floors.html.gz=hardwood-refinishing-bid-calculator__how-much-to-charge-to-refinish-hardwood-floors.html.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - gutter-install-bid-calculator__vs-jobnimbus.html.gz=gutter-install-bid-calculator__vs-jobnimbus.html.gz
+      - hardwood-refinishing-bid-calculator__calc.mjs.gz=hardwood-refinishing-bid-calculator__calc.mjs.gz
+      - hardwood-refinishing-bid-calculator__how-much-to-charge-to-refinish-hardwood-floors.html.gz=hardwood-refinishing-bid-calculator__how-much-to-charge-to-refinish-hardwood-floors.html.gz
       - hardwood-refinishing-bid-calculator__index.html.gz=hardwood-refinishing-bid-calculator__index.html.gz
       - hardwood-refinishing-bid-calculator__share.mjs.gz=hardwood-refinishing-bid-calculator__share.mjs.gz
       - hardwood-refinishing-bid-calculator__usage.mjs.gz=hardwood-refinishing-bid-calculator__usage.mjs.gz
@@ -1933,14 +1936,14 @@ configMapGenerator:
       - influencer-media-kit-generator__index.html.gz=influencer-media-kit-generator__index.html.gz
       - influencer-media-kit-generator__prefill.mjs.gz=influencer-media-kit-generator__prefill.mjs.gz
       - influencer-media-kit-generator__state.mjs.gz=influencer-media-kit-generator__state.mjs.gz
-      - influencer-media-kit-generator__usage.mjs.gz=influencer-media-kit-generator__usage.mjs.gz
-      - influencer-media-kit-generator__vs-assembling-one-by-hand.html.gz=influencer-media-kit-generator__vs-assembling-one-by-hand.html.gz
-      - influencer-media-kit-generator__vs-kitly.html.gz=influencer-media-kit-generator__vs-kitly.html.gz
   - name: portfolio-front-tools-14
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - influencer-media-kit-generator__usage.mjs.gz=influencer-media-kit-generator__usage.mjs.gz
+      - influencer-media-kit-generator__vs-assembling-one-by-hand.html.gz=influencer-media-kit-generator__vs-assembling-one-by-hand.html.gz
+      - influencer-media-kit-generator__vs-kitly.html.gz=influencer-media-kit-generator__vs-kitly.html.gz
       - influencer-media-kit-generator__what-is-a-media-kit.html.gz=influencer-media-kit-generator__what-is-a-media-kit.html.gz
       - insurance-agency-book-valuation-calculator__calc.mjs.gz=insurance-agency-book-valuation-calculator__calc.mjs.gz
       - insurance-agency-book-valuation-calculator__index.html.gz=insurance-agency-book-valuation-calculator__index.html.gz
@@ -2269,6 +2272,9 @@ configMapGenerator:
       - oidc-trust-policy-check__usage.mjs.gz=oidc-trust-policy-check__usage.mjs.gz
       - oidc-trust-policy-check__vs-reading-the-trust-policy-by-eye.html.gz=oidc-trust-policy-check__vs-reading-the-trust-policy-by-eye.html.gz
       - oidc-trust-policy-check__vs-wiz.html.gz=oidc-trust-policy-check__vs-wiz.html.gz
+      - online-business-valuation-calculator__calc.mjs.gz=online-business-valuation-calculator__calc.mjs.gz
+      - online-business-valuation-calculator__index.html.gz=online-business-valuation-calculator__index.html.gz
+      - online-business-valuation-calculator__usage.mjs.gz=online-business-valuation-calculator__usage.mjs.gz
       - openapi-breaking-change-check__diff.mjs.gz=openapi-breaking-change-check__diff.mjs.gz
       - openapi-breaking-change-check__index.html.gz=openapi-breaking-change-check__index.html.gz
       - openapi-breaking-change-check__openapi_diff.py.gz=openapi-breaking-change-check__openapi_diff.py.gz
