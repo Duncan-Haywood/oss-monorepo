@@ -1100,7 +1100,8 @@ const RELATIVE_SELF = relative(
 // +1: `aws-commitment-breakeven-calculator` graduated.
 // +1: `customer-lifetime-value-predictor` graduated.
 // +1: `commercial-lease-effective-rent-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 480;
+// +1: `sales-seasonality-forecaster` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 481;
 
 let counter = 0;
 function fixture(source) {
