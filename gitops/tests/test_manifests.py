@@ -2829,7 +2829,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `rmd-calculator` graduated (browser-local required minimum distribution planner).
     # +1: `rsu-withholding-gap-calculator` graduated (browser-local RSU withholding gap calculator).
     # +1: `espp-tax-calculator` graduated (browser-local ESPP sell-or-hold tax calculator).
-    total = 466  # `infra/OWNER_CHECKLIST.md`'s own "N of the 466 tools" wording.
+    # +1: `agent-brokerage-split-calculator` graduated (browser-local brokerage split and cap comparison for real estate agents).
+    # +1: `tax-loss-harvesting-calculator` graduated (browser-local tax-loss harvesting calculator).
+    total = 469  # `infra/OWNER_CHECKLIST.md`'s own "N of the 469 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -1068,7 +1068,10 @@ const RELATIVE_SELF = relative(
 // +1: `job-offer-total-comp-calculator` graduated.
 // +1: `cash-balance-plan-calculator` graduated.
 // +1: `llm-usage-log-analyzer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 445;
+// +1: `agent-brokerage-split-calculator` graduated.
+// +1: `home-sale-exclusion-calculator` graduated.
+// +1: `tax-loss-harvesting-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 448;
 
 let counter = 0;
 function fixture(source) {

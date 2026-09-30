@@ -21281,6 +21281,73 @@ ventures:
       flagged as possibly worth far less than stated. Offer details never leave
       the browser. Ethics: helps a person weigh an offer and negotiate; nothing
       is sold and no recruiter referral is made.
+  - slug: agent-brokerage-split-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Agents choose a
+      brokerage on prose terms (split, cap, fees, royalty) worth five figures a
+      year; the tool nets them out at the agent's own volume and returns the
+      crossover deal count and the split to negotiate for. Distribution 7:
+      "brokerage split calculator" and "which brokerage" are recurring queries
+      on r/realtors and r/RealEstateAgent; volume not measured with an external
+      tool. Defensibility 3: the arithmetic is simple; the edge is an
+      independent, private, plan-agnostic answer where brokerages publish only
+      their own.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimates not advice, no warranty, independence
+      from brokerages stated, omissions stated on the page. Figures never leave
+      the browser. Ethics: helps an agent weigh a contract they must choose;
+      nothing is sold and no brokerage referral fee is taken.
+  - slug: tax-loss-harvesting-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Investors with
+      gains and losses search for year-end harvesting answers and mostly find
+      robo-advisor marketing; the tool nets by character, excludes wash-sale
+      positions and warns that harvesting defers tax. Distribution 7: seasonal
+      December demand on r/personalfinance and r/Bogleheads; volume not
+      measured with an external tool. Defensibility 3: the rules are public; the
+      edge is a private, no-signup answer.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimates not advice, no warranty, independence
+      from brokers stated, omissions stated on the page, no security is
+      recommended. Figures never leave the browser. Ethics: helps an investor
+      understand a lawful, common tax step and its deferral cost; nothing is
+      sold and no broker referral is made.
   - slug: print-on-demand-profit-calculator
     scores:
       ai_leverage: 1
@@ -21592,6 +21659,40 @@ ventures:
       provider invoice stays the record, the log never leaves the browser.
       Ethics: exists only to help the user pay less; no affiliate link or vendor
       favoured.
+  - slug: home-sale-exclusion-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 8
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Every US home
+      seller faces the section 121 exclusion; sellers a few months short of two
+      years or with gains above $250,000 have real money at stake and the tool
+      prices waiting and the break-even sale price. Distribution 8: "home sale
+      capital gains", "$250,000 exclusion" and "sell before 2 years" are
+      recurring high-volume queries on r/personalfinance, r/RealEstate and
+      Bogleheads; volume not measured with an external tool. Defensibility 3:
+      the rules are public; the edge is a private, no-signup answer.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimates not advice, no warranty, independence
+      from the IRS and brokerages stated, 2026 parameters and omissions stated on
+      the page. Income and home details never leave the browser. Ethics: helps a
+      seller understand a tax they owe anyway; nothing is sold and no agent
+      referral is made.
   - slug: cash-balance-plan-calculator
     scores:
       ai_leverage: 1

@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 466 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 469 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-09-30T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Real Estate Brokerage Split Calculator — Compare Splits, Caps and Fees</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/agent-brokerage-split-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/agent-brokerage-split-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free real estate brokerage split calculator for agents. Compare up to three brokerages by what you net after the split, cap, transaction and monthly fees, franchise royalty and referral fees, and see the deal count where each plan wins. Runs in your browser, nothing uploaded.</summary>
+  </entry>
   <entry>
     <title>Cash Balance Plan Calculator — 2026 Contribution Estimate, Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cash-balance-plan-calculator/"/>
@@ -26,6 +35,15 @@
     <summary type="text">Free ESPP tax calculator. Enter your offering and purchase prices, discount and lookback to see the after-tax profit of selling at purchase, after a year, or at a qualifying date, and the price where waiting stops paying. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Home Sale Exclusion Calculator — How Much Tax Will You Owe Selling Your House?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/home-sale-exclusion-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/home-sale-exclusion-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free home sale tax calculator. Enter your sale price, purchase price and improvements to see how much gain the $250,000 or $500,000 exclusion covers, the tax on the rest, and what waiting to reach two years would save. Runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Job Offer Total Compensation Calculator — Compare Offers With Equity and Hours</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/job-offer-total-comp-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/job-offer-total-comp-calculator</id>
@@ -42,6 +60,15 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste an LLM API usage log (JSONL, JSON or CSV) and see spend by model, feature and day, your cache hit rate, a 30-day run rate, and which levers -- caching, batch, a cheaper model -- would have saved money. Runs in your browser; the log never leaves it. Free, no signup.</summary>
+  </entry>
+  <entry>
+    <title>Tax-Loss Harvesting Calculator — How Much Would Selling Losers Save You</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tax-loss-harvesting-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/tax-loss-harvesting-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free tax-loss harvesting calculator. Enter your realized gains, carried-forward losses and the positions you could sell at a loss to see the tax saved this year, the $3,000 ordinary deduction, the carryforward and wash-sale risk. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>ACA Subsidy Cliff Calculator — 2026, Free</title>
@@ -339,32 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free 2026 Medicare IRMAA calculator: enter your MAGI from two years ago to see your Part B and Part D tier, the surcharge, how many dollars until the next cliff, how much Roth conversion fits under it, and an SSA-44 appeal checklist. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Meta Ads Fatigue Analyzer — Free Ads Manager CSV Tool</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/meta-ads-fatigue-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/meta-ads-fatigue-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free Meta Ads fatigue analyzer: drop in your Ads Manager ad-level CSV and see cost per result, ROAS and CTR per ad, which creatives show fatigue signals, how much spend produced no results, and which ads beat the account median. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Mileage Deduction Method Calculator — 2026, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mileage-deduction-method-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/mileage-deduction-method-calculator</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator comparing the 2026 IRS standard mileage rate (72.5 cents per mile through June 30, 76 cents from July 1) with actual vehicle expenses for a self-employed business car. See which deduction is larger and what it is worth. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Mileage Log — Free IRS-Ready Mileage Tracker in Your Browser</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mileage-log/"/>
-    <id>tag:marisstella.dev,2026:tool/mileage-log</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free mileage log for self-employed drivers and contractors: log trips or track with GPS, price them at the IRS standard rate by date (the 2026 rate changed July 1), check the log for audit gaps, export CSV. Works offline, data stays on your device.</summary>
   </entry>
 </feed>
