@@ -179,6 +179,9 @@ workflows:
 - workflow: attic-insulation-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: augusta-rule-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: auto-glass-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -654,6 +657,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: furnace-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: gabor-granger-price-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: gambling-loss-deduction-calculator-ci.yml

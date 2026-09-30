@@ -1085,8 +1085,10 @@ const RELATIVE_SELF = relative(
 // +1: `pslf-vs-refinance-calculator` graduated.
 // +1: `dependent-care-fsa-vs-credit-calculator` graduated.
 // +1: `van-westendorp-pricing-analyzer` graduated.
+// +1: `augusta-rule-calculator` graduated.
+// +1: `gabor-granger-price-analyzer` graduated.
 // +1: `sales-commission-plan-comparison-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 466;
+const SWITCHES_IN_THE_CATALOGUE = 468;
 
 let counter = 0;
 function fixture(source) {
