@@ -111,6 +111,12 @@ def main():
     for venture_dir in venture_dirs:
         if (venture_dir / "NOT-A-VENTURE").is_file():
             continue
+        # A retired venture keeps only the RETIRED.md that
+        # platform/ci/check_venture_regression.py asks for -- e.g. the
+        # calculators that moved to fp-monorepo on 2026-09-30. There is
+        # nothing left here to route to.
+        if (venture_dir / "RETIRED.md").is_file() and not (venture_dir / "VENTURE.yaml").is_file():
+            continue
         yaml_path = venture_dir / "VENTURE.yaml"
         if not yaml_path.is_file():
             errors.append(
