@@ -2850,7 +2850,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `sales-seasonality-forecaster` graduated (browser-local seasonal sales forecast, Holt-Winters, cash cushion).
     # +1: `clearance-markdown-planner` graduated (browser-local markdown schedule planner, price elasticity and dynamic programming).
     # +1: `liquidation-pallet-bid-calculator` graduated (browser-local liquidation pallet max bid, Monte Carlo recovery simulation).
-    total = 506  # `infra/OWNER_CHECKLIST.md`'s own "N of the 506 tools" wording.
+    total = 507  # `infra/OWNER_CHECKLIST.md`'s own "N of the 507 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
