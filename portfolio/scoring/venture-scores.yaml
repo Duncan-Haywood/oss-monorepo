@@ -22831,3 +22831,42 @@ ventures:
       a do-not-trust warning when the back-test fails. Sales files never leave
       the browser. Ethics: helps an owner see a cash gap coming and plan for
       it; nothing is sold and no referral is made.
+  - slug: ad-spend-saturation-analyzer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical modelling (least-squares response curves, cross-validated
+      model choice, bootstrap ranges, marginal-return budget allocation) but no
+      language model and no paid API; the fit and its stated uncertainty are
+      the product, not an add-on.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Advertisers
+      and e-commerce owners paste spend and revenue by channel and get each
+      channel's saturation curve, the marginal ROAS with a bootstrap range,
+      the break-even spend for their margin and a reallocation of the budget.
+      Distribution 6: "marginal ROAS calculator" and "diminishing returns ad
+      spend" are recurring queries and the tool is reachable from PPC and
+      e-commerce communities (volume not measured with an external tool).
+      Defensibility 4: open-source media-mix tools exist (Robyn, Meridian) but
+      need a data scientist; the edge is the one-page, private, minutes-long
+      workflow and the stated uncertainty.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical reading of supplied history, not advice, no
+      warranty, independence from ad platforms stated, limits stated (lag,
+      seasonality, overlap, observational data) and a withheld verdict when
+      the bootstrap does not support one. Files never leave the browser.
+      Ethics: helps an advertiser stop spending past break-even; nothing is
+      sold and no referral fee is taken.

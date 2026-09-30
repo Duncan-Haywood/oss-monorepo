@@ -48507,3 +48507,31 @@ entries:
         date, category rule, CI workflow and tree counts; inbound link from
         cash-runway-planner; regenerated the mirror.
     mrr_end: 0
+  - venture: ad-spend-saturation-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built ad-spend-saturation-analyzer: a browser-local marginal-ROAS and budget
+        allocation tool for advertisers and e-commerce owners. Paste or upload
+        date, channel, spend, revenue rows (header optional, duplicate rows
+        summed, optional weekly grouping); per channel it fits a linear and a
+        saturating response curve by least squares, keeps the saturating one
+        only if 10-fold cross-validation beats the line, reports marginal ROAS
+        at current spend with a seeded bootstrap 80% range, the break-even
+        spend for the user's gross margin, and a scale-up / pull-back / unclear
+        verdict; it then reallocates the budget by marginal return within a
+        -50%/+50% and tested-spend trust region, can hold money back below
+        break-even, warns on co-moving channel spend and refuses channels with
+        too few periods or flat spend. New niche: duplicate_check.py found the
+        closest matches at 0.24 (meta-ads-fatigue-analyzer, creative decay) and
+        nothing that fits a spend-response curve. First visitor expected from
+        "marginal ROAS calculator", "diminishing returns ad spend" and
+        media-mix searches and r/PPC, r/FacebookAds, r/ecommerce. Files never
+        leave the browser. Unverified against a published dataset: tests use
+        simulated channels with known curves (80% range covered the true
+        marginal ROAS in 47 of 60 simulated datasets), budget-conservation and
+        trust-region assertions, and no-network checks. Registered score row,
+        launch date, category rule, CI workflow and tree counts; inbound link
+        from meta-ads-fatigue-analyzer; regenerated the mirror.
+    mrr_end: 0

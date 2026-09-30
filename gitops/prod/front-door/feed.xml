@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 502 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 503 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free A/B test significance calculator. Enter visitors and conversions to get the p-value, confidence interval, sample ratio mismatch check, Bayesian chance to beat control and an always-valid result for tests you peeked at. Plans sample size too. Nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Ad Spend Saturation Analyzer — marginal ROAS and budget split by channel</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ad-spend-saturation-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/ad-spend-saturation-analyzer</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free marginal ROAS calculator. Paste ad spend and revenue by channel to see where each channel stops paying for itself, the next-dollar return with a confidence range, and a better split of your budget. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Real Estate Brokerage Split Calculator — Compare Splits, Caps and Fees</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free Van Westendorp price sensitivity meter. Paste survey answers for too cheap, cheap, expensive and too expensive and get the acceptable price range, the optimal price point and the indifference price, with a chart and bootstrap bands. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Veterinarian Associate Pay Calculator — Compare Two Offers</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/veterinarian-associate-pay-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/veterinarian-associate-pay-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free veterinarian associate pay calculator. Compare two offers, salary, percentage of production or base plus percentage above a threshold, at the production you expect: yearly value, real percentage after exclusions, hourly rate and where the offers cross. Runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

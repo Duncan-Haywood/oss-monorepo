@@ -1,0 +1,65 @@
+name: ad-spend-saturation-analyzer
+description: >-
+  Free browser tool for advertisers and e-commerce owners: paste or upload
+  date, channel, spend, revenue and get each channel's diminishing-returns
+  curve, the marginal ROAS (what the next dollar returns) with a bootstrap
+  80% range, the spend where the channel drops below break-even for your gross
+  margin, and a reallocation of the budget across channels that stays close to
+  spend levels you have actually tested. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "ad spend diminishing returns marginal ROAS curve fit from CSV": closest are
+# meta-ads-fatigue-analyzer (0.24, creative frequency decay in one platform's
+# export) and amazon-ppc-search-term-analyzer (0.14, search terms); neither
+# fits a spend-response curve or reallocates across channels. Alternatives are
+# open-source media-mix tools (Meta Robyn, Google Meridian: R/Python, need a
+# data scientist and hours) and paid MMM SaaS priced for brands with large
+# budgets. This is the small-advertiser version: one CSV, one page, minutes.
+#
+# First visitor: searches "marginal ROAS calculator", "diminishing returns ad
+# spend", "how much should I spend on Facebook ads before it stops working",
+# "media mix modeling small business"; r/PPC, r/FacebookAds, r/ecommerce,
+# r/shopify, r/marketing and performance-marketing Slack/Discords. Volume not
+# measured with an external tool.
+#
+# Privacy is the liability boundary: spend and revenue files never leave the
+# browser (tests assert no network calls). No ad platform is named or ranked.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be saved projects or scheduled refits from an API
+# export; not built.
+# Liability: statistical reading of supplied history, not advice; the page
+# says the history is observational, names what is not modelled (lag,
+# seasonality, channel overlap), and withholds a verdict ("unclear") when the
+# bootstrap does not support one. Unverified: tested on simulated channels
+# with known curves (80% range covered the true marginal ROAS in 47 of 60
+# simulated datasets), not on a published dataset.
+
+hypotheses:
+  - claim: >-
+      Small advertisers will use a private, no-signup marginal-ROAS tool
+      that shows its own uncertainty, and will return when they export a new
+      month of spend and revenue.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a fitted curve or marginal ROAS disagrees with a standard least-squares reference on the same data.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ad-spend-saturation-analyzer/
+  analytics: null
