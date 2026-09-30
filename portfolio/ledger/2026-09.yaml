@@ -48396,3 +48396,23 @@ entries:
         Registered score row, launch date, category rule, CI workflow and tree
         counts; regenerated the mirror.
     mrr_end: 0
+  - venture: physician-wrvu-compensation-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built physician-wrvu-compensation-calculator: a browser-local
+        tool for employed physicians and APPs evaluating an offer. Annual pay under
+        base-then-productivity, pure productivity and fixed salary, exact break-even
+        wRVUs, effective $/wRVU, pay per hour, shortfall repayment and signing-bonus
+        clawback exposure, an 80-120% sensitivity table, and a two-offer comparison
+        with the productivity level where they tie. New niche: no wRVU tool in
+        ventures/. First visitor expected from r/Residency, r/medicine and
+        r/physicianassistant contract-review threads, Doximity-style physician
+        contract discussions, and searches "wRVU conversion factor calculator" and
+        "physician contract wRVU break even". No benchmark or survey figure shipped
+        or invented; rates are typed in. Nothing uploaded. Arithmetic checked by hand
+        calculation only. 42 tests. Registered score row, launch date, category rule,
+        CI workflow and tree counts; reciprocal link from
+        travel-nurse-contract-comparison-calculator; regenerated the mirror.
+    mrr_end: 0
