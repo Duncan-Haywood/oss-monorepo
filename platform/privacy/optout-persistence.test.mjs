@@ -1079,7 +1079,8 @@ const RELATIVE_SELF = relative(
 // +1: `rd-tax-credit-calculator` graduated.
 // +1: `heat-pump-vs-furnace-calculator` graduated.
 // +1: `physician-wrvu-compensation-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 458;
+// +1: `dental-associate-pay-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 459;
 
 let counter = 0;
 function fixture(source) {
