@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 493 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 494 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -123,6 +123,15 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste an LLM API usage log (JSONL, JSON or CSV) and see spend by model, feature and day, your cache hit rate, a 30-day run rate, and which levers -- caching, batch, a cheaper model -- would have saved money. Runs in your browser; the log never leaves it. Free, no signup.</summary>
+  </entry>
+  <entry>
+    <title>Locum Tenens vs Employed Calculator — 1099 Locum Rate vs W-2 Physician Offer</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/locum-tenens-vs-employed-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/locum-tenens-vs-employed-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free locum tenens vs employed calculator for physicians, NPs, PAs and CRNAs. Compare a 1099 locum contract with a W-2 offer: take-home after federal tax, self-employment tax, malpractice tail, benefits, unpaid gaps, and the break-even locum hourly rate. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Merchant Cash Advance True Cost Calculator — Factor Rate to APR, Factoring Cost</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free analyzer for Bandcamp artists and labels: drop in your sales report CSV and see fees paid, net per item, small-sale fee drag, vinyl and merch profit after your costs, best releases and repeat buyers. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Card Surcharge vs Cash Discount Calculator — Free, Runs in Your Browser</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/card-surcharge-vs-cash-discount-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/card-surcharge-vs-cash-discount-calculator</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free credit card surcharge vs cash discount calculator for small merchants: see monthly processing cost, the surcharge that recovers it, and how many customers you can lose before each option stops paying off. Nothing uploaded.</summary>
   </entry>
 </feed>
