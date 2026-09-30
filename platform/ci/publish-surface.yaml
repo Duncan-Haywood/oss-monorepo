@@ -179,6 +179,9 @@ workflows:
 - workflow: attic-insulation-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: augusta-rule-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: auto-glass-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -425,6 +428,9 @@ workflows:
 - workflow: demand-signal-reachability-ci.yml
   classification: none
   publishes: []
+- workflow: dental-associate-pay-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: dental-ppo-writeoff-calculator-ci.yml
   classification: none
   publishes: []
@@ -432,6 +438,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: dependency-confusion-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: dependent-care-fsa-vs-credit-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: deploy-concurrency-check-ci.yml
@@ -1123,6 +1132,9 @@ workflows:
 - workflow: proposal-module-ci.yml
   classification: none
   publishes: []
+- workflow: pslf-vs-refinance-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: public-record-watch-ci.yml
   classification: none
   publishes: []
@@ -1271,6 +1283,9 @@ workflows:
 - workflow: section-174a-catchup-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: section-83b-election-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: security-camera-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -1415,6 +1430,9 @@ workflows:
 - workflow: standby-generator-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: startup-option-value-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: stockx-seller-payout-calculator-ci.yml
   classification: none
   publishes: []
@@ -1538,6 +1556,9 @@ workflows:
 - workflow: upwork-earnings-fee-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: van-westendorp-pricing-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: vector-db-cost-calculator-ci.yml
   classification: none
   publishes: []
@@ -1557,6 +1578,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: vendor-watch-ci.yml
+  classification: none
+  publishes: []
+- workflow: veterinarian-associate-pay-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: vinyl-liner-bid-calculator-ci.yml
@@ -1632,21 +1656,6 @@ workflows:
   classification: none
   publishes: []
 - workflow: youtube-revenue-rpm-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: dental-associate-pay-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: veterinarian-associate-pay-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: section-83b-election-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: pslf-vs-refinance-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: augusta-rule-calculator-ci.yml
   classification: none
   publishes: []
 gitops:

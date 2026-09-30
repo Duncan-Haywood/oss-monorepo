@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 484 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 487 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -60,6 +60,15 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free dental associate pay calculator. Enter two offers, percent of production or collections, daily guarantee and lab fee share, to see what each pays at your expected production, your effective percentage, and where they cross. Runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Dependent Care FSA vs Child Care Credit Calculator — Best Split</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dependent-care-fsa-vs-credit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/dependent-care-fsa-vs-credit-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free dependent care FSA vs child and dependent care credit calculator. Enter your income, tax rates and care costs to see which saves more and the best split between the two, using the 2026 $7,500 FSA limit. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>ESPP Tax Calculator — Sell Now or Hold? Qualifying vs Disqualifying</title>
@@ -188,6 +197,15 @@
     <summary type="text">Free solar panel payback calculator for homeowners. Enter system cost, incentives, production and your electricity rates to see payback year, 25-year net gain, NPV and IRR, and how a lower export credit changes it. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Startup Stock Option Value Calculator — What Are Your Options Worth?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/startup-option-value-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/startup-option-value-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free startup stock option calculator. See what an offer&#39;s options are really worth after dilution, liquidation preferences, vesting cliff, exercise cost and tax, weighted by the exit odds you choose. Runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Tax-Loss Harvesting Calculator — How Much Would Selling Losers Save You</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tax-loss-harvesting-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/tax-loss-harvesting-calculator</id>
@@ -195,6 +213,15 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free tax-loss harvesting calculator. Enter your realized gains, carried-forward losses and the positions you could sell at a loss to see the tax saved this year, the $3,000 ordinary deduction, the carryforward and wash-sale risk. Runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Van Westendorp Pricing Analyzer — Price Sensitivity Meter from Survey Data</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/van-westendorp-pricing-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/van-westendorp-pricing-analyzer</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free Van Westendorp price sensitivity meter. Paste survey answers for too cheap, cheap, expensive and too expensive and get the acceptable price range, the optimal price point and the indifference price, with a chart and bootstrap bands. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Veterinarian Associate Pay Calculator — Compare Two Offers</title>
@@ -339,32 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free tool for Amazon FBA sellers: load your Inventory Age report and see, per SKU, the storage fees and aged-inventory surcharge you will pay and whether holding, marking down or removing the stock earns more. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>FBA Reimbursement Claim Finder — Lost &amp; Damaged Inventory Amazon Never Paid For</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fba-reimbursement-claim-finder/"/>
-    <id>tag:marisstella.dev,2026:tool/fba-reimbursement-claim-finder</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free tool for Amazon FBA sellers: load your Inventory Ledger and Reimbursements report and see the lost and damaged units that look unreimbursed, what they are worth, and which claims expire first. Runs in your browser, the files are never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Fiverr Earnings Fee Analyzer — Your Real Take-Home per Order</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fiverr-earnings-fee-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/fiverr-earnings-fee-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free Fiverr fee calculator for sellers: drop in your earnings or revenue CSV and see the service fee actually taken, take-home per order, net revenue per gig, repeat buyers, refunds, withdrawal costs, funds still clearing and the price needed for a target take-home. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Freelancer Schedule C Categorizer — Sort Your Bank CSV Into Schedule C Lines</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freelancer-schedule-c-categorizer/"/>
-    <id>tag:marisstella.dev,2026:tool/freelancer-schedule-c-categorizer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free tool for freelancers and sole proprietors: drop in your bank or card CSV and get income and expenses sorted into Schedule C lines, with estimated tax, equipment, health insurance and transfers held out, meals at 50%, a payment-platform payout warning and a CSV to hand your preparer. Runs in your browser, the file is never uploaded.</summary>
   </entry>
 </feed>

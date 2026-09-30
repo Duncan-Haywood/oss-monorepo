@@ -1,0 +1,62 @@
+name: startup-option-value-calculator
+description: >-
+  Free browser tool for people weighing a startup offer: estimates what a stock
+  option grant is worth after dilution, liquidation preferences, vesting cliff,
+  exercise cost and tax, weighted by the exit chances the visitor enters, and
+  the exit price needed to break even or to cover the pay given up. No company,
+  valuation or tax-table data is embedded. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "startup job offer equity compensation compare expected value salary": top
+# matches job-offer-total-comp-calculator 0.34 (salary and benefits; its README
+# lists option strike prices, cliffs and dilution as not modelled) and
+# physician/vet pay tools, unrelated. Adjacent equity ventures cover the tax
+# election (83b), ISO/AMT, RSU withholding and SAFE dilution from the founder
+# side; none values an employee option grant.
+# Buyers have money and a real problem: engineers and operators take a pay cut
+# for options they cannot value, and the paid alternatives are equity-platform
+# calculators that want a login and a company profile.
+#
+# First visitor: r/cscareerquestions, r/startups and Blind threads on "what are
+# my startup options worth", Hacker News "Ask HN: evaluating a startup offer",
+# searches "startup stock option calculator" and "how much are my stock options
+# worth"; volume not measured with an external tool.
+#
+# Privacy is the liability boundary: offers never leave the browser (tests
+# assert no network calls). The tool asserts no company valuation and estimates
+# no odds: the visitor supplies every number, including the exit probabilities.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: illustrative estimates, not advice; omissions stated on the page
+# (participating preferences, tax at exercise, AMT); independent of any
+# startup, investor or equity platform. Unverified: hand calculation and unit
+# tests only.
+
+hypotheses:
+  - claim: >-
+      People weighing a startup offer will use a no-signup tool that shows what
+      the options are worth after dilution and preferences, and will come back
+      for the break-even exit price when comparing offers.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the result contradicts their own arithmetic on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/startup-option-value-calculator/
+  analytics: null

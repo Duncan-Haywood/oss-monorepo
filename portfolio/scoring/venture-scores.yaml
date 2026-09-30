@@ -22200,6 +22200,104 @@ ventures:
       omissions stated. Loan data never leaves the browser. Ethics: helps a
       borrower check a large decision; nothing is sold and no lender referral
       is made.
+  - slug: startup-option-value-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. People weighing
+      a startup offer cannot value the options; the tool shows value after
+      dilution, preferences, vesting, exercise cost and tax, and the break-even
+      exit. Distribution 6: "startup stock option calculator" and offer-eval
+      threads are recurring queries; volume not measured with an external tool.
+      Defensibility 3: arithmetic is simple; the edge is a private, no-signup
+      answer that includes preferences and exit odds.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimates not advice, no warranty, independence
+      from startups, investors and equity platforms stated, no valuation or
+      odds asserted, omissions stated. Offers never leave the browser. Ethics:
+      helps a candidate see what an equity offer is worth; nothing is sold and
+      no referral is made.
+  - slug: dependent-care-fsa-vs-credit-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Working parents
+      choose a dependent care FSA election once a year at open enrolment; the
+      tool compares FSA, credit and the best split. Distribution 6: "dependent
+      care FSA vs child care credit" is a recurring seasonal query; volume not
+      measured with an external tool. Defensibility 3: arithmetic is simple;
+      the edge is a private, no-signup answer with the split optimised.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimates not advice, no warranty, independence
+      from the IRS, employers and administrators stated, tax professional
+      recommended, omissions stated, current-year figures to be confirmed.
+      Household figures never leave the browser. Ethics: helps a parent check a
+      yearly tax choice; nothing is sold and no referral is made.
+  - slug: van-westendorp-pricing-analyzer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic and a seeded bootstrap on responses the visitor pastes.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Founders and
+      product managers set prices from a four-question survey; the tool gives
+      the acceptable range, optimal and indifference prices, and bootstrap
+      bands. Distribution 6: "van westendorp calculator" and pricing threads
+      are recurring queries; volume not measured with an external tool.
+      Defensibility 3: the method is public; the edge is a private, no-signup
+      analysis with uncertainty bands.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: analysis of stated opinions not advice, no warranty,
+      independence from survey platforms stated, no demand or revenue
+      prediction claimed, omissions stated. Responses never leave the browser.
+      Ethics: helps a founder bound a test price; nothing is sold and no
+      referral is made.
   - slug: augusta-rule-calculator
     scores:
       ai_leverage: 1
