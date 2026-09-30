@@ -224,6 +224,9 @@ workflows:
 - workflow: basement-waterproofing-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: bid-win-rate-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: biohazard-cleanup-bid-calculator-ci.yml
   classification: none
   publishes: []

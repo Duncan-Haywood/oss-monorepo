@@ -48589,3 +48589,32 @@ entries:
         date, category rule, CI workflow and tree counts; inbound link from
         gabor-granger-price-analyzer; regenerated the mirror.
     mrr_end: 0
+  - venture: bid-win-rate-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built bid-win-rate-optimizer: a browser-local tool for
+        contractors, agencies and freelancers. Paste or upload quote, won/lost
+        and cost rows; fits a logistic win-probability curve on ln(markup)
+        (Newton-Raphson with a tiny ridge, inverse-Hessian 95% interval on the
+        slope), finds the markup with the highest expected profit searched only
+        inside the quoted range (edge-of-range warning), 300 seeded
+        outcome-stratified bootstrap resamples for the 80% ranges of the best
+        markup and the profit gain, a price-change table around the usual quote,
+        observed-vs-fitted win rate by quote quarter, and a 75/25 hold-out
+        back-test on log-loss against the plain win rate. Refuses fewer than 30
+        bids, fewer than 8 wins or losses, or quotes that barely varied; flags a
+        non-negative slope, perfect separation and mixed job sizes without a cost
+        column. New niche: duplicate_check.py best match
+        property-tax-appeal-calculator at 0.16; about sixty trade bid calculators
+        price a job from costs but none learns from won and lost outcomes. First
+        visitor expected from "what markup should I charge" and "bid win rate"
+        searches and r/Construction, r/smallbusiness and r/freelance. Bid files
+        never leave the browser. Unverified against a published dataset: tests
+        use simulated bids with known curves (slope recovery with interval
+        coverage, analytic optimum) and no-network assertions. Registered score
+        row, launch date, category rule, CI workflow and tree counts; inbound
+        links from change-order-margin-calculator and
+        price-elasticity-estimator; regenerated the mirror.
+    mrr_end: 0
