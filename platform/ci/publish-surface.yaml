@@ -179,6 +179,9 @@ workflows:
 - workflow: attic-insulation-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: augusta-rule-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: auto-glass-bid-calculator-ci.yml
   classification: none
   publishes: []
