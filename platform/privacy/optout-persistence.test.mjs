@@ -1083,7 +1083,8 @@ const RELATIVE_SELF = relative(
 // +1: `section-83b-election-calculator` graduated.
 // +1: `startup-option-value-calculator` graduated.
 // +1: `pslf-vs-refinance-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 463;
+// +1: `dependent-care-fsa-vs-credit-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 464;
 
 let counter = 0;
 function fixture(source) {
