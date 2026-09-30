@@ -48416,3 +48416,22 @@ entries:
         CI workflow and tree counts; reciprocal link from
         travel-nurse-contract-comparison-calculator; regenerated the mirror.
     mrr_end: 0
+  - venture: van-westendorp-pricing-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built van-westendorp-pricing-analyzer (#6076): a
+        browser-local Van Westendorp price sensitivity meter. Paste four-question
+        survey answers (too cheap, cheap, expensive, too expensive); get the
+        acceptable range, optimal price point, indifference price, an SVG chart of
+        the four curves, and seeded 300-resample bootstrap bands, plus CSV. Drops
+        and counts incoherent rows; states it measures stated price perception,
+        not demand. New niche: duplicate_check.py top match 0.16, no survey
+        analysis tool in ventures/. First visitor expected from r/SaaS,
+        Indie Hackers and "van westendorp calculator" searches. Nothing uploaded.
+        Hand-checked arithmetic only. 29 tests; page run in Chromium. Registered
+        score row, launch date, category rule, CI workflow and tree counts;
+        reciprocal link from saas-annual-plan-discount-calculator; regenerated the
+        mirror; refreshed the gh-pages snapshot after merge.
+    mrr_end: 0
