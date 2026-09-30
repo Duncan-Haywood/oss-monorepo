@@ -1,0 +1,66 @@
+name: aws-commitment-breakeven-calculator
+description: >-
+  Free browser tool for engineers, FinOps practitioners and founders: paste
+  hourly or daily cloud usage and the discount of each Savings Plan or Reserved
+  Instance option, and get the commitment level that saves the most, the
+  savings curve, break-even utilization, upfront payback at your cost of
+  capital, and a stress test if usage falls. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "AWS savings plan vs reserved instance vs on-demand break-even commitment
+# calculator": top match 0.27 (unrelated), no cloud-commitment tool in the
+# catalogue. The Kubernetes right-sizing and Postgres tuning ideas were also
+# checked and are left for later.
+#
+# What it does that the common free calculators do not: they compare one
+# discount against on-demand for a constant workload. The real decision is
+# how MUCH to commit given a usage curve (commit to the always-on base, not
+# the peak). Here the optimum is computed exactly from the pasted profile,
+# present-value adjusted for upfront payments, and stress-tested for a usage
+# drop -- the risk that actually hurts on a 3-year term.
+#
+# First visitor: searches "savings plan vs reserved instance calculator",
+# "aws savings plan how much to commit", "reserved instance break-even";
+# r/aws, r/FinOps and r/devops threads asking how much to commit; the
+# FinOps Foundation community; Hacker News cloud-cost threads. Users have
+# real money on the line (five- to seven-figure annual bills) and the tool
+# helps them save it. Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: usage never leaves the browser (tests
+# assert no network calls). No prices are fetched or asserted; discounts are
+# typed in, and example discounts are labelled illustrative.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: arithmetic on numbers the user supplies, not advice; commitments
+# are described as generally non-cancellable; AWS is named nominatively with
+# a no-affiliation clause. Unverified: unit tests against closed forms and
+# brute-force search only, not against any provider's recommendation engine.
+
+hypotheses:
+  - claim: >-
+      People buying cloud commitments will use a no-signup tool that finds the
+      right commitment level from their own usage curve and shows the
+      downside, and will return before each renewal or purchase.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a recommended commitment, savings figure or break-even disagrees with a hand calculation on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/aws-commitment-breakeven-calculator/
+  analytics: null
