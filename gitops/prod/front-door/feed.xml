@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 483 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 485 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -116,6 +116,15 @@
     <summary type="text">Free physician wRVU contract calculator. Enter two job offers, base salary, incentive threshold and dollars per wRVU, to see what each pays at your expected volume, where they cross, and your effective rate per wRVU. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>PSLF vs Refinance Calculator — Should You Refinance Federal Loans?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pslf-vs-refinance-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/pslf-vs-refinance-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free PSLF vs refinance calculator. Enter your federal loan balance, income and a refinance offer to see total paid under Public Service Loan Forgiveness, the amount forgiven, the income where refinancing wins, and what leaving public service early costs. Runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>R&amp;D Tax Credit Calculator — Startup Estimate with Payroll Offset, Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rd-tax-credit-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/rd-tax-credit-calculator</id>
@@ -168,6 +177,15 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free solar panel payback calculator for homeowners. Enter system cost, incentives, production and your electricity rates to see payback year, 25-year net gain, NPV and IRR, and how a lower export credit changes it. Runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Startup Stock Option Value Calculator — What Are Your Options Worth?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/startup-option-value-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/startup-option-value-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free startup stock option calculator. See what an offer&#39;s options are really worth after dilution, liquidation preferences, vesting cliff, exercise cost and tax, weighted by the exit odds you choose. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Tax-Loss Harvesting Calculator — How Much Would Selling Losers Save You</title>
@@ -348,23 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free Fiverr fee calculator for sellers: drop in your earnings or revenue CSV and see the service fee actually taken, take-home per order, net revenue per gig, repeat buyers, refunds, withdrawal costs, funds still clearing and the price needed for a target take-home. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Freelancer Schedule C Categorizer — Sort Your Bank CSV Into Schedule C Lines</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freelancer-schedule-c-categorizer/"/>
-    <id>tag:marisstella.dev,2026:tool/freelancer-schedule-c-categorizer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free tool for freelancers and sole proprietors: drop in your bank or card CSV and get income and expenses sorted into Schedule C lines, with estimated tax, equipment, health insurance and transfers held out, meals at 50%, a payment-platform payout warning and a CSV to hand your preparer. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Ghost Members Export Analyzer — Inactive Members, Conversion and List Cost</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ghost-members-export-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/ghost-members-export-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free analyzer for Ghost publishers: drop in your members export CSV and see paid and free members, free-to-paid conversion, who never opens your emails, what cleaning the list saves, conversion by label and growth. Runs in your browser, the file is never uploaded.</summary>
   </entry>
 </feed>

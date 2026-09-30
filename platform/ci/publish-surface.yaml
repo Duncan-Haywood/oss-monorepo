@@ -1126,6 +1126,9 @@ workflows:
 - workflow: proposal-module-ci.yml
   classification: none
   publishes: []
+- workflow: pslf-vs-refinance-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: public-record-watch-ci.yml
   classification: none
   publishes: []
@@ -1419,6 +1422,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: standby-generator-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: startup-option-value-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: stockx-seller-payout-calculator-ci.yml
