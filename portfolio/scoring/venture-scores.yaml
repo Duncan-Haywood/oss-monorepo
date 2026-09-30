@@ -22165,3 +22165,35 @@ ventures:
       stated conservatively. Grants never leave the browser. Ethics: helps a
       founder check a one-time tax choice; nothing is sold and no referral is
       made.
+  - slug: dependent-care-fsa-vs-credit-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Working parents
+      choose a dependent care FSA election once a year at open enrolment; the
+      tool compares FSA, credit and the best split. Distribution 6: "dependent
+      care FSA vs child care credit" is a recurring seasonal query; volume not
+      measured with an external tool. Defensibility 3: arithmetic is simple;
+      the edge is a private, no-signup answer with the split optimised.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimates not advice, no warranty, independence
+      from the IRS, employers and administrators stated, tax professional
+      recommended, omissions stated, current-year figures to be confirmed.
+      Household figures never leave the browser. Ethics: helps a parent check a
+      yearly tax choice; nothing is sold and no referral is made.
