@@ -269,6 +269,9 @@ workflows:
 - workflow: brrrr-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: bundle-discount-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: caa-record-check-ci.yml
   classification: none
   publishes: []
