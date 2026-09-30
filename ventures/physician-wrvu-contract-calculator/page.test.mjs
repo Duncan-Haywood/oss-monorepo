@@ -100,3 +100,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("LICENSE"), /MIT License/);
   assert.match(page("VENTURE.yaml"), /^name: physician-wrvu-contract-calculator$/m);
 });
+
+test("links to the veterinarian associate pay calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/veterinarian-associate-pay-calculator\/"/);
+});

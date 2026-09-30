@@ -1078,8 +1078,11 @@ const RELATIVE_SELF = relative(
 // +1: `self-employed-health-insurance-deduction-calculator` graduated.
 // +1: `rd-tax-credit-calculator` graduated.
 // +1: `heat-pump-vs-furnace-calculator` graduated.
+// +1: `physician-wrvu-compensation-calculator` graduated.
+// +1: `dental-associate-pay-calculator` graduated.
+// +1: `section-83b-election-calculator` graduated.
 // +1: `pslf-vs-refinance-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 458;
+const SWITCHES_IN_THE_CATALOGUE = 462;
 
 let counter = 0;
 function fixture(source) {

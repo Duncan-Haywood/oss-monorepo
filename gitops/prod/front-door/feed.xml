@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 479 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 483 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -42,6 +42,15 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free cost segregation study calculator for rental and commercial property owners. Estimates first-year extra depreciation, tax saved at your bracket, fee payback, the recapture bill on sale and a present-value net. Illustrative; an engineer and your CPA decide. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Dental Associate Pay Calculator — Compare Two Offers</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dental-associate-pay-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/dental-associate-pay-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free dental associate pay calculator. Enter two offers, percent of production or collections, daily guarantee and lab fee share, to see what each pays at your expected production, your effective percentage, and where they cross. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>ESPP Tax Calculator — Sell Now or Hold? Qualifying vs Disqualifying</title>
@@ -89,6 +98,15 @@
     <summary type="text">Paste an LLM API usage log (JSONL, JSON or CSV) and see spend by model, feature and day, your cache hit rate, a 30-day run rate, and which levers -- caching, batch, a cheaper model -- would have saved money. Runs in your browser; the log never leaves it. Free, no signup.</summary>
   </entry>
   <entry>
+    <title>Physician wRVU Compensation Calculator — Offer Break-Even, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/physician-wrvu-compensation-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/physician-wrvu-compensation-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free physician wRVU compensation calculator. Compare base-plus-productivity, pure wRVU and fixed salary, find the break-even wRVUs, effective $/wRVU, pay per hour, shortfall exposure and signing-bonus clawback, and compare two offers. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Physician wRVU Contract Calculator — Compare Two Offers</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/physician-wrvu-contract-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/physician-wrvu-contract-calculator</id>
@@ -134,6 +152,15 @@
     <summary type="text">Free SAFE dilution calculator for startup founders. Model post-money and pre-money SAFEs with caps and discounts converting in a priced round with an option pool top-up: your cap table, what each SAFE cost you, valuation sensitivity and an exit waterfall. Illustrative; nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>83(b) Election Calculator — Tax With vs Without, Restricted Stock</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/section-83b-election-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/section-83b-election-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free 83(b) election calculator for founders and startup employees with vesting stock. See tax due at grant, tax at each vest date, the break-even sale value, the tax wasted if you leave early, and your 30-day deadline. Runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Self-Employed Health Insurance Deduction Calculator — Form 7206</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/self-employed-health-insurance-deduction-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/self-employed-health-insurance-deduction-calculator</id>
@@ -159,6 +186,15 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free tax-loss harvesting calculator. Enter your realized gains, carried-forward losses and the positions you could sell at a loss to see the tax saved this year, the $3,000 ordinary deduction, the carryforward and wash-sale risk. Runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Veterinarian Associate Pay Calculator — Compare Two Offers</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/veterinarian-associate-pay-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/veterinarian-associate-pay-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free veterinarian associate pay calculator. Compare two offers, salary, percentage of production or base plus percentage above a threshold, at the production you expect: yearly value, real percentage after exclusions, hourly rate and where the offers cross. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>ACA Subsidy Cliff Calculator — 2026, Free</title>
@@ -330,41 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free analyzer for Ghost publishers: drop in your members export CSV and see paid and free members, free-to-paid conversion, who never opens your emails, what cleaning the list saves, conversion by label and growth. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Gig Driver Earnings Report Analyzer — Real Net Pay per Hour and Mile</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/gig-driver-earnings-report-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/gig-driver-earnings-report-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free earnings analyzer for Uber, Lyft, DoorDash and Instacart drivers: drop in your trip history CSV and see net pay per hour and per mile after vehicle cost, which app, weekday and time of day pays best, and which trips cost more to drive than they paid. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Google Ads Wasted Spend Analyzer — Free Search Terms Report Tool</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/google-ads-wasted-spend-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/google-ads-wasted-spend-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free Google Ads wasted spend analyzer: drop in your search terms report CSV and see how much you spent on terms that never converted, which negative keywords are safe to add, and which converting terms deserve exact match. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Google Play Earnings Report Analyzer — Fees, Refunds and Net</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/google-play-earnings-report-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/google-play-earnings-report-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free analyzer for Android developers: drop in your Google Play Console Earnings report and see net earnings by app, product type, country and month, the effective Google fee and refund rate. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Gumroad Sales Fee Analyzer — Your Real Take-Home per Order</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/gumroad-sales-fee-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/gumroad-sales-fee-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free Gumroad fee calculator for sellers: drop in your sales CSV and see the service fee actually taken, take-home per order, net revenue per product, repeat buyers, refunds, withdrawal costs, funds still clearing and the price needed for a target take-home. Runs in your browser, the file is never uploaded.</summary>
   </entry>
 </feed>
