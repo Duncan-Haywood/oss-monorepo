@@ -437,6 +437,9 @@ workflows:
 - workflow: dependency-confusion-check-ci.yml
   classification: none
   publishes: []
+- workflow: dependent-care-fsa-vs-credit-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: deploy-concurrency-check-ci.yml
   classification: none
   publishes: []
