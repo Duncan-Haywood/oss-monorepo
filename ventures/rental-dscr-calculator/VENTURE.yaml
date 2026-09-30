@@ -1,0 +1,61 @@
+name: rental-dscr-calculator
+description: >-
+  Free browser tool for rental property investors that turns price, rent, loan
+  terms and operating costs into DSCR (rent over PITIA and NOI over debt
+  service), cash-on-cash, cap rate, break-even occupancy, the largest loan a
+  target DSCR allows, a rate sensitivity table and a hold-period IRR. Nothing is
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py: top
+# match 0.34 (depreciation-recapture-calculator, a tax tool, different job).
+# Investors buying rentals with DSCR loans (underwritten on the property's rent)
+# decide a five- or six-figure purchase on this ratio, and lenders define it two
+# ways. The tool's edge is showing both definitions, the largest loan a stated
+# minimum allows, and the rate sensitivity, with no signup and no lead capture.
+#
+# First visitor: r/realestateinvesting and r/Landlord threads on DSCR loans and
+# "does this deal cash flow", BiggerPockets forum threads, searches "DSCR
+# calculator" and "rental property DSCR calculator"; volume not measured with
+# an external tool.
+#
+# Privacy is the liability boundary: deal numbers never leave the browser (tests
+# assert no network calls). No lender or broker is named. Lender minimums are a
+# number the user enters; the tool states no lender rule.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: illustrative estimates, not advice; omissions stated on the page.
+# Unverified: hand calculation and unit tests only.
+
+hypotheses:
+  - claim: >-
+      Investors comparing DSCR loan quotes will use a no-signup tool that shows
+      both DSCR definitions and the largest loan a stated minimum allows.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The rate sensitivity table and the max-loan row are what people screenshot
+      or quote when discussing a deal.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the DSCR contradicts their own arithmetic on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/rental-dscr-calculator/
+  analytics: null

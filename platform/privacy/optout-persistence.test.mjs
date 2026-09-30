@@ -1074,8 +1074,9 @@ const RELATIVE_SELF = relative(
 // +1: `tax-loss-harvesting-calculator` graduated.
 // +1: `solar-payback-calculator` graduated.
 // +1: `safe-dilution-calculator` graduated.
+// +1: `rental-dscr-calculator` graduated.
 // +1: `rd-tax-credit-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 452;
+const SWITCHES_IN_THE_CATALOGUE = 453;
 
 let counter = 0;
 function fixture(source) {

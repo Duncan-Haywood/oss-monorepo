@@ -1173,6 +1173,9 @@ workflows:
 - workflow: rent-roll-delinquency-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: rental-dscr-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: rental-property-schedule-e-categorizer-ci.yml
   classification: none
   publishes: []
