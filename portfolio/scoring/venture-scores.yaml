@@ -23055,3 +23055,40 @@ ventures:
       Ethics: helps a small business see how its own customers respond to price
       before changing it; nothing is sold, no customer data is collected and no
       referral is made.
+  - slug: appointment-overbooking-optimizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical learning (a beta-binomial fitted by maximum likelihood and a
+      seeded bootstrap run in the browser) but no language model and no paid API;
+      the clustering estimate, the booking-level search and the refusal on thin
+      data are the product, not an add-on.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Clinics, salons,
+      studios and tutors paste booked and showed counts per slot and get how many
+      to book for the highest expected profit, the chance someone is turned away,
+      bootstrap ranges and a hold-out drift check. Distribution 6: "how many
+      patients to overbook" and "overbooking calculator" are recurring owner
+      queries and appointment-no-show-analyzer is a natural feeder (volume not
+      measured with an external tool). Defensibility 4: the beta-binomial is
+      standard and airlines do this at scale; the edge is the private no-upload
+      workflow, clustering-aware odds and the plain refusal on thin data.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical estimate of supplied data, not advice, no warranty,
+      independence from vendors stated, and a warning not to use it where turning
+      someone away could endanger them. Booking files never leave the browser.
+      Ethics: helps a small business plan its own schedule; nothing is sold, no
+      customer data is collected and no referral is made.
