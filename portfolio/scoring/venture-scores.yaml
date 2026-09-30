@@ -21462,3 +21462,35 @@ ventures:
       the page. Rates and offers never leave the browser. Ethics: helps a
       worker read an offer they must choose anyway; no agency is promoted and
       no referral is taken.
+  - slug: parcel-late-delivery-refund-finder
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every finding is deterministic
+      date and charge arithmetic on the CSV the shipper already downloads.
+    basis: >-
+      Row added after the venture merged without one; scoring follows the
+      venture's own VENTURE.yaml comment. Parcel-audit services take 20 to 30
+      percent of recovered refunds and need carrier credentials, so small
+      shippers below their minimums have nothing; this reads the export locally.
+      Distribution 6: "UPS late delivery refund" and "FedEx money back
+      guarantee" queries; volume not measured with an external tool.
+      Defensibility 3: the rule set is public; the edge is private, no-signup.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: output is a list of shipments to ask about, not a finding that
+      a refund is owed; guarantee terms are not asserted as current;
+      independence from carriers stated; the file never leaves the browser.
+      Ethics: helps a shipper recover money the carrier already owes under its
+      own published terms; no carrier is disparaged.
