@@ -48435,3 +48435,28 @@ entries:
         reciprocal link from saas-annual-plan-discount-calculator; regenerated the
         mirror; refreshed the gh-pages snapshot after merge.
     mrr_end: 0
+  - venture: customer-lifetime-value-predictor
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built customer-lifetime-value-predictor: a browser-local
+        customer lifetime value predictor for repeat-purchase online shops.
+        Upload or paste an order export (customer, date, amount; columns found by
+        header name); BG/NBD and Gamma-Gamma models are fitted by maximum
+        likelihood in the browser and give per-customer predicted value, the
+        probability each customer is still active, at-risk high spenders, likely
+        lost customers, the value of a new customer (acquisition cost ceiling),
+        and a back-test that refits on data ending 8-26 weeks early and compares
+        predicted with actual purchases by repeat-count bucket; per-customer CSV
+        (spreadsheet-injection safe). New niche: duplicate_check.py top match
+        0.19, no per-customer CLV tool in ventures/. First visitor expected from
+        "customer lifetime value calculator", "BG/NBD" and "CAC ceiling" searches
+        and r/shopify, r/ecommerce. Customer emails never leave the browser.
+        Unverified against a published dataset: 33 tests use parameter recovery
+        on simulated data, a simulated holdout (0.2% off with true parameters) and
+        closed-form identities; page run in Chromium. Registered score row, launch
+        date, category rule, CI workflow and tree counts; regenerated the mirror.
+        Also added the missing score row for merchant-cash-advance-true-cost-calculator,
+        which had left `score_ventures.py --check` red on main.
+    mrr_end: 0

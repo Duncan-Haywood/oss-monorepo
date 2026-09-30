@@ -1,0 +1,60 @@
+name: customer-lifetime-value-predictor
+description: >-
+  Free browser tool for online shops and DTC brands: upload an order export
+  (customer, date, amount) and get a predicted lifetime value per customer from
+  BG/NBD and Gamma-Gamma models fitted in the browser, the probability each
+  customer is still active, at-risk high spenders, the value of a new customer
+  (acquisition cost ceiling), and a back-test of the forecast on the shop's
+  own recent orders. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "customer lifetime value predictor BG/NBD from order history CSV for
+# ecommerce stores": top match 0.19, unrelated. Adjacent ventures are
+# stripe-churn-cohort-analyzer (subscription cohorts) and the per-marketplace
+# earnings analyzers; none predicts per-customer value for repeat-purchase
+# retail. Alternatives are paid analytics apps that upload the customer list
+# to a vendor; the differentiators are that the data stays on the device and
+# the tool back-tests itself so the owner can see how far to trust it.
+#
+# First visitor: searches "customer lifetime value calculator", "CLV
+# prediction", "BG/NBD model", "how much can I spend to acquire a customer";
+# r/shopify, r/ecommerce, r/FulfillmentByAmazon and DTC newsletters. Volume not
+# measured with an external tool.
+#
+# Privacy is the liability boundary: order files (customer emails) never leave
+# the browser (tests assert no network calls). No vendor is named.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be scheduled refreshes or a hosted API; not built.
+# Liability: statistical forecast of supplied data, not advice; the page lists
+# what is not modelled and warns when the back-test misses. Unverified: tested
+# on simulated data with known parameters only, not on a published dataset.
+
+hypotheses:
+  - claim: >-
+      Owners and analysts of repeat-purchase online shops will use a private,
+      no-signup CLV predictor with a visible back-test, and will return when
+      they export new orders.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that predictions or the back-test disagree with a standard reference implementation on the same data.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/customer-lifetime-value-predictor/
+  analytics: null

@@ -33,32 +33,32 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 546258 bytes
-#   portfolio-front-tools-1: 92 files, 554997 bytes
-#   portfolio-front-tools-2: 144 files, 552773 bytes
-#   portfolio-front-tools-3: 131 files, 554903 bytes
-#   portfolio-front-tools-4: 141 files, 555082 bytes
-#   portfolio-front-tools-5: 123 files, 555203 bytes
-#   portfolio-front-tools-6: 127 files, 554368 bytes
-#   portfolio-front-tools-7: 133 files, 556280 bytes
-#   portfolio-front-tools-8: 125 files, 545946 bytes
-#   portfolio-front-tools-9: 128 files, 554455 bytes
-#   portfolio-front-tools-10: 140 files, 550581 bytes
-#   portfolio-front-tools-11: 118 files, 553727 bytes
-#   portfolio-front-tools-12: 118 files, 551669 bytes
-#   portfolio-front-tools-13: 122 files, 555777 bytes
-#   portfolio-front-tools-14: 114 files, 544105 bytes
-#   portfolio-front-tools-15: 119 files, 555492 bytes
-#   portfolio-front-tools-16: 128 files, 541988 bytes
-#   portfolio-front-tools-17: 121 files, 543300 bytes
-#   portfolio-front-tools-18: 135 files, 555960 bytes
-#   portfolio-front-tools-19: 124 files, 554427 bytes
-#   portfolio-front-tools-20: 98 files, 554631 bytes
-#   portfolio-front-tools-21: 116 files, 556338 bytes
-#   portfolio-front-tools-22: 123 files, 554126 bytes
-#   portfolio-front-tools-23: 124 files, 549658 bytes
-#   portfolio-front-tools-24: 103 files, 499778 bytes
-#   portfolio-front-tools-25: 53 files, 281766 bytes
+#   portfolio-front-tools-0: 145 files, 546264 bytes
+#   portfolio-front-tools-1: 92 files, 555012 bytes
+#   portfolio-front-tools-2: 144 files, 552771 bytes
+#   portfolio-front-tools-3: 131 files, 554877 bytes
+#   portfolio-front-tools-4: 141 files, 555114 bytes
+#   portfolio-front-tools-5: 123 files, 555170 bytes
+#   portfolio-front-tools-6: 127 files, 554389 bytes
+#   portfolio-front-tools-7: 133 files, 556263 bytes
+#   portfolio-front-tools-8: 125 files, 554274 bytes
+#   portfolio-front-tools-9: 129 files, 556705 bytes
+#   portfolio-front-tools-10: 141 files, 555439 bytes
+#   portfolio-front-tools-11: 119 files, 556850 bytes
+#   portfolio-front-tools-12: 118 files, 551696 bytes
+#   portfolio-front-tools-13: 122 files, 555757 bytes
+#   portfolio-front-tools-14: 114 files, 544183 bytes
+#   portfolio-front-tools-15: 119 files, 555535 bytes
+#   portfolio-front-tools-16: 128 files, 542025 bytes
+#   portfolio-front-tools-17: 121 files, 543381 bytes
+#   portfolio-front-tools-18: 135 files, 555983 bytes
+#   portfolio-front-tools-19: 124 files, 554348 bytes
+#   portfolio-front-tools-20: 98 files, 554732 bytes
+#   portfolio-front-tools-21: 116 files, 556386 bytes
+#   portfolio-front-tools-22: 124 files, 556978 bytes
+#   portfolio-front-tools-23: 123 files, 546616 bytes
+#   portfolio-front-tools-24: 103 files, 499821 bytes
+#   portfolio-front-tools-25: 53 files, 281707 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1255,6 +1255,9 @@ configMapGenerator:
       - custom-farm-rate-calculator__usage.mjs.gz=custom-farm-rate-calculator__usage.mjs.gz
       - custom-farm-rate-calculator__vs-survey-rates.html.gz=custom-farm-rate-calculator__vs-survey-rates.html.gz
       - custom-farm-rate-calculator__why-a-lightly-used-machine-needs-a-higher-rate.html.gz=custom-farm-rate-calculator__why-a-lightly-used-machine-needs-a-higher-rate.html.gz
+      - customer-lifetime-value-predictor__calc.mjs.gz=customer-lifetime-value-predictor__calc.mjs.gz
+      - customer-lifetime-value-predictor__index.html.gz=customer-lifetime-value-predictor__index.html.gz
+      - customer-lifetime-value-predictor__usage.mjs.gz=customer-lifetime-value-predictor__usage.mjs.gz
       - cut-list-optimizer__calc.mjs.gz=cut-list-optimizer__calc.mjs.gz
       - cut-list-optimizer__compare-4x8-vs-5x5.html.gz=cut-list-optimizer__compare-4x8-vs-5x5.html.gz
       - cut-list-optimizer__csv.mjs.gz=cut-list-optimizer__csv.mjs.gz
@@ -1279,14 +1282,14 @@ configMapGenerator:
       - deck-staining-bid-calculator__usage.mjs.gz=deck-staining-bid-calculator__usage.mjs.gz
       - deck-staining-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=deck-staining-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
       - deck-staining-bid-calculator__vs-joist.html.gz=deck-staining-bid-calculator__vs-joist.html.gz
-      - delivery-app-margin-calculator__calc.mjs.gz=delivery-app-margin-calculator__calc.mjs.gz
-      - delivery-app-margin-calculator__doordash-fees-for-restaurants.html.gz=delivery-app-margin-calculator__doordash-fees-for-restaurants.html.gz
-      - delivery-app-margin-calculator__doordash-vs-ubereats-fees.html.gz=delivery-app-margin-calculator__doordash-vs-ubereats-fees.html.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - delivery-app-margin-calculator__calc.mjs.gz=delivery-app-margin-calculator__calc.mjs.gz
+      - delivery-app-margin-calculator__doordash-fees-for-restaurants.html.gz=delivery-app-margin-calculator__doordash-fees-for-restaurants.html.gz
+      - delivery-app-margin-calculator__doordash-vs-ubereats-fees.html.gz=delivery-app-margin-calculator__doordash-vs-ubereats-fees.html.gz
       - delivery-app-margin-calculator__index.html.gz=delivery-app-margin-calculator__index.html.gz
       - delivery-app-margin-calculator__share.mjs.gz=delivery-app-margin-calculator__share.mjs.gz
       - delivery-app-margin-calculator__usage.mjs.gz=delivery-app-margin-calculator__usage.mjs.gz
@@ -1413,13 +1416,13 @@ configMapGenerator:
       - duct-cleaning-bid-calculator__vs-a-flat-whole-house-special.html.gz=duct-cleaning-bid-calculator__vs-a-flat-whole-house-special.html.gz
       - duct-cleaning-bid-calculator__vs-jobber.html.gz=duct-cleaning-bid-calculator__vs-jobber.html.gz
       - dumpster-rental-margin-calculator__calc.mjs.gz=dumpster-rental-margin-calculator__calc.mjs.gz
-      - dumpster-rental-margin-calculator__index.html.gz=dumpster-rental-margin-calculator__index.html.gz
-      - dumpster-rental-margin-calculator__usage.mjs.gz=dumpster-rental-margin-calculator__usage.mjs.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - dumpster-rental-margin-calculator__index.html.gz=dumpster-rental-margin-calculator__index.html.gz
+      - dumpster-rental-margin-calculator__usage.mjs.gz=dumpster-rental-margin-calculator__usage.mjs.gz
       - dumpster-rental-margin-calculator__vs-a-spreadsheet.html.gz=dumpster-rental-margin-calculator__vs-a-spreadsheet.html.gz
       - dumpster-rental-margin-calculator__vs-jobber.html.gz=dumpster-rental-margin-calculator__vs-jobber.html.gz
       - dumpster-rental-margin-calculator__why-your-overage-fee-might-be-losing-you-money.html.gz=dumpster-rental-margin-calculator__why-your-overage-fee-might-be-losing-you-money.html.gz
@@ -1559,12 +1562,12 @@ configMapGenerator:
       - estate-tax-exemption-calculator__index.html.gz=estate-tax-exemption-calculator__index.html.gz
       - estate-tax-exemption-calculator__usage.mjs.gz=estate-tax-exemption-calculator__usage.mjs.gz
       - estate-tax-exemption-calculator__vs-doing-the-math-by-hand.html.gz=estate-tax-exemption-calculator__vs-doing-the-math-by-hand.html.gz
-      - estimated-tax-penalty-calculator__calc.mjs.gz=estimated-tax-penalty-calculator__calc.mjs.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - estimated-tax-penalty-calculator__calc.mjs.gz=estimated-tax-penalty-calculator__calc.mjs.gz
       - estimated-tax-penalty-calculator__index.html.gz=estimated-tax-penalty-calculator__index.html.gz
       - estimated-tax-penalty-calculator__usage.mjs.gz=estimated-tax-penalty-calculator__usage.mjs.gz
       - etsy-statement-profit-analyzer__calc.mjs.gz=etsy-statement-profit-analyzer__calc.mjs.gz
@@ -3056,12 +3059,12 @@ configMapGenerator:
       - supabase-rls-check__vs-manually-checking-the-dashboard.html.gz=supabase-rls-check__vs-manually-checking-the-dashboard.html.gz
       - supabase-rls-check__vs-vibeappscanner.html.gz=supabase-rls-check__vs-vibeappscanner.html.gz
       - supabase-rls-check__why-does-disabling-rls-expose-my-supabase-data.html.gz=supabase-rls-check__why-does-disabling-rls-expose-my-supabase-data.html.gz
+      - tax-loss-harvesting-calculator__calc.mjs.gz=tax-loss-harvesting-calculator__calc.mjs.gz
   - name: portfolio-front-tools-23
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - tax-loss-harvesting-calculator__calc.mjs.gz=tax-loss-harvesting-calculator__calc.mjs.gz
       - tax-loss-harvesting-calculator__index.html.gz=tax-loss-harvesting-calculator__index.html.gz
       - tax-loss-harvesting-calculator__usage.mjs.gz=tax-loss-harvesting-calculator__usage.mjs.gz
       - tender-radar__calc.mjs.gz=tender-radar__calc.mjs.gz
