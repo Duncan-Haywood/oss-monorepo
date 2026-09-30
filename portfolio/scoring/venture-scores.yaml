@@ -22165,6 +22165,41 @@ ventures:
       stated conservatively. Grants never leave the browser. Ethics: helps a
       founder check a one-time tax choice; nothing is sold and no referral is
       made.
+  - slug: pslf-vs-refinance-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Borrowers in
+      public service with six-figure federal balances are shown refinance
+      offers whose own calculators cannot price PSLF; the tool shows total
+      paid, forgiven balance, break-even income and early-exit cost.
+      Distribution 7: "PSLF vs refinance" and "should I refinance federal
+      student loans" are recurring forum and search queries; volume not
+      measured with an external tool. Defensibility 3: simple arithmetic; the
+      edge is a private, no-signup, no-referral answer.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimates not advice, no warranty, independence
+      from the Department of Education, servicers and lenders stated, plan
+      rules are inputs not assertions, irreversibility of refinancing warned,
+      omissions stated. Loan data never leaves the browser. Ethics: helps a
+      borrower check a large decision; nothing is sold and no lender referral
+      is made.
   - slug: dependent-care-fsa-vs-credit-calculator
     scores:
       ai_leverage: 1
