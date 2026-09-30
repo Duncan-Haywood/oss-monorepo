@@ -89,3 +89,7 @@ test("user-visible strings from calc are escaped before innerHTML", () => {
   assert.match(page("index.html"), /esc\(f\.title\)/);
   assert.match(page("index.html"), /esc\(STRUCTURE_LABELS/);
 });
+
+test("footer links the sales commission plan comparison calculator", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/sales-commission-plan-comparison-calculator\/"/);
+});

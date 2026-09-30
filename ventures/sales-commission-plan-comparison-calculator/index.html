@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sales Commission Plan Comparison Calculator — Compare Two Offers by Quota Attainment</title>
+  <meta name="description" content="Free sales commission plan comparison calculator. Enter two offers with base, target variable, threshold, accelerator, cap, signing bonus and ramp, and see pay at every quota attainment, where the plans cross, and which pays more at the attainment you expect. Runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Sales Commission Plan Comparison Calculator — free, private, in your browser">
+  <meta property="og:description" content="Two sales offers can share the same OTE and pay very differently at 60% of quota. Compare them across every attainment.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Sales Commission Plan Comparison Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare two sales compensation offers side by side: base salary, target variable, threshold, accelerator, cap, signing bonus and ramp. See pay at every quota attainment, the attainment where the plans cross, and pay at the attainment you expect. Runs in your browser.", "featureList": "sales commission plan comparison, on-target earnings versus expected pay, threshold, accelerator, cap, ramp guarantee, crossover attainment, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is on-target earnings (OTE) and why is it not enough to compare offers?", "acceptedAnswer": {"@type": "Answer", "text": "OTE is base salary plus the variable pay you earn if you hit 100% of quota. It says nothing about what you earn at 60% or 130%, and plans differ most away from 100%: thresholds, caps, accelerators and ramp guarantees all change the shape of the pay curve. Two offers with the same OTE can pay very differently at the attainment you actually land."}}, {"@type": "Question", "name": "What attainment should I expect?", "acceptedAnswer": {"@type": "Answer", "text": "Ask the employer what share of reps finished the last year at or above 100% of quota, and at 50% and 75%. Many companies set quotas that only some reps reach, so an OTE that assumes 100% can overstate typical pay. The default here is 70% of quota; replace it with the figure you are told or can defend."}}, {"@type": "Question", "name": "How does the commission threshold work in this calculator?", "acceptedAnswer": {"@type": "Answer", "text": "If your attainment is below the threshold, commission is zero and you earn base salary only. At or above the threshold, commission is paid from the first dollar of quota, not only on the part above it. Some real plans differ (for example paying only above the threshold, or applying it monthly), so check the plan document."}}, {"@type": "Question", "name": "What does the accelerator multiple mean?", "acceptedAnswer": {"@type": "Answer", "text": "It multiplies the commission rate on bookings above 100% of quota. 1 means no accelerator, 1.5 pays one and a half times the normal rate above quota, and a number below 1 is a decelerator. The rate itself is your target variable divided by quota, so you do not need to enter quota."}}, {"@type": "Question", "name": "How is the cap modelled?", "acceptedAnswer": {"@type": "Answer", "text": "A cap is entered as a multiple of target variable. A cap of 2 means commission cannot exceed twice your target variable, and the tool shows the attainment at which the cap starts to bind. Enter 0 for no cap."}}, {"@type": "Question", "name": "What is the difference between steady-state and first-year pay?", "acceptedAnswer": {"@type": "Answer", "text": "Steady-state pay is a full year of the plan at the attainment you enter. First-year pay adds the signing bonus and treats the ramp months as guaranteed target variable, with the rest of the year paid at your attainment. Use first-year pay when comparing a new-hire offer with a ramp or a signing bonus."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Taxes, benefits, equity, quota size and territory quality, clawbacks and chargebacks, draws that must be repaid, commission on renewals versus new business, split credit, and plans that pay by product or by quarter. It compares the pay curve you describe, not the job."}}, {"@type": "Question", "name": "Is my compensation data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SALES COMMISSION PLAN COMPARISON · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which sales offer pays more where you will actually land?</h1>
+    <p>Two offers can share the same on-target earnings and pay very differently at 60% or 130% of quota. Enter both plans and see <strong>pay at every attainment</strong>, the <strong>attainment where they cross</strong>, and which one pays more at the attainment you expect.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Illustrative arithmetic on the plan you describe, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>The two plans</h2>
+    <div class="grid">
+    <div><h3>Plan A</h3>
+      <label for="a-name">Plan name</label>
+      <input id="a-name" type="text" value="Offer A" autocomplete="off">
+      <label for="a-base">Base salary ($/year)</label>
+      <input id="a-base" type="text" inputmode="decimal" value="90000" autocomplete="off">
+      <label for="a-target">Target variable at 100% of quota ($/year)</label>
+      <input id="a-target" type="text" inputmode="decimal" value="90000" autocomplete="off">
+      <label for="a-threshold">Threshold (% of quota below which commission is zero)</label>
+      <input id="a-threshold" type="text" inputmode="decimal" value="0" autocomplete="off">
+      <label for="a-accel">Accelerator above 100% (multiple; 1 = none)</label>
+      <input id="a-accel" type="text" inputmode="decimal" value="1" autocomplete="off">
+      <label for="a-cap">Cap (multiple of target variable; 0 = no cap)</label>
+      <input id="a-cap" type="text" inputmode="decimal" value="0" autocomplete="off">
+      <label for="a-signing">Signing bonus ($)</label>
+      <input id="a-signing" type="text" inputmode="decimal" value="0" autocomplete="off">
+      <label for="a-ramp">Ramp months with guaranteed target variable (0 to 12)</label>
+      <input id="a-ramp" type="text" inputmode="decimal" value="0" autocomplete="off">
+    </div>
+    <div><h3>Plan B</h3>
+      <label for="b-name">Plan name</label>
+      <input id="b-name" type="text" value="Offer B" autocomplete="off">
+      <label for="b-base">Base salary ($/year)</label>
+      <input id="b-base" type="text" inputmode="decimal" value="120000" autocomplete="off">
+      <label for="b-target">Target variable at 100% of quota ($/year)</label>
+      <input id="b-target" type="text" inputmode="decimal" value="60000" autocomplete="off">
+      <label for="b-threshold">Threshold (% of quota below which commission is zero)</label>
+      <input id="b-threshold" type="text" inputmode="decimal" value="50" autocomplete="off">
+      <label for="b-accel">Accelerator above 100% (multiple; 1 = none)</label>
+      <input id="b-accel" type="text" inputmode="decimal" value="1" autocomplete="off">
+      <label for="b-cap">Cap (multiple of target variable; 0 = no cap)</label>
+      <input id="b-cap" type="text" inputmode="decimal" value="2" autocomplete="off">
+      <label for="b-signing">Signing bonus ($)</label>
+      <input id="b-signing" type="text" inputmode="decimal" value="10000" autocomplete="off">
+      <label for="b-ramp">Ramp months with guaranteed target variable (0 to 12)</label>
+      <input id="b-ramp" type="text" inputmode="decimal" value="3" autocomplete="off">
+    </div>
+    </div>
+    <label for="expected">Attainment you expect (% of quota)</label>
+    <input id="expected" type="text" inputmode="decimal" value="70" autocomplete="off">
+    <label for="basis">Pay view</label>
+    <select id="basis"><option value="steady">Steady-state year</option><option value="first">First 12 months (signing bonus and ramp guarantee included)</option></select>
+    <p class="note">Ask the employer what share of reps finished last year at or above 100% of quota, and use that to set your expected attainment. Leave a field at 0 if the plan has no such term.</p>
+    <button type="button" id="compare">Compare</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <p id="form-status" role="status" class="note">Edit the plans, then click Compare.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="chart"></div>
+    <div class="legend" id="legend"></div>
+    <div id="report-findings"></div>
+    <div class="scroll"><table id="rows"><thead><tr><th>Quota attainment</th><th class="n" id="col-a">Plan A</th><th class="n" id="col-b">Plan B</th><th class="n">A minus B</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>Commission at attainment <em>a</em> (1 = 100% of quota) is zero below the threshold. At or above it, commission is target variable × (min(<em>a</em>, 1) + accelerator × max(0, <em>a</em> − 1)), limited by the cap if there is one. Annual pay is base salary plus commission. In the first-12-months view the ramp months pay target variable regardless of attainment, the other months pay commission at your attainment, and the signing bonus is added. The commission rate is target variable divided by quota, so quota itself is not needed.</p>
+    <p><strong>Not modelled:</strong> taxes, benefits, equity, quota size and territory quality, clawbacks and chargebacks, repayable draws, renewal versus new-business rates, split credit, and monthly or quarterly threshold rules. <strong>Unverified:</strong> checked by hand calculation and unit tests only; compare the numbers with the plan document before you rely on them.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is on-target earnings (OTE) and why is it not enough to compare offers?</h3>
+    <p>OTE is base salary plus the variable pay you earn if you hit 100% of quota. It says nothing about what you earn at 60% or 130%, and plans differ most away from 100%: thresholds, caps, accelerators and ramp guarantees all change the shape of the pay curve. Two offers with the same OTE can pay very differently at the attainment you actually land.</p>
+    <h3>What attainment should I expect?</h3>
+    <p>Ask the employer what share of reps finished the last year at or above 100% of quota, and at 50% and 75%. Many companies set quotas that only some reps reach, so an OTE that assumes 100% can overstate typical pay. The default here is 70% of quota; replace it with the figure you are told or can defend.</p>
+    <h3>How does the commission threshold work in this calculator?</h3>
+    <p>If your attainment is below the threshold, commission is zero and you earn base salary only. At or above the threshold, commission is paid from the first dollar of quota, not only on the part above it. Some real plans differ (for example paying only above the threshold, or applying it monthly), so check the plan document.</p>
+    <h3>What does the accelerator multiple mean?</h3>
+    <p>It multiplies the commission rate on bookings above 100% of quota. 1 means no accelerator, 1.5 pays one and a half times the normal rate above quota, and a number below 1 is a decelerator. The rate itself is your target variable divided by quota, so you do not need to enter quota.</p>
+    <h3>How is the cap modelled?</h3>
+    <p>A cap is entered as a multiple of target variable. A cap of 2 means commission cannot exceed twice your target variable, and the tool shows the attainment at which the cap starts to bind. Enter 0 for no cap.</p>
+    <h3>What is the difference between steady-state and first-year pay?</h3>
+    <p>Steady-state pay is a full year of the plan at the attainment you enter. First-year pay adds the signing bonus and treats the ramp months as guaranteed target variable, with the rest of the year paid at your attainment. Use first-year pay when comparing a new-hire offer with a ramp or a signing bonus.</p>
+    <h3>What does this leave out?</h3>
+    <p>Taxes, benefits, equity, quota size and territory quality, clawbacks and chargebacks, draws that must be repaid, commission on renewals versus new business, split credit, and plans that pay by product or by quarter. It compares the pay curve you describe, not the job.</p>
+    <h3>Is my compensation data uploaded anywhere?</h3>
+    <p>No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are illustrative arithmetic on the plan terms you enter, not a prediction of what you will earn. You are responsible for reviewing and verifying them against the actual plan document before accepting an offer. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any employer, recruiter, sales-compensation vendor or job board, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>comparison_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only on this device, never with any of your data, and can be switched off below; Do Not Track is honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Comparing other pay structures? See the <a href="../physician-wrvu-compensation-calculator/">physician wRVU compensation calculator</a> and the <a href="../dental-associate-pay-calculator/">dental associate pay calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, samplePlans, money, pct, firstYearPay, steadyPay } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const FIELDS = ["name", "base", "target", "threshold", "accel", "cap", "signing", "ramp"];
+    let last = null;
+
+    const readPlan = (k) => Object.fromEntries(FIELDS.map((f) => [f, document.getElementById(k + "-" + f).value]));
+    const fillPlan = (k, p) => FIELDS.forEach((f) => (document.getElementById(k + "-" + f).value = p[f]));
+
+    function chart(r) {
+      const W = 640, H = 300, L = 62, B = 30, T = 10, R = 12;
+      const xs = Array.from({ length: 41 }, (_, i) => i * 0.05);
+      const fa = (x) => r.fn(r.a, x), fb = (x) => r.fn(r.b, x);
+      const ys = xs.flatMap((x) => [fa(x), fb(x)]);
+      const hi = Math.max(...ys) * 1.05, lo = Math.min(0, ...ys);
+      const px = (x) => L + (x / 2) * (W - L - R);
+      const py = (v) => T + (1 - (v - lo) / (hi - lo || 1)) * (H - T - B);
+      let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Annual pay for each plan across quota attainment from 0% to 200%">`;
+      for (let i = 0; i <= 4; i++) { const v = lo + ((hi - lo) * i) / 4; s += `<line x1="${L}" x2="${W - R}" y1="${py(v)}" y2="${py(v)}" stroke="#d9dfe6"/><text x="${L - 6}" y="${py(v) + 4}" font-size="11" text-anchor="end" fill="#4c5a68">${money(v)}</text>`; }
+      for (const x of [0, 0.5, 1, 1.5, 2]) s += `<text x="${px(x)}" y="${H - 10}" font-size="11" text-anchor="middle" fill="#4c5a68">${Math.round(x * 100)}%</text>`;
+      s += `<polyline fill="none" stroke="#1f5f86" stroke-width="2.4" points="${xs.map((x) => `${px(x).toFixed(1)},${py(fa(x)).toFixed(1)}`).join(" ")}"/>`;
+      s += `<polyline fill="none" stroke="#c27a12" stroke-width="2.4" points="${xs.map((x) => `${px(x).toFixed(1)},${py(fb(x)).toFixed(1)}`).join(" ")}"/>`;
+      s += `<line x1="${px(r.expected)}" x2="${px(r.expected)}" y1="${T}" y2="${H - B}" stroke="#1f4a5d" stroke-dasharray="4 3"/>`;
+      return s + "</svg>";
+    }
+
+    function run() {
+      const r = analyze(readPlan("a"), readPlan("b"), $("#expected").value, $("#basis").value);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      r.fn = r.basis === "first" ? firstYearPay : steadyPay;
+      $("#big").innerHTML = [[money(r.at.a), r.a.name + " at " + pct(r.expected) + " of quota"], [money(r.at.b), r.b.name + " at " + pct(r.expected) + " of quota"], [money(r.ote.a) + " / " + money(r.ote.b), "Pay at 100% of quota (A / B)"], [money(Math.abs(r.at.a - r.at.b)), "Difference at expected attainment"]].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#chart").innerHTML = chart(r);
+      $("#legend").innerHTML = `<span><b style="color:#1f5f86">━</b> ${esc(r.a.name)}</span><span><b style="color:#c27a12">━</b> ${esc(r.b.name)}</span><span>Dashed: your expected attainment</span>`;
+      $("#report-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      $("#col-a").textContent = r.a.name; $("#col-b").textContent = r.b.name;
+      $("#rows tbody").innerHTML = r.rows.map((x) => `<tr><td>${Math.round(x.attainment * 100)}%</td><td class="n">${money(x.a)}</td><td class="n">${money(x.b)}</td><td class="n">${money(x.a - x.b)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#compare").addEventListener("click", () => { if (run()) record("comparison_run"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = samplePlans();
+      fillPlan("a", s.a); fillPlan("b", s.b); $("#expected").value = "70";
+      if (run()) { record("example_loaded"); status.textContent = "Sample plans: invented offers, not real ones."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "sales-commission-plan-comparison.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
