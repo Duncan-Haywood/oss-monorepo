@@ -23193,3 +23193,70 @@ ventures:
       Liability: planning estimate from supplied data, not advice, no warranty,
       data never leaves the browser. Ethics: helps a small buyer avoid over- or
       under-buying; nothing is sold and no customer data is collected.
+  - slug: client-rebooking-predictor
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical learning (per-client lognormal rhythm with empirical-Bayes
+      shrinkage and a maximum-likelihood departure probability, run in the
+      browser) but no language model and no paid API; the ranking, its back-test
+      and the refusal to answer on thin histories are the product, not an add-on.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Owners of
+      appointment businesses paste client, visit date and amount and get who is
+      due, who is overdue but recoverable and who has gone, each against that
+      client's own rhythm, with a hold-out back-test. Distribution 6: "lapsed
+      client report" and "win back inactive clients" are recurring
+      salon, barber and groomer queries (volume not measured with an external
+      tool). Defensibility 4: booking systems ship a flat lapsed report and a
+      spreadsheet can compute days since last visit; the edge is the private
+      no-upload workflow, per-client rhythm, the fitted departure chance and the
+      honest back-test.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical estimate of supplied data, not advice, no warranty,
+      independence from vendors stated, limits stated, an unidentified verdict
+      when the ranking cannot beat chance, and a reminder that the tool contacts
+      no one and that marketing messages carry consent rules. Client lists never
+      leave the browser. Ethics: helps a small business notice clients who may
+      want to hear from it; nothing is sold, no customer data is collected and
+      no referral is made.
+  - slug: project-estimate-calibrator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical learning (conformal residual quantiles and a seeded bootstrap
+      in the browser) but no language model and no paid API; the calibrated
+      ranges and the refusal on thin histories are the product.
+    basis: >-
+      Row added 2026-09-30 by a later session because the venture landed without
+      one and score_ventures.py --check was red on main; scores follow the
+      sibling browser-local statistics tools (bid-win-rate-optimizer). Full
+      screening write-up is in this venture's own VENTURE.yaml comment.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Statistical estimate of supplied data, not advice, no warranty, limits
+      stated; project histories never leave the browser; nothing is sold.
