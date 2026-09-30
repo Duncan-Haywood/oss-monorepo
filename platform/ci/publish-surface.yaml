@@ -908,6 +908,9 @@ workflows:
 - workflow: mercari-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: merchant-cash-advance-true-cost-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: merchant-feed-check-ci.yml
   classification: none
   publishes: []
@@ -1259,6 +1262,9 @@ workflows:
 - workflow: rsu-withholding-gap-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: rule-72t-sepp-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: s-corp-reasonable-compensation-calculator-ci.yml
   classification: none
   publishes: []
@@ -1563,6 +1569,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: upwork-earnings-fee-analyzer-ci.yml
+  classification: none
+  publishes: []
+- workflow: usage-based-pricing-simulator-ci.yml
   classification: none
   publishes: []
 - workflow: van-westendorp-pricing-analyzer-ci.yml
