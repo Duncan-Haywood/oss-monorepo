@@ -22265,3 +22265,36 @@ ventures:
       recommended, omissions stated, current-year figures to be confirmed.
       Household figures never leave the browser. Ethics: helps a parent check a
       yearly tax choice; nothing is sold and no referral is made.
+  - slug: van-westendorp-pricing-analyzer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic and a seeded bootstrap on responses the visitor pastes.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Founders and
+      product managers set prices from a four-question survey; the tool gives
+      the acceptable range, optimal and indifference prices, and bootstrap
+      bands. Distribution 6: "van westendorp calculator" and pricing threads
+      are recurring queries; volume not measured with an external tool.
+      Defensibility 3: the method is public; the edge is a private, no-signup
+      analysis with uncertainty bands.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: analysis of stated opinions not advice, no warranty,
+      independence from survey platforms stated, no demand or revenue
+      prediction claimed, omissions stated. Responses never leave the browser.
+      Ethics: helps a founder bound a test price; nothing is sold and no
+      referral is made.
