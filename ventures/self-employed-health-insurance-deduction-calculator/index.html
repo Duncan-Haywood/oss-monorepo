@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Self-Employed Health Insurance Deduction Calculator — Form 7206</title>
+  <meta name="description" content="Free self-employed health insurance deduction calculator. Enter net profit and premiums to see the Schedule 1 deduction after the profit ceiling, employer-plan months and long-term-care caps, and the income tax it saves. Runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Self-Employed Health Insurance Deduction Calculator — free, private, in your browser">
+  <meta property="og:description" content="How much of your health premiums you can deduct as a sole proprietor, partner or S corp owner, and what it saves.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Self-Employed Health Insurance Deduction Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Estimates the self-employed health insurance deduction (Form 7206) for a sole proprietor, partner or S corporation owner: the profit-based ceiling, employer-plan months, long-term-care age caps and the income tax saved. Runs in your browser.", "featureList": "Deduction ceiling, half of SE tax, employer-plan months, Medicare premiums, long-term-care caps, S corp wages, tax saved, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the self-employed health insurance deduction?", "acceptedAnswer": {"@type": "Answer", "text": "An above-the-line deduction, claimed on Schedule 1 and figured on Form 7206, for health, dental, qualifying long-term-care and Medicare premiums paid for yourself, your spouse and your dependents by a sole proprietor, partner or more-than-2% S corporation shareholder. It lowers income tax without itemizing."}}, {"@type": "Question", "name": "Does the deduction reduce self-employment tax?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is taken below the line on Schedule 1, so it reduces income tax only. Self-employment tax is figured on profit before it, and the same premiums must not also be deducted as a business expense."}}, {"@type": "Question", "name": "Why is my deduction smaller than my premiums?", "acceptedAnswer": {"@type": "Answer", "text": "The deduction cannot exceed the earned income from the business that carries the plan, after subtracting half of self-employment tax and any SEP, SIMPLE or solo 401(k) contributions. It also excludes any month you or your spouse could have joined a subsidized employer plan, and caps long-term-care premiums by age."}}, {"@type": "Question", "name": "Can I deduct Medicare premiums?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Medicare Part B, Part D, Medicare Advantage and Medigap premiums can qualify as health insurance premiums, subject to the same profit limit and employer-plan rule."}}, {"@type": "Question", "name": "What if my spouse has a plan at work?", "acceptedAnswer": {"@type": "Answer", "text": "Any month you or your spouse were eligible to participate in an employer-subsidized health plan is excluded, even if you did not enroll. This tool takes the number of such months and prorates the premiums."}}, {"@type": "Question", "name": "What about S corporation owners?", "acceptedAnswer": {"@type": "Answer", "text": "For a more-than-2% shareholder the corporation must pay or reimburse the premiums and report them in W-2 Box 1 wages. The deduction is then limited by the wages the S corporation pays you, and there is no self-employment tax on it. Confirm the payroll treatment with your preparer."}}, {"@type": "Question", "name": "Does this work with the premium tax credit?", "acceptedAnswer": {"@type": "Answer", "text": "Not here. Claiming both the Marketplace premium tax credit and this deduction creates a circular calculation that Form 7206 and Form 8962 handle. This tool leaves it out and says so."}}, {"@type": "Question", "name": "Is my information uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .best td { background: #e3f1e6; font-weight: 600; }
+    td.hot { background: #e3f1e6; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SELF-EMPLOYED HEALTH INSURANCE DEDUCTION · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much of your health insurance can you deduct?</h1>
+    <p>Enter your business profit and premiums to get the <strong>Schedule 1 deduction</strong> after the <strong>profit ceiling</strong>, <strong>employer-plan months</strong> and <strong>long-term-care caps</strong>, the <strong>income tax it saves</strong>, and how the answer moves if profit changes.</p>
+    <p class="note">Nothing you type leaves this browser tab. Illustrative estimates for tax year 2026, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your business</h2>
+    <div class="grid">
+      <div><label for="entity">Business type: type sole or S corp (blank = sole proprietor or partner)</label><input type="text" id="entity" inputmode="text" placeholder="sole" autocomplete="off"></div>
+      <div><label for="netProfit">Net profit for the year, dollars (Schedule C line 31 or K-1 earnings)</label><input type="text" id="netProfit" inputmode="decimal" placeholder="58000" autocomplete="off"></div>
+      <div><label for="wages">S corp only: W-2 wages the corporation pays you, dollars</label><input type="text" id="wages" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+      <div><label for="otherWages">Wages from another job, dollars (uses Social Security room)</label><input type="text" id="otherWages" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+      <div><label for="retirement">SEP, SIMPLE or solo 401(k) contributions for yourself, dollars</label><input type="text" id="retirement" inputmode="decimal" placeholder="4000" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Premiums you paid for the year</h2>
+    <div class="grid">
+      <div><label for="medical">Health, dental and vision premiums, dollars</label><input type="text" id="medical" inputmode="decimal" placeholder="9600" autocomplete="off"></div>
+      <div><label for="medicare">Medicare premiums (Part B, D, Advantage, Medigap), dollars</label><input type="text" id="medicare" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+      <div><label for="ltc">Long-term-care premiums, dollars</label><input type="text" id="ltc" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+      <div><label for="age">Age at year end (sets the long-term-care limit)</label><input type="text" id="age" inputmode="decimal" placeholder="47" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Eligibility and tax rates</h2>
+    <div class="grid">
+      <div><label for="ineligibleMonths">Months you or your spouse could have joined an employer plan (0 to 12)</label><input type="text" id="ineligibleMonths" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+      <div><label for="fedRate">Your federal marginal rate, percent</label><input type="text" id="fedRate" inputmode="decimal" placeholder="22" autocomplete="off"></div>
+      <div><label for="stateRate">State income tax rate, percent</label><input type="text" id="stateRate" inputmode="decimal" placeholder="5" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <button type="button" id="analyze">Calculate deduction</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Enter your net profit and premiums, then click Calculate deduction.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>If your profit were different</h3>
+    <div class="scroll"><table id="scen-table"><thead><tr><th>Scenario</th><th class="n">Income</th><th class="n">Ceiling</th><th class="n">Deduction</th><th class="n">Tax saved</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>Qualifying premiums = health, dental, vision and Medicare premiums plus long-term-care premiums up to the age limit ($500 to age 40, $930 to 50, $1,860 to 60, $4,960 to 70, $6,200 above, for 2026). They are prorated by the months you were not eligible for a subsidized employer plan. The ceiling for a sole proprietor or partner is net profit minus half of self-employment tax (92.35% of profit at 12.4% up to the $184,500 Social Security base, plus 2.9%) minus retirement-plan contributions for yourself; for an S corporation owner it is the W-2 wages entered. The deduction is the smaller of the two. Tax saved = deduction x (federal marginal rate + state rate).</p>
+    <p><strong>Not modelled:</strong> the Marketplace premium tax credit and its circular calculation, more than one business, the additional Medicare tax, the effect on the qualified business income deduction, itemized medical deductions, state rules that differ from the federal deduction, and month-by-month plan eligibility. <strong>Unverified:</strong> checked by hand calculation and unit tests only; tax-year figures should be confirmed against the IRS instructions for Form 7206.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the self-employed health insurance deduction?</h3>
+    <p>An above-the-line deduction, claimed on Schedule 1 and figured on Form 7206, for health, dental, qualifying long-term-care and Medicare premiums paid for yourself, your spouse and your dependents by a sole proprietor, partner or more-than-2% S corporation shareholder. It lowers income tax without itemizing.</p>
+    <h3>Does the deduction reduce self-employment tax?</h3>
+    <p>No. It is taken below the line on Schedule 1, so it reduces income tax only. Self-employment tax is figured on profit before it, and the same premiums must not also be deducted as a business expense.</p>
+    <h3>Why is my deduction smaller than my premiums?</h3>
+    <p>The deduction cannot exceed the earned income from the business that carries the plan, after subtracting half of self-employment tax and any SEP, SIMPLE or solo 401(k) contributions. It also excludes any month you or your spouse could have joined a subsidized employer plan, and caps long-term-care premiums by age.</p>
+    <h3>Can I deduct Medicare premiums?</h3>
+    <p>Yes. Medicare Part B, Part D, Medicare Advantage and Medigap premiums can qualify as health insurance premiums, subject to the same profit limit and employer-plan rule.</p>
+    <h3>What if my spouse has a plan at work?</h3>
+    <p>Any month you or your spouse were eligible to participate in an employer-subsidized health plan is excluded, even if you did not enroll. This tool takes the number of such months and prorates the premiums.</p>
+    <h3>What about S corporation owners?</h3>
+    <p>For a more-than-2% shareholder the corporation must pay or reimburse the premiums and report them in W-2 Box 1 wages. The deduction is then limited by the wages the S corporation pays you, and there is no self-employment tax on it. Confirm the payroll treatment with your preparer.</p>
+    <h3>Does this work with the premium tax credit?</h3>
+    <p>Not here. Claiming both the Marketplace premium tax credit and this deduction creates a circular calculation that Form 7206 and Form 8962 handle. This tool leaves it out and says so.</p>
+    <h3>Is my information uploaded anywhere?</h3>
+    <p>No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are illustrative estimates that depend on the numbers you enter and on tax rules that change. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the IRS, any insurer, marketplace or tax-software company, and no company is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>deduction_calculated</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also see the <a href="../self-employment-tax-calculator/">self-employment tax calculator</a>, the <a href="../solo-401k-contribution-calculator/">solo 401(k) contribution calculator</a>, the <a href="../hsa-contribution-limit-calculator/">HSA contribution limit calculator</a> and the <a href="../qbi-deduction-calculator/">QBI deduction calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleInput, money, TAX_YEAR } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    const KEYS = ["entity", "netProfit", "wages", "otherWages", "retirement", "medical", "medicare", "ltc", "age", "ineligibleMonths", "fedRate", "stateRate"];
+    let last = null;
+
+    function read() { return Object.fromEntries(KEYS.map((k) => [k, $("#" + k).value])); }
+    function fill(x) { KEYS.forEach((k) => { $("#" + k).value = x[k] ?? ""; }); }
+
+    function run() {
+      const a = analyze(read());
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a;
+      const tiles = [[usd(a.deduction), "deduction, Schedule 1"], [usd(a.taxSaved), "income tax saved"], [usd(a.afterTaxCost), "premiums after tax"], [usd(a.eligiblePremiums), "premiums that qualify"], [usd(a.limit), "profit ceiling"], [usd(a.notDeducted), "not deducted here"]];
+      $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#scen-table tbody").innerHTML = a.scenarios.map((s) => `<tr class="${s.label.startsWith("100") ? "best" : ""}"><td>${esc(s.label)}</td><td class="n">${usd(s.income)}</td><td class="n">${usd(s.limit)}</td><td class="n">${usd(s.deduction)}</td><td class="n">${usd(s.taxSaved)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done (" + TAX_YEAR + " figures). Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("deduction_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented business, not a real taxpayer."; }
+    });
+    $("#clear-all").addEventListener("click", () => { fill({}); report.hidden = true; last = null; status.textContent = "Enter your net profit and premiums, then click Calculate deduction."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "health-insurance-deduction.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
