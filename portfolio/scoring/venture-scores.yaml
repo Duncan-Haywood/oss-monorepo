@@ -21178,6 +21178,40 @@ ventures:
       page, custodian's figure named as the one to follow. Balances never leave
       the browser. Ethics: helps a retiree meet an obligation they already have;
       no product is sold and no referral is made.
+  - slug: iso-exercise-amt-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Startup
+      employees holding ISOs make one expensive, irreversible decision (how many
+      to exercise) whose main constraint, the AMT crossover, is a search over a
+      phase-out schedule that generic explainers do not compute. Distribution 7:
+      "ISO AMT crossover" and "how many ISOs to exercise" are recurring queries
+      on r/startups, Blind and Bogleheads; volume not measured with an external
+      tool. Defensibility 3: the rules are public; the edge is a private,
+      no-signup answer with cash needed at each size.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimates not advice, no warranty, independence
+      from the IRS and employers stated, 2026 parameters and omissions stated on
+      the page, and the page says exercising cannot be undone. Income and option
+      details never leave the browser. Ethics: helps an employee size a decision
+      they must make anyway; nothing is sold and no advisor referral is made.
   - slug: print-on-demand-profit-calculator
     scores:
       ai_leverage: 1

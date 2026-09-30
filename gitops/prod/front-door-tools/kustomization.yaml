@@ -33,31 +33,31 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 546168 bytes
-#   portfolio-front-tools-1: 92 files, 554975 bytes
-#   portfolio-front-tools-2: 144 files, 552746 bytes
-#   portfolio-front-tools-3: 131 files, 554571 bytes
-#   portfolio-front-tools-4: 142 files, 556745 bytes
-#   portfolio-front-tools-5: 121 files, 552384 bytes
-#   portfolio-front-tools-6: 129 files, 554235 bytes
-#   portfolio-front-tools-7: 131 files, 551118 bytes
-#   portfolio-front-tools-8: 127 files, 556259 bytes
-#   portfolio-front-tools-9: 125 files, 544536 bytes
-#   portfolio-front-tools-10: 138 files, 545124 bytes
-#   portfolio-front-tools-11: 117 files, 547851 bytes
-#   portfolio-front-tools-12: 119 files, 553367 bytes
-#   portfolio-front-tools-13: 116 files, 550135 bytes
-#   portfolio-front-tools-14: 118 files, 554266 bytes
-#   portfolio-front-tools-15: 120 files, 549832 bytes
-#   portfolio-front-tools-16: 127 files, 544950 bytes
-#   portfolio-front-tools-17: 126 files, 556593 bytes
-#   portfolio-front-tools-18: 129 files, 552271 bytes
-#   portfolio-front-tools-19: 116 files, 553633 bytes
-#   portfolio-front-tools-20: 103 files, 555009 bytes
+#   portfolio-front-tools-0: 145 files, 546176 bytes
+#   portfolio-front-tools-1: 92 files, 554987 bytes
+#   portfolio-front-tools-2: 144 files, 552748 bytes
+#   portfolio-front-tools-3: 131 files, 554616 bytes
+#   portfolio-front-tools-4: 142 files, 556743 bytes
+#   portfolio-front-tools-5: 121 files, 552388 bytes
+#   portfolio-front-tools-6: 129 files, 554214 bytes
+#   portfolio-front-tools-7: 131 files, 551085 bytes
+#   portfolio-front-tools-8: 127 files, 556292 bytes
+#   portfolio-front-tools-9: 125 files, 544521 bytes
+#   portfolio-front-tools-10: 138 files, 545129 bytes
+#   portfolio-front-tools-11: 117 files, 547897 bytes
+#   portfolio-front-tools-12: 119 files, 553423 bytes
+#   portfolio-front-tools-13: 116 files, 550087 bytes
+#   portfolio-front-tools-14: 119 files, 556443 bytes
+#   portfolio-front-tools-15: 121 files, 555457 bytes
+#   portfolio-front-tools-16: 128 files, 549552 bytes
+#   portfolio-front-tools-17: 126 files, 556602 bytes
+#   portfolio-front-tools-18: 129 files, 552505 bytes
+#   portfolio-front-tools-19: 116 files, 553582 bytes
+#   portfolio-front-tools-20: 103 files, 554995 bytes
 #   portfolio-front-tools-21: 123 files, 555827 bytes
-#   portfolio-front-tools-22: 120 files, 554739 bytes
-#   portfolio-front-tools-23: 118 files, 545308 bytes
-#   portfolio-front-tools-24: 63 files, 339385 bytes
+#   portfolio-front-tools-22: 120 files, 554880 bytes
+#   portfolio-front-tools-23: 118 files, 545350 bytes
+#   portfolio-front-tools-24: 63 files, 339416 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1932,6 +1932,9 @@ configMapGenerator:
       - irrigation-winterization-bid-calculator__usage.mjs.gz=irrigation-winterization-bid-calculator__usage.mjs.gz
       - irrigation-winterization-bid-calculator__vs-a-flat-per-zone-rate.html.gz=irrigation-winterization-bid-calculator__vs-a-flat-per-zone-rate.html.gz
       - irrigation-winterization-bid-calculator__vs-jobber.html.gz=irrigation-winterization-bid-calculator__vs-jobber.html.gz
+      - iso-exercise-amt-calculator__calc.mjs.gz=iso-exercise-amt-calculator__calc.mjs.gz
+      - iso-exercise-amt-calculator__index.html.gz=iso-exercise-amt-calculator__index.html.gz
+      - iso-exercise-amt-calculator__usage.mjs.gz=iso-exercise-amt-calculator__usage.mjs.gz
       - janitorial-bid-calculator__5x-vs-3x-cleaning-price.html.gz=janitorial-bid-calculator__5x-vs-3x-cleaning-price.html.gz
       - janitorial-bid-calculator__area-name.mjs.gz=janitorial-bid-calculator__area-name.mjs.gz
       - janitorial-bid-calculator__calc.mjs.gz=janitorial-bid-calculator__calc.mjs.gz
@@ -2043,13 +2046,13 @@ configMapGenerator:
       - locksmith-bid-calculator__vs-a-flat-rate-for-every-call.html.gz=locksmith-bid-calculator__vs-a-flat-rate-for-every-call.html.gz
       - locksmith-bid-calculator__vs-housecall-pro.html.gz=locksmith-bid-calculator__vs-housecall-pro.html.gz
       - locksmith-bid-calculator__vs-jobber.html.gz=locksmith-bid-calculator__vs-jobber.html.gz
-      - locksmith-bid-calculator__vs-workiz.html.gz=locksmith-bid-calculator__vs-workiz.html.gz
-      - marketplace-fee-compare__calc.mjs.gz=marketplace-fee-compare__calc.mjs.gz
   - name: portfolio-front-tools-15
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - locksmith-bid-calculator__vs-workiz.html.gz=locksmith-bid-calculator__vs-workiz.html.gz
+      - marketplace-fee-compare__calc.mjs.gz=marketplace-fee-compare__calc.mjs.gz
       - marketplace-fee-compare__handoff.mjs.gz=marketplace-fee-compare__handoff.mjs.gz
       - marketplace-fee-compare__index.html.gz=marketplace-fee-compare__index.html.gz
       - marketplace-fee-compare__share.mjs.gz=marketplace-fee-compare__share.mjs.gz
@@ -2169,12 +2172,12 @@ configMapGenerator:
       - no-show-fee-calculator__vs-a-flat-no-show-fee.html.gz=no-show-fee-calculator__vs-a-flat-no-show-fee.html.gz
       - no-show-fee-calculator__vs-acuity-scheduling.html.gz=no-show-fee-calculator__vs-acuity-scheduling.html.gz
       - no-tax-on-tips-overtime-calculator__calc.mjs.gz=no-tax-on-tips-overtime-calculator__calc.mjs.gz
-      - no-tax-on-tips-overtime-calculator__does-my-job-qualify-for-no-tax-on-tips.html.gz=no-tax-on-tips-overtime-calculator__does-my-job-qualify-for-no-tax-on-tips.html.gz
   - name: portfolio-front-tools-16
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - no-tax-on-tips-overtime-calculator__does-my-job-qualify-for-no-tax-on-tips.html.gz=no-tax-on-tips-overtime-calculator__does-my-job-qualify-for-no-tax-on-tips.html.gz
       - no-tax-on-tips-overtime-calculator__index.html.gz=no-tax-on-tips-overtime-calculator__index.html.gz
       - no-tax-on-tips-overtime-calculator__usage.mjs.gz=no-tax-on-tips-overtime-calculator__usage.mjs.gz
       - no-tax-on-tips-overtime-calculator__vs-estimating-the-deduction-by-hand.html.gz=no-tax-on-tips-overtime-calculator__vs-estimating-the-deduction-by-hand.html.gz

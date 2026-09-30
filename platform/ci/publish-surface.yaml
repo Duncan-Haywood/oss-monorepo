@@ -1628,3 +1628,6 @@ gitops:
 - workflow: travel-nurse-contract-comparison-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: iso-exercise-amt-calculator-ci.yml
+  classification: none
+  publishes: []
