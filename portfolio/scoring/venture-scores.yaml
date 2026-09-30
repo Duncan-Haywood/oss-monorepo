@@ -23233,3 +23233,30 @@ ventures:
       leave the browser. Ethics: helps a small business notice clients who may
       want to hear from it; nothing is sold, no customer data is collected and
       no referral is made.
+  - slug: project-estimate-calibrator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical learning (conformal residual quantiles and a seeded bootstrap
+      in the browser) but no language model and no paid API; the calibrated
+      ranges and the refusal on thin histories are the product.
+    basis: >-
+      Row added 2026-09-30 by a later session because the venture landed without
+      one and score_ventures.py --check was red on main; scores follow the
+      sibling browser-local statistics tools (bid-win-rate-optimizer). Full
+      screening write-up is in this venture's own VENTURE.yaml comment.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Statistical estimate of supplied data, not advice, no warranty, limits
+      stated; project histories never leave the browser; nothing is sold.
