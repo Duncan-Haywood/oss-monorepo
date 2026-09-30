@@ -1769,3 +1769,6 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
+- workflow: seasonal-buy-quantity-optimizer-ci.yml
+  classification: none
+  publishes: []
