@@ -111,9 +111,9 @@ test("usage events named on the page are the ones the code records", () => {
 test("page links reciprocally to the no-show fee and appointment deposit calculators, which link back", () => {
   const html = page("index.html");
   for (const other of ["no-show-fee-calculator", "appointment-deposit-calculator"]) {
-    // Both calculators now live in the public fp-monorepo repository; their
+    // Both calculators now live in the public oss-monorepo repository; their
     // links back are checked there.
-    assert.ok(html.includes(`href="https://duncan-haywood.github.io/fp-monorepo/${other}/"`), other);
+    assert.ok(html.includes(`href="https://duncan-haywood.github.io/oss-monorepo/${other}/"`), other);
   }
 });
 

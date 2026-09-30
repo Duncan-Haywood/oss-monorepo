@@ -1332,7 +1332,7 @@ test('the sibling block states its own layout rather than inheriting a ventureâ€
     );
   }
   // 2026-09-30: the three mirrored ventures that set `display` on a bare
-  // element were calculators and moved to the public fp-monorepo repository,
+  // element were calculators and moved to the public oss-monorepo repository,
   // so no mirrored page carries the hazard today. The guard above stays: it
   // costs nothing and the next venture to style a bare `nav` would need it.
 });

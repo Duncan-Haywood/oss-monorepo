@@ -113,7 +113,7 @@ def main():
             continue
         # A retired venture keeps only the RETIRED.md that
         # platform/ci/check_venture_regression.py asks for -- e.g. the
-        # calculators that moved to fp-monorepo on 2026-09-30. There is
+        # calculators that moved to oss-monorepo on 2026-09-30. There is
         # nothing left here to route to.
         if (venture_dir / "RETIRED.md").is_file() and not (venture_dir / "VENTURE.yaml").is_file():
             continue

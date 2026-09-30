@@ -506,7 +506,7 @@ test('a page the build reports as already having a share control gets no second 
 
 // 'the itemised calculators are offered the control once they declare their
 // rows' read eight itemised bid calculators off disk. Removed 2026-09-30: all
-// eight moved to the public fp-monorepo repository, where that check still
+// eight moved to the public oss-monorepo repository, where that check still
 // runs. The synthetic half below exercises nothing that moved, so it stays.
 test('a runtime-built page that declares no rows is still refused the control', () => {
   // And the exclusion is intact for a runtime-built page that declares nothing,

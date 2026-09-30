@@ -104,7 +104,7 @@ test('the defaults shown on the page still produce a booth win after tax', () =>
 test('index links one hop to the photo-booth-event-quote sibling', () => {
   assert.match(
     index,
-    /href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/photo-booth-event-quote\/"/,
-    'index must link https://duncan-haywood.github.io/fp-monorepo/photo-booth-event-quote/ so crawlers reach the photo booth quote calculator in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/photo-booth-event-quote\/"/,
+    'index must link https://duncan-haywood.github.io/oss-monorepo/photo-booth-event-quote/ so crawlers reach the photo booth quote calculator in one hop',
   );
 });

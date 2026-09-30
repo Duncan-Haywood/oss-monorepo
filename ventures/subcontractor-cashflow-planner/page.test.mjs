@@ -90,7 +90,7 @@ test('robots and sitemap let crawlers find the new page', () => {
 test('index links one hop to the retainage-cashflow-calculator sibling', () => {
   assert.match(
     html,
-    /href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/retainage-cashflow-calculator\/"/,
-    'index must link https://duncan-haywood.github.io/fp-monorepo/retainage-cashflow-calculator/ so crawlers reach the retainage calculator in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/retainage-cashflow-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/oss-monorepo/retainage-cashflow-calculator/ so crawlers reach the retainage calculator in one hop',
   );
 });

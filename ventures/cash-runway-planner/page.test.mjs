@@ -77,8 +77,8 @@ test('index links one hop to the invoice-payment-terms-calculator sibling', () =
   );
   assert.match(
     siblingHtml,
-    /href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/invoice-payment-terms-calculator\/"/,
-    'index must link https://duncan-haywood.github.io/fp-monorepo/invoice-payment-terms-calculator/ so a crawler reaches that tool in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/invoice-payment-terms-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/oss-monorepo/invoice-payment-terms-calculator/ so a crawler reaches that tool in one hop',
   );
   assert.match(siblingHtml, /invoice payment terms calculator/i);
 });

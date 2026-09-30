@@ -73,8 +73,8 @@ test("page says the column aliases are unverified and the default cost is a plac
 
 test("page links to the sibling restaurant tools, and the menu engineering calculator links back", () => {
   assert.match(page("index.html"), /href="\.\.\/restaurant-pos-menu-mix-analyzer\/"/);
-  for (const slug of ["menu-engineering-calculator", "pour-cost-calculator"]) assert.ok(page("index.html").includes(`href="https://duncan-haywood.github.io/fp-monorepo/${slug}/"`), slug);
-  // menu-engineering-calculator now lives in the public fp-monorepo repository; its link
+  for (const slug of ["menu-engineering-calculator", "pour-cost-calculator"]) assert.ok(page("index.html").includes(`href="https://duncan-haywood.github.io/oss-monorepo/${slug}/"`), slug);
+  // menu-engineering-calculator now lives in the public oss-monorepo repository; its link
   // back is checked there.
 });
 

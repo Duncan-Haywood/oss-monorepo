@@ -54,5 +54,5 @@ test("the copy-status message is announced, matching the role=\"status\" convent
 });
 
 test("links to the STR host payout calculator", () => {
-  assert.match(index, /href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/str-host-payout-calculator\/"/, "the sibling-tool link is missing");
+  assert.match(index, /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/str-host-payout-calculator\/"/, "the sibling-tool link is missing");
 });

@@ -79,7 +79,7 @@ changes what this tool does.
 
 The two things this tool's own validator warns about most often — "No
 platforms listed" and "No rate card" — are exactly what
-[`brand-deal-rate-calculator`](https://duncan-haywood.github.io/fp-monorepo/brand-deal-rate-calculator/) works out. So
+[`brand-deal-rate-calculator`](https://duncan-haywood.github.io/oss-monorepo/brand-deal-rate-calculator/) works out. So
 its report offers a link here carrying the platform line and a rate-card row
 per deliverable, and [`prefill.mjs`](prefill.mjs) is the receiving half.
 

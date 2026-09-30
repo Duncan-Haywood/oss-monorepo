@@ -118,7 +118,7 @@ test("the checker actually reaches the ventures", async () => {
   const files = await findShareSources(VENTURES);
   assert.ok(files.length > 200, `expected to scan the fleet, scanned ${files.length}`);
   // Was `no-show-fee-calculator/calc.mjs` until 2026-09-30, when it moved with
-  // the other calculators to the public fp-monorepo repository.
+  // the other calculators to the public oss-monorepo repository.
   // `seller-net-sheet` builds a share link of its own, which is what this scans.
   assert.ok(files.some((f) => f.endsWith(path.join("seller-net-sheet", "share.mjs"))));
 });

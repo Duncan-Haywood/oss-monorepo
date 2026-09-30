@@ -85,8 +85,8 @@ test("disclaimer, no-SLA, and optional sponsors are visible", () => {
 test("index links one hop to the ltl-freight-class-estimator sibling", () => {
   assert.match(
     html,
-    /href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/ltl-freight-class-estimator\/"/,
-    "index must link https://duncan-haywood.github.io/fp-monorepo/ltl-freight-class-estimator/ so crawlers reach the class estimator in one hop",
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/ltl-freight-class-estimator\/"/,
+    "index must link https://duncan-haywood.github.io/oss-monorepo/ltl-freight-class-estimator/ so crawlers reach the class estimator in one hop",
   );
 });
 

@@ -92,7 +92,7 @@ test('every generated table-row input carries an accessible name', () => {
   // which is the failure mode CLAUDE.md keeps recording.
   //
   // 2026-09-30: the three route tools this was written for moved, with every
-  // other calculator, to the public fp-monorepo repository, where the
+  // other calculator, to the public oss-monorepo repository, where the
   // 24-input floor is still checked. No venture left here ships a `data-row`
   // table, so `checked` is legitimately 0 and a floor on it would be a floor
   // on a pattern this repo no longer has. What stays is the scan itself -- a

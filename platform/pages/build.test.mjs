@@ -213,7 +213,7 @@ test('every venture with a browser entry point is discovered', async () => {
 
   // A representative slice of each shape the discovery rules handle.
   // `ebay-fee-calculator` was the top-level fixture until 2026-09-30, when it
-  // moved with the other calculators to the public fp-monorepo repository.
+  // moved with the other calculators to the public oss-monorepo repository.
   assert.ok(slugs.includes('ebay-transaction-report-analyzer'), 'top-level index.html');
   assert.ok(slugs.includes('quote-margin-check'), 'site/index.html');
   assert.ok(slugs.includes('ai-engineering-academy'), 'explicit entry override');
@@ -296,7 +296,7 @@ test('no page still points at the placeholder origin', async () => {
 });
 
 test('venture sitemaps are rewritten to the real origin', async () => {
-  // Was `ebay-fee-calculator` until 2026-09-30 (moved to fp-monorepo).
+  // Was `ebay-fee-calculator` until 2026-09-30 (moved to oss-monorepo).
   // `seller-net-sheet` writes its sitemap against the placeholder origin.
   const xml = await read('seller-net-sheet', 'sitemap.xml');
   assert.ok(xml.includes(`${BASE}seller-net-sheet/`));
@@ -735,7 +735,7 @@ test('the machine surfaces carry the sub-group a trade tool belongs to', async (
   const subheads = llms.split('\n').filter((line) => line.startsWith('### '));
   assert.ok(subheads.length > 1, 'the trades section is sub-divided in llms.txt too');
   // The roofing group was the fixture until 2026-09-30, when the trade bid
-  // calculators moved to the public fp-monorepo repository. What stayed in
+  // calculators moved to the public oss-monorepo repository. What stayed in
   // trades is the getting-paid group and one interior tool, still two groups.
   assert.ok(subheads.some((line) => line.includes('Getting paid')));
 
@@ -932,7 +932,7 @@ test('searchVariants reaches the singular a plural query would step over', () =>
 
 // 'aliases give a tool the words its own copy never uses' pinned the live
 // table's trade entries (pressure washing, plowing, shingle, ...). Removed
-// 2026-09-30: every one of those tools moved to the public fp-monorepo
+// 2026-09-30: every one of those tools moved to the public oss-monorepo
 // repository, where the table and that test still live, and the table here is
 // empty. The matcher itself stayed, so it is pinned below against a fixture
 // table carrying the entries that proved each rule.
@@ -1031,7 +1031,7 @@ test('the hub carries a name index and the ranking function it is scored with', 
   );
   // Scoring needs the tool's own name apart from its description and aliases;
   // without the attribute every card scores alike and the order never changes.
-  // (Matched on `roofing` until 2026-09-30, when that tool moved to fp-monorepo.)
+  // (Matched on `roofing` until 2026-09-30, when that tool moved to oss-monorepo.)
   assert.match(html, /<li class="card" data-name="[^"]*ebay[^"]*" data-strong="[^"]*" data-search=/);
 });
 
@@ -1190,7 +1190,7 @@ test('the search index carries description text the card is too small to show', 
 test("the search index carries a venture's other page titles", async () => {
   // A visitor arrives having typed the question one of these pages answers.
   // The eBay fee calculator was the fixture until 2026-09-30, when it moved to
-  // the public fp-monorepo repository; `seller-net-sheet` carries four.
+  // the public oss-monorepo repository; `seller-net-sheet` carries four.
   const titles = await collectPageTitles(
     path.join(VENTURES, 'seller-net-sheet'),
     path.join(VENTURES, 'seller-net-sheet', 'index.html'),
@@ -1224,7 +1224,7 @@ test('a query whose words are not adjacent still matches', async () => {
 
   // Each of these found nothing when the index was one truncated string.
   // (`ebay return` against `ebay-fee-calculator` until 2026-09-30, when it
-  // moved to fp-monorepo.) "zillow" reaches this tool only through a page title.
+  // moved to oss-monorepo.) "zillow" reaches this tool only through a page title.
   assert.ok(search('seller zillow').includes('seller-net-sheet'));
   assert.ok(search('freight accessorial').includes('freight-accessorial-auditor'));
   assert.deepEqual(search('qqzzxx'), []);
@@ -1526,7 +1526,7 @@ test('the hub sub-divides the trades section and leaves small ones flat', async 
   const rendered = [...trades.matchAll(/data-subgroup="([^"]+)"/g)].map((m) => m[1]);
   assert.ok(rendered.length > 1, 'the trade tools are broken into families');
   // `trades-roof` until 2026-09-30, when the trade bid calculators moved to
-  // fp-monorepo; the getting-paid group is the one that stayed populated.
+  // oss-monorepo; the getting-paid group is the one that stayed populated.
   assert.ok(rendered.includes('trades-paid'));
 
   const marketplace = hub.split('data-group="marketplace"')[1].split('</section>')[0];
@@ -1547,7 +1547,7 @@ test('card headings sit one level below the section that holds them', async () =
   const skip = levels.slice(1).find((level, i) => level > levels[i] + 1);
   assert.equal(skip, undefined, 'no heading level is skipped anywhere on the hub');
 
-  // `trades-roof` until 2026-09-30 (moved to fp-monorepo with the calculators).
+  // `trades-roof` until 2026-09-30 (moved to oss-monorepo with the calculators).
   const paid = hub.split('data-subgroup="trades-paid"')[1].split('</section>')[0];
   assert.ok(paid.includes('<h4>'), 'a card under a sub-group heading is an h4');
   const marketplace = hub.split('data-group="marketplace"')[1].split('</section>')[0];
@@ -3404,7 +3404,7 @@ test('nothing this build injects reaches a printed customer proposal', async () 
   // their margin stapled to the quote.
   //
   // 2026-09-30: those nine calculators (this test read `deck-bid-calculator`)
-  // moved to the public fp-monorepo repository, where the page-level half of
+  // moved to the public oss-monorepo repository, where the page-level half of
   // this test still runs. No page here carries a proposal now, but the build
   // still ships both stylesheets, and any printed page inherits them — so the
   // print rules are still asserted on the files themselves.
@@ -3430,7 +3430,7 @@ test('the availability clause is supplied only where a venture lacks its own', a
   // A venture that words the clause itself must not be given a second one in
   // different prose — two availability statements on one page is how a reader
   // stops believing either.
-  // `janitorial-bid-calculator` until 2026-09-30 (moved to fp-monorepo).
+  // `janitorial-bid-calculator` until 2026-09-30 (moved to oss-monorepo).
   const own = await read('1099k-reconciliation-worksheet', 'index.html');
   const supplied = (own.match(/Best-effort hosting/gi) ?? []).length;
   assert.ok(supplied <= 1, `${supplied} availability clauses on one page`);
@@ -3513,7 +3513,7 @@ test('every number input on the built site carries an inputmode', async () => {
   }
 
   // A silently-empty walk would make the assertion below pass for free.
-  // 2026-09-30: was >1000; the calculators moved to fp-monorepo and 550
+  // 2026-09-30: was >1000; the calculators moved to oss-monorepo and 550
   // number inputs remain on the catalogue that stayed.
   assert.ok(inputs > 500, `only ${inputs} number input(s) found`);
   assert.deepEqual(missing, [], `number inputs with no keypad:\n${missing.slice(0, 10).join('\n')}`);
@@ -3591,7 +3591,7 @@ test('the saved-bids script is one file the whole site loads, not 234 copies', a
     assert.ok(!html.includes('var SLUG = '),
       `${path.relative(outDir, file)} still inlines the saved-bids script`);
   }
-  // 2026-09-30: was >200; the bid calculators moved to fp-monorepo and 114
+  // 2026-09-30: was >200; the bid calculators moved to oss-monorepo and 114
   // pages here still carry the band.
   assert.ok(tagged > 100, `only ${tagged} pages carry the band`);
 });
@@ -3616,7 +3616,7 @@ test('every stylesheet and script this build injects is one file, at the right d
   //
   // `floor` is how many pages must carry each asset, so a gate that silently
   // matches nothing cannot pass. 2026-09-30: it was 100 for all five; the
-  // calculators moved to the public fp-monorepo repository, which took every
+  // calculators moved to the public oss-monorepo repository, which took every
   // page that carries the shop-rates bar with them (0 here, still checked
   // there), and the saved-bids band is now on ~114 pages.
   const assets = {

@@ -41,9 +41,9 @@ test("nothing is loaded from a third-party origin", () => {
   // `/about/` promises no third-party script, font, CDN or network call on any
   // tool page, and that promise is load-bearing for the privacy claim above.
   const external = [...html.matchAll(/(?:src|href)="(https?:)?\/\/([^"]+)"/g)].map((m) => m[2]);
-  // Plain links to sibling tools now served from the public fp-monorepo site
+  // Plain links to sibling tools now served from the public oss-monorepo site
   // are navigation, not a loaded resource.
-  const allowed = external.filter((url) => url.startsWith("github.com/sponsors/") || url.startsWith("duncan-haywood.github.io/fp-monorepo/"));
+  const allowed = external.filter((url) => url.startsWith("github.com/sponsors/") || url.startsWith("duncan-haywood.github.io/oss-monorepo/"));
   assert.deepEqual(
     external.filter((url) => !allowed.includes(url)),
     [],

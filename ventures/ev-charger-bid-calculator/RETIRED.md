@@ -1,8 +1,8 @@
-# ev-charger-bid-calculator — moved to fp-monorepo
+# ev-charger-bid-calculator — moved to oss-monorepo
 
 Moved on 2026-09-30 to the public
-[Duncan-Haywood/fp-monorepo](https://github.com/Duncan-Haywood/fp-monorepo/tree/main/ventures/ev-charger-bid-calculator)
+[Duncan-Haywood/oss-monorepo](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ev-charger-bid-calculator)
 repository, with every other browser calculator. It is served at
-https://duncan-haywood.github.io/fp-monorepo/ev-charger-bid-calculator/.
+https://duncan-haywood.github.io/oss-monorepo/ev-charger-bid-calculator/.
 
-Make changes there, not here. See CLAUDE.md, "Calculators live in fp-monorepo".
+Make changes there, not here. See CLAUDE.md, "Calculators live in oss-monorepo".

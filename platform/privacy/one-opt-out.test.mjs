@@ -199,7 +199,7 @@ test("every page restores the control before it counts, and spells it one way", 
     order.filter((r) => r.status === "records-first").map(describeOrder), []);
 
   // And both must be reaching the catalogue rather than an empty list.
-  // 2026-09-30: calculators moved to fp-monorepo -- was >900 pages and >300
+  // 2026-09-30: calculators moved to oss-monorepo -- was >900 pages and >300
   // passing; measured 630 and 213 on the catalogue that stayed.
   assert.ok(keys.length > 575, `expected every venture page, read ${keys.length}`);
   assert.ok(
@@ -224,7 +224,7 @@ test("every venture usage module spells the opt-out exactly one way", () => {
 
   // And the check must be reaching the catalogue, not an empty list. A sweep
   // that found nothing would satisfy the assertion above.
-  // 2026-09-30: calculators moved to fp-monorepo -- was >200 and >200;
+  // 2026-09-30: calculators moved to oss-monorepo -- was >200 and >200;
   // measured 193 modules, 186 passing, on the catalogue that stayed.
   assert.ok(results.length > 175, `expected the whole catalogue, checked ${results.length}`);
   assert.ok(

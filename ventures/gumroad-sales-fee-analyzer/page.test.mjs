@@ -54,7 +54,7 @@ test("page states it is independent of Gumroad and links to sibling fee tools", 
   const html = page("index.html");
   assert.match(html, /Not affiliated with Gumroad/);
   assert.match(html, /not sponsored, endorsed or connected to Gumroad, Inc\./);
-  assert.match(html, /https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/patreon-fee-calculator\//);
+  assert.match(html, /https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/patreon-fee-calculator\//);
   assert.match(html, /\.\.\/upwork-earnings-fee-analyzer\//);
 });
 

@@ -10,7 +10,7 @@ download the schedule as .ics reminders**, which used to mean guessing what you 
 writing each chase email from scratch.
 
 Related: [`invoice-aging-late-payer-analyzer`](../invoice-aging-late-payer-analyzer/) (a whole
-receivables export), [`invoice-payment-terms-calculator`](https://duncan-haywood.github.io/fp-monorepo/invoice-payment-terms-calculator/)
+receivables export), [`invoice-payment-terms-calculator`](https://duncan-haywood.github.io/oss-monorepo/invoice-payment-terms-calculator/)
 (terms before you invoice).
 
 ## Input

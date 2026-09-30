@@ -13,8 +13,8 @@ const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 test("hub links one hop to the 3d-print-price-calculator sibling", () => {
   assert.match(
     html,
-    /href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/3d-print-price-calculator\/"/,
-    "hub must link https://duncan-haywood.github.io/fp-monorepo/3d-print-price-calculator/ so a maker reaches it in one hop",
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/3d-print-price-calculator\/"/,
+    "hub must link https://duncan-haywood.github.io/oss-monorepo/3d-print-price-calculator/ so a maker reaches it in one hop",
   );
 });
 

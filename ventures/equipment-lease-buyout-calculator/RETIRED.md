@@ -1,8 +1,8 @@
-# equipment-lease-buyout-calculator — moved to fp-monorepo
+# equipment-lease-buyout-calculator — moved to oss-monorepo
 
 Moved on 2026-09-30 to the public
-[Duncan-Haywood/fp-monorepo](https://github.com/Duncan-Haywood/fp-monorepo/tree/main/ventures/equipment-lease-buyout-calculator)
+[Duncan-Haywood/oss-monorepo](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/equipment-lease-buyout-calculator)
 repository, with every other browser calculator. It is served at
-https://duncan-haywood.github.io/fp-monorepo/equipment-lease-buyout-calculator/.
+https://duncan-haywood.github.io/oss-monorepo/equipment-lease-buyout-calculator/.
 
-Make changes there, not here. See CLAUDE.md, "Calculators live in fp-monorepo".
+Make changes there, not here. See CLAUDE.md, "Calculators live in oss-monorepo".

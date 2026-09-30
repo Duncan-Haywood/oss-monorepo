@@ -78,9 +78,9 @@ test("page links to the sibling tools it names, and those tools exist", () => {
     assert.ok(html.includes(`href="../${slug}/"`), slug);
     assert.ok(readFileSync(new URL(`../${slug}/index.html`, import.meta.url), "utf8").length > 0);
   }
-  // These moved to the public fp-monorepo repository.
+  // These moved to the public oss-monorepo repository.
   for (const slug of ["home-office-deduction-calculator"]) {
-    assert.ok(html.includes(`href="https://duncan-haywood.github.io/fp-monorepo/${slug}/"`), slug);
+    assert.ok(html.includes(`href="https://duncan-haywood.github.io/oss-monorepo/${slug}/"`), slug);
   }
 });
 

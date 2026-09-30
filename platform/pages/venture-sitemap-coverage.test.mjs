@@ -92,7 +92,7 @@ function venturesWithASitemap() {
 // says the same thing either way. This is the cheap assertion that it did not.
 //
 // The floor was 200 until 2026-09-30, when the calculators moved to the public
-// fp-monorepo repository; 190 ventures here ship a sitemap, so it now sits a
+// oss-monorepo repository; 190 ventures here ship a sitemap, so it now sits a
 // little under that.
 test('the check is looking at the catalogue and not at an empty directory', () => {
   assert.ok(

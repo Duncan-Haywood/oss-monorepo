@@ -72,8 +72,8 @@ test("page says the column aliases are unverified and the default cost is a plac
 });
 
 test("page links reciprocally to the menu engineering calculator, which links back", () => {
-  assert.match(page("index.html"), /href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/menu-engineering-calculator\/"/);
-  // menu-engineering-calculator now lives in the public fp-monorepo repository; its link
+  assert.match(page("index.html"), /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/menu-engineering-calculator\/"/);
+  // menu-engineering-calculator now lives in the public oss-monorepo repository; its link
   // back is checked there.
 });
 

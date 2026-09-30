@@ -118,7 +118,7 @@ test('the recorded override is what keeps the live collision out of the red', as
   //
   // This was `overtime-pay-calculator`, the case that prompted the check, until
   // 2026-09-30, when it moved with every other calculator to the public
-  // fp-monorepo repository. `fleet-repair-or-replace-planner` is the one
+  // oss-monorepo repository. `fleet-repair-or-replace-planner` is the one
   // override whose venture stayed, and it is the same collision shape.
   const pages = (await surfacesByVenture()).get('fleet-repair-or-replace-planner');
   assert.ok(pages, 'fleet-repair-or-replace-planner should still be a published venture');

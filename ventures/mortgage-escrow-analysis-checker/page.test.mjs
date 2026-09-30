@@ -127,7 +127,7 @@ test("README, LICENSE and VENTURE.yaml exist and carry the disclaimer and the ve
 });
 
 test("page links to the property tax appeal calculator, which links back", () => {
-  assert.match(page("index.html"), /href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/property-tax-appeal-calculator\/"/);
-  // property-tax-appeal-calculator now lives in the public fp-monorepo repository; its link
+  assert.match(page("index.html"), /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/property-tax-appeal-calculator\/"/);
+  // property-tax-appeal-calculator now lives in the public oss-monorepo repository; its link
   // back is checked there.
 });

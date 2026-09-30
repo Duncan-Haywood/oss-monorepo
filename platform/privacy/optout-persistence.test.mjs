@@ -1088,7 +1088,7 @@ const RELATIVE_SELF = relative(
 // +1: `augusta-rule-calculator` graduated.
 // +1: `gabor-granger-price-analyzer` graduated.
 // -276 (2026-09-30): every calculator, and the route/quote tools that shipped
-//   beside them, moved to the public fp-monorepo repository. Over the usage
+//   beside them, moved to the public oss-monorepo repository. Over the usage
 //   modules the move is deletions only, so no module that stayed stopped being
 //   a switch.
 const SWITCHES_IN_THE_CATALOGUE = 191;

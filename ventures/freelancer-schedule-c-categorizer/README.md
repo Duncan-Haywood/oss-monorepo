@@ -10,9 +10,9 @@ equipment, and download every row with its category and the rule that decided it
 mean sorting a year of bank lines into a spreadsheet by hand or paying for a bookkeeping app with a
 bank link.
 
-Related: [`self-employment-tax-calculator`](https://duncan-haywood.github.io/fp-monorepo/self-employment-tax-calculator/),
+Related: [`self-employment-tax-calculator`](https://duncan-haywood.github.io/oss-monorepo/self-employment-tax-calculator/),
 [`quarterly-estimated-tax-calendar`](../quarterly-estimated-tax-calendar/),
-[`home-office-deduction-calculator`](https://duncan-haywood.github.io/fp-monorepo/home-office-deduction-calculator/),
+[`home-office-deduction-calculator`](https://duncan-haywood.github.io/oss-monorepo/home-office-deduction-calculator/),
 [`1099k-reconciliation-worksheet`](../1099k-reconciliation-worksheet/).
 
 ## Input

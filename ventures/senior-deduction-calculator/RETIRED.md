@@ -1,8 +1,8 @@
-# senior-deduction-calculator — moved to fp-monorepo
+# senior-deduction-calculator — moved to oss-monorepo
 
 Moved on 2026-09-30 to the public
-[Duncan-Haywood/fp-monorepo](https://github.com/Duncan-Haywood/fp-monorepo/tree/main/ventures/senior-deduction-calculator)
+[Duncan-Haywood/oss-monorepo](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/senior-deduction-calculator)
 repository, with every other browser calculator. It is served at
-https://duncan-haywood.github.io/fp-monorepo/senior-deduction-calculator/.
+https://duncan-haywood.github.io/oss-monorepo/senior-deduction-calculator/.
 
-Make changes there, not here. See CLAUDE.md, "Calculators live in fp-monorepo".
+Make changes there, not here. See CLAUDE.md, "Calculators live in oss-monorepo".

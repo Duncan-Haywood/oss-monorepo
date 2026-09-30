@@ -1,8 +1,8 @@
-# ltl-freight-class-estimator — moved to fp-monorepo
+# ltl-freight-class-estimator — moved to oss-monorepo
 
 Moved on 2026-09-30 to the public
-[Duncan-Haywood/fp-monorepo](https://github.com/Duncan-Haywood/fp-monorepo/tree/main/ventures/ltl-freight-class-estimator)
+[Duncan-Haywood/oss-monorepo](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ltl-freight-class-estimator)
 repository, with every other browser calculator. It is served at
-https://duncan-haywood.github.io/fp-monorepo/ltl-freight-class-estimator/.
+https://duncan-haywood.github.io/oss-monorepo/ltl-freight-class-estimator/.
 
-Make changes there, not here. See CLAUDE.md, "Calculators live in fp-monorepo".
+Make changes there, not here. See CLAUDE.md, "Calculators live in oss-monorepo".

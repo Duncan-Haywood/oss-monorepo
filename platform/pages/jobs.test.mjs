@@ -506,7 +506,7 @@ test('a tool cannot grow past the cap', () => {
 // ---------------------------------------------------------------------------
 
 // 'every bid calculator on main carries a form worth remembering' was removed
-// 2026-09-30: every *-bid-calculator moved to the public fp-monorepo
+// 2026-09-30: every *-bid-calculator moved to the public oss-monorepo
 // repository, where that family check still runs; none is left here to cover.
 
 // The hub's saved-bid index. These run here rather than in build.test.mjs
@@ -864,7 +864,7 @@ test('a tool whose headline is not what it sells on names the element that is', 
 
 // 'the override agrees with the one the printed proposal is verified against'
 // was removed 2026-09-30: platform/proposal/ and the calculators it prints for
-// moved to the public fp-monorepo repository, where the cross-check still runs.
+// moved to the public oss-monorepo repository, where the cross-check still runs.
 
 test('a bid keeps the figure it was saved at, and only when there is one', () => {
   const base = { name: 'x', at: '2026-08-20T10:00:00.000Z', fields: { a: '1' } };

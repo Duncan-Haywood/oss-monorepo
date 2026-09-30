@@ -137,8 +137,8 @@ test('index links one hop to the self-storage-rate-increase-calculator sibling',
   );
   assert.match(
     siblingHtml,
-    /href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/self-storage-rate-increase-calculator\/"/,
-    'index must link https://duncan-haywood.github.io/fp-monorepo/self-storage-rate-increase-calculator/ so a crawler reaches that tool in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/self-storage-rate-increase-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/oss-monorepo/self-storage-rate-increase-calculator/ so a crawler reaches that tool in one hop',
   );
 });
 

@@ -99,8 +99,8 @@ const attr = (value) => String(value)
  */
 export const SHOP_RATE_ALIASES = {
   // 2026-09-30: every entry that was here named a calculator that moved, with
-  // the rest of the bid calculators, to the public fp-monorepo repository
-  // (https://duncan-haywood.github.io/fp-monorepo/), where this table and the
+  // the rest of the bid calculators, to the public oss-monorepo repository
+  // (https://duncan-haywood.github.io/oss-monorepo/), where this table and the
   // tests over it still live. The table stays so a venture here that spells a
   // shop-rate field its own way has somewhere to be read into.
 };
@@ -115,8 +115,8 @@ export const SHOP_RATE_ALIASES = {
  */
 export const PARTIAL_SHOP_RATE_PAGES = {
   // 2026-09-30: every entry that was here named a calculator that moved, with
-  // the rest of the bid calculators, to the public fp-monorepo repository
-  // (https://duncan-haywood.github.io/fp-monorepo/), where this table and the
+  // the rest of the bid calculators, to the public oss-monorepo repository
+  // (https://duncan-haywood.github.io/oss-monorepo/), where this table and the
   // tests over it still live. The table stays so a venture here that carries only
   // some of the four has somewhere to be read into.
 };
@@ -152,7 +152,7 @@ export const MIN_CARRIED_FIELDS = 2;
  * Burden and overhead are outputs there, not inputs, so this is not a
  * `PARTIAL_SHOP_RATE_PAGES` case: nothing is missing that a note could explain.
  */
-// 2026-09-30: `shop-rate-calculator` moved to the public fp-monorepo
+// 2026-09-30: `shop-rate-calculator` moved to the public oss-monorepo
 // repository with the rest of the calculators, so no rate source is left here;
 // the exclusion is still checked there.
 export const RATE_SOURCE_SLUGS = new Set();
@@ -191,7 +191,7 @@ export const REVIEWED_NOT_CARRIED = {
   'restaurant-labor-cost-daypart-analyzer':
     'hourlyWage is only the default for shifts whose time entries carry no pay, and burdenRate is a placeholder for payroll tax on wages already in the export; there is no overhead or margin, and the analysis reads labor cost from a file rather than pricing a job',
   // 2026-09-30: every other entry named a calculator that moved to the
-  // public fp-monorepo repository, where its reading is still recorded. That
+  // public oss-monorepo repository, where its reading is still recorded. That
   // includes `medical-courier-route-margin`, the overhead-on-revenue trap the
   // comment above describes.
 };

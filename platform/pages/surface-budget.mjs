@@ -85,7 +85,7 @@ export const GENERIC_BUDGET_OVERRIDES = {
   // shopify-fee-calculator, sign-language-interpreter-rate-calculator,
   // apparel-decoration-price-calculator, atm-route-margin,
   // menu-engineering-calculator and facebook-marketplace-fee-calculator. Each
-  // venture moved, with every other calculator, to the public fp-monorepo
+  // venture moved, with every other calculator, to the public oss-monorepo
   // repository, where its row and the check over it still live. The row below
   // is the one whose venture stayed; its reason still names them as the
   // earlier instances of the same collision.

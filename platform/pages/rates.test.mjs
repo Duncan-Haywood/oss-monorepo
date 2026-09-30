@@ -59,12 +59,12 @@ const script = renderShopRatesModule();
  */
 const NO_SHARED_SHOP_RATES = {
   // 2026-09-30: every entry named a bid calculator that moved to the public
-  // fp-monorepo repository, where this map and its checks still live.
+  // oss-monorepo repository, where this map and its checks still live.
 };
 
 // 'every trade bid calculator on main carries all four shop-rate fields' was
 // removed 2026-09-30: the *-bid-calculator family moved to the public
-// fp-monorepo repository, where it is still checked. None is left here.
+// oss-monorepo repository, where it is still checked. None is left here.
 
 test('an excluded calculator is one that really cannot take the shared rates', async () => {
   // Keeps the list above from becoming a place to park a venture that simply
@@ -175,7 +175,7 @@ test('a marketplace fee calculator is left alone', () => {
 
 // 'an alias carries a field a page spells differently' read
 // snow-removal-bid-calculator off disk. Removed 2026-09-30: it and every other
-// aliased page moved to the public fp-monorepo repository, where it is still
+// aliased page moved to the public oss-monorepo repository, where it is still
 // checked. The two table-wide checks below stay, for any future entry here.
 
 test('an aliased id is only ever the one the venture actually uses', async () => {
@@ -246,7 +246,7 @@ test('saving on a partial page merges rather than replacing what is stored', () 
   // margin on a two-field one, must not lose the wage.
   // (The half that injected into `appliance-repair-quote-calculator`'s partial
   // page was removed 2026-09-30: that page, and every other partial page, moved
-  // to the public fp-monorepo repository. The merge itself is the script's.)
+  // to the public oss-monorepo repository. The merge itself is the script's.)
   assert.match(script, /var merged = readAll\(\);/);
   assert.match(script, /Object\.keys\(rates\)\.forEach/);
 });
@@ -280,7 +280,7 @@ test('the tag names exactly the fields the page carries, and nothing else', () =
 
   // The partial-page half of this used `appliance-repair-quote-calculator`'s
   // PARTIAL_SHOP_RATE_PAGES entry; removed 2026-09-30 when that page moved to
-  // the public fp-monorepo repository, where it is still checked.
+  // the public oss-monorepo repository, where it is still checked.
 });
 
 test('a field the tag names but the build does not know is dropped, not trusted', () => {
@@ -375,7 +375,7 @@ test('the injected script rejects a blank field before Number()', () => {
 // 'the page that produces the rates does not also receive the bar' and 'a
 // rate source is skipped even when it carries all four ids' were removed
 // 2026-09-30: `shop-rate-calculator`, the only rate source, moved to the
-// public fp-monorepo repository, where both are still checked.
+// public oss-monorepo repository, where both are still checked.
 
 test('every rate source names a venture that exists', async () => {
   // A stale slug here silently stops excluding anything, which is exactly the

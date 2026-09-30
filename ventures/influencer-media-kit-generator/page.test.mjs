@@ -47,8 +47,8 @@ test("index links one hop to the brand-deal-rate-calculator sibling", async () =
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(
     page,
-    /href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/brand-deal-rate-calculator\/"/,
-    "index must link https://duncan-haywood.github.io/fp-monorepo/brand-deal-rate-calculator/ so a reader weighing both reaches it in one hop",
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/brand-deal-rate-calculator\/"/,
+    "index must link https://duncan-haywood.github.io/oss-monorepo/brand-deal-rate-calculator/ so a reader weighing both reaches it in one hop",
   );
 });
 

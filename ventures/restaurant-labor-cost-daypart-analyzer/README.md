@@ -8,7 +8,7 @@ After using this, you can now **see labor % of sales and sales per labor hour by
 and hour, and an estimate of the labor above your target you could trim without dropping under a
 minimum crew**, which used to mean lining up two exports in a spreadsheet by hand.
 
-For pricing the menu, see [`menu-engineering-calculator`](https://duncan-haywood.github.io/fp-monorepo/menu-engineering-calculator/) and
+For pricing the menu, see [`menu-engineering-calculator`](https://duncan-haywood.github.io/oss-monorepo/menu-engineering-calculator/) and
 [`restaurant-pos-menu-mix-analyzer`](../restaurant-pos-menu-mix-analyzer/).
 
 ## Input

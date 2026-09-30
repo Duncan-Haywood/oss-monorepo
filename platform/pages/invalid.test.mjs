@@ -312,7 +312,7 @@ test('every venture that promises a highlight is covered by the gate', async () 
   // must hold is that the gate accepts all of the family.
   //
   // 2026-09-30: the calculators that made this family large (>=100 pages)
-  // moved to the public fp-monorepo repository, where that floor is still
+  // moved to the public oss-monorepo repository, where that floor is still
   // checked; 1 page here still promises a highlight. The floor is now on the
   // walk, so a broken path cannot pass for free, and every promiser is checked
   // rather than a sample of five.

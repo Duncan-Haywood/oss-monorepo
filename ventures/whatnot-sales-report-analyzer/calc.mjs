@@ -3,7 +3,7 @@
 // seller export; no real export was available when this was written. Pure
 // functions, no DOM, no network.
 //
-// Fee model (same published shape as https://duncan-haywood.github.io/fp-monorepo/whatnot-seller-payout/calc.mjs, a test
+// Fee model (same published shape as https://duncan-haywood.github.io/oss-monorepo/whatnot-seller-payout/calc.mjs, a test
 // asserts the constants stay equal): commission is a percentage of the item
 // price; payment processing is a percentage of what the buyer paid (item +
 // shipping + tax) plus a flat 30 cents. Both rates are editable inputs, not a

@@ -35,7 +35,7 @@ test("page documents the model, states column names are assumed, and is independ
   assert.match(html, /These are assumed names, not Amazon's documented ones/);
   assert.match(html, /Not affiliated with Amazon/);
   assert.match(html, /estimates that depend entirely on the file you provide/);
-  assert.match(html, /https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/kdp-royalty-calculator\//);
+  assert.match(html, /https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/kdp-royalty-calculator\//);
 });
 
 test("robots and sitemap let crawlers find the page", () => {

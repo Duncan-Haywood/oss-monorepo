@@ -20,16 +20,16 @@ reviews via dedicated reviewer GitHub Apps and can auto-merge internal
 the "Duplicate PRs" workflow below; it does not replace the judgment calls in
 "Ship without review ceremony".
 
-## Calculators live in fp-monorepo (2026-09-30)
+## Calculators live in oss-monorepo (2026-09-30)
 
 The owner moved every browser calculator (287 ventures, plus
 `platform/proposal/`) to the public
-[`Duncan-Haywood/fp-monorepo`](https://github.com/Duncan-Haywood/fp-monorepo)
-repository, served at `https://duncan-haywood.github.io/fp-monorepo/`. They are
+[`Duncan-Haywood/oss-monorepo`](https://github.com/Duncan-Haywood/oss-monorepo)
+repository, served at `https://duncan-haywood.github.io/oss-monorepo/`. They are
 free tools, not businesses. **Do not build new calculators here**; a
-calculator-shaped candidate belongs in fp-monorepo. Links from tools here to a
+calculator-shaped candidate belongs in oss-monorepo. Links from tools here to a
 moved calculator are absolute URLs to that site. `duplicate_check.py` no
-longer sees the moved ventures, so check fp-monorepo's `ventures/` too before
+longer sees the moved ventures, so check oss-monorepo's `ventures/` too before
 graduating anything calculator-adjacent.
 
 ## Product-first default

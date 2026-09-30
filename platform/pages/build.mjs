@@ -218,7 +218,7 @@ const EXCLUDED_SLUGS = new Set([
 export const SEARCH_ALIASES = [
   // 2026-09-30: all 29 entries that were here keyed a trade bid calculator
   // (pressure-washing, snow-removal, roofing, mini-split, ...), and every one
-  // moved to the public fp-monorepo repository with the rest of the
+  // moved to the public oss-monorepo repository with the rest of the
   // calculators, where the table still lives. `build.test.mjs` fails on an
   // alias that reaches no published tool, which all 29 had become. A tool
   // that stayed and needs a word its own copy never uses gets a line here.

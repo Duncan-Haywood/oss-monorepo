@@ -35,7 +35,7 @@ test('an empty select falls back to the array its fillSelect call names', () => 
 // 'grounds a page that carries its rates in markup' (sump-pump-bid-calculator)
 // and 'grounds a page that fills its rates from kits at load'
 // (stair-lift-bid-calculator) were removed 2026-09-30: both calculators, and
-// every other page `ground()` could reproduce, moved to the public fp-monorepo
+// every other page `ground()` could reproduce, moved to the public oss-monorepo
 // repository, where those tests still run. No venture left here reads its
 // first-load input from `*_IDS` lists or load-time kits, so there is no real
 // page to ground; the markup-reading rules above are still tested.
