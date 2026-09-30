@@ -167,6 +167,9 @@ workflows:
 - workflow: appointment-no-show-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: appointment-overbooking-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: artificial-turf-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -1174,6 +1177,9 @@ workflows:
 - workflow: process-server-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: project-estimate-calibrator-ci.yml
+  classification: none
+  publishes: []
 - workflow: propane-delivery-route-margin-ci.yml
   classification: none
   publishes: []
@@ -1389,6 +1395,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: shed-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: shift-cover-optimizer-ci.yml
   classification: none
   publishes: []
 - workflow: shop-rate-calculator-ci.yml
@@ -1772,3 +1781,6 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
+- workflow: seasonal-buy-quantity-optimizer-ci.yml
+  classification: none
+  publishes: []

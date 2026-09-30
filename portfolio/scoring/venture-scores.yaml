@@ -23055,6 +23055,110 @@ ventures:
       Ethics: helps a small business see how its own customers respond to price
       before changing it; nothing is sold, no customer data is collected and no
       referral is made.
+  - slug: appointment-overbooking-optimizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Exact probabilistic optimisation (beta-binomial show-up distribution,
+      grid-integrated posterior over the no-show rate) run in the browser but
+      no language model and no paid API; the plan, its overflow risk and the
+      forecast check are the product, not an add-on.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Practice
+      managers enter slots, margin, the cost of an over-full day and a no-show
+      rate or daily booked/showed counts, and get the profit-maximising number
+      of extra bookings, the chance anyone is over capacity, an 80% range on
+      the no-show rate and a hold-out check of the forecast. Distribution 6:
+      "how many patients to overbook" and "appointment overbooking calculator"
+      are recurring queries and practice-management communities discuss
+      no-shows constantly (volume not measured with an external tool).
+      Defensibility 4: a binomial overbooking table is easy to write; the edge
+      is clustering, uncertainty and the private no-upload workflow.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: planning estimate from supplied counts, not advice, no
+      warranty, independence from vendors stated, and the page tells the user
+      overbooking may be restricted by professional or regulatory rules.
+      Ethics: only daily counts are used, never patient names; the cost of a
+      patient who cannot be fitted is an explicit input so the trade-off is
+      visible rather than hidden.
+  - slug: shift-cover-optimizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Operations research (an exact minimum-cost-flow solver run in the browser)
+      but no language model and no paid API; the exact cover and the cost of the
+      scheduling rules are the product, not an add-on.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Small-business
+      owners who schedule by the hour paste the staffing each hour needs and get
+      the cheapest shifts, the saving against fixed blocks and what a minimum
+      shift length costs. Distribution 6: "how many staff do I need per hour" and
+      "shift length minimum cost" are recurring owner queries and the restaurant
+      tools in this catalogue feed it (volume not measured with an external
+      tool). Defensibility 4: scheduling suites exist and a spreadsheet can lay
+      out shifts; the edge is the private no-signup workflow, the exact optimum
+      and the priced scheduling rules.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: sizes shifts and does not assign people or assert labor-law
+      compliance; no warranty, independence from vendors stated, limits stated.
+      Schedules never leave the browser. Ethics: helps an owner see the payroll
+      effect of scheduling rules; nothing is sold, no employee data is collected
+      and no referral is made.
+  - slug: seasonal-buy-quantity-optimizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical demand modelling and an optimisation run in the browser, no
+      language model and no paid API; the optimal quantity is the product.
+    basis: >-
+      Scored 2026-09-30 by a later session because the graduating PR merged
+      without a row; see the venture's own VENTURE.yaml comment for the
+      screening. Buyers of seasonal or one-shot stock paste past sales and price
+      breaks and get a buy quantity with a back-test. Distribution and
+      defensibility are set to the same values as comparable browser-local
+      analysers in this catalogue (volume not measured with an external tool).
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: planning estimate from supplied data, not advice, no warranty,
+      data never leaves the browser. Ethics: helps a small buyer avoid over- or
+      under-buying; nothing is sold and no customer data is collected.
   - slug: client-rebooking-predictor
     scores:
       ai_leverage: 4
