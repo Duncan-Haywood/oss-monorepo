@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 463 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 464 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free ESPP tax calculator. Enter your offering and purchase prices, discount and lookback to see the after-tax profit of selling at purchase, after a year, or at a qualifying date, and the price where waiting stops paying. Runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>LLM Usage Log Analyzer — where your Claude and GPT API spend goes</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/llm-usage-log-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/llm-usage-log-analyzer</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste an LLM API usage log (JSONL, JSON or CSV) and see spend by model, feature and day, your cache hit rate, a 30-day run rate, and which levers -- caching, batch, a cheaper model -- would have saved money. Runs in your browser; the log never leaves it. Free, no signup.</summary>
   </entry>
   <entry>
     <title>ACA Subsidy Cliff Calculator — 2026, Free</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Logistics, freight &amp; cloud cost"/>
     <summary type="text">Free tool for shippers: drop in your UPS or FedEx shipment report and see which parcels were delivered after the promised day, the shipping charge on each, the last day to file, and a draft claim request. Also flags duplicate charges. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Patreon Members Churn Analyzer — Churn, MRR and Fees from Your Export</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/patreon-members-churn-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/patreon-members-churn-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free analyzer for Patreon creators: drop in your Members export CSV and see active, declined and former patrons, MRR by tier, churn by tenure cohort, at-risk declined payments, concentration and the fee take. Runs in your browser, the file is never uploaded.</summary>
   </entry>
 </feed>
