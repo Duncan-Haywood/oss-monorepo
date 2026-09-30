@@ -1,0 +1,62 @@
+name: cost-segregation-study-calculator
+description: >-
+  Free browser tool that estimates what a cost segregation study could be worth
+  on a rental or commercial property: first-year extra depreciation, tax saved
+  at a chosen bracket, study-fee payback, the recapture bill on sale and a
+  present-value net. Illustrative only; nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. ls ventures and
+# screened-out.md show no cost segregation tool; siblings are
+# bonus-depreciation-calculator (one asset) and depreciation-recapture-calculator
+# (the sale side), neither of which answers "is the study fee worth it".
+# Cost segregation firms sell studies for roughly $5k-$15k per property and
+# quote only the year-one deduction. Investors have no free way to see the
+# net after fee, recapture and passive-loss limits before booking one.
+#
+# First visitor: r/realestateinvesting, BiggerPockets threads, and "cost
+# segregation calculator" searches; volume not measured.
+#
+# Privacy is the liability boundary: inputs never leave the browser (tests
+# assert no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet; a paid tier, if usage
+# appears, is saved scenarios and a printable summary for a CPA, local only;
+# not built. No referral to cost segregation firms.
+#
+# Liability: illustrative estimate from stated assumptions and typical
+# reclassification ranges, not tax advice and not an engineering study.
+# Unverified: hand calculation and unit tests only.
+
+hypotheses:
+  - claim: >-
+      Property owners will use a no-signup tool to test whether a cost segregation
+      study pays back before booking one.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The net-after-fee-and-recapture figure is the number people send to their
+      CPA.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the estimate contradicts a real study by more than the stated assumptions explain.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/cost-segregation-study-calculator/
+  analytics: null
