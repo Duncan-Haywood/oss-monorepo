@@ -32,3 +32,11 @@ modelled.
 ## Run
 
 Open `index.html` through any static server. Tests: `node --test`.
+
+## Payment chance (added 2026-09-30)
+
+Each open invoice also gets an estimated chance of being paid in the next 30 days and an "at risk" amount. The estimate
+is a Kaplan-Meier conditional probability on the days-past-due clock (paid invoices are events, open invoices are
+censored), shrunk toward a 30% prior and blended per client by how much of their history was still at risk. It is scored
+on the owner's own paid invoices with a leave-one-out backtest against a constant guess, and the page says when it is no
+better than that. It estimates what happens without action, not the uplift from chasing.

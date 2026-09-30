@@ -23295,6 +23295,41 @@ ventures:
       stated. Customer locations never leave the browser. Ethics: helps a small
       operator cut drive time and see what a missing crew costs; nothing is sold, no
       customer data is collected and no referral is made.
+  - slug: bundle-discount-optimizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Market-basket statistics (pair counts, attach rates, a hold-out persistence check
+      and a seeded bootstrap run in the browser) but no language model and no paid API;
+      the pairing, the break-even and the stated assumption are the product, not an add-on.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Small online sellers paste
+      an order export and product costs and get which pairs already sell together, the
+      bundle discount with the best estimated profit, and the break-even rise in attach
+      rate the discount must cause. Distribution 6: "how much discount on a bundle" and
+      "which products to bundle" are recurring seller queries and seller communities
+      discuss them (volume not measured with an external tool). Defensibility 4:
+      bundle apps and spreadsheets exist; the edge is the private no-signup workflow
+      and stating that a discount's response cannot be read from past orders.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: sizes a pricing decision and sets no price; no warranty, independence
+      from platforms and bundle apps stated, response assumption and limits stated.
+      Orders and costs never leave the browser. Ethics: helps a small seller see
+      whether a bundle discount pays for itself; nothing is sold, no data is
+      collected and no referral is made.
   - slug: service-van-stock-optimizer
     scores:
       ai_leverage: 4

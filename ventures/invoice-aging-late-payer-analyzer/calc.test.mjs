@@ -144,3 +144,42 @@ test("day-first files are read day-first", () => {
   assert.equal(n.dmy, true);
   assert.equal(n.items[0].issued, Date.UTC(2026, 0, 31));
 });
+
+import { conditionalPay, payOdds } from "./calc.mjs";
+
+test("Kaplan-Meier conditional payment chance matches a hand calculation", () => {
+  const ev = (t) => ({ t, event: true, client: "a" }), ce = (t) => ({ t, event: false, client: "a" });
+  const obs = [ev(10), ev(10), ev(20), ce(15), ce(30)];
+  near(conditionalPay(obs, 0, 30).p, 0.7, 1e-12);
+  near(conditionalPay(obs, 12, 10).p, 0.5, 1e-12);
+  assert.equal(conditionalPay(obs, 21, 5).p, 0);
+});
+
+test("analyze attaches a payment chance and a backtest that beats a constant guess on structured data", () => {
+  let s = 5;
+  const rnd = () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
+  const rows = [];
+  for (let i = 0; i < 30; i++) {
+    const issued = Date.UTC(2025, 9, 1) + i * 9 * 86400000;
+    for (const [c, lo, hi] of [["Fast Co", 0, 5], ["Slow Co", 40, 70]]) {
+      const due = issued + 30 * 86400000, paid = due + Math.round(lo + rnd() * (hi - lo)) * 86400000;
+      const d = (t) => new Date(t).toISOString().slice(0, 10);
+      rows.push(`${c}-${i},${c},${d(issued)},${d(due)},1000,${paid <= ASOF ? d(paid) : ""},${paid <= ASOF ? 0 : 1000}`);
+    }
+  }
+  const d = (t) => new Date(t).toISOString().slice(0, 10);
+  rows.push(`OF,Fast Co,${d(ASOF - 33 * 86400000)},${d(ASOF - 3 * 86400000)},1000,,1000`);
+  rows.push(`OS,Slow Co,${d(ASOF - 33 * 86400000)},${d(ASOF - 3 * 86400000)},1000,,1000`);
+  const r = analyze(load(rows.join("\n")).items, { asOf: ASOF });
+  assert.ok(r.odds.backtest.enough);
+  assert.ok(r.odds.backtest.brier < r.odds.backtest.baseline);
+  const f = r.chase.find((x) => x.id === "OF"), sl = r.chase.find((x) => x.id === "OS");
+  assert.ok(f.payChance > 0.6 && sl.payChance < 0.3, `${f.payChance} ${sl.payChance}`);
+  near(f.atRisk, f.balance * (1 - f.payChance), 1e-9);
+  assert.equal(typeof payOdds, "function");
+});
+
+test("no payment chance is invented when there is too little history", () => {
+  const r = analyze(load("1,A,2026-01-01,2026-01-31,100,2026-02-05,0\n2,A,2026-06-01,2026-07-01,100,,100").items, { asOf: ASOF });
+  assert.equal(r.odds, null);
+});

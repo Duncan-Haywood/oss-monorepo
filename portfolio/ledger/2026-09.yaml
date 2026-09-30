@@ -48786,6 +48786,54 @@ entries:
         tree counts; inbound links from which-job-first and pool-route-pricing;
         regenerated the mirror.
     mrr_end: 0
+  - venture: invoice-aging-late-payer-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Upgraded invoice-aging-late-payer-analyzer instead of adding a third
+        near-duplicate: every open invoice now carries an estimated chance of
+        being paid in the next 30 days and an at-risk amount, from a
+        Kaplan-Meier conditional probability on the days-past-due clock
+        (paid invoices are events, open ones censored), shrunk toward a stated
+        prior and blended per client. A leave-one-out backtest on the owner's
+        own paid invoices (Brier score against a constant guess, with a
+        calibration table) says whether the percentages deserve trust; on the
+        bundled sample they are 27% better than a constant. It fills the gap
+        the existing forecast left, where an invoice already past when its
+        client normally pays was "not forecast at all". Two build attempts
+        this session were dropped as duplicates of work that merged minutes
+        earlier (route-stop-optimizer and crew-dispatch-optimizer for a
+        service-route tool; this analyzer for an invoice prioritizer --
+        duplicate_check.py scored the latter 0.19-0.22 against other ventures
+        and did not surface it). Unverified against real collections outcomes:
+        tests use a hand-worked Kaplan-Meier calculation and invented books.
+        Regenerated the mirror.
+    mrr_end: 0
+  - venture: bundle-discount-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built bundle-discount-optimizer: a browser-local bundle
+        pricing tool for Shopify, Etsy, Amazon and other small sellers. Paste
+        an order export (order id, sku) and product price and cost; it counts which
+        pairs are already bought together, prices each pairing (the discount's cost
+        on orders that already pair against the profit from a higher attach rate),
+        searches the discount with the best estimated profit, and reports the
+        break-even attach-rate rise the discount must cause, profit at 5-20% off,
+        a newest-30% hold-out check that the pairing persists, and 300-resample
+        bootstrap ranges. The response to a discount is a stated assumption because
+        past orders contain no discounted bundle. On the invented 420-order sample it
+        ranks the two planted pairings first. New niche: duplicate_check.py best match
+        shopify-payout-profit-analyzer at 0.22 (no venture prices a bundle).
+        First visitor expected from "bundle discount calculator" and "which
+        products to bundle" searches and r/shopify, r/EtsySellers. Orders never leave
+        the browser. Unverified against a real store: tests check the profit algebra
+        against hand calculations and the break-even against zero profit, pair counts
+        against brute force, and assert no network calls. Registered score row, launch
+        date, category rule, CI workflow and tree counts; regenerated the mirror.
+    mrr_end: 0
   - venture: service-van-stock-optimizer
     agent_spend_usd: null
     human_hours: 0
