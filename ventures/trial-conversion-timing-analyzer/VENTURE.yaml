@@ -1,6 +1,6 @@
 name: trial-conversion-timing-analyzer
 description: >-
-  Free browser tool for SaaS and app founders: paste the date each free trial
+  Free browser tool for SaaS and app founders: paste the date each SaaS trial
   started and the date that user first paid, and see on which day of the trial
   people convert, whether conversions pile up at the deadline, and what a
   shorter trial would have lost, with seeded bootstrap ranges and a hold-out
@@ -11,8 +11,8 @@ stage: prototype
 owner: duncan
 
 # Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
-# "free trial length: when do trial users convert ..." closest is
-# bridal-hair-makeup-pricing-calculator at 0.15; on the looser "free trial length
+# "trial length: when do trial users convert ..." closest is
+# bridal-hair-makeup-pricing-calculator at 0.15; on the looser "trial length
 # conversion optimizer" query, shift-cover-optimizer at 0.24. Adjacent:
 # saas-annual-plan-discount-calculator and saas-cac-payback-calculator (pricing and
 # payback, neither looks at when in a trial users pay) and patreon-members-churn-
@@ -24,8 +24,8 @@ owner: duncan
 # suites (need the data in their cloud and a paid plan for cohort timing), and
 # blog-post rules of thumb ("7 days converts best").
 #
-# First visitor: searches "how long should a free trial be", "free trial length
-# conversion", "7 day vs 14 day free trial"; r/SaaS, Indie Hackers and
+# First visitor: searches "how long should a SaaS trial be", "trial length
+# conversion", "7 day vs 14 day SaaS trial"; r/SaaS, Indie Hackers and
 # microsaas founders with a few hundred trials. Volume not measured with an
 # external tool.
 #
