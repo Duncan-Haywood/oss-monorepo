@@ -21348,6 +21348,73 @@ ventures:
       recommended. Figures never leave the browser. Ethics: helps an investor
       understand a lawful, common tax step and its deferral cost; nothing is
       sold and no broker referral is made.
+  - slug: solar-payback-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Homeowners judge
+      a solar quote on an installer's payback claim; the tool shows payback,
+      NPV and IRR and how a lower export credit (net billing) moves them.
+      Distribution 7: "solar payback calculator" and "is this solar quote fair"
+      are recurring queries and r/solar threads; volume not measured with an
+      external tool. Defensibility 3: the arithmetic is simple; the edge is a
+      private, no-signup answer with the export-credit sensitivity.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimates not advice, no warranty, independence
+      from installers, lenders and utilities stated, incentives are a
+      user-entered number so no incentive rule is asserted, omissions stated on
+      the page. Quotes never leave the browser. Ethics: helps a homeowner check
+      a large purchase; nothing is sold and no installer referral is made.
+  - slug: safe-dilution-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Row added by the session that found `--check` red on main after #6060
+      graduated this venture without one; scored from the write-up in its own
+      VENTURE.yaml comment, which the venture's author should revise if they
+      disagree. Founders size SAFE dilution in spreadsheets or in cap table
+      products that want an account; the tool is the free, private version and
+      solves the SAFE, pool top-up and round-price circularity. Distribution 7:
+      "SAFE dilution calculator" and "post-money SAFE calculator" are recurring
+      queries and r/startups threads; volume not measured with an external tool.
+      Defensibility 3: the arithmetic is well known; the edge is a private,
+      no-signup answer.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative only, not legal or financial advice, no warranty,
+      per its own page and VENTURE.yaml. Inputs never leave the browser. Ethics:
+      helps a founder understand dilution before signing; nothing is sold and no
+      investor referral is made.
   - slug: print-on-demand-profit-calculator
     scores:
       ai_leverage: 1
@@ -21736,6 +21803,7 @@ ventures:
     composite: 6.0
     rater_b: null
     floor: 1
+    floor_dimension: ai_leverage
     floor_note: >-
       No model in the product, deliberately. Every figure is deterministic
       arithmetic on numbers the visitor types.

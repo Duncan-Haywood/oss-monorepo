@@ -112,3 +112,7 @@ test('index links one hop to the standby-generator-bid-calculator sibling', () =
   );
   assert.match(siblingPage, /standby generator bid calculator/i);
 });
+
+test('links to the homeowner solar payback calculator', () => {
+  assert.match(page, /href="\.\.\/solar-payback-calculator\/"/, 'the sibling-tool link is missing');
+});

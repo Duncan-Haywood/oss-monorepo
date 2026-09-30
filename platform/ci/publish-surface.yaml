@@ -1355,6 +1355,9 @@ workflows:
 - workflow: soffit-fascia-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: solar-payback-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: solar-pv-bid-calculator-ci.yml
   classification: none
   publishes: []
