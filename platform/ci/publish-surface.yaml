@@ -1544,6 +1544,9 @@ workflows:
 - workflow: str-occupancy-tax-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: str-nightly-rate-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: str-tax-loophole-calculator-ci.yml
   classification: none
   publishes: []

@@ -33,33 +33,33 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 546488 bytes
-#   portfolio-front-tools-1: 92 files, 554899 bytes
-#   portfolio-front-tools-2: 144 files, 552623 bytes
-#   portfolio-front-tools-3: 131 files, 554780 bytes
-#   portfolio-front-tools-4: 136 files, 556149 bytes
-#   portfolio-front-tools-5: 126 files, 553935 bytes
-#   portfolio-front-tools-6: 121 files, 556767 bytes
-#   portfolio-front-tools-7: 136 files, 556713 bytes
-#   portfolio-front-tools-8: 123 files, 554221 bytes
-#   portfolio-front-tools-9: 129 files, 556568 bytes
-#   portfolio-front-tools-10: 131 files, 550516 bytes
-#   portfolio-front-tools-11: 130 files, 555117 bytes
-#   portfolio-front-tools-12: 120 files, 553810 bytes
-#   portfolio-front-tools-13: 115 files, 555251 bytes
-#   portfolio-front-tools-14: 120 files, 555545 bytes
-#   portfolio-front-tools-15: 118 files, 551129 bytes
-#   portfolio-front-tools-16: 125 files, 554918 bytes
-#   portfolio-front-tools-17: 127 files, 555843 bytes
-#   portfolio-front-tools-18: 126 files, 554536 bytes
-#   portfolio-front-tools-19: 122 files, 551426 bytes
-#   portfolio-front-tools-20: 121 files, 554521 bytes
-#   portfolio-front-tools-21: 99 files, 556280 bytes
-#   portfolio-front-tools-22: 116 files, 556525 bytes
-#   portfolio-front-tools-23: 125 files, 552175 bytes
-#   portfolio-front-tools-24: 121 files, 554748 bytes
-#   portfolio-front-tools-25: 65 files, 312707 bytes
-#   portfolio-front-tools-26: 53 files, 281931 bytes
+#   portfolio-front-tools-0: 145 files, 546585 bytes
+#   portfolio-front-tools-1: 92 files, 554898 bytes
+#   portfolio-front-tools-2: 144 files, 552612 bytes
+#   portfolio-front-tools-3: 131 files, 554781 bytes
+#   portfolio-front-tools-4: 136 files, 556155 bytes
+#   portfolio-front-tools-5: 126 files, 553988 bytes
+#   portfolio-front-tools-6: 121 files, 556770 bytes
+#   portfolio-front-tools-7: 136 files, 556726 bytes
+#   portfolio-front-tools-8: 123 files, 554181 bytes
+#   portfolio-front-tools-9: 129 files, 556535 bytes
+#   portfolio-front-tools-10: 131 files, 550471 bytes
+#   portfolio-front-tools-11: 130 files, 555144 bytes
+#   portfolio-front-tools-12: 120 files, 553768 bytes
+#   portfolio-front-tools-13: 115 files, 555254 bytes
+#   portfolio-front-tools-14: 120 files, 555553 bytes
+#   portfolio-front-tools-15: 118 files, 551098 bytes
+#   portfolio-front-tools-16: 125 files, 554951 bytes
+#   portfolio-front-tools-17: 127 files, 555844 bytes
+#   portfolio-front-tools-18: 126 files, 554670 bytes
+#   portfolio-front-tools-19: 122 files, 551395 bytes
+#   portfolio-front-tools-20: 121 files, 554522 bytes
+#   portfolio-front-tools-21: 99 files, 556469 bytes
+#   portfolio-front-tools-22: 116 files, 556505 bytes
+#   portfolio-front-tools-23: 125 files, 556166 bytes
+#   portfolio-front-tools-24: 122 files, 555229 bytes
+#   portfolio-front-tools-25: 67 files, 324768 bytes
+#   portfolio-front-tools-26: 53 files, 281829 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3062,6 +3062,9 @@ configMapGenerator:
       - str-cleaning-fee-pricing-calculator__calc.mjs.gz=str-cleaning-fee-pricing-calculator__calc.mjs.gz
       - str-cleaning-fee-pricing-calculator__index.html.gz=str-cleaning-fee-pricing-calculator__index.html.gz
       - str-cleaning-fee-pricing-calculator__usage.mjs.gz=str-cleaning-fee-pricing-calculator__usage.mjs.gz
+      - str-nightly-rate-optimizer__calc.mjs.gz=str-nightly-rate-optimizer__calc.mjs.gz
+      - str-nightly-rate-optimizer__index.html.gz=str-nightly-rate-optimizer__index.html.gz
+      - str-nightly-rate-optimizer__usage.mjs.gz=str-nightly-rate-optimizer__usage.mjs.gz
       - str-occupancy-tax-calculator__calc.mjs.gz=str-occupancy-tax-calculator__calc.mjs.gz
       - str-occupancy-tax-calculator__how-much-occupancy-tax-will-i-have-to-self-file-this-year.html.gz=str-occupancy-tax-calculator__how-much-occupancy-tax-will-i-have-to-self-file-this-year.html.gz
       - str-occupancy-tax-calculator__how-to-find-your-platforms-collection-agreements.html.gz=str-occupancy-tax-calculator__how-to-find-your-platforms-collection-agreements.html.gz
@@ -3172,14 +3175,14 @@ configMapGenerator:
       - toilet-replacement-bid-calculator__should-i-install-a-customer-supplied-toilet.html.gz=toilet-replacement-bid-calculator__should-i-install-a-customer-supplied-toilet.html.gz
       - toilet-replacement-bid-calculator__should-i-take-a-saturday-toilet-call.html.gz=toilet-replacement-bid-calculator__should-i-take-a-saturday-toilet-call.html.gz
       - toilet-replacement-bid-calculator__usage.mjs.gz=toilet-replacement-bid-calculator__usage.mjs.gz
-      - toilet-replacement-bid-calculator__vs-a-flat-installed-price.html.gz=toilet-replacement-bid-calculator__vs-a-flat-installed-price.html.gz
-      - toilet-replacement-bid-calculator__vs-servicetitan.html.gz=toilet-replacement-bid-calculator__vs-servicetitan.html.gz
-      - tow-motor-club-call-calculator__calc.mjs.gz=tow-motor-club-call-calculator__calc.mjs.gz
   - name: portfolio-front-tools-24
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - toilet-replacement-bid-calculator__vs-a-flat-installed-price.html.gz=toilet-replacement-bid-calculator__vs-a-flat-installed-price.html.gz
+      - toilet-replacement-bid-calculator__vs-servicetitan.html.gz=toilet-replacement-bid-calculator__vs-servicetitan.html.gz
+      - tow-motor-club-call-calculator__calc.mjs.gz=tow-motor-club-call-calculator__calc.mjs.gz
       - tow-motor-club-call-calculator__index.html.gz=tow-motor-club-call-calculator__index.html.gz
       - tow-motor-club-call-calculator__usage.mjs.gz=tow-motor-club-call-calculator__usage.mjs.gz
       - travel-nurse-contract-comparison-calculator__calc.mjs.gz=travel-nurse-contract-comparison-calculator__calc.mjs.gz
@@ -3299,13 +3302,13 @@ configMapGenerator:
       - walk-in-shower-bid-calculator__usage.mjs.gz=walk-in-shower-bid-calculator__usage.mjs.gz
       - walk-in-shower-bid-calculator__vs-jobber.html.gz=walk-in-shower-bid-calculator__vs-jobber.html.gz
       - walk-in-shower-bid-calculator__vs-tracking-it-in-a-spreadsheet.html.gz=walk-in-shower-bid-calculator__vs-tracking-it-in-a-spreadsheet.html.gz
-      - walk-in-tub-bid-calculator__calc.mjs.gz=walk-in-tub-bid-calculator__calc.mjs.gz
-      - walk-in-tub-bid-calculator__how-much-to-charge-to-install-a-walk-in-tub.html.gz=walk-in-tub-bid-calculator__how-much-to-charge-to-install-a-walk-in-tub.html.gz
   - name: portfolio-front-tools-25
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - walk-in-tub-bid-calculator__calc.mjs.gz=walk-in-tub-bid-calculator__calc.mjs.gz
+      - walk-in-tub-bid-calculator__how-much-to-charge-to-install-a-walk-in-tub.html.gz=walk-in-tub-bid-calculator__how-much-to-charge-to-install-a-walk-in-tub.html.gz
       - walk-in-tub-bid-calculator__index.html.gz=walk-in-tub-bid-calculator__index.html.gz
       - walk-in-tub-bid-calculator__should-i-install-a-customer-supplied-walk-in-tub.html.gz=walk-in-tub-bid-calculator__should-i-install-a-customer-supplied-walk-in-tub.html.gz
       - walk-in-tub-bid-calculator__should-i-take-a-saturday-walk-in-tub-call.html.gz=walk-in-tub-bid-calculator__should-i-take-a-saturday-walk-in-tub-call.html.gz
