@@ -905,6 +905,9 @@ workflows:
 - workflow: mercari-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: merchant-cash-advance-true-cost-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: merchant-feed-check-ci.yml
   classification: none
   publishes: []
