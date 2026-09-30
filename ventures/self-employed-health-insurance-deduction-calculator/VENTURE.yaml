@@ -1,0 +1,55 @@
+name: self-employed-health-insurance-deduction-calculator
+description: >-
+  Free browser tool for sole proprietors, partners and S corp owners that turns
+  net profit and health, Medicare and long-term-care premiums into the Schedule 1
+  self-employed health insurance deduction (Form 7206): the profit ceiling,
+  employer-plan months, age caps, income tax saved and a profit sensitivity
+  table. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. No existing venture covers
+# Form 7206; neighbours (self-employment-tax, solo-401k, hsa, qbi) are different
+# forms. Self-employed people pay $6k-$20k a year in premiums and the deduction's
+# profit ceiling, employer-plan months and SE-tax loop are what preparers'
+# worksheets hide. First visitor: searches "self employed health insurance
+# deduction calculator" / "Form 7206", r/smallbusiness and r/tax threads in
+# filing season; volume not measured with an external tool.
+#
+# Privacy is the liability boundary: no numbers leave the browser (tests assert
+# no network calls). No insurer, marketplace or tax-software brand is named.
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: illustrative estimates, not advice; omissions stated on the page.
+# Unverified: hand calculation and unit tests only; 2026 constants to confirm.
+
+hypotheses:
+  - claim: >-
+      Self-employed filers will use a no-signup tool that shows the deduction
+      after the profit ceiling and what it is worth in tax.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The "profit needed to deduct it all" figure is what people quote when
+      asking a preparer or a forum about the deduction.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the deduction contradicts Form 7206 on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/self-employed-health-insurance-deduction-calculator/
+  analytics: null
