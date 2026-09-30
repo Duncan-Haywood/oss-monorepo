@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 519 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 521 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -332,6 +332,15 @@
     <summary type="text">Free PSLF vs refinance calculator. Enter your federal loan balance, income and a refinance offer to see total paid under Public Service Loan Forgiveness, the amount forgiven, the income where refinancing wins, and what leaving public service early costs. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Quote Follow-Up Timing — when to chase a quote and when to let it go</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/quote-follow-up-timing/"/>
+    <id>tag:marisstella.dev,2026:tool/quote-follow-up-timing</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free quote follow-up timing tool for contractors, agencies and freelancers. Paste your past quotes (days to decision, won, lost or open) to see when your wins actually arrive, your real win rate with open quotes counted correctly, and which open quotes still have a chance. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>R&amp;D Tax Credit Calculator — Startup Estimate with Payroll Offset, Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rd-tax-credit-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/rd-tax-credit-calculator</id>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free rental property DSCR calculator for investors. Enter price, rent, loan terms and costs to see DSCR both ways, cash-on-cash, cap rate, break-even occupancy, the largest loan a target DSCR allows, and how a higher rate changes it. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Route Stop Optimizer — the fastest order for a day of stops</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/route-stop-optimizer/"/>
-    <id>tag:marisstella.dev,2026:tool/route-stop-optimizer</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Logistics, freight &amp; cloud cost"/>
-    <summary type="text">Free route optimizer for service businesses, couriers and sales reps. Paste your stops with service times and customer time windows to get the order that cuts drive time, split across drivers, with miles, hours and dollars saved. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
