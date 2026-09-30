@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 493 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 496 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -116,6 +116,15 @@
     <summary type="text">Free home sale tax calculator. Enter your sale price, purchase price and improvements to see how much gain the $250,000 or $500,000 exclusion covers, the tax on the rest, and what waiting to reach two years would save. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Insurance Agency Book Valuation Calculator — Sell or Keep Your Book of Business</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/insurance-agency-book-valuation-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/insurance-agency-book-valuation-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free insurance agency book of business valuation calculator. Enter revenue, retention, servicing cost and the return you need, and see what the book is worth, compare a purchase offer with upfront and holdback, and find the break-even price. Runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Job Offer Total Compensation Calculator — Compare Offers With Equity and Hours</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/job-offer-total-comp-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/job-offer-total-comp-calculator</id>
@@ -132,6 +141,15 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste an LLM API usage log (JSONL, JSON or CSV) and see spend by model, feature and day, your cache hit rate, a 30-day run rate, and which levers -- caching, batch, a cheaper model -- would have saved money. Runs in your browser; the log never leaves it. Free, no signup.</summary>
+  </entry>
+  <entry>
+    <title>Locum Tenens vs Employed Calculator — 1099 Locum Rate vs W-2 Physician Offer</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/locum-tenens-vs-employed-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/locum-tenens-vs-employed-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free locum tenens vs employed calculator for physicians, NPs, PAs and CRNAs. Compare a 1099 locum contract with a W-2 offer: take-home after federal tax, self-employment tax, malpractice tail, benefits, unpaid gaps, and the break-even locum hourly rate. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Merchant Cash Advance True Cost Calculator — Factor Rate to APR, Factoring Cost</title>
@@ -242,6 +260,15 @@
     <summary type="text">Free solar panel payback calculator for homeowners. Enter system cost, incentives, production and your electricity rates to see payback year, 25-year net gain, NPV and IRR, and how a lower export credit changes it. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Startup Exit Waterfall Calculator — Who Gets Paid What When the Company Sells</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/startup-exit-waterfall-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/startup-exit-waterfall-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free startup exit waterfall calculator. Enter the sale price and your cap table (common, options, preferred series with liquidation preference, participation caps, seniority and dividends) and see what each class is paid, the exit price where each series converts, and a sweep across exit prices. Runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Startup Stock Option Value Calculator — What Are Your Options Worth?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/startup-option-value-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/startup-option-value-calculator</id>
@@ -339,32 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free tool for salons, barbers, clinics, tutors and trainers: drop in your booking export and see your no-show and late-cancel rate, the revenue lost, which weekdays, hours and services get missed, your repeat no-show clients, and what a deposit or no-show fee might recover. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Backdoor Roth Pro-Rata Calculator — Form 8606, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/backdoor-roth-pro-rata-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/backdoor-roth-pro-rata-calculator</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator for the backdoor Roth pro-rata rule: how much of your Roth conversion is taxable given your after-tax basis and your December 31 traditional, SEP and SIMPLE IRA balance, plus the tax you could avoid by rolling pre-tax money into a 401(k). Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Bandcamp Sales Report Analyzer — Fees, Net per Item and Profit</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bandcamp-sales-report-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/bandcamp-sales-report-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free analyzer for Bandcamp artists and labels: drop in your sales report CSV and see fees paid, net per item, small-sale fee drag, vinyl and merch profit after your costs, best releases and repeat buyers. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Card Surcharge vs Cash Discount Calculator — Free, Runs in Your Browser</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/card-surcharge-vs-cash-discount-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/card-surcharge-vs-cash-discount-calculator</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free credit card surcharge vs cash discount calculator for small merchants: see monthly processing cost, the surcharge that recovers it, and how many customers you can lose before each option stops paying off. Nothing uploaded.</summary>
   </entry>
 </feed>

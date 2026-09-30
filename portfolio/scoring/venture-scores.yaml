@@ -22496,3 +22496,100 @@ ventures:
       stated, omissions stated. Figures never leave the browser. Ethics:
       helps a founder check a price shape; nothing is sold and no referral
       is made.
+  - slug: locum-tenens-vs-employed-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on figures the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Physicians,
+      NPs, PAs and CRNAs compare a 1099 locum contract with a W-2 offer,
+      including self-employment tax, benefits, malpractice tail and unpaid
+      gaps, and get a break-even locum rate. Distribution 6: "locum vs
+      employed" threads recur in clinician communities; volume not measured
+      with an external tool. Defensibility 3: the arithmetic is public; the
+      edge is the break-even rate and weeks-worked sensitivity with no signup.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: rough federal arithmetic on entered figures, not tax advice,
+      no warranty, independence stated, omissions and unverified constants
+      stated, professional confirmation urged. Figures never leave the
+      browser. Ethics: helps a clinician check an offer; nothing is sold and
+      no referral is made.
+  - slug: startup-exit-waterfall-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on terms the visitor enters.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Founders,
+      employees and angels see what each class is paid at a sale price, with
+      liquidation preferences, participation caps, seniority and options.
+      Distribution 6: "liquidation preference calculator" and "exit waterfall"
+      are recurring queries; volume not measured with an external tool.
+      Defensibility 3: the arithmetic is public; the edge is the exact
+      conversion equilibrium and breakpoints with no signup.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on entered terms, not legal, tax or investment
+      advice, no statement of what anyone is owed, no warranty, independence
+      from cap table platforms stated, omissions stated. Figures never leave the
+      browser. Ethics: helps a person read a term sheet or an offer; nothing is
+      sold and no referral is made.
+  - slug: insurance-agency-book-valuation-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on inputs the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Agents weighing
+      a sale of a renewal-commission book see keep value, the break-even price
+      multiple and the cost of a retention-tested holdback. Distribution 6:
+      "insurance book of business valuation" is a recurring query; volume not
+      measured with an external tool. Defensibility 3: the arithmetic is
+      simple; the edge is the holdback and retention sensitivity with no signup.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on entered figures, not an appraisal or advice, no
+      warranty, independence from carriers and aggregators stated, omissions
+      stated. Figures never leave the browser. Ethics: helps an agent read an
+      offer for their own book; nothing is sold and no referral is made.

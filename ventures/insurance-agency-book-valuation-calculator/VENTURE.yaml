@@ -1,0 +1,58 @@
+name: insurance-agency-book-valuation-calculator
+description: >-
+  Free browser tool for independent insurance agents and agency buyers: enter
+  a book's revenue, retention, servicing cost and required return and see what
+  keeping it is worth, how a purchase offer with upfront and holdback compares,
+  the break-even price multiple and what one point of retention adds. Nothing
+  is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "insurance agent book of business renewal commission valuation calculator":
+# top match 0.21, unrelated (booth-rent-vs-commission). Existing compensation
+# and brokerage ventures cover real-estate splits, physicians, dentists and
+# sales offers; none covers selling or buying a renewal-commission book, which
+# is the largest asset most independent agents own.
+# Users have money and a real decision: an offer quoted as "1.5x revenue" with
+# a 30% holdback tied to retention can be worth tens of thousands less (or
+# more) than the book is worth to the owner, and the gap is driven by
+# retention, which the quoted multiple hides.
+#
+# First visitor: independent agents and producers weighing a sale, agency
+# buyers sizing a bid; searches "insurance book of business valuation",
+# "agency valuation calculator", "insurance book of business multiple";
+# volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: arithmetic on inputs the visitor enters, not an appraisal,
+# valuation opinion or advice; the page says what it leaves out, names no
+# carrier or aggregator. Unverified: hand calculation and unit tests only.
+# Figures never leave the browser.
+
+hypotheses:
+  - claim: >-
+      Agents considering selling a book will use a no-signup tool that shows
+      keep value, break-even price and the cost of a retention-tested holdback,
+      and will return for each new offer or bid.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a value figure contradicts their own hand calculation on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/insurance-agency-book-valuation-calculator/
+  analytics: null

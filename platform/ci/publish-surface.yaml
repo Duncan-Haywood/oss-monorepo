@@ -788,6 +788,9 @@ workflows:
 - workflow: interior-door-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: insurance-agency-book-valuation-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: invoice-aging-late-payer-analyzer-ci.yml
   classification: none
   publishes: []
@@ -873,6 +876,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: locksmith-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: locum-tenens-vs-employed-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: ltl-freight-class-estimator-ci.yml
@@ -1446,6 +1452,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: startup-option-value-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: startup-exit-waterfall-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: stockx-seller-payout-calculator-ci.yml

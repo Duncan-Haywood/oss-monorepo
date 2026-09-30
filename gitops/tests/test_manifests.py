@@ -2839,8 +2839,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `sales-commission-plan-comparison-calculator` graduated (browser-local sales offer comparison across quota attainment).
     # +1: `merchant-cash-advance-true-cost-calculator` graduated (browser-local MCA and invoice-factoring annualised cost calculator).
     # +1: `usage-based-pricing-simulator` graduated (browser-local metered pricing plan simulator against a usage distribution).
+    # +1: `locum-tenens-vs-employed-calculator` graduated (browser-local locum tenens 1099 vs employed W-2 comparison with break-even rate).
+    # +1: `startup-exit-waterfall-calculator` graduated (browser-local exit waterfall with liquidation preferences, participation caps and seniority).
+    # +1: `insurance-agency-book-valuation-calculator` graduated (browser-local insurance book of business sell-or-keep valuation).
     # +1: `ab-test-significance-calculator` graduated (browser-local A/B test significance, SRM and sequential calculator).
-    total = 493  # `infra/OWNER_CHECKLIST.md`'s own "N of the 493 tools" wording.
+    total = 496  # `infra/OWNER_CHECKLIST.md`'s own "N of the 496 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

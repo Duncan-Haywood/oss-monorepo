@@ -100,3 +100,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("LICENSE"), /MIT License/);
   assert.match(page("VENTURE.yaml"), /^name: agent-brokerage-split-calculator$/m);
 });
+
+test("footer links to the insurance agency book valuation calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/insurance-agency-book-valuation-calculator\/"/);
+});
