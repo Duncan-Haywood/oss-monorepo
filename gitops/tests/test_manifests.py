@@ -2832,7 +2832,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `agent-brokerage-split-calculator` graduated (browser-local brokerage split and cap comparison for real estate agents).
     # +1: `tax-loss-harvesting-calculator` graduated (browser-local tax-loss harvesting calculator).
     # +1: `solar-payback-calculator` graduated (browser-local homeowner solar payback calculator).
-    total = 470  # `infra/OWNER_CHECKLIST.md`'s own "N of the 470 tools" wording.
+    total = 471  # `infra/OWNER_CHECKLIST.md`'s own "N of the 471 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
