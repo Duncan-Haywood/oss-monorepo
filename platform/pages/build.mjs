@@ -640,6 +640,9 @@ const CATEGORY_RULES = [
       // `restaurant-labor-cost-daypart-analyzer` added 2026-09-29: the labor
       // half of the restaurant owner's cost picture, next to the menu tools.
       'restaurant-labor-cost-daypart-analyzer',
+      // `shift-cover-optimizer` added 2026-09-30: plans the shifts forward from
+      // an hourly need; same reader as the labor daypart analyzer above.
+      'shift-cover-optimizer',
     ].includes(slug),
   },
   {

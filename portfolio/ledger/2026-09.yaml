@@ -48685,3 +48685,30 @@ entries:
         row, launch date, category rule, CI workflow and tree counts;
         regenerated the mirror.
     mrr_end: 0
+  - venture: shift-cover-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built shift-cover-optimizer: a browser-local shift
+        planner for restaurants, cafes, salons and shops. Paste day, hour and
+        staff needed (or demand per hour plus what one person handles); finds
+        the cheapest set of shifts that covers every open hour, solved exactly
+        as a minimum-cost flow on a line graph (interval covering is totally
+        unimodular), with shift lengths between a minimum and maximum, payroll
+        burden, paid setup time and minimum paid hours. Compares with the best
+        fixed-length template and peak-headcount-all-day, tabulates what each
+        minimum shift length costs and what demand 10% lower or 10-30% higher
+        costs, and exports the shifts as CSV. On the invented sample cafe it
+        saves $1,056 a week against 8-hour blocks. New niche:
+        duplicate_check.py best match restaurant-labor-cost-daypart-analyzer at
+        0.23 (that one reports labor after the fact from a POS export; this one
+        plans shifts forward). First visitor expected from "how many staff do I
+        need per hour" and "minimum shift length cost" searches and owner
+        groups. Schedules never leave the browser. Unverified against a real
+        operator's payroll: tests compare the solver with brute force on 40
+        random problems and assert no network calls and no short hour.
+        Registered score row, launch date, category rule, CI workflow and tree
+        counts; inbound link from restaurant-labor-cost-daypart-analyzer;
+        regenerated the mirror.
+    mrr_end: 0

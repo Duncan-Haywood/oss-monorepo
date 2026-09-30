@@ -1,0 +1,65 @@
+name: shift-cover-optimizer
+description: >-
+  Free browser tool for restaurants, cafes, salons and shops: paste how many
+  staff (or how much demand) each open hour needs and get the cheapest set of
+  shifts that covers every hour, solved exactly as a minimum-cost flow. Shows
+  what it saves against a fixed 8-hour template and against staffing the peak all
+  day, what a minimum shift length costs, and what 10-30% more demand costs in
+  payroll. Exports the shift list as CSV. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "staff shift scheduling from hourly demand forecast to minimize labor cost for
+# small restaurant or salon": closest is restaurant-labor-cost-daypart-analyzer
+# at 0.23, far below the read-this-first bar. That venture reads a POS export to
+# report labor % by daypart after the fact; this one plans the shifts forward.
+# Alternatives are a whiteboard or spreadsheet template (fixed 8-hour blocks,
+# no cost of the rules) and workforce suites (7shifts, Deputy, When I Work,
+# Homebase) that schedule people against availability but do not show the cost of
+# the shift rules or solve for the cheapest shift lengths.
+#
+# First visitor: searches "how many staff do I need per hour", "restaurant
+# labor cost schedule template", "minimum shift length cost", "split shift
+# scheduling calculator"; r/restaurateur, r/smallbusiness, salon and cafe owner
+# groups. Volume not measured with an external tool. Feeds from
+# restaurant-labor-cost-daypart-analyzer and restaurant-pos-menu-mix-analyzer
+# (what demand looks like by hour).
+#
+# Privacy is the liability boundary: schedules never leave the browser (tests
+# assert no network calls). No vendor is named or ranked.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be saved multi-location plans and availability-aware
+# rostering; not built.
+# Liability: sizes shifts, does not assign people or assert labor-law
+# compliance; the page says predictive-scheduling, break and overtime rules are
+# not modelled. Unverified: tested against brute force and invented data, not a
+# real operator's payroll.
+
+hypotheses:
+  - claim: >-
+      Owners who schedule by hand will use a private, no-signup tool that turns
+      an hourly demand estimate into a cheapest shift list and shows what their
+      own scheduling rules cost, and will return each week.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a schedule that leaves an open hour short, or a cost the stated rules do not reproduce.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/shift-cover-optimizer/
+  analytics: null
