@@ -1634,3 +1634,6 @@ gitops:
 - workflow: espp-tax-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: job-offer-total-comp-calculator-ci.yml
+  classification: none
+  publishes: []
