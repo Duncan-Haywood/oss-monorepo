@@ -23406,8 +23406,47 @@ ventures:
       helps a small landlord see how tenants respond to rent increases before
       setting one, including the cost of losing a good tenant; nothing is sold, no
       tenant data is collected and no referral is made.
-  - slug: rental-rent-optimizer
   - slug: str-nightly-rate-optimizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical learning (logistic regression by Newton-Raphson and a seeded
+      stratified bootstrap run in the browser) but no language model and no paid
+      API; the booking curve, its ranges and the refusal to answer on flat prices
+      are the product, not an add-on.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Short-term rental
+      hosts paste listed nights (price and booked or empty) and their fee and
+      turnover costs and get a booking-chance curve by price, the nightly price
+      with the highest expected profit per listed night inside the range they have
+      listed, and a hold-out back-test. Distribution 6: "what should I charge per
+      night" and "airbnb nightly rate calculator" are recurring host queries and
+      the STR calculators in this catalogue are natural feeders (volume not
+      measured with an external tool). Defensibility 4: logistic regression is
+      standard and paid dynamic-pricing services use market data this does not; the
+      edge is free, private, no-upload use, the fee-and-turnover economics,
+      bootstrap ranges and the plain refusal when prices never varied.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical estimate of supplied data, not advice, no warranty,
+      independence from platforms and vendors stated, limits stated (taxes,
+      licensing and platform rules not known) and an unidentified verdict when the
+      data cannot support an answer. Bookings never leave the browser. Ethics: helps
+      a small host see how their own bookings respond to price; nothing is sold, no
+      guest data is collected and no referral is made.
+  - slug: rental-rent-optimizer
     scores:
       ai_leverage: 4
       autonomous_ops: 10
@@ -23438,23 +23477,6 @@ ventures:
       spreadsheet can average days on market; the edge is the private no-upload
       workflow, censoring handled correctly, shrinkage for short histories and the
       plain refusal when rents never varied.
-      Statistical learning (logistic regression by Newton-Raphson and a seeded
-      stratified bootstrap run in the browser) but no language model and no paid
-      API; the booking curve, its ranges and the refusal to answer on flat prices
-      are the product, not an add-on.
-    basis: >-
-      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
-      full write-up in this venture's own VENTURE.yaml comment. Short-term rental
-      hosts paste listed nights (price and booked or empty) and their fee and
-      turnover costs and get a booking-chance curve by price, the nightly price
-      with the highest expected profit per listed night inside the range they have
-      listed, and a hold-out back-test. Distribution 6: "what should I charge per
-      night" and "airbnb nightly rate calculator" are recurring host queries and
-      the STR calculators in this catalogue are natural feeders (volume not
-      measured with an external tool). Defensibility 4: logistic regression is
-      standard and paid dynamic-pricing services use market data this does not; the
-      edge is free, private, no-upload use, the fee-and-turnover economics,
-      bootstrap ranges and the plain refusal when prices never varied.
     gates:
       liability_containment: pass
       ethical_robustness: pass
@@ -23465,9 +23487,33 @@ ventures:
       the data cannot support a slope. Listings never leave the browser. Ethics:
       helps a small landlord see what their own rent choices cost in vacancy; no
       tenant data is collected and nothing is sold.
-      Liability: statistical estimate of supplied data, not advice, no warranty,
-      independence from platforms and vendors stated, limits stated (taxes,
-      licensing and platform rules not known) and an unidentified verdict when the
-      data cannot support an answer. Bookings never leave the browser. Ethics: helps
-      a small host see how their own bookings respond to price; nothing is sold, no
-      guest data is collected and no referral is made.
+  - slug: quote-follow-up-timing
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical learning (Aalen-Johansen competing risks over open, won and lost
+      quotes, run in the browser) but no language model and no paid API; the
+      timing curve and the stated limits are the product, not an add-on.
+    basis: >-
+      Scored 2026-09-30 to restore the scored-set check after the venture merged
+      without a row; full write-up in this venture's own VENTURE.yaml comment.
+      Small service businesses paste quote history and get when wins arrive and
+      which open quotes are still worth chasing. Distribution 6: "when to follow
+      up on a quote" is a recurring trade-owner query (volume not measured with an
+      external tool). Defensibility 4: CRMs and spreadsheets exist; the edge is the
+      private no-upload workflow and honest handling of still-open quotes.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical estimate of the user's own data, no warranty, not
+      advice. Ethics: no customer data collected or sold; nothing leaves the browser.
