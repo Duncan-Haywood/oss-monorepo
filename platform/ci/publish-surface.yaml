@@ -362,6 +362,9 @@ workflows:
 - workflow: codeowners-shadow-check-ci.yml
   classification: none
   publishes: []
+- workflow: commercial-lease-effective-rent-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: commercial-photo-license-calculator-ci.yml
   classification: none
   publishes: []
@@ -1305,6 +1308,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: sales-commission-plan-comparison-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: sales-seasonality-forecaster-ci.yml
   classification: none
   publishes: []
 - workflow: salt-cap-calculator-ci.yml

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 501 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 503 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -69,6 +69,15 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free cash balance plan calculator for self-employed and small-practice owners aged 40+. Estimates a 2026 contribution range by age, stacked with a 401(k) and profit sharing, tax savings, employee cost and a multi-year projection. Illustrative; an actuary sets the real number. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Commercial Lease Effective Rent Calculator — Compare Lease Offers, Net Effective Rent</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/commercial-lease-effective-rent-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/commercial-lease-effective-rent-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free commercial lease comparison calculator. Compare up to three offers on net effective rent and all-in cost per square foot after free rent, TI allowance, escalations, NNN costs and fit-out. See the cost of leaving early and the rent needed to match the best offer. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Cost Segregation Calculator — Is a Study Worth the Fee? Free</title>
@@ -278,6 +287,15 @@
     <summary type="text">Free sales commission plan comparison calculator. Enter two offers with base, target variable, threshold, accelerator, cap, signing bonus and ramp, and see pay at every quota attainment, where the plans cross, and which pays more at the attainment you expect. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Sales Seasonality Forecaster — slow months and cash cushion from your sales</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sales-seasonality-forecaster/"/>
+    <id>tag:marisstella.dev,2026:tool/sales-seasonality-forecaster</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free seasonal sales forecaster for small shops and restaurants. Paste your monthly sales to get a 12-month forecast with ranges, your slow and peak months, a back-test against last year, and the cash cushion for the slow season. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>83(b) Election Calculator — Tax With vs Without, Restricted Stock</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/section-83b-election-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/section-83b-election-calculator</id>
@@ -348,23 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free Van Westendorp price sensitivity meter. Paste survey answers for too cheap, cheap, expensive and too expensive and get the acceptable price range, the optimal price point and the indifference price, with a chart and bootstrap bands. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Veterinarian Associate Pay Calculator — Compare Two Offers</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/veterinarian-associate-pay-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/veterinarian-associate-pay-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free veterinarian associate pay calculator. Compare two offers, salary, percentage of production or base plus percentage above a threshold, at the production you expect: yearly value, real percentage after exclusions, hourly rate and where the offers cross. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>ACA Subsidy Cliff Calculator — 2026, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/aca-subsidy-cliff-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/aca-subsidy-cliff-calculator</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free 2026 ACA subsidy cliff calculator: enter household size, MAGI and your benchmark premium to see your premium tax credit, how far you are from the 400% of poverty cliff, and how much a dollar over it costs. Entirely client-side, nothing uploaded.</summary>
   </entry>
 </feed>
