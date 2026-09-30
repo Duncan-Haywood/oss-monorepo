@@ -1046,6 +1046,9 @@ workflows:
 - workflow: photos-import-tools-ci.yml
   classification: none
   publishes: []
+- workflow: physician-wrvu-compensation-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: pinned-actions-check-ci.yml
   classification: none
   publishes: []
