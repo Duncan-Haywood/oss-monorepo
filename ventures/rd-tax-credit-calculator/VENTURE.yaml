@@ -1,0 +1,67 @@
+name: rd-tax-credit-calculator
+description: >-
+  Free browser tool that estimates the federal R&D tax credit for a startup or
+  small company from pasted staff wages and time shares, supplies and
+  contractor cost, compares the regular and simplified methods, applies the
+  Section 280C cost and shows the payroll-tax offset for qualified small
+  businesses. Illustrative only; nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py scored
+# the niche at or below 0.20 against every venture (closest:
+# section-174a-catchup-calculator, a different provision: the deduction for
+# domestic research costs, not the Section 41 credit) and grep of ventures/ and
+# screened-out.md found no research-credit tool.
+# Startups and small software companies routinely leave the credit unclaimed or
+# pay a study firm a percentage of it; a founder has no free way to size it
+# before deciding. The payroll-tax offset makes it cash even with no income tax.
+# The paid alternatives (credit-study firms and fintech add-ons) sell it as a
+# sales-led service; this is the private, no-signup first estimate.
+#
+# First visitor: r/startups, r/smallbusiness, r/tax, founder Slack groups and
+# "r&d tax credit calculator" / "r&d tax credit payroll offset startup"
+# searches; volume not measured.
+#
+# Privacy is the liability boundary: wages and time shares never leave the
+# browser (tests assert no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet; a paid tier, if usage
+# appears, is a printable substantiation worksheet and saved scenarios, local
+# only; not built. No referral to study firms or preparers.
+#
+# Liability: illustrative estimate from a simplified model, not tax advice; it
+# cannot judge whether work qualifies. Assumptions are stated, not verified.
+# Unverified: hand calculation and unit tests only.
+
+hypotheses:
+  - claim: >-
+      Founders and finance leads at small software companies will use a
+      no-signup tool to size the R&D credit before talking to a study firm.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The payroll-tax offset figure is the number that gets shared with an
+      accountant or co-founder.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the estimate contradicts their preparer's figure by more than the stated assumptions explain.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/rd-tax-credit-calculator/
+  analytics: null
