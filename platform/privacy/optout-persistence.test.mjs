@@ -1091,7 +1091,8 @@ const RELATIVE_SELF = relative(
 // +1: `merchant-cash-advance-true-cost-calculator` graduated.
 // +1: `usage-based-pricing-simulator` graduated.
 // +1: `rule-72t-sepp-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 471;
+// +1: `ab-test-significance-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 472;
 
 let counter = 0;
 function fixture(source) {

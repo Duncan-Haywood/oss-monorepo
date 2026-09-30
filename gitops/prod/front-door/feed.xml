@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 492 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 493 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-09-30T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>A/B Test Significance Calculator — p-value, SRM, Bayesian and Sequential</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ab-test-significance-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/ab-test-significance-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free A/B test significance calculator. Enter visitors and conversions to get the p-value, confidence interval, sample ratio mismatch check, Bayesian chance to beat control and an always-valid result for tests you peeked at. Plans sample size too. Nothing is uploaded.</summary>
+  </entry>
   <entry>
     <title>Real Estate Brokerage Split Calculator — Compare Splits, Caps and Fees</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/agent-brokerage-split-calculator/"/>
@@ -357,14 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free credit card surcharge vs cash discount calculator for small merchants: see monthly processing cost, the surcharge that recovers it, and how many customers you can lose before each option stops paying off. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Client Profitability Time Analyzer — What Each Client Really Pays Per Hour</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/client-profitability-time-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/client-profitability-time-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free analyzer for freelancers, consultants and agencies: load a time export from Toggl, Clockify, Harvest or a spreadsheet and see each client&#39;s effective hourly rate against your target, unbilled time, flat-fee scope creep and which clients to reprice. Runs in your browser, the file is never uploaded.</summary>
   </entry>
 </feed>
