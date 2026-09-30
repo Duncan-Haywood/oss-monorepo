@@ -659,6 +659,9 @@ workflows:
 - workflow: furnace-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: gabor-granger-price-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: gambling-loss-deduction-calculator-ci.yml
   classification: none
   publishes: []
