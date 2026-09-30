@@ -305,17 +305,17 @@ Columns: overall rank, tier, composite, then the six scores (AI = ai leverage, O
 
 ### CI checks & developer gates — 87 ventures, mean 5.96
 
-#### Other browser tool (1, mean 6.00)
-
-| # | Tier | Venture | Score | AI | Ops | TtR | GM | Def | Dist | What it is |
-|---:|---|---|---:|---:|---:|---:|---:|---:|---:|---|
-| 80 | B | [`llm-usage-log-analyzer`](https://duncan-haywood.github.io/monorepo-projects/llm-usage-log-analyzer/) | 6.00 | 3 | 10 | 4 | 10 | 3 | 6 | Free browser tool that reads an LLM API usage log the developer already has (JSONL, JSON array or CSV; Anthropic-style and OpenAI-style… |
-
 #### Pricing, bid & margin calculator (1, mean 6.00)
 
 | # | Tier | Venture | Score | AI | Ops | TtR | GM | Def | Dist | What it is |
 |---:|---|---|---:|---:|---:|---:|---:|---:|---:|---|
 | 112 | B | [`actions-minutes-estimator`](https://duncan-haywood.github.io/monorepo-projects/actions-minutes-estimator/) | 6.00 | 1 | 10 | 6 | 10 | 3 | 6 | Free browser tool + zero-dependency Node CLI that reads GitHub Actions workflow YAML and projects monthly billable minutes and dollar cost… |
+
+#### Other browser tool (1, mean 6.00)
+
+| # | Tier | Venture | Score | AI | Ops | TtR | GM | Def | Dist | What it is |
+|---:|---|---|---:|---:|---:|---:|---:|---:|---:|---|
+| 80 | B | [`llm-usage-log-analyzer`](https://duncan-haywood.github.io/monorepo-projects/llm-usage-log-analyzer/) | 6.00 | 3 | 10 | 4 | 10 | 3 | 6 | Free browser tool that reads an LLM API usage log the developer already has (JSONL, JSON array or CSV; Anthropic-style and OpenAI-style… |
 
 #### Compliance & CI check (82, mean 5.97)
 
