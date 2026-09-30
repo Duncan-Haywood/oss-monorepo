@@ -719,6 +719,9 @@ workflows:
 - workflow: home-office-deduction-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: home-sale-exclusion-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: home-service-lead-roi-analyzer-ci.yml
   classification: none
   publishes: []
