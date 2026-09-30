@@ -74,6 +74,10 @@ test("links to the AI coding plan calculator and the vector DB calculator as com
   assert.match(html, /vector-db-cost-calculator\/">/);
 });
 
+test("links to the AWS commitment break-even calculator", () => {
+  assert.match(html, /aws-commitment-breakeven-calculator\/">/);
+});
+
 test("the FAQPage JSON-LD is valid and matches the visible headings", () => {
   const match = html.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?\})<\/script>/s);
   assert.ok(match, "no FAQPage schema found");
