@@ -22365,6 +22365,39 @@ ventures:
       enforced, omissions stated. Figures never leave the browser. Ethics:
       helps an owner check a tax move before paying a promoter; nothing is
       sold and no referral is made.
+  - slug: rule-72t-sepp-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on figures the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Early retirees
+      see Rule 72(t) SEPP payments under two methods, the balance needed for
+      an income target and the cost of breaking the schedule. Distribution 6:
+      "72t calculator" and SEPP threads are recurring FIRE-community queries;
+      volume not measured with an external tool. Defensibility 3: the
+      arithmetic is public; the edge is the two methods side by side with
+      penalty exposure and no signup.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on entered figures, not tax advice, no warranty,
+      independence from the IRS stated, omissions and unverified life
+      expectancy table stated, professional confirmation urged. Figures never
+      leave the browser. Ethics: helps a person check a costly rule before
+      acting; nothing is sold and no referral is made.
   - slug: sales-commission-plan-comparison-calculator
     scores:
       ai_leverage: 1
