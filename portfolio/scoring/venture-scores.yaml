@@ -21824,3 +21824,38 @@ ventures:
       no warranty, assumptions stated, CPA and engineer needed. Inputs never
       leave the browser. Ethics: helps an owner weigh a study before buying one;
       nothing is sold and no firm referral is made.
+  - slug: heat-pump-vs-furnace-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Homeowners
+      choose between a heat pump and a new furnace and AC from a contractor's
+      savings claim; the tool shows the break-even COP, payback and lifetime
+      difference on their own prices. Distribution 7: "heat pump vs gas furnace
+      cost" and "heat pump payback" are recurring queries and r/heatpumps
+      threads; volume not measured with an external tool. Defensibility 3: the
+      arithmetic is simple; the edge is a private, no-signup answer with the
+      break-even COP and cold-climate sensitivity.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimates not advice, no warranty, independence
+      from contractors, manufacturers and utilities stated, incentives are a
+      user-entered number so no incentive rule is asserted, omissions stated on
+      the page. Bills and quotes never leave the browser. Ethics: helps a
+      homeowner check a large purchase; nothing is sold and no contractor
+      referral is made.
