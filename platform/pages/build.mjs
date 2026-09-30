@@ -547,9 +547,11 @@ const CATEGORY_RULES = [
     // the owner's own job history; same reader as the trade bid calculators here, slug names no trade.
     // `project-estimate-calibrator` joined 2026-09-30: it turns a freelancer's or contractor's own estimate-versus-actual
     // history into the buffer and fixed-price risk the bid calculators here leave to a guess; slug names no trade.
+    // `quote-follow-up-timing` and `revenue-target-lead-planner` joined 2026-09-30: both read a small service business's
+    // own quote and lead history (when quotes close; how many leads a revenue target needs); slugs name no trade.
     // `home-service-lead-roi-analyzer` reads a trades owner's lead-buying log (Thumbtack, Angi, Google LSA) to
     // show which paid source books jobs; same reader as the bid calculators here, slug names no trade.
-    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|construction-evidence|shop-rate|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer)/.test(slug),
+    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|construction-evidence|shop-rate|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|quote-follow-up-timing|revenue-target-lead-planner)/.test(slug),
   },
   {
     id: 'food-service',
@@ -3400,7 +3402,7 @@ const SUBCATEGORY_RULES = {
       // margin, the same job-costing shape as `job-margin` and
       // `shop-rate` for a licensed surveyor's boundary/ALTA retracement
       // work instead of a construction trade.
-      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|project-estimate-calibrator|construction-evidence|shop-rate|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|crew-dispatch-optimizer|service-van-stock-optimizer|custom-farm-rate|land-survey|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability)/.test(slug),
+      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|project-estimate-calibrator|construction-evidence|shop-rate|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|crew-dispatch-optimizer|service-van-stock-optimizer|custom-farm-rate|land-survey|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|quote-follow-up-timing|revenue-target-lead-planner)/.test(slug),
     },
     {
       id: 'trades-cleaning',
