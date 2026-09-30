@@ -2844,7 +2844,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `insurance-agency-book-valuation-calculator` graduated (browser-local insurance book of business sell-or-keep valuation).
     # +1: `ab-test-significance-calculator` graduated (browser-local A/B test significance, SRM and sequential calculator).
     # +1: `online-business-valuation-calculator` graduated (browser-local small online business valuation).
-    total = 497  # `infra/OWNER_CHECKLIST.md`'s own "N of the 497 tools" wording.
+    # +1: `fix-and-flip-deal-analyzer` graduated (browser-local fix-and-flip max offer, profit and hard-money cost analyzer).
+    total = 498  # `infra/OWNER_CHECKLIST.md`'s own "N of the 498 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
