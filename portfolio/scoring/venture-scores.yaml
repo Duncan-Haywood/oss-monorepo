@@ -21791,3 +21791,34 @@ ventures:
       shares never leave the browser. Ethics: helps a founder weigh a credit the
       law provides before a sales call; nothing is sold and no study firm or
       preparer referral is made.
+  - slug: safe-dilution-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Score added by the following session; the original session shipped the
+      venture without a row and the scoring check went red. Full screening
+      write-up is in this venture's own VENTURE.yaml comment. Founders model
+      SAFE conversion, option pool top-up and exit waterfall privately before
+      a financing. Distribution 7: SAFE and dilution calculator queries are
+      recurring founder searches; volume not measured. Defensibility 3: the
+      arithmetic is public.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative modelling, not legal or financial advice, no
+      warranty, inputs never leave the browser. Ethics: helps a founder
+      understand dilution; nothing is sold and no investor or lawyer referral
+      is made.
