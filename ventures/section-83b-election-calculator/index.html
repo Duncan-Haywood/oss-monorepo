@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>83(b) Election Calculator — Tax With vs Without, Restricted Stock</title>
+  <meta name="description" content="Free 83(b) election calculator for founders and startup employees with vesting stock. See tax due at grant, tax at each vest date, the break-even sale value, the tax wasted if you leave early, and your 30-day deadline. Runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="83(b) Election Calculator — free, private, in your browser">
+  <meta property="og:description" content="Restricted stock with and without an 83(b) election: tax at grant, tax at vest, break-even and forfeiture risk.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "83(b) Election Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compares taxes on restricted stock with and without a Section 83(b) election: tax due at grant, tax at each vest date, break-even sale value, the tax wasted if you leave before vesting, and the 30-day filing deadline. Runs in your browser.", "featureList": "83(b) election, restricted stock vesting, tax at grant, break-even, forfeiture risk, 30-day deadline, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a Section 83(b) election?", "acceptedAnswer": {"@type": "Answer", "text": "When you receive stock that vests over time, the tax code normally taxes you as each piece vests, on its value that day. An 83(b) election lets you choose instead to be taxed on the stock's value at grant, less what you paid. Later gains are then capital gains. This tool compares the two paths with the numbers you enter."}}, {"@type": "Question", "name": "What is the 83(b) deadline?", "acceptedAnswer": {"@type": "Answer", "text": "30 days after the grant date, counted in calendar days. The deadline cannot be extended, and missing it cannot be fixed later. Mailing the election to the IRS with proof of delivery is the safe route; ask a tax professional how to file. Enter your grant date and the tool shows the date."}}, {"@type": "Question", "name": "Why do founders usually pay $0 to elect?", "acceptedAnswer": {"@type": "Answer", "text": "If you buy the shares for what they are worth at grant, there is no spread to tax. The election then costs nothing in tax and starts your capital gains holding period and fixes your basis. If the company grows, avoiding ordinary tax at each vest date is worth far more."}}, {"@type": "Question", "name": "What is the risk of electing?", "acceptedAnswer": {"@type": "Answer", "text": "You pay tax at grant on shares you might forfeit. If you leave before they vest, the tax is not refunded and the loss is limited to what you actually paid for the shares. Enter the month you might leave to see the forfeited shares and the wasted tax."}}, {"@type": "Question", "name": "Does this apply to stock options or RSUs?", "acceptedAnswer": {"@type": "Answer", "text": "No. It models restricted stock you own from grant. Standard stock options and RSUs do not qualify for an 83(b) election. An early exercise of options into unvested stock can, and this tool models that case if you enter the exercise price as the price paid."}}, {"@type": "Question", "name": "What is not modelled?", "acceptedAnswer": {"@type": "Answer", "text": "State tax, alternative minimum tax, the net investment income tax, capital loss limits, QSBS treatment, acceleration on a sale, repurchase prices other than what you paid, and company valuations. It applies flat rates you type in."}}, {"@type": "Question", "name": "Is my equity information uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .best td { background: #e3f1e6; font-weight: 600; }
+    td.hot { background: #e3f1e6; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">83(b) ELECTION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Should you file an 83(b) election on your vesting stock?</h1>
+    <p>Enter your shares, what you pay, what they are worth today and what you hope they sell for. You get the <strong>tax due at grant</strong>, the <strong>tax you would pay at each vest date instead</strong>, the <strong>break-even sale value</strong>, the <strong>tax wasted if you leave before vesting</strong>, and your <strong>30-day deadline</strong>.</p>
+    <p class="note">Nothing you type leaves this browser tab. Illustrative estimates, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your stock grant</h2>
+    <div class="grid">
+      <div><label for="shares">Shares of restricted stock</label><input type="text" id="shares" inputmode="decimal" placeholder="1000000" autocomplete="off"></div>
+      <div><label for="price">Price you pay per share, dollars</label><input type="text" id="price" inputmode="decimal" placeholder="0.0001" autocomplete="off"></div>
+      <div><label for="fmvGrant">Value per share at grant, dollars (409A or your best figure)</label><input type="text" id="fmvGrant" inputmode="decimal" placeholder="0.0001" autocomplete="off"></div>
+      <div><label for="fmvSale">Value per share when you expect to sell, dollars</label><input type="text" id="fmvSale" inputmode="decimal" placeholder="2" autocomplete="off"></div>
+      <div><label for="vestMonths">Vesting period, months (monthly vesting)</label><input type="text" id="vestMonths" inputmode="decimal" placeholder="48" autocomplete="off"></div>
+      <div><label for="saleMonths">Months from grant until you expect to sell</label><input type="text" id="saleMonths" inputmode="decimal" placeholder="84" autocomplete="off"></div>
+      <div><label for="ordRate">Your ordinary income tax rate, percent</label><input type="text" id="ordRate" inputmode="decimal" placeholder="35" autocomplete="off"></div>
+      <div><label for="cgRate">Your long-term capital gains rate, percent</label><input type="text" id="cgRate" inputmode="decimal" placeholder="20" autocomplete="off"></div>
+      <div><label for="leaveMonths">Month you might leave (optional)</label><input type="text" id="leaveMonths" inputmode="decimal" placeholder="18" autocomplete="off"></div>
+      <div><label for="grantDate">Grant date (optional)</label><input type="date" id="grantDate" autocomplete="off"></div>
+    </div>
+    <p class="note">Models restricted stock you own from grant (a founder purchase, or options exercised early into unvested stock). Standard options and RSUs do not qualify. Flat tax rates, no state tax.</p>
+  </section>
+
+  <section class="card">
+    <button type="button" id="analyze">Compare</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Fill in the grant, then click Compare.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>If the shares end up worth more or less</h3>
+    <div class="scroll"><table id="size-table"><thead><tr><th>Scenario</th><th class="n">Value per share at sale</th><th class="n">Tax with election</th><th class="n">Tax without</th><th class="n">Election saves</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>With the election: ordinary tax on (value at grant minus price paid) times the shares, due now, plus capital gains tax on the rise from the grant value to the sale value. Without it: each monthly tranche is taxed as ordinary income on its value on its vest date less the price paid, and the rise after that is a capital gain. Value is assumed to move steadily from the grant value to the sale value. Gains held more than 12 months use the long-term rate, shorter ones the ordinary rate. Losses are not credited.</p>
+    <p><strong>Not modelled:</strong> state tax, alternative minimum tax, net investment income tax, capital loss limits, QSBS treatment, acceleration on a sale, repurchase prices other than what you paid, and company valuations. <strong>Unverified:</strong> checked by hand calculation and unit tests only. Have a tax professional review your actual grant.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a Section 83(b) election?</h3>
+    <p>When you receive stock that vests over time, the tax code normally taxes you as each piece vests, on its value that day. An 83(b) election lets you choose instead to be taxed on the stock's value at grant, less what you paid. Later gains are then capital gains. This tool compares the two paths with the numbers you enter.</p>
+    <h3>What is the 83(b) deadline?</h3>
+    <p>30 days after the grant date, counted in calendar days. The deadline cannot be extended, and missing it cannot be fixed later. Mailing the election to the IRS with proof of delivery is the safe route; ask a tax professional how to file. Enter your grant date and the tool shows the date.</p>
+    <h3>Why do founders usually pay $0 to elect?</h3>
+    <p>If you buy the shares for what they are worth at grant, there is no spread to tax. The election then costs nothing in tax and starts your capital gains holding period and fixes your basis. If the company grows, avoiding ordinary tax at each vest date is worth far more.</p>
+    <h3>What is the risk of electing?</h3>
+    <p>You pay tax at grant on shares you might forfeit. If you leave before they vest, the tax is not refunded and the loss is limited to what you actually paid for the shares. Enter the month you might leave to see the forfeited shares and the wasted tax.</p>
+    <h3>Does this apply to stock options or RSUs?</h3>
+    <p>No. It models restricted stock you own from grant. Standard stock options and RSUs do not qualify for an 83(b) election. An early exercise of options into unvested stock can, and this tool models that case if you enter the exercise price as the price paid.</p>
+    <h3>What is not modelled?</h3>
+    <p>State tax, alternative minimum tax, the net investment income tax, capital loss limits, QSBS treatment, acceleration on a sale, repurchase prices other than what you paid, and company valuations. It applies flat rates you type in.</p>
+    <h3>Is my equity information uploaded anywhere?</h3>
+    <p>No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are illustrative estimates that depend on the numbers you enter; your real tax depends on your facts, your filing and the law in force. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the IRS, any law firm, incorporation service, equity management platform or company, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>election_calculated</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Weighing a whole startup offer? The <a href="../job-offer-total-comp-calculator/">job offer total comp calculator</a> covers equity and salary. Exercising options? See the <a href="../iso-exercise-amt-calculator/">ISO exercise AMT calculator</a> and the <a href="../qsbs-exclusion-calculator/">QSBS exclusion calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleInput, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    const KEYS = ["shares", "price", "fmvGrant", "fmvSale", "vestMonths", "saleMonths", "ordRate", "cgRate", "leaveMonths", "grantDate"];
+    let last = null;
+
+    function read() { return Object.fromEntries(KEYS.map((k) => [k, $("#" + k).value])); }
+    function fill(x) { KEYS.forEach((k) => { $("#" + k).value = x[k] ?? ""; }); }
+
+    function run() {
+      const a = analyze(read(), new Date());
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a;
+      const b = a.base;
+      const tiles = [[usd(b.grantTax), "Tax due at grant with the election"], [usd(b.elTotal), "Total tax with the election"], [usd(b.noTotal), "Total tax without it"], [usd(b.saving), "Election saves (negative = costs)"]];
+      if (a.deadlineDate) tiles.push([a.deadlineDate.toISOString().slice(0, 10), "Filing deadline"]);
+      $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#size-table tbody").innerHTML = a.scenarios.map((s) => `<tr class="${s.label === "The value you expect" ? "best" : ""}"><td>${esc(s.label)}</td><td class="n">$${s.saleFmv.toFixed(4).replace(/\.?0+$/, "")}</td><td class="n">${usd(s.elTotal)}</td><td class="n">${usd(s.noTotal)}</td><td class="n">${usd(s.saving)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("election_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented founder grant, not a real company."; }
+    });
+    $("#clear-all").addEventListener("click", () => { fill({}); report.hidden = true; last = null; status.textContent = "Fill in the grant, then click Compare."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "83b-election-comparison.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

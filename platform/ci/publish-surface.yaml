@@ -1688,3 +1688,6 @@ gitops:
 - workflow: veterinarian-associate-pay-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: section-83b-election-calculator-ci.yml
+  classification: none
+  publishes: []
