@@ -1097,8 +1097,9 @@ const RELATIVE_SELF = relative(
 // +1: `ab-test-significance-calculator` graduated.
 // +1: `online-business-valuation-calculator` graduated.
 // +1: `fix-and-flip-deal-analyzer` graduated.
+// +1: `aws-commitment-breakeven-calculator` graduated.
 // +1: `customer-lifetime-value-predictor` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 478;
+const SWITCHES_IN_THE_CATALOGUE = 479;
 
 let counter = 0;
 function fixture(source) {

@@ -197,6 +197,9 @@ workflows:
 - workflow: automatic-driveway-gate-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: aws-commitment-breakeven-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: backdoor-roth-pro-rata-calculator-ci.yml
   classification: none
   publishes: []

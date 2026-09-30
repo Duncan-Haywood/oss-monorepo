@@ -22728,3 +22728,36 @@ ventures:
       no lender named or ranked, omissions stated. Figures never leave the
       browser. Ethics: helps an owner see the real cost of a quote; nothing is
       sold and no referral fee is taken.
+  - slug: aws-commitment-breakeven-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on the usage and discounts the visitor enters.
+    basis: >-
+      Screened 2026-09-30; full write-up in this venture's own VENTURE.yaml
+      comment. Engineers and FinOps practitioners paste usage and discount
+      options and get the commitment level that saves most, break-even
+      utilization, upfront payback and a downside stress test. Distribution 6:
+      "savings plan vs reserved instance calculator" is a recurring query
+      (volume not measured with an external tool). Defensibility 3: the
+      arithmetic is public; the edge is modelling the visitor's own usage
+      curve with no signup. Row added by a later session after the venture
+      merged without one.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on entered figures, not financial advice, no
+      warranty, no cloud vendor endorsed, omissions stated. Usage data never
+      leaves the browser. Ethics: helps a team avoid over-committing; nothing
+      is sold and no referral is made.
