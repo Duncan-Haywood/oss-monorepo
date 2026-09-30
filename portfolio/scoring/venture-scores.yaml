@@ -22831,3 +22831,40 @@ ventures:
       a do-not-trust warning when the back-test fails. Sales files never leave
       the browser. Ethics: helps an owner see a cash gap coming and plan for
       it; nothing is sold and no referral is made.
+  - slug: price-elasticity-estimator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical estimation (log-log regression, robust standard errors and a
+      seeded bootstrap run in the browser) but no language model and no paid
+      API; the estimate, its interval and the refusal to answer on flat prices
+      are the product, not an add-on.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Sellers paste a
+      date, price, units history and get an elasticity with an interval, the
+      profit-maximising price inside the range they have tested, a price-change
+      table and a hold-out back-test. Distribution 6: "price elasticity
+      calculator" and "should I raise my prices" are recurring queries and the
+      tool is reachable from seller communities (volume not measured with an
+      external tool). Defensibility 4: log-log OLS is standard and a
+      spreadsheet can do LINEST; the edge is the private no-upload workflow,
+      the range guard and the plain refusal when the price never moved.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical estimate of supplied data, not advice, no
+      warranty, independence from vendors stated, limits stated and an
+      unidentified verdict when the data cannot support an answer. Sales files
+      never leave the browser. Ethics: helps a seller see how customers respond
+      to price before changing it; nothing is sold and no referral is made.
