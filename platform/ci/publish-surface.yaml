@@ -1637,3 +1637,6 @@ gitops:
 - workflow: job-offer-total-comp-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: tax-loss-harvesting-calculator-ci.yml
+  classification: none
+  publishes: []
