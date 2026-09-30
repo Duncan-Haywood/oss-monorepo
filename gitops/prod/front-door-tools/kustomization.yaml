@@ -33,32 +33,32 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 546264 bytes
-#   portfolio-front-tools-1: 92 files, 555012 bytes
-#   portfolio-front-tools-2: 144 files, 552771 bytes
-#   portfolio-front-tools-3: 131 files, 554895 bytes
-#   portfolio-front-tools-4: 141 files, 555114 bytes
+#   portfolio-front-tools-0: 145 files, 546252 bytes
+#   portfolio-front-tools-1: 92 files, 554997 bytes
+#   portfolio-front-tools-2: 144 files, 552769 bytes
+#   portfolio-front-tools-3: 131 files, 554898 bytes
+#   portfolio-front-tools-4: 141 files, 555115 bytes
 #   portfolio-front-tools-5: 123 files, 555170 bytes
-#   portfolio-front-tools-6: 127 files, 554444 bytes
-#   portfolio-front-tools-7: 133 files, 556263 bytes
-#   portfolio-front-tools-8: 125 files, 545956 bytes
-#   portfolio-front-tools-9: 128 files, 554416 bytes
-#   portfolio-front-tools-10: 140 files, 550623 bytes
-#   portfolio-front-tools-11: 117 files, 553726 bytes
-#   portfolio-front-tools-12: 119 files, 553267 bytes
-#   portfolio-front-tools-13: 122 files, 556780 bytes
-#   portfolio-front-tools-14: 117 files, 554115 bytes
-#   portfolio-front-tools-15: 119 files, 555510 bytes
-#   portfolio-front-tools-16: 128 files, 542025 bytes
-#   portfolio-front-tools-17: 121 files, 543381 bytes
-#   portfolio-front-tools-18: 135 files, 555983 bytes
-#   portfolio-front-tools-19: 124 files, 554348 bytes
-#   portfolio-front-tools-20: 98 files, 554705 bytes
-#   portfolio-front-tools-21: 116 files, 556386 bytes
-#   portfolio-front-tools-22: 124 files, 556978 bytes
-#   portfolio-front-tools-23: 123 files, 546616 bytes
-#   portfolio-front-tools-24: 103 files, 499821 bytes
-#   portfolio-front-tools-25: 53 files, 281707 bytes
+#   portfolio-front-tools-6: 127 files, 554443 bytes
+#   portfolio-front-tools-7: 133 files, 556264 bytes
+#   portfolio-front-tools-8: 125 files, 545930 bytes
+#   portfolio-front-tools-9: 128 files, 554423 bytes
+#   portfolio-front-tools-10: 140 files, 550627 bytes
+#   portfolio-front-tools-11: 117 files, 553836 bytes
+#   portfolio-front-tools-12: 119 files, 553295 bytes
+#   portfolio-front-tools-13: 122 files, 556809 bytes
+#   portfolio-front-tools-14: 117 files, 554089 bytes
+#   portfolio-front-tools-15: 119 files, 555498 bytes
+#   portfolio-front-tools-16: 131 files, 553998 bytes
+#   portfolio-front-tools-17: 121 files, 543295 bytes
+#   portfolio-front-tools-18: 135 files, 556011 bytes
+#   portfolio-front-tools-19: 124 files, 554187 bytes
+#   portfolio-front-tools-20: 98 files, 554770 bytes
+#   portfolio-front-tools-21: 116 files, 556441 bytes
+#   portfolio-front-tools-22: 124 files, 557054 bytes
+#   portfolio-front-tools-23: 123 files, 546581 bytes
+#   portfolio-front-tools-24: 103 files, 499867 bytes
+#   portfolio-front-tools-25: 53 files, 281779 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2269,6 +2269,9 @@ configMapGenerator:
       - oidc-trust-policy-check__usage.mjs.gz=oidc-trust-policy-check__usage.mjs.gz
       - oidc-trust-policy-check__vs-reading-the-trust-policy-by-eye.html.gz=oidc-trust-policy-check__vs-reading-the-trust-policy-by-eye.html.gz
       - oidc-trust-policy-check__vs-wiz.html.gz=oidc-trust-policy-check__vs-wiz.html.gz
+      - online-business-valuation-calculator__calc.mjs.gz=online-business-valuation-calculator__calc.mjs.gz
+      - online-business-valuation-calculator__index.html.gz=online-business-valuation-calculator__index.html.gz
+      - online-business-valuation-calculator__usage.mjs.gz=online-business-valuation-calculator__usage.mjs.gz
       - openapi-breaking-change-check__diff.mjs.gz=openapi-breaking-change-check__diff.mjs.gz
       - openapi-breaking-change-check__index.html.gz=openapi-breaking-change-check__index.html.gz
       - openapi-breaking-change-check__openapi_diff.py.gz=openapi-breaking-change-check__openapi_diff.py.gz
