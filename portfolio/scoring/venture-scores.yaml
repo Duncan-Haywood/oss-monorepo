@@ -23015,6 +23015,46 @@ ventures:
       guarantee, no platform named or ranked, omissions and unverified status
       stated. Manifests never leave the browser. Ethics: helps a reseller avoid
       overbidding; nothing is sold and no referral is made.
+  - slug: bid-win-rate-optimizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical learning (logistic regression by Newton-Raphson and a seeded
+      stratified bootstrap run in the browser) but no language model and no paid
+      API; the win curve, its ranges and the refusal to answer on flat quotes are
+      the product, not an add-on.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Contractors and
+      freelancers paste quote, won/lost and cost and get a win-probability curve
+      by markup, the markup with the highest expected profit inside the range
+      they have quoted, a price-change table and a hold-out back-test.
+      Distribution 6: "what markup should I charge" and "bid win rate" are
+      recurring trade and freelance queries, and about sixty bid calculators in
+      this catalogue are natural feeders (volume not measured with an external
+      tool). Defensibility 4: logistic regression is standard and a spreadsheet
+      can tabulate win rate by price band; the edge is the private no-upload
+      workflow, cost-normalised markup, bootstrap ranges and the plain refusal
+      when quotes never varied.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical estimate of supplied data, not advice, no warranty,
+      independence from vendors stated, limits stated and an unidentified verdict
+      when the data cannot support an answer. Bid files never leave the browser.
+      Ethics: helps a small business see how its own customers respond to price
+      before changing it; nothing is sold, no customer data is collected and no
+      referral is made.
   - slug: appointment-overbooking-optimizer
     scores:
       ai_leverage: 4

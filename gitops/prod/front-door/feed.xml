@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 508 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 509 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -69,6 +69,15 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free AWS Savings Plan and Reserved Instance calculator. Paste your hourly or daily usage and each option&#39;s discount to find the commitment that saves the most, its break-even utilization, upfront payback and what happens if usage falls. Nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Bid Win-Rate Optimizer — find the markup that earns the most from your quotes</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bid-win-rate-optimizer/"/>
+    <id>tag:marisstella.dev,2026:tool/bid-win-rate-optimizer</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free bid win-rate calculator for contractors, agencies and freelancers. Paste your past quotes (price, won or lost, cost) to see how your win chance falls as your markup rises, the markup with the highest expected profit, and a back-test that says whether to trust it. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>BRRRR Calculator — Cash Left in the Deal, Refinance Cash-Out, Max Price</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free self-employed health insurance deduction calculator. Enter net profit and premiums to see the Schedule 1 deduction after the profit ceiling, employer-plan months and long-term-care caps, and the income tax it saves. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Solar Payback Calculator — Net Metering vs Net Billing, Loan vs Cash</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/solar-payback-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/solar-payback-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free solar panel payback calculator for homeowners. Enter system cost, incentives, production and your electricity rates to see payback year, 25-year net gain, NPV and IRR, and how a lower export credit changes it. Runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
