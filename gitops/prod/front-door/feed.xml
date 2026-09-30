@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 508 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 509 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -359,12 +359,12 @@
     <summary type="text">Free self-employed health insurance deduction calculator. Enter net profit and premiums to see the Schedule 1 deduction after the profit ceiling, employer-plan months and long-term-care caps, and the income tax it saves. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
-    <title>Solar Payback Calculator — Net Metering vs Net Billing, Loan vs Cash</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/solar-payback-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/solar-payback-calculator</id>
+    <title>Shift-Cover Optimizer — the cheapest shifts that cover every hour</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/shift-cover-optimizer/"/>
+    <id>tag:marisstella.dev,2026:tool/shift-cover-optimizer</id>
     <published>2026-09-30T00:00:00Z</published>
     <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free solar panel payback calculator for homeowners. Enter system cost, incentives, production and your electricity rates to see payback year, 25-year net gain, NPV and IRR, and how a lower export credit changes it. Runs in your browser, nothing is uploaded.</summary>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free staff scheduling calculator for restaurants, cafes, salons and shops. Paste the staff or demand each open hour needs to get the cheapest set of shifts that covers every hour, what it saves against fixed 8-hour shifts, and what a minimum shift length costs. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>

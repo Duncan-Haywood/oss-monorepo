@@ -2851,7 +2851,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `clearance-markdown-planner` graduated (browser-local markdown schedule planner, price elasticity and dynamic programming).
     # +1: `bid-win-rate-optimizer` graduated (browser-local bid win-probability curve and best markup, logistic regression).
     # +1: `liquidation-pallet-bid-calculator` graduated (browser-local liquidation pallet max bid, Monte Carlo recovery simulation).
-    total = 508  # `infra/OWNER_CHECKLIST.md`'s own "N of the 508 tools" wording.
+    # +1: `shift-cover-optimizer` graduated (browser-local shift plan, exact min-cost-flow cover of hourly staffing needs).
+    total = 509  # `infra/OWNER_CHECKLIST.md`'s own "N of the 509 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
