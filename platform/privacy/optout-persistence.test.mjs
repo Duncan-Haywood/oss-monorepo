@@ -1109,7 +1109,7 @@ const RELATIVE_SELF = relative(
 // +1: `seasonal-buy-quantity-optimizer` graduated.
 // +1: `appointment-overbooking-optimizer` graduated.
 // +1: `shift-cover-optimizer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 491;
+const SWITCHES_IN_THE_CATALOGUE = 492;
 
 let counter = 0;
 function fixture(source) {
