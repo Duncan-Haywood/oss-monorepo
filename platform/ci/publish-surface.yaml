@@ -89,6 +89,9 @@ workflows:
 - workflow: actions-transitive-pin-check-ci.yml
   classification: none
   publishes: []
+- workflow: ad-incrementality-test-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: ad-spend-saturation-optimizer-ci.yml
   classification: none
   publishes: []
@@ -879,6 +882,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: link-contrast-ci.yml
+  classification: none
+  publishes: []
+- workflow: liquidation-pallet-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: llm-api-pricing-calculator-ci.yml

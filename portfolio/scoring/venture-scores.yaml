@@ -22831,6 +22831,43 @@ ventures:
       a do-not-trust warning when the back-test fails. Sales files never leave
       the browser. Ethics: helps an owner see a cash gap coming and plan for
       it; nothing is sold and no referral is made.
+  - slug: ad-incrementality-test-analyzer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Causal-inference statistics (non-negative weighted counterfactual and
+      rolling placebo windows run in the browser) but no language model and no
+      paid API; the lift, its placebo interval and the refusal to call an
+      unreliable comparison are the product, not an add-on.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Advertisers
+      paste sales by region from a geo holdout test and get the incremental
+      lift, an interval, iROAS and profit after spend. Distribution 6:
+      "geo holdout test calculator" and "incremental ROAS" are recurring
+      practitioner queries (volume not measured with an external tool).
+      Defensibility 4: synthetic control is published method and GeoLift and
+      CausalImpact exist for R users; the edge is the private no-upload browser
+      workflow and the plain refusal when comparison regions do not track.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical estimate of supplied data, not advice, no
+      warranty, independence from vendors stated, limits stated and
+      unclear/unreliable verdicts when the data cannot support a conclusion.
+      Sales files never leave the browser. Ethics: helps an advertiser see
+      whether spend caused sales before scaling it; nothing is sold and no
+      referral is made.
   - slug: ad-spend-saturation-optimizer
     scores:
       ai_leverage: 4
@@ -22945,3 +22982,36 @@ ventures:
       unidentified verdict when the data cannot support an answer. Sales files
       never leave the browser. Ethics: helps a seller see how customers respond
       to price before changing it; nothing is sold and no referral is made.
+  - slug: liquidation-pallet-bid-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical simulation (seeded Monte Carlo in the browser) but no language
+      model and no paid API; the simulation is the product, not an add-on.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Resellers who
+      buy liquidation pallets paste a manifest and get a max bid for a chance of
+      loss they accept, probability of profit, break-even recovery and
+      concentration risk. Distribution 6: "liquidation pallet calculator" and
+      "how much to bid on a pallet" are recurring queries and reseller
+      communities are reachable (volume not measured with an external tool).
+      Defensibility 4: the arithmetic is simple; the edge is the private,
+      no-upload manifest workflow and treating the bid as a risk decision.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: estimate from user-supplied assumptions, not advice or a
+      guarantee, no platform named or ranked, omissions and unverified status
+      stated. Manifests never leave the browser. Ethics: helps a reseller avoid
+      overbidding; nothing is sold and no referral is made.
