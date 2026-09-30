@@ -21212,6 +21212,42 @@ ventures:
       the page, and the page says exercising cannot be undone. Income and option
       details never leave the browser. Ethics: helps an employee size a decision
       they must make anyway; nothing is sold and no advisor referral is made.
+  - slug: espp-tax-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. ESPP
+      participants decide sell-now versus hold every purchase date and routinely
+      overpay by entering the 1099-B basis unadjusted; the breakeven price for
+      waiting is a search over qualifying and disqualifying tax treatment that
+      generic explainers do not compute. Distribution 7: "ESPP sell immediately
+      or hold" and "ESPP cost basis wrong on 1099-B" are recurring queries on
+      r/personalfinance, Bogleheads and Blind; volume not measured with an
+      external tool. Defensibility 3: the rules are public; the edge is a
+      private, no-signup breakeven with the basis fix sized in dollars.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimates not advice, no warranty, independence
+      from the IRS, employers and brokers stated, omissions stated on the page,
+      and the page says selling or holding cannot be undone. Prices, shares and
+      rates never leave the browser. Ethics: helps an employee decide a choice
+      they must make every purchase date; nothing is sold and no advisor
+      referral is made.
   - slug: print-on-demand-profit-calculator
     scores:
       ai_leverage: 1

@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 462 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 463 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
-  <updated>2026-09-29T00:00:00Z</updated>
+  <updated>2026-09-30T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>ESPP Tax Calculator — Sell Now or Hold? Qualifying vs Disqualifying</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/espp-tax-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/espp-tax-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free ESPP tax calculator. Enter your offering and purchase prices, discount and lookback to see the after-tax profit of selling at purchase, after a year, or at a qualifying date, and the price where waiting stops paying. Runs in your browser, nothing is uploaded.</summary>
+  </entry>
   <entry>
     <title>ACA Subsidy Cliff Calculator — 2026, Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/aca-subsidy-cliff-calculator/"/>
@@ -357,14 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free analyzer for Patreon creators: drop in your Members export CSV and see active, declined and former patrons, MRR by tier, churn by tenure cohort, at-risk declined payments, concentration and the fee take. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Poshmark Sales Report Analyzer — Profit per Item and Brand After Fees</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/poshmark-sales-report-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/poshmark-sales-report-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free analyzer for Poshmark sellers: load your My Sales Report CSV and see profit per item, brand and month after Poshmark&#39;s $2.95 / 20% fee, with effective fee rate, cost basis by SKU, shipping losses, days to sell and brands to stop sourcing. Runs in your browser, the file is never uploaded.</summary>
   </entry>
 </feed>
