@@ -1,0 +1,65 @@
+name: route-stop-optimizer
+description: >-
+  Free browser tool for mobile service businesses, couriers, inspectors and
+  sales reps: paste a day's stops as latitude/longitude with service minutes and
+  customer time windows and get the drive-time-minimising order (exact up to 12
+  stops, 2-opt/Or-opt beyond), split across up to 20 drivers. Shows arrival
+  times, what it saves against your current order in miles, hours, fuel and
+  labor (per day and per year), and what the customer windows cost. Exports CSV
+  and opens the route in Google Maps. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "delivery route stop order optimizer small business traveling salesman":
+# closest is propane-delivery-route-margin at 0.23, far below the bar; that one
+# prices a fixed propane route, this one orders arbitrary stops.
+# Alternatives are paid route planners (Circuit, Routific, Route4Me, OptimoRoute)
+# and Google Maps' hand-ordered multi-stop directions (manual, nine waypoints);
+# the wedge is free, private, no signup, time windows, multi-driver split, and a
+# savings figure in dollars rather than a map.
+#
+# First visitor: searches "route optimizer free multiple stops", "best order to
+# visit stops", "route planner time windows free", "delivery route planner
+# excel"; r/smallbusiness, r/Plumbing, r/HVAC, r/deliverydrivers, mobile
+# groomer, locksmith, home-inspector and mobile-notary groups. Volume not
+# measured with an external tool. Feeds the many trade bid calculators already
+# in the portfolio (same reader: a person who drives to several jobs a day).
+#
+# Privacy is the liability boundary: stops never leave the browser (tests assert
+# no network calls; the Maps link is a user-clicked anchor and sends nothing
+# until clicked). No vendor is ranked.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be saved customer lists, road-network distances and
+# recurring-route planning; not built.
+# Liability: plans an order; does not give driving directions or assert arrival
+# times. Straight-line x factor estimate, says so. Unverified against real
+# routes: tested against brute force and invented data only.
+
+hypotheses:
+  - claim: >-
+      Owners and dispatchers who order stops by hand will use a private,
+      no-signup tool that reorders a day's stops, honours customer windows and
+      shows the dollars saved, and will come back each day or week.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports an order worse than their own on the same coordinates under the stated travel model, or a window violation the page did not flag.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/route-stop-optimizer/
+  analytics: null

@@ -48712,3 +48712,22 @@ entries:
         counts; inbound link from restaurant-labor-cost-daypart-analyzer;
         regenerated the mirror.
     mrr_end: 0
+  - venture: route-stop-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built route-stop-optimizer: a browser-local route
+        sequencer for mobile trades, couriers, inspectors and reps. Paste stops
+        as lat/lng with service minutes and customer time windows; finds the
+        drive-time-minimising order (exact Held-Karp with windows up to 12
+        stops, multi-start 2-opt/Or-opt beyond), splits stops across up to 20
+        drivers, and reports arrival times, the saving against the pasted order
+        in miles, hours, fuel and labor per day and per year, and what the
+        windows cost. Exports CSV and Google Maps links. New niche:
+        duplicate_check.py best match propane-delivery-route-margin at 0.23
+        (that one prices a fixed propane route). Stops never leave the browser.
+        Unverified against real routes: tests compare the solver with brute
+        force on random problems and assert no network calls. Registered score
+        row, launch date, category rule, CI workflow and tree counts.
+    mrr_end: 0

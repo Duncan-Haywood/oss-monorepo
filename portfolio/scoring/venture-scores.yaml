@@ -23094,6 +23094,40 @@ ventures:
       Ethics: only daily counts are used, never patient names; the cost of a
       patient who cannot be fitted is an explicit input so the trade-off is
       visible rather than hidden.
+  - slug: route-stop-optimizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Operations research (an exact Held-Karp solver with time windows plus 2-opt
+      and Or-opt for larger days, run in the browser) but no language model and
+      no paid API; the ordering and the dollar saving are the product.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Anyone who drives
+      to several stops a day (mobile trades, couriers, inspectors, reps) pastes
+      coordinates and gets the order, arrival times and the per-day and per-year
+      saving. Distribution 6: "route optimizer free multiple stops" is a
+      recurring query and the many trade bid tools in this catalogue feed it
+      (volume not measured with an external tool). Defensibility 4: paid route
+      planners exist and Google Maps orders stops by hand; the edge is free,
+      private, windows and a dollar figure.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: orders stops on a straight-line estimate, gives no directions,
+      no warranty, limits stated; stops never leave the browser. Ethics: helps a
+      small operator cut drive time; nothing is sold and no customer data is
+      collected.
   - slug: shift-cover-optimizer
     scores:
       ai_leverage: 4

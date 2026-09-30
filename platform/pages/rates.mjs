@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'route-stop-optimizer':
+    'wage and fuel cost are the running cost of a driver on a route being sequenced, not a rate used to price a job; nothing is quoted to a customer',
   'shift-cover-optimizer':
     'wage and burden are the payroll cost of shifts on a staffing plan, not a rate used to price a job; there is no overhead or margin and nothing is quoted to a customer',
   'restaurant-labor-cost-daypart-analyzer':
