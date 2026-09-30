@@ -1304,6 +1304,9 @@ workflows:
 - workflow: sales-commission-plan-comparison-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: sales-seasonality-forecaster-ci.yml
+  classification: none
+  publishes: []
 - workflow: salt-cap-calculator-ci.yml
   classification: none
   publishes: []

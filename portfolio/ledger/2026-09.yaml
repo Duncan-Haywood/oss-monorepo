@@ -48460,3 +48460,28 @@ entries:
         Also added the missing score row for merchant-cash-advance-true-cost-calculator,
         which had left `score_ventures.py --check` red on main.
     mrr_end: 0
+  - venture: sales-seasonality-forecaster
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built sales-seasonality-forecaster: a browser-local seasonal
+        sales forecaster for small shops, restaurants and seasonal businesses.
+        Paste or upload date,amount rows (daily, weekly or monthly; dates in
+        ISO, slash and month-name forms, refunds netted, gap months filled with
+        zero and warned about, under 24 months rejected); Holt-Winters additive
+        and multiplicative, damped and undamped, is fitted by Nelder-Mead and
+        chosen by hold-out MASE; 6 to 12 month forecast with 80% and 95%
+        prediction intervals, seasonal index by month, a rolling-origin
+        back-test against same-month-last-year (MASE and MAPE) that says "do not
+        trust" when the model does not beat it, a slow-season cash cushion
+        against a monthly fixed cost, and a forecast CSV. New niche:
+        duplicate_check.py found no match. First visitor expected from "seasonal
+        sales forecast", "slow season cash flow" and Holt-Winters searches and
+        small-business communities. Sales files never leave the browser.
+        Unverified against a published dataset: tests use simulated series with
+        known answers, interval coverage (about 80% for the 80% band across 60
+        simulated shops) and no-network assertions. Registered score row, launch
+        date, category rule, CI workflow and tree counts; inbound link from
+        cash-runway-planner; regenerated the mirror.
+    mrr_end: 0
