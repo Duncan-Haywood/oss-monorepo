@@ -884,6 +884,9 @@ workflows:
 - workflow: link-contrast-ci.yml
   classification: none
   publishes: []
+- workflow: liquidation-pallet-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: llm-api-pricing-calculator-ci.yml
   classification: none
   publishes: []

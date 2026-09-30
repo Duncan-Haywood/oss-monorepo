@@ -22945,6 +22945,39 @@ ventures:
       unidentified verdict when the data cannot support an answer. Sales files
       never leave the browser. Ethics: helps a seller see how customers respond
       to price before changing it; nothing is sold and no referral is made.
+  - slug: liquidation-pallet-bid-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical simulation (seeded Monte Carlo in the browser) but no language
+      model and no paid API; the simulation is the product, not an add-on.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Resellers who
+      buy liquidation pallets paste a manifest and get a max bid for a chance of
+      loss they accept, probability of profit, break-even recovery and
+      concentration risk. Distribution 6: "liquidation pallet calculator" and
+      "how much to bid on a pallet" are recurring queries and reseller
+      communities are reachable (volume not measured with an external tool).
+      Defensibility 4: the arithmetic is simple; the edge is the private,
+      no-upload manifest workflow and treating the bid as a risk decision.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: estimate from user-supplied assumptions, not advice or a
+      guarantee, no platform named or ranked, omissions and unverified status
+      stated. Manifests never leave the browser. Ethics: helps a reseller avoid
+      overbidding; nothing is sold and no referral is made.
   - slug: bid-win-rate-optimizer
     scores:
       ai_leverage: 4

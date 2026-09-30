@@ -407,6 +407,10 @@ const CATEGORY_RULES = [
     // one storefront — and would otherwise sit in the catch-all for the same
     // reason those two did: the slug names the storefront, not a marketplace
     // keyword this rule already recognised.
+    // `liquidation-pallet-bid-calculator` is `storage-auction-max-bid-calculator`'s
+    // manifest-driven sibling: an auction hammer plus buyer's premium for goods
+    // the winner resells, so it files with the marketplace tools, not with the
+    // trades section its `bid-calculator` suffix would otherwise sweep it into.
     // `storage-auction-max-bid-calculator` is `whatnot-seller-payout`'s buy
     // side rather than its sell side: a hammer bid plus a buyer's premium
     // (the auction-house equivalent of processing on checkout), for contents
@@ -484,7 +488,7 @@ const CATEGORY_RULES = [
     // stock on someone else's storefront is this section's reader; it would
     // otherwise sit in the catch-all, and it is reciprocally linked from
     // `shopify-inventory-reorder-planner`.
-    test: (slug) => /^(amazon|fba-|clearance-markdown|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace)/.test(slug),
+    test: (slug) => /^(amazon|fba-|clearance-markdown|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|liquidation-pallet|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace)/.test(slug),
   },
   {
     id: 'trades',
