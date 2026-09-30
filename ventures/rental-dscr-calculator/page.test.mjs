@@ -100,3 +100,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("LICENSE"), /MIT License/);
   assert.match(page("VENTURE.yaml"), /^name: rental-dscr-calculator$/m);
 });
+
+test("footer links to the BRRRR calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/brrrr-calculator\/"/);
+});
