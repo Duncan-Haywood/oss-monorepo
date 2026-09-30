@@ -22331,6 +22331,40 @@ ventures:
       prediction claimed, stated-intent overstatement disclosed, omissions stated. Responses never leave the browser.
       Ethics: helps a founder choose a test price; nothing is sold and no
       referral is made.
+  - slug: ab-test-significance-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      statistics on four numbers the visitor types, plus seeded simulation.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Growth teams,
+      product managers and marketers who ran an A/B test get significance, a
+      sample ratio mismatch check, a Bayesian and an always-valid result and a
+      sample size planner. Distribution 7: "ab test significance calculator"
+      and "ab test sample size calculator" are high-volume recurring queries
+      (volume not measured with an external tool). Defensibility 3: the
+      statistics are public; the edge is the SRM check, peeking-safe results
+      and no signup or upload.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical analysis of supplied numbers, not advice, no
+      warranty, independence from experimentation vendors stated, scope limits
+      stated (two variants, conversion metrics). Numbers never leave the
+      browser. Ethics: helps a team avoid shipping a false winner; nothing is
+      sold and no referral is made.
   - slug: augusta-rule-calculator
     scores:
       ai_leverage: 1

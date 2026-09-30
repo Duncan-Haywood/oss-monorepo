@@ -2842,7 +2842,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `locum-tenens-vs-employed-calculator` graduated (browser-local locum tenens 1099 vs employed W-2 comparison with break-even rate).
     # +1: `startup-exit-waterfall-calculator` graduated (browser-local exit waterfall with liquidation preferences, participation caps and seniority).
     # +1: `insurance-agency-book-valuation-calculator` graduated (browser-local insurance book of business sell-or-keep valuation).
-    total = 495  # `infra/OWNER_CHECKLIST.md`'s own "N of the 495 tools" wording.
+    # +1: `ab-test-significance-calculator` graduated (browser-local A/B test significance, SRM and sequential calculator).
+    total = 496  # `infra/OWNER_CHECKLIST.md`'s own "N of the 496 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
