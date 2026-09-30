@@ -295,6 +295,7 @@ test('the stylesheet marks without reflowing, and never prints', () => {
 test('every venture that promises a highlight is covered by the gate', async () => {
   const slugs = await fs.readdir(VENTURES, { withFileTypes: true });
   const promisers = [];
+  let read = 0;
   for (const entry of slugs) {
     if (!entry.isDirectory()) continue;
     const file = path.join(VENTURES, entry.name, 'index.html');
@@ -304,12 +305,19 @@ test('every venture that promises a highlight is covered by the gate', async () 
     } catch {
       continue;
     }
+    read += 1;
     if (pagePromisesHighlight(html)) promisers.push(entry.name);
   }
   // The promise is a copied line, so the count moves as calculators land. What
-  // must hold is that the family is large and that the gate accepts all of it.
-  assert.ok(promisers.length >= 100, `only ${promisers.length} pages promise a highlight`);
-  for (const slug of promisers.slice(0, 5)) {
+  // must hold is that the gate accepts all of the family.
+  //
+  // 2026-09-30: the calculators that made this family large (>=100 pages)
+  // moved to the public fp-monorepo repository, where that floor is still
+  // checked; 1 page here still promises a highlight. The floor is now on the
+  // walk, so a broken path cannot pass for free, and every promiser is checked
+  // rather than a sample of five.
+  assert.ok(read > 150, `expected the catalogue's entry pages, read ${read}`);
+  for (const slug of promisers) {
     const html = await fs.readFile(path.join(VENTURES, slug, 'index.html'), 'utf8');
     assert.notEqual(injectInvalidField(html), html, `${slug} would not receive the runtime`);
   }

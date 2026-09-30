@@ -72,9 +72,10 @@ test("page says the column aliases are unverified and the default cost is a plac
 });
 
 test("page links to the sibling restaurant tools, and the menu engineering calculator links back", () => {
-  for (const slug of ["menu-engineering-calculator", "restaurant-pos-menu-mix-analyzer", "pour-cost-calculator"]) assert.match(page("index.html"), new RegExp(`href="\.\./${slug}/"`));
-  const other = readFileSync(new URL("../menu-engineering-calculator/index.html", import.meta.url), "utf8");
-  assert.match(other, /href="\.\.\/restaurant-labor-cost-daypart-analyzer\/"/);
+  assert.match(page("index.html"), /href="\.\.\/restaurant-pos-menu-mix-analyzer\/"/);
+  for (const slug of ["menu-engineering-calculator", "pour-cost-calculator"]) assert.ok(page("index.html").includes(`href="https://duncan-haywood.github.io/fp-monorepo/${slug}/"`), slug);
+  // menu-engineering-calculator now lives in the public fp-monorepo repository; its link
+  // back is checked there.
 });
 
 test("the sample-data button and the CSV download are wired", () => {

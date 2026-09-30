@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://example.invalid/wildlife-exclusion-bid-calculator/sitemap.xml

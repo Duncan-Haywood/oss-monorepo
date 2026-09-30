@@ -52,7 +52,7 @@ test("page states it is independent of the platforms and links to the delivery a
   const html = page("index.html");
   assert.match(html, /Not affiliated with any delivery platform/);
   assert.match(html, /not sponsored, endorsed or connected to DoorDash, Inc\., Uber Technologies, Inc\., Grubhub/);
-  assert.match(html, /\.\.\/delivery-app-margin-calculator\//);
+  assert.match(html, /https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/delivery-app-margin-calculator\//);
 });
 
 test("page carries the not-accounting-advice line and the promo best-case caveat", () => {

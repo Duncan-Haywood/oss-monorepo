@@ -115,11 +115,16 @@ test('the recorded override is what keeps the live collision out of the red', as
   // The honest version of the test above against the real tree: this venture
   // does carry two generic-method pages, and only its override row makes the
   // check exit 0. Fails if either the pages or the row quietly change.
-  const pages = (await surfacesByVenture()).get('overtime-pay-calculator');
-  assert.ok(pages, 'overtime-pay-calculator should still be a published venture');
+  //
+  // This was `overtime-pay-calculator`, the case that prompted the check, until
+  // 2026-09-30, when it moved with every other calculator to the public
+  // fp-monorepo repository. `fleet-repair-or-replace-planner` is the one
+  // override whose venture stayed, and it is the same collision shape.
+  const pages = (await surfacesByVenture()).get('fleet-repair-or-replace-planner');
+  assert.ok(pages, 'fleet-repair-or-replace-planner should still be a published venture');
   assert.equal(pages.filter((p) => p.generic).length, 2);
-  assert.equal(budgetFor('overtime-pay-calculator'), 2);
-  assert.ok(GENERIC_BUDGET_OVERRIDES['overtime-pay-calculator']);
+  assert.equal(budgetFor('fleet-repair-or-replace-planner'), 2);
+  assert.ok(GENERIC_BUDGET_OVERRIDES['fleet-repair-or-replace-planner']);
 });
 
 test('guide pages are counted and printed but never budgeted', async () => {

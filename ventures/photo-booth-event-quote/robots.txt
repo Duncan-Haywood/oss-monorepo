@@ -1,3 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://example.invalid/photo-booth-event-quote/sitemap.xml

@@ -1,3 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://example.invalid/dog-boarding-daycare-pricing/sitemap.xml

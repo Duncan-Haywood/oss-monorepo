@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://example.invalid/owner-operator-cpm-calculator/sitemap.xml

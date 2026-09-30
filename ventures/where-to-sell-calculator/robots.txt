@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://example.invalid/where-to-sell-calculator/sitemap.xml

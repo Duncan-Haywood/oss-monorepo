@@ -71,6 +71,7 @@ function pagesOf(dir) {
 test('every generated table-row input carries an accessible name', () => {
   const offenders = [];
   let checked = 0;
+  let pagesRead = 0;
 
   for (const slug of readdirSync(VENTURES, { withFileTypes: true })) {
     if (!slug.isDirectory()) continue;
@@ -79,6 +80,7 @@ test('every generated table-row input carries an accessible name', () => {
 
     for (const page of pagesOf(dir)) {
       const html = readFileSync(page, 'utf8');
+      pagesRead++;
       for (const [tag] of [...html.matchAll(ROW_INPUT)].map((m) => [m[0]])) {
         checked++;
         if (!NAMED.test(tag)) offenders.push(`${page}: ${tag.slice(0, 120)}`);
@@ -86,14 +88,17 @@ test('every generated table-row input carries an accessible name', () => {
     }
   }
 
-  // Guard the guard: if the row pattern is ever renamed, this test would pass
-  // by checking nothing at all, which is the failure mode CLAUDE.md keeps
-  // recording. Assert it still found the rows it was written for.
-  assert.ok(
-    checked >= 24,
-    `expected at least the 24 known route-table inputs, scanned ${checked}. ` +
-      'If the data-row pattern was renamed, update ROW_INPUT — do not delete this.',
-  );
+  // Guard the guard: this test must never pass by reading nothing at all,
+  // which is the failure mode CLAUDE.md keeps recording.
+  //
+  // 2026-09-30: the three route tools this was written for moved, with every
+  // other calculator, to the public fp-monorepo repository, where the
+  // 24-input floor is still checked. No venture left here ships a `data-row`
+  // table, so `checked` is legitimately 0 and a floor on it would be a floor
+  // on a pattern this repo no longer has. What stays is the scan itself -- a
+  // venture copying the route-table pattern here still fails below -- and a
+  // floor on the pages it read, so a broken path cannot pass for free.
+  assert.ok(pagesRead > 150, `expected the catalogue's pages, read ${pagesRead} (row inputs: ${checked})`);
 
   assert.deepEqual(
     offenders,

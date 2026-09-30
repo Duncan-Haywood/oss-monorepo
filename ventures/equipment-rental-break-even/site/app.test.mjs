@@ -26,8 +26,8 @@ test("landing page exposes searchable product, safety copy, and local app", () =
 test("index links one hop to the music-lesson-break-even sibling", () => {
   assert.match(
     html,
-    /href="\.\.\/music-lesson-break-even\/"/,
-    "index must link ../music-lesson-break-even/ so crawlers reach the music lesson calculator in one hop",
+    /href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/music-lesson-break-even\/"/,
+    "index must link https://duncan-haywood.github.io/fp-monorepo/music-lesson-break-even/ so crawlers reach the music lesson calculator in one hop",
   );
 });
 // Closest equipment sibling: same ownership-cost decision for an independent
@@ -37,8 +37,8 @@ test("index links one hop to the music-lesson-break-even sibling", () => {
 test("index links one hop to the equipment-lease-buyout-calculator sibling", () => {
   assert.match(
     html,
-    /href="\.\.\/equipment-lease-buyout-calculator\/"/,
-    "index must link ../equipment-lease-buyout-calculator/ so crawlers reach the lease buyout calculator in one hop",
+    /href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/equipment-lease-buyout-calculator\/"/,
+    "index must link https://duncan-haywood.github.io/fp-monorepo/equipment-lease-buyout-calculator/ so crawlers reach the lease buyout calculator in one hop",
   );
   assert.match(html, /equipment lease buyout calculator/i);
 });
@@ -49,8 +49,8 @@ test("index links one hop to the equipment-lease-buyout-calculator sibling", () 
 test("index links one hop to the vendor-rate-break-even sibling", () => {
   assert.match(
     html,
-    /href="\.\.\/vendor-rate-break-even\/"/,
-    "index must link ../vendor-rate-break-even/ so crawlers reach the vendor rate calculator in one hop",
+    /href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/vendor-rate-break-even\/"/,
+    "index must link https://duncan-haywood.github.io/fp-monorepo/vendor-rate-break-even/ so crawlers reach the vendor rate calculator in one hop",
   );
   assert.match(html, /vendor rate break-even calculator/i);
 });

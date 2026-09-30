@@ -750,7 +750,7 @@ test('buildMirror refuses a set whose links leave the mirror', async () => {
   // The guard rather than the happy path: a venture that grows a `../` link to
   // a sibling has to fail the build, not ship a 404.
   await assert.rejects(
-    () => buildMirror({ set: [{ slug: 'where-to-sell-calculator', why: 'links to three siblings' }] }),
+    () => buildMirror({ set: [{ slug: '1099-vendor-tracker', why: 'links to sibling tools outside this one-tool set' }] }),
     /dead links/,
   );
 });
@@ -1111,27 +1111,6 @@ test('a style body is blanked too', () => {
   assert.ok(!blanked.includes('../gone/x.png'));
 });
 
-test('marketplace-fee-compare is served by the mirror', async () => {
-  // The tool the fix above buys. Its seven `deepTool` links are what made
-  // admitting it correct rather than merely quieter, so assert those resolve
-  // in the mirror too — that is the property that would make serving the page
-  // a disservice if it broke.
-  const { files } = await buildMirror();
-  const present = new Set(files.map((f) => `${f.slug}/${f.file}`));
-  assert.ok(present.has('marketplace-fee-compare/index.html'));
-  for (const slug of [
-    'ebay-fee-calculator',
-    'etsy-profit-calculator',
-    'amazon-fba-calculator',
-    'walmart-marketplace-calculator',
-    'tiktok-shop-fee-calculator',
-    'shopify-fee-calculator',
-    'faire-wholesale-calculator',
-  ]) {
-    assert.ok(present.has(`${slug}/index.html`), `${slug} is linked at runtime but not mirrored`);
-  }
-});
-
 test('every mirrored page carries a way back to the front door', async () => {
   // The defect this guards: before the return link, a mirrored page's only
   // links were its own siblings, its LICENSE, and a canonical to a host that
@@ -1352,18 +1331,10 @@ test('the sibling block states its own layout rather than inheriting a venture�
       `.${selector} does not state a display, so a venture's bare element rule decides it`,
     );
   }
-  // And the hazard is still live in the mirror — if it ever stops being, this
-  // assertion is what says the guard above may be reconsidered rather than
-  // quietly kept forever.
-  const risky = [];
-  for (const { slug } of STARTER_SET) {
-    for (const file of await ventureFiles(slug)) {
-      if (file !== 'index.html') continue;
-      const raw = await fs.readFile(path.join(REPO_ROOT, 'ventures', slug, file), 'utf8');
-      if (/(?:^|[;{}>\s])(?:nav|ul|p)\s*\{[^}]*display\s*:/.test(raw)) risky.push(slug);
-    }
-  }
-  assert.ok(risky.length > 0, 'no venture styles a bare nav/ul/p display any more');
+  // 2026-09-30: the three mirrored ventures that set `display` on a bare
+  // element were calculators and moved to the public fp-monorepo repository,
+  // so no mirrored page carries the hazard today. The guard above stays: it
+  // costs nothing and the next venture to style a bare `nav` would need it.
 });
 
 test('the sibling block is hidden when a venture page is printed or embedded', () => {

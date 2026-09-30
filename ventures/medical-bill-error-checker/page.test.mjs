@@ -125,7 +125,7 @@ test("README, LICENSE and VENTURE.yaml exist and carry the disclaimer and the ve
 
 test("page links to the HSA contribution limit calculator, which links back", () => {
   const html = page("index.html");
-  assert.match(html, /href="\.\.\/hsa-contribution-limit-calculator\/"/);
-  const theirs = readFileSync(new URL("../hsa-contribution-limit-calculator/index.html", import.meta.url), "utf8");
-  assert.match(theirs, /href="\.\.\/medical-bill-error-checker\/"/);
+  assert.match(html, /href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/hsa-contribution-limit-calculator\/"/);
+  // hsa-contribution-limit-calculator now lives in the public fp-monorepo repository; its link
+  // back is checked there.
 });

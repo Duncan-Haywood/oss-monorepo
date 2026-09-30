@@ -216,81 +216,12 @@ const EXCLUDED_SLUGS = new Set([
  * away a result a query already found.
  */
 export const SEARCH_ALIASES = [
-  { slug: 'pressure-washing', add: 'power washing powerwashing soft wash softwash' },
-  { slug: 'window-cleaning', add: 'window washing washer squeegee' },
-  { slug: 'junk-removal', add: 'hauling haul away cleanout clean out debris' },
-  { slug: 'snow-removal', add: 'plowing plow shoveling shovel deicing' },
-  // "removal" earns its place: the matcher ANDs across words, so "wildlife
-  // removal" found nothing while "wildlife" alone found this tool.
-  { slug: 'pest-control', add: 'termite termites bedbug bed bugs roaches ants exterminator wildlife removal trapping' },
-  { slug: 'gutter-cleaning', add: 'downspout leaves' },
-  // Both tools price cooling work; neither says "air conditioning" outright.
-  { slug: 'mini-split', add: 'air conditioning conditioner cooling ductless' },
-  { slug: 'hvac-maintenance', add: 'air conditioning conditioner cooling heating furnace' },
-  // A whole-room search is how people shop for these, and no single tool
-  // carries both words, so the matcher's AND across words found nothing.
-  { slug: 'kitchen-tile-backsplash', add: 'kitchen remodel renovation' },
-  { slug: 'countertop', add: 'kitchen remodel renovation' },
-  { slug: 'cabinet-refinishing', add: 'kitchen remodel renovation' },
-  { slug: 'walk-in-shower', add: 'bathroom remodel renovation' },
-  { slug: 'walk-in-tub', add: 'bathroom remodel renovation' },
-  { slug: 'toilet-replacement', add: 'bathroom remodel renovation' },
-  { slug: 'basement-finishing', add: 'basement remodel renovation' },
-  // The trade writes "security camera"; the customer, the search engine, and
-  // half the installers write "CCTV". `nvr`/`dvr` are the head end this tool
-  // actually prices, and "low voltage" is the trade that bids the work.
-  // Deliberately NOT here: alarm, access control, structured cabling. An alias
-  // only widens, so a word this tool does not price would put it in front of
-  // someone pricing a different job — reach bought with a wrong answer.
-  { slug: 'security-camera', add: 'cctv surveillance nvr dvr ip camera poe low voltage lowvoltage' },
-  // The roof this tool prices is the one nobody calls "a reroof" when they
-  // search for it. Its own copy says "reroof", "squares", "pitch" and
-  // "tear-off" — every word of the trade's vocabulary and none of the
-  // material's, so "shingle", the single most obvious query a homeowner or a
-  // roofer types, returned nothing at all. Not added to the flat-roof or
-  // metal-roof calculators: those price membrane and panel, and a shingle
-  // query reaching them is the wrong answer rather than a wider one.
-  { slug: 'roofing', add: 'shingle shingles asphalt architectural laminate three tab dimensional' },
-  // "Sod" is the trade word for what the customer calls grass. The lawn-care
-  // route tool is the recurring-service half of the same query.
-  { slug: 'sod-install', add: 'grass turfgrass' },
-  { slug: 'lawn-care', add: 'grass mowing mow mower cutting' },
-  // Priced by the yard and the landfill ticket, sold to the customer as a
-  // dumpster or a truckload.
-  { slug: 'junk-removal', add: 'dumpster truckload truck load' },
-  // "AC" is how this equipment is asked for everywhere except its own spec
-  // sheet. Both tools already answer "air conditioning" through the alias
-  // above; neither answered the two letters people actually type. "unit" rides
-  // along because the query is nearly always "ac unit", and the matcher ANDs
-  // across words — "ac" alone would still have found nothing.
-  { slug: 'mini-split', add: 'ac unit units' },
-  { slug: 'hvac-maintenance', add: 'ac unit units' },
-  // "Tuckpointing" and "repointing" name the same job; a homeowner or GC
-  // typing either word, or the material ("mortar", "brick", "masonry"),
-  // found nothing, because the tool's own copy only ever says
-  // "tuckpointing" and "wall".
-  { slug: 'tuckpointing', add: 'brick masonry mortar repointing brickwork' },
-  // The trade word for what this tool prices is "hardscape" or
-  // "hardscaping"; the tool's own copy says "paver" and "patio" but never
-  // the word the industry and the customer both search first.
-  { slug: 'paver-patio', add: 'hardscape hardscaping' },
-  // The regulation that drives most of this tool's demand is never named in
-  // its own copy, so a search for the term that actually motivates the
-  // purchase ("ADA ramp", "wheelchair accessibility") found nothing.
-  { slug: 'wheelchair-ramp', add: 'ada accessibility accessible' },
-  // "Sheetrock" is the genericized brand name half the trade uses instead
-  // of "drywall".
-  { slug: 'drywall', add: 'sheetrock' },
-  // The professional a homeowner searches for tree work by title.
-  { slug: 'tree-service', add: 'arborist' },
-  // The pump type most residential wells actually use, and the word a
-  // customer researching a quote is as likely to type as "well pump".
-  { slug: 'well-pump', add: 'submersible' },
-  // "Replacement" does not stem down to "replace" under the suffix list
-  // above (no `-ment` rule), so a query built around the word a customer
-  // actually uses — "pool liner replacement" — matched nothing even though
-  // the tool's own copy says "replace" throughout.
-  { slug: 'vinyl-liner', add: 'replacement replacing' },
+  // 2026-09-30: all 29 entries that were here keyed a trade bid calculator
+  // (pressure-washing, snow-removal, roofing, mini-split, ...), and every one
+  // moved to the public fp-monorepo repository with the rest of the
+  // calculators, where the table still lives. `build.test.mjs` fails on an
+  // alias that reaches no published tool, which all 29 had become. A tool
+  // that stayed and needs a word its own copy never uses gets a line here.
 ];
 
 /**
@@ -305,15 +236,19 @@ export const SEARCH_ALIASES = [
  * would have put "shingle" in front of someone pricing a French drain. That is
  * the failure the comment above this table warns about, arriving through the
  * matcher rather than through a badly chosen word.
+ *
+ * `table` defaults to `SEARCH_ALIASES`; it is a parameter so `build.test.mjs`
+ * can pin the matcher against a fixture table while the live one is empty
+ * (2026-09-30, see above) rather than leave it untested.
  */
-export function aliasesFor(slug) {
+export function aliasesFor(slug, table = SEARCH_ALIASES) {
   const words = String(slug).split('-');
   const claims = (key) => {
     const wanted = String(key).split('-');
     return words.some((_, start) =>
       wanted.every((word, offset) => words[start + offset] === word));
   };
-  return SEARCH_ALIASES.filter((alias) => claims(alias.slug))
+  return table.filter((alias) => claims(alias.slug))
     .map((alias) => alias.add)
     .join(' ');
 }

@@ -88,9 +88,13 @@ test("page says the column aliases are unverified and that it does not decide eq
 
 test("page links to the sibling tools it names, and those tools exist", () => {
   const html = page("index.html");
-  for (const slug of ["self-employment-tax-calculator", "quarterly-estimated-tax-calendar", "home-office-deduction-calculator", "mileage-deduction-method-calculator", "1099k-reconciliation-worksheet"]) {
-    assert.match(html, new RegExp(`href="\\.\\./${slug}/"`));
+  for (const slug of ["quarterly-estimated-tax-calendar", "1099k-reconciliation-worksheet"]) {
+    assert.ok(html.includes(`href="../${slug}/"`), slug);
     assert.ok(readFileSync(new URL(`../${slug}/index.html`, import.meta.url), "utf8").length > 0);
+  }
+  // These moved to the public fp-monorepo repository.
+  for (const slug of ["self-employment-tax-calculator", "home-office-deduction-calculator", "mileage-deduction-method-calculator"]) {
+    assert.ok(html.includes(`href="https://duncan-haywood.github.io/fp-monorepo/${slug}/"`), slug);
   }
 });
 

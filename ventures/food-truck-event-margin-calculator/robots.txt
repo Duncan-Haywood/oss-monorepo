@@ -1,3 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://example.invalid/food-truck-event-margin-calculator/sitemap.xml

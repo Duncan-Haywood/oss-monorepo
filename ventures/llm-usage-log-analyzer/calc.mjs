@@ -1,6 +1,6 @@
 // LLM Usage Log Analyzer -- arithmetic over a usage log the visitor pastes in.
 // No network, no vendor pricing baked in: every rate is supplied by the caller
-// (see ../llm-api-pricing-calculator/calc.mjs for the same discipline). What
+// (see https://duncan-haywood.github.io/fp-monorepo/llm-api-pricing-calculator/calc.mjs for the same discipline). What
 // this adds over a pricing calculator is that it starts from what the API
 // actually reported per request, so it can say where the money went and which
 // of a few levers would have saved some of it.

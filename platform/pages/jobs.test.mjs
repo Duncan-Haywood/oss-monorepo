@@ -505,32 +505,9 @@ test('a tool cannot grow past the cap', () => {
 // Against the actual products
 // ---------------------------------------------------------------------------
 
-/**
- * The point of injecting at build time is that a calculator landing on `main`
- * is covered for free. This asserts the family is actually covered rather than
- * trusting that it is — a venture that stops shipping a static form would drop
- * out silently otherwise.
- */
-test('every bid calculator on main carries a form worth remembering', async () => {
-  const slugs = (await fs.readdir(VENTURES, { withFileTypes: true }))
-    .filter((entry) => entry.isDirectory() && entry.name.endsWith('-bid-calculator'))
-    .map((entry) => entry.name);
-
-  assert.ok(slugs.length > 50, `expected the bid-calculator family, found ${slugs.length}`);
-
-  const without = [];
-  for (const slug of slugs) {
-    const file = path.join(VENTURES, slug, 'index.html');
-    let html;
-    try {
-      html = await fs.readFile(file, 'utf8');
-    } catch {
-      continue;
-    }
-    if (!pageTakesSavedBids(html)) without.push(slug);
-  }
-  assert.deepEqual(without, [], `these ship no static form: ${without.join(', ')}`);
-});
+// 'every bid calculator on main carries a form worth remembering' was removed
+// 2026-09-30: every *-bid-calculator moved to the public fp-monorepo
+// repository, where that family check still runs; none is left here to cover.
 
 // The hub's saved-bid index. These run here rather than in build.test.mjs
 // because the ordering and hardening rules belong to the store, and the hub's
@@ -885,22 +862,9 @@ test('a tool whose headline is not what it sells on names the element that is', 
   );
 });
 
-test('the override agrees with the one the printed proposal is verified against', async () => {
-  // Two places answer "which element carries the price this tool quotes". They
-  // are allowed to be in two files; they are not allowed to disagree, or the
-  // saved bid says one number and the customer's sheet says another.
-  const trades = JSON.parse(
-    await fs.readFile(path.join(HERE, '..', 'proposal', 'trades.json'), 'utf8'),
-  );
-  for (const [slug, trade] of Object.entries(trades)) {
-    if (!trade.screenPriceSelector) continue;
-    assert.equal(HEADLINE_AMOUNT_OVERRIDES[slug], trade.screenPriceSelector, slug);
-  }
-  for (const [slug, selector] of Object.entries(HEADLINE_AMOUNT_OVERRIDES)) {
-    if (!trades[slug]) continue;
-    assert.equal(trades[slug].screenPriceSelector, selector, slug);
-  }
-});
+// 'the override agrees with the one the printed proposal is verified against'
+// was removed 2026-09-30: platform/proposal/ and the calculators it prints for
+// moved to the public fp-monorepo repository, where the cross-check still runs.
 
 test('a bid keeps the figure it was saved at, and only when there is one', () => {
   const base = { name: 'x', at: '2026-08-20T10:00:00.000Z', fields: { a: '1' } };

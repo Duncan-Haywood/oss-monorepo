@@ -117,7 +117,10 @@ test("the checker actually reaches the ventures", async () => {
   // run over an empty file list. 175-odd entry pages plus their modules.
   const files = await findShareSources(VENTURES);
   assert.ok(files.length > 200, `expected to scan the fleet, scanned ${files.length}`);
-  assert.ok(files.some((f) => f.endsWith(path.join("no-show-fee-calculator", "calc.mjs"))));
+  // Was `no-show-fee-calculator/calc.mjs` until 2026-09-30, when it moved with
+  // the other calculators to the public fp-monorepo repository.
+  // `seller-net-sheet` builds a share link of its own, which is what this scans.
+  assert.ok(files.some((f) => f.endsWith(path.join("seller-net-sheet", "share.mjs"))));
 });
 
 test("it skips test files, which build ?-links as fixtures on purpose", async () => {

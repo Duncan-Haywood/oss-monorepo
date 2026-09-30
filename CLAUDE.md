@@ -20,6 +20,18 @@ reviews via dedicated reviewer GitHub Apps and can auto-merge internal
 the "Duplicate PRs" workflow below; it does not replace the judgment calls in
 "Ship without review ceremony".
 
+## Calculators live in fp-monorepo (2026-09-30)
+
+The owner moved every browser calculator (287 ventures, plus
+`platform/proposal/`) to the public
+[`Duncan-Haywood/fp-monorepo`](https://github.com/Duncan-Haywood/fp-monorepo)
+repository, served at `https://duncan-haywood.github.io/fp-monorepo/`. They are
+free tools, not businesses. **Do not build new calculators here**; a
+calculator-shaped candidate belongs in fp-monorepo. Links from tools here to a
+moved calculator are absolute URLs to that site. `duplicate_check.py` no
+longer sees the moved ventures, so check fp-monorepo's `ventures/` too before
+graduating anything calculator-adjacent.
+
 ## Product-first default
 
 Every session should move a venture closer to something strangers can use for
@@ -79,7 +91,6 @@ python3 platform/ci/sync_tree_counts.py  # AFTER merging main: fixes the counts 
 node platform/marketing/regen.mjs --verify  # 9s, read-only: is the committed apex stale?
 node platform/marketing/regen.mjs           # if that exited 1: commit whatever this rewrites
 node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
-node --test platform/proposal/*.test.mjs
 node --test platform/privacy/*.test.mjs platform/webcheck/*.test.mjs
 node --test 'ventures/<slug>/**/*.test.mjs'   # quote it: 21 ventures keep suites in a subdirectory
 python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new venture

@@ -1,17 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parseCsv, parseNumber, parseWhen, detectDelimiter, decodeBuffer, normalizeRows, parseCostList, analyze, summaryText, sampleCsv, scheduleFee, DEFAULT_COMMISSION_RATE, DEFAULT_PAYMENT_RATE, DEFAULT_PAYMENT_FIXED } from "./calc.mjs";
-import * as payout from "../whatnot-seller-payout/calc.mjs";
 
 const HEAD = "Order ID,Order Date,Product Name,Show,Category,SKU,Sold Price,Commission,Processing Fee,Net Earnings\n";
 const load = (body, head = HEAD, o) => normalizeRows(parseCsv(head + body), o);
 const near = (a, b, e = 0.005) => assert.ok(Math.abs(a - b) < e, `${a} !~ ${b}`);
-
-test("processing constants stay identical to the whatnot-seller-payout calculator", () => {
-  assert.equal(DEFAULT_PAYMENT_RATE, payout.DEFAULT_PAYMENT_RATE);
-  assert.equal(DEFAULT_PAYMENT_FIXED, payout.DEFAULT_PAYMENT_FIXED);
-  assert.equal(DEFAULT_COMMISSION_RATE, payout.CATEGORY_PRESETS.standard.commissionRate);
-});
 
 test("commission is on the price and processing on price plus shipping plus tax plus 30 cents", () => {
   const f = scheduleFee(20, 5, 0);

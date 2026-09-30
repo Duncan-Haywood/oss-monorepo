@@ -53,7 +53,7 @@ test("page states it is independent of Substack and links to the sponsorship cal
   const html = page("index.html");
   assert.match(html, /Not affiliated with Substack/);
   assert.match(html, /not sponsored, endorsed or connected to Substack, Inc\./);
-  assert.match(html, /\.\.\/newsletter-sponsorship-rate-calculator\//);
+  assert.match(html, /https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/newsletter-sponsorship-rate-calculator\//);
 });
 
 test("usage events named on the page are the ones the code records", () => {

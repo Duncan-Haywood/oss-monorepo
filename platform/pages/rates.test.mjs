@@ -58,122 +58,13 @@ const script = renderShopRatesModule();
  * that the assertion below actually checks.
  */
 const NO_SHARED_SHOP_RATES = {
-  'tree-service-bid-calculator':
-    'its wage field is a whole-crew rate (~$180/h), not a per-person wage. ' +
-    'Sharing would prefill one person\'s $17-22 as the crew rate and bid the job ~10x low. ' +
-    'Its burden, overhead and margin do match, and it now carries those three: see ' +
-    'PARTIAL_SHOP_RATE_PAGES.',
-  'mobile-detailing-bid-calculator':
-    'its "overhead" is dollars allocated to the job, not a percentage of direct cost, so the ' +
-    'overhead rate cannot be shared onto it. Its wage and burden do match -- spelled `wage` and ' +
-    '`burdenPercent` -- so SHOP_RATE_ALIASES maps those and it now carries three of the four: ' +
-    'see PARTIAL_SHOP_RATE_PAGES. The earlier reason recorded here ("no wage input at all") ' +
-    'described the page as it was before it costed the whole stop in #1172.',
-  'snow-removal-bid-calculator':
-    'its per-person wage is `operatorWage` rather than `hourlyWage`. The concept matches ' +
-    '("Operator hourly wage", $22), so rather than rename an id that reaches calc.mjs\'s ' +
-    'input contract, its tests and every bid link already shared, SHOP_RATE_ALIASES maps ' +
-    'the canonical field onto that id and the page carries the full set.',
-  'pet-grooming-bid-calculator':
-    'its "overhead" is dollars allocated to the job, not a percentage of direct cost, so the ' +
-    'overhead rate cannot be shared onto it. Its wage and burden do match -- spelled `wage` and ' +
-    '`burdenPercent` -- and its target margin already matches the canonical id directly, so it ' +
-    'now carries three of the four: see PARTIAL_SHOP_RATE_PAGES.',
-  'vehicle-wrap-bid-calculator':
-    'its installer rate is a loaded rate -- wage and burden together, spelled `installerHourlyRate` ' +
-    '-- with no separate burden field, so hourlyWage and burdenRate cannot be shared onto it. Its ' +
-    'overhead and target margin already carry the canonical ids directly, so it carries two of the ' +
-    'four: see PARTIAL_SHOP_RATE_PAGES.',
-  'locksmith-bid-calculator':
-    'it prices time as one billed hourly rate rather than a separate crew wage and payroll ' +
-    'burden -- there is no `hourlyWage` or `burdenRate` concept on this page to alias. Its ' +
-    'overhead and target margin do match the canonical meaning exactly and are spelled ' +
-    '`overheadRate` and `targetMargin` directly, so it carries two of the four: see ' +
-    'PARTIAL_SHOP_RATE_PAGES.',
-  'ice-dam-removal-bid-calculator':
-    'its per-tech wage is spelled `crewHourlyRate` rather than `hourlyWage`, but means the same ' +
-    'raw, un-burdened wage -- SHOP_RATE_ALIASES maps it. Its overhead and target margin already ' +
-    'match the canonical ids directly. It has no separate payroll-burden field at all, so it ' +
-    'carries three of the four: see PARTIAL_SHOP_RATE_PAGES.',
-  'home-staging-bid-calculator':
-    'its per-tech wage is spelled `crewHourlyRate` rather than `hourlyWage`, but means the same ' +
-    'raw, un-burdened wage -- SHOP_RATE_ALIASES maps it. Its overhead and target margin already ' +
-    'match the canonical ids directly. It has no separate payroll-burden field at all, so it ' +
-    'carries three of the four: see PARTIAL_SHOP_RATE_PAGES.',
-  'forestry-mulching-bid-calculator':
-    'it costs a machine hour, not a crew hour, and carries none of the four canonical ids. Its ' +
-    'operator line (`operatorWagePerHour`) is explicitly a burdened rate -- wage and payroll ' +
-    'burden together -- so aliasing `hourlyWage` onto it would prefill a raw wage into a field ' +
-    'that already includes burden and understate every hour of the job, the same defect the ' +
-    'vehicle-wrap entry above records. There is no payroll-burden field to alias, and no ' +
-    'overhead-on-direct-cost percentage either: this tool carries overhead as the machine\'s own ' +
-    'payment and insurance spread over billable hours a month, in dollars per hour, which is a ' +
-    'different quantity from a percentage of direct cost. Only target margin means the same ' +
-    'thing, spelled `targetMarginPct` and capped at 95 rather than 99.9, and one carried field ' +
-    'is below MIN_CARRIED_FIELDS, so no bar is shown and no PARTIAL_SHOP_RATE_PAGES note is due.',
-  'land-survey-bid-calculator':
-    'its per-person wage is spelled `crewHourlyRatePerPerson` rather than `hourlyWage`, but means the ' +
-    'same raw, un-burdened wage -- SHOP_RATE_ALIASES maps it. Its "target margin on price" is spelled ' +
-    '`targetMarginPercentPct` and means the same net-margin-on-price concept as `targetMargin` -- ' +
-    'aliased too. It has no separate payroll-burden field, and it prices office research and drafting ' +
-    'time as their own hourly rates rather than an overhead percentage of direct cost, so it carries ' +
-    'two of the four: see PARTIAL_SHOP_RATE_PAGES.',
-  'asbestos-abatement-bid-calculator':
-    'its per-worker wage is spelled `crewHourlyRatePerWorker` rather than `hourlyWage`, but means the ' +
-    'same raw, un-burdened wage -- SHOP_RATE_ALIASES maps it. Its "target margin on price" is spelled ' +
-    '`targetMarginPercentPct` and means the same net-margin-on-price concept as `targetMargin` -- ' +
-    'aliased too. It has no separate payroll-burden field, and it prices containment setup, air ' +
-    'monitoring, and waste disposal as their own line items rather than an overhead percentage of ' +
-    'direct cost, so it carries two of the four: see PARTIAL_SHOP_RATE_PAGES.',
-  'biohazard-cleanup-bid-calculator':
-    'its per-tech rate is spelled `laborRatePerHour` rather than `hourlyWage`, but means the same ' +
-    'raw, loaded hourly rate for one technician\'s time -- SHOP_RATE_ALIASES maps it. Its "target ' +
-    'margin" is spelled `targetMarginPercent` and means the same net-margin-on-price concept as ' +
-    '`targetMargin` -- aliased too. It has no separate payroll-burden field and no overhead-on-' +
-    'direct-cost percentage (equipment, supplies and disposal are priced as their own line items, ' +
-    'not a percentage markup), so it carries two of the four: see PARTIAL_SHOP_RATE_PAGES.',
-  'storage-auction-max-bid-calculator':
-    'this is not a contractor job bid -- it is a max hammer bid for a stranger\'s storage-unit ' +
-    'contents at a lien auction. Its `laborRatePerHour` prices cleanout hours on one unit, not a ' +
-    'crew wage the business pays across every job, and there is no payroll-burden or ' +
-    'overhead-on-direct-cost field at all: cleanout cost is a flat dump fee plus a labor line, and ' +
-    '`targetMarginPercent` is margin on realized resale revenue after channel fees, a different base ' +
-    'from the spec\'s margin on a priced job. Zero of the four canonical concepts apply, so no bar is ' +
-    'shown and no PARTIAL_SHOP_RATE_PAGES note is due. (Same field names as ' +
-    'biohazard-cleanup-bid-calculator above, coincidentally -- the two calculators were built the ' +
-    'same afternoon and independently landed on `laborRatePerHour`/`targetMarginPercent`, but the ' +
-    'underlying quantities differ: that page carries two of the four via aliasing, this one carries ' +
-    'zero because there is no crew wage or overhead-on-direct-cost concept here at all.)',
-  'window-tinting-bid-calculator':
-    'its per-installer rate is spelled `installerRate` rather than `hourlyWage`, but means the same ' +
-    'raw, loaded hourly rate for one installer\'s time -- SHOP_RATE_ALIASES maps it. Its "target ' +
-    'margin on price" is spelled `targetMarginPercent` and means the same net-margin-on-price concept ' +
-    'as `targetMargin` -- aliased too. It has no separate payroll-burden field, and its overhead ' +
-    '("Booth / shop overhead") is a flat dollar figure per job rather than a percentage of direct ' +
-    'cost, so it carries two of the four: see PARTIAL_SHOP_RATE_PAGES.',
+  // 2026-09-30: every entry named a bid calculator that moved to the public
+  // fp-monorepo repository, where this map and its checks still live.
 };
 
-test('every trade bid calculator on main carries all four shop-rate fields', async () => {
-  const slugs = (await fs.readdir(VENTURES, { withFileTypes: true }))
-    .filter((entry) => entry.isDirectory() && entry.name.endsWith('-bid-calculator'))
-    .map((entry) => entry.name);
-
-  assert.ok(slugs.length >= 30, `expected the bid-calculator family, saw ${slugs.length}`);
-
-  const missing = [];
-  for (const slug of slugs) {
-    if (slug in NO_SHARED_SHOP_RATES) continue;
-    const file = path.join(VENTURES, slug, 'index.html');
-    const html = await fs.readFile(file, 'utf8').catch(() => null);
-    if (html === null) continue;
-    // The point of this test: if a venture renames one of these ids, the bar
-    // silently stops appearing on that tool rather than failing anywhere. The
-    // build only injects where all four exist, so the failure is invisible.
-    if (!pageCarriesShopRates(html)) missing.push(slug);
-  }
-
-  assert.deepEqual(missing, []);
-});
+// 'every trade bid calculator on main carries all four shop-rate fields' was
+// removed 2026-09-30: the *-bid-calculator family moved to the public
+// fp-monorepo repository, where it is still checked. None is left here.
 
 test('an excluded calculator is one that really cannot take the shared rates', async () => {
   // Keeps the list above from becoming a place to park a venture that simply
@@ -282,25 +173,10 @@ test('a marketplace fee calculator is left alone', () => {
 // same overhead on each.
 // ---------------------------------------------------------------------------
 
-test('an alias carries a field a page spells differently', async () => {
-  const html = await fs.readFile(
-    path.join(VENTURES, 'snow-removal-bid-calculator', 'index.html'),
-    'utf8',
-  );
-  // Without the slug it reads as a three-field page: the alias is what makes
-  // `operatorWage` the wage field, and it is per page rather than global.
-  assert.equal(pageShopRateFields(html).length, SHOP_RATE_FIELDS.length - 1);
-
-  const fields = pageShopRateFields(html, 'snow-removal-bid-calculator');
-  assert.equal(fields.length, SHOP_RATE_FIELDS.length);
-  assert.equal(fields.find((f) => f.id === 'hourlyWage').inputId, 'operatorWage');
-
-  const out = injectShopRates(html, 'snow-removal-bid-calculator');
-  assert.notEqual(out, html, 'the bar has to reach the page it was aliased for');
-  // The alias is one of the two facts the shared script cannot know until it is
-  // on a page, so it rides on the tag.
-  assert.match(out, /data-pf-rates-fields="[^"]*hourlyWage:operatorWage/);
-});
+// 'an alias carries a field a page spells differently' read
+// snow-removal-bid-calculator off disk. Removed 2026-09-30: it and every other
+// aliased page moved to the public fp-monorepo repository, where it is still
+// checked. The two table-wide checks below stay, for any future entry here.
 
 test('an aliased id is only ever the one the venture actually uses', async () => {
   // The alias writes into a real input on a real page. A stale entry — a
@@ -368,11 +244,9 @@ test('one shared field is below the floor, however it is documented', () => {
 test('saving on a partial page merges rather than replacing what is stored', () => {
   // A contractor who saved a wage on a four-field tool, then saves overhead and
   // margin on a two-field one, must not lose the wage.
-  const out = injectShopRates(
-    page('<input id="overheadRate"><input id="targetMargin">'),
-    'appliance-repair-quote-calculator',
-  );
-  assert.notEqual(out, page('<input id="overheadRate"><input id="targetMargin">'));
+  // (The half that injected into `appliance-repair-quote-calculator`'s partial
+  // page was removed 2026-09-30: that page, and every other partial page, moved
+  // to the public fp-monorepo repository. The merge itself is the script's.)
   assert.match(script, /var merged = readAll\(\);/);
   assert.match(script, /Object\.keys\(rates\)\.forEach/);
 });
@@ -404,16 +278,9 @@ test('the tag names exactly the fields the page carries, and nothing else', () =
   const pairs = out.match(/data-pf-rates-fields="([^"]*)"/)[1].split(',');
   assert.deepEqual(pairs, SHOP_RATE_FIELDS.map((f) => `${f.id}:${f.id}`));
 
-  // A partial page names only its own two, so the shared script cannot write
-  // into a field this tool was never read to carry.
-  const partial = injectShopRates(
-    page('<input id="overheadRate"><input id="targetMargin">'),
-    'appliance-repair-quote-calculator',
-  );
-  assert.deepEqual(
-    partial.match(/data-pf-rates-fields="([^"]*)"/)[1].split(','),
-    ['overheadRate:overheadRate', 'targetMargin:targetMargin'],
-  );
+  // The partial-page half of this used `appliance-repair-quote-calculator`'s
+  // PARTIAL_SHOP_RATE_PAGES entry; removed 2026-09-30 when that page moved to
+  // the public fp-monorepo repository, where it is still checked.
 });
 
 test('a field the tag names but the build does not know is dropped, not trusted', () => {
@@ -505,25 +372,10 @@ test('the injected script rejects a blank field before Number()', () => {
   assert.match(script, /kept === FIELDS\.length \? out : null/);
 });
 
-test('the page that produces the rates does not also receive the bar', () => {
-  // `shop-rate-calculator` carries hourlyWage and targetMargin as inputs and
-  // computes the other two, so it clears MIN_CARRIED_FIELDS on the letter of the
-  // rule. It must still be skipped: it writes all four itself, and a bar
-  // offering "Save the rates on this bid" for two of them beside that control
-  // would leave the one page that settles these numbers with two save buttons of
-  // different scope.
-  const producer = page('<input id="hourlyWage"><input id="targetMargin">');
-  assert.ok(RATE_SOURCE_SLUGS.has('shop-rate-calculator'));
-  assert.equal(pageTakesShopRates(producer, 'shop-rate-calculator'), false);
-  assert.equal(injectShopRates(producer, 'shop-rate-calculator'), producer);
-});
-
-test('a rate source is skipped even when it carries all four ids', () => {
-  // Defensive: the exclusion must not depend on how many fields the page
-  // happens to have, or a later edit there would silently re-inject the bar.
-  assert.equal(pageTakesShopRates(page(form), 'shop-rate-calculator'), false);
-  assert.equal(injectShopRates(page(form), 'shop-rate-calculator'), page(form));
-});
+// 'the page that produces the rates does not also receive the bar' and 'a
+// rate source is skipped even when it carries all four ids' were removed
+// 2026-09-30: `shop-rate-calculator`, the only rate source, moved to the
+// public fp-monorepo repository, where both are still checked.
 
 test('every rate source names a venture that exists', async () => {
   // A stale slug here silently stops excluding anything, which is exactly the

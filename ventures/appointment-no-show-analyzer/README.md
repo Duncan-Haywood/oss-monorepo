@@ -11,8 +11,8 @@ dollars they cost, and a typed-assumption estimate of what a deposit or no-show 
 recover**, which used to mean a pivot table over a Square Appointments, Acuity, Calendly, Vagaro,
 Fresha or Booksy export.
 
-To design the policy itself, use [`no-show-fee-calculator`](../no-show-fee-calculator/) and
-[`appointment-deposit-calculator`](../appointment-deposit-calculator/); this tool measures the
+To design the policy itself, use [`no-show-fee-calculator`](https://duncan-haywood.github.io/fp-monorepo/no-show-fee-calculator/) and
+[`appointment-deposit-calculator`](https://duncan-haywood.github.io/fp-monorepo/appointment-deposit-calculator/); this tool measures the
 problem first, and they link to it.
 
 ## Input

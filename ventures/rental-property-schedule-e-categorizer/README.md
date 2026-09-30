@@ -10,8 +10,8 @@ have no rent deposit, and download every row with its category and the rule that
 which used to mean sorting a year of bank lines into a spreadsheet by hand.
 
 Related: [`rent-roll-delinquency-analyzer`](../rent-roll-delinquency-analyzer/) (who paid late),
-[`bonus-depreciation-calculator`](../bonus-depreciation-calculator/),
-[`depreciation-recapture-calculator`](../depreciation-recapture-calculator/).
+[`bonus-depreciation-calculator`](https://duncan-haywood.github.io/fp-monorepo/bonus-depreciation-calculator/),
+[`depreciation-recapture-calculator`](https://duncan-haywood.github.io/fp-monorepo/depreciation-recapture-calculator/).
 
 ## Input
 

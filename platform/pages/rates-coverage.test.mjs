@@ -127,7 +127,10 @@ async function noSharedShopRatesSlugs() {
       'update this helper rather than deleting the assertion it feeds',
   );
   const slugs = [...block[1].matchAll(/^\s*'([a-z0-9-]+)':/gm)].map((m) => m[1]);
-  assert.ok(slugs.length >= 5, `expected the exclusion map to hold entries, saw ${slugs.length}`);
+  // There was a floor here (`slugs.length >= 5`) so a reshaped map could not
+  // read as empty. Removed 2026-09-30: every entry named a bid calculator that
+  // moved to the public fp-monorepo repository, so the map is empty on
+  // purpose. The shape check above still fails if the declaration moves.
   return new Set(slugs);
 }
 
@@ -135,10 +138,12 @@ test('every page that asks for two or more of the four rates has a recorded deci
   const excluded = await noSharedShopRatesSlugs();
   const unclassified = [];
   let population = 0;
+  let read = 0;
 
   for (const slug of await ventureSlugs()) {
     const html = await readIndex(slug);
     if (html === null) continue;
+    read += 1;
     const concepts = conceptsPresent(html);
     if (concepts.length < FLOOR) continue;
     population += 1;
@@ -151,13 +156,14 @@ test('every page that asks for two or more of the four rates has a recorded deci
     unclassified.push(`${slug} (asks for ${concepts.join(', ')})`);
   }
 
-  // If this number collapses, the patterns above stopped matching and the
-  // guard is passing because it is looking at nothing -- the failure mode this
-  // whole file is written against.
-  assert.ok(
-    population >= 100,
-    `expected the shop-rate population to be substantial, saw ${population}`,
-  );
+  // This used to assert `population >= 100`, so a pattern that stopped
+  // matching could not pass by looking at nothing. 2026-09-30: the calculators
+  // that made up that population moved to the public fp-monorepo repository,
+  // where the floor is still checked; 1 page here still asks for two of the
+  // four. The floor is now on the pages read, which still fails if the walk
+  // itself breaks, and the classification below still names any page that
+  // walks into the population.
+  assert.ok(read > 150, `expected the catalogue's entry pages, read ${read} (population ${population})`);
 
   assert.deepEqual(
     unclassified,

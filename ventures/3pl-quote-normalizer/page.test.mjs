@@ -357,7 +357,7 @@ test('index links one hop to the cloud-egress-calculator sibling', async () => {
   const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
   assert.match(
     page,
-    /href="\.\.\/cloud-egress-calculator\/"/,
-    'index must link ../cloud-egress-calculator/ so crawlers reach the cloud egress calculator in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/cloud-egress-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/fp-monorepo/cloud-egress-calculator/ so crawlers reach the cloud egress calculator in one hop',
   );
 });

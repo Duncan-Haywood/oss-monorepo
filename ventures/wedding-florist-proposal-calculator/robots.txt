@@ -1,3 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://example.invalid/wedding-florist-proposal-calculator/sitemap.xml

@@ -63,7 +63,7 @@ test("page states it is independent of Whatnot and links to the seller payout ca
   const html = page("index.html");
   assert.match(html, /Not affiliated with Whatnot/);
   assert.match(html, /not sponsored, endorsed or connected to Whatnot Inc\./);
-  assert.match(html, /\.\.\/whatnot-seller-payout\//);
+  assert.match(html, /https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/whatnot-seller-payout\//);
 });
 
 test("usage events named on the page are the ones the code records", () => {

@@ -1086,7 +1086,11 @@ const RELATIVE_SELF = relative(
 // +1: `dependent-care-fsa-vs-credit-calculator` graduated.
 // +1: `van-westendorp-pricing-analyzer` graduated.
 // +1: `augusta-rule-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 466;
+// -276 (2026-09-30): every calculator, and the route/quote tools that shipped
+//   beside them, moved to the public fp-monorepo repository. Over the usage
+//   modules the move is deletions only, so no module that stayed stopped being
+//   a switch.
+const SWITCHES_IN_THE_CATALOGUE = 190;
 
 let counter = 0;
 function fixture(source) {

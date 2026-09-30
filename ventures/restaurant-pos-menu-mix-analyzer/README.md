@@ -10,7 +10,7 @@ price rise on your Plowhorses, and which items to cut or re-promote**, which use
 building a pivot table from a Toast, Square or Clover report by hand.
 
 For one dish at a time, typed in by hand, use
-[`menu-engineering-calculator`](../menu-engineering-calculator/); this tool is the one that
+[`menu-engineering-calculator`](https://duncan-haywood.github.io/fp-monorepo/menu-engineering-calculator/); this tool is the one that
 ingests the export.
 
 ## Input

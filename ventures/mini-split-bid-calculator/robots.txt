@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://example.invalid/mini-split-bid-calculator/sitemap.xml

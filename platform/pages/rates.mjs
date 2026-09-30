@@ -98,142 +98,11 @@ const attr = (value) => String(value)
  * not be: see `PARTIAL_SHOP_RATE_PAGES` for what happens to those instead.
  */
 export const SHOP_RATE_ALIASES = {
-  'snow-removal-bid-calculator': { hourlyWage: 'operatorWage' },
-  // Same shape as the snow-removal case. `mobile-detailing-bid-calculator`
-  // asks "Hourly wage before burden" and "Payroll burden (%)", which are
-  // `hourlyWage` and `burdenRate` under different ids. It grew both when it
-  // started costing the whole stop (#1172); the exclusion recorded against it
-  // predates that and still said it had "no wage input at all".
-  'mobile-detailing-bid-calculator': { hourlyWage: 'wage', burdenRate: 'burdenPercent' },
-  // Same shape again: "Hourly wage before burden" and "Payroll burden (%)"
-  // are `wage` and `burdenPercent` here too. `targetMargin` already matches
-  // the canonical id directly, so only these two need the alias.
-  'pet-grooming-bid-calculator': { hourlyWage: 'wage', burdenRate: 'burdenPercent' },
-  // `ice-dam-removal-bid-calculator` asks for "Crew pay ($/hr per tech)" —
-  // the same raw, un-burdened per-person wage as `hourlyWage` — under the id
-  // `crewHourlyRate`. Its overhead and target margin already match the
-  // canonical ids directly, so only this one alias is needed; it has no
-  // separate payroll-burden field, so `burdenRate` is not carried at all: see
-  // PARTIAL_SHOP_RATE_PAGES.
-  'ice-dam-removal-bid-calculator': { hourlyWage: 'crewHourlyRate' },
-  // `home-staging-bid-calculator` asks for "Crew pay ($/hr)" — the same raw,
-  // un-burdened per-person wage as `hourlyWage` — under the id
-  // `crewHourlyRate`. Its overhead and target margin already match the
-  // canonical ids directly, so only this one alias is needed; it has no
-  // separate payroll-burden field, so `burdenRate` is not carried at all: see
-  // PARTIAL_SHOP_RATE_PAGES.
-  'home-staging-bid-calculator': { hourlyWage: 'crewHourlyRate' },
-  // --- read 2026-09-11, by enumerating rather than recalling -----------------
-  //
-  // The eight entries below (and the notes in `PARTIAL_SHOP_RATE_PAGES`) come
-  // from asking the question this file's own `pageTakesShopRates` comment says
-  // is the one that matters: *which pages carry these quantities and get no bar
-  // because nobody has read them yet?* Nineteen pages carried two or more of
-  // the four under non-canonical ids. Each was read — label, and the arithmetic
-  // in its `calc.mjs` — and sorted into an alias here, a note below, or
-  // `REVIEWED_NOT_CARRIED` with the reason it must stay excluded.
-  //
-  // `change-order-margin-calculator` is the sharpest of them: it asks "Hourly
-  // wage", "Payroll burden (%)", "Overhead on direct cost (%)" and "Target
-  // margin (%)" — all four, the third *verbatim* the label in the field spec
-  // above — and got nothing, on four different ids. Pricing a change order is
-  // the most bid-shaped job in this catalogue, and it was the page furthest
-  // from the feature.
-  'change-order-margin-calculator': {
-    hourlyWage: 'wage',
-    burdenRate: 'burdenPercent',
-    overheadRate: 'overheadPercent',
-    targetMargin: 'targetMarginPercent',
-  },
-  // "Staff hourly wage" is one person's raw pay and "Payroll tax & benefits
-  // load (%)" is the payroll burden on it — the same two quantities, and
-  // `hourlyWage` already matches the canonical id directly, so only the burden
-  // and the margin need naming. Its overhead is monthly dollars for the room
-  // rather than a percentage of direct cost: see PARTIAL_SHOP_RATE_PAGES.
-  'childcare-tuition-calculator': {
-    burdenRate: 'payrollBurdenPercent',
-    targetMargin: 'targetMarginPercent',
-  },
-  // `calc.mjs` documents `driverHourlyRate` as "Target hourly pay for driver"
-  // and multiplies it by driver hours with nothing added — a raw, un-burdened
-  // per-person wage. Its overhead asks "Overhead (% of direct cost)" and its
-  // margin "Target margin (%)", both already under the canonical ids, so this
-  // one alias completes three of the four.
-  'dumpster-rental-margin-calculator': { hourlyWage: 'driverHourlyRate' },
-  // "Staff pay ($/hr)" and "Overhead (% of direct cost)" — the same shape as
-  // the dumpster case, with the margin under a `Pct` suffix.
-  'food-truck-event-margin-calculator': {
-    hourlyWage: 'staffHourlyRate',
-    targetMargin: 'targetMarginPct',
-  },
-  // "Attendant pay ($/hr)" is documented in `calc.mjs` as "Target hourly pay
-  // per attendant" and no burden is applied to it anywhere, so it is the raw
-  // wage. "Overhead (% of direct cost)" is applied as
-  // `nonPrintDirectCost * (overheadRate / 100)` — overhead on direct cost,
-  // exactly as the spec means it — and already carries the canonical id.
-  'photo-booth-event-quote': {
-    hourlyWage: 'attendantHourlyRate',
-    targetMargin: 'targetMarginPct',
-  },
-  // "Wage per hour ($)" is the raw wage on both of these. Their overhead is a
-  // monthly shop figure in dollars and neither has a payroll-burden field, so
-  // each carries two of the four — see PARTIAL_SHOP_RATE_PAGES.
-  'apparel-decoration-price-calculator': {
-    hourlyWage: 'wagePerHour',
-    targetMargin: 'targetMarginPct',
-  },
-  'wash-and-fold-price-calculator': {
-    hourlyWage: 'wagePerHour',
-    targetMargin: 'targetMarginPct',
-  },
-  // "Crew rate ($/hr per person)" is the same raw, un-burdened per-person wage
-  // as `hourlyWage`, spelled `crewHourlyRatePerPerson`. "Target margin on
-  // price (%)" is the same net-margin-on-price concept as `targetMargin`,
-  // spelled `targetMarginPercentPct` (the `Pct` suffix matches this page's own
-  // convention for a 0-100 UI field backing a 0-1 fraction in calc.mjs). It has
-  // no separate payroll-burden field, and office research and drafting time
-  // are priced as their own hourly rates rather than an overhead percentage of
-  // direct cost, so it carries two of the four: see PARTIAL_SHOP_RATE_PAGES.
-  'land-survey-bid-calculator': {
-    hourlyWage: 'crewHourlyRatePerPerson',
-    targetMargin: 'targetMarginPercentPct',
-  },
-  // "Crew rate ($/hr per worker)" is the same raw, un-burdened per-worker wage
-  // as `hourlyWage`, spelled `crewHourlyRatePerWorker`. "Target margin on
-  // price (%)" is the same net-margin-on-price concept as `targetMargin`,
-  // spelled `targetMarginPercentPct` (same convention as `land-survey-bid-
-  // calculator` above). It has no separate payroll-burden field, and
-  // containment setup, air monitoring, and waste disposal are priced as their
-  // own line items rather than an overhead percentage of direct cost, so it
-  // carries two of the four: see PARTIAL_SHOP_RATE_PAGES.
-  'asbestos-abatement-bid-calculator': {
-    hourlyWage: 'crewHourlyRatePerWorker',
-    targetMargin: 'targetMarginPercentPct',
-  },
-  // "Labor rate ($/hr)" is documented in `calc.mjs` as a loaded hourly rate
-  // for one technician's time -- the same raw, per-person wage as
-  // `hourlyWage`, spelled `laborRatePerHour`. "Target margin (%)" is the
-  // same net-margin-on-cost concept as `targetMargin`, spelled
-  // `targetMarginPercent`. It has no separate payroll-burden field and no
-  // overhead-on-direct-cost percentage -- PPE, supplies, equipment and
-  // disposal are priced as their own line items, not a percentage markup --
-  // so it carries two of the four: see PARTIAL_SHOP_RATE_PAGES.
-  'biohazard-cleanup-bid-calculator': {
-    hourlyWage: 'laborRatePerHour',
-    targetMargin: 'targetMarginPercent',
-  },
-  // "Installer rate ($/hr)" is a single loaded rate for one installer's time
-  // -- the same raw, per-person wage shape as `hourlyWage` -- spelled
-  // `installerRate`. "Target margin on price (%)" is the same net-margin-on-
-  // price concept as `targetMargin`, spelled `targetMarginPercent` (same
-  // convention as `biohazard-cleanup-bid-calculator` above). It has no
-  // separate payroll-burden field, and its overhead ("Booth / shop overhead
-  // ($)") is a flat dollar figure per job rather than a percentage of direct
-  // cost, so it carries two of the four: see PARTIAL_SHOP_RATE_PAGES.
-  'window-tinting-bid-calculator': {
-    hourlyWage: 'installerRate',
-    targetMargin: 'targetMarginPercent',
-  },
+  // 2026-09-30: every entry that was here named a calculator that moved, with
+  // the rest of the bid calculators, to the public fp-monorepo repository
+  // (https://duncan-haywood.github.io/fp-monorepo/), where this table and the
+  // tests over it still live. The table stays so a venture here that spells a
+  // shop-rate field its own way has somewhere to be read into.
 };
 
 /**
@@ -245,54 +114,11 @@ export const SHOP_RATE_ALIASES = {
  * their terms rather than naming an id.
  */
 export const PARTIAL_SHOP_RATE_PAGES = {
-  'tree-service-bid-calculator':
-    'This tool prices labour as a whole-crew hourly rate, not one person’s wage, so your saved crew wage is left alone here.',
-  'appliance-repair-quote-calculator':
-    'This tool asks for a loaded labour rate — wage and burden together — so your saved wage and burden are left alone here.',
-  'portable-restroom-event-quote':
-    'This tool prices units and hauls rather than crew hours, so your saved wage and burden are left alone here.',
-  'mobile-detailing-bid-calculator':
-    'This tool allocates overhead as dollars for the job rather than a percentage of direct cost, so your saved overhead rate is left alone here.',
-  'pet-grooming-bid-calculator':
-    'This tool allocates overhead as dollars for the job rather than a percentage of direct cost, so your saved overhead rate is left alone here.',
-  'vehicle-wrap-bid-calculator':
-    'This tool asks for a loaded installer rate — wage and burden together — so your saved wage and burden are left alone here.',
-  'locksmith-bid-calculator':
-    'This tool prices one call from a single billed rate rather than a separate crew wage and payroll burden, so your saved wage and burden are left alone here.',
-  'ice-dam-removal-bid-calculator':
-    'This tool has no separate payroll-burden field, so your saved burden rate is left alone here.',
-  'home-staging-bid-calculator':
-    'This tool has no separate payroll-burden field, so your saved burden rate is left alone here.',
-  // --- added 2026-09-11 alongside the aliases above ---------------------------
-  'childcare-tuition-calculator':
-    'This tool allocates overhead as monthly dollars for the room rather than a percentage of direct cost, so your saved overhead rate is left alone here.',
-  'dumpster-rental-margin-calculator':
-    'This tool has no separate payroll-burden field, so your saved burden rate is left alone here.',
-  'food-truck-event-margin-calculator':
-    'This tool has no separate payroll-burden field, so your saved burden rate is left alone here.',
-  'photo-booth-event-quote':
-    'This tool has no separate payroll-burden field, so your saved burden rate is left alone here.',
-  'apparel-decoration-price-calculator':
-    'This tool has no payroll-burden field and allocates overhead as monthly shop dollars rather than a percentage of direct cost, so your saved burden and overhead rates are left alone here.',
-  'wash-and-fold-price-calculator':
-    'This tool has no payroll-burden field and allocates overhead as monthly dollars rather than a percentage of direct cost, so your saved burden and overhead rates are left alone here.',
-  // `bounce-house-rental-calculator` needs no alias at all — it asks "Overhead
-  // on direct cost (%)" and "Target net margin (%)" under the canonical ids
-  // already, and was excluded purely for want of an entry in this map. Its one
-  // labour input is "Labor rate ($/hr per crew member)", documented in
-  // `calc.mjs` as "Per crew member, per hour" with no burden applied anywhere,
-  // so that single number has to cover burden as well as wage: the
-  // `appliance-repair-quote-calculator` case, and not a `hourlyWage`.
-  'bounce-house-rental-calculator':
-    'This tool prices labour as one rate per crew member that already covers burden, so your saved wage and burden are left alone here.',
-  'land-survey-bid-calculator':
-    'This tool has no separate payroll-burden field and prices office research and drafting time as their own hourly rates rather than a percentage of direct cost, so your saved burden and overhead rates are left alone here.',
-  'asbestos-abatement-bid-calculator':
-    'This tool has no separate payroll-burden field and prices containment setup, air monitoring, and waste disposal as their own line items rather than a percentage of direct cost, so your saved burden and overhead rates are left alone here.',
-  'biohazard-cleanup-bid-calculator':
-    'This tool has no separate payroll-burden field and prices PPE, supplies, equipment and disposal as their own line items rather than a percentage of direct cost, so your saved burden and overhead rates are left alone here.',
-  'window-tinting-bid-calculator':
-    'This tool has no separate payroll-burden field and allocates overhead as a flat dollar figure for the job rather than a percentage of direct cost, so your saved burden and overhead rates are left alone here.',
+  // 2026-09-30: every entry that was here named a calculator that moved, with
+  // the rest of the bid calculators, to the public fp-monorepo repository
+  // (https://duncan-haywood.github.io/fp-monorepo/), where this table and the
+  // tests over it still live. The table stays so a venture here that carries only
+  // some of the four has somewhere to be read into.
 };
 
 /**
@@ -326,7 +152,10 @@ export const MIN_CARRIED_FIELDS = 2;
  * Burden and overhead are outputs there, not inputs, so this is not a
  * `PARTIAL_SHOP_RATE_PAGES` case: nothing is missing that a note could explain.
  */
-export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
+// 2026-09-30: `shop-rate-calculator` moved to the public fp-monorepo
+// repository with the rest of the calculators, so no rate source is left here;
+// the exclusion is still checked there.
+export const RATE_SOURCE_SLUGS = new Set();
 
 /**
  * Pages read and deliberately *not* carried, with the reason.
@@ -361,65 +190,10 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
 export const REVIEWED_NOT_CARRIED = {
   'restaurant-labor-cost-daypart-analyzer':
     'hourlyWage is only the default for shifts whose time entries carry no pay, and burdenRate is a placeholder for payroll tax on wages already in the export; there is no overhead or margin, and the analysis reads labor cost from a file rather than pricing a job',
-  // The trap in the set, and the reason this map exists rather than a bare
-  // allowlist: `overheadRate` here is the *canonical id* but asks "Overhead (%
-  // of revenue)", a different base from the spec's percentage of direct cost.
-  // Carrying it would put a considered-looking wrong number on the page — the
-  // one outcome this whole feature is written to avoid. Its labour input is
-  // named `loadedLaborRate` and says so.
-  'medical-courier-route-margin':
-    'overhead is a percentage of revenue, not of direct cost, and the labour rate is loaded',
-  'tow-motor-club-call-calculator':
-    'overhead is dollars per month spread over billable truck hours and margin is an accept threshold on a payout someone else set, not a price the operator quotes; wage is one driver rate',
-  'pool-route-pricing':
-    'labour is one "Labor cost / hour" with no burden field, and overhead is dollars per account per month',
-  'custom-farm-rate-calculator':
-    'the labour rate is what the operator wants to earn for their own time, not a wage cost, and there is no overhead percentage',
-  'dog-walking-route-pricing':
-    'the hourly figure is a target sell rate rather than a wage, and overhead is monthly dollars',
-  'dog-boarding-daycare-pricing':
-    'overhead is a flat dollar allowance per dog-day rather than a percentage of direct cost, and there is no burden field, so prefilling from the shared shop-rate bar would put a considered-looking wrong number on the overhead field even though the wage and margin fields are genuine',
-  'notary-trip-quote':
-    'one call is priced from a single billed rate rather than a wage plus burden',
-  '3d-print-price-calculator':
-    'the labour rate carries burden with it and there is no overhead percentage',
-  'drone-mapping-job-calculator':
-    'the field and processing rates are billed rates, not wages',
-  'home-inspection-fee-calculator':
-    'the hourly rate is a single billed rate rather than a wage plus burden, and overhead is a flat dollar allowance per job rather than a percentage of direct cost',
-  'staffing-markup-calculator':
-    'it derives a markup from burden rather than consuming one; its wage figures are unemployment-tax wage bases and its burden figures are outputs',
-  // Reads as a rate tool and is not one in this sense: it measures a month
-  // already billed rather than pricing an hour about to be sold, so all four
-  // of its rate-shaped fields have a different base from the spec's. Technician
-  // pay is a *period total* in dollars including burden, not a wage plus a
-  // burden percentage. `monthlyOverhead` is dollars for the whole shop, not a
-  // percentage of direct cost — the page deliberately derives no overhead rate,
-  // because it nets parts gross profit off overhead instead of allocating by a
-  // percentage. And `targetLaborGrossProfit` is gross profit on the labor line
-  // only, which is not the spec's net margin on a whole job: 70% here is
-  // ordinary and 70% there would be nonsense. Prefilling any of them would put
-  // a considered-looking wrong number on the page, which is what this map
-  // exists to prevent.
-  'auto-repair-effective-labor-rate':
-    'technician pay is a period total in dollars with burden already in it, overhead is whole-shop dollars rather than a percentage of direct cost, and the target is labor gross profit rather than net margin on a job',
-  // The marketplace fee tools ask for seller time on one task — driving to a
-  // pickup, uploading a label, restocking — not for a crew wage, and they price
-  // a listing rather than a bid.
-  'ebay-fee-calculator': 'the hourly figures are per-task seller time, not a crew wage',
-  'etsy-profit-calculator': 'the hourly figures are per-task seller time, not a crew wage',
-  'amazon-fba-calculator': 'the hourly figure is per-task seller time, not a crew wage',
-  'walmart-marketplace-calculator':
-    'the hourly figures are per-task seller time, not a crew wage',
-  // Slug ends in `bid-calculator`, which reaches this population, but the bid
-  // is for a stranger's storage-unit contents at a lien auction, not a
-  // contractor's job. `laborRatePerHour` prices cleanout hours only (sorting,
-  // hauling, dumping), not a crew wage the business pays across every job, and
-  // there is no payroll burden or overhead-on-direct-cost field here at all —
-  // `targetMarginPercent` is margin on realized resale revenue after channel
-  // fees, a different base from the spec's margin on a priced job.
-  'storage-auction-max-bid-calculator':
-    'laborRatePerHour prices cleanout hours on one unit, not a crew wage, and there is no burden or overhead-on-direct-cost field',
+  // 2026-09-30: every other entry named a calculator that moved to the
+  // public fp-monorepo repository, where its reading is still recorded. That
+  // includes `medical-courier-route-margin`, the overhead-on-revenue trap the
+  // comment above describes.
 };
 
 /**

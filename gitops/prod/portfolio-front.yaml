@@ -251,38 +251,6 @@ spec:
                   name: portfolio-front-tools-8
               - configMap:
                   name: portfolio-front-tools-9
-              - configMap:
-                  name: portfolio-front-tools-10
-              - configMap:
-                  name: portfolio-front-tools-11
-              - configMap:
-                  name: portfolio-front-tools-12
-              - configMap:
-                  name: portfolio-front-tools-13
-              - configMap:
-                  name: portfolio-front-tools-14
-              - configMap:
-                  name: portfolio-front-tools-15
-              - configMap:
-                  name: portfolio-front-tools-16
-              - configMap:
-                  name: portfolio-front-tools-17
-              - configMap:
-                  name: portfolio-front-tools-18
-              - configMap:
-                  name: portfolio-front-tools-19
-              - configMap:
-                  name: portfolio-front-tools-20
-              - configMap:
-                  name: portfolio-front-tools-21
-              - configMap:
-                  name: portfolio-front-tools-22
-              - configMap:
-                  name: portfolio-front-tools-23
-              - configMap:
-                  name: portfolio-front-tools-24
-              - configMap:
-                  name: portfolio-front-tools-25
         - name: conf
           configMap:
             name: portfolio-front-nginx

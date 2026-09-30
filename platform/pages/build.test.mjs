@@ -212,7 +212,9 @@ test('every venture with a browser entry point is discovered', async () => {
   const slugs = surfaces.map((s) => s.slug);
 
   // A representative slice of each shape the discovery rules handle.
-  assert.ok(slugs.includes('ebay-fee-calculator'), 'top-level index.html');
+  // `ebay-fee-calculator` was the top-level fixture until 2026-09-30, when it
+  // moved with the other calculators to the public fp-monorepo repository.
+  assert.ok(slugs.includes('ebay-transaction-report-analyzer'), 'top-level index.html');
   assert.ok(slugs.includes('quote-margin-check'), 'site/index.html');
   assert.ok(slugs.includes('ai-engineering-academy'), 'explicit entry override');
   assert.ok(surfaces.length >= 25, `expected the full portfolio, got ${surfaces.length}`);
@@ -294,8 +296,11 @@ test('no page still points at the placeholder origin', async () => {
 });
 
 test('venture sitemaps are rewritten to the real origin', async () => {
-  const xml = await read('ebay-fee-calculator', 'sitemap.xml');
-  assert.ok(xml.includes(`${BASE}ebay-fee-calculator/`));
+  // Was `ebay-fee-calculator` until 2026-09-30 (moved to fp-monorepo).
+  // `seller-net-sheet` writes its sitemap against the placeholder origin.
+  const xml = await read('seller-net-sheet', 'sitemap.xml');
+  assert.ok(xml.includes(`${BASE}seller-net-sheet/`));
+  assert.ok(!xml.includes('example.invalid'));
 });
 
 // ---------------------------------------------------------------------------
@@ -729,16 +734,19 @@ test('the machine surfaces carry the sub-group a trade tool belongs to', async (
   const llms = await read('llms.txt');
   const subheads = llms.split('\n').filter((line) => line.startsWith('### '));
   assert.ok(subheads.length > 1, 'the trades section is sub-divided in llms.txt too');
-  assert.ok(subheads.some((line) => line.includes('Roofing')));
+  // The roofing group was the fixture until 2026-09-30, when the trade bid
+  // calculators moved to the public fp-monorepo repository. What stayed in
+  // trades is the getting-paid group and one interior tool, still two groups.
+  assert.ok(subheads.some((line) => line.includes('Getting paid')));
 
   const catalog = JSON.parse(await read('catalog.json'));
-  const roof = catalog.tools.find((t) => t.slug === 'metal-roof-bid-calculator');
-  assert.equal(roof.category, 'Trade & contractor bids');
-  assert.equal(roof.subcategory, 'Roofing, siding & gutters');
+  const margin = catalog.tools.find((t) => t.slug === 'job-margin-variance');
+  assert.equal(margin.category, 'Trade & contractor bids');
+  assert.equal(margin.subcategory, 'Getting paid & job margin');
 
   // Absent rather than null where a category is not sub-divided, so a consumer
   // filtering on the key never has to special-case an empty value.
-  const ebay = catalog.tools.find((t) => t.slug === 'ebay-fee-calculator');
+  const ebay = catalog.tools.find((t) => t.slug === 'ebay-transaction-report-analyzer');
   assert.ok(!('subcategory' in ebay));
 });
 
@@ -922,40 +930,17 @@ test('searchVariants reaches the singular a plural query would step over', () =>
   assert.deepEqual(searchVariants('deck'), ['deck']);
 });
 
-test('aliases give a tool the words its own copy never uses', () => {
-  // Each of these was a query that found nothing while the tool existed.
-  assert.match(aliasesFor('pressure-washing-bid-calculator'), /power washing/);
-  assert.match(aliasesFor('window-cleaning-bid-calculator'), /washing/);
-  assert.match(aliasesFor('snow-removal-bid-calculator'), /plowing/);
-  assert.match(aliasesFor('junk-removal-bid-calculator'), /hauling/);
-  assert.match(aliasesFor('pest-control-bid-calculator'), /termite/);
-  assert.match(aliasesFor('mini-split-bid-calculator'), /air conditioning/);
-
-  // A room-level search reaches every tool that does part of that room, since
-  // no single tool carries both words and the matcher ANDs across them.
-  for (const slug of ['countertop-bid-calculator', 'cabinet-refinishing-bid-calculator']) {
-    assert.match(aliasesFor(slug), /kitchen remodel/);
-  }
-
-  // Keyed by slug so an alias cannot wander onto an unrelated tool: the
-  // well-pump calculator talks about pressure and must not become a
-  // power-washing result. It does carry its own alias now — the pump type
-  // most residential wells use, and a word its own copy never says — which
-  // is the same fix as every other entry above, not the collision this
-  // guards against.
-  assert.match(aliasesFor('well-pump-bid-calculator'), /submersible/);
-  assert.doesNotMatch(aliasesFor('well-pump-bid-calculator'), /power washing/);
-  assert.equal(aliasesFor('ebay-fee-calculator'), '');
-
-  // The trade's word and the material's word for the same roof.
-  assert.match(aliasesFor('roofing-bid-calculator'), /shingle/);
-  assert.match(aliasesFor('sod-install-bid-calculator'), /grass/);
-  assert.match(aliasesFor('lawn-care-bid-calculator'), /mowing/);
-  assert.match(aliasesFor('junk-removal-bid-calculator'), /dumpster/);
-  for (const slug of ['mini-split-bid-calculator', 'hvac-maintenance-contract-calculator']) {
-    assert.match(aliasesFor(slug), /\bac\b/);
-  }
-});
+// 'aliases give a tool the words its own copy never uses' pinned the live
+// table's trade entries (pressure washing, plowing, shingle, ...). Removed
+// 2026-09-30: every one of those tools moved to the public fp-monorepo
+// repository, where the table and that test still live, and the table here is
+// empty. The matcher itself stayed, so it is pinned below against a fixture
+// table carrying the entries that proved each rule.
+const ALIAS_FIXTURE = [
+  { slug: 'snow-removal', add: 'plowing plow shoveling shovel deicing' },
+  { slug: 'roofing', add: 'shingle shingles asphalt' },
+  { slug: 'well-pump', add: 'submersible' },
+];
 
 test('an alias reaches a slug word, never a word ending', () => {
   // The failure this replaces was live and invisible: the key is matched
@@ -964,17 +949,22 @@ test('an alias reaches a slug word, never a word ending', () => {
   // under a substring test the shingle words land on the French-drain
   // calculator and "shingle" starts returning a basement tool. Nothing about
   // that is red -- the alias table looks right and the query returns a result.
-  assert.equal(aliasesFor('basement-waterproofing-bid-calculator'), '');
-  assert.match(aliasesFor('roofing-bid-calculator'), /shingle/);
+  assert.equal(aliasesFor('basement-waterproofing-bid-calculator', ALIAS_FIXTURE), '');
+  assert.match(aliasesFor('roofing-bid-calculator', ALIAS_FIXTURE), /shingle/);
 
   // Only a run of whole slug words claims a tool: the key's words have to be
   // adjacent and in order, and neither may be half of a longer word.
-  assert.equal(aliasesFor('snow-plow-removal-bid-calculator'), '');
-  assert.equal(aliasesFor('removal-snow-bid-calculator'), '');
-  assert.equal(aliasesFor('snowplow-removal-bid-calculator'), '');
+  assert.equal(aliasesFor('snow-plow-removal-bid-calculator', ALIAS_FIXTURE), '');
+  assert.equal(aliasesFor('removal-snow-bid-calculator', ALIAS_FIXTURE), '');
+  assert.equal(aliasesFor('snowplow-removal-bid-calculator', ALIAS_FIXTURE), '');
   // A tool whose slug carries the run keeps the alias wherever the run sits.
-  assert.match(aliasesFor('snow-removal-bid-calculator'), /plowing/);
-  assert.match(aliasesFor('commercial-snow-removal-bid-calculator'), /plowing/);
+  assert.match(aliasesFor('snow-removal-bid-calculator', ALIAS_FIXTURE), /plowing/);
+  assert.match(aliasesFor('commercial-snow-removal-bid-calculator', ALIAS_FIXTURE), /plowing/);
+
+  // Keyed by slug, so an entry reaches only the tool it names: the well pump
+  // gets its own word and nobody else's, and a tool no key names gets nothing.
+  assert.equal(aliasesFor('well-pump-bid-calculator', ALIAS_FIXTURE), 'submersible');
+  assert.equal(aliasesFor('ebay-transaction-report-analyzer', ALIAS_FIXTURE), '');
 });
 
 test('every alias names a venture that exists', async () => {
@@ -1041,7 +1031,8 @@ test('the hub carries a name index and the ranking function it is scored with', 
   );
   // Scoring needs the tool's own name apart from its description and aliases;
   // without the attribute every card scores alike and the order never changes.
-  assert.match(html, /<li class="card" data-name="[^"]*roofing[^"]*" data-strong="[^"]*" data-search=/);
+  // (Matched on `roofing` until 2026-09-30, when that tool moved to fp-monorepo.)
+  assert.match(html, /<li class="card" data-name="[^"]*ebay[^"]*" data-strong="[^"]*" data-search=/);
 });
 
 test('a query that matches every word in nothing is offered the closest tools', async () => {
@@ -1198,13 +1189,15 @@ test('the search index carries description text the card is too small to show', 
 
 test("the search index carries a venture's other page titles", async () => {
   // A visitor arrives having typed the question one of these pages answers.
+  // The eBay fee calculator was the fixture until 2026-09-30, when it moved to
+  // the public fp-monorepo repository; `seller-net-sheet` carries four.
   const titles = await collectPageTitles(
-    path.join(VENTURES, 'ebay-fee-calculator'),
-    path.join(VENTURES, 'ebay-fee-calculator', 'index.html'),
+    path.join(VENTURES, 'seller-net-sheet'),
+    path.join(VENTURES, 'seller-net-sheet', 'index.html'),
   );
-  assert.ok(titles.length > 0, 'expected the eBay venture to have article pages');
+  assert.ok(titles.length > 0, 'expected the seller-net-sheet venture to have article pages');
 
-  const surface = (await site()).surfaces.find((s) => s.slug === 'ebay-fee-calculator');
+  const surface = (await site()).surfaces.find((s) => s.slug === 'seller-net-sheet');
   const indexed = new Set(surface.searchIndex.split(' '));
   const fromTitles = searchTokens(titles).split(' ').filter((w) => w.length > 4);
   const missing = fromTitles.filter((w) => !indexed.has(w));
@@ -1230,7 +1223,9 @@ test('a query whose words are not adjacent still matches', async () => {
       .map((c) => c.slug);
 
   // Each of these found nothing when the index was one truncated string.
-  assert.ok(search('ebay return').includes('ebay-fee-calculator'));
+  // (`ebay return` against `ebay-fee-calculator` until 2026-09-30, when it
+  // moved to fp-monorepo.) "zillow" reaches this tool only through a page title.
+  assert.ok(search('seller zillow').includes('seller-net-sheet'));
   assert.ok(search('freight accessorial').includes('freight-accessorial-auditor'));
   assert.deepEqual(search('qqzzxx'), []);
 });
@@ -1529,8 +1524,10 @@ test('the hub sub-divides the trades section and leaves small ones flat', async 
 
   const trades = hub.split('data-group="trades"')[1].split('</section>\n      </section>')[0];
   const rendered = [...trades.matchAll(/data-subgroup="([^"]+)"/g)].map((m) => m[1]);
-  assert.ok(rendered.length > 1, 'the 100+ trade tools are broken into families');
-  assert.ok(rendered.includes('trades-roof'));
+  assert.ok(rendered.length > 1, 'the trade tools are broken into families');
+  // `trades-roof` until 2026-09-30, when the trade bid calculators moved to
+  // fp-monorepo; the getting-paid group is the one that stayed populated.
+  assert.ok(rendered.includes('trades-paid'));
 
   const marketplace = hub.split('data-group="marketplace"')[1].split('</section>')[0];
   assert.ok(
@@ -1550,8 +1547,9 @@ test('card headings sit one level below the section that holds them', async () =
   const skip = levels.slice(1).find((level, i) => level > levels[i] + 1);
   assert.equal(skip, undefined, 'no heading level is skipped anywhere on the hub');
 
-  const roof = hub.split('data-subgroup="trades-roof"')[1].split('</section>')[0];
-  assert.ok(roof.includes('<h4>'), 'a card under a sub-group heading is an h4');
+  // `trades-roof` until 2026-09-30 (moved to fp-monorepo with the calculators).
+  const paid = hub.split('data-subgroup="trades-paid"')[1].split('</section>')[0];
+  assert.ok(paid.includes('<h4>'), 'a card under a sub-group heading is an h4');
   const marketplace = hub.split('data-group="marketplace"')[1].split('</section>')[0];
   assert.ok(marketplace.includes('<h3>'), 'a card in a flat category stays an h3');
 });
@@ -1635,10 +1633,10 @@ test('links that escape the site are repointed at the repository, not left broke
 });
 
 test('repair leaves working in-site links untouched', async () => {
-  const ebay = await read('ebay-fee-calculator', 'index.html');
+  const ebay = await read('ebay-transaction-report-analyzer', 'index.html');
   assert.ok(ebay.includes('href="calc.mjs"') || ebay.includes('src="calc.mjs"') || ebay.includes('./calc.mjs'),
     'the tool still loads its own module by relative path');
-  assert.ok(!ebay.includes(`${SOURCE_URL_PREFIX}ventures/ebay-fee-calculator/calc.mjs`),
+  assert.ok(!ebay.includes(`${SOURCE_URL_PREFIX}ventures/ebay-transaction-report-analyzer/calc.mjs`),
     'a module that is published must not be repointed off-site');
 });
 
@@ -1706,7 +1704,7 @@ test('every injected link resolves to a page that exists', async () => {
 
 test('a page nested deeper climbs further to reach the root', () => {
   assert.equal(upToRoot('index.html'), './');
-  assert.equal(upToRoot(path.join('etsy-profit-calculator', 'index.html')), '../');
+  assert.equal(upToRoot(path.join('etsy-statement-profit-analyzer', 'index.html')), '../');
   assert.equal(upToRoot(path.join('a', 'b', 'index.html')), '../../');
 });
 
@@ -2053,7 +2051,7 @@ test('related tools exclude the page they sit on and prefer its category', () =>
   const surfaces = [
     { slug: 'amazon-fba-calculator', title: 'A' },
     { slug: 'ebay-fee-calculator', title: 'B' },
-    { slug: 'etsy-profit-calculator', title: 'C' },
+    { slug: 'etsy-statement-profit-analyzer', title: 'C' },
     { slug: 'toilet-replacement-bid-calculator', title: 'D' },
   ];
   const related = relatedTools(surfaces, 'amazon-fba-calculator', 2);
@@ -2316,7 +2314,7 @@ test('the footer lands at the real closing </body>, not a literal one inside ear
 });
 
 test('the chrome counts locally, honours opt-out, and asks for nothing off-origin', async () => {
-  const page = await read('etsy-profit-calculator', 'index.html');
+  const page = await read('etsy-statement-profit-analyzer', 'index.html');
   // From the injected element, not the style block that names the same class:
   // the venture's own footer sits above it and carries its own GitHub links.
   const chrome = page.slice(page.indexOf('<aside class="pf-chrome pf-chrome-foot"'));
@@ -2327,7 +2325,7 @@ test('the chrome counts locally, honours opt-out, and asks for nothing off-origi
   assert.ok(script.includes("localStorage.getItem('portfolio-hub-optout')"), 'the hub opt-out applies here too');
   assert.ok(script.includes('doNotTrack') && script.includes('globalPrivacyControl'));
   assert.ok(script.includes("bump('tool_viewed:'+slug)"));
-  assert.match(chrome, /<script src="\.\.\/pf-site\.js" data-pf-slug="etsy-profit-calculator">/);
+  assert.match(chrome, /<script src="\.\.\/pf-site\.js" data-pf-slug="etsy-statement-profit-analyzer">/);
   assert.ok(!/fetch\(|XMLHttpRequest|navigator\.sendBeacon/.test(script), 'nothing is transmitted');
   assert.ok(!/fetch\(|XMLHttpRequest|navigator\.sendBeacon/.test(chrome), 'nothing is transmitted');
 
@@ -2348,7 +2346,7 @@ test('the chrome counts locally, honours opt-out, and asks for nothing off-origi
  * functions and nothing but a real match holds them together. So the script is
  * executed rather than read.
  */
-function chromeCounter({ slug = 'etsy-profit-calculator', navigator = {}, stored = {} } = {}) {
+function chromeCounter({ slug = 'etsy-statement-profit-analyzer', navigator = {}, stored = {} } = {}) {
   let click = null;
   const store = new Map(Object.entries(stored).map(([k, v]) => [k, JSON.stringify(v)]));
   const localStorage = {
@@ -2389,7 +2387,7 @@ test('a click on the sponsor link is counted, under the same rules as every othe
   assert.equal(page.counts()[SPONSOR_CLICK_EVENT], 1);
   page.clickOn(marker);
   assert.equal(page.counts()[SPONSOR_CLICK_EVENT], 2, 'a second click is a second count');
-  assert.equal(page.counts()['tool_viewed:etsy-profit-calculator'], 1,
+  assert.equal(page.counts()['tool_viewed:etsy-statement-profit-analyzer'], 1,
     'and the view it is read against is still counted once, not once per click');
 
   // The two halves of the delegate are independent: the cross-tool link was
@@ -2405,7 +2403,7 @@ test('a click on the sponsor link is counted, under the same rules as every othe
   const idle = chromeCounter();
   idle.clickOn();
   assert.deepEqual(Object.keys(idle.counts()).filter((k) => k !== 'last_day'),
-    ['tool_viewed:etsy-profit-calculator']);
+    ['tool_viewed:etsy-statement-profit-analyzer']);
 
   // Every off switch that silences the other two events silences this one,
   // because it is the same guarded block and not a second counter beside it.
@@ -2439,7 +2437,7 @@ test('the sponsor link is marked wherever it was written, and marking it twice c
   // And on the built site: the tool pages the chrome wraps, plus the four kinds
   // of page it does not, each of which renders its own sponsor line.
   for (const parts of [
-    ['etsy-profit-calculator', 'index.html'],
+    ['etsy-statement-profit-analyzer', 'index.html'],
     ['index.html'],
     ['about', 'index.html'],
   ]) {
@@ -2457,7 +2455,7 @@ test('a page carries no inline chrome script or stylesheet, only links to the sh
   // into all 442 published pages -- 1.9 MiB of the built site, and the same
   // bytes every time. A page that regrew either would be paying for it again on
   // every load and again in the offline bundle.
-  const page = await read('etsy-profit-calculator', 'index.html');
+  const page = await read('etsy-statement-profit-analyzer', 'index.html');
   assert.doesNotMatch(page, /<style id="pf-chrome-style">/);
   assert.doesNotMatch(page, /data-pf-scrollable'\)/, 'the scroll pass is a file, not a body');
   assert.match(page, /<link rel="stylesheet" href="\.\.\/pf-chrome\.css">/);
@@ -2468,7 +2466,7 @@ test('a page carries no inline chrome script or stylesheet, only links to the sh
 });
 
 test('the sponsor line on a tool page is optional and gates nothing', async () => {
-  const page = await read('etsy-profit-calculator', 'index.html');
+  const page = await read('etsy-statement-profit-analyzer', 'index.html');
   assert.match(page, /Sponsoring on GitHub<\/a>\s*\n?\s*is optional and changes nothing/);
 });
 
@@ -3343,8 +3341,8 @@ test('every published page declares exactly one canonical URL', async () => {
 });
 
 test('an injected canonical is the directory URL on the real origin', async () => {
-  const entry = await read('ebay-fee-calculator', 'index.html');
-  assert.equal(entry.match(/<link rel="canonical" href="([^"]*)"/)[1], `${BASE}ebay-fee-calculator/`);
+  const entry = await read('ebay-transaction-report-analyzer', 'index.html');
+  assert.equal(entry.match(/<link rel="canonical" href="([^"]*)"/)[1], `${BASE}ebay-transaction-report-analyzer/`);
 });
 
 test('each tool entry page carries breadcrumb structured data', async () => {
@@ -3380,7 +3378,7 @@ test('chrome takes its theme from the host page, not the operating system', asyn
   // the fixed version holds 13.7:1 or better on every tool in both OS schemes,
   // and a tool with its own dark mode still flips (17.4:1 light, 15.1:1 dark).
   // One stylesheet at the site root since the extraction; the page links it.
-  const html = await read('etsy-profit-calculator', 'index.html');
+  const html = await read('etsy-statement-profit-analyzer', 'index.html');
   assert.match(html, /<link rel="stylesheet" href="\.\.\/pf-chrome\.css">/);
   const style = await read('pf-chrome.css');
 
@@ -3404,29 +3402,24 @@ test('nothing this build injects reaches a printed customer proposal', async () 
   // wage, payroll burden, overhead and target net margin. A contractor who had
   // saved their rates and left the panel open would have handed the customer
   // their margin stapled to the quote.
-  const html = await read('deck-bid-calculator', 'index.html');
-  assert.ok(html.includes('id="proposalDoc"'),
-    'deck-bid-calculator no longer carries a proposal; point this test at one that does');
-
-  // The three stylesheets are files at the site root now, so the rules are read
-  // from there and the page is checked for the links that pull them in. An
-  // unlinked stylesheet is the same defect as a missing print rule: the band
-  // would render, unstyled, on the sheet the homeowner is handed.
+  //
+  // 2026-09-30: those nine calculators (this test read `deck-bid-calculator`)
+  // moved to the public fp-monorepo repository, where the page-level half of
+  // this test still runs. No page here carries a proposal now, but the build
+  // still ships both stylesheets, and any printed page inherits them — so the
+  // print rules are still asserted on the files themselves.
   const chromeStyle = await read('pf-chrome.css');
-  assert.match(html, /<link rel="stylesheet" href="\.\.\/pf-chrome\.css">/);
   assert.match(chromeStyle, /@media print\{\.pf-chrome\{display:none !important\}\}/,
     'the site navigation would print on the customer’s proposal');
 
   const ratesStyle = await read('pf-rates.css');
-  assert.match(html, /<link rel="stylesheet" href="\.\.\/pf-rates\.css">/,
-    'the shop-rates band is no longer injected; this test needs rewriting');
   assert.ok(ratesStyle.includes('.pf-rates-list'));
   assert.match(ratesStyle, /@media print\{\.pf-rates\{display:none !important\}\}/,
     'the contractor’s wage, burden, overhead and margin would print on the customer’s proposal');
 });
 
 test('injected head tags do not disturb the page they land in', async () => {
-  const html = await read('ebay-fee-calculator', 'index.html');
+  const html = await read('ebay-transaction-report-analyzer', 'index.html');
   assert.equal((html.match(/<\/head>/gi) ?? []).length, 1);
   assert.equal((html.match(/<body[^>]*>/gi) ?? []).length, 1);
   assert.ok(html.includes('calc.mjs'), 'the calculator still loads its own module');
@@ -3437,7 +3430,8 @@ test('the availability clause is supplied only where a venture lacks its own', a
   // A venture that words the clause itself must not be given a second one in
   // different prose — two availability statements on one page is how a reader
   // stops believing either.
-  const own = await read('janitorial-bid-calculator', 'index.html');
+  // `janitorial-bid-calculator` until 2026-09-30 (moved to fp-monorepo).
+  const own = await read('1099k-reconciliation-worksheet', 'index.html');
   const supplied = (own.match(/Best-effort hosting/gi) ?? []).length;
   assert.ok(supplied <= 1, `${supplied} availability clauses on one page`);
 
@@ -3519,7 +3513,9 @@ test('every number input on the built site carries an inputmode', async () => {
   }
 
   // A silently-empty walk would make the assertion below pass for free.
-  assert.ok(inputs > 1000, `only ${inputs} number input(s) found`);
+  // 2026-09-30: was >1000; the calculators moved to fp-monorepo and 550
+  // number inputs remain on the catalogue that stayed.
+  assert.ok(inputs > 500, `only ${inputs} number input(s) found`);
   assert.deepEqual(missing, [], `number inputs with no keypad:\n${missing.slice(0, 10).join('\n')}`);
 });
 
@@ -3595,7 +3591,9 @@ test('the saved-bids script is one file the whole site loads, not 234 copies', a
     assert.ok(!html.includes('var SLUG = '),
       `${path.relative(outDir, file)} still inlines the saved-bids script`);
   }
-  assert.ok(tagged > 200, `only ${tagged} pages carry the band`);
+  // 2026-09-30: was >200; the bid calculators moved to fp-monorepo and 114
+  // pages here still carry the band.
+  assert.ok(tagged > 100, `only ${tagged} pages carry the band`);
 });
 
 test('every stylesheet and script this build injects is one file, at the right depth', async () => {
@@ -3615,16 +3613,22 @@ test('every stylesheet and script this build injects is one file, at the right d
   // The two facts a shared asset has to get right: it exists, and every page
   // that needs it resolves to it. A src that is correct at `/<slug>/` is a 404
   // at `/<slug>/some-question.html`, which is where search traffic lands.
+  //
+  // `floor` is how many pages must carry each asset, so a gate that silently
+  // matches nothing cannot pass. 2026-09-30: it was 100 for all five; the
+  // calculators moved to the public fp-monorepo repository, which took every
+  // page that carries the shop-rates bar with them (0 here, still checked
+  // there), and the saved-bids band is now on ~114 pages.
   const assets = {
-    'pf-chrome.css': { attr: 'link', gate: () => true },
-    'pf-site.js': { attr: 'script', gate: () => true },
-    'pf-rates.css': { attr: 'link', gate: (html) => html.includes('data-pf-rates-root') },
-    'pf-rates.js': { attr: 'script', gate: (html) => html.includes('data-pf-rates-root') },
-    'pf-jobs.css': { attr: 'link', gate: (html) => html.includes('data-pf-jobs-root') },
+    'pf-chrome.css': { attr: 'link', gate: () => true, floor: 100 },
+    'pf-site.js': { attr: 'script', gate: () => true, floor: 100 },
+    'pf-rates.css': { attr: 'link', gate: (html) => html.includes('data-pf-rates-root'), floor: 0 },
+    'pf-rates.js': { attr: 'script', gate: (html) => html.includes('data-pf-rates-root'), floor: 0 },
+    'pf-jobs.css': { attr: 'link', gate: (html) => html.includes('data-pf-jobs-root'), floor: 100 },
   };
 
   const pages = (await walk(outDir)).filter((f) => f.endsWith('.html') && !f.endsWith('offline.html'));
-  for (const [name, { attr, gate }] of Object.entries(assets)) {
+  for (const [name, { attr, gate, floor }] of Object.entries(assets)) {
     const body = await read(name);
     assert.ok(body.length > 400, `${name} was not written to the site root`);
     assert.ok(offline.shared.includes(name),
@@ -3646,7 +3650,7 @@ test('every stylesheet and script this build injects is one file, at the right d
       assert.equal(path.resolve(path.dirname(file), href), path.join(outDir, name),
         `${rel} points at ${href}, which does not resolve to the site root`);
     }
-    assert.ok(carrying > 100, `only ${carrying} pages load ${name}`);
+    assert.ok(carrying >= floor, `only ${carrying} pages load ${name}`);
   }
 
   // And the copies they replaced are gone. A page carrying both would pay for

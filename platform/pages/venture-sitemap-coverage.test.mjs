@@ -90,9 +90,13 @@ function venturesWithASitemap() {
 // A check that walks the tree can go quiet by walking the wrong tree -- a moved
 // directory, a renamed file, a resolver that returns nothing -- and a green run
 // says the same thing either way. This is the cheap assertion that it did not.
+//
+// The floor was 200 until 2026-09-30, when the calculators moved to the public
+// fp-monorepo repository; 190 ventures here ship a sitemap, so it now sits a
+// little under that.
 test('the check is looking at the catalogue and not at an empty directory', () => {
   assert.ok(
-    venturesWithASitemap().length > 200,
+    venturesWithASitemap().length > 175,
     `expected the catalogue's ventures, found ${venturesWithASitemap().length} sitemaps under ${VENTURES}`,
   );
 });

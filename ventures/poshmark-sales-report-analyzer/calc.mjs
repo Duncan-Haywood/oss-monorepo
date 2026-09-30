@@ -4,7 +4,7 @@
 // no DOM, no network.
 //
 // The fee constants and commissionFor() are the same rules as
-// ../poshmark-fee-calculator/calc.mjs (a test asserts the two stay equal):
+// https://duncan-haywood.github.io/fp-monorepo/poshmark-fee-calculator/calc.mjs (a test asserts the two stay equal):
 // a flat $2.95 under $15.00, 20% of the sale price at $15.00 or more.
 
 export const COMMISSION_THRESHOLD = 15;

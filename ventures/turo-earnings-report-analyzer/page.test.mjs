@@ -52,7 +52,7 @@ test("page states it is independent of Turo and links to the payout calculator",
   const html = page("index.html");
   assert.match(html, /Not affiliated with Turo/);
   assert.match(html, /not sponsored, endorsed or connected to Turo Inc\./);
-  assert.match(html, /\.\.\/turo-host-payout-calculator\//);
+  assert.match(html, /https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/turo-host-payout-calculator\//);
 });
 
 test("usage events named on the page are the ones the code records", () => {

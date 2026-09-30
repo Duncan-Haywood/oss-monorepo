@@ -31,8 +31,8 @@ test("page states the model, the backup caveat and that GPS only runs while open
 
 test("footer links the mileage method calculator and the gig driver calculator", () => {
   const html = page("index.html");
-  assert.match(html, /href="\.\.\/mileage-deduction-method-calculator\/"/);
-  assert.match(html, /href="\.\.\/gig-driver-net-pay-calculator\/"/);
+  assert.match(html, /href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/mileage-deduction-method-calculator\/"/);
+  assert.match(html, /href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/gig-driver-net-pay-calculator\/"/);
 });
 
 test("robots and sitemap let crawlers find the page", () => {

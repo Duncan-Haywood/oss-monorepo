@@ -993,8 +993,8 @@ test('the icon is delivered in the same ConfigMap as the page that names it', as
 
 test('the published slug list is the one check.mjs already pins', async () => {
   const slugs = await publishedSlugs();
-  assert.ok(slugs.length > 100, 'launched.json should hold the whole published catalogue');
-  assert.ok(slugs.includes('roofing-bid-calculator'));
+  assert.ok(slugs.length > 150, 'launched.json should hold the whole published catalogue');
+  assert.ok(slugs.includes('seller-net-sheet'));
 });
 
 test('the committed robots.txt and sitemap match what this generator produces', async () => {

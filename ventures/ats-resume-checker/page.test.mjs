@@ -14,8 +14,8 @@ const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 test("index links one hop to the freelance-retainer-calculator sibling", () => {
   assert.match(
     html,
-    /href="\.\.\/freelance-retainer-calculator\/"/,
-    "index must link ../freelance-retainer-calculator/ so a reader weighing both reaches it in one hop",
+    /href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/freelance-retainer-calculator\/"/,
+    "index must link https://duncan-haywood.github.io/fp-monorepo/freelance-retainer-calculator/ so a reader weighing both reaches it in one hop",
   );
 });
 

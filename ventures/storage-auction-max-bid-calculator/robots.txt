@@ -1,3 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://example.invalid/storage-auction-max-bid-calculator/sitemap.xml

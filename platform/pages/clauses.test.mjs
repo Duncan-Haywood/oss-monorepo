@@ -96,10 +96,10 @@ test('the real venture tree is walked and every page carries the clause', async 
 });
 
 test('a slug narrows the walk to one venture', async () => {
-  const { pages, surfaces } = await collectPages({ slug: 'sewer-line-replace-bid-calculator' });
+  const { pages, surfaces } = await collectPages({ slug: 'seller-net-sheet' });
   assert.equal(surfaces.length, 1);
   assert.ok(pages.length >= 2, `only ${pages.length} page(s)`);
-  assert.ok(pages.every(([page]) => page.startsWith('sewer-line-replace-bid-calculator/')));
+  assert.ok(pages.every(([page]) => page.startsWith('seller-net-sheet/')));
 });
 
 test('a venture with no browser surface yields no pages rather than throwing', async () => {
@@ -138,7 +138,7 @@ test('a slug that names no venture is reported as unknown, not as empty', async 
 });
 
 test('a real venture with a browser surface is known', async () => {
-  const { known } = await collectPages({ slug: 'sewer-line-replace-bid-calculator' });
+  const { known } = await collectPages({ slug: 'seller-net-sheet' });
   assert.equal(known, true);
 });
 

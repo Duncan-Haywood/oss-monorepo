@@ -54,7 +54,7 @@ test("page states it is independent of Fiverr and links to sibling fee tools", (
   const html = page("index.html");
   assert.match(html, /Not affiliated with Fiverr/);
   assert.match(html, /not sponsored, endorsed or connected to Fiverr International Ltd\./);
-  assert.match(html, /\.\.\/freelance-platform-fee-calculator\//);
+  assert.match(html, /https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/freelance-platform-fee-calculator\//);
   assert.match(html, /\.\.\/upwork-earnings-fee-analyzer\//);
 });
 

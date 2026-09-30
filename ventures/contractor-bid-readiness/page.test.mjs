@@ -33,8 +33,8 @@ test('index links one hop to the tender-bid-readiness sibling', () => {
 test("index links one hop to the certified-payroll-calculator sibling", () => {
   assert.match(
     html,
-    /href="\.\.\/certified-payroll-calculator\/"/,
-    'index must link ../certified-payroll-calculator/ so crawlers reach the certified payroll calculator in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/certified-payroll-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/fp-monorepo/certified-payroll-calculator/ so crawlers reach the certified payroll calculator in one hop',
   );
   assert.match(html, /certified payroll calculator/i);
 });

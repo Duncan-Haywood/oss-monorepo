@@ -32,24 +32,10 @@ test('an empty select falls back to the array its fillSelect call names', () => 
   assert.equal(defaultFor(html, 'cell', calc), 'open');
 });
 
-test('grounds a page that carries its rates in markup', async () => {
-  const { result, blank } = await ground('sump-pump-bid-calculator');
-  assert.equal(result.totalHours, 2.45);
-  assert.ok(result.price > 0 && result.laborCost > 0 && result.materialCost > 0);
-  // Only the optional "what if I bid X?" field is meant to start empty.
-  assert.deepEqual(blank, ['proposedPrice']);
-});
-
-// The regression this module exists for. stair-lift ships its rate fields empty
-// and fills them at load from suggested*Kit(); reading markup alone yields
-// 0 hours / 0 material / $136.56, which is not a price any visitor is shown.
-// If this ever goes back to zero, FAQ copy grounded on it will be fiction.
-test('grounds a page that fills its rates from kits at load', async () => {
-  const { result, blank } = await ground('stair-lift-bid-calculator');
-  assert.ok(result.totalHours > 0, 'kits must supply the hour rates');
-  assert.ok(result.materialCost > 0, 'kits must supply the invoice costs');
-  assert.ok(result.price > 1000, `expected a real price, got ${result.price}`);
-  // proposedPrice is the optional "what if I bid X?" field and is meant to be
-  // empty; anything else blank means the page was not faithfully reproduced.
-  assert.deepEqual(blank, ['proposedPrice']);
-});
+// 'grounds a page that carries its rates in markup' (sump-pump-bid-calculator)
+// and 'grounds a page that fills its rates from kits at load'
+// (stair-lift-bid-calculator) were removed 2026-09-30: both calculators, and
+// every other page `ground()` could reproduce, moved to the public fp-monorepo
+// repository, where those tests still run. No venture left here reads its
+// first-load input from `*_IDS` lists or load-time kits, so there is no real
+// page to ground; the markup-reading rules above are still tested.

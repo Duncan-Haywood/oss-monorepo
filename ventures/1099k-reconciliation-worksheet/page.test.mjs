@@ -99,8 +99,8 @@ test("index links one hop to the qbi-deduction-calculator sibling", () => {
   const html = page("index.html");
   assert.match(
     html,
-    /href="\.\.\/qbi-deduction-calculator\/"/,
-    'index must link ../qbi-deduction-calculator/ so crawlers reach it in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/qbi-deduction-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/fp-monorepo/qbi-deduction-calculator/ so crawlers reach it in one hop',
   );
 });
 
@@ -113,7 +113,7 @@ test("index links one hop to the mega-backdoor-roth-calculator sibling", () => {
   const html = page("index.html");
   assert.match(
     html,
-    /href="\.\.\/mega-backdoor-roth-calculator\/"/,
-    'index must link ../mega-backdoor-roth-calculator/ so crawlers reach it in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/mega-backdoor-roth-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/fp-monorepo/mega-backdoor-roth-calculator/ so crawlers reach it in one hop',
   );
 });
