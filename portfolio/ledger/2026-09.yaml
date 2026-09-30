@@ -48685,32 +48685,3 @@ entries:
         row, launch date, category rule, CI workflow and tree counts;
         regenerated the mirror.
     mrr_end: 0
-  - venture: project-estimate-calibrator
-    agent_spend_usd: null
-    human_hours: 0
-    outcomes:
-      - >-
-        Graduated and built project-estimate-calibrator: a browser-local tool
-        for freelancers, agencies and contractors. Paste or upload finished
-        projects as estimate and actual (hours or dollars, optional type
-        column); fits ln(actual) on ln(estimate) with the slope pinned to 1
-        unless 20 or more projects show a size trend, reports how often and how
-        badly estimates ran over, calibrated 50/70/80/90% outcomes for the next
-        estimate from split-conformal residual quantiles (no bell curve, levels
-        the sample cannot support are flagged), the buffer and fixed price that
-        cover each, the chance a fixed price loses money at a typed rate,
-        300 seeded bootstrap resamples for the 80% ranges, overrun by type of
-        work, and a 75/25 hold-out back-test of the P80 coverage against
-        assuming actual equals estimate. Refuses fewer than 12 projects and
-        actuals identical to estimates; flags extrapolation beyond past sizes.
-        New niche: duplicate_check.py best match job-margin-variance at 0.24
-        (describes finished jobs; this predicts the next). First visitor
-        expected from "how much to pad an estimate" and "estimate buffer
-        calculator" searches and r/freelance, r/webdev and r/consulting.
-        Project files never leave the browser. Unverified against a published
-        dataset: tests use simulated histories with known overruns (median and
-        P80 recovery, P80 coverage near 80% on 2000 fresh projects, size-trend
-        detection, analytic loss chance) and no-network assertions. Registered
-        score row, launch date, category rule, CI workflow and tree counts;
-        regenerated the mirror.
-    mrr_end: 0
