@@ -98,3 +98,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("LICENSE"), /MIT License/);
   assert.match(page("VENTURE.yaml"), /^name: travel-nurse-contract-comparison-calculator$/m);
 });
+
+test("links to the physician wRVU contract calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/physician-wrvu-contract-calculator\/"/);
+});
