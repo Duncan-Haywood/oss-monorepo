@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Appointment Overbooking Optimizer — how many to book per slot, from your own no-shows</title>
+  <meta name="description" content="Free overbooking calculator for clinics, salons, studios and tutors. Paste your past bookings (booked and showed per slot) to see how many appointments to book into each slot for the highest expected profit, the chance someone is turned away, and a back-test that says whether to trust it. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Appointment Overbooking Optimizer — free, private, in your browser">
+  <meta property="og:description" content="Turn your own no-show history into the number of appointments to book per slot, with honest uncertainty.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Appointment Overbooking Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste or upload your past bookings as booked and showed counts per slot. Fits how no-shows cluster from slot to slot with a beta-binomial model, finds how many appointments to book into each slot for the highest expected profit, shows the chance someone is turned away, gives bootstrap ranges and a back-test on your most recent slots. Runs entirely in your browser.", "featureList": "overbooking calculator, appointment no-show forecast, how many extra appointments to book, beta-binomial model, bootstrap range, salon clinic studio scheduling, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is an overbooking policy?", "acceptedAnswer": {"@type": "Answer", "text": "It is a rule for how many appointments you accept for a slot that has fewer seats than that. If 15% of people do not show, booking four into three seats gives you a good chance of a full schedule. The cost is the nights it goes the other way and everyone shows, so the question is how many to book, not whether to."}}, {"@type": "Question", "name": "How do I work out how many extra appointments to book?", "acceptedAnswer": {"@type": "Answer", "text": "Count what one extra booking is worth and what it can cost. It is worth your margin when it fills a seat someone else left empty; it costs your overflow penalty when everyone shows. This tool turns your past show-up counts into the chance of each outcome and picks the number of bookings with the highest expected profit."}}, {"@type": "Question", "name": "Why does it look at each slot rather than my overall no-show rate?", "acceptedAnswer": {"@type": "Answer", "text": "Because no-shows clump. A storm, a school holiday or a flu week empties several chairs at once, so an overall 15% average hides that some sessions lose 50% and most lose almost nothing. The tool fits a beta-binomial model that measures this clumping; ignoring it makes overbooking look safer than it is."}}, {"@type": "Question", "name": "What data do I need?", "acceptedAnswer": {"@type": "Answer", "text": "Either one row per appointment (slot, status: showed or no-show) or one row per slot (slot, booked, showed). Take it from your booking system export. You need at least 40 appointments, 5 no-shows and 15 slots. Leave out appointments that were cancelled early enough to be refilled; label late cancellations as late cancel."}}, {"@type": "Question", "name": "What do margin and overflow cost mean?", "acceptedAnswer": {"@type": "Answer", "text": "Margin is what one completed appointment earns you after direct costs. Overflow cost is what it costs you when someone extra turns up and cannot be seen on time: a refund or credit, overtime, a lost regular, or a bad review. A careful estimate matters more than a precise one; try both a low and a high figure."}}, {"@type": "Question", "name": "Will this work for my business?", "acceptedAnswer": {"@type": "Answer", "text": "It suits anything booked in slots with a fixed number of seats that can absorb a waiting customer: clinics, salons, tutors, studios, repair appointments. It is a poor fit where an overflow is dangerous or illegal, such as emergency medicine, or where you cannot apologise and rebook someone. Bookings also need enough demand to fill the extra seat."}}, {"@type": "Question", "name": "Is my booking history uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your bookings. It works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">APPOINTMENT OVERBOOKING OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How many appointments should you book per slot?</h1>
+    <p>Paste or upload your booking history: <strong>for each slot, how many were booked and how many showed up</strong>. The tool measures how your no-shows <strong>cluster</strong> (a bad-weather day empties several chairs at once), works out the <strong>chance of every outcome</strong> for each booking level, and finds the number that earns the most after the cost of someone being turned away. It gives a <strong>bootstrap range</strong> on the answer and <strong>back-tests it on your most recent slots</strong>. If you have too little data, or your no-show rate has recently moved, it says so instead of guessing.</p>
+    <p class="note">Your bookings never leave this browser tab. Statistical estimate from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your bookings</h2>
+    <label for="file">Upload a CSV export</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste rows: slot, booked, showed (or one row per appointment: slot, status)</label>
+    <textarea id="rows" spellcheck="false" placeholder="slot,booked,showed&#10;mon-am,4,3&#10;mon-pm,4,4"></textarea>
+    <div class="row3">
+      <div><label for="capacity">Seats per slot</label><input id="capacity" inputmode="numeric" value="1"></div>
+      <div><label for="margin">Earnings per completed appointment ($)</label><input id="margin" inputmode="decimal" placeholder="e.g. 90"></div>
+      <div><label for="overflow">Cost when an extra person can't be seen ($)</label><input id="overflow" inputmode="decimal" placeholder="e.g. 25"></div>
+      <div><label for="cap">Most you'll accept of turning someone away (%, optional)</label><input id="cap" inputmode="decimal" placeholder="e.g. 20 (blank = no limit)"></div>
+      <div><label for="extra">Extra bookings to consider</label><input id="extra" inputmode="numeric" value="4"></div>
+    </div>
+    <p class="note">Group by the unit you would overbook: one time slot, or one provider's session. Status words: showed, attended, arrived, kept / no-show, missed, late cancel. Cancellations made early enough to refill the slot are left out. Rows are read in the order given (oldest first) so the back-test can score your most recent slots. At least 40 appointments, 5 no-shows and 15 slots.</p>
+    <button type="button" id="analyze">Analyse</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your bookings, then click Analyse.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div id="trust"></div>
+    <h3>What each booking level would do, per slot</h3>
+    <p class="note">From the fitted no-show pattern. "Turned away" is the chance at least one more person arrives than you have seats.</p>
+    <div class="scroll"><table id="sc"><thead><tr><th>Booked</th><th class="n">Expected served</th><th class="n">Empty seats</th><th class="n">Turned away (chance)</th><th class="n">Expected profit</th><th class="n">vs no overbooking</th></tr></thead><tbody></tbody></table></div>
+    <h3>How stable is the answer?</h3>
+    <div id="stable" class="note"></div>
+    <h3>Back-test</h3>
+    <div id="bt-note" class="note"></div>
+    <button type="button" id="download">Download table CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Model:</strong> in a slot with n people booked, the number who show is beta-binomial: a binomial whose show-up probability itself varies from slot to slot. That gives two fitted numbers, your average no-show rate and a clustering strength (intraclass correlation) that says how much no-shows travel together; it is fitted by maximum likelihood on each slot's (booked, showed) counts. <strong>Decision:</strong> expected profit for booking n into s seats = earnings × expected people served − overflow cost × expected people beyond capacity, searched from s up to s + the extra bookings you allow, optionally keeping the chance of turning anyone away under your limit. <strong>Ranges:</strong> 200 seeded bootstrap resamples of your slots refit the model; each resample's choice is scored on the main fit, so the 80% range of the gain and the share of resamples that pick each level are reproducible. <strong>Back-test:</strong> the first 75% of slots fit the model; the last 25% are scored on log-likelihood against a plain binomial, and the observed no-shows are compared with the predicted count.</p>
+    <p><strong>Not modelled:</strong> who cancels, how much notice they gave, patient or client type, rebooking of turned-away people, how waiting affects loyalty, or whether there is enough demand to fill the extra booking. It assumes you can always find someone to book into the extra seat. <strong>Unverified:</strong> checked against simulated bookings with known patterns in unit tests, not against a published dataset or a commercial scheduling product.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is an overbooking policy?</h3>
+    <p>It is a rule for how many appointments you accept for a slot that has fewer seats than that. If 15% of people do not show, booking four into three seats gives you a good chance of a full schedule. The cost is the nights it goes the other way and everyone shows, so the question is how many to book, not whether to.</p>
+    <h3>How do I work out how many extra appointments to book?</h3>
+    <p>Count what one extra booking is worth and what it can cost. It is worth your margin when it fills a seat someone else left empty; it costs your overflow penalty when everyone shows. This tool turns your past show-up counts into the chance of each outcome and picks the number of bookings with the highest expected profit.</p>
+    <h3>Why does it look at each slot rather than my overall no-show rate?</h3>
+    <p>Because no-shows clump. A storm, a school holiday or a flu week empties several chairs at once, so an overall 15% average hides that some sessions lose 50% and most lose almost nothing. The tool fits a beta-binomial model that measures this clumping; ignoring it makes overbooking look safer than it is.</p>
+    <h3>What data do I need?</h3>
+    <p>Either one row per appointment (slot, status: showed or no-show) or one row per slot (slot, booked, showed). Take it from your booking system export. You need at least 40 appointments, 5 no-shows and 15 slots. Leave out appointments that were cancelled early enough to be refilled; label late cancellations as late cancel.</p>
+    <h3>What do margin and overflow cost mean?</h3>
+    <p>Margin is what one completed appointment earns you after direct costs. Overflow cost is what it costs you when someone extra turns up and cannot be seen on time: a refund or credit, overtime, a lost regular, or a bad review. A careful estimate matters more than a precise one; try both a low and a high figure.</p>
+    <h3>Will this work for my business?</h3>
+    <p>It suits anything booked in slots with a fixed number of seats that can absorb a waiting customer: clinics, salons, tutors, studios, repair appointments. It is a poor fit where an overflow is dangerous or illegal, such as emergency medicine, or where you cannot apologise and rebook someone. Bookings also need enough demand to fill the extra seat.</p>
+    <h3>Is my booking history uploaded anywhere?</h3>
+    <p>No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your bookings. It works offline once the page has loaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are statistical estimates from the bookings you supply; they do not guarantee what will happen when you change how many you book. You are responsible for reviewing and verifying its output before relying on it. Do not use it where turning someone away could put their health or safety at risk.</p>
+    <p><strong>Independent.</strong> Not affiliated with any scheduling, booking or practice-management vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your bookings are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../appointment-no-show-analyzer/">appointment no-show analyzer</a> and the <a href="../no-show-fee-calculator/">no-show fee calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseRows, analyze, reportCsv, sampleText, num, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function run() {
+      const parsed = parseRows($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const r = analyze(parsed.groups, { capacity: $("#capacity").value, margin: $("#margin").value, overflowCost: $("#overflow").value, maxOverflow: $("#cap").value.trim() === "" ? 1 : Number($("#cap").value) / 100, maxExtra: $("#extra").value });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...parsed.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const b = r.best;
+      const big = [
+        [pct(r.noShowRate, 0), `Average no-show rate (${r.noShows} of ${r.appts} across ${r.slots} slots; 80% range ${pct(r.rateRange80[0], 0)} to ${pct(r.rateRange80[1], 0)})`],
+        [r.rho < 0.005 ? "none" : r.rho.toFixed(2), "Clustering: how much no-shows travel together (0 = independent)"],
+        [`${b.booked} per ${r.capacity} seat${r.capacity === 1 ? "" : "s"}`, b.booked === r.capacity ? "Best booking level: do not overbook on these numbers" : `Best booking level; ${pct(b.pOverflow, 0)} chance someone is turned away`],
+        [money(r.gain), `Expected gain per slot vs not overbooking (80% range ${money(r.gainRange80[0])} to ${money(r.gainRange80[1])})`],
+      ];
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      const pill = r.verdict === "usable" ? ["good", "usable"] : r.verdict === "drifting" ? ["high", "rate has moved"] : ["medium", "weak evidence"];
+      const msg = r.verdict === "usable" ? "The fitted pattern held up on your most recent slots and the same booking level came out of most resamples. Still an estimate: try it on a few slots first." : r.verdict === "drifting" ? "Your latest slots do not look like your earlier ones. Fit on recent weeks only before acting on this." : "There is little data, or the answer changes between resamples. Collect more slots before acting.";
+      $("#trust").innerHTML = `<div class="warn ${r.verdict === "drifting" ? "stop" : ""}"><span class="pill ${pill[0]}">${pill[1]}</span>${esc(msg)}</div>`;
+      $("#sc tbody").innerHTML = r.rows.map((x) => `<tr><td>${x.booked}${x.booked === b.booked ? " (best)" : ""}</td><td class="n">${num(x.served, 2)}</td><td class="n">${num(x.empty, 2)}</td><td class="n">${pct(x.pOverflow, 0)}</td><td class="n">${money(x.profit)}</td><td class="n">${money(x.profit - r.base.profit)}</td></tr>`).join("");
+      $("#stable").textContent = "Booking level chosen in the bootstrap: " + r.share.map((s) => `${s.booked} in ${pct(s.share, 0)}`).join(", ") + ".";
+      const h = r.holdout;
+      $("#bt-note").textContent = h ? `Fitted on the first ${h.train} slots, scored on the last ${h.test} (${h.testAppts} appointments). The earlier pattern predicted ${num(h.predictedNoShows, 1)} no-shows; ${num(h.observedNoShows)} happened (${h.stable ? "within normal variation" : "outside normal variation"}). ${h.clusteringHelps ? "Modelling clustering predicted the slots better than a plain no-show rate." : "Modelling clustering did not beat a plain no-show rate here."}` : "Not enough slots to hold out a test period.";
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = sampleText();
+      $("#capacity").value = "3"; $("#margin").value = "90"; $("#overflow").value = "25"; $("#cap").value = ""; $("#extra").value = "4";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 120 invented sessions for a three-chair clinic, not a real business."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Analyse.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your bookings, then click Analyse."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "overbooking-table.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

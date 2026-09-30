@@ -1,0 +1,63 @@
+name: appointment-overbooking-optimizer
+description: >-
+  Free browser tool for clinics, salons, studios and tutors: paste or upload
+  booked and showed counts per slot (or one row per appointment) and get how
+  many appointments to book into each slot for the highest expected profit.
+  Fits how no-shows cluster (beta-binomial), prices the chance someone is turned
+  away against the margin on a filled seat, gives bootstrap ranges and a
+  hold-out back-test, and flags a recent drift in the no-show rate. Refuses
+  thin data. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "appointment no-show overbooking optimizer expected revenue for salons
+# clinics from booking history": closest are no-show-fee-calculator (0.33) and
+# appointment-no-show-analyzer, both below the read-this-first bar. Those
+# measure the no-show rate and what a deposit would recover; none decides how
+# many to book. Airlines and hospitals do this with proprietary revenue
+# management; small practices use a rule of thumb ("book one extra") or none.
+# Alternatives: scheduling suites (Acuity, Jane, Fresha, Mindbody) that send
+# reminders and take deposits but give no booking-level recommendation.
+#
+# First visitor: searches "how many patients to overbook", "overbooking
+# calculator", "how to reduce no-shows overbook appointments", "double booking
+# appointments no shows"; r/dentistry, r/hairstylist, r/massage therapy and
+# practice-management forums. Volume not measured with an external tool. Natural
+# feeder from appointment-no-show-analyzer (measure the rate, then decide).
+#
+# Privacy is the liability boundary: booking files never leave the browser (tests
+# assert no network calls). No vendor is named. The page says not to use it
+# where turning someone away could endanger them.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be a saved, multi-location schedule; not built.
+# Unverified: tested on simulated bookings with known patterns, not on a
+# published dataset.
+
+hypotheses:
+  - claim: >-
+      Practice owners and salon managers with a recurring no-show problem will
+      use a private, no-signup tool that turns their booked-versus-showed counts
+      into a booking level per slot, and will return as their history grows.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the fitted no-show rate or the best booking level disagrees with a standard beta-binomial fit on the same data.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/appointment-overbooking-optimizer/
+  analytics: null
