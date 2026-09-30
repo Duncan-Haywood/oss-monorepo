@@ -362,10 +362,10 @@ workflows:
 - workflow: clearance-markdown-planner-ci.yml
   classification: none
   publishes: []
-- workflow: client-rebooking-predictor-ci.yml
+- workflow: client-profitability-time-analyzer-ci.yml
   classification: none
   publishes: []
-- workflow: client-profitability-time-analyzer-ci.yml
+- workflow: client-rebooking-predictor-ci.yml
   classification: none
   publishes: []
 - workflow: cloud-bucket-exposure-check-ci.yml
@@ -1229,6 +1229,9 @@ workflows:
 - workflow: quick-pick-survey-ci.yml
   classification: none
   publishes: []
+- workflow: quote-follow-up-timing-ci.yml
+  classification: none
+  publishes: []
 - workflow: quote-margin-check-ci.yml
   classification: none
   publishes: []
@@ -1257,6 +1260,9 @@ workflows:
 - workflow: register-change-rate-ci.yml
   classification: none
   publishes: []
+- workflow: renewal-rent-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: rent-roll-delinquency-analyzer-ci.yml
   classification: none
   publishes: []
@@ -1266,7 +1272,7 @@ workflows:
 - workflow: rental-property-schedule-e-categorizer-ci.yml
   classification: none
   publishes: []
-- workflow: renewal-rent-optimizer-ci.yml
+- workflow: rental-rent-optimizer-ci.yml
   classification: none
   publishes: []
 - workflow: repository-branch-hygiene-ci.yml
@@ -1316,6 +1322,9 @@ workflows:
 - workflow: roth-conversion-bracket-fill-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: route-stop-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: rsu-withholding-gap-calculator-ci.yml
   classification: none
   publishes: []
@@ -1353,6 +1362,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: screened-porch-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: seasonal-buy-quantity-optimizer-ci.yml
   classification: none
   publishes: []
 - workflow: section-174a-catchup-calculator-ci.yml
@@ -1407,9 +1419,6 @@ workflows:
   classification: none
   publishes: []
 - workflow: shed-install-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: route-stop-optimizer-ci.yml
   classification: none
   publishes: []
 - workflow: shift-cover-optimizer-ci.yml
@@ -1535,6 +1544,9 @@ workflows:
 - workflow: str-occupancy-tax-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: str-nightly-rate-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: str-tax-loophole-calculator-ci.yml
   classification: none
   publishes: []
@@ -1626,6 +1638,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: turo-earnings-report-analyzer-ci.yml
+  classification: none
+  publishes: []
+- workflow: trial-conversion-timing-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: turo-host-payout-calculator-ci.yml
@@ -1796,6 +1811,3 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
-- workflow: seasonal-buy-quantity-optimizer-ci.yml
-  classification: none
-  publishes: []
