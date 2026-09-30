@@ -23055,3 +23055,44 @@ ventures:
       Ethics: helps a small business see how its own customers respond to price
       before changing it; nothing is sold, no customer data is collected and no
       referral is made.
+  - slug: project-estimate-calibrator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical learning (log-ratio regression, split-conformal residual
+      quantiles and a seeded bootstrap run in the browser) but no language model
+      and no paid API; the calibrated buffer, its ranges and the refusal on short
+      histories are the product, not an add-on.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Freelancers,
+      agencies and contractors paste finished projects as estimate and actual and
+      get calibrated 50/70/80/90% outcomes for the next estimate, the buffer and
+      fixed price that cover them, the chance a fixed price loses money and a
+      hold-out back-test. Distribution 6: "how much to pad an estimate" and
+      "why do projects go over estimate" are recurring freelance and agency
+      queries and the bid calculators here are natural feeders (volume not
+      measured with an external tool). Defensibility 4: percentiles of an
+      overrun ratio can be built in a spreadsheet; the edge is the private
+      no-upload workflow, finite-sample correction, loss-chance on a fixed price,
+      bootstrap ranges and the refusal when history is too short.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+      liability_note: >-
+        Statistical estimate of data the user supplies, stated as such with no
+        warranty; it refuses below 12 projects and flags weak evidence. Project
+        files never leave the browser. No vendor is named.
+      ethical_note: >-
+        Helps a small business price its own work against how it has actually
+        run; nothing is sold, no customer data is collected and no referral is
+        made.

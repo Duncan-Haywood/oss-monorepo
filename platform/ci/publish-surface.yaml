@@ -1171,6 +1171,9 @@ workflows:
 - workflow: process-server-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: project-estimate-calibrator-ci.yml
+  classification: none
+  publishes: []
 - workflow: propane-delivery-route-margin-ci.yml
   classification: none
   publishes: []
