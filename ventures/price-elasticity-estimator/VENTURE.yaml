@@ -1,0 +1,69 @@
+name: price-elasticity-estimator
+description: >-
+  Free browser tool for sellers: paste or upload your own price and units
+  history (date, price, units, optional unit cost and promo flag) and get a
+  log-log price elasticity with a 95% confidence interval and R squared,
+  controls for a linear time trend, promotions and month-of-year seasonality, a
+  warning when price varied too little to identify anything, a profit-maximising
+  price range capped to the prices you actually tested, a what-if table and a
+  hold-out back-test that says when not to trust it. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "price elasticity estimator from a seller's own price and units history":
+# unique, best match 0.29 (before this venture existed). Adjacent ventures:
+# gabor-granger-price-analyzer (survey willingness-to-pay, stated preference,
+# not a seller's sales history), the per-marketplace fee and margin calculators
+# (they take a price as given and never estimate how units respond to it) and
+# ab-test-significance-calculator (compares two arms of a designed test, not a
+# messy history). Alternatives are a spreadsheet
+# LOGEST/SLOPE on two columns (no controls, no interval on the optimum, no
+# identification check) and paid repricing or pricing-analytics suites that want
+# the catalogue connected.
+#
+# First visitor: sellers with a price history they can export (Shopify, Etsy,
+# Amazon, a POS report or a spreadsheet) who ask "should I raise my price",
+# searching "price elasticity calculator", "price elasticity of demand from
+# sales data", "optimal price calculator", "how to find the profit maximizing
+# price"; r/ecommerce, r/AmazonSeller, r/EtsySellers, r/smallbusiness. Volume
+# not measured with an external tool.
+#
+# Privacy is the liability boundary: rows never leave the browser (tests assert
+# no network calls). No marketplace or repricing vendor is named.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be a price-experiment planner or saved analyses; not
+# built.
+# Liability: statistical estimate of supplied data, not advice; the page says
+# "do not trust" when the back-test fails and withholds the price when price
+# barely varied. Observational history shows association, not cause: stated on
+# the page. Unverified: tested on simulated series with known elasticities (95%
+# interval coverage about 95% over 200 series), not on a published dataset.
+
+hypotheses:
+  - claim: >-
+      Sellers with an exportable price history will use a private, no-signup
+      elasticity estimator that shows whether the data can tell at all, and
+      will return after their next price test.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the elasticity, its interval or the profit-maximising price disagrees with a standard log-log OLS reference (R lm, statsmodels) on the same data.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/price-elasticity-estimator/
+  analytics: null

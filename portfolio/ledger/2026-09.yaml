@@ -48507,3 +48507,31 @@ entries:
         date, category rule, CI workflow and tree counts; inbound link from
         cash-runway-planner; regenerated the mirror.
     mrr_end: 0
+  - venture: price-elasticity-estimator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built price-elasticity-estimator: a browser-local price
+        elasticity estimator for sellers. Paste or upload date, price, units
+        (optional unit cost and promo flag; header names and column order
+        flexible, refunds and zero rows skipped with a note); log-log OLS with a
+        t-based 95% interval, R squared and p-value, controls for a linear time
+        trend, the promo flag and month-of-year dummies with graceful fallback
+        when the design is singular; a price-variation and variance-inflation
+        check that flags "cannot identify" or "weak" and withholds the price when
+        price barely moved; profit-maximising price c*e/(1+e) with a range from
+        the interval, capped to the tested prices; a what-if table with units
+        ranges, revenue and profit; a hold-out back-test against the same model
+        without price that says "do not trust" when price does not help; and a
+        what-if CSV. New niche: duplicate_check.py found no match above 0.29
+        (nearest is gabor-granger-price-analyzer, survey willingness-to-pay).
+        First visitor expected from "price elasticity calculator" and "optimal
+        price from sales data" searches and seller communities. Rows never leave
+        the browser. Unverified against a published dataset: tests use simulated
+        series with known elasticities, 95% interval coverage over 200 series, a
+        drifting-trend confounder, a seasonal confounder and no-network
+        assertions. Registered score row, launch date, category rule, CI workflow
+        and tree counts; inbound link from sales-seasonality-forecaster;
+        regenerated the mirror.
+    mrr_end: 0

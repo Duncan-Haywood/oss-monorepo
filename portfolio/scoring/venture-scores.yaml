@@ -22831,3 +22831,42 @@ ventures:
       a do-not-trust warning when the back-test fails. Sales files never leave
       the browser. Ethics: helps an owner see a cash gap coming and plan for
       it; nothing is sold and no referral is made.
+  - slug: price-elasticity-estimator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Classical log-log regression with confidence intervals fitted in the
+      browser, no language model and no paid API; the identification check and
+      the self back-test are the product, not an add-on.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Sellers paste a
+      price and units history and get a price elasticity with an interval,
+      controls for trend, promotions and seasons, a warning when price varied
+      too little to tell, a profit-maximising price range capped to the tested
+      prices, a what-if table and a hold-out back-test. Distribution 6:
+      "price elasticity calculator" and "optimal price from sales data" are
+      recurring queries and the tool is reachable from seller communities
+      (volume not measured with an external tool). Defensibility 4: log-log OLS
+      is standard and spreadsheets have SLOPE and LINEST; the edge is the
+      private no-upload workflow, the confounder controls, the visible
+      identification check and the capped profit range.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical estimate of supplied data, not advice, no warranty,
+      independence from marketplaces and repricing vendors stated, limits stated,
+      a do-not-trust warning when the back-test fails and the price withheld when
+      price barely varied. Rows never leave the browser. Ethics: helps a seller
+      judge a price change with honest uncertainty; nothing is sold and no
+      referral fee is taken.

@@ -1144,6 +1144,9 @@ workflows:
 - workflow: pressure-washing-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: price-elasticity-estimator-ci.yml
+  classification: none
+  publishes: []
 - workflow: print-atelier-ci.yml
   classification: none
   publishes: []

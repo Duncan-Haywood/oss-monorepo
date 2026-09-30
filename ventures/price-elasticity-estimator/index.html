@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Price Elasticity Estimator — how much do your units fall when you raise price</title>
+  <meta name="description" content="Free price elasticity estimator for sellers. Paste your own price and units history to get a log-log elasticity with a confidence interval, controls for trend, promos and seasons, a warning when price varied too little, the profit-maximising price range and a back-test. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Price Elasticity Estimator — free, private, in your browser">
+  <meta property="og:description" content="Estimate price elasticity from your own sales history, see whether the data can tell, and get a profit-maximising price range capped to prices you actually tested.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Price Elasticity Estimator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste or upload your own price and units history (date, price, units, optional unit cost and promo flag) and get a log-log price elasticity with a 95% confidence interval and R squared, controls for a time trend, promotions and seasonality, a warning when price varied too little to tell, a profit-maximising price range capped to the prices you tested, a what-if table and a hold-out back-test. Runs entirely in your browser.", "featureList": "price elasticity of demand, log-log regression, confidence interval, price variation check, confounder controls, profit maximizing price, what-if pricing table, hold-out back-test, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I estimate price elasticity from my own sales history?", "acceptedAnswer": {"@type": "Answer", "text": "Take the history of price and units sold, convert both to logarithms and fit a straight line: the slope is the price elasticity, the percentage change in units for a 1% change in price. This tool does that with ordinary least squares, adds controls for a time trend, promotions and the month of the year, and reports a 95% confidence interval and R squared so you can see how well the estimate is pinned down."}}, {"@type": "Question", "name": "What does a price elasticity of -1.8 mean?", "acceptedAnswer": {"@type": "Answer", "text": "A 1% price increase is associated with about a 1.8% drop in units sold, all else equal. Below -1 demand is called elastic: raising price loses more in units than it gains per unit, so revenue falls. Between -1 and 0 demand is inelastic and revenue rises with price. Profit is a different question, because it also depends on your unit cost."}}, {"@type": "Question", "name": "Why does the tool say my price did not vary enough?", "acceptedAnswer": {"@type": "Answer", "text": "Elasticity is learned from the times you charged different prices. If the highest price in your history is only a few percent above the lowest, the change in units is buried in ordinary week-to-week noise, and any elasticity you compute is an artefact. The tool checks the price range, the number of distinct price levels, and how much of the price movement is explained by the trend, promotions and seasons, and withholds the profit-maximising price when the data cannot support one."}}, {"@type": "Question", "name": "What is a confounder, and how does the tool handle it?", "acceptedAnswer": {"@type": "Answer", "text": "A confounder is something else that moved units at the same time as price: a growing business, a holiday month, a promotion that cut the price and was advertised. If you ignore a rising trend while you lowered prices, the tool would credit the price cut for growth it did not cause. The tool can include a linear time trend, a promo flag when you give one, and month-of-year dummies, and warns when price is too tied to those controls to be separated from them."}}, {"@type": "Question", "name": "How is the profit-maximising price worked out?", "acceptedAnswer": {"@type": "Answer", "text": "With a constant elasticity e below -1, profit (price minus unit cost) times units is highest at price = cost x e / (1 + e). The tool computes that for the point estimate and for both ends of the 95% interval to give a range, then caps every figure to the lowest and highest prices you actually tested, because the fit says nothing reliable outside that range. If the interval allows elasticity above -1, the tool says that raising price to the top of the tested range cannot be ruled out."}}, {"@type": "Question", "name": "How does the back-test work?", "acceptedAnswer": {"@type": "Answer", "text": "The tool holds back the last few rows, fits the model on the earlier rows only, and predicts the units for the held-out rows from their prices. It compares that with the same model with price left out. If price does not help predict the held-out rows, it says so and warns not to trust the elasticity for decisions."}}, {"@type": "Question", "name": "How many rows do I need?", "acceptedAnswer": {"@type": "Answer", "text": "At least 12 rows with a price and units, and far more is better. Forty to sixty weekly rows with at least three distinct price levels, spread over a range of 15% or more, is a sensible target. Seasonality dummies need about a year of history, and more rows than you have months in the data if you want them to be stable."}}, {"@type": "Question", "name": "Is my sales data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analyzed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your rows. It works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    label.check { display: flex; gap: 8px; align-items: center; font-weight: 500; }
+    label.check input { width: auto; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.ref td { background: #f2f7f9; font-weight: 700; }
+    tr.out td { color: #6b7783; font-style: italic; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .ok { background: #e4f1e4; color: #1d4a22; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PRICE ELASTICITY ESTIMATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What happens to your units when you change price?</h1>
+    <p>Paste or upload your own history (date, price, units, and optionally unit cost and a promo flag). The tool fits a <strong>log-log regression</strong> for your <strong>price elasticity with a 95% confidence interval and R²</strong>, controls for a <strong>time trend, promotions and seasons</strong> so they are not mistaken for price effects, <strong>warns when price varied too little</strong> to learn anything, gives a <strong>profit-maximising price range</strong> capped to prices you actually tested, a <strong>what-if table</strong>, and a <strong>back-test</strong> on the last rows it held out.</p>
+    <p class="note">Your rows never leave this browser tab. A statistical estimate from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your price and units history</h2>
+    <label for="file">Upload a CSV export</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste rows (header optional: date, price, units, unit cost, promo)</label>
+    <textarea id="rows" spellcheck="false" placeholder="date,price,units,unit_cost,promo&#10;2024-01-07,24.00,310,11.50,0&#10;2024-01-14,21.50,362,11.50,1"></textarea>
+    <div class="grid">
+      <div><label for="cost">Unit cost (optional; overrides the column)</label><input id="cost" inputmode="decimal" placeholder="e.g. 11.50"></div>
+      <div><label for="holdout">Rows to hold out for the back-test</label><input id="holdout" inputmode="numeric" placeholder="auto (about 20%)"></div>
+    </div>
+    <label class="check" for="trend"><input id="trend" type="checkbox" aria-label="Control for a linear time trend" checked> Control for a linear time trend</label>
+    <label class="check" for="season"><input id="season" type="checkbox" aria-label="Control for month-of-year seasonality"> Control for month-of-year seasonality (needs about a year of rows)</label>
+    <p class="note">One row per day, week or month, for one product or one product family. Units are what you sold; price is what a unit sold for, after any discount. If a promo column (1/0, yes/no) is present and varies, it is used as a control. Rows with a zero price or zero units are skipped, since a logarithm needs positive numbers.</p>
+    <button type="button" id="analyze">Estimate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your history, then click Estimate.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div id="ident"></div>
+    <div class="big" id="big"></div>
+    <p id="reading"></p>
+    <h3>Units against price</h3>
+    <div id="chart"></div>
+    <h3>Profit-maximising price</h3>
+    <div id="opt"></div>
+    <h3>What if you charged…</h3>
+    <p class="note">Units are scaled from the average of your most recent rows; the range column uses the ends of the 95% interval. Italic rows are outside the prices you tested, where this fit is extrapolation.</p>
+    <div class="scroll"><table id="wi"><thead><tr><th class="n">Price</th><th class="n">vs now</th><th class="n">Units</th><th class="n">Units range</th><th class="n">Revenue</th><th class="n" id="wi-p">Profit</th><th class="n" id="wi-pc">Profit change</th></tr></thead><tbody></tbody></table></div>
+    <h3>Back-test on the last rows</h3>
+    <div id="bt"></div>
+    <div class="scroll"><table id="bt-t"><thead><tr><th>Date</th><th class="n">Price</th><th class="n">Actual units</th><th class="n">With price</th><th class="n">Without price</th></tr></thead><tbody></tbody></table></div>
+    <h3>Model detail</h3>
+    <div class="scroll"><table id="coef"><thead><tr><th>Term</th><th class="n">Coefficient</th><th class="n">Std. error</th></tr></thead><tbody></tbody></table></div>
+    <p class="note" id="params"></p>
+    <button type="button" id="download">Download what-if CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Model:</strong> ln(units) = a + e × ln(price) + controls + noise, fitted by ordinary least squares. The coefficient <em>e</em> is the price elasticity: a 1% higher price goes with about e% more units. The interval is the t-based 95% interval on <em>e</em> with n minus the number of terms degrees of freedom, and R² is the share of the variation in ln(units) the whole model explains. <strong>Controls:</strong> a straight-line time trend (per year), a 1/0 promo flag when your file has one that varies, and month-of-year dummies when you turn seasonality on and have about a year of rows (months with a single row get no dummy). If the design is singular the tool drops seasonality, then the promo flag, then the trend, and says so.</p>
+    <p><strong>Is price varied enough?</strong> The tool flags a price range under 5% or a log-price spread under 2% as not identified (the profit price is withheld), and a range under 15%, fewer than three distinct price levels, a variance inflation factor above 5 for the price term against the controls, or a 95% interval more than two points wide as weak. A strong correlation between price and time is reported separately.</p>
+    <p><strong>Profit-maximising price:</strong> with constant elasticity e below -1 the profit (price − unit cost) × units peaks at price = cost × e / (1 + e). It is computed at the point estimate and at both ends of the 95% interval, then each is capped to the lowest and highest price in your history. With e above -1 profit keeps rising with price, so the answer is the top of the tested range. A positive estimated elasticity gets no recommendation. <strong>Back-test:</strong> the last rows are held out, the model is fitted on the earlier rows only, and its predicted units are compared with the same model without the price term (average percentage miss); worse than that means do not trust the elasticity.</p>
+    <p><strong>Not modelled:</strong> competitor prices, stock-outs, ad spend, price changes that customers anticipate (stockpiling before a rise), a demand curve that is not constant-elasticity, differences between customers, and interactions between products. A fit on history shows association, not proof of cause: a real price experiment is stronger evidence. <strong>Unverified:</strong> checked against simulated data with known elasticities in unit tests (the 95% interval covered the true value about 95% of the time across 200 simulated series), not against a published dataset or a commercial tool.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I estimate price elasticity from my own sales history?</h3>
+    <p>Take the history of price and units sold, convert both to logarithms and fit a straight line: the slope is the price elasticity, the percentage change in units for a 1% change in price. This tool does that with ordinary least squares, adds controls for a time trend, promotions and the month of the year, and reports a 95% confidence interval and R squared so you can see how well the estimate is pinned down.</p>
+    <h3>What does a price elasticity of -1.8 mean?</h3>
+    <p>A 1% price increase is associated with about a 1.8% drop in units sold, all else equal. Below -1 demand is called elastic: raising price loses more in units than it gains per unit, so revenue falls. Between -1 and 0 demand is inelastic and revenue rises with price. Profit is a different question, because it also depends on your unit cost.</p>
+    <h3>Why does the tool say my price did not vary enough?</h3>
+    <p>Elasticity is learned from the times you charged different prices. If the highest price in your history is only a few percent above the lowest, the change in units is buried in ordinary week-to-week noise, and any elasticity you compute is an artefact. The tool checks the price range, the number of distinct price levels, and how much of the price movement is explained by the trend, promotions and seasons, and withholds the profit-maximising price when the data cannot support one.</p>
+    <h3>What is a confounder, and how does the tool handle it?</h3>
+    <p>A confounder is something else that moved units at the same time as price: a growing business, a holiday month, a promotion that cut the price and was advertised. If you ignore a rising trend while you lowered prices, the tool would credit the price cut for growth it did not cause. The tool can include a linear time trend, a promo flag when you give one, and month-of-year dummies, and warns when price is too tied to those controls to be separated from them.</p>
+    <h3>How is the profit-maximising price worked out?</h3>
+    <p>With a constant elasticity e below -1, profit (price minus unit cost) times units is highest at price = cost x e / (1 + e). The tool computes that for the point estimate and for both ends of the 95% interval to give a range, then caps every figure to the lowest and highest prices you actually tested, because the fit says nothing reliable outside that range. If the interval allows elasticity above -1, the tool says that raising price to the top of the tested range cannot be ruled out.</p>
+    <h3>How does the back-test work?</h3>
+    <p>The tool holds back the last few rows, fits the model on the earlier rows only, and predicts the units for the held-out rows from their prices. It compares that with the same model with price left out. If price does not help predict the held-out rows, it says so and warns not to trust the elasticity for decisions.</p>
+    <h3>How many rows do I need?</h3>
+    <p>At least 12 rows with a price and units, and far more is better. Forty to sixty weekly rows with at least three distinct price levels, spread over a range of 15% or more, is a sensible target. Seasonality dummies need about a year of history, and more rows than you have months in the data if you want them to be stable.</p>
+    <h3>Is my sales data uploaded anywhere?</h3>
+    <p>No. The file is read and analyzed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your rows. It works offline once the page has loaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are statistical estimates from the rows you supply; they do not guarantee what will happen if you change a price. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any marketplace, e-commerce platform or repricing vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your rows are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../sales-seasonality-forecaster/">sales seasonality forecaster</a>, the <a href="../ab-test-significance-calculator/">A/B test significance calculator</a> and the <a href="../customer-lifetime-value-predictor/">customer lifetime value predictor</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseData, analyze, whatIfCsv, sampleText, num, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function chart(r, obs) {
+      const W = 900, H = 300, L = 60, R = 14, T = 12, B = 34;
+      const pmin = r.variation.min, pmax = r.variation.max;
+      const pad = (pmax - pmin) * 0.08 || pmax * 0.05;
+      const x0 = pmin - pad, x1 = pmax + pad;
+      const umax = Math.max(...obs.map((o) => o.units), ...r.whatIf.filter((w) => !w.outside).map((w) => w.units)) * 1.08;
+      const x = (p) => L + ((p - x0) / (x1 - x0)) * (W - L - R);
+      const y = (u) => T + (H - T - B) * (1 - u / umax);
+      const curve = [];
+      for (let i = 0; i <= 40; i++) {
+        const p = pmin + ((pmax - pmin) * i) / 40;
+        curve.push(`${x(p).toFixed(1)},${y(r.ref.units * Math.pow(p / r.ref.price, r.elasticity.point)).toFixed(1)}`);
+      }
+      const yt = [0, 0.25, 0.5, 0.75, 1].map((q) => q * umax);
+      const xt = [0, 0.25, 0.5, 0.75, 1].map((q) => pmin + q * (pmax - pmin));
+      const opt = r.optimum.point ? `<line x1="${x(r.optimum.point).toFixed(1)}" x2="${x(r.optimum.point).toFixed(1)}" y1="${T}" y2="${H - B}" stroke="#b5533c" stroke-dasharray="4 3"/>` : "";
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Scatter of units against price with the fitted demand curve and the profit-maximising price">` +
+        yt.map((t) => `<line x1="${L}" x2="${W - R}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}" stroke="#e3e9ef"/><text x="${L - 6}" y="${(y(t) + 4).toFixed(1)}" font-size="11" text-anchor="end" fill="#4c5a68">${esc(num(t))}</text>`).join("") +
+        xt.map((t) => `<text x="${x(t).toFixed(1)}" y="${H - 12}" font-size="11" text-anchor="middle" fill="#4c5a68">${esc(num(t, 2))}</text>`).join("") +
+        opt + `<polyline fill="none" stroke="#1f5f86" stroke-width="2.5" points="${curve.join(" ")}"/>` +
+        obs.map((o) => `<circle cx="${x(o.price).toFixed(1)}" cy="${y(o.units).toFixed(1)}" r="3.5" fill="#1b1f2a" fill-opacity=".55"/>`).join("") +
+        `</svg><p class="note">Dots: your rows. Blue line: fitted demand at the price shown, other factors at your recent level. Dashed line: profit-maximising price (capped to your tested range).</p>`;
+    }
+
+    function run() {
+      const parsed = parseData($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const hold = Number($("#holdout").value);
+      const r = analyze(parsed.obs, { trend: $("#trend").checked, seasonality: $("#season").checked, cost: Number($("#cost").value), holdout: hold >= 2 ? Math.floor(hold) : null });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      const all = [...parsed.warnings, ...r.warnings];
+      $("#notices").innerHTML = all.map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const id = r.identification;
+      $("#ident").innerHTML = id.level === "ok"
+        ? `<div class="warn ok"><span class="pill good">price varied enough</span>Price ranged ${pct(r.variation.rangePct, 0)} from lowest to highest across ${r.variation.distinct} distinct levels.</div>`
+        : id.reasons.map((m) => `<div class="warn ${id.level === "not_identified" ? "stop" : ""}"><span class="pill ${id.level === "not_identified" ? "high" : "medium"}">${id.level === "not_identified" ? "cannot identify" : "weak"}</span>${esc(m)}</div>`).join("");
+      const e = r.elasticity;
+      $("#big").innerHTML = [
+        [e.point.toFixed(2), "Price elasticity"],
+        [`${e.lo.toFixed(2)} to ${e.hi.toFixed(2)}`, "95% confidence interval"],
+        [r.r2.toFixed(2), `R² (adjusted ${r.adjR2.toFixed(2)}), ${r.n} rows`],
+        [e.p < 0.001 ? "< 0.001" : e.p.toFixed(3), "p-value for zero effect"],
+      ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#reading").textContent = r.reading === "elastic"
+        ? `Elastic: a 1% price rise goes with about ${Math.abs(e.point).toFixed(2)}% fewer units, so revenue falls when you raise price.`
+        : r.reading === "inelastic"
+          ? `Inelastic: a 1% price rise goes with about ${Math.abs(e.point).toFixed(2)}% fewer units, so revenue rises when you raise price (profit also depends on cost).`
+          : "The estimate is not negative, which is not a believable demand response. Treat it as not identified.";
+      $("#chart").innerHTML = chart(r, parsed.obs);
+      const o = r.optimum;
+      let optHtml;
+      if (o.status === "no-cost") optHtml = `<div class="warn">Enter a unit cost to get a profit-maximising price.</div>`;
+      else if (o.status === "withheld" || o.status === "not-computed") optHtml = `<div class="warn stop">${esc(o.reason)}</div>`;
+      else {
+        const capNote = o.status === "interior" ? "" : o.status === "capped-low" ? " The unrestricted optimum is below the lowest price you tested, so this is capped to it." : " The unrestricted optimum is above the highest price you tested (or there is none, because demand looks inelastic), so this is capped to it.";
+        optHtml = `<div class="big"><div><strong>${num(o.point, 2)}</strong>Best price in your tested range (unit cost ${num(o.cost, 2)} from ${r.costSource === "entered" ? "your entry" : "the file"})</div><div><strong>${num(o.low, 2)} to ${num(o.high, 2)}</strong>Range from the 95% interval on elasticity</div>` +
+          (r.profitAtOptimum ? `<div><strong>${r.profitAtOptimum.change >= 0 ? "+" : ""}${num(r.profitAtOptimum.change)}</strong>Predicted profit change per period vs your recent price (${num(r.ref.price, 2)})</div>` : "") + `</div>` +
+          `<p class="note">${esc(capNote)}${o.ciAllowsInelastic ? " The interval allows demand to be inelastic, so a price at the top of the tested range cannot be ruled out." : ""} Never extrapolate beyond the prices you have tried: test a step in this direction first.</p>`;
+      }
+      $("#opt").innerHTML = optHtml;
+      const hasCost = r.cost > 0;
+      $("#wi-p").hidden = !hasCost; $("#wi-pc").hidden = !hasCost;
+      $("#wi tbody").innerHTML = r.whatIf.map((w) => `<tr class="${w.isReference ? "ref" : w.outside ? "out" : ""}"><td class="n">${num(w.price, 2)}</td><td class="n">${w.isReference ? "now" : (w.changePct >= 0 ? "+" : "") + pct(w.changePct, 1)}</td><td class="n">${num(w.units, 1)}</td><td class="n">${num(w.unitsLow, 1)} – ${num(w.unitsHigh, 1)}</td><td class="n">${num(w.revenue)}</td>${hasCost ? `<td class="n">${num(w.profit)}</td><td class="n">${w.profitChange >= 0 ? "+" : ""}${num(w.profitChange)}</td>` : ""}</tr>`).join("");
+      const bt = r.backtest;
+      if (bt.available) {
+        $("#bt").innerHTML = `<div class="warn ${bt.doNotTrust ? "stop" : ""}"><span class="pill ${bt.doNotTrust ? "high" : bt.verdict === "marginal" ? "medium" : "good"}">${bt.doNotTrust ? "do not trust" : bt.verdict === "marginal" ? "marginal" : "passes back-test"}</span>${esc(bt.message)}</div><p class="note">Fitted on the first ${bt.trainN} rows (elasticity ${bt.trainElasticity.toFixed(2)}), then asked to predict the last ${bt.holdout}. Average miss: with price ${pct(bt.model.mape)}, without price ${pct(bt.noPrice.mape)}, always the training average ${pct(bt.naiveMean.mape)}.</p>`;
+        $("#bt-t tbody").innerHTML = bt.rows.map((x) => `<tr><td>${esc(x.date)}</td><td class="n">${num(x.price, 2)}</td><td class="n">${num(x.actual)}</td><td class="n">${num(x.predicted)}</td><td class="n">${num(x.noPrice)}</td></tr>`).join("");
+      } else {
+        $("#bt").innerHTML = `<div class="warn">${esc(bt.reason)} There is no evidence from a hold-out that the elasticity predicts anything.</div>`;
+        $("#bt-t tbody").innerHTML = "";
+      }
+      $("#coef tbody").innerHTML = [["ln(price) — the elasticity", e.point, e.se], ...r.controls.map((c) => [c.name, c.coef, c.se])].map(([n, c, s]) => `<tr><td>${esc(n)}</td><td class="n">${c.toFixed(4)}</td><td class="n">${s.toFixed(4)}</td></tr>`).join("");
+      $("#params").textContent = `${r.n} rows, ${r.first} to ${r.last}. ${e.df} degrees of freedom, residual spread ${pct(r.sigma)} in units. Price range ${num(r.variation.min, 2)} to ${num(r.variation.max, 2)}, variance inflation for price ${Number.isFinite(r.vif) ? r.vif.toFixed(1) : "infinite"}.`;
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("estimate_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = sampleText();
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 52 invented weeks for an imaginary product, not a real business."; }
+    });
+    $("#file").addEventListener("change", (ev) => {
+      const f = ev.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Estimate.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your history, then click Estimate."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([whatIfCsv(last)], { type: "text/csv" }));
+      a.download = "price-what-if.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
