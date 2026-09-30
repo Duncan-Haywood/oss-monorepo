@@ -1397,6 +1397,9 @@ workflows:
 - workflow: shed-install-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: route-stop-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: shift-cover-optimizer-ci.yml
   classification: none
   publishes: []

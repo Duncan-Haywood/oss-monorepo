@@ -2854,7 +2854,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `appointment-overbooking-optimizer` graduated (browser-local overbooking planner, beta-binomial show-ups, overflow risk).
     # +1: `shift-cover-optimizer` graduated (browser-local shift plan, exact min-cost-flow cover of hourly staffing needs).
     # +1: `client-rebooking-predictor` graduated (browser-local client rebooking rhythm, who is overdue versus lost).
-    total = 513  # `infra/OWNER_CHECKLIST.md`'s own "N of the 513 tools" wording.
+    total = 514  # `infra/OWNER_CHECKLIST.md`'s own "N of the 514 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

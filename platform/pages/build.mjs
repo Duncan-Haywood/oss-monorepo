@@ -969,7 +969,9 @@ const CATEGORY_RULES = [
     // what was billed for it, `freight-accessorial-auditor`'s parcel-tier
     // counterpart and `parcel-dim-weight`'s after-the-fact partner (the two
     // cross-link).
-    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club)/.test(
+    // `route-stop-optimizer` added 2026-09-30: orders a day's stops to cut drive
+    // time, the same reader as the owner-operator and courier tools here.
+    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club|route-stop-optimizer)/.test(
       slug,
     ),
   },
