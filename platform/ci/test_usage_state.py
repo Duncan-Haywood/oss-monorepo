@@ -83,7 +83,7 @@ class PositiveSignals(unittest.TestCase):
         self.assertEqual(possibly, [])
 
     def test_a_real_count_on_an_ordinary_product_is_possibly_external(self):
-        products = [_product("ebay-fee-calculator", [{"local_calculations": 37}])]
+        products = [_product("3pl-quote-normalizer", [{"local_calculations": 37}])]
         _not_external, possibly = state.classify_positives(
             state.positive_signals(products)
         )

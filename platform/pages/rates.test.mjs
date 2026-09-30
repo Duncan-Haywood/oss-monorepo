@@ -42,154 +42,13 @@ const script = renderShopRatesModule();
 // The field spec against the actual products
 // ---------------------------------------------------------------------------
 
-/**
- * Bid calculators that must NOT share the site-wide shop rates, and why.
- *
- * Sharing is only safe where a field means the same quantity everywhere. The
- * saved `hourlyWage` is what *one* person is paid: "Cleaner hourly wage" $17,
- * "Operator hourly wage" $22. A calculator whose comparable field means
- * something else cannot read that value, and giving it the id anyway to
- * satisfy this test would prefill a wrong number into a real bid -- a worse
- * outcome than no bar at all.
- *
- * `pageCarriesShopRates` already gates injection at build time, so an excluded
- * venture simply gets no bar. This list exists so the exclusion is a stated
- * decision rather than a silent absence, and so adding to it needs a reason
- * that the assertion below actually checks.
- */
-const NO_SHARED_SHOP_RATES = {
-  'tree-service-bid-calculator':
-    'its wage field is a whole-crew rate (~$180/h), not a per-person wage. ' +
-    'Sharing would prefill one person\'s $17-22 as the crew rate and bid the job ~10x low. ' +
-    'Its burden, overhead and margin do match, and it now carries those three: see ' +
-    'PARTIAL_SHOP_RATE_PAGES.',
-  'mobile-detailing-bid-calculator':
-    'its "overhead" is dollars allocated to the job, not a percentage of direct cost, so the ' +
-    'overhead rate cannot be shared onto it. Its wage and burden do match -- spelled `wage` and ' +
-    '`burdenPercent` -- so SHOP_RATE_ALIASES maps those and it now carries three of the four: ' +
-    'see PARTIAL_SHOP_RATE_PAGES. The earlier reason recorded here ("no wage input at all") ' +
-    'described the page as it was before it costed the whole stop in #1172.',
-  'snow-removal-bid-calculator':
-    'its per-person wage is `operatorWage` rather than `hourlyWage`. The concept matches ' +
-    '("Operator hourly wage", $22), so rather than rename an id that reaches calc.mjs\'s ' +
-    'input contract, its tests and every bid link already shared, SHOP_RATE_ALIASES maps ' +
-    'the canonical field onto that id and the page carries the full set.',
-  'pet-grooming-bid-calculator':
-    'its "overhead" is dollars allocated to the job, not a percentage of direct cost, so the ' +
-    'overhead rate cannot be shared onto it. Its wage and burden do match -- spelled `wage` and ' +
-    '`burdenPercent` -- and its target margin already matches the canonical id directly, so it ' +
-    'now carries three of the four: see PARTIAL_SHOP_RATE_PAGES.',
-  'vehicle-wrap-bid-calculator':
-    'its installer rate is a loaded rate -- wage and burden together, spelled `installerHourlyRate` ' +
-    '-- with no separate burden field, so hourlyWage and burdenRate cannot be shared onto it. Its ' +
-    'overhead and target margin already carry the canonical ids directly, so it carries two of the ' +
-    'four: see PARTIAL_SHOP_RATE_PAGES.',
-  'locksmith-bid-calculator':
-    'it prices time as one billed hourly rate rather than a separate crew wage and payroll ' +
-    'burden -- there is no `hourlyWage` or `burdenRate` concept on this page to alias. Its ' +
-    'overhead and target margin do match the canonical meaning exactly and are spelled ' +
-    '`overheadRate` and `targetMargin` directly, so it carries two of the four: see ' +
-    'PARTIAL_SHOP_RATE_PAGES.',
-  'ice-dam-removal-bid-calculator':
-    'its per-tech wage is spelled `crewHourlyRate` rather than `hourlyWage`, but means the same ' +
-    'raw, un-burdened wage -- SHOP_RATE_ALIASES maps it. Its overhead and target margin already ' +
-    'match the canonical ids directly. It has no separate payroll-burden field at all, so it ' +
-    'carries three of the four: see PARTIAL_SHOP_RATE_PAGES.',
-  'home-staging-bid-calculator':
-    'its per-tech wage is spelled `crewHourlyRate` rather than `hourlyWage`, but means the same ' +
-    'raw, un-burdened wage -- SHOP_RATE_ALIASES maps it. Its overhead and target margin already ' +
-    'match the canonical ids directly. It has no separate payroll-burden field at all, so it ' +
-    'carries three of the four: see PARTIAL_SHOP_RATE_PAGES.',
-  'forestry-mulching-bid-calculator':
-    'it costs a machine hour, not a crew hour, and carries none of the four canonical ids. Its ' +
-    'operator line (`operatorWagePerHour`) is explicitly a burdened rate -- wage and payroll ' +
-    'burden together -- so aliasing `hourlyWage` onto it would prefill a raw wage into a field ' +
-    'that already includes burden and understate every hour of the job, the same defect the ' +
-    'vehicle-wrap entry above records. There is no payroll-burden field to alias, and no ' +
-    'overhead-on-direct-cost percentage either: this tool carries overhead as the machine\'s own ' +
-    'payment and insurance spread over billable hours a month, in dollars per hour, which is a ' +
-    'different quantity from a percentage of direct cost. Only target margin means the same ' +
-    'thing, spelled `targetMarginPct` and capped at 95 rather than 99.9, and one carried field ' +
-    'is below MIN_CARRIED_FIELDS, so no bar is shown and no PARTIAL_SHOP_RATE_PAGES note is due.',
-  'land-survey-bid-calculator':
-    'its per-person wage is spelled `crewHourlyRatePerPerson` rather than `hourlyWage`, but means the ' +
-    'same raw, un-burdened wage -- SHOP_RATE_ALIASES maps it. Its "target margin on price" is spelled ' +
-    '`targetMarginPercentPct` and means the same net-margin-on-price concept as `targetMargin` -- ' +
-    'aliased too. It has no separate payroll-burden field, and it prices office research and drafting ' +
-    'time as their own hourly rates rather than an overhead percentage of direct cost, so it carries ' +
-    'two of the four: see PARTIAL_SHOP_RATE_PAGES.',
-  'asbestos-abatement-bid-calculator':
-    'its per-worker wage is spelled `crewHourlyRatePerWorker` rather than `hourlyWage`, but means the ' +
-    'same raw, un-burdened wage -- SHOP_RATE_ALIASES maps it. Its "target margin on price" is spelled ' +
-    '`targetMarginPercentPct` and means the same net-margin-on-price concept as `targetMargin` -- ' +
-    'aliased too. It has no separate payroll-burden field, and it prices containment setup, air ' +
-    'monitoring, and waste disposal as their own line items rather than an overhead percentage of ' +
-    'direct cost, so it carries two of the four: see PARTIAL_SHOP_RATE_PAGES.',
-  'biohazard-cleanup-bid-calculator':
-    'its per-tech rate is spelled `laborRatePerHour` rather than `hourlyWage`, but means the same ' +
-    'raw, loaded hourly rate for one technician\'s time -- SHOP_RATE_ALIASES maps it. Its "target ' +
-    'margin" is spelled `targetMarginPercent` and means the same net-margin-on-price concept as ' +
-    '`targetMargin` -- aliased too. It has no separate payroll-burden field and no overhead-on-' +
-    'direct-cost percentage (equipment, supplies and disposal are priced as their own line items, ' +
-    'not a percentage markup), so it carries two of the four: see PARTIAL_SHOP_RATE_PAGES.',
-  'storage-auction-max-bid-calculator':
-    'this is not a contractor job bid -- it is a max hammer bid for a stranger\'s storage-unit ' +
-    'contents at a lien auction. Its `laborRatePerHour` prices cleanout hours on one unit, not a ' +
-    'crew wage the business pays across every job, and there is no payroll-burden or ' +
-    'overhead-on-direct-cost field at all: cleanout cost is a flat dump fee plus a labor line, and ' +
-    '`targetMarginPercent` is margin on realized resale revenue after channel fees, a different base ' +
-    'from the spec\'s margin on a priced job. Zero of the four canonical concepts apply, so no bar is ' +
-    'shown and no PARTIAL_SHOP_RATE_PAGES note is due. (Same field names as ' +
-    'biohazard-cleanup-bid-calculator above, coincidentally -- the two calculators were built the ' +
-    'same afternoon and independently landed on `laborRatePerHour`/`targetMarginPercent`, but the ' +
-    'underlying quantities differ: that page carries two of the four via aliasing, this one carries ' +
-    'zero because there is no crew wage or overhead-on-direct-cost concept here at all.)',
-  'window-tinting-bid-calculator':
-    'its per-installer rate is spelled `installerRate` rather than `hourlyWage`, but means the same ' +
-    'raw, loaded hourly rate for one installer\'s time -- SHOP_RATE_ALIASES maps it. Its "target ' +
-    'margin on price" is spelled `targetMarginPercent` and means the same net-margin-on-price concept ' +
-    'as `targetMargin` -- aliased too. It has no separate payroll-burden field, and its overhead ' +
-    '("Booth / shop overhead") is a flat dollar figure per job rather than a percentage of direct ' +
-    'cost, so it carries two of the four: see PARTIAL_SHOP_RATE_PAGES.',
-};
-
-test('every trade bid calculator on main carries all four shop-rate fields', async () => {
-  const slugs = (await fs.readdir(VENTURES, { withFileTypes: true }))
-    .filter((entry) => entry.isDirectory() && entry.name.endsWith('-bid-calculator'))
-    .map((entry) => entry.name);
-
-  assert.ok(slugs.length >= 30, `expected the bid-calculator family, saw ${slugs.length}`);
-
-  const missing = [];
-  for (const slug of slugs) {
-    if (slug in NO_SHARED_SHOP_RATES) continue;
-    const file = path.join(VENTURES, slug, 'index.html');
-    const html = await fs.readFile(file, 'utf8').catch(() => null);
-    if (html === null) continue;
-    // The point of this test: if a venture renames one of these ids, the bar
-    // silently stops appearing on that tool rather than failing anywhere. The
-    // build only injects where all four exist, so the failure is invisible.
-    if (!pageCarriesShopRates(html)) missing.push(slug);
-  }
-
-  assert.deepEqual(missing, []);
-});
-
-test('an excluded calculator is one that really cannot take the shared rates', async () => {
-  // Keeps the list above from becoming a place to park a venture that simply
-  // has not been wired up: an entry only stays legitimate while the page
-  // genuinely lacks the shared fields. Once a venture adopts them, its
-  // exclusion has to go, and this fails until it does.
-  for (const [slug, reason] of Object.entries(NO_SHARED_SHOP_RATES)) {
-    const html = await fs.readFile(path.join(VENTURES, slug, 'index.html'), 'utf8').catch(() => null);
-    assert.ok(html !== null, `${slug} is excluded but no longer exists -- drop the entry`);
-    assert.ok(
-      !pageCarriesShopRates(html),
-      `${slug} now carries all four shop-rate fields, so it should not be excluded any more`,
-    );
-    assert.ok(reason.length > 40, `${slug} needs a real reason for being excluded`);
-  }
-});
+// Two tests used to live here: every `*-bid-calculator` on main carried all
+// four shop-rate ids, and every calculator excused from that (the
+// `NO_SHARED_SHOP_RATES` list) really could not take them. Both were about that
+// family alone, and the family moved to the separate open-source repo on
+// 2026-09-30. What still guards the pages left here is the population-level
+// sort in `rates-coverage.test.mjs`: every page carrying two or more of the
+// four lands in exactly one recorded bucket.
 
 test('a percentage field never carries a value its own form would reject', () => {
   // `targetMargin` is capped below 100 in the forms because the arithmetic
@@ -283,23 +142,24 @@ test('a marketplace fee calculator is left alone', () => {
 // ---------------------------------------------------------------------------
 
 test('an alias carries a field a page spells differently', async () => {
-  const html = await fs.readFile(
-    path.join(VENTURES, 'snow-removal-bid-calculator', 'index.html'),
-    'utf8',
-  );
-  // Without the slug it reads as a three-field page: the alias is what makes
-  // `operatorWage` the wage field, and it is per page rather than global.
-  assert.equal(pageShopRateFields(html).length, SHOP_RATE_FIELDS.length - 1);
+  // `photo-booth-event-quote` since 2026-09-30, when `snow-removal-bid-
+  // calculator` (the original case) moved to the open-source repo.
+  const slug = 'photo-booth-event-quote';
+  const html = await fs.readFile(path.join(VENTURES, slug, 'index.html'), 'utf8');
+  // Without the slug the page reads as carrying fewer fields: the alias is what
+  // makes `attendantHourlyRate` the wage field, and it is per page rather than
+  // global.
+  const bare = pageShopRateFields(html);
+  const fields = pageShopRateFields(html, slug);
+  assert.ok(fields.length > bare.length, 'the alias adds fields the canonical ids miss');
+  assert.ok(!bare.some((f) => f.id === 'hourlyWage'));
+  assert.equal(fields.find((f) => f.id === 'hourlyWage').inputId, 'attendantHourlyRate');
 
-  const fields = pageShopRateFields(html, 'snow-removal-bid-calculator');
-  assert.equal(fields.length, SHOP_RATE_FIELDS.length);
-  assert.equal(fields.find((f) => f.id === 'hourlyWage').inputId, 'operatorWage');
-
-  const out = injectShopRates(html, 'snow-removal-bid-calculator');
+  const out = injectShopRates(html, slug);
   assert.notEqual(out, html, 'the bar has to reach the page it was aliased for');
   // The alias is one of the two facts the shared script cannot know until it is
   // on a page, so it rides on the tag.
-  assert.match(out, /data-pf-rates-fields="[^"]*hourlyWage:operatorWage/);
+  assert.match(out, /data-pf-rates-fields="[^"]*hourlyWage:attendantHourlyRate/);
 });
 
 test('an aliased id is only ever the one the venture actually uses', async () => {
@@ -370,7 +230,7 @@ test('saving on a partial page merges rather than replacing what is stored', () 
   // margin on a two-field one, must not lose the wage.
   const out = injectShopRates(
     page('<input id="overheadRate"><input id="targetMargin">'),
-    'appliance-repair-quote-calculator',
+    'portable-restroom-event-quote',
   );
   assert.notEqual(out, page('<input id="overheadRate"><input id="targetMargin">'));
   assert.match(script, /var merged = readAll\(\);/);
@@ -408,7 +268,7 @@ test('the tag names exactly the fields the page carries, and nothing else', () =
   // into a field this tool was never read to carry.
   const partial = injectShopRates(
     page('<input id="overheadRate"><input id="targetMargin">'),
-    'appliance-repair-quote-calculator',
+    'portable-restroom-event-quote',
   );
   assert.deepEqual(
     partial.match(/data-pf-rates-fields="([^"]*)"/)[1].split(','),
@@ -512,17 +372,29 @@ test('the page that produces the rates does not also receive the bar', () => {
   // offering "Save the rates on this bid" for two of them beside that control
   // would leave the one page that settles these numbers with two save buttons of
   // different scope.
+  //
+  // It moved to the open-source repo on 2026-09-30, leaving the set empty, so
+  // the entry is supplied for the length of the check.
   const producer = page('<input id="hourlyWage"><input id="targetMargin">');
-  assert.ok(RATE_SOURCE_SLUGS.has('shop-rate-calculator'));
-  assert.equal(pageTakesShopRates(producer, 'shop-rate-calculator'), false);
-  assert.equal(injectShopRates(producer, 'shop-rate-calculator'), producer);
+  RATE_SOURCE_SLUGS.add('shop-rate-calculator');
+  try {
+    assert.equal(pageTakesShopRates(producer, 'shop-rate-calculator'), false);
+    assert.equal(injectShopRates(producer, 'shop-rate-calculator'), producer);
+  } finally {
+    RATE_SOURCE_SLUGS.delete('shop-rate-calculator');
+  }
 });
 
 test('a rate source is skipped even when it carries all four ids', () => {
   // Defensive: the exclusion must not depend on how many fields the page
   // happens to have, or a later edit there would silently re-inject the bar.
-  assert.equal(pageTakesShopRates(page(form), 'shop-rate-calculator'), false);
-  assert.equal(injectShopRates(page(form), 'shop-rate-calculator'), page(form));
+  RATE_SOURCE_SLUGS.add('shop-rate-calculator');
+  try {
+    assert.equal(pageTakesShopRates(page(form), 'shop-rate-calculator'), false);
+    assert.equal(injectShopRates(page(form), 'shop-rate-calculator'), page(form));
+  } finally {
+    RATE_SOURCE_SLUGS.delete('shop-rate-calculator');
+  }
 });
 
 test('every rate source names a venture that exists', async () => {

@@ -138,7 +138,7 @@ the note, and the PR for the fleet-wide version of the same defect.)
 
 ## Related tools
 
-- [Equipment lease buyout calculator](../equipment-lease-buyout-calculator/) —
+- [Equipment lease buyout calculator](https://duncan-haywood.github.io/oss-monorepo/equipment-lease-buyout-calculator/) —
   one asset in more depth: buying out a lease against returning it and
   replacing. This planner decides which of several assets to act on at all.
 - [Equipment rental break-even](../equipment-rental-break-even/) — pricing

@@ -38,7 +38,7 @@
 //   python3 -m http.server 8793 --directory platform/pages/dist &
 //   node platform/pages/presets.mjs
 //
-//   node platform/pages/presets.mjs metal-roof-bid-calculator
+//   node platform/pages/presets.mjs portable-restroom-event-quote
 //
 // **Check what is answering before you believe the result.** A server left
 // running by an earlier build keeps the port and the run passes against the old

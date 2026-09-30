@@ -574,7 +574,7 @@ class OnlyFilter(unittest.TestCase):
     shapes: a check that reports a clean run it did not perform.
     """
 
-    def _run(self, argv, slugs=("ebay-fee-calculator", "shopify-fee-calculator")):
+    def _run(self, argv, slugs=("3pl-quote-normalizer", "mileage-log")):
         """Drive main() over a served tree containing `slugs`, faking the checks.
 
         `captured` collects the env each check was handed, which is the only
@@ -607,8 +607,8 @@ class OnlyFilter(unittest.TestCase):
             shutil.rmtree(dist, ignore_errors=True)
 
     def test_the_filter_reaches_the_checks_as_ONLY_SLUGS(self):
-        _, _, captured = self._run(["--checks", "sideways", "--only", "ebay-fee-calculator"])
-        self.assertEqual(captured["sideways"], "ebay-fee-calculator")
+        _, _, captured = self._run(["--checks", "sideways", "--only", "3pl-quote-normalizer"])
+        self.assertEqual(captured["sideways"], "3pl-quote-normalizer")
 
     def test_no_filter_leaves_the_variable_unset(self):
         """Not the empty string: only-slugs.mjs reads a blank as "no filter",
@@ -632,14 +632,14 @@ class OnlyFilter(unittest.TestCase):
     def test_one_bad_slug_among_good_ones_still_stops_the_run(self):
         """The dangerous case: the run would otherwise look scoped and pass."""
         rc, _, captured = self._run(
-            ["--checks", "sideways", "--only", "ebay-fee-calculator,nope"])
+            ["--checks", "sideways", "--only", "3pl-quote-normalizer,nope"])
         self.assertEqual(rc, 2)
         self.assertEqual(captured, {})
 
     def test_a_filtered_pass_is_never_reported_as_a_full_one(self):
-        rc, text, _ = self._run(["--checks", "sideways", "--only", "ebay-fee-calculator"])
+        rc, text, _ = self._run(["--checks", "sideways", "--only", "3pl-quote-normalizer"])
         self.assertEqual(rc, 0)
-        self.assertIn("FILTERED: ebay-fee-calculator", text)
+        self.assertIn("FILTERED: 3pl-quote-normalizer", text)
 
     def test_an_unfiltered_pass_carries_no_filtered_stamp(self):
         _, text, _ = self._run(["--checks", "sideways"])
@@ -652,8 +652,8 @@ class OnlyFilter(unittest.TestCase):
         try:
             with open(os.path.join(dist, "index.html"), "w", encoding="utf-8") as fh:
                 fh.write("<html></html>")
-            os.mkdir(os.path.join(dist, "ebay-fee-calculator"))
-            with open(os.path.join(dist, "ebay-fee-calculator", "index.html"),
+            os.mkdir(os.path.join(dist, "3pl-quote-normalizer"))
+            with open(os.path.join(dist, "3pl-quote-normalizer", "index.html"),
                       "w", encoding="utf-8") as fh:
                 fh.write("<html></html>")
             err, out = io.StringIO(), io.StringIO()
@@ -662,14 +662,14 @@ class OnlyFilter(unittest.TestCase):
                  mock.patch.object(bc, "discover_axe", lambda env: None), \
                  contextlib.redirect_stderr(err), contextlib.redirect_stdout(out):
                 rc = bc.main(["--dist", dist, "--checks", "sideways",
-                              "--only", "ebay-fee-calculator"])
+                              "--only", "3pl-quote-normalizer"])
             text = err.getvalue() + out.getvalue()
             self.assertEqual(rc, 2)
-            self.assertIn("FILTERED: ebay-fee-calculator", text)
+            self.assertIn("FILTERED: 3pl-quote-normalizer", text)
         finally:
             shutil.rmtree(dist, ignore_errors=True)
 
     def test_journey_alone_under_a_filter_says_it_is_not_scoped(self):
         """`journey` ignores the filter, so this combination must not look scoped."""
-        _, text, _ = self._run(["--checks", "journey", "--only", "ebay-fee-calculator"])
+        _, text, _ = self._run(["--checks", "journey", "--only", "3pl-quote-normalizer"])
         self.assertIn("ignores --only", text)

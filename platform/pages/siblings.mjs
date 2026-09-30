@@ -240,7 +240,7 @@ async function main(argv) {
       console.log(
         `\n  To close one: add a sentence to each page's footer linking the other,` +
           `\n  and a test in each venture's page.test.mjs asserting the href — see` +
-          `\n  ventures/irrigation-install-bid-calculator/page.test.mjs for the shape.` +
+          `\n  ventures/pool-route-pricing/page.test.mjs for the shape.` +
           `\n  Then lower orphanBudget in platform/pages/siblings-budget.json.`,
       );
     }

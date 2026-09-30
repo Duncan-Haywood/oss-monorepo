@@ -1071,7 +1071,10 @@ const RELATIVE_SELF = relative(
 // +1: `agent-brokerage-split-calculator` graduated.
 // +1: `home-sale-exclusion-calculator` graduated.
 // +1: `tax-loss-harvesting-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 448;
+// -244: 2026-09-30, all 253 `*-calculator` ventures moved out of `ventures/`
+// to the separate open-source repo (served at
+// duncan-haywood.github.io/oss-monorepo/<slug>/); 244 of them carried a switch.
+const SWITCHES_IN_THE_CATALOGUE = 204;
 
 let counter = 0;
 function fixture(source) {

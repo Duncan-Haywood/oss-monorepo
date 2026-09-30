@@ -10,6 +10,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { compareChannels, loadItem } from "./calc.mjs";
+import { toolRoot } from "./handoff.mjs";
 
 const article = readFileSync(
   new URL("./which-marketplace-has-the-lowest-fees.html", import.meta.url),
@@ -89,7 +90,8 @@ test("the article links back to the tool and out to every deep calculator", () =
     "faire-wholesale-calculator",
     "whatnot-seller-payout",
   ]) {
-    assert.ok(article.includes(`../${slug}/`), `the article does not link ${slug}`);
+    // Calculators that moved to the separate oss-monorepo repo are linked absolutely.
+    assert.ok(article.includes(`href="${toolRoot(slug)}"`), `the article does not link ${slug}`);
   }
 });
 

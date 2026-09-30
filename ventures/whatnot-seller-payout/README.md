@@ -74,7 +74,7 @@ server or a `Referer` header, so nothing is uploaded either way.
 Whatnot's commission-on-the-hammer-plus-separate-processing shape does not
 fit the fixed-fee retail model the [marketplace fee compare](../marketplace-fee-compare/)
 uses for eBay, Etsy, Amazon, Walmart, TikTok Shop and Shopify, so it stays out
-of that ranking. The [where-to-sell calculator](../where-to-sell-calculator/)
+of that ranking. The [where-to-sell calculator](https://duncan-haywood.github.io/oss-monorepo/where-to-sell-calculator/)
 models Whatnot the way this page does and ranks it against eBay, Etsy, Amazon,
 Reverb and an own store, plus what each is worth per day of wait and per
 month of shelf time. The link at the bottom of this page carries this lot's

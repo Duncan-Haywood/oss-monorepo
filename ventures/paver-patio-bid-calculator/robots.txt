@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://example.invalid/paver-patio-bid-calculator/sitemap.xml

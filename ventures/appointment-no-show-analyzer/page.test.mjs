@@ -110,10 +110,10 @@ test("usage events named on the page are the ones the code records", () => {
 
 test("page links reciprocally to the no-show fee and appointment deposit calculators, which link back", () => {
   const html = page("index.html");
+  // Both calculators (and their links back here) now live in the separate
+  // oss-monorepo repo, so only this page's outbound links are checked here.
   for (const other of ["no-show-fee-calculator", "appointment-deposit-calculator"]) {
-    assert.match(html, new RegExp(`href="\\.\\./${other}/"`));
-    const theirs = readFileSync(new URL(`../${other}/index.html`, import.meta.url), "utf8");
-    assert.match(theirs, /href="\.\.\/appointment-no-show-analyzer\/"/);
+    assert.ok(html.includes(`href="https://duncan-haywood.github.io/oss-monorepo/${other}/"`), other);
   }
 });
 

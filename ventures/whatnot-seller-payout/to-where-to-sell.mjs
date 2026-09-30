@@ -55,9 +55,9 @@ export function whereToSellPayload(input = {}) {
   return { shared, channels: [{ id: 'whatnot', enabled: true, values: {} }] };
 }
 
-/** A relative link into where-to-sell-calculator, carrying this item. */
+/** A link into where-to-sell-calculator (now in the oss-monorepo repo), carrying this item. */
 export function whereToSellUrl(input = {}) {
   const payload = whereToSellPayload(input);
   const encoded = encodeURIComponent(JSON.stringify(payload));
-  return `../where-to-sell-calculator/#c=${encoded}`;
+  return `https://duncan-haywood.github.io/oss-monorepo/where-to-sell-calculator/#c=${encoded}`;
 }

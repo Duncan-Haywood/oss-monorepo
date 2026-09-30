@@ -39,7 +39,7 @@ class TestClassify(unittest.TestCase):
         self.assertFalse(is_ledger_prose("portfolio/ledger/test_break_even.py"))
 
     def test_venture_file_is_not_prose(self):
-        self.assertFalse(is_ledger_prose("ventures/ebay-fee-calculator/index.html"))
+        self.assertFalse(is_ledger_prose("ventures/3pl-quote-normalizer/index.html"))
 
     def test_ledger_lookalike_outside_the_dir_is_not_prose(self):
         # `portfolio/ledger-notes/` must not be swept in by a prefix match.

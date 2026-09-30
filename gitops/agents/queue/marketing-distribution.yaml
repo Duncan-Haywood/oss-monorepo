@@ -131,8 +131,9 @@ prompt: |
      `vs-<competitor>.html` page (not
      `compare.mjs`, which only a handful use), e.g.
      `cash-runway-planner/vs-quickbooks-cash-flow-planner.html`,
-     `str-host-payout-calculator/vs-airbnb-earnings-estimator.html`,
-     `amazon-fba-calculator/vs-amazon-revenue-calculator.html`. Every
+     `saas-seat-true-up/vs-vendr.html`, `which-job-first/vs-jobber.html`
+     (the `*-calculator` ventures moved to the separate open-source repo on
+     2026-09-30 and took their `vs-` pages with them). Every
      household-name incumbent a search turned up already has one --
      ServiceTitan/Jobber/JobNimbus/AcuLynx across ~15 trade-software
      ventures, QuickBooks x2, Airbnb, Amazon's own Revenue Calculator,

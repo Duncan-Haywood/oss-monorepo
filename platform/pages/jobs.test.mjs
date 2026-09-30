@@ -511,12 +511,16 @@ test('a tool cannot grow past the cap', () => {
  * trusting that it is — a venture that stops shipping a static form would drop
  * out silently otherwise.
  */
-test('every bid calculator on main carries a form worth remembering', async () => {
+//
+// The family was the 100+ `*-bid-calculator` ventures until they moved to the
+// open-source repo on 2026-09-30. The `*-quote` tools are what is left of it
+// here -- one customer's priced job per form, the exact thing the band saves.
+test('every quote tool on main carries a form worth remembering', async () => {
   const slugs = (await fs.readdir(VENTURES, { withFileTypes: true }))
-    .filter((entry) => entry.isDirectory() && entry.name.endsWith('-bid-calculator'))
+    .filter((entry) => entry.isDirectory() && entry.name.endsWith('-quote'))
     .map((entry) => entry.name);
 
-  assert.ok(slugs.length > 50, `expected the bid-calculator family, found ${slugs.length}`);
+  assert.ok(slugs.length >= 3, `expected the quote-tool family, found ${slugs.length}`);
 
   const without = [];
   for (const slug of slugs) {
@@ -878,10 +882,22 @@ test('the amount element is the hero, or nothing', () => {
 });
 
 test('a tool whose headline is not what it sells on names the element that is', () => {
-  // lawn-care leads with a per-visit price and sells a monthly contract.
+  // lawn-care-bid-calculator led with a per-visit price and sold a monthly
+  // contract. It moved to the open-source repo on 2026-09-30 and no page left
+  // here needs an override, so the entry is supplied for the length of the
+  // assertion: the override still wins over the hero rule.
+  HEADLINE_AMOUNT_OVERRIDES['lawn-care-bid-calculator'] = '#monthly';
+  try {
+    assert.equal(
+      pageHeadlineAmountSelector(page(hero('price', '$106.09')), 'lawn-care-bid-calculator'),
+      '#monthly',
+    );
+  } finally {
+    delete HEADLINE_AMOUNT_OVERRIDES['lawn-care-bid-calculator'];
+  }
   assert.equal(
     pageHeadlineAmountSelector(page(hero('price', '$106.09')), 'lawn-care-bid-calculator'),
-    '#monthly',
+    '#price',
   );
 });
 
@@ -2167,8 +2183,14 @@ test('a page whose form is the shop\u2019s cost structure gets no saved-bid band
     .join('');
   const html = `<html><head></head><body><main>${form}</main></body></html>`;
   assert.ok(pageTakesSavedBids(html), 'the form is saveable by shape, which is the point');
-  assert.ok(COST_STRUCTURE_SLUGS.has('shop-rate-calculator'));
-  assert.equal(injectSavedBids(html, 'shop-rate-calculator'), html);
+  // shop-rate-calculator moved to the open-source repo on 2026-09-30, leaving
+  // the set empty, so the exclusion is supplied for the length of the check.
+  COST_STRUCTURE_SLUGS.add('shop-rate-calculator');
+  try {
+    assert.equal(injectSavedBids(html, 'shop-rate-calculator'), html);
+  } finally {
+    COST_STRUCTURE_SLUGS.delete('shop-rate-calculator');
+  }
   // The same markup under any other slug still gets the band, so the exclusion
   // is about the page rather than about the fields.
   assert.notEqual(injectSavedBids(html, 'some-bid-calculator'), html);

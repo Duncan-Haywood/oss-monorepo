@@ -63,7 +63,7 @@ test("page states it is independent of Poshmark and links to the fee calculator"
   const html = page("index.html");
   assert.match(html, /Not affiliated with Poshmark/);
   assert.match(html, /not sponsored, endorsed or connected to Poshmark, Inc\./);
-  assert.match(html, /\.\.\/poshmark-fee-calculator\//);
+  assert.match(html, /https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/poshmark-fee-calculator\//);
 });
 
 test("usage events named on the page are the ones the code records", () => {

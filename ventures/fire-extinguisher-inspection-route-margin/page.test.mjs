@@ -221,7 +221,7 @@ test('index links one hop to the medical-courier-route-margin sibling', () => {
 test('index links one hop to the backflow-test-fee-calculator sibling', () => {
   assert.match(
     html,
-    /href="\.\.\/backflow-test-fee-calculator\/"/,
-    'index must link ../backflow-test-fee-calculator/ so a crawler reaches that tool in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/backflow-test-fee-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/oss-monorepo/backflow-test-fee-calculator/ so a crawler reaches that tool in one hop',
   );
 });

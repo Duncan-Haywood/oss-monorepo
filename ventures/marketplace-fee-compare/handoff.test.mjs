@@ -28,34 +28,20 @@ import {
   handoffValues,
   handoffsForRows,
   excludedHandoffUrl,
+  toolRoot,
+  MOVED_TO_OSS,
+  OSS_ROOT,
 } from './handoff.mjs';
 import { CHANNELS, EXCLUDED_CHANNELS, loadItem, compareChannels } from './calc.mjs';
 
-import { INPUT_FIELDS as EBAY_FIELDS } from '../ebay-fee-calculator/calc.mjs';
-import { FIELD_IDS as ETSY_FIELDS } from '../etsy-profit-calculator/share.mjs';
-import { INPUT_FIELDS as AMAZON_FIELDS } from '../amazon-fba-calculator/calc.mjs';
-import { INPUT_FIELDS as WALMART_FIELDS } from '../walmart-marketplace-calculator/calc.mjs';
-import { FIELD_IDS as TIKTOK_FIELDS } from '../tiktok-shop-fee-calculator/calc.mjs';
-import { FIELD_IDS as SHOPIFY_FIELDS } from '../shopify-fee-calculator/share.mjs';
+// The six ranked channels' deep tools, Reverb's and Faire's calculators and
+// the where-to-sell-calculator comparison page now live in the separate
+// oss-monorepo repo, so their field lists can no longer be imported here; the
+// cross-repo agreement checks live with them there.
 
-// The two excluded channels whose item still travels. Imported from the target
-// for the same reason the six above are: a rename there must fail here rather
-// than silently start dropping a field on arrival.
+// The excluded channel whose target is still in this repo. Imported from the
+// target so a rename there fails here rather than silently dropping a field.
 import { INPUT_IDS as WHATNOT_FIELDS } from '../whatnot-seller-payout/calc.mjs';
-import { INPUT_FIELDS as REVERB_FIELDS } from '../reverb-fee-calculator/calc.mjs';
-
-// The other comparison page in this portfolio, imported so the two tables can
-// be checked against each other rather than kept in sync by hand.
-import { HANDOFFS as WHERE_TO_SELL_HANDOFFS } from '../where-to-sell-calculator/handoff.mjs';
-
-const TARGET_FIELDS = {
-  'ebay-fee-calculator': EBAY_FIELDS,
-  'etsy-profit-calculator': ETSY_FIELDS,
-  'amazon-fba-calculator': AMAZON_FIELDS,
-  'walmart-marketplace-calculator': WALMART_FIELDS,
-  'tiktok-shop-fee-calculator': TIKTOK_FIELDS,
-  'shopify-fee-calculator': SHOPIFY_FIELDS,
-};
 
 const ITEM = {
   price: 40,
@@ -73,18 +59,8 @@ const paramsOf = (url) => new URLSearchParams(url.slice(url.indexOf('#') + 1));
 // The mapping matches what the other side actually accepts
 // ---------------------------------------------------------------------------
 
-test('every field we send is one the target calculator reads', () => {
-  for (const entry of HANDOFFS) {
-    const accepted = TARGET_FIELDS[entry.slug];
-    assert.ok(accepted, `no field list imported for ${entry.slug}`);
-    for (const field of Object.values(entry.fields)) {
-      assert.ok(
-        accepted.includes(field),
-        `${entry.slug} does not accept "${field}" — the link would arrive without it`,
-      );
-    }
-  }
-});
+// 'every field we send is one the target calculator reads' moved with the six
+// ranked deep tools to the separate oss-monorepo repo.
 
 test('every channel we hand off to is a channel this page ranks', () => {
   const known = new Set(CHANNELS.map((channel) => channel.id));
@@ -178,33 +154,8 @@ test('the category never travels', () => {
 // This page and its sibling comparison tool agree
 // ---------------------------------------------------------------------------
 
-test('shared targets get the same field names from both comparison pages', () => {
-  // `where-to-sell-calculator` links into four of the same calculators. If the
-  // two pages map `itemCost` onto different inputs of the same tool, one of
-  // them is wrong, and the wrong one produces a plausible number rather than an
-  // error. Asserted rather than kept in sync by hand: this repository has paid
-  // twice for a copied rule going stale (CLAUDE.md, "168 became 169").
-  const bySlug = new Map(WHERE_TO_SELL_HANDOFFS.map((entry) => [entry.slug, entry]));
-  let compared = 0;
-
-  for (const entry of HANDOFFS) {
-    const sibling = bySlug.get(entry.slug);
-    if (!sibling) continue;
-    for (const [source, target] of Object.entries(entry.fields)) {
-      if (!Object.hasOwn(sibling.fields, source)) continue;
-      assert.equal(
-        target,
-        sibling.fields[source],
-        `${entry.slug}: this page sends ${source} as "${target}", where-to-sell sends it as "${sibling.fields[source]}"`,
-      );
-      compared += 1;
-    }
-  }
-
-  // Guard the guard: if either table is renamed so nothing lines up, the loop
-  // above would pass vacuously.
-  assert.ok(compared >= 12, `only ${compared} field pairs compared — the tables stopped lining up`);
-});
+// The agreement check against where-to-sell-calculator's HANDOFFS moved with
+// that page to the separate oss-monorepo repo.
 
 // ---------------------------------------------------------------------------
 // The numbers survive the trip
@@ -264,7 +215,7 @@ test('values ride in the fragment, not the query string', () => {
   const url = handoffUrl('shopify', ITEM);
   assert.ok(url.includes('#'), 'no fragment');
   assert.ok(!url.slice(0, url.indexOf('#')).includes('?'), 'values leaked into a query string');
-  assert.ok(url.startsWith('../shopify-fee-calculator/'), `unexpected href: ${url}`);
+  assert.ok(url.startsWith('https://duncan-haywood.github.io/oss-monorepo/shopify-fee-calculator/'), `unexpected href: ${url}`);
 });
 
 test('an unknown channel gets no link rather than a broken one', () => {
@@ -290,7 +241,8 @@ test('handoffsForRows follows the ranking, best first', () => {
   assert.equal(links[0].isBest, true);
   assert.ok(links.slice(1).every((link) => link.isBest === false), 'more than one row marked best');
   for (const link of links) {
-    assert.ok(link.href.startsWith('../'), `href is not relative: ${link.href}`);
+    assert.ok(link.href.startsWith(toolRoot(handoffFor(link.channel).slug)), `unexpected href: ${link.href}`);
+    assert.ok(link.href.startsWith(OSS_ROOT), `moved deep tool is not linked absolutely: ${link.href}`);
     assert.ok(link.label.length > 0);
     assert.ok(link.channelLabel.length > 0);
   }
@@ -304,14 +256,16 @@ test('handoffsForRows on an empty comparison returns nothing', () => {
 // The channels this page points at instead of ranking
 // ---------------------------------------------------------------------------
 
+// reverb-fee-calculator now lives in the separate oss-monorepo repo, so only
+// the in-repo Whatnot target's field list is checked here.
 const EXCLUDED_TARGET_FIELDS = {
   'whatnot-seller-payout': WHATNOT_FIELDS,
-  'reverb-fee-calculator': REVERB_FIELDS,
 };
 
 test('every field we send an excluded channel is one its calculator reads', () => {
   for (const entry of EXCLUDED_HANDOFFS) {
     const accepted = EXCLUDED_TARGET_FIELDS[entry.slug];
+    if (MOVED_TO_OSS.has(entry.slug)) continue;
     assert.ok(accepted, `no field list imported for ${entry.slug}`);
     for (const field of Object.values(entry.fields)) {
       assert.ok(
@@ -387,30 +341,8 @@ test('the category never travels to an excluded channel either', () => {
   }
 });
 
-test('excluded targets get the same field names as where-to-sell sends them', () => {
-  // where-to-sell-calculator ranks Whatnot and Reverb as ordinary rows, so it
-  // already has a vetted mapping for both. Two pages sending the same input
-  // under different names to the same calculator is the bug that produces a
-  // plausible wrong number rather than an error.
-  const bySlug = new Map(WHERE_TO_SELL_HANDOFFS.map((entry) => [entry.slug, entry]));
-  let compared = 0;
-
-  for (const entry of EXCLUDED_HANDOFFS) {
-    const sibling = bySlug.get(entry.slug);
-    if (!sibling) continue;
-    for (const [source, target] of Object.entries(entry.fields)) {
-      if (!Object.hasOwn(sibling.fields, source)) continue;
-      assert.equal(
-        target,
-        sibling.fields[source],
-        `${entry.slug}: this page sends ${source} as "${target}", where-to-sell sends "${sibling.fields[source]}"`,
-      );
-      compared += 1;
-    }
-  }
-
-  assert.ok(compared >= 8, `only ${compared} field pairs compared — the tables stopped lining up`);
-});
+// The excluded-channel agreement check against where-to-sell-calculator moved
+// with that page to the separate oss-monorepo repo.
 
 test('the item arrives on Whatnot under Whatnot names', () => {
   const params = paramsOf(excludedHandoffUrl('whatnot-seller-payout', ITEM));
@@ -437,7 +369,7 @@ test('Faire keeps a bare pointer, carrying no numbers', () => {
   // The whole point of NO_ITEM_HANDOFF: the link still works, it just does not
   // claim to know the wholesale price.
   const url = excludedHandoffUrl('faire-wholesale-calculator', ITEM);
-  assert.equal(url, '../faire-wholesale-calculator/');
+  assert.equal(url, 'https://duncan-haywood.github.io/oss-monorepo/faire-wholesale-calculator/');
   assert.ok(!url.includes('#'), 'a wholesale sheet must not receive a retail price');
 });
 
@@ -454,5 +386,11 @@ test('a blank item produces a bare link rather than one full of zeroes', () => {
   // Same rule the ranked handoff follows: an explicit 0 reads as a real answer
   // on arrival, so an untouched form must not override the target's defaults.
   const url = excludedHandoffUrl('reverb-fee-calculator', {});
-  assert.equal(url, '../reverb-fee-calculator/');
+  assert.equal(url, 'https://duncan-haywood.github.io/oss-monorepo/reverb-fee-calculator/');
+});
+
+test('toolRoot links moved calculators absolutely and in-repo siblings relatively', () => {
+  assert.equal(toolRoot('ebay-fee-calculator'), `${OSS_ROOT}ebay-fee-calculator/`);
+  assert.equal(toolRoot('whatnot-seller-payout'), '../whatnot-seller-payout/');
+  assert.ok(excludedHandoffUrl('whatnot-seller-payout', ITEM).startsWith('../whatnot-seller-payout/#'));
 });

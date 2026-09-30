@@ -282,6 +282,30 @@ export const NO_ITEM_HANDOFF = [
 /** Slugs travel into an href, so keep them to a shape that cannot escape it. */
 const slugIsSafe = (value) => /^[a-z0-9-]+$/.test(value);
 
+/** Where the calculators that moved to the separate oss-monorepo repo are served. */
+export const OSS_ROOT = 'https://duncan-haywood.github.io/oss-monorepo/';
+
+/**
+ * Deep tools this page links to that now live in the separate oss-monorepo
+ * repo. Every other slug is a sibling venture in this repo and stays relative.
+ */
+export const MOVED_TO_OSS = new Set([
+  'ebay-fee-calculator',
+  'etsy-profit-calculator',
+  'amazon-fba-calculator',
+  'walmart-marketplace-calculator',
+  'tiktok-shop-fee-calculator',
+  'shopify-fee-calculator',
+  'faire-wholesale-calculator',
+  'reverb-fee-calculator',
+  'where-to-sell-calculator',
+]);
+
+/** The root URL of a deep tool: absolute for a moved calculator, relative otherwise. */
+export function toolRoot(slug) {
+  return MOVED_TO_OSS.has(slug) ? `${OSS_ROOT}${slug}/` : `../${slug}/`;
+}
+
 /** The handoff for a channel id, or null if it has none. */
 export function handoffFor(channel) {
   return HANDOFFS.find((entry) => entry.channel === channel) ?? null;
@@ -317,9 +341,9 @@ export function handoffValues(entry, item = {}) {
 }
 
 /**
- * A relative link to the channel's calculator, carrying the item.
+ * A link to the channel's calculator, carrying the item.
  *
- * Relative on purpose: the same href has to work under the project path prefix
+ * Relative for a sibling in this repo (see `toolRoot`), on purpose: the same href has to work under the project path prefix
  * GitHub Pages serves from, under a custom domain later, and from a local
  * `python3 -m http.server`. The values ride in the fragment, which browsers do
  * not send to any server and do not put in a `Referer` header — the same
@@ -334,7 +358,7 @@ export function handoffUrl(channel, item = {}) {
   for (const field of Object.keys(values).sort()) params.set(field, String(values[field]));
 
   const query = params.toString();
-  return `../${entry.slug}/${query ? `#${query}` : ''}`;
+  return `${toolRoot(entry.slug)}${query ? `#${query}` : ''}`;
 }
 
 /** The excluded-channel handoff for a deep-tool slug, or null if it has none. */
@@ -343,9 +367,9 @@ export function excludedHandoffFor(slug) {
 }
 
 /**
- * A relative link to an excluded channel's calculator, carrying the item.
+ * A link to an excluded channel's calculator, carrying the item.
  *
- * Returns the bare `../<slug>/` when the channel has no mapping, so a caller
+ * Returns the bare `toolRoot(slug)` when the channel has no mapping, so a caller
  * rendering the pointer list never has to choose between a link that lies and
  * no link at all — Faire keeps the pointer it always had, minus the numbers.
  */
@@ -353,14 +377,14 @@ export function excludedHandoffUrl(slug, item = {}) {
   if (!slugIsSafe(slug)) return null;
 
   const entry = excludedHandoffFor(slug);
-  if (!entry) return `../${slug}/`;
+  if (!entry) return toolRoot(slug);
 
   const values = handoffValues(entry, item);
   const params = new URLSearchParams();
   for (const field of Object.keys(values).sort()) params.set(field, String(values[field]));
 
   const query = params.toString();
-  return `../${slug}/${query ? `#${query}` : ''}`;
+  return `${toolRoot(slug)}${query ? `#${query}` : ''}`;
 }
 
 /**

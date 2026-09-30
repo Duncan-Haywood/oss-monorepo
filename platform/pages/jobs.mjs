@@ -165,8 +165,12 @@ const EXCLUDED_ID_PREFIX = 'pf-';
  *
  * Excluding it here is enough for both: `injectBidLink` anchors on the band this
  * one draws, so no band means no link.
+ *
+ * Empty since 2026-09-30: `shop-rate-calculator` moved to the separate
+ * open-source repo with the rest of the `*-calculator` ventures. Kept so the
+ * next cost-structure page has somewhere to be named.
  */
-export const COST_STRUCTURE_SLUGS = new Set(['shop-rate-calculator']);
+export const COST_STRUCTURE_SLUGS = new Set([]);
 
 /**
  * Input types with no value a bid could restore. `hidden` is deliberately not
@@ -237,18 +241,9 @@ export function pageTakesSavedBids(html) {
  * than the printed proposal does.
  */
 export const HEADLINE_AMOUNT_OVERRIDES = {
-  'lawn-care-bid-calculator': '#monthly',
-  // This page leads with the quote, but marks it `class="hero"` rather than
-  // this site's `hero-number`, so the rule below finds nothing and the tool
-  // saved no figure at all. `#target` is the price it quotes and the price its
-  // printed proposal carries — `trades.json` names the same element, and
-  // `jobs.test.mjs` holds the two to each other.
-  'appliance-repair-quote-calculator': '#target',
-  // Same shape as appliance-repair above: `class="hero"`, not `hero-number`.
-  // `#targetPrice` is the margin-protected price this tool quotes and the
-  // figure its printed proposal carries; `trades.json`'s own
-  // `screenPriceSelector` names the same element.
-  'change-order-margin-calculator': '#targetPrice',
+  // Empty since 2026-09-30: the three pages that needed one
+  // (`lawn-care-bid-calculator`, `appliance-repair-quote-calculator`,
+  // `change-order-margin-calculator`) moved to the separate open-source repo.
 };
 
 const HERO_NUMBER_TAG_RE = /<[^>]*\bclass="[^"]*\bhero-number\b[^"]*"[^>]*>/i;

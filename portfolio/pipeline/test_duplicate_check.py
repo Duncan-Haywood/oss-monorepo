@@ -170,18 +170,18 @@ class AgainstTheLiveRepo(unittest.TestCase):
         self.assertIn("pipeline candidate", sources)
 
     def test_a_ventures_own_description_flags_against_itself(self):
-        target = next(i for i in self.items if i.label == "septic-pumping-bid-calculator")
+        target = next(i for i in self.items if i.label == "portable-restroom-event-quote")
         ranked = dc.rank(target.text, self.items)
         _, flagged = dc.report(target.text, ranked)
         self.assertTrue(flagged, "a venture's own description must match itself")
-        self.assertEqual(ranked[0][1].label, "septic-pumping-bid-calculator")
+        self.assertEqual(ranked[0][1].label, "portable-restroom-event-quote")
 
     def test_two_unrelated_live_ventures_do_not_flag_each_other(self):
         clock = next(i for i in self.items if i.label == "world-clock-widget")
-        septic = next(i for i in self.items if i.label == "septic-pumping-bid-calculator")
+        restroom = next(i for i in self.items if i.label == "portable-restroom-event-quote")
         ranked = dc.rank(clock.text, self.items)
-        top_septic = next(score for score, i in ranked if i.label == "septic-pumping-bid-calculator")
-        self.assertLess(top_septic, dc.WARN_THRESHOLD)
+        top_restroom = next(score for score, i in ranked if i.label == "portable-restroom-event-quote")
+        self.assertLess(top_restroom, dc.WARN_THRESHOLD)
 
     def test_not_a_venture_marker_excludes_ai_first_markets_from_venture_items(self):
         venture_labels = {i.label for i in self.items if i.source == "venture"}

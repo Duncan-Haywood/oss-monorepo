@@ -185,7 +185,7 @@ test('index links one hop to the translator-project-quote sibling', () => {
 test('index links one hop to the process-server-fee-calculator sibling', () => {
   assert.match(
     html,
-    /href="\.\.\/process-server-fee-calculator\/"/,
-    'index must link ../process-server-fee-calculator/ so crawlers reach the process server calculator in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/process-server-fee-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/oss-monorepo/process-server-fee-calculator/ so crawlers reach the process server calculator in one hop',
   );
 });

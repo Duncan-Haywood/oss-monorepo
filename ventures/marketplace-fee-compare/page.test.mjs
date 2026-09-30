@@ -129,18 +129,19 @@ test("the own-store demand caveat is in the markup, not only in prose", () => {
 });
 
 test("every channel and every excluded channel link to their deep calculator", () => {
-  for (const channel of [...CHANNELS, ...EXCLUDED_CHANNELS]) {
-    assert.ok(
-      scriptSource.includes("../${channel.deepTool}/"),
-      "deep-tool links must be generated from the model",
-    );
-  }
+  // Deep-tool links go through `toolRoot(channel.deepTool)`, which links the
+  // calculators that moved to the separate oss-monorepo repo absolutely and
+  // in-repo siblings (Whatnot) relatively.
+  assert.ok(
+    scriptSource.includes("toolRoot(channel.deepTool)"),
+    "deep-tool links must be generated from the model",
+  );
   // Two generated link lists: the per-channel caveats and the excluded note.
   // The slug still comes from `channel.deepTool` in both, which is what this
   // guards — a hand-typed slug here is how the caveat about one calculator
   // ends up above a link into a different one.
   assert.equal(
-    (scriptSource.match(/\.\.\/\$\{channel\.deepTool\}\//g) ?? []).length,
+    (scriptSource.match(/toolRoot\(channel\.deepTool\)/g) ?? []).length,
     2,
   );
   assert.ok(
@@ -275,8 +276,8 @@ test("the sharing FAQ answer matches between JSON-LD and the visible section", (
 test("index links to the related where-to-sell calculator", () => {
   assert.match(
     markup,
-    /href="\.\.\/where-to-sell-calculator\/"/,
-    "index must link ../where-to-sell-calculator/ so crawlers can reach the returns/shelf-time ranking",
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/where-to-sell-calculator\/"/,
+    "index must link https://duncan-haywood.github.io/oss-monorepo/where-to-sell-calculator/ so crawlers can reach the returns/shelf-time ranking",
   );
 });
 

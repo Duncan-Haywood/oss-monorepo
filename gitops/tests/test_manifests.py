@@ -2831,7 +2831,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `espp-tax-calculator` graduated (browser-local ESPP sell-or-hold tax calculator).
     # +1: `agent-brokerage-split-calculator` graduated (browser-local brokerage split and cap comparison for real estate agents).
     # +1: `tax-loss-harvesting-calculator` graduated (browser-local tax-loss harvesting calculator).
-    total = 469  # `infra/OWNER_CHECKLIST.md`'s own "N of the 469 tools" wording.
+    # -253: 2026-09-30, all 253 `*-calculator` ventures moved out of `ventures/` to the
+    # separate open-source repo (served at duncan-haywood.github.io/oss-monorepo/<slug>/).
+    total = 216  # `infra/OWNER_CHECKLIST.md`'s own "N of the 216 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

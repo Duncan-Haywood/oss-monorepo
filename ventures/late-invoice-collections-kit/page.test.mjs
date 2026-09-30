@@ -73,9 +73,14 @@ test("usage events named on the page are the ones the code records", () => {
 
 test("page links to the sibling tools it names, and those tools exist", () => {
   const html = page("index.html");
-  for (const slug of ["invoice-aging-late-payer-analyzer", "invoice-payment-terms-calculator", "freelance-retainer-calculator", "client-profitability-time-analyzer"]) {
+  for (const slug of ["invoice-aging-late-payer-analyzer", "client-profitability-time-analyzer"]) {
     assert.match(html, new RegExp(`href="\\.\\./${slug}/"`));
     assert.ok(readFileSync(new URL(`../${slug}/index.html`, import.meta.url), "utf8").length > 0);
+  }
+  // These calculators now live in the separate oss-monorepo repo, so the page
+  // links them absolutely and their files are not on disk here.
+  for (const slug of ["invoice-payment-terms-calculator", "freelance-retainer-calculator"]) {
+    assert.ok(html.includes(`href="https://duncan-haywood.github.io/oss-monorepo/${slug}/"`), `page must link ${slug} in the oss-monorepo`);
   }
 });
 

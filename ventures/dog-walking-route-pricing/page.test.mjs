@@ -128,8 +128,8 @@ test('an invalid visit input hides stale results instead of leaving them next to
 test('index links one hop to the wash-and-fold-price-calculator sibling', () => {
   assert.match(
     html,
-    /href="\.\.\/wash-and-fold-price-calculator\/"/,
-    'index must link ../wash-and-fold-price-calculator/ so crawlers reach the wash and fold price per pound calculator in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/wash-and-fold-price-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/oss-monorepo/wash-and-fold-price-calculator/ so crawlers reach the wash and fold price per pound calculator in one hop',
   );
 });
 

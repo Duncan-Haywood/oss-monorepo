@@ -41,7 +41,10 @@ test("nothing is loaded from a third-party origin", () => {
   // `/about/` promises no third-party script, font, CDN or network call on any
   // tool page, and that promise is load-bearing for the privacy claim above.
   const external = [...html.matchAll(/(?:src|href)="(https?:)?\/\/([^"]+)"/g)].map((m) => m[2]);
-  const allowed = external.filter((url) => url.startsWith("github.com/sponsors/"));
+  // Plain links to the portfolio's own calculators, which now live in the
+  // separate oss-monorepo repo, are navigation rather than a loaded resource.
+  const ossLinks = [...html.matchAll(/href="https:\/\/(duncan-haywood\.github\.io\/oss-monorepo\/[a-z0-9-]+\/)"/g)].map((m) => m[1]);
+  const allowed = external.filter((url) => url.startsWith("github.com/sponsors/") || ossLinks.includes(url));
   assert.deepEqual(
     external.filter((url) => !allowed.includes(url)),
     [],

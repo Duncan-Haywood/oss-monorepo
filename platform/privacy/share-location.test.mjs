@@ -117,14 +117,16 @@ test("the checker actually reaches the ventures", async () => {
   // run over an empty file list. 175-odd entry pages plus their modules.
   const files = await findShareSources(VENTURES);
   assert.ok(files.length > 200, `expected to scan the fleet, scanned ${files.length}`);
-  assert.ok(files.some((f) => f.endsWith(path.join("no-show-fee-calculator", "calc.mjs"))));
+  assert.ok(files.some((f) => f.endsWith(path.join("pool-route-pricing", "share.mjs"))));
 });
 
 test("it skips test files, which build ?-links as fixtures on purpose", async () => {
   const files = await findShareSources(VENTURES);
   assert.equal(files.filter((f) => /\.test\.(mjs|js)$/.test(f)).length, 0);
-  // `no-show-fee-calculator` keeps its suite in a `test/` directory rather
-  // than beside the source, and it asserts a legacy `?` link still opens.
+  // Some ventures (`consent-change-record`, `payment-reconciliation-workbench`)
+  // keep their suites in a `test/` directory rather than beside the source;
+  // `no-show-fee-calculator`, before it moved out, asserted a legacy `?` link
+  // still opens from there.
   assert.equal(files.filter((f) => f.split(path.sep).includes("test")).length, 0);
 });
 

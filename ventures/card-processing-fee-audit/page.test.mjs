@@ -91,5 +91,5 @@ test('index links one hop to the chargeback-evidence-packet sibling', () => {
 });
 
 test('index links one hop to the card-surcharge-vs-cash-discount-calculator sibling', () => {
-  assert.match(html, /href="\.\.\/card-surcharge-vs-cash-discount-calculator\/"/);
+  assert.match(html, /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/card-surcharge-vs-cash-discount-calculator\/"/);
 });

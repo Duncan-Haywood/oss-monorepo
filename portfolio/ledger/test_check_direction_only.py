@@ -48,7 +48,7 @@ class TestClassify(unittest.TestCase):
         self.assertFalse(is_direction_prose("ventures/foo/AGENTS.md"))
 
     def test_venture_file_is_not_prose(self):
-        self.assertFalse(is_direction_prose("ventures/ebay-fee-calculator/index.html"))
+        self.assertFalse(is_direction_prose("ventures/3pl-quote-normalizer/index.html"))
 
     def test_classify_splits_both_ways(self):
         prose, other = classify(

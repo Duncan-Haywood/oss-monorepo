@@ -400,11 +400,11 @@ test('the form ships a default for every required field', () => {
 });
 
 test('index links one hop to the shop-rate-calculator sibling', () => {
-  assert.match(markup, /href="\.\.\/shop-rate-calculator\//);
+  assert.match(markup, /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/shop-rate-calculator\//);
 });
 
 test('index links one hop to a second sibling', () => {
-  assert.match(markup, /href="\.\.\/hvac-maintenance-contract-calculator\//);
+  assert.match(markup, /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/hvac-maintenance-contract-calculator\//);
 });
 
 test('index links to the divide-it-yourself comparison, and the page links back', () => {

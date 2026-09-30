@@ -340,8 +340,8 @@ function nearMoney(html, value, printed = Number(value.toFixed(2))) {
 test('index links one hop to the str-host-payout-calculator sibling', () => {
   assert.match(
     markup,
-    /href="\.\.\/str-host-payout-calculator\/"/,
-    'index must link ../str-host-payout-calculator/ so crawlers reach the STR host payout calculator in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/str-host-payout-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/oss-monorepo/str-host-payout-calculator/ so crawlers reach the STR host payout calculator in one hop',
   );
 });
 
@@ -352,8 +352,8 @@ test('index links one hop to the str-host-payout-calculator sibling', () => {
 test('index links one hop to the storage-auction-max-bid-calculator sibling', () => {
   assert.match(
     markup,
-    /href="\.\.\/storage-auction-max-bid-calculator\/"/,
-    'index must link ../storage-auction-max-bid-calculator/ so crawlers reach the storage auction bid calculator in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/storage-auction-max-bid-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/oss-monorepo/storage-auction-max-bid-calculator/ so crawlers reach the storage auction bid calculator in one hop',
   );
 });
 
@@ -364,7 +364,7 @@ test('index links one hop to the storage-auction-max-bid-calculator sibling', ()
 test('index links one hop to the stockx-seller-payout-calculator sibling', () => {
   assert.match(
     markup,
-    /href="\.\.\/stockx-seller-payout-calculator\/"/,
-    'index must link ../stockx-seller-payout-calculator/ so crawlers reach the StockX seller payout calculator in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/stockx-seller-payout-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/oss-monorepo/stockx-seller-payout-calculator/ so crawlers reach the StockX seller payout calculator in one hop',
   );
 });

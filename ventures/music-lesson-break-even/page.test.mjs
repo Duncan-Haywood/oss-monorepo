@@ -77,7 +77,7 @@ test('index links one hop to the childcare-tuition-calculator sibling', async ()
   const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
   assert.match(
     page,
-    /href="\.\.\/childcare-tuition-calculator\/"/,
-    'index must link ../childcare-tuition-calculator/ so crawlers reach the daycare tuition calculator in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/childcare-tuition-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/oss-monorepo/childcare-tuition-calculator/ so crawlers reach the daycare tuition calculator in one hop',
   );
 });

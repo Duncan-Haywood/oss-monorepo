@@ -1,3 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://example.invalid/asbestos-abatement-bid-calculator/sitemap.xml

@@ -199,9 +199,12 @@ test("every page restores the control before it counts, and spells it one way", 
     order.filter((r) => r.status === "records-first").map(describeOrder), []);
 
   // And both must be reaching the catalogue rather than an empty list.
-  assert.ok(keys.length > 900, `expected every venture page, read ${keys.length}`);
+  // Floors lowered 2026-09-30 (900 -> 600, 300 -> 200) when the 253
+  // `*-calculator` ventures moved to the separate open-source repo: 708 pages
+  // and 227 passing remained, measured that day.
+  assert.ok(keys.length > 600, `expected every venture page, read ${keys.length}`);
   assert.ok(
-    keys.filter((r) => r.status === "pass").length > 300,
+    keys.filter((r) => r.status === "pass").length > 200,
     "most pages do offer a control; if this drops, discovery broke, not the pages",
   );
   assert.ok(

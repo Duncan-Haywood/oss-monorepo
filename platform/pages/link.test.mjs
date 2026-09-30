@@ -20,7 +20,7 @@ import {
   pageTakesBidLink,
   renderBidLinkModule,
 } from './link.mjs';
-import { injectSavedBids, pageRepeatPrefixes } from './jobs.mjs';
+import { COST_STRUCTURE_SLUGS, injectSavedBids, pageRepeatPrefixes } from './jobs.mjs';
 
 // A page shaped like the ones this runs on: a form with enough fields to count
 // as a bid, a hero number, and a feature list to append the claim to.
@@ -411,11 +411,18 @@ test('no bid link on the page whose form is the shop\u2019s cost structure', () 
     .map((id) => `<input id="${id}" type="number" value="1">`)
     .join('');
   const html = `<html><head></head><body><main>${form}</main></body></html>`;
-  const banded = injectSavedBids(html, 'shop-rate-calculator');
-  assert.equal(banded, html, 'precondition: no band');
-  const linked = injectBidLink(banded, { slug: 'shop-rate-calculator', source: html });
-  assert.equal(linked, html);
-  assert.doesNotMatch(linked, /Copy link to this bid/);
+  // shop-rate-calculator moved to the open-source repo on 2026-09-30, leaving
+  // the set empty, so the exclusion is supplied for the length of the check.
+  COST_STRUCTURE_SLUGS.add('shop-rate-calculator');
+  try {
+    const banded = injectSavedBids(html, 'shop-rate-calculator');
+    assert.equal(banded, html, 'precondition: no band');
+    const linked = injectBidLink(banded, { slug: 'shop-rate-calculator', source: html });
+    assert.equal(linked, html);
+    assert.doesNotMatch(linked, /Copy link to this bid/);
+  } finally {
+    COST_STRUCTURE_SLUGS.delete('shop-rate-calculator');
+  }
 });
 
 // ---------------------------------------------------------------------------
@@ -513,15 +520,10 @@ test('the itemised calculators are offered the control once they declare their r
   const { fileURLToPath: toPath } = await import('node:url');
   const root = nodePath.resolve(nodePath.dirname(toPath(import.meta.url)), '../../ventures');
 
+  // Eight pages until 2026-09-30, when the seven `*-bid-calculator` ones moved
+  // to the open-source repo. `portable-restroom-event-quote` is the one left.
   const itemised = [
-    'carpet-cleaning-bid-calculator',
-    'gutter-cleaning-bid-calculator',
-    'hood-cleaning-bid-calculator',
-    'pest-control-bid-calculator',
     'portable-restroom-event-quote',
-    'snow-removal-bid-calculator',
-    'tree-service-bid-calculator',
-    'window-cleaning-bid-calculator',
   ];
 
   for (const slug of itemised) {
@@ -529,7 +531,7 @@ test('the itemised calculators are offered the control once they declare their r
     // Still genuinely runtime-built — this is not a page that quietly moved its
     // fields into the markup, which would make the assertions below vacuous.
     assert.equal(pageBuildsFieldsAtRuntime(html), true, `${slug} builds fields at runtime`);
-    // The declaration is what every one of the eight gets from this change, and
+    // The declaration is what every one of these gets from this change, and
     // it is the half `jobs.mjs` reads: a saved bid restores through the row
     // replay whether or not the page also carries a share control of its own.
     assert.ok(pageRepeatPrefixes(html).length > 0, `${slug} declares its row groups`);
@@ -544,7 +546,7 @@ test('the itemised calculators are offered the control once they declare their r
     assert.equal(pageTakesBidLink(html, { hasShareModule: true }), false, `${slug} defers to a share module`);
   }
 
-  // None of the eight take the platform control today; all eight declare
+  // None of them take the platform control today; all of them declare
   // their rows. Pinned as counts so a venture growing or dropping its own
   // share control shows up here as a number to re-read rather than silently.
   const takes = [];
@@ -552,21 +554,7 @@ test('the itemised calculators are offered the control once they declare their r
     const html = await fsp.readFile(nodePath.join(root, slug, 'index.html'), 'utf8');
     if (pageTakesBidLink(html)) takes.push(slug);
   }
-  assert.equal(itemised.length, 8);
-  assert.equal(takes.includes('pest-control-bid-calculator'), false,
-    'pest-control keeps the share control it shipped in #2699');
-  assert.equal(takes.includes('snow-removal-bid-calculator'), false,
-    'snow-removal keeps the share control it shipped in #3048');
-  assert.equal(takes.includes('gutter-cleaning-bid-calculator'), false,
-    'gutter-cleaning keeps the share control it shipped in #3052');
-  assert.equal(takes.includes('carpet-cleaning-bid-calculator'), false,
-    'carpet-cleaning keeps the share control it shipped alongside its rooms and upholstery rows');
-  assert.equal(takes.includes('hood-cleaning-bid-calculator'), false,
-    'hood-cleaning keeps the share control it shipped alongside its exhaust-system component rows');
-  assert.equal(takes.includes('tree-service-bid-calculator'), false,
-    'tree-service keeps the share control it shipped alongside its per-tree rows');
-  assert.equal(takes.includes('window-cleaning-bid-calculator'), false,
-    'window-cleaning keeps the share control it shipped alongside its per-glass-type rows');
+  assert.equal(itemised.length, 1);
   assert.equal(takes.includes('portable-restroom-event-quote'), false,
     'portable-restroom-event-quote keeps the share control it shipped alongside its per-unit-type rows');
   assert.equal(takes.length, 0);

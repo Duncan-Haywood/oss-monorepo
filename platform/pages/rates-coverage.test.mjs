@@ -27,12 +27,15 @@
 // never discovered by noticing it.
 //
 // So this file selects the population by *what a page contains* and asserts only
-// that each member has been sorted into one of four buckets:
+// that each member has been sorted into one of three buckets:
 //
 //   1. it takes the bar (all four canonical ids, or aliased and partial);
 //   2. it is the rate *source* (`RATE_SOURCE_SLUGS`);
-//   3. it is recorded in `REVIEWED_NOT_CARRIED` with the quantity that differs;
-//   4. it is recorded in the sibling suite's `NO_SHARED_SHOP_RATES`.
+//   3. it is recorded in `REVIEWED_NOT_CARRIED` with the quantity that differs.
+//
+// (A fourth, the sibling suite's `NO_SHARED_SHOP_RATES`, held only
+// `*-bid-calculator` ventures and went with them to the separate open-source
+// repo on 2026-09-30.)
 //
 // It deliberately does **not** assert that a page ought to take the bar. That
 // judgement needs the page read — the labels and the arithmetic in its
@@ -110,29 +113,7 @@ const ventureSlugs = async () =>
 const readIndex = (slug) =>
   fs.readFile(path.join(VENTURES, slug, 'index.html'), 'utf8').catch(() => null);
 
-/**
- * The sibling suite's exclusion map, read as source rather than imported.
- *
- * It is a `const` inside `rates.test.mjs`, not an export, and promoting it
- * would mean editing a suite another session may be changing. Reading the keys
- * is enough for what this asserts — that the slug has a decision recorded
- * *somewhere* — and it fails loudly below if the shape it depends on moves.
- */
-async function noSharedShopRatesSlugs() {
-  const source = await fs.readFile(path.join(HERE, 'rates.test.mjs'), 'utf8');
-  const block = source.match(/const NO_SHARED_SHOP_RATES = \{([\s\S]*?)\n\};/);
-  assert.ok(
-    block,
-    'rates.test.mjs no longer declares NO_SHARED_SHOP_RATES the way this guard reads it — ' +
-      'update this helper rather than deleting the assertion it feeds',
-  );
-  const slugs = [...block[1].matchAll(/^\s*'([a-z0-9-]+)':/gm)].map((m) => m[1]);
-  assert.ok(slugs.length >= 5, `expected the exclusion map to hold entries, saw ${slugs.length}`);
-  return new Set(slugs);
-}
-
 test('every page that asks for two or more of the four rates has a recorded decision', async () => {
-  const excluded = await noSharedShopRatesSlugs();
   const unclassified = [];
   let population = 0;
 
@@ -146,16 +127,16 @@ test('every page that asks for two or more of the four rates has a recorded deci
     if (pageTakesShopRates(html, slug)) continue;
     if (RATE_SOURCE_SLUGS.has(slug)) continue;
     if (slug in REVIEWED_NOT_CARRIED) continue;
-    if (excluded.has(slug)) continue;
 
     unclassified.push(`${slug} (asks for ${concepts.join(', ')})`);
   }
 
   // If this number collapses, the patterns above stopped matching and the
   // guard is passing because it is looking at nothing -- the failure mode this
-  // whole file is written against.
+  // whole file is written against. It was 100+ until the `*-calculator`
+  // ventures moved to the open-source repo on 2026-09-30; 8 measured after.
   assert.ok(
-    population >= 100,
+    population >= 5,
     `expected the shop-rate population to be substantial, saw ${population}`,
   );
 

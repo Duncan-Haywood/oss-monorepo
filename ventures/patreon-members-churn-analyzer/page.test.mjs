@@ -53,7 +53,7 @@ test("page states it is independent of Patreon and links to the fee calculator",
   const html = page("index.html");
   assert.match(html, /Not affiliated with Patreon/);
   assert.match(html, /not sponsored, endorsed or connected to Patreon, Inc\./);
-  assert.match(html, /\.\.\/patreon-fee-calculator\//);
+  assert.match(html, /https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/patreon-fee-calculator\//);
 });
 
 test("usage events named on the page are the ones the code records", () => {

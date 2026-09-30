@@ -1,3 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://example.invalid/stockx-seller-payout-calculator/sitemap.xml

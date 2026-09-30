@@ -302,7 +302,7 @@
       <p class="fine seo-link"><a href="./should-i-move-off-marketplaces-to-my-own-store.html">Should I move off marketplaces to my own store?</a> works the same item at five and sixty orders a month, and shows why your own store's lowest fee rate does not net the most until volume covers its subscription.</p>
       <p class="fine seo-link">Already selling and wondering whether you want connected analytics instead? <a href="./vs-sellerboard.html">This tool vs. Sellerboard</a> sets a free pre-listing comparison against a paid, account-connected profit report, and says plainly what this page cannot tell you.</p>
       <p class="fine seo-link">Wondering why not just open each marketplace's own calculator? <a href="./vs-checking-each-marketplace-separately.html">This tool vs. checking each marketplace separately</a> walks through what goes wrong reconciling six tabs by hand, and what each channel's own calculator still does better.</p>
-      <p class="fine seo-link">Need returns and shelf time in the ranking too? The <a href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks one item across eBay, Etsy, Amazon, Reverb, your own store, and a local sale after expected returns and what one listing is worth per month of shelf.</p>
+      <p class="fine seo-link">Need returns and shelf time in the ranking too? The <a href="https://duncan-haywood.github.io/oss-monorepo/where-to-sell-calculator/">where-to-sell calculator</a> ranks one item across eBay, Etsy, Amazon, Reverb, your own store, and a local sale after expected returns and what one listing is worth per month of shelf.</p>
     </section>
 
     <section>
@@ -362,7 +362,7 @@
   } from "./calc.mjs";
   import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
   import { decodeShare, encodeShare } from "./share.mjs";
-  import { handoffsForRows, handoffUrl, excludedHandoffUrl } from "./handoff.mjs";
+  import { handoffsForRows, handoffUrl, excludedHandoffUrl, toolRoot } from "./handoff.mjs";
 
   const FIELD_IDS = [
     "price", "shippingCharged", "itemCost", "shippingCost",
@@ -428,7 +428,7 @@
       // that linked here. Measured while writing this: one such comment took
       // `where-to-sell-calculator` and `whatnot-seller-payout` off the apex
       // alongside this page, and the build error named only the collateral.
-      const href = handoffUrl(channel.id, item) ?? `../${channel.deepTool}/`;
+      const href = handoffUrl(channel.id, item) ?? toolRoot(channel.deepTool);
       return `
       <li><strong>${escapeHtml(channel.label)}</strong> — not included here:
         ${escapeHtml(channel.notCovered)}
@@ -437,7 +437,7 @@
     }).join("");
 
     el("excluded").innerHTML = EXCLUDED_CHANNELS.map((channel) => {
-      const href = excludedHandoffUrl(channel.deepTool, item) ?? `../${channel.deepTool}/`;
+      const href = excludedHandoffUrl(channel.deepTool, item) ?? toolRoot(channel.deepTool);
       return `<strong>${escapeHtml(channel.label)}</strong> is not in the table. ${escapeHtml(channel.why)}
        <a href="${escapeHtml(href)}"
           data-pointer="${escapeHtml(channel.deepTool)}">Open the ${escapeHtml(channel.deepToolLabel)}</a>.`;
@@ -664,9 +664,9 @@
   <h3>Why is Whatnot not in the comparison?</h3>
   <p>Whatnot is a livestream auction. Commission sits on the hammer and payment processing sits on the checkout total — the item plus buyer-paid shipping and tax — with published category caps a flat retail referral rate cannot express. Ranking it beside six fixed-fee retail channels would produce a number that looks comparable and is not. The <a href="../whatnot-seller-payout/">Whatnot seller payout calculator</a> prices that split on its own terms.</p>
   <h3>Why is Reverb not in the comparison?</h3>
-  <p>Reverb only accepts musical instruments and gear, where the six channels above sell almost anything, so seating it in a general-purpose ranking would read as a recommendation to list any item there &mdash; which is true for none of the other rows' inventory. Its fee shape (a marketplace percentage plus payment processing) is genuinely close to eBay's, and the <a href="../reverb-fee-calculator/">Reverb fee calculator</a> compares the two directly on the same guitar or pedal, along with offer-versus-list, shipping, and return handling.</p>
+  <p>Reverb only accepts musical instruments and gear, where the six channels above sell almost anything, so seating it in a general-purpose ranking would read as a recommendation to list any item there &mdash; which is true for none of the other rows' inventory. Its fee shape (a marketplace percentage plus payment processing) is genuinely close to eBay's, and the <a href="https://duncan-haywood.github.io/oss-monorepo/reverb-fee-calculator/">Reverb fee calculator</a> compares the two directly on the same guitar or pedal, along with offer-versus-list, shipping, and return handling.</p>
   <h3>Why is Poshmark not in the comparison?</h3>
-  <p>Poshmark's fee is not a referral rate at all — it is a flat $2.95 under $15.00 and 20% at $15.00 or more, a cliff rather than a percentage. Ranking it as a single rate beside six percentage-based channels would misstate the low end of a closet's inventory, where the flat fee's effective rate can run well past 20%. The <a href="../poshmark-fee-calculator/">Poshmark fee calculator</a> prices that two-tier schedule, the break-even price, and offer-negotiation arithmetic on its own terms.</p>
+  <p>Poshmark's fee is not a referral rate at all — it is a flat $2.95 under $15.00 and 20% at $15.00 or more, a cliff rather than a percentage. Ranking it as a single rate beside six percentage-based channels would misstate the low end of a closet's inventory, where the flat fee's effective rate can run well past 20%. The <a href="https://duncan-haywood.github.io/oss-monorepo/poshmark-fee-calculator/">Poshmark fee calculator</a> prices that two-tier schedule, the break-even price, and offer-negotiation arithmetic on its own terms.</p>
   <h3>Can I share this comparison with someone else?</h3>
   <p>Yes. "Copy share link" puts the item, category, and any rate overrides you typed into the page's URL after a #, and copies that URL to your clipboard. A browser never sends the part of a URL after a # to a server, so the item price and costs still never leave your device, just this one link instead of your typed retype. Opening the link loads the same comparison; nothing about it is stored anywhere but in the URL itself.</p>
 

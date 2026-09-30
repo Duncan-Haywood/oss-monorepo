@@ -74,9 +74,14 @@ test("page says the column aliases are unverified and that it does not decide re
 
 test("page links to the sibling landlord tools it names, and those tools exist", () => {
   const html = page("index.html");
-  for (const slug of ["rent-roll-delinquency-analyzer", "security-deposit-return-calculator", "bonus-depreciation-calculator", "depreciation-recapture-calculator"]) {
+  for (const slug of ["rent-roll-delinquency-analyzer"]) {
     assert.match(html, new RegExp(`href="\.\./${slug}/"`));
     assert.ok(readFileSync(new URL(`../${slug}/index.html`, import.meta.url), "utf8").length > 0);
+  }
+  // These calculators now live in the separate oss-monorepo repo, so the page
+  // links them absolutely and their files are not on disk here.
+  for (const slug of ["security-deposit-return-calculator", "bonus-depreciation-calculator", "depreciation-recapture-calculator"]) {
+    assert.ok(html.includes(`href="https://duncan-haywood.github.io/oss-monorepo/${slug}/"`), `page must link ${slug} in the oss-monorepo`);
   }
 });
 

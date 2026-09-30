@@ -92,7 +92,7 @@ test('index links one hop to the fire-extinguisher-inspection-route-margin sibli
 test('index links one hop to the owner-operator-cpm-calculator sibling', () => {
   assert.match(
     html,
-    /href="\.\.\/owner-operator-cpm-calculator\/"/,
-    'index must link ../owner-operator-cpm-calculator/ so crawlers reach the owner operator CPM calculator in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/owner-operator-cpm-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/oss-monorepo/owner-operator-cpm-calculator/ so crawlers reach the owner operator CPM calculator in one hop',
   );
 });

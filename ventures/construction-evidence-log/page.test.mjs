@@ -67,7 +67,7 @@ test('the FAQPage JSON-LD stays in sync with the visible FAQ answers', () => {
 test('index links one hop to the change-order-margin-calculator sibling', () => {
   assert.match(
     page('index.html'),
-    /href="\.\.\/change-order-margin-calculator\/"/,
-    'index must link ../change-order-margin-calculator/ so crawlers reach the pricing calculator in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/change-order-margin-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/oss-monorepo/change-order-margin-calculator/ so crawlers reach the pricing calculator in one hop',
   );
 });

@@ -187,7 +187,7 @@ check('search narrows the list', visible > 0 && visible < cardCount, `${visible}
 
 // A sub-group whose every card is filtered out has to go too: an empty heading
 // with a count beside it reads as "no results here" repeated eight times.
-await page.fill('#q', 'metal roof');
+await page.fill('#q', 'cut list');
 await page.waitForTimeout(150);
 const staleSubgroups = await page.evaluate(() =>
   [...document.querySelectorAll('.subgroup:not([hidden])')].filter(
@@ -229,9 +229,9 @@ if (storageKey) {
 
 // 4. Click through to a tool and confirm it computes rather than just paints.
 await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
-await page.click('.card a[href*="walmart-marketplace-calculator"]');
+await page.click('.card a[href*="whatnot-seller-payout"]');
 await page.waitForLoadState('networkidle');
-check('navigated to the tool', page.url().includes('/walmart-marketplace-calculator/'), page.url());
+check('navigated to the tool', page.url().includes('/whatnot-seller-payout/'), page.url());
 check('the tool computes a figure', /\$\d/.test(await page.textContent('body')));
 
 // A figure being *present* proves very little: every tool here ships
@@ -264,24 +264,29 @@ async function drives(slug) {
 
 // One per shape of calculator on the site, so a regression in a shared helper
 // shows up rather than hiding behind a tool that does not use it.
+//
+// The `*-calculator` ventures this used to drive moved to the separate
+// open-source repo on 2026-09-30; these are the same shapes among what stayed:
+// a marketplace payout, a fee comparison across channels, an itemised event
+// quote, and a per-stop route margin.
 for (const slug of [
-  'ebay-fee-calculator',
-  'invoice-payment-terms-calculator',
-  'amazon-fba-calculator',
-  'janitorial-bid-calculator',
+  'whatnot-seller-payout',
+  'marketplace-fee-compare',
+  'photo-booth-event-quote',
+  'vending-machine-route-margin',
 ]) {
   const { moved, detail } = await drives(slug);
   check(`${slug} recomputes when an input changes`, moved, detail);
 }
 
 // 5. The cross-product sibling link that only resolves under this layout.
-await page.goto(`${BASE}/where-to-sell-calculator/`, { waitUntil: 'networkidle' });
-const sibling = page.locator('a[href="../ebay-fee-calculator/"]').first();
+await page.goto(`${BASE}/marketplace-fee-compare/`, { waitUntil: 'networkidle' });
+const sibling = page.locator('a[href="../whatnot-seller-payout/"]').first();
 check('cross-product link is present', (await sibling.count()) > 0);
 if (await sibling.count()) {
   await sibling.click();
   await page.waitForLoadState('networkidle');
-  check('cross-product link resolves', page.url().includes('/ebay-fee-calculator/'), page.url());
+  check('cross-product link resolves', page.url().includes('/whatnot-seller-payout/'), page.url());
 }
 
 // 5b. The shop rates a contractor saves once, carried to the next trade tool.
@@ -293,59 +298,63 @@ if (await sibling.count()) {
 const ratesReady = () => page.waitForFunction(
   () => !document.querySelector('[data-pf-rates-root]')?.hidden, null, { timeout: 5000 });
 
+// The two tools are the only pages left carrying the bar since the trade bid
+// calculators moved to the open-source repo (2026-09-30). They share two of
+// the four fields -- overhead on direct cost and target margin -- and the
+// photo booth spells its margin `targetMarginPct`, so the carry also crosses
+// an alias, which is the case a same-id pair never exercised.
 await step('shop rates carried between tools', async () => {
-  await page.goto(`${BASE}/crown-molding-bid-calculator/`, { waitUntil: 'networkidle' });
+  await page.goto(`${BASE}/photo-booth-event-quote/`, { waitUntil: 'networkidle' });
   await ratesReady();
-  check('shop-rates bar appears on a bid calculator', await page.isVisible('#pf-rates-toggle'));
+  check('shop-rates bar appears on a quote tool', await page.isVisible('#pf-rates-toggle'));
 
-  for (const [id, value] of [['hourlyWage', '56'], ['burdenRate', '34'], ['overheadRate', '12'], ['targetMargin', '26']]) {
+  for (const [id, value] of [['attendantHourlyRate', '56'], ['overheadRate', '14'], ['targetMarginPct', '26']]) {
     await page.fill(`#${id}`, value);
   }
   await page.click('#pf-rates-toggle');
   await page.click('[data-pf-rates="save"]');
 
-  await page.goto(`${BASE}/interior-door-bid-calculator/`, { waitUntil: 'networkidle' });
+  await page.goto(`${BASE}/portable-restroom-event-quote/`, { waitUntil: 'networkidle' });
   await ratesReady();
   const carried = await page.evaluate(() =>
-    ['hourlyWage', 'burdenRate', 'overheadRate', 'targetMargin']
-      .map((id) => document.getElementById(id).value).join('/'));
-  check('saved rates carry into another trade calculator', carried === '56/34/12/26', carried);
+    ['overheadRate', 'targetMargin'].map((id) => document.getElementById(id).value).join('/'));
+  check('saved rates carry into another quote tool, across an alias', carried === '14/26', carried);
   check('the receiving tool still prices the job',
-    /\$[\d,]/.test(await page.textContent('#price')), await page.textContent('#price'));
+    /\$[\d,]/.test(await page.textContent('.hero-number')), await page.textContent('.hero-number'));
 
   // The rule `share.mjs` exists to protect: a recipient must see the price the
   // sender saw. Their own saved rates must not quietly reprice someone's bid.
   await page.goto(
-    `${BASE}/interior-door-bid-calculator/#hourlyWage=39&burdenRate=25&overheadRate=10&targetMargin=18`,
+    `${BASE}/portable-restroom-event-quote/#overheadRate=10&targetMargin=18`,
     { waitUntil: 'networkidle' });
   // The step above is a *hash-only* change from the previous URL — the same page
   // was just visited without a fragment — so the browser treats it as an in-page
   // jump and does not reload. Nothing re-reads the link, and the assertion below
-  // then inspects a form still holding whatever the previous step left in it.
-  //
-  // That is how this check reported a share-link regression that does not exist:
-  // it read `56` (the rates carried in moments earlier) and called it the
-  // visitor's rates overwriting the sender's. `share.mjs` is fine — a recipient
-  // opening this link in a fresh tab, or on any real load, gets 39. The harness
-  // was wrong, and it then died on the hidden `apply` button below, taking every
-  // later step with it.
-  //
-  // A recipient's browser always *loads* the link. Reload so this one does too.
+  // would then inspect a form still holding whatever the previous step left in
+  // it. That is how this check once reported a share-link regression that did
+  // not exist. A recipient's browser always *loads* the link. Reload so this
+  // one does too.
   await page.reload({ waitUntil: 'networkidle' });
   await ratesReady();
   check('a bid link keeps the sender’s rates',
-    (await page.inputValue('#hourlyWage')) === '39', await page.inputValue('#hourlyWage'));
+    (await page.inputValue('#overheadRate')) === '10', await page.inputValue('#overheadRate'));
 
   await page.click('#pf-rates-toggle');
   await page.click('[data-pf-rates="apply"]');
   check('...until the visitor asks for their own',
-    (await page.inputValue('#hourlyWage')) === '56', await page.inputValue('#hourlyWage'));
+    (await page.inputValue('#overheadRate')) === '14', await page.inputValue('#overheadRate'));
 
   await page.click('[data-pf-rates="clear"]');
-  await page.goto(`${BASE}/metal-roof-bid-calculator/`, { waitUntil: 'networkidle' });
-  await ratesReady();
-  check('forgetting them returns a never-opened tool to its own default',
-    (await page.inputValue('#hourlyWage')) === '36', await page.inputValue('#hourlyWage'));
+  check('forgetting them removes the saved set',
+    (await page.evaluate(() => localStorage.getItem('portfolio-shop-rates'))) === null);
+  // A never-opened tool is a fresh profile: this one has been opened above and
+  // keeps its own last quote, so the default is read where nothing is stored.
+  const fresh = await browser.newContext();
+  const freshPage = await fresh.newPage();
+  await freshPage.goto(`${BASE}/photo-booth-event-quote/`, { waitUntil: 'networkidle' });
+  check('a tool with no saved rates opens on its own default',
+    (await freshPage.inputValue('#overheadRate')) === '10', await freshPage.inputValue('#overheadRate'));
+  await fresh.close();
 });
 
 // Step 3 turned the site-wide opt-out on and never turned it off, so at this
@@ -362,11 +371,11 @@ await step('usage counting around shop rates', async () => {
   // covered. A prefill is not a bid the visitor priced: counting it as one would
   // inflate the only adoption number this portfolio has.
   await page.evaluate(() => localStorage.removeItem('portfolio-hub-optout'));
-  await page.goto(`${BASE}/metal-roof-bid-calculator/`, { waitUntil: 'networkidle' });
+  await page.goto(`${BASE}/photo-booth-event-quote/`, { waitUntil: 'networkidle' });
   await ratesReady();
   await page.click('#pf-rates-toggle');
   await page.click('[data-pf-rates="save"]');
-  await page.goto(`${BASE}/crown-molding-bid-calculator/`, { waitUntil: 'networkidle' });
+  await page.goto(`${BASE}/portable-restroom-event-quote/`, { waitUntil: 'networkidle' });
   await ratesReady();
   const ratesCounts = await page.evaluate(
     () => JSON.parse(localStorage.getItem('portfolio-hub-usage') || '{}'));
@@ -410,10 +419,10 @@ const figures = () => page.evaluate(() => {
 });
 
 await step('a bid is still there when the customer calls back', async () => {
-  const SLUG = 'water-heater-bid-calculator';
+  const SLUG = 'photo-booth-event-quote';
   await page.goto(`${BASE}/${SLUG}/`, { waitUntil: 'networkidle' });
   await jobsReady();
-  check('saved-bids band appears on a bid calculator', await page.isVisible('#pf-jobs-toggle'));
+  check('saved-bids band appears on a quote tool', await page.isVisible('#pf-jobs-toggle'));
   await page.click('#pf-jobs-toggle');
 
   // Price something that is not the tool's defaults, so a restore that quietly
@@ -469,7 +478,7 @@ await step('a bid is still there when the customer calls back', async () => {
 
   // Bids belong to the tool that priced them. A roof bid appearing under siding
   // would be a list of the wrong jobs at the moment a contractor trusts it.
-  await page.goto(`${BASE}/siding-bid-calculator/`, { waitUntil: 'networkidle' });
+  await page.goto(`${BASE}/notary-trip-quote/`, { waitUntil: 'networkidle' });
   await jobsReady();
   await page.click('#pf-jobs-toggle');
   check('another tool shows none of this tool’s bids',
@@ -495,7 +504,7 @@ await step('a bid is still there when the customer calls back', async () => {
 //      bids are priced here at four different sizes for that reason, and the
 //      sentence is checked against the figures the page itself showed.
 await step('four decided bids say where this tool’s price tips', async () => {
-  const SLUG = 'water-heater-bid-calculator';
+  const SLUG = 'photo-booth-event-quote';
   await page.goto(`${BASE}/${SLUG}/`, { waitUntil: 'networkidle' });
   // This step needs a known store and the backup step below needs the one the
   // step above built, so it borrows rather than clears: whatever is on the
@@ -599,7 +608,7 @@ await step('four decided bids say where this tool’s price tips', async () => {
 //       small job at 40% and two large ones near 4%. If this ever starts
 //       reading ~16% the reading has quietly switched to the mean.
 await step('costing the won jobs says whether the wins were worth having', async () => {
-  const SLUG = 'water-heater-bid-calculator';
+  const SLUG = 'photo-booth-event-quote';
   await page.goto(`${BASE}/${SLUG}/`, { waitUntil: 'networkidle' });
   const held = await page.evaluate(() => {
     const raw = localStorage.getItem('portfolio-saved-bids');
@@ -780,7 +789,7 @@ await step('costing the won jobs says whether the wins were worth having', async
 //      They are written by two different code paths and had never been read
 //      together by anything a visitor sees.
 await step('the tool says which quotes have outlived every answer it has seen', async () => {
-  const SLUG = 'water-heater-bid-calculator';
+  const SLUG = 'photo-booth-event-quote';
   await page.goto(`${BASE}/${SLUG}/`, { waitUntil: 'networkidle' });
   const held = await page.evaluate(() => {
     const raw = localStorage.getItem('portfolio-saved-bids');
@@ -890,15 +899,15 @@ await step('the hub pools answers no single tool has enough of', async () => {
       const fresh = [];
       for (let i = 0; i < 8; i++) fresh.push({ name: 'Fresh ' + i, at: at(i), fields: { a: '1' } });
       localStorage.setItem('portfolio-saved-bids', JSON.stringify({ v: 1, bids: {
-        'fence-bid-calculator': [
+        'photo-booth-event-quote': [
           { name: 'A', at: at(40), outcome: 'won', decidedAt: at(38), fields: { a: '1' } },
           { name: 'Quiet 30', at: at(30), fields: { a: '1' } }],
-        'deck-bid-calculator': [
+        'portable-restroom-event-quote': [
           { name: 'B', at: at(50), outcome: 'lost', decidedAt: at(41), fields: { a: '1' } },
           { name: 'Quiet 19', at: at(19), fields: { a: '1' } }],
-        'drywall-bid-calculator': [
+        'notary-trip-quote': [
           { name: 'C', at: at(20), outcome: 'won', decidedAt: at(18), fields: { a: '1' } }],
-        'flooring-bid-calculator': fresh,
+        'translator-project-quote': fresh,
       } }));
     }, Date.now());
     await page.reload({ waitUntil: 'networkidle' });
@@ -976,14 +985,14 @@ await step('the hub pools how the pricing is landing, in percentages', async () 
         outcome: 'lost', decidedAt: at(d - 4), lostTo,
       });
       localStorage.setItem('portfolio-saved-bids', JSON.stringify({ v: 1, bids: {
-        'fence-bid-calculator': [
+        'photo-booth-event-quote': [
           lost('Oak St', '$2,400', '2000', 30),
           { name: 'Won it', at: at(28), fields: { a: '1' }, amount: '$9,999',
             outcome: 'won', decidedAt: at(26), lostTo: '1' }],
-        'deck-bid-calculator': [
+        'portable-restroom-event-quote': [
           lost('Mrs Reid', '£3,600', '3000', 25),
           { name: 'Still out', at: at(3), fields: { a: '1' }, amount: '$9,999' }],
-        'pergola-bid-calculator': [lost('Cedar', '€1,200', '1000', 20)],
+        'pool-route-pricing': [lost('Cedar', '€1,200', '1000', 20)],
       } }));
     }, Date.now());
     await page.reload({ waitUntil: 'networkidle' });
@@ -1048,9 +1057,9 @@ await step('the hub says how often the quotes land, with no figure anywhere', as
         outcome, decidedAt: at(from - i - 2),
       }));
       localStorage.setItem('portfolio-saved-bids', JSON.stringify({ v: 1, bids: {
-        'fence-bid-calculator': [...run('won', 4, 40), ...run('lost', 1, 30)],
-        'deck-bid-calculator': [...run('won', 1, 28), ...run('lost', 5, 25)],
-        'pergola-bid-calculator': [...run('won', 1, 18),
+        'photo-booth-event-quote': [...run('won', 4, 40), ...run('lost', 1, 30)],
+        'portable-restroom-event-quote': [...run('won', 1, 28), ...run('lost', 5, 25)],
+        'pool-route-pricing': [...run('won', 1, 18),
           { name: 'Still out', at: at(2), fields: { a: '1' } }],
       } }));
     }, Date.now());
@@ -1065,11 +1074,11 @@ await step('the hub says how often the quotes land, with no figure anywhere', as
     // The half no single tool can produce, and the proof the label survived the
     // trip from the card to the sentence: these are headings, not slugs.
     check('and names the trades the rate is coming from, as the hub names them',
-      /Fence Bid Calculator is winning 4 of 5; Deck Bid Calculator, 1 of 6\./.test(line), line);
+      /Photo Booth Event Quote Calculator is winning 4 of 5; Porta Potty Event Quote Calculator, 1 of 6\./.test(line), line);
     check('the tool below the naming floor is counted but not named',
-      !/Pergola/.test(line) && !/pergola-bid-calculator/.test(line), line);
+      !/Pool Service/.test(line) && !/pool-route-pricing/.test(line), line);
     check('no slug leaked into the sentence in place of a name',
-      !/-bid-calculator/.test(line), line);
+      !/photo-booth-event-quote|portable-restroom-event-quote|pool-route-pricing|dog-walking-route-pricing/.test(line), line);
     // A count has no unit; a figure here would mean money got pooled.
     check('no money figure is on the win-rate line', !/[$£€]/.test(line), line);
     // The pricing line must stay silent: not one bid here carries a figure.
@@ -1124,12 +1133,12 @@ await step('the hub says which of these trades the finished work is worth doing'
       });
       localStorage.setItem('portfolio-saved-bids', JSON.stringify({ v: 1, bids: {
         // 1,400 kept of 5,000 charged — 28%.
-        'fence-bid-calculator': [won('$3,000', '2100', 40), won('$2,000', '1500', 38)],
+        'photo-booth-event-quote': [won('$3,000', '2100', 40), won('$2,000', '1500', 38)],
         // 1,600 of 10,000 — 16%, and neither end of the spread.
-        'deck-bid-calculator': [won('$4,000', '3400', 36), won('$6,000', '5000', 34)],
+        'portable-restroom-event-quote': [won('$4,000', '3400', 36), won('$6,000', '5000', 34)],
         // 50 of 1,100 — 5%. Busy, winning, and barely worth the drive.
-        'lawn-care-bid-calculator': [won('$500', '480', 30), won('$600', '570', 28)],
-        'pergola-bid-calculator': [
+        'dog-walking-route-pricing': [won('$500', '480', 30), won('$600', '570', 28)],
+        'pool-route-pricing': [
           won('$2,000', '1000', 26),
           { name: 'Lost one', at: at(24), fields: { a: '1' }, outcome: 'lost',
             decidedAt: at(22), amount: '$9,999', cost: '1' },
@@ -1151,12 +1160,12 @@ await step('the hub says which of these trades the finished work is worth doing'
     // The ends, by their card headings rather than their slugs — the half only
     // a browser can prove, because nothing in storage carries a label.
     check('and names the two ends as the hub names them',
-      /Fence Bid Calculator kept the most: 28% of what you charged on 2;/.test(line) &&
-      /Lawn Care Bid Calculator kept 5% on 2\./.test(line), line);
+      /Photo Booth Event Quote Calculator kept the most: 28% of what you charged on 2;/.test(line) &&
+      /Dog Walking & Pet Sitting Rate Calculator kept 5% on 2\./.test(line), line);
     check('the trade below the naming floor is left out entirely',
-      !/Pergola/i.test(line), line);
+      !/Pool Service/i.test(line), line);
     check('no slug leaked into the sentence in place of a name',
-      !/-bid-calculator/.test(line), line);
+      !/photo-booth-event-quote|portable-restroom-event-quote|pool-route-pricing|dog-walking-route-pricing/.test(line), line);
     // 23 points apart, so the finding is which work they take.
     check('a wide gap is aimed at the trade rather than at the price list',
       /gap is in which work you take rather than across your prices/.test(line), line);
@@ -1211,7 +1220,7 @@ await step('the hub says whether the work that lands is the work that pays', asy
       });
       localStorage.setItem('portfolio-saved-bids', JSON.stringify({ v: 1, bids: {
         // Lands 4 of 5. The two costed wins keep 100 of 2,000 — 5%.
-        'fence-bid-calculator': [
+        'photo-booth-event-quote': [
           decided('won', 40, { amount: '$1,000', cost: '950' }),
           decided('won', 39, { amount: '$1,000', cost: '950' }),
           decided('won', 38, { amount: '$1,000' }),
@@ -1219,7 +1228,7 @@ await step('the hub says whether the work that lands is the work that pays', asy
           decided('lost', 36, {}),
         ],
         // Lands 2 of 8. The two costed wins keep 2,800 of 10,000 — 28%.
-        'deck-bid-calculator': [
+        'portable-restroom-event-quote': [
           decided('won', 35, { amount: '$5,000', cost: '3600' }),
           decided('won', 34, { amount: '$5,000', cost: '3600' }),
           ...[33, 32, 31, 30, 29, 28].map((d) => decided('lost', d, {})),
@@ -1238,12 +1247,12 @@ await step('the hub says whether the work that lands is the work that pays', asy
     // slugs — the part only a browser can prove, because nothing in storage
     // carries a label.
     check('and names the landing trade with both its figures',
-      /Fence Bid Calculator lands 4 of 5 quotes and keeps 5% of what it charged on the 2 you costed;/
+      /Photo Booth Event Quote Calculator lands 4 of 5 quotes and keeps 5% of what it charged on the 2 you costed;/
         .test(line), line);
     check('and the paying trade with both of its own',
-      /Deck Bid Calculator lands 2 of 8 and keeps 28% on 2\./.test(line), line);
+      /Porta Potty Event Quote Calculator lands 2 of 8 and keeps 28% on 2\./.test(line), line);
     check('no slug leaked into the sentence in place of a name',
-      !/-bid-calculator/.test(line), line);
+      !/photo-booth-event-quote|portable-restroom-event-quote|pool-route-pricing|dog-walking-route-pricing/.test(line), line);
     check('it points the price rise at the trade that is winning',
       /worth a price rise before it is worth more of your time/.test(line), line);
     // Percentages and counts only. A currency symbol here would mean money was
@@ -1283,7 +1292,7 @@ await step('the hub says whether the work that lands is the work that pays', asy
 //      ever breaks the panel throws mid-render and the whole feature goes with
 //      it, which a string assertion cannot see.
 await step('the tool page says whether its own quotes have been landing differently', async () => {
-  const SLUG = 'cleaning-dilution-calculator';
+  const SLUG = 'dog-boarding-daycare-pricing';
   await page.goto(`${BASE}/${SLUG}/`, { waitUntil: 'networkidle' });
   const held = await page.evaluate(() => {
     const raw = localStorage.getItem('portfolio-saved-bids');
@@ -1304,7 +1313,7 @@ await step('the tool page says whether its own quotes have been landing differen
       localStorage.setItem('portfolio-saved-bids', JSON.stringify({ v: 1, bids: {
         // Five won last spring, five lost since, plus one still waiting that
         // must not be counted on either side.
-        'cleaning-dilution-calculator': [
+        'dog-boarding-daycare-pricing': [
           ...run('lost', 5, 60), ...run('won', 5, 200),
           { name: 'Still out', at: at(1), fields: { a: '1' } },
         ],
@@ -1320,7 +1329,7 @@ await step('the tool page says whether its own quotes have been landing differen
       await page.isVisible('#pf-jobs-trend'), line);
     check('it speaks about this page rather than naming the trade back at the reader',
       /^The bids you saved here have been landing less often than they were: /.test(line) &&
-      !/Cleaning|Dilution|calculator/i.test(line), line);
+      !/Boarding|Daycare|calculator/i.test(line), line);
     check('the waiting bid is on neither side of the split',
       /0 of 5 on the 5 most recent, against 5 of 5 before them\./.test(line), line);
     // The clause that needs bidWaitingDays out of the other bundle. Its absence
@@ -1391,10 +1400,10 @@ await step('the hub says whether a trade has been landing differently lately', a
         outcome, decidedAt: at(from - i * 10 - 2),
       }));
       localStorage.setItem('portfolio-saved-bids', JSON.stringify({ v: 1, bids: {
-        'fence-bid-calculator': [...run('lost', 6, 70), ...run('won', 6, 240)],
+        'photo-booth-event-quote': [...run('lost', 6, 70), ...run('won', 6, 240)],
         // A second trade, steady throughout and below the eight-bid floor: it
         // must be in neither the sentence nor the split.
-        'deck-bid-calculator': [...run('won', 2, 50), ...run('lost', 2, 30)],
+        'portable-restroom-event-quote': [...run('won', 2, 50), ...run('lost', 2, 30)],
       } }));
     }, Date.now());
     await page.reload({ waitUntil: 'networkidle' });
@@ -1408,11 +1417,11 @@ await step('the hub says whether a trade has been landing differently lately', a
     check('it reads every bid on the device, not the eight rows drawn',
       /0 of 6 on the 6 most recent, against 6 of 6 before them\./.test(line), line);
     check('and names the trade as the hub names it, not as storage keys it',
-      /^Fence Bid Calculator has been landing less often than it was: /.test(line), line);
+      /^Photo Booth Event Quote Calculator has been landing less often than it was: /.test(line), line);
     check('the trade below the eight-bid floor is left out entirely',
-      !/Deck/i.test(line), line);
+      !/Porta Potty/i.test(line), line);
     check('no slug leaked into the sentence in place of a name',
-      !/-bid-calculator/.test(line), line);
+      !/photo-booth-event-quote|portable-restroom-event-quote|pool-route-pricing|dog-walking-route-pricing/.test(line), line);
     // The date clause, which is the part that needs a helper from the other
     // injected bundle. Its absence here would mean bidWaitingDays returned null
     // rather than that the ordering broke — a throw would have emptied the line.
@@ -1452,7 +1461,7 @@ await step('saved bids survive the browser that holds them', async () => {
   // The band on a tool page is where the intent is — someone has just saved a
   // bid they care about — and the file is written on the hub. Without this link
   // they are the one person never told the backup exists.
-  await page.goto(`${BASE}/water-heater-bid-calculator/`, { waitUntil: 'networkidle' });
+  await page.goto(`${BASE}/photo-booth-event-quote/`, { waitUntil: 'networkidle' });
   await jobsReady();
   await page.click('#pf-jobs-toggle');
   const bandLink = page.locator('.pf-jobs-note a[href$="#backup-box"]');
@@ -1566,7 +1575,7 @@ await step('saved bids survive the browser that holds them', async () => {
 
 // 6c. An itemised calculator, whose rows do not exist until its module runs.
 await step('an itemised bid keeps its rows', async () => {
-  await page.goto(`${BASE}/roofing-bid-calculator/`, { waitUntil: 'networkidle' });
+  await page.goto(`${BASE}/portable-restroom-event-quote/`, { waitUntil: 'networkidle' });
   await jobsReady();
   await page.click('#pf-jobs-toggle');
   const priced = await figures();

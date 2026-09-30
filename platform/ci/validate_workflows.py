@@ -395,9 +395,10 @@ def _runs_js_tests(data):
     """True when some step runs the venture's `*.test.mjs` files.
 
     `node --test` is the repository's convention; `npm test` is accepted
-    because the one venture spelling it that way (`no-show-fee-calculator`)
-    defines that script as `node --test test/*.test.mjs`. A `uses:` step
-    cannot be read this way and is not counted.
+    because a venture spelling it that way defines that script as
+    `node --test ...` (the first was `no-show-fee-calculator`, since moved to
+    the open-source calculator repo). A `uses:` step cannot be read this way
+    and is not counted.
     """
     for job in (data.get("jobs") or {}).values():
         if not isinstance(job, dict):

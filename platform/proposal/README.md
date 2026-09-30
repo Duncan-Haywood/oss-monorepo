@@ -16,57 +16,31 @@ arithmetic and layout in the browser, like everything else here.
 
 ## Adopted by
 
-**All bid calculators**, and the list is no longer worth keeping by
-hand: `node platform/proposal/adopt.mjs --list` prints what is adopted, what is
-ready, and what is blocked. As of 2026-09-07 that is 112 adopted, 0 blocked.
+`node platform/proposal/adopt.mjs --list` prints what is adopted, what is
+ready, and what is blocked. As of 2026-09-30 that is 3 adopted, 0 blocked:
+`portable-restroom-event-quote`, `translator-project-quote` and
+`notary-trip-quote`.
 
-**`biohazard-cleanup` (`biohazard-cleanup-bid-calculator`) is the current
-holdout**, graduated 2026-09-17 without the proposal. It genuinely wants one —
-a biohazard/trauma-scene job is exactly the kind of bid a customer receives a
-printed proposal for — so this is not a "no work to describe" case like the
-`mobile-detailing` holdback above. `adopt.mjs` needs a `trades.json` entry
-templating the scope from `computeJobBid`'s result (crew hours, PPE sets,
-disposal containers, supplies, equipment, travel) with a deposit split and a
-disclaimer naming what the tool is not (a hauler contract, an OSHA
-bloodborne-pathogen determination, or an insurance-claim adjudication); that
-entry was not authored in the session that shipped the calculator, so
-adoption is tracked as a follow-up rather than rushed against a template it
-was not proven against.
+**The bid calculators moved out on 2026-09-30.** Every venture whose slug
+contains `calculator` — including all 112 `*-bid-calculator` adopters and the
+`biohazard-cleanup`, `storage-auction-max` and `home-staging` cases this section
+used to track — now lives in the separate open-source calculator repository and
+is served at `https://duncan-haywood.github.io/oss-monorepo/<slug>/`. Their
+proposal sections went with them; `adopt.mjs --list` still reports on any
+`*-bid-calculator` that lands here again.
 
-**And, separately, `storage-auction-max`** (`storage-auction-max-bid-calculator`,
-graduated 2026-09-17) does not adopt at all, deliberately — unlike
-`biohazard-cleanup` above, this is not a holdout waiting on a `trades.json`
-entry. For the same reason `owner-operator-cpm-calculator` and
-`shop-rate-calculator` are deliberately excluded from `adopt.mjs`'s filter
-below: it prices a figure the bidder keeps to themselves — the hammer bid to
-raise a hand at — and there is no customer to hand a proposal to. Its slug
-happens to end in `-bid-calculator` because the bid itself is the product
-(a lien-auction bid on a stranger's storage unit, not a contractor's job bid),
-which is what puts it in `discoverability.test.mjs`'s population even though it
-is not a trade calculator at all. Mechanical readiness is not a reason to
-adopt, the same rule the two exclusions above already state.
-
-The last holdout was **`home-staging`** (`home-staging-bid-calculator`,
-graduated in #3580, unblocked in the same session that added this line). It
-priced the job inline from individual `el(...)` reads rather than through the
-`readInput()` / `calculate*(readInput())` pair `inspect()` looks for, so the
-generator had nothing to anchor on. The page was given those two conventions
-(and a `count()` helper), a `trades.json` entry was added, and it adopted
-cleanly. One thing the fix also turned up worth recording here rather than in
-a venture-specific note: `.result{position:sticky}` sits in the same
+One lesson from the `home-staging` adoption is about the page template rather
+than the venture, so it stays: `.result{position:sticky}` sits in the same
 `main.layout` grid as everything `adopt.mjs` inserts before `</main>`, and a
-site-wide `section:not(.result){grid-column:1/-1}` rule left `.result` alone
-in its own row with no sibling tall enough to make the sticky positioning do
-anything — except that a positioned element with `z-index:auto` still paints
-above later non-positioned siblings in the same stacking context, so the
-inert sticky box silently intercepted clicks on the printed proposal's button
-once it scrolled into the same screen position. Any other venture built on
-this same `.layout`/`.result` template would hit the identical defect the
-moment something is added after `.result` inside `<main>` — the fix was
-dropping the now-pointless `position:sticky` from `.result`, not touching the
-generated proposal markup.
+positioned element with `z-index:auto` still paints above later
+non-positioned siblings in the same stacking context — so an inert sticky box
+can silently intercept clicks on the printed proposal's button once it
+scrolls into the same screen position. Any venture built on that
+`.layout`/`.result` template hits the identical defect the moment something is
+added after `.result` inside `<main>`; the fix is dropping the pointless
+`position:sticky` from `.result`, not touching the generated proposal markup.
 
-**And two ventures that are not bid calculators at all**, `translator-project-quote`
+**Ventures that are not bid calculators**: `translator-project-quote`
 (2026-09-03) and `notary-trip-quote` (2026-09-05). The second is written up under
 "A page that does not price the job inline" below.
 
@@ -545,7 +519,8 @@ describes the hand-port, which is now only relevant for a calculator that fails
 of the 27 pages that were ported before the generator existed.
 
 The module is generic; only five things are per-trade. Copy the two files above,
-then take the rest from `ventures/tuckpointing-bid-calculator/index.html`:
+then take the rest from an adopted page such as
+`ventures/portable-restroom-event-quote/index.html`:
 
 1. **Stylesheet** — the `textarea` rule through the `@media print` block. Change
    `--pr-accent` to the venture's own accent; the rest of the document palette is

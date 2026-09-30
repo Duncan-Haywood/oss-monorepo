@@ -168,7 +168,7 @@ test('the featureList describes the share/save feature that now exists', () => {
 test('index links one hop to the food-truck-event-margin-calculator sibling', () => {
   assert.match(
     index,
-    /href="\.\.\/food-truck-event-margin-calculator\/"/,
-    'index must link ../food-truck-event-margin-calculator/ so crawlers reach the food truck event margin calculator in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/food-truck-event-margin-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/oss-monorepo/food-truck-event-margin-calculator/ so crawlers reach the food truck event margin calculator in one hop',
   );
 });

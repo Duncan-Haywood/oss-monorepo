@@ -1,18 +1,19 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parseCsv, parseNumber, parseWhen, detectDelimiter, decodeBuffer, normalizeRows, parseCostList, analyze, summaryText, sampleCsv, commissionFor, FLAT_FEE, PERCENT_RATE, COMMISSION_THRESHOLD, BREAK_EVEN_PRICE } from "./calc.mjs";
-import * as fee from "../poshmark-fee-calculator/calc.mjs";
 
 const HEAD = "Order ID,Order Date,Listed Date,Listing Title,Brand,SKU,Order Price,Poshmark Fee,Net Earnings\n";
 const load = (body, head = HEAD, o) => normalizeRows(parseCsv(head + body), o);
 const near = (a, b, e = 0.005) => assert.ok(Math.abs(a - b) < e, `${a} !~ ${b}`);
 
-test("fee constants and commission rule stay identical to the poshmark-fee-calculator", () => {
-  assert.equal(FLAT_FEE, fee.FLAT_FEE);
-  assert.equal(PERCENT_RATE, fee.PERCENT_RATE);
-  assert.equal(COMMISSION_THRESHOLD, fee.COMMISSION_THRESHOLD);
-  assert.equal(BREAK_EVEN_PRICE, fee.BREAK_EVEN_PRICE);
-  for (const p of [1, 2.95, 5, 14.99, 15, 15.01, 40, 250]) assert.deepEqual(commissionFor(p), fee.commissionFor(p));
+// poshmark-fee-calculator now lives in the separate oss-monorepo repo, so its
+// module can no longer be imported to compare against; the published schedule
+// both tools share is pinned here instead.
+test("fee constants match the published Poshmark schedule", () => {
+  assert.equal(FLAT_FEE, 2.95);
+  assert.equal(PERCENT_RATE, 20);
+  assert.equal(COMMISSION_THRESHOLD, 15);
+  assert.equal(BREAK_EVEN_PRICE, 14.75);
 });
 
 test("flat fee under $15, 20% at $15 or more, and never more than the price", () => {

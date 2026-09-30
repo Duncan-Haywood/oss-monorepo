@@ -112,7 +112,7 @@ test('index links one hop to the notary-trip-quote sibling', () => {
 test('index links one hop to the voiceover-project-rate-calculator sibling', () => {
   assert.match(
     page,
-    /href="\.\.\/voiceover-project-rate-calculator\/"/,
-    'index must link ../voiceover-project-rate-calculator/ so crawlers reach it in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/voiceover-project-rate-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/oss-monorepo/voiceover-project-rate-calculator/ so crawlers reach it in one hop',
   );
 });

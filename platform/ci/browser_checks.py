@@ -35,7 +35,7 @@ prefer it over seven hand-typed commands.
     python3 platform/ci/browser_checks.py
     python3 platform/ci/browser_checks.py --dist platform/pages/dist
     python3 platform/ci/browser_checks.py --checks sweep,sideways
-    python3 platform/ci/browser_checks.py --only ebay-fee-calculator
+    python3 platform/ci/browser_checks.py --only 3pl-quote-normalizer
     python3 platform/ci/browser_checks.py --base-url https://tools.marisstella.dev
 
 With no `--dist` it builds into a temporary directory, so the default run

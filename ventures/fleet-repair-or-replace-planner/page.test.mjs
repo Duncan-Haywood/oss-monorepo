@@ -125,8 +125,8 @@ test("index links the explainer page and the sitemap lists it too", () => {
 test("index links one hop to the equipment-lease-buyout-calculator sibling", () => {
   assert.match(
     page("index.html"),
-    /href="\.\.\/equipment-lease-buyout-calculator\/"/,
-    'index must link ../equipment-lease-buyout-calculator/ so crawlers reach it in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/equipment-lease-buyout-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/oss-monorepo/equipment-lease-buyout-calculator/ so crawlers reach it in one hop',
   );
 });
 

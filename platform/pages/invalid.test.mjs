@@ -307,8 +307,11 @@ test('every venture that promises a highlight is covered by the gate', async () 
     if (pagePromisesHighlight(html)) promisers.push(entry.name);
   }
   // The promise is a copied line, so the count moves as calculators land. What
-  // must hold is that the family is large and that the gate accepts all of it.
-  assert.ok(promisers.length >= 100, `only ${promisers.length} pages promise a highlight`);
+  // must hold is that the walk found the family and that the gate accepts all
+  // of it. The family was 100+ trade bid calculators until they moved to the
+  // open-source repo on 2026-09-30; two pages carried the promise after that,
+  // so the floor only guards against a silently-empty walk.
+  assert.ok(promisers.length >= 1, `only ${promisers.length} pages promise a highlight`);
   for (const slug of promisers.slice(0, 5)) {
     const html = await fs.readFile(path.join(VENTURES, slug, 'index.html'), 'utf8');
     assert.notEqual(injectInvalidField(html), html, `${slug} would not receive the runtime`);

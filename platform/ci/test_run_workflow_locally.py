@@ -980,13 +980,13 @@ class ForChanges(unittest.TestCase):
         # The regression this mode exists for. `portfolio-pages.yml` runs
         # `platform/pages/*.test.mjs`, which includes the FAQPage visibility
         # guard that a session verifying only `portfolio-validate.yml` misses.
-        names = self.selected(["ventures/cloud-egress-calculator/index.html"])
+        names = self.selected(["ventures/3pl-quote-normalizer/index.html"])
         self.assertIn("portfolio-pages.yml", names)
-        self.assertIn("cloud-egress-calculator-ci.yml", names)
+        self.assertIn("3pl-quote-normalizer-ci.yml", names)
 
     def test_a_venture_change_does_not_select_an_unrelated_venture(self):
-        names = self.selected(["ventures/cloud-egress-calculator/index.html"])
-        self.assertNotIn("amazon-fba-calculator-ci.yml", names)
+        names = self.selected(["ventures/3pl-quote-normalizer/index.html"])
+        self.assertNotIn("mileage-log-ci.yml", names)
 
     def test_naming_a_workflow_and_for_changes_together_is_refused(self):
         self.assertEqual(runner.main(["portfolio-validate.yml", "--for-changes"]), 2)

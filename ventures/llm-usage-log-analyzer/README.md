@@ -26,5 +26,5 @@ Anthropic-style `usage`: `input_tokens` (excludes cache), `cache_read_input_toke
 `prompt_tokens_details.cached_tokens`. Optional `created_at`/`timestamp`, and
 `label`/`feature` for grouping. CSV uses the same names as column headers.
 
-Companion to [`llm-api-pricing-calculator`](../llm-api-pricing-calculator/), which
+Companion to [`llm-api-pricing-calculator`](https://duncan-haywood.github.io/oss-monorepo/llm-api-pricing-calculator/), which
 prices a workload you have not run yet.

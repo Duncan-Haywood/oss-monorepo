@@ -53,7 +53,7 @@ test("page states it is independent of Ghost and links to the sponsorship calcul
   const html = page("index.html");
   assert.match(html, /Not affiliated with Ghost/);
   assert.match(html, /not sponsored, endorsed or connected to the Ghost Foundation/);
-  assert.match(html, /\.\.\/newsletter-sponsorship-rate-calculator\//);
+  assert.match(html, /https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/newsletter-sponsorship-rate-calculator\//);
   assert.match(html, /\.\.\/substack-subscriber-export-analyzer\//);
 });
 

@@ -43,8 +43,8 @@ test("index links one hop to the gig-driver-net-pay-calculator sibling", () => {
   const html = page("index.html");
   assert.match(
     html,
-    /href="\.\.\/gig-driver-net-pay-calculator\/"/,
-    'index must link ../gig-driver-net-pay-calculator/ so crawlers reach it in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/gig-driver-net-pay-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/oss-monorepo/gig-driver-net-pay-calculator/ so crawlers reach it in one hop',
   );
 });
 
@@ -68,8 +68,8 @@ test("index links one hop to the depreciation-recapture-calculator sibling", () 
   const html = page("index.html");
   assert.match(
     html,
-    /href="\.\.\/depreciation-recapture-calculator\/"/,
-    'index must link ../depreciation-recapture-calculator/ so crawlers reach it in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/depreciation-recapture-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/oss-monorepo/depreciation-recapture-calculator/ so crawlers reach it in one hop',
   );
 });
 

@@ -18,7 +18,8 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import zlib from 'node:zlib';
-import { fileURLToPath } from 'node:url';
+import { existsSync } from 'node:fs';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import {
   GZIP_HEADER,
@@ -750,7 +751,7 @@ test('buildMirror refuses a set whose links leave the mirror', async () => {
   // The guard rather than the happy path: a venture that grows a `../` link to
   // a sibling has to fail the build, not ship a 404.
   await assert.rejects(
-    () => buildMirror({ set: [{ slug: 'where-to-sell-calculator', why: 'links to three siblings' }] }),
+    () => buildMirror({ set: [{ slug: 'actions-permissions-check', why: 'links to four siblings' }] }),
     /dead links/,
   );
 });
@@ -1116,18 +1117,22 @@ test('marketplace-fee-compare is served by the mirror', async () => {
   // admitting it correct rather than merely quieter, so assert those resolve
   // in the mirror too — that is the property that would make serving the page
   // a disservice if it broke.
+  //
+  // The targets are read from the venture's own `CHANNELS` rather than listed
+  // here. On 2026-09-30 every `*-calculator` venture moved out of this repo to
+  // the separate open-source catalogue, taking all seven deep tools with them,
+  // so a target whose venture no longer exists in `ventures/` is not something
+  // the mirror can serve; the ones that do exist must be mirrored.
   const { files } = await buildMirror();
   const present = new Set(files.map((f) => `${f.slug}/${f.file}`));
   assert.ok(present.has('marketplace-fee-compare/index.html'));
-  for (const slug of [
-    'ebay-fee-calculator',
-    'etsy-profit-calculator',
-    'amazon-fba-calculator',
-    'walmart-marketplace-calculator',
-    'tiktok-shop-fee-calculator',
-    'shopify-fee-calculator',
-    'faire-wholesale-calculator',
-  ]) {
+  const { CHANNELS, EXCLUDED_CHANNELS } = await import(
+    pathToFileURL(path.join(REPO_ROOT, 'ventures', 'marketplace-fee-compare', 'calc.mjs')).href
+  );
+  const targets = [...CHANNELS, ...EXCLUDED_CHANNELS].map((c) => c.deepTool).filter(Boolean);
+  assert.ok(targets.length > 0, 'marketplace-fee-compare no longer names any deep tools');
+  for (const slug of targets) {
+    if (!existsSync(path.join(REPO_ROOT, 'ventures', slug))) continue;
     assert.ok(present.has(`${slug}/index.html`), `${slug} is linked at runtime but not mirrored`);
   }
 });
@@ -1355,11 +1360,20 @@ test('the sibling block states its own layout rather than inheriting a venture�
   // And the hazard is still live in the mirror — if it ever stops being, this
   // assertion is what says the guard above may be reconsidered rather than
   // quietly kept forever.
+  // Swept over the whole mirror rather than `STARTER_SET` alone: when the
+  // `*-calculator` ventures left this repo (2026-09-30) every STARTER_SET
+  // entry that carried the hazard (`faire-wholesale-calculator` among them)
+  // went with them, while `cut-list-optimizer` — mirrored via the eligible
+  // sweep — still sets `display` on a bare element.
+  const { tools } = await buildMirror();
   const risky = [];
-  for (const { slug } of STARTER_SET) {
+  for (const { slug } of tools) {
     for (const file of await ventureFiles(slug)) {
       if (file !== 'index.html') continue;
-      const raw = await fs.readFile(path.join(REPO_ROOT, 'ventures', slug, file), 'utf8');
+      // A venture served from an `ENTRY_OVERRIDES` root has no top-level page.
+      const page = path.join(REPO_ROOT, 'ventures', slug, file);
+      if (!existsSync(page)) continue;
+      const raw = await fs.readFile(page, 'utf8');
       if (/(?:^|[;{}>\s])(?:nav|ul|p)\s*\{[^}]*display\s*:/.test(raw)) risky.push(slug);
     }
   }

@@ -41,7 +41,7 @@ test('index links one hop to the parcel-dim-weight-calculator sibling', () => {
   const html = page('index.html');
   assert.match(
     html,
-    /href="\.\.\/parcel-dim-weight-calculator\/"/,
-    'index must link ../parcel-dim-weight-calculator/ so crawlers reach the parcel calculator in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/parcel-dim-weight-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/oss-monorepo/parcel-dim-weight-calculator/ so crawlers reach the parcel calculator in one hop',
   );
 });

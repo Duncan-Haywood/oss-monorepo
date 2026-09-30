@@ -662,7 +662,6 @@ export const WHY_CATEGORY_WORD = {
 export const claimedCategory = (why) => why.split('—')[0].trim();
 
 export const STARTER_SET = [
-  { slug: 'change-order-margin-calculator', why: 'trades — the highest-traffic bid-side tool small enough to mirror' },
   { slug: 'subcontractor-cashflow-planner', why: 'trades — pairs with the change-order tool on the same job' },
   { slug: 'contractor-bid-readiness', why: 'trades — the pre-bid check, no arithmetic to get wrong' },
   { slug: 'construction-evidence-log', why: 'trades — the jobsite record side of a job, not the bid side' },
@@ -672,13 +671,8 @@ export const STARTER_SET = [
   { slug: 'subscription-price-impact', why: 'back-office — the SaaS pricing question' },
   { slug: 'saas-seat-true-up', why: 'back-office — recurring use, not a one-off' },
   { slug: 'cam-reconciliation-check', why: 'back-office — annual, high-value, hard to do by hand' },
-  { slug: 'appliance-repair-quote-calculator', why: 'trades — a trade that quotes without bidding construction' },
-  { slug: 'hvac-maintenance-contract-calculator', why: 'trades — contract pricing, repeat visits' },
-  { slug: 'cleaning-dilution-calculator', why: 'trades — used on the job, not before it' },
   { slug: 'medical-courier-route-margin', why: 'logistics — the only category card otherwise unrepresented' },
-  { slug: 'owner-operator-cpm-calculator', why: 'logistics — a second logistics tool, weekly not per-delivery' },
   { slug: 'chargeback-evidence-packet', why: 'evidence — a third evidence tool, the seller-facing one' },
-  { slug: 'str-host-payout-calculator', why: 'marketplace — the only self-contained tool in the category; ebay/amazon/shopify/etsy alone cost a fifth of the ceiling each' },
   // Added 2026-09-02. `services` and `evidence` were the two categories left
   // standing on a single mirrored tool each, so a visitor arriving on either
   // card met one thing that worked and, if it was not their question, nothing
@@ -744,19 +738,12 @@ export const STARTER_SET = [
   // actually search for are the biggest ventures in the repo
   // (`ebay-fee-calculator` alone is 818,849 bytes, over a whole shard). Per
   // *file* packing is what makes them mirrorable at all; see `packShards`.
-  { slug: 'ebay-fee-calculator', why: 'marketplace — the highest-search-intent tool in the portfolio, and the single largest venture; excluded until sharding, on size alone' },
-  { slug: 'amazon-fba-calculator', why: 'marketplace — FBA fee arithmetic is the category\'s other high-intent question, and the one with real money per answer' },
-  { slug: 'etsy-profit-calculator', why: 'marketplace — completes the big three; a seller comparing venues needs all of them, not one' },
-  { slug: 'walmart-marketplace-calculator', why: 'marketplace — the venue sellers move to from Amazon, and the one with the least good free tooling elsewhere' },
-  { slug: 'tiktok-shop-fee-calculator', why: 'marketplace — the newest venue here, so the fee structure is the least understood and the tool earns the most' },
-  { slug: 'reverb-fee-calculator', why: 'marketplace — a genuinely niche venue, which is the shape this portfolio is meant to serve' },
 
   // logistics — four eligible ventures were sitting outside a card that had
   // two tools behind it.
   { slug: '3pl-quote-normalizer', why: 'logistics — comparing 3PL quotes on one basis, the category\'s highest-value job' },
   { slug: 'freight-accessorial-auditor', why: 'logistics — the money leaks in accessorials, and nobody checks them by hand' },
   { slug: 'ltl-freight-class-estimator', why: 'logistics — the lookup a shipper needs before any of the above' },
-  { slug: 'cloud-egress-calculator', why: 'logistics — moving bytes rather than pallets, same shape of question' },
 
   // evidence — eight of the ten eligible were outside the mirror.
   { slug: 'vendor-change-evidence', why: 'evidence — the record of what a vendor changed and when' },
@@ -791,17 +778,14 @@ export const STARTER_SET = [
   // place in the whole file (of 53 tried) where inserting it does not create
   // that fragment. A future session moving this entry should re-run that
   // test before relying on where it happens to sit.
-  { slug: 'faire-wholesale-calculator', why: 'marketplace — the wholesale venue alongside the big three consumer marketplaces; first-order vs. reorder fee is a question none of the others answer' },
 
   // back-office — the four eligible ventures the card was missing.
-  { slug: 'invoice-payment-terms-calculator', why: 'back-office — what a payment term actually costs, which is the question behind every net-30 argument' },
   { slug: 'cash-runway-planner', why: 'back-office — the number a small business checks most often and models worst' },
   { slug: 'vendor-rate-break-even', why: 'back-office — when a vendor rate change stops being worth absorbing' },
   { slug: 'music-lesson-break-even', why: 'back-office — a genuinely small niche, and the arithmetic is nonetheless wrong by hand' },
 
   // services — four eligible ventures, all previously outside the mirror.
   { slug: 'portable-restroom-event-quote', why: 'services — event quoting, where the unit count is the whole job' },
-  { slug: 'commercial-photo-license-calculator', why: 'services — licensing rather than hours, which is the pricing model photographers get wrong' },
   { slug: 'notary-trip-quote', why: 'services — per-trip pricing for a mobile service' },
   { slug: 'booth-rent-vs-commission', why: 'services — the decision a stylist makes once and lives with for years' },
 
@@ -854,11 +838,13 @@ export const STARTER_SET = [
   // All five are deleted with the rest of this directory in one commit when
   // `portfolio-site-repo` is sealed and all 169 tools serve from the hub. This
   // is a stopgap that got wider, not a second copy of the site.
-  { slug: 'roofing-bid-calculator', why: 'trades — the highest-ticket exterior trade, and the one a homeowner gets three bids on' },
-  { slug: 'painting-bid-calculator', why: 'trades — the highest-frequency trade in the category, interior and exterior on the same estimate' },
-  { slug: 'concrete-bid-calculator', why: 'trades — flatwork priced by yardage and pour, a different arithmetic from every entry above' },
-  { slug: 'lawn-care-bid-calculator', why: 'trades — recurring route work rather than a one-off bid, the shape the trades set otherwise lacks' },
-  { slug: 'fence-bid-calculator', why: 'trades — priced per linear foot with gates and terrain as the variables people get wrong' },
+  //
+  // 2026-09-30: those five, and every other `*-calculator` entry this set
+  // named (21 in all), were removed when all 253 calculator ventures moved
+  // out of `ventures/` to the separate open-source repo, served at
+  // https://duncan-haywood.github.io/oss-monorepo/<slug>/. The prose above
+  // still names them because it records why each was chosen; none is served
+  // from this mirror any more.
 ];
 
 /**

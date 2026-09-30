@@ -216,81 +216,11 @@ const EXCLUDED_SLUGS = new Set([
  * away a result a query already found.
  */
 export const SEARCH_ALIASES = [
-  { slug: 'pressure-washing', add: 'power washing powerwashing soft wash softwash' },
-  { slug: 'window-cleaning', add: 'window washing washer squeegee' },
-  { slug: 'junk-removal', add: 'hauling haul away cleanout clean out debris' },
-  { slug: 'snow-removal', add: 'plowing plow shoveling shovel deicing' },
-  // "removal" earns its place: the matcher ANDs across words, so "wildlife
-  // removal" found nothing while "wildlife" alone found this tool.
-  { slug: 'pest-control', add: 'termite termites bedbug bed bugs roaches ants exterminator wildlife removal trapping' },
-  { slug: 'gutter-cleaning', add: 'downspout leaves' },
-  // Both tools price cooling work; neither says "air conditioning" outright.
-  { slug: 'mini-split', add: 'air conditioning conditioner cooling ductless' },
-  { slug: 'hvac-maintenance', add: 'air conditioning conditioner cooling heating furnace' },
-  // A whole-room search is how people shop for these, and no single tool
-  // carries both words, so the matcher's AND across words found nothing.
-  { slug: 'kitchen-tile-backsplash', add: 'kitchen remodel renovation' },
-  { slug: 'countertop', add: 'kitchen remodel renovation' },
-  { slug: 'cabinet-refinishing', add: 'kitchen remodel renovation' },
-  { slug: 'walk-in-shower', add: 'bathroom remodel renovation' },
-  { slug: 'walk-in-tub', add: 'bathroom remodel renovation' },
-  { slug: 'toilet-replacement', add: 'bathroom remodel renovation' },
-  { slug: 'basement-finishing', add: 'basement remodel renovation' },
-  // The trade writes "security camera"; the customer, the search engine, and
-  // half the installers write "CCTV". `nvr`/`dvr` are the head end this tool
-  // actually prices, and "low voltage" is the trade that bids the work.
-  // Deliberately NOT here: alarm, access control, structured cabling. An alias
-  // only widens, so a word this tool does not price would put it in front of
-  // someone pricing a different job — reach bought with a wrong answer.
-  { slug: 'security-camera', add: 'cctv surveillance nvr dvr ip camera poe low voltage lowvoltage' },
-  // The roof this tool prices is the one nobody calls "a reroof" when they
-  // search for it. Its own copy says "reroof", "squares", "pitch" and
-  // "tear-off" — every word of the trade's vocabulary and none of the
-  // material's, so "shingle", the single most obvious query a homeowner or a
-  // roofer types, returned nothing at all. Not added to the flat-roof or
-  // metal-roof calculators: those price membrane and panel, and a shingle
-  // query reaching them is the wrong answer rather than a wider one.
-  { slug: 'roofing', add: 'shingle shingles asphalt architectural laminate three tab dimensional' },
-  // "Sod" is the trade word for what the customer calls grass. The lawn-care
-  // route tool is the recurring-service half of the same query.
-  { slug: 'sod-install', add: 'grass turfgrass' },
-  { slug: 'lawn-care', add: 'grass mowing mow mower cutting' },
-  // Priced by the yard and the landfill ticket, sold to the customer as a
-  // dumpster or a truckload.
-  { slug: 'junk-removal', add: 'dumpster truckload truck load' },
-  // "AC" is how this equipment is asked for everywhere except its own spec
-  // sheet. Both tools already answer "air conditioning" through the alias
-  // above; neither answered the two letters people actually type. "unit" rides
-  // along because the query is nearly always "ac unit", and the matcher ANDs
-  // across words — "ac" alone would still have found nothing.
-  { slug: 'mini-split', add: 'ac unit units' },
-  { slug: 'hvac-maintenance', add: 'ac unit units' },
-  // "Tuckpointing" and "repointing" name the same job; a homeowner or GC
-  // typing either word, or the material ("mortar", "brick", "masonry"),
-  // found nothing, because the tool's own copy only ever says
-  // "tuckpointing" and "wall".
-  { slug: 'tuckpointing', add: 'brick masonry mortar repointing brickwork' },
-  // The trade word for what this tool prices is "hardscape" or
-  // "hardscaping"; the tool's own copy says "paver" and "patio" but never
-  // the word the industry and the customer both search first.
-  { slug: 'paver-patio', add: 'hardscape hardscaping' },
-  // The regulation that drives most of this tool's demand is never named in
-  // its own copy, so a search for the term that actually motivates the
-  // purchase ("ADA ramp", "wheelchair accessibility") found nothing.
-  { slug: 'wheelchair-ramp', add: 'ada accessibility accessible' },
-  // "Sheetrock" is the genericized brand name half the trade uses instead
-  // of "drywall".
-  { slug: 'drywall', add: 'sheetrock' },
-  // The professional a homeowner searches for tree work by title.
-  { slug: 'tree-service', add: 'arborist' },
-  // The pump type most residential wells actually use, and the word a
-  // customer researching a quote is as likely to type as "well pump".
-  { slug: 'well-pump', add: 'submersible' },
-  // "Replacement" does not stem down to "replace" under the suffix list
-  // above (no `-ment` rule), so a query built around the word a customer
-  // actually uses — "pool liner replacement" — matched nothing even though
-  // the tool's own copy says "replace" throughout.
-  { slug: 'vinyl-liner', add: 'replacement replacing' },
+  // Empty since 2026-09-30. Every entry keyed a trade bid calculator (pressure
+  // washing, snow removal, roofing, ...), and all of those moved to the
+  // separate open-source repo with the rest of the `*-calculator` ventures.
+  // `build.test.mjs` keeps the old table as a fixture so the matcher below is
+  // still proven; add a line here when a venture on this site needs one.
 ];
 
 /**
@@ -306,14 +236,14 @@ export const SEARCH_ALIASES = [
  * the failure the comment above this table warns about, arriving through the
  * matcher rather than through a badly chosen word.
  */
-export function aliasesFor(slug) {
+export function aliasesFor(slug, table = SEARCH_ALIASES) {
   const words = String(slug).split('-');
   const claims = (key) => {
     const wanted = String(key).split('-');
     return words.some((_, start) =>
       wanted.every((word, offset) => words[start + offset] === word));
   };
-  return SEARCH_ALIASES.filter((alias) => claims(alias.slug))
+  return table.filter((alias) => claims(alias.slug))
     .map((alias) => alias.add)
     .join(' ');
 }
@@ -616,10 +546,6 @@ const CATEGORY_RULES = [
     // one person's own labour (`solo-earner`). It belongs beside the tool a
     // reader of this hub is most likely to also want.
     test: (slug) => [
-      'menu-engineering-calculator',
-      'food-truck-event-margin-calculator',
-      'pour-cost-calculator',
-      'commissary-kitchen-cost-split-calculator',
       // `restaurant-pos-menu-mix-analyzer` added 2026-09-29: the POS-export
       // sibling of `menu-engineering-calculator`, same owner reading the same
       // matrix. The `restaurant-delivery-commission` prefix is the marketplace
@@ -1101,8 +1027,6 @@ const CATEGORY_RULES = [
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
       || /^(einvoice|backup-verification|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check|salary-range-posting-check)/.test(slug)
       || slug === '1099-k-threshold-checker'
-      || slug === 'osha-trir-dart-calculator'
-      || slug === 'final-paycheck-deadline-calculator'
       || slug === 'boi-reporting-exemption-checker',
   },
   {
@@ -1512,7 +1436,7 @@ const CATEGORY_RULES = [
       // lookups with an eligibility wrinkle the headline number alone
       // does not capture), with a reciprocal inbound link from that
       // venture's first commit rather than shipping as an orphan.
-      || /^(wage-garnishment-limit|like-kind-exchange|indie-game-payout|google-play-earnings-report|amazon-ppc-search-term|whatnot-sales-report|youtube-revenue-rpm|meta-ads-fatigue|upwork-earnings-fee|turo-earnings-report|patreon-members-churn|substack-subscriber-export|ghost-members-export|bandcamp-sales-report|app-store-sales-report|fiverr-earnings-fee|gumroad-sales-fee|tiktok-shop-settlement|kdp-royalty-report|gig-driver-earnings-report|airbnb-earnings-report|cash-runway|invoice-payment-terms|cam-|saas-seat|saas-annual-plan|saas-cac-payback|stripe-churn-cohort|stripe-failed-payment|google-ads-wasted-spend|subscription-price|subscription-audit-from-statement|self-storage-rate-increase|seller-net-sheet|property-tax-appeal-calculator|aca-subsidy-cliff-calculator|medical-bill-error-checker|mortgage-escrow-analysis-checker|social-security-claiming-age-calculator|travel-nurse-contract-comparison-calculator|appointment-deposit|appointment-no-show|service-hourly-yield-analyzer|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|card-surcharge|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|gambling-loss-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker|child-tax-credit-calculator|eitc-calculator|hsa-contribution-limit-calculator|solo-401k-contribution-calculator|mileage-deduction-method-calculator|mileage-log|home-office-deduction-calculator|str-tax-loophole-calculator|estimated-tax-penalty-calculator|self-employment-tax-calculator|backdoor-roth-pro-rata-calculator|roth-conversion-bracket-fill-calculator|rsu-withholding-gap-calculator|iso-exercise-amt-calculator|job-offer-total-comp-calculator|cash-balance-plan-calculator|agent-brokerage-split-calculator|espp-tax-calculator|tax-loss-harvesting-calculator|home-sale-exclusion-calculator|medicare-irmaa-cliff-calculator|rmd-calculator)/.test(slug),
+      || /^(wage-garnishment-limit|like-kind-exchange|indie-game-payout|google-play-earnings-report|amazon-ppc-search-term|whatnot-sales-report|youtube-revenue-rpm|meta-ads-fatigue|upwork-earnings-fee|turo-earnings-report|patreon-members-churn|substack-subscriber-export|ghost-members-export|bandcamp-sales-report|app-store-sales-report|fiverr-earnings-fee|gumroad-sales-fee|tiktok-shop-settlement|kdp-royalty-report|gig-driver-earnings-report|airbnb-earnings-report|cash-runway|invoice-payment-terms|cam-|saas-seat|saas-annual-plan|saas-cac-payback|stripe-churn-cohort|stripe-failed-payment|google-ads-wasted-spend|subscription-price|subscription-audit-from-statement|self-storage-rate-increase|seller-net-sheet|medical-bill-error-checker|mortgage-escrow-analysis-checker|appointment-deposit|appointment-no-show|service-hourly-yield-analyzer|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|card-surcharge|duplicate-payment-audit|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|exempt-salary-threshold-checker|mileage-log)/.test(slug),
   },
   {
     id: 'ci',
@@ -2441,7 +2365,7 @@ const CATEGORY_RULES = [
     // footers -- left for a future pass, the same as several siblings
     // above that only cross-link one direction at graduation).
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|npm-provenance-check|vscode-extension-drift-check|dependency-confusion-check|dependabot-config-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|llm-usage-log-analyzer|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check|claude-code-hooks-security-check|pypi-provenance-check|referrer-permissions-policy-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|npm-provenance-check|vscode-extension-drift-check|dependency-confusion-check|dependabot-config-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|llm-usage-log-analyzer|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check|claude-code-hooks-security-check|pypi-provenance-check|referrer-permissions-policy-check)/.test(
         slug,
       ),
   },
@@ -2618,24 +2542,12 @@ const CATEGORY_RULES = [
     // here.
     test: (slug) =>
       [
-        '3d-print-price-calculator',
         'affiliate-disclosure-checker',
         'ats-resume-checker',
-        'brand-deal-rate-calculator',
-        'cat-adjuster-fee-calculator',
-        'craft-fair-booth-calculator',
         'epk-generator',
-        'freelance-writer-rate-calculator',
-        'gig-driver-net-pay-calculator',
         'influencer-media-kit-generator',
-        'newsletter-sponsorship-rate-calculator',
-        'overtime-pay-calculator',
-        'personal-trainer-package-pricing-calculator',
         'podcast-feed-check',
-        'podcast-sponsorship-rate-calculator',
         'sponsor-ready',
-        'tutor-package-pricing-calculator',
-        'voiceover-project-rate-calculator',
       ].includes(slug),
   },
 ];

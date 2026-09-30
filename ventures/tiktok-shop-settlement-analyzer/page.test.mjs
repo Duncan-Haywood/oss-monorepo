@@ -54,7 +54,7 @@ test("page states it is independent of TikTok Shop and links to sibling fee tool
   const html = page("index.html");
   assert.match(html, /Not affiliated with TikTok Shop/);
   assert.match(html, /not sponsored, endorsed or connected to TikTok Shop, Inc\./);
-  assert.match(html, /\.\.\/patreon-fee-calculator\//);
+  assert.match(html, /https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/patreon-fee-calculator\//);
   assert.match(html, /\.\.\/upwork-earnings-fee-analyzer\//);
 });
 

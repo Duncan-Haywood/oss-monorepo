@@ -212,7 +212,7 @@ test('every venture with a browser entry point is discovered', async () => {
   const slugs = surfaces.map((s) => s.slug);
 
   // A representative slice of each shape the discovery rules handle.
-  assert.ok(slugs.includes('ebay-fee-calculator'), 'top-level index.html');
+  assert.ok(slugs.includes('whatnot-seller-payout'), 'top-level index.html');
   assert.ok(slugs.includes('quote-margin-check'), 'site/index.html');
   assert.ok(slugs.includes('ai-engineering-academy'), 'explicit entry override');
   assert.ok(surfaces.length >= 25, `expected the full portfolio, got ${surfaces.length}`);
@@ -294,8 +294,8 @@ test('no page still points at the placeholder origin', async () => {
 });
 
 test('venture sitemaps are rewritten to the real origin', async () => {
-  const xml = await read('ebay-fee-calculator', 'sitemap.xml');
-  assert.ok(xml.includes(`${BASE}ebay-fee-calculator/`));
+  const xml = await read('whatnot-seller-payout', 'sitemap.xml');
+  assert.ok(xml.includes(`${BASE}whatnot-seller-payout/`));
 });
 
 // ---------------------------------------------------------------------------
@@ -729,16 +729,16 @@ test('the machine surfaces carry the sub-group a trade tool belongs to', async (
   const llms = await read('llms.txt');
   const subheads = llms.split('\n').filter((line) => line.startsWith('### '));
   assert.ok(subheads.length > 1, 'the trades section is sub-divided in llms.txt too');
-  assert.ok(subheads.some((line) => line.includes('Roofing')));
+  assert.ok(subheads.some((line) => line.includes('Getting paid')));
 
   const catalog = JSON.parse(await read('catalog.json'));
-  const roof = catalog.tools.find((t) => t.slug === 'metal-roof-bid-calculator');
-  assert.equal(roof.category, 'Trade & contractor bids');
-  assert.equal(roof.subcategory, 'Roofing, siding & gutters');
+  const paid = catalog.tools.find((t) => t.slug === 'job-margin-variance');
+  assert.equal(paid.category, 'Trade & contractor bids');
+  assert.equal(paid.subcategory, 'Getting paid & job margin');
 
   // Absent rather than null where a category is not sub-divided, so a consumer
   // filtering on the key never has to special-case an empty value.
-  const ebay = catalog.tools.find((t) => t.slug === 'ebay-fee-calculator');
+  const ebay = catalog.tools.find((t) => t.slug === 'whatnot-seller-payout');
   assert.ok(!('subcategory' in ebay));
 });
 
@@ -922,19 +922,100 @@ test('searchVariants reaches the singular a plural query would step over', () =>
   assert.deepEqual(searchVariants('deck'), ['deck']);
 });
 
+// The alias table as it stood before the trade bid calculators moved to the
+// open-source repo (2026-09-30). The live `SEARCH_ALIASES` is empty now, so the
+// matcher is proven against this copy instead of against nothing.
+const ALIAS_FIXTURE = [
+  { slug: 'pressure-washing', add: 'power washing powerwashing soft wash softwash' },
+  { slug: 'window-cleaning', add: 'window washing washer squeegee' },
+  { slug: 'junk-removal', add: 'hauling haul away cleanout clean out debris' },
+  { slug: 'snow-removal', add: 'plowing plow shoveling shovel deicing' },
+  // "removal" earns its place: the matcher ANDs across words, so "wildlife
+  // removal" found nothing while "wildlife" alone found this tool.
+  { slug: 'pest-control', add: 'termite termites bedbug bed bugs roaches ants exterminator wildlife removal trapping' },
+  { slug: 'gutter-cleaning', add: 'downspout leaves' },
+  // Both tools price cooling work; neither says "air conditioning" outright.
+  { slug: 'mini-split', add: 'air conditioning conditioner cooling ductless' },
+  { slug: 'hvac-maintenance', add: 'air conditioning conditioner cooling heating furnace' },
+  // A whole-room search is how people shop for these, and no single tool
+  // carries both words, so the matcher's AND across words found nothing.
+  { slug: 'kitchen-tile-backsplash', add: 'kitchen remodel renovation' },
+  { slug: 'countertop', add: 'kitchen remodel renovation' },
+  { slug: 'cabinet-refinishing', add: 'kitchen remodel renovation' },
+  { slug: 'walk-in-shower', add: 'bathroom remodel renovation' },
+  { slug: 'walk-in-tub', add: 'bathroom remodel renovation' },
+  { slug: 'toilet-replacement', add: 'bathroom remodel renovation' },
+  { slug: 'basement-finishing', add: 'basement remodel renovation' },
+  // The trade writes "security camera"; the customer, the search engine, and
+  // half the installers write "CCTV". `nvr`/`dvr` are the head end this tool
+  // actually prices, and "low voltage" is the trade that bids the work.
+  // Deliberately NOT here: alarm, access control, structured cabling. An alias
+  // only widens, so a word this tool does not price would put it in front of
+  // someone pricing a different job — reach bought with a wrong answer.
+  { slug: 'security-camera', add: 'cctv surveillance nvr dvr ip camera poe low voltage lowvoltage' },
+  // The roof this tool prices is the one nobody calls "a reroof" when they
+  // search for it. Its own copy says "reroof", "squares", "pitch" and
+  // "tear-off" — every word of the trade's vocabulary and none of the
+  // material's, so "shingle", the single most obvious query a homeowner or a
+  // roofer types, returned nothing at all. Not added to the flat-roof or
+  // metal-roof calculators: those price membrane and panel, and a shingle
+  // query reaching them is the wrong answer rather than a wider one.
+  { slug: 'roofing', add: 'shingle shingles asphalt architectural laminate three tab dimensional' },
+  // "Sod" is the trade word for what the customer calls grass. The lawn-care
+  // route tool is the recurring-service half of the same query.
+  { slug: 'sod-install', add: 'grass turfgrass' },
+  { slug: 'lawn-care', add: 'grass mowing mow mower cutting' },
+  // Priced by the yard and the landfill ticket, sold to the customer as a
+  // dumpster or a truckload.
+  { slug: 'junk-removal', add: 'dumpster truckload truck load' },
+  // "AC" is how this equipment is asked for everywhere except its own spec
+  // sheet. Both tools already answer "air conditioning" through the alias
+  // above; neither answered the two letters people actually type. "unit" rides
+  // along because the query is nearly always "ac unit", and the matcher ANDs
+  // across words — "ac" alone would still have found nothing.
+  { slug: 'mini-split', add: 'ac unit units' },
+  { slug: 'hvac-maintenance', add: 'ac unit units' },
+  // "Tuckpointing" and "repointing" name the same job; a homeowner or GC
+  // typing either word, or the material ("mortar", "brick", "masonry"),
+  // found nothing, because the tool's own copy only ever says
+  // "tuckpointing" and "wall".
+  { slug: 'tuckpointing', add: 'brick masonry mortar repointing brickwork' },
+  // The trade word for what this tool prices is "hardscape" or
+  // "hardscaping"; the tool's own copy says "paver" and "patio" but never
+  // the word the industry and the customer both search first.
+  { slug: 'paver-patio', add: 'hardscape hardscaping' },
+  // The regulation that drives most of this tool's demand is never named in
+  // its own copy, so a search for the term that actually motivates the
+  // purchase ("ADA ramp", "wheelchair accessibility") found nothing.
+  { slug: 'wheelchair-ramp', add: 'ada accessibility accessible' },
+  // "Sheetrock" is the genericized brand name half the trade uses instead
+  // of "drywall".
+  { slug: 'drywall', add: 'sheetrock' },
+  // The professional a homeowner searches for tree work by title.
+  { slug: 'tree-service', add: 'arborist' },
+  // The pump type most residential wells actually use, and the word a
+  // customer researching a quote is as likely to type as "well pump".
+  { slug: 'well-pump', add: 'submersible' },
+  // "Replacement" does not stem down to "replace" under the suffix list
+  // above (no `-ment` rule), so a query built around the word a customer
+  // actually uses — "pool liner replacement" — matched nothing even though
+  // the tool's own copy says "replace" throughout.
+  { slug: 'vinyl-liner', add: 'replacement replacing' },
+];
+
 test('aliases give a tool the words its own copy never uses', () => {
   // Each of these was a query that found nothing while the tool existed.
-  assert.match(aliasesFor('pressure-washing-bid-calculator'), /power washing/);
-  assert.match(aliasesFor('window-cleaning-bid-calculator'), /washing/);
-  assert.match(aliasesFor('snow-removal-bid-calculator'), /plowing/);
-  assert.match(aliasesFor('junk-removal-bid-calculator'), /hauling/);
-  assert.match(aliasesFor('pest-control-bid-calculator'), /termite/);
-  assert.match(aliasesFor('mini-split-bid-calculator'), /air conditioning/);
+  assert.match(aliasesFor('pressure-washing-bid-calculator', ALIAS_FIXTURE), /power washing/);
+  assert.match(aliasesFor('window-cleaning-bid-calculator', ALIAS_FIXTURE), /washing/);
+  assert.match(aliasesFor('snow-removal-bid-calculator', ALIAS_FIXTURE), /plowing/);
+  assert.match(aliasesFor('junk-removal-bid-calculator', ALIAS_FIXTURE), /hauling/);
+  assert.match(aliasesFor('pest-control-bid-calculator', ALIAS_FIXTURE), /termite/);
+  assert.match(aliasesFor('mini-split-bid-calculator', ALIAS_FIXTURE), /air conditioning/);
 
   // A room-level search reaches every tool that does part of that room, since
   // no single tool carries both words and the matcher ANDs across them.
   for (const slug of ['countertop-bid-calculator', 'cabinet-refinishing-bid-calculator']) {
-    assert.match(aliasesFor(slug), /kitchen remodel/);
+    assert.match(aliasesFor(slug, ALIAS_FIXTURE), /kitchen remodel/);
   }
 
   // Keyed by slug so an alias cannot wander onto an unrelated tool: the
@@ -943,17 +1024,17 @@ test('aliases give a tool the words its own copy never uses', () => {
   // most residential wells use, and a word its own copy never says — which
   // is the same fix as every other entry above, not the collision this
   // guards against.
-  assert.match(aliasesFor('well-pump-bid-calculator'), /submersible/);
-  assert.doesNotMatch(aliasesFor('well-pump-bid-calculator'), /power washing/);
-  assert.equal(aliasesFor('ebay-fee-calculator'), '');
+  assert.match(aliasesFor('well-pump-bid-calculator', ALIAS_FIXTURE), /submersible/);
+  assert.doesNotMatch(aliasesFor('well-pump-bid-calculator', ALIAS_FIXTURE), /power washing/);
+  assert.equal(aliasesFor('ebay-fee-calculator', ALIAS_FIXTURE), '');
 
   // The trade's word and the material's word for the same roof.
-  assert.match(aliasesFor('roofing-bid-calculator'), /shingle/);
-  assert.match(aliasesFor('sod-install-bid-calculator'), /grass/);
-  assert.match(aliasesFor('lawn-care-bid-calculator'), /mowing/);
-  assert.match(aliasesFor('junk-removal-bid-calculator'), /dumpster/);
+  assert.match(aliasesFor('roofing-bid-calculator', ALIAS_FIXTURE), /shingle/);
+  assert.match(aliasesFor('sod-install-bid-calculator', ALIAS_FIXTURE), /grass/);
+  assert.match(aliasesFor('lawn-care-bid-calculator', ALIAS_FIXTURE), /mowing/);
+  assert.match(aliasesFor('junk-removal-bid-calculator', ALIAS_FIXTURE), /dumpster/);
   for (const slug of ['mini-split-bid-calculator', 'hvac-maintenance-contract-calculator']) {
-    assert.match(aliasesFor(slug), /\bac\b/);
+    assert.match(aliasesFor(slug, ALIAS_FIXTURE), /\bac\b/);
   }
 });
 
@@ -964,17 +1045,17 @@ test('an alias reaches a slug word, never a word ending', () => {
   // under a substring test the shingle words land on the French-drain
   // calculator and "shingle" starts returning a basement tool. Nothing about
   // that is red -- the alias table looks right and the query returns a result.
-  assert.equal(aliasesFor('basement-waterproofing-bid-calculator'), '');
-  assert.match(aliasesFor('roofing-bid-calculator'), /shingle/);
+  assert.equal(aliasesFor('basement-waterproofing-bid-calculator', ALIAS_FIXTURE), '');
+  assert.match(aliasesFor('roofing-bid-calculator', ALIAS_FIXTURE), /shingle/);
 
   // Only a run of whole slug words claims a tool: the key's words have to be
   // adjacent and in order, and neither may be half of a longer word.
-  assert.equal(aliasesFor('snow-plow-removal-bid-calculator'), '');
-  assert.equal(aliasesFor('removal-snow-bid-calculator'), '');
-  assert.equal(aliasesFor('snowplow-removal-bid-calculator'), '');
+  assert.equal(aliasesFor('snow-plow-removal-bid-calculator', ALIAS_FIXTURE), '');
+  assert.equal(aliasesFor('removal-snow-bid-calculator', ALIAS_FIXTURE), '');
+  assert.equal(aliasesFor('snowplow-removal-bid-calculator', ALIAS_FIXTURE), '');
   // A tool whose slug carries the run keeps the alias wherever the run sits.
-  assert.match(aliasesFor('snow-removal-bid-calculator'), /plowing/);
-  assert.match(aliasesFor('commercial-snow-removal-bid-calculator'), /plowing/);
+  assert.match(aliasesFor('snow-removal-bid-calculator', ALIAS_FIXTURE), /plowing/);
+  assert.match(aliasesFor('commercial-snow-removal-bid-calculator', ALIAS_FIXTURE), /plowing/);
 });
 
 test('every alias names a venture that exists', async () => {
@@ -1041,7 +1122,7 @@ test('the hub carries a name index and the ranking function it is scored with', 
   );
   // Scoring needs the tool's own name apart from its description and aliases;
   // without the attribute every card scores alike and the order never changes.
-  assert.match(html, /<li class="card" data-name="[^"]*roofing[^"]*" data-strong="[^"]*" data-search=/);
+  assert.match(html, /<li class="card" data-name="[^"]*whatnot[^"]*" data-strong="[^"]*" data-search=/);
 });
 
 test('a query that matches every word in nothing is offered the closest tools', async () => {
@@ -1199,12 +1280,12 @@ test('the search index carries description text the card is too small to show', 
 test("the search index carries a venture's other page titles", async () => {
   // A visitor arrives having typed the question one of these pages answers.
   const titles = await collectPageTitles(
-    path.join(VENTURES, 'ebay-fee-calculator'),
-    path.join(VENTURES, 'ebay-fee-calculator', 'index.html'),
+    path.join(VENTURES, 'whatnot-seller-payout'),
+    path.join(VENTURES, 'whatnot-seller-payout', 'index.html'),
   );
-  assert.ok(titles.length > 0, 'expected the eBay venture to have article pages');
+  assert.ok(titles.length > 0, 'expected the Whatnot venture to have article pages');
 
-  const surface = (await site()).surfaces.find((s) => s.slug === 'ebay-fee-calculator');
+  const surface = (await site()).surfaces.find((s) => s.slug === 'whatnot-seller-payout');
   const indexed = new Set(surface.searchIndex.split(' '));
   const fromTitles = searchTokens(titles).split(' ').filter((w) => w.length > 4);
   const missing = fromTitles.filter((w) => !indexed.has(w));
@@ -1230,7 +1311,7 @@ test('a query whose words are not adjacent still matches', async () => {
       .map((c) => c.slug);
 
   // Each of these found nothing when the index was one truncated string.
-  assert.ok(search('ebay return').includes('ebay-fee-calculator'));
+  assert.ok(search('whatnot payout').includes('whatnot-seller-payout'));
   assert.ok(search('freight accessorial').includes('freight-accessorial-auditor'));
   assert.deepEqual(search('qqzzxx'), []);
 });
@@ -1348,20 +1429,17 @@ test('tools that belong to a named category are not left in the catch-all', () =
   // it in "More free tools" hid it from every seller already reading the
   // marketplace section that names it.
   assert.equal(categoryFor('whatnot-seller-payout').id, 'marketplace');
-  // `food-service`'s three, pinned with the section that introduces them.
-  // `pour-cost-calculator` is the one that matters here: it is the only member
-  // that came from a named section rather than the catch-all, having sat in
-  // `services` for want of anywhere better, so it is the placement a later
-  // reader is most likely to undo by widening the `services` prefix list back
-  // over it. The other two are the ordinary case — a placement with no
-  // assertion is one regex edit from dropping its venture back into "More free
-  // tools", the section a visitor reads last, with nothing going red.
-  assert.equal(categoryFor('food-truck-event-margin-calculator').id, 'food-service');
-  assert.equal(categoryFor('menu-engineering-calculator').id, 'food-service');
-  assert.equal(categoryFor('pour-cost-calculator').id, 'food-service');
-  // `childcare-tuition-calculator` stayed in `services` — it prices a seat,
-  // not a plate, so `food-service`'s three did not pull it in with them.
-  assert.equal(categoryFor('childcare-tuition-calculator').id, 'services');
+  // `food-service`'s members, pinned with the section that holds them. Its
+  // first three (`pour-cost-calculator`, `menu-engineering-calculator`,
+  // `food-truck-event-margin-calculator`) moved to the open-source repo on
+  // 2026-09-30; the two restaurant analyzers are listed by name, so a
+  // placement with no assertion is one list edit from dropping its venture
+  // back into "More free tools" with nothing going red. The `restaurant-`
+  // prefix is not the rule here -- `restaurant-delivery-commission-analyzer`
+  // is marketplace's.
+  assert.equal(categoryFor('restaurant-pos-menu-mix-analyzer').id, 'food-service');
+  assert.equal(categoryFor('restaurant-labor-cost-daypart-analyzer').id, 'food-service');
+  assert.equal(categoryFor('restaurant-delivery-commission-analyzer').id, 'marketplace');
   assert.equal(categoryFor('security-deposit-return-calculator').id, 'backoffice');
   assert.equal(categoryFor('ltl-freight-class-estimator').id, 'logistics');
   assert.equal(categoryFor('owner-operator-cpm-calculator').id, 'logistics');
@@ -1530,7 +1608,7 @@ test('the hub sub-divides the trades section and leaves small ones flat', async 
   const trades = hub.split('data-group="trades"')[1].split('</section>\n      </section>')[0];
   const rendered = [...trades.matchAll(/data-subgroup="([^"]+)"/g)].map((m) => m[1]);
   assert.ok(rendered.length > 1, 'the 100+ trade tools are broken into families');
-  assert.ok(rendered.includes('trades-roof'));
+  assert.ok(rendered.includes('trades-paid'));
 
   const marketplace = hub.split('data-group="marketplace"')[1].split('</section>')[0];
   assert.ok(
@@ -1550,8 +1628,8 @@ test('card headings sit one level below the section that holds them', async () =
   const skip = levels.slice(1).find((level, i) => level > levels[i] + 1);
   assert.equal(skip, undefined, 'no heading level is skipped anywhere on the hub');
 
-  const roof = hub.split('data-subgroup="trades-roof"')[1].split('</section>')[0];
-  assert.ok(roof.includes('<h4>'), 'a card under a sub-group heading is an h4');
+  const paid = hub.split('data-subgroup="trades-paid"')[1].split('</section>')[0];
+  assert.ok(paid.includes('<h4>'), 'a card under a sub-group heading is an h4');
   const marketplace = hub.split('data-group="marketplace"')[1].split('</section>')[0];
   assert.ok(marketplace.includes('<h3>'), 'a card in a flat category stays an h3');
 });
@@ -1635,10 +1713,10 @@ test('links that escape the site are repointed at the repository, not left broke
 });
 
 test('repair leaves working in-site links untouched', async () => {
-  const ebay = await read('ebay-fee-calculator', 'index.html');
+  const ebay = await read('whatnot-seller-payout', 'index.html');
   assert.ok(ebay.includes('href="calc.mjs"') || ebay.includes('src="calc.mjs"') || ebay.includes('./calc.mjs'),
     'the tool still loads its own module by relative path');
-  assert.ok(!ebay.includes(`${SOURCE_URL_PREFIX}ventures/ebay-fee-calculator/calc.mjs`),
+  assert.ok(!ebay.includes(`${SOURCE_URL_PREFIX}ventures/whatnot-seller-payout/calc.mjs`),
     'a module that is published must not be repointed off-site');
 });
 
@@ -1706,7 +1784,7 @@ test('every injected link resolves to a page that exists', async () => {
 
 test('a page nested deeper climbs further to reach the root', () => {
   assert.equal(upToRoot('index.html'), './');
-  assert.equal(upToRoot(path.join('etsy-profit-calculator', 'index.html')), '../');
+  assert.equal(upToRoot(path.join('etsy-statement-profit-analyzer', 'index.html')), '../');
   assert.equal(upToRoot(path.join('a', 'b', 'index.html')), '../../');
 });
 
@@ -2053,7 +2131,7 @@ test('related tools exclude the page they sit on and prefer its category', () =>
   const surfaces = [
     { slug: 'amazon-fba-calculator', title: 'A' },
     { slug: 'ebay-fee-calculator', title: 'B' },
-    { slug: 'etsy-profit-calculator', title: 'C' },
+    { slug: 'etsy-statement-profit-analyzer', title: 'C' },
     { slug: 'toilet-replacement-bid-calculator', title: 'D' },
   ];
   const related = relatedTools(surfaces, 'amazon-fba-calculator', 2);
@@ -2316,7 +2394,7 @@ test('the footer lands at the real closing </body>, not a literal one inside ear
 });
 
 test('the chrome counts locally, honours opt-out, and asks for nothing off-origin', async () => {
-  const page = await read('etsy-profit-calculator', 'index.html');
+  const page = await read('etsy-statement-profit-analyzer', 'index.html');
   // From the injected element, not the style block that names the same class:
   // the venture's own footer sits above it and carries its own GitHub links.
   const chrome = page.slice(page.indexOf('<aside class="pf-chrome pf-chrome-foot"'));
@@ -2327,7 +2405,7 @@ test('the chrome counts locally, honours opt-out, and asks for nothing off-origi
   assert.ok(script.includes("localStorage.getItem('portfolio-hub-optout')"), 'the hub opt-out applies here too');
   assert.ok(script.includes('doNotTrack') && script.includes('globalPrivacyControl'));
   assert.ok(script.includes("bump('tool_viewed:'+slug)"));
-  assert.match(chrome, /<script src="\.\.\/pf-site\.js" data-pf-slug="etsy-profit-calculator">/);
+  assert.match(chrome, /<script src="\.\.\/pf-site\.js" data-pf-slug="etsy-statement-profit-analyzer">/);
   assert.ok(!/fetch\(|XMLHttpRequest|navigator\.sendBeacon/.test(script), 'nothing is transmitted');
   assert.ok(!/fetch\(|XMLHttpRequest|navigator\.sendBeacon/.test(chrome), 'nothing is transmitted');
 
@@ -2348,7 +2426,7 @@ test('the chrome counts locally, honours opt-out, and asks for nothing off-origi
  * functions and nothing but a real match holds them together. So the script is
  * executed rather than read.
  */
-function chromeCounter({ slug = 'etsy-profit-calculator', navigator = {}, stored = {} } = {}) {
+function chromeCounter({ slug = 'etsy-statement-profit-analyzer', navigator = {}, stored = {} } = {}) {
   let click = null;
   const store = new Map(Object.entries(stored).map(([k, v]) => [k, JSON.stringify(v)]));
   const localStorage = {
@@ -2389,7 +2467,7 @@ test('a click on the sponsor link is counted, under the same rules as every othe
   assert.equal(page.counts()[SPONSOR_CLICK_EVENT], 1);
   page.clickOn(marker);
   assert.equal(page.counts()[SPONSOR_CLICK_EVENT], 2, 'a second click is a second count');
-  assert.equal(page.counts()['tool_viewed:etsy-profit-calculator'], 1,
+  assert.equal(page.counts()['tool_viewed:etsy-statement-profit-analyzer'], 1,
     'and the view it is read against is still counted once, not once per click');
 
   // The two halves of the delegate are independent: the cross-tool link was
@@ -2405,7 +2483,7 @@ test('a click on the sponsor link is counted, under the same rules as every othe
   const idle = chromeCounter();
   idle.clickOn();
   assert.deepEqual(Object.keys(idle.counts()).filter((k) => k !== 'last_day'),
-    ['tool_viewed:etsy-profit-calculator']);
+    ['tool_viewed:etsy-statement-profit-analyzer']);
 
   // Every off switch that silences the other two events silences this one,
   // because it is the same guarded block and not a second counter beside it.
@@ -2439,7 +2517,7 @@ test('the sponsor link is marked wherever it was written, and marking it twice c
   // And on the built site: the tool pages the chrome wraps, plus the four kinds
   // of page it does not, each of which renders its own sponsor line.
   for (const parts of [
-    ['etsy-profit-calculator', 'index.html'],
+    ['etsy-statement-profit-analyzer', 'index.html'],
     ['index.html'],
     ['about', 'index.html'],
   ]) {
@@ -2457,7 +2535,7 @@ test('a page carries no inline chrome script or stylesheet, only links to the sh
   // into all 442 published pages -- 1.9 MiB of the built site, and the same
   // bytes every time. A page that regrew either would be paying for it again on
   // every load and again in the offline bundle.
-  const page = await read('etsy-profit-calculator', 'index.html');
+  const page = await read('etsy-statement-profit-analyzer', 'index.html');
   assert.doesNotMatch(page, /<style id="pf-chrome-style">/);
   assert.doesNotMatch(page, /data-pf-scrollable'\)/, 'the scroll pass is a file, not a body');
   assert.match(page, /<link rel="stylesheet" href="\.\.\/pf-chrome\.css">/);
@@ -2468,7 +2546,7 @@ test('a page carries no inline chrome script or stylesheet, only links to the sh
 });
 
 test('the sponsor line on a tool page is optional and gates nothing', async () => {
-  const page = await read('etsy-profit-calculator', 'index.html');
+  const page = await read('etsy-statement-profit-analyzer', 'index.html');
   assert.match(page, /Sponsoring on GitHub<\/a>\s*\n?\s*is optional and changes nothing/);
 });
 
@@ -3343,8 +3421,8 @@ test('every published page declares exactly one canonical URL', async () => {
 });
 
 test('an injected canonical is the directory URL on the real origin', async () => {
-  const entry = await read('ebay-fee-calculator', 'index.html');
-  assert.equal(entry.match(/<link rel="canonical" href="([^"]*)"/)[1], `${BASE}ebay-fee-calculator/`);
+  const entry = await read('whatnot-seller-payout', 'index.html');
+  assert.equal(entry.match(/<link rel="canonical" href="([^"]*)"/)[1], `${BASE}whatnot-seller-payout/`);
 });
 
 test('each tool entry page carries breadcrumb structured data', async () => {
@@ -3380,7 +3458,7 @@ test('chrome takes its theme from the host page, not the operating system', asyn
   // the fixed version holds 13.7:1 or better on every tool in both OS schemes,
   // and a tool with its own dark mode still flips (17.4:1 light, 15.1:1 dark).
   // One stylesheet at the site root since the extraction; the page links it.
-  const html = await read('etsy-profit-calculator', 'index.html');
+  const html = await read('etsy-statement-profit-analyzer', 'index.html');
   assert.match(html, /<link rel="stylesheet" href="\.\.\/pf-chrome\.css">/);
   const style = await read('pf-chrome.css');
 
@@ -3404,9 +3482,12 @@ test('nothing this build injects reaches a printed customer proposal', async () 
   // wage, payroll burden, overhead and target net margin. A contractor who had
   // saved their rates and left the panel open would have handed the customer
   // their margin stapled to the quote.
-  const html = await read('deck-bid-calculator', 'index.html');
+  // `portable-restroom-event-quote` since 2026-09-30, when `deck-bid-calculator`
+  // moved to the open-source repo: it is a page that prints a proposal *and*
+  // carries the shop-rates band, which is the combination this guards.
+  const html = await read('portable-restroom-event-quote', 'index.html');
   assert.ok(html.includes('id="proposalDoc"'),
-    'deck-bid-calculator no longer carries a proposal; point this test at one that does');
+    'portable-restroom-event-quote no longer carries a proposal; point this test at one that does');
 
   // The three stylesheets are files at the site root now, so the rules are read
   // from there and the page is checked for the links that pull them in. An
@@ -3426,7 +3507,7 @@ test('nothing this build injects reaches a printed customer proposal', async () 
 });
 
 test('injected head tags do not disturb the page they land in', async () => {
-  const html = await read('ebay-fee-calculator', 'index.html');
+  const html = await read('whatnot-seller-payout', 'index.html');
   assert.equal((html.match(/<\/head>/gi) ?? []).length, 1);
   assert.equal((html.match(/<body[^>]*>/gi) ?? []).length, 1);
   assert.ok(html.includes('calc.mjs'), 'the calculator still loads its own module');
@@ -3437,7 +3518,7 @@ test('the availability clause is supplied only where a venture lacks its own', a
   // A venture that words the clause itself must not be given a second one in
   // different prose — two availability statements on one page is how a reader
   // stops believing either.
-  const own = await read('janitorial-bid-calculator', 'index.html');
+  const own = await read('1099k-reconciliation-worksheet', 'index.html');
   const supplied = (own.match(/Best-effort hosting/gi) ?? []).length;
   assert.ok(supplied <= 1, `${supplied} availability clauses on one page`);
 
@@ -3519,7 +3600,8 @@ test('every number input on the built site carries an inputmode', async () => {
   }
 
   // A silently-empty walk would make the assertion below pass for free.
-  assert.ok(inputs > 1000, `only ${inputs} number input(s) found`);
+  // 832 measured on 2026-09-30, after the `*-calculator` ventures moved out.
+  assert.ok(inputs > 500, `only ${inputs} number input(s) found`);
   assert.deepEqual(missing, [], `number inputs with no keypad:\n${missing.slice(0, 10).join('\n')}`);
 });
 
@@ -3595,7 +3677,8 @@ test('the saved-bids script is one file the whole site loads, not 234 copies', a
     assert.ok(!html.includes('var SLUG = '),
       `${path.relative(outDir, file)} still inlines the saved-bids script`);
   }
-  assert.ok(tagged > 200, `only ${tagged} pages carry the band`);
+  // 132 measured on 2026-09-30, after the `*-calculator` ventures moved out.
+  assert.ok(tagged > 100, `only ${tagged} pages carry the band`);
 });
 
 test('every stylesheet and script this build injects is one file, at the right depth', async () => {
@@ -3615,16 +3698,20 @@ test('every stylesheet and script this build injects is one file, at the right d
   // The two facts a shared asset has to get right: it exists, and every page
   // that needs it resolves to it. A src that is correct at `/<slug>/` is a 404
   // at `/<slug>/some-question.html`, which is where search traffic lands.
+  //
+  // `min` is a floor against a silently-empty walk, not a target. The shop-rates
+  // band reached ~100 trade bid calculators until they moved to the open-source
+  // repo (2026-09-30); two pages carry it now, so its floor is one.
   const assets = {
-    'pf-chrome.css': { attr: 'link', gate: () => true },
-    'pf-site.js': { attr: 'script', gate: () => true },
-    'pf-rates.css': { attr: 'link', gate: (html) => html.includes('data-pf-rates-root') },
-    'pf-rates.js': { attr: 'script', gate: (html) => html.includes('data-pf-rates-root') },
-    'pf-jobs.css': { attr: 'link', gate: (html) => html.includes('data-pf-jobs-root') },
+    'pf-chrome.css': { attr: 'link', gate: () => true, min: 100 },
+    'pf-site.js': { attr: 'script', gate: () => true, min: 100 },
+    'pf-rates.css': { attr: 'link', gate: (html) => html.includes('data-pf-rates-root'), min: 1 },
+    'pf-rates.js': { attr: 'script', gate: (html) => html.includes('data-pf-rates-root'), min: 1 },
+    'pf-jobs.css': { attr: 'link', gate: (html) => html.includes('data-pf-jobs-root'), min: 100 },
   };
 
   const pages = (await walk(outDir)).filter((f) => f.endsWith('.html') && !f.endsWith('offline.html'));
-  for (const [name, { attr, gate }] of Object.entries(assets)) {
+  for (const [name, { attr, gate, min }] of Object.entries(assets)) {
     const body = await read(name);
     assert.ok(body.length > 400, `${name} was not written to the site root`);
     assert.ok(offline.shared.includes(name),
@@ -3646,7 +3733,7 @@ test('every stylesheet and script this build injects is one file, at the right d
       assert.equal(path.resolve(path.dirname(file), href), path.join(outDir, name),
         `${rel} points at ${href}, which does not resolve to the site root`);
     }
-    assert.ok(carrying > 100, `only ${carrying} pages load ${name}`);
+    assert.ok(carrying >= min, `only ${carrying} pages load ${name}`);
   }
 
   // And the copies they replaced are gone. A page carrying both would pay for

@@ -29,9 +29,9 @@
 // `venture-defaults.mjs` for the rest.
 //
 //   node platform/pages/build.mjs --out=platform/pages/dist
-//   node platform/pages/price-oracle.mjs --dist=platform/pages/dist deck-bid-calculator
+//   node platform/pages/price-oracle.mjs --dist=platform/pages/dist portable-restroom-event-quote
 //   node platform/pages/price-oracle.mjs --dist=platform/pages/dist            # every tool
-//   node platform/pages/price-oracle.mjs --dist=platform/pages/dist --json roofing-bid-calculator
+//   node platform/pages/price-oracle.mjs --dist=platform/pages/dist --json photo-booth-event-quote
 //
 // Report-only, like `guide-coverage.mjs` and `faq-coverage.mjs`: it prints the
 // numbers, it does not gate a build. A default that legitimately changes moves

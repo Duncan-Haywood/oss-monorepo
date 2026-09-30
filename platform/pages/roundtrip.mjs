@@ -35,7 +35,7 @@
 //   # or against production once the owner flip lands:
 //   BASE_URL=https://duncan-haywood.github.io/monorepo-projects node platform/pages/roundtrip.mjs
 //
-//   node platform/pages/roundtrip.mjs shopify-fee-calculator etsy-profit-calculator
+//   node platform/pages/roundtrip.mjs whatnot-seller-payout portable-restroom-event-quote
 //
 // **Check what is answering before you believe the result.** A server left
 // running by an earlier build keeps the port and the run passes against the old

@@ -675,7 +675,15 @@ function priceExpressionFor(resultKeys, priceField) {
 function resultKeysOf(slug) {
   const file = path.join(VENTURES, slug, 'calc.mjs');
   if (!fs.existsSync(file)) return [];
-  const source = fs.readFileSync(file, 'utf8');
+  return resultKeysFromSource(fs.readFileSync(file, 'utf8'));
+}
+
+/**
+ * `resultKeysOf`, given the `calc.mjs` source rather than a venture slug, so
+ * the parse can be tested against a fixture that does not depend on any one
+ * venture staying in this tree.
+ */
+function resultKeysFromSource(source) {
   // The *entry* function, not merely the first `calculate*` in the file.
   //
   // These modules export their stages as well as their entry point, and the
@@ -698,7 +706,8 @@ function resultKeysOf(slug) {
   // whatever it is given, and these modules declare more functions after the
   // entry — so on a calculator whose entry returns on one line, it ran past
   // the end of that function and matched the next multi-line `return {` in the
-  // file. `appliance-repair-quote-calculator` is the first such adopter: the
+  // file. `appliance-repair-quote-calculator` (since moved to the open-source
+  // calculator repo) was the first such adopter: the
   // keys came back as `compareServiceCallVsReplace`'s, so `target` read as a
   // field the calculator does not return, when it is the field it quotes.
   // Bounding the region is the same "looked at the wrong function" mistake the
@@ -1007,7 +1016,7 @@ export function disclaimerFor(trade) {
   return tail ? `${spine} ${tail}` : spine;
 }
 
-export { adopt, inspect, sync, restyle, detectFunctions, readerTakesNoArguments, priceExpressionFor, resultKeysOf };
+export { adopt, inspect, sync, restyle, detectFunctions, readerTakesNoArguments, priceExpressionFor, resultKeysOf, resultKeysFromSource };
 
 // ---------------------------------------------------------------------------
 // CLI

@@ -37,8 +37,8 @@ test("index links one hop to the music-lesson-break-even sibling", () => {
 test("index links one hop to the equipment-lease-buyout-calculator sibling", () => {
   assert.match(
     html,
-    /href="\.\.\/equipment-lease-buyout-calculator\/"/,
-    "index must link ../equipment-lease-buyout-calculator/ so crawlers reach the lease buyout calculator in one hop",
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/equipment-lease-buyout-calculator\/"/,
+    "index must link https://duncan-haywood.github.io/oss-monorepo/equipment-lease-buyout-calculator/ so crawlers reach the lease buyout calculator in one hop",
   );
   assert.match(html, /equipment lease buyout calculator/i);
 });

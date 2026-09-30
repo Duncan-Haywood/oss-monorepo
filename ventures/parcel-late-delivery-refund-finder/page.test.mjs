@@ -123,8 +123,8 @@ test("README, LICENSE and VENTURE.yaml exist and carry the disclaimer and the ve
 
 test("page links to sibling shipping tools, and the parcel calculator links back", () => {
   const html = page("index.html");
-  assert.match(html, /href="\.\.\/parcel-dim-weight-calculator\/"/);
+  assert.match(html, /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/parcel-dim-weight-calculator\/"/);
   assert.match(html, /href="\.\.\/freight-accessorial-auditor\/"/);
-  const theirs = readFileSync(new URL("../parcel-dim-weight-calculator/index.html", import.meta.url), "utf8");
-  assert.match(theirs, /href="\.\.\/parcel-late-delivery-refund-finder\/"/);
+  // The parcel-dim-weight-calculator counterpart (and its link back here) now lives in the separate
+  // oss-monorepo repo, so its page is no longer on disk to check.
 });

@@ -83,8 +83,8 @@ test('an invalid input hides stale results instead of leaving them next to a sil
 test('index links one hop to the commercial-photo-license-calculator sibling', () => {
   assert.match(
     html,
-    /href="\.\.\/commercial-photo-license-calculator\/"/,
-    'index must link ../commercial-photo-license-calculator/ so crawlers reach the commercial photo license calculator in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/commercial-photo-license-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/oss-monorepo/commercial-photo-license-calculator/ so crawlers reach the commercial photo license calculator in one hop',
   );
 });
 
@@ -102,8 +102,8 @@ test('index links one hop to the booth-rent-vs-commission sibling', () => {
 test('index links one hop to the photo-addon-pricing-calculator sibling', () => {
   assert.match(
     html,
-    /href="\.\.\/photo-addon-pricing-calculator\/"/,
-    'index must link ../photo-addon-pricing-calculator/ so crawlers reach the photo add-on pricing calculator in one hop',
+    /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/photo-addon-pricing-calculator\/"/,
+    'index must link https://duncan-haywood.github.io/oss-monorepo/photo-addon-pricing-calculator/ so crawlers reach the photo add-on pricing calculator in one hop',
   );
 });
 

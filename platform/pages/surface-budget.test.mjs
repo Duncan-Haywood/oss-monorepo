@@ -48,7 +48,7 @@ test('the angle decodes entities the same way the comparison index does', () => 
 test('a generic-method page is one clauses.mjs exempts, not one guessed from its filename', () => {
   // The exemption set is keyed slug/relative. A page not in it is a
   // named-product comparison however generic its filename reads.
-  assert.ok(isGenericComparison('overtime-pay-calculator', 'vs-spreadsheet.html'));
+  assert.ok(isGenericComparison('atm-route-margin', 'vs-a-spreadsheet.html'));
   assert.ok(!isGenericComparison('locksmith-bid-calculator', 'vs-jobber.html'));
   assert.ok(!isGenericComparison('made-up-venture', 'vs-spreadsheet.html'));
 });
@@ -115,11 +115,13 @@ test('the recorded override is what keeps the live collision out of the red', as
   // The honest version of the test above against the real tree: this venture
   // does carry two generic-method pages, and only its override row makes the
   // check exit 0. Fails if either the pages or the row quietly change.
-  const pages = (await surfacesByVenture()).get('overtime-pay-calculator');
-  assert.ok(pages, 'overtime-pay-calculator should still be a published venture');
+  // `atm-route-margin` since 2026-09-30, when `overtime-pay-calculator` (the
+  // case that prompted this check) moved to the open-source repo.
+  const pages = (await surfacesByVenture()).get('atm-route-margin');
+  assert.ok(pages, 'atm-route-margin should still be a published venture');
   assert.equal(pages.filter((p) => p.generic).length, 2);
-  assert.equal(budgetFor('overtime-pay-calculator'), 2);
-  assert.ok(GENERIC_BUDGET_OVERRIDES['overtime-pay-calculator']);
+  assert.equal(budgetFor('atm-route-margin'), 2);
+  assert.ok(GENERIC_BUDGET_OVERRIDES['atm-route-margin']);
 });
 
 test('guide pages are counted and printed but never budgeted', async () => {

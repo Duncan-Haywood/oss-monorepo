@@ -1,18 +1,19 @@
 // The failure this suite exists to prevent is silent, the same shape
-// ../where-to-sell-calculator/handoff.test.mjs guards against in the other
+// where-to-sell-calculator's handoff.test.mjs guards against in the other
 // direction: a field name or payload shape the receiving page does not
 // recognise is dropped without error, and the reader lands on a comparison
 // showing default numbers as if they were their own.
 //
-// So this decodes every URL through where-to-sell-calculator's own decoder,
-// imported from that venture, rather than asserting against a shape copied
-// by hand.
+// where-to-sell-calculator (and its `decodeComparison`) now lives in the
+// separate oss-monorepo repo, so it can no longer be imported here. This suite
+// decodes the `#c=` payload as the JSON this module writes and checks its
+// shape; the cross-repo decoder check lives with that page.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { whereToSellUrl, whereToSellPayload } from './to-where-to-sell.mjs';
-import { decodeComparison } from '../where-to-sell-calculator/share.mjs';
+const decodeComparison = (encoded) => JSON.parse(encoded);
 
 const INPUTS = {
   salePrice: '60',
@@ -33,10 +34,10 @@ function paramsOf(url) {
 
 test('links to where-to-sell-calculator with the item in the fragment', () => {
   const url = whereToSellUrl(INPUTS);
-  assert.match(url, /^\.\.\/where-to-sell-calculator\/#c=/);
+  assert.match(url, /^https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/where-to-sell-calculator\/#c=/);
 });
 
-test('decodes through the real target decoder with Whatnot switched on', () => {
+test('decodes to the target payload shape with Whatnot switched on', () => {
   const url = whereToSellUrl(INPUTS);
   const encoded = paramsOf(url).get('c');
   const decoded = decodeComparison(encoded);

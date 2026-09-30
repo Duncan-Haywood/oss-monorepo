@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { companyKey, declaredFields, declaredRowFields, detectFunctions, inspect, disclaimerFor, jsString, markup, priceExpressionFor, readerTakesNoArguments, resultKeysOf } from './adopt.mjs';
+import { companyKey, declaredFields, declaredRowFields, detectFunctions, inspect, disclaimerFor, jsString, markup, priceExpressionFor, readerTakesNoArguments, resultKeysFromSource, resultKeysOf } from './adopt.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const VENTURES = path.resolve(HERE, '../../ventures');
@@ -93,16 +93,35 @@ test('every trade names a price field the calculator actually returns', () => {
 });
 
 test('a one-line return is read from the entry function, not the next one', () => {
-  // `appliance-repair-quote-calculator` returns its result on a single line and
-  // declares `compareServiceCallVsReplace` — which returns over many lines —
-  // below it. The multi-line matcher is greedy, so before the region was
-  // bounded it ran past the entry and reported the *comparison's* keys: the
-  // price field `target` looked absent, and `proposed` detection would have
-  // been decided by the wrong function's shape.
-  const keys = resultKeysOf('appliance-repair-quote-calculator');
+  // `appliance-repair-quote-calculator` (since moved to the open-source
+  // calculator repo) returned its result on a single line and declared
+  // `compareServiceCallVsReplace` — which returns over many lines — below it.
+  // The multi-line matcher is greedy, so before the region was bounded it ran
+  // past the entry and reported the *comparison's* keys: the price field
+  // `target` looked absent, and `proposed` detection would have been decided
+  // by the wrong function's shape. The fixture reproduces that module's shape.
+  const source = [
+    "export function calculateQuote(input) {",
+    "  const target = input.hours * input.rate;",
+    "  const walkAway = target * 0.8;",
+    "  const laborHours = input.hours;",
+    "  return { target, walkAway, effectiveRate: target / Math.max(laborHours, 0.01), laborHours };",
+    "}",
+    "",
+    "export function compareServiceCallVsReplace(input) {",
+    "  const replacementPrice = input.unitPrice + input.install;",
+    "  return {",
+    "    replacementPrice,",
+    "    repairPrice: input.repair,",
+    "  };",
+    "}",
+    "",
+  ].join('\n');
+  const keys = resultKeysFromSource(source);
   assert.ok(keys.includes('target'), `entry function's own keys, got ${JSON.stringify(keys)}`);
   assert.ok(keys.includes('walkAway'), 'a shorthand key after a `key: value` one is still a key');
   assert.ok(keys.includes('effectiveRate'), 'a value carrying its own comma must not split the key list');
+  assert.ok(!keys.includes('0.01)'), 'a comma inside a call must not start a new key');
   assert.ok(!keys.includes('replacementPrice'), 'read past the entry function into the next declaration');
 });
 
@@ -222,18 +241,6 @@ test('a row field reads its source off the untouched row', () => {
     components: { unit: { from: 'name', map: { 'Hood filters (each)': 'filters' } } },
   });
   assert.match(generated, /"unit": \(\{[^}]*\}\)\[row\['name'\]\] \?\? row\['name'\]/);
-});
-
-test('every component a hood-cleaning bid can list has customer wording', async () => {
-  // The map turns the estimator's form labels ("Canopy hood (listed sq ft)",
-  // where the parenthetical tells the estimator what to type) into the words a
-  // customer reads. A preset added later without a mapping still prints, but it
-  // prints the form label — so this fails instead, at the point of adding it.
-  const { COMPONENT_PRESETS } = await import('../../ventures/hood-cleaning-bid-calculator/calc.mjs');
-  const map = trades['hood-cleaning-bid-calculator'].rowFields.components.name.map;
-  for (const preset of COMPONENT_PRESETS) {
-    assert.ok(map[preset.label], `no customer wording for component preset "${preset.label}"`);
-  }
 });
 
 // ---------------------------------------------------------------------------

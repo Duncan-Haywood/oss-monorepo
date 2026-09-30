@@ -127,7 +127,7 @@ test("README, LICENSE and VENTURE.yaml exist and carry the disclaimer and the ve
 });
 
 test("page links to the property tax appeal calculator, which links back", () => {
-  assert.match(page("index.html"), /href="\.\.\/property-tax-appeal-calculator\/"/);
-  const theirs = readFileSync(new URL("../property-tax-appeal-calculator/index.html", import.meta.url), "utf8");
-  assert.match(theirs, /href="\.\.\/mortgage-escrow-analysis-checker\/"/);
+  assert.match(page("index.html"), /href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/property-tax-appeal-calculator\/"/);
+  // The property-tax-appeal-calculator counterpart (and its link back here) now lives in the separate
+  // oss-monorepo repo, so its page is no longer on disk to check.
 });
