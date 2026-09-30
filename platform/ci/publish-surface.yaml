@@ -1646,3 +1646,6 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
+- workflow: tax-loss-harvesting-calculator-ci.yml
+  classification: none
+  publishes: []
