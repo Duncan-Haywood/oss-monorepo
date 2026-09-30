@@ -1106,8 +1106,9 @@ const RELATIVE_SELF = relative(
 // +1: `bid-win-rate-optimizer` graduated.
 // +1: `liquidation-pallet-bid-calculator` graduated.
 // +1: `ad-incrementality-test-analyzer` graduated.
+// +1: `seasonal-buy-quantity-optimizer` graduated.
 // +1: `appointment-overbooking-optimizer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 488;
+const SWITCHES_IN_THE_CATALOGUE = 489;
 
 let counter = 0;
 function fixture(source) {

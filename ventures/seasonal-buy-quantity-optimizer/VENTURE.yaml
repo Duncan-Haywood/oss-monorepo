@@ -1,0 +1,63 @@
+name: seasonal-buy-quantity-optimizer
+description: >-
+  Free browser tool for sellers who buy stock once per season: enter past
+  seasons (sold-out seasons treated as censored demand) or a low/likely/high
+  guess, plus price, unit cost or supplier price breaks, minimum order and
+  leftover value, and get the order that maximises expected profit (newsvendor
+  search over every quantity, price-break edges included), a cautious order
+  (worst-10% average), chance of sell-out and of a loss, sensitivity to being
+  wrong about demand, and a leave-one-season-out back-test against rules of
+  thumb. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "newsvendor seasonal buy quantity optimizer for small retailers": closest is
+# sales-seasonality-forecaster at 0.17 and shopify-inventory-reorder-planner at
+# 0.17 (continuous reorder points for replenishable stock). Nothing in the tree
+# answers the one-shot buy. Alternatives: a gut-feel order, "last year's
+# sales", or an enterprise inventory suite; the newsvendor model is taught in
+# operations courses and not offered as a free tool to small sellers.
+#
+# First visitor: searches "how many units should I order", "newsvendor
+# calculator", "how much inventory for holiday season", "minimum order
+# quantity price break worth it"; r/smallbusiness, r/Etsy, r/shopify,
+# r/AmazonSeller, r/printondemand, r/merch and event-merch threads. Volume not
+# measured with an external tool.
+#
+# Privacy is the liability boundary: numbers never leave the browser (tests
+# assert no network calls). No vendor is named.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be a multi-SKU budget allocator (one cash limit split
+# across several one-shot buys); not built.
+# Liability: statistical estimate of supplied data, not advice; refuses when
+# the data cannot support an answer and says when no order makes money.
+# Unverified: checked against closed-form newsvendor and simulated data only.
+
+hypotheses:
+  - claim: >-
+      Small sellers facing a one-shot seasonal or supplier-price-break buy will
+      use a private, no-signup optimizer that handles sold-out history and
+      shows downside risk, and will return each season.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the best order disagrees with the closed-form newsvendor quantile on a case without price breaks.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/seasonal-buy-quantity-optimizer/
+  analytics: null
