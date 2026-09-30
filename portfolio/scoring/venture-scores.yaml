@@ -21248,6 +21248,39 @@ ventures:
       rates never leave the browser. Ethics: helps an employee decide a choice
       they must make every purchase date; nothing is sold and no advisor
       referral is made.
+  - slug: job-offer-total-comp-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. People compare
+      offers on base salary and miss equity, sign-on, match and hours; the tool
+      haircuts equity, spreads sign-on and returns a counteroffer base.
+      Distribution 7: "how to compare job offers" and "startup vs big tech
+      offer" are recurring queries on r/cscareerquestions, Blind and
+      levels.fyi; volume not measured with an external tool. Defensibility 3:
+      the arithmetic is simple; the edge is a private, no-signup answer.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimates not advice, no warranty, independence
+      from employers stated, omissions stated on the page, and equity is
+      flagged as possibly worth far less than stated. Offer details never leave
+      the browser. Ethics: helps a person weigh an offer and negotiate; nothing
+      is sold and no recruiter referral is made.
   - slug: print-on-demand-profit-calculator
     scores:
       ai_leverage: 1
