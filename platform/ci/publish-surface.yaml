@@ -1628,6 +1628,9 @@ workflows:
 - workflow: turo-earnings-report-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: trial-conversion-timing-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: turo-host-payout-calculator-ci.yml
   classification: none
   publishes: []
