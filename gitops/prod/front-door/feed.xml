@@ -242,13 +242,13 @@
     <summary type="text">Free physician wRVU contract calculator. Enter two job offers, base salary, incentive threshold and dollars per wRVU, to see what each pays at your expected volume, where they cross, and your effective rate per wRVU. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
-    <title>Price Elasticity Estimator — how much do your units fall when you raise price</title>
+    <title>Price Elasticity Estimator — find the price that earns the most from your sales</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/price-elasticity-estimator/"/>
     <id>tag:marisstella.dev,2026:tool/price-elasticity-estimator</id>
     <published>2026-09-30T00:00:00Z</published>
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free price elasticity estimator for sellers. Paste your own price and units history to get a log-log elasticity with a confidence interval, controls for trend, promos and seasons, a warning when price varied too little, the profit-maximising price range and a back-test. Runs in your browser; nothing is uploaded.</summary>
+    <summary type="text">Free price elasticity calculator for sellers. Paste your sales history (date, price, units) to estimate how demand reacts to price, get a confidence interval, the profit-maximising price within what you have tested, and a back-test that says whether to trust it. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>PSLF vs Refinance Calculator — Should You Refinance Federal Loans?</title>

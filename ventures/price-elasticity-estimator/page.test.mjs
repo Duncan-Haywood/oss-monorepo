@@ -11,7 +11,11 @@ test("index page carries the disclaimer, privacy line, and sponsor link", () => 
   assert.match(html, /Everything runs in your browser/);
   assert.match(html, /never uploaded/);
   assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+<<<<<<< HEAD
   assert.match(html, /Not affiliated with any marketplace, e-commerce platform or repricing vendor/);
+=======
+  assert.match(html, /Not affiliated with any accounting, point-of-sale or e-commerce vendor/);
+>>>>>>> origin/main
 });
 
 test("JSON-LD blocks parse and describe a free application and a FAQ", () => {
@@ -77,11 +81,17 @@ test("page documents the rules and what it leaves out", () => {
   assert.match(html, /Not modelled/);
   assert.match(html, /Unverified/);
   assert.match(html, /log-log/);
+<<<<<<< HEAD
   assert.match(html, /confidence interval/);
   assert.match(html, /Profit-maximising price/);
   assert.match(html, /Back-test/);
   assert.match(html, /do not trust/i);
   assert.match(html, /too little|varied too little|barely/i);
+=======
+  assert.match(html, /elasticity/);
+  assert.match(html, /elasticity/);
+  assert.match(html, /unidentified/);
+>>>>>>> origin/main
 });
 
 test("usage events named on the page are the ones the code records", () => {

@@ -48569,6 +48569,32 @@ entries:
     outcomes:
       - >-
         Graduated and built price-elasticity-estimator: a browser-local price
+        elasticity estimator for sellers. Paste or upload date,price,units
+        rows; fits ln(units) on ln(price) with optional trend and annual
+        controls (OLS, HC1 robust errors, Student-t 95% interval), a seeded
+        400-resample pairs bootstrap for the 80% interval of the elasticity,
+        the best price and the profit gain, a profit-maximising price searched
+        only inside the prices actually charged (edge-of-range warning, textbook
+        cost*e/(e-1) shown as reference), a price-change table, and a 75/25
+        hold-out back-test against the same model without price. Refuses flat
+        or near-flat price histories and flags a positive slope as
+        unidentified. New niche: duplicate_check.py best match
+        gabor-granger-price-analyzer at 0.26 (survey WTP, not sales history).
+        First visitor expected from "price elasticity calculator" and "should I
+        raise my prices" searches and r/FulfillmentByAmazon, r/Etsy and
+        r/shopify price-test threads. Sales files never leave the browser.
+        Unverified against a published dataset: tests use simulated series
+        with known elasticities (exact recovery noise-free, interval coverage
+        with noise) and no-network assertions. Registered score row, launch
+        date, category rule, CI workflow and tree counts; inbound link from
+        gabor-granger-price-analyzer; regenerated the mirror.
+    mrr_end: 0
+  - venture: price-elasticity-estimator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built price-elasticity-estimator: a browser-local price
         elasticity estimator for sellers. Paste or upload date, price, units
         (optional unit cost and promo flag; header names and column order
         flexible, refunds and zero rows skipped with a note); log-log OLS with a
