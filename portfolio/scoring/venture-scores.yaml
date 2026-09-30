@@ -22200,6 +22200,39 @@ ventures:
       omissions stated. Loan data never leaves the browser. Ethics: helps a
       borrower check a large decision; nothing is sold and no lender referral
       is made.
+  - slug: startup-option-value-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. People weighing
+      a startup offer cannot value the options; the tool shows value after
+      dilution, preferences, vesting, exercise cost and tax, and the break-even
+      exit. Distribution 6: "startup stock option calculator" and offer-eval
+      threads are recurring queries; volume not measured with an external tool.
+      Defensibility 3: arithmetic is simple; the edge is a private, no-signup
+      answer that includes preferences and exit odds.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimates not advice, no warranty, independence
+      from startups, investors and equity platforms stated, no valuation or
+      odds asserted, omissions stated. Offers never leave the browser. Ethics:
+      helps a candidate see what an equity offer is worth; nothing is sold and
+      no referral is made.
   - slug: dependent-care-fsa-vs-credit-calculator
     scores:
       ai_leverage: 1
