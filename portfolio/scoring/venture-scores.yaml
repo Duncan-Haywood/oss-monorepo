@@ -21460,3 +21460,32 @@ ventures:
       independence from carriers stated; the file never leaves the browser.
       Ethics: helps a shipper recover money the carrier already owes under its
       own published terms; no carrier is disparaged.
+  - slug: llm-usage-log-analyzer
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product; it is deterministic arithmetic over the log the
+      developer pastes. The market it serves is AI spend, not AI capability.
+    basis: >-
+      Diagnoses an existing LLM bill from the per-request log, where paid
+      observability tools need traffic routed through their proxy. Distribution 6:
+      recurring "my API bill doubled" threads and cache-hit-rate search queries;
+      volume not measured with an external tool. Defensibility 3: the arithmetic
+      is public; the edge is paste-and-go with nothing uploaded.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: no vendor price asserted, savings labelled upper bounds, the
+      provider invoice stays the record, the log never leaves the browser.
+      Ethics: exists only to help the user pay less; no affiliate link or vendor
+      favoured.
