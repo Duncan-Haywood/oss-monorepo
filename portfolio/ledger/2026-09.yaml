@@ -48834,3 +48834,31 @@ entries:
         against brute force, and assert no network calls. Registered score row, launch
         date, category rule, CI workflow and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: service-van-stock-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built service-van-stock-optimizer: a browser-local truck
+        stock planner for HVAC, plumbing, electrical and appliance shops. Paste a
+        parts catalog (cost, shelf slots) and what past jobs used; it finds the
+        stock list that finishes the most jobs on the first visit within a budget
+        and slot limit, treating a job as needing every part (set cover, not a
+        frequency ranking). Exact for up to 20 part units (subset-sum transform
+        over every list), greedy plus pair-add and swap search beyond. Prices the
+        return trips prevented and the carrying cost, scores what the van
+        carries now and names dead stock, draws the cost-versus-coverage curve,
+        refits on the oldest 70% of history and scores the newest 30% against a
+        most-used-parts baseline, gives a seeded resampled range, re-solves at
+        half and double return-trip cost, and exports CSV. On the invented sample
+        (90 jobs, $350, 24 slots) it completes 83% of jobs first visit versus 30%
+        for the sample's current van. New niche: duplicate_check.py best match
+        shopify-inventory-reorder-planner at 0.19 (store SKUs, not a vehicle).
+        First visitor expected from "what parts should an HVAC van carry" and
+        "first time fix rate" searches and trade owner groups. Job data never
+        leaves the browser. Unverified against a real shop's history: tests
+        compare the exact solver with brute force on 40 random problems, check
+        budget and slot limits, and assert no network calls. Registered score
+        row, launch date, category rule, CI workflow and tree counts; inbound link
+        from crew-dispatch-optimizer; regenerated the mirror.
+    mrr_end: 0
