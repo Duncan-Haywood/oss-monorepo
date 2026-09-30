@@ -21449,6 +21449,38 @@ ventures:
       so no lender rule is asserted, omissions stated on the page. Deal numbers
       never leave the browser. Ethics: helps an investor check a large purchase
       against a ratio; nothing is sold and no lender referral is made.
+  - slug: self-employed-health-insurance-deduction-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Self-employed
+      filers pay thousands in premiums and the Form 7206 profit ceiling and
+      employer-plan months are what worksheets hide. Distribution 7: "self
+      employed health insurance deduction calculator" and "Form 7206" are
+      recurring filing-season queries; volume not measured with an external
+      tool. Defensibility 3: the arithmetic is public; the edge is a private,
+      no-signup answer with the profit-needed figure.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimates not advice, no warranty, independence
+      from the IRS, insurers and tax software stated, omissions stated on the
+      page. Numbers never leave the browser. Ethics: helps a filer understand a
+      deduction; nothing is sold and no insurer referral is made.
   - slug: print-on-demand-profit-calculator
     scores:
       ai_leverage: 1
@@ -21927,6 +21959,74 @@ ventures:
       the page. Bills and quotes never leave the browser. Ethics: helps a
       homeowner check a large purchase; nothing is sold and no contractor
       referral is made.
+  - slug: brrrr-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. BRRRR investors
+      decide whether a deal recycles their capital on cash left in the deal;
+      the tool solves for the highest purchase price that leaves none and
+      stresses the appraisal and rehab overruns. Distribution 7: "BRRRR
+      calculator" is a recurring query and the method is a steady topic on
+      r/BRRRR, r/realestateinvesting and BiggerPockets; volume not measured
+      with an external tool. Defensibility 3: the arithmetic is simple; the
+      edge is a private, no-signup answer with the max-price solve and stress
+      tables.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimates not advice, no warranty, independence
+      from lenders and brokers stated, refinance limits are user-entered numbers
+      so no lender rule is asserted, omissions stated on the page. Deal numbers
+      never leave the browser. Ethics: helps an investor check a large purchase
+      against its own cash math; nothing is sold and no lender referral is made.
+  - slug: physician-wrvu-contract-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Physicians
+      compare base-plus-wRVU offers from a headline conversion factor; the tool
+      shows the effective rate per wRVU, the threshold gap and the crossover
+      against another offer. Distribution 6: "wRVU compensation calculator" and
+      contract-review threads are recurring queries; volume not measured with
+      an external tool. Defensibility 3: the arithmetic is simple; the edge is a
+      private, no-signup answer with no benchmark claims.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimates not advice, no warranty, independence
+      from employers, recruiters and survey publishers stated, no market rate or
+      benchmark asserted, contract attorney recommended, omissions stated.
+      Offers never leave the browser. Ethics: helps a physician check a large
+      contract; nothing is sold and no referral is made.
   - slug: physician-wrvu-compensation-calculator
     scores:
       ai_leverage: 1

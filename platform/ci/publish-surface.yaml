@@ -245,6 +245,9 @@ workflows:
 - workflow: browser-checks-ci.yml
   classification: none
   publishes: []
+- workflow: brrrr-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: caa-record-check-ci.yml
   classification: none
   publishes: []
@@ -1049,6 +1052,9 @@ workflows:
 - workflow: physician-wrvu-compensation-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: physician-wrvu-contract-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: pinned-actions-check-ci.yml
   classification: none
   publishes: []
@@ -1275,6 +1281,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: security-txt-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: self-employed-health-insurance-deduction-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: self-employed-schedule-c-categorizer-ci.yml

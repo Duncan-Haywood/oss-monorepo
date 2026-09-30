@@ -1,0 +1,59 @@
+name: physician-wrvu-contract-calculator
+description: >-
+  Free browser tool for physicians weighing job offers: compares two contracts
+  (base plus a per-wRVU incentive above a threshold, or flat salary) at the
+  visitor's expected wRVU volume, and reports yearly value, effective cash pay
+  per wRVU, the crossover volume, and each offer's pay if volume runs low or
+  high. No benchmark data is embedded. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py: top
+# match 0.16 (s-corp-reasonable-compensation-calculator, unrelated). No
+# physician or clinician compensation venture exists apart from
+# travel-nurse-contract-comparison-calculator (locum/travel pay, hourly).
+# Buyers have money and a real decision: an employed physician offer is a
+# six-figure yearly choice, usually read from a recruiter's "$X per wRVU".
+# The tool's edge is the threshold gap and the effective rate per wRVU, which
+# a headline conversion factor hides.
+#
+# First visitor: r/medicine, r/residency and r/physicianassistant style
+# contract-review threads, physician finance blogs and forums, searches
+# "wRVU compensation calculator" and "wRVU threshold contract"; volume not
+# measured with an external tool.
+#
+# Privacy is the liability boundary: offers never leave the browser (tests assert
+# no network calls). No employer, recruiter or survey publisher is named and no
+# market rate is asserted: the visitor supplies every number.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: illustrative estimates, not advice; omissions stated on the page;
+# points the reader to a healthcare contract attorney.
+# Unverified: hand calculation and unit tests only.
+
+hypotheses:
+  - claim: >-
+      Physicians holding a base-plus-wRVU offer will use a no-signup tool that
+      shows the effective dollars per wRVU and the crossover against another
+      offer, not just the headline conversion factor.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the result contradicts their own arithmetic on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/physician-wrvu-contract-calculator/
+  analytics: null
