@@ -37,27 +37,27 @@
 #   portfolio-front-tools-1: 92 files, 554987 bytes
 #   portfolio-front-tools-2: 144 files, 552748 bytes
 #   portfolio-front-tools-3: 131 files, 554577 bytes
-#   portfolio-front-tools-4: 142 files, 556765 bytes
-#   portfolio-front-tools-5: 121 files, 552385 bytes
-#   portfolio-front-tools-6: 129 files, 554237 bytes
-#   portfolio-front-tools-7: 131 files, 551128 bytes
-#   portfolio-front-tools-8: 127 files, 556263 bytes
-#   portfolio-front-tools-9: 125 files, 544538 bytes
-#   portfolio-front-tools-10: 138 files, 545128 bytes
+#   portfolio-front-tools-4: 142 files, 556752 bytes
+#   portfolio-front-tools-5: 121 files, 552387 bytes
+#   portfolio-front-tools-6: 129 files, 554200 bytes
+#   portfolio-front-tools-7: 131 files, 551169 bytes
+#   portfolio-front-tools-8: 127 files, 556208 bytes
+#   portfolio-front-tools-9: 125 files, 544473 bytes
+#   portfolio-front-tools-10: 138 files, 545125 bytes
 #   portfolio-front-tools-11: 117 files, 547859 bytes
-#   portfolio-front-tools-12: 119 files, 553374 bytes
-#   portfolio-front-tools-13: 116 files, 550139 bytes
-#   portfolio-front-tools-14: 118 files, 553823 bytes
-#   portfolio-front-tools-15: 121 files, 555430 bytes
-#   portfolio-front-tools-16: 129 files, 553826 bytes
-#   portfolio-front-tools-17: 126 files, 556590 bytes
-#   portfolio-front-tools-18: 129 files, 552356 bytes
-#   portfolio-front-tools-19: 116 files, 553659 bytes
-#   portfolio-front-tools-20: 103 files, 555044 bytes
-#   portfolio-front-tools-21: 123 files, 555789 bytes
-#   portfolio-front-tools-22: 120 files, 554736 bytes
-#   portfolio-front-tools-23: 118 files, 545325 bytes
-#   portfolio-front-tools-24: 63 files, 339431 bytes
+#   portfolio-front-tools-12: 119 files, 553329 bytes
+#   portfolio-front-tools-13: 116 files, 550141 bytes
+#   portfolio-front-tools-14: 118 files, 553721 bytes
+#   portfolio-front-tools-15: 121 files, 555428 bytes
+#   portfolio-front-tools-16: 129 files, 553856 bytes
+#   portfolio-front-tools-17: 126 files, 556562 bytes
+#   portfolio-front-tools-18: 129 files, 552282 bytes
+#   portfolio-front-tools-19: 116 files, 553738 bytes
+#   portfolio-front-tools-20: 103 files, 555048 bytes
+#   portfolio-front-tools-21: 123 files, 555811 bytes
+#   portfolio-front-tools-22: 120 files, 554824 bytes
+#   portfolio-front-tools-23: 118 files, 545331 bytes
+#   portfolio-front-tools-24: 63 files, 339368 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
