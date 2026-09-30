@@ -1,0 +1,52 @@
+name: online-business-valuation-calculator
+description: >-
+  Free browser tool for owners selling a small SaaS, e-commerce, content or
+  agency business: enter revenue and SDE, get a sale price range from SDE and
+  ARR multiples adjusted for growth, churn, concentration, owner hours and age,
+  net proceeds after fees, buyer payback, and the fixes worth most before
+  listing. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "micro-SaaS and small online business valuation calculator": top match 0.16,
+# unrelated. The screened-out "Micro-SaaS acquisition" row is about buying and
+# operating businesses (low-capital constraint); this is a read-only estimate
+# for sellers and buyers and holds no capital or seller data.
+#
+# First visitor: searches "how much is my saas worth", "sde multiple
+# calculator", "ecommerce business valuation"; Indie Hackers, r/SaaS,
+# r/Entrepreneur, r/ecommerce threads on exit pricing. Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only;
+# sellers are a high-value audience for a later broker-referral or paid
+# report, both out of scope now.
+# Liability: rule-of-thumb estimate, not an appraisal; the page says so and
+# lists what is not modelled. Unverified: multiples are unaudited heuristics.
+
+hypotheses:
+  - claim: >-
+      Owners preparing to sell a small online business will use a no-signup
+      valuation range that shows which fixes add the most price, and will
+      return after changing the business.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a multiple or range that contradicts widely published rules of thumb for the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/online-business-valuation-calculator/
+  analytics: null

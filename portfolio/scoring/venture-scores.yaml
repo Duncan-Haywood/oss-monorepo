@@ -574,6 +574,39 @@ ventures:
       product must hold to, in the same shape as the pipeline's
       no-claim-of-compliance rule.
 
+  - slug: online-business-valuation-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is a deterministic
+      multiple applied to numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Owners selling
+      a small SaaS, e-commerce, content or agency business get a price range,
+      net after fees and the fixes worth most before listing. Distribution 6:
+      "how much is my saas worth" and "sde multiple calculator" are recurring
+      queries (volume not measured with an external tool). Defensibility 3:
+      multiples are public rules of thumb; the edge is the ranked levers and
+      no signup or upload.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: rule-of-thumb estimate, not an appraisal, no warranty,
+      independence from marketplaces and brokers stated, scope limits and
+      unaudited multiples stated. Numbers never leave the browser. Ethics:
+      helps an owner price honestly and see buyer-side payback; nothing is
+      sold and no referral is made.
   - slug: photo-editing
     scores:
       ai_leverage: 7
