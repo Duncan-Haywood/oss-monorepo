@@ -1063,8 +1063,10 @@ const RELATIVE_SELF = relative(
 // +1: `rmd-calculator` graduated.
 // +1: `rsu-withholding-gap-calculator` graduated.
 // +1: `travel-nurse-contract-comparison-calculator` graduated.
+// +1: `iso-exercise-amt-calculator` graduated.
+// +1: `espp-tax-calculator` graduated.
 // +1: `llm-usage-log-analyzer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 441;
+const SWITCHES_IN_THE_CATALOGUE = 443;
 
 let counter = 0;
 function fixture(source) {
