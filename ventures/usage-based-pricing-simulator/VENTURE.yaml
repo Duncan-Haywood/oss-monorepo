@@ -1,0 +1,55 @@
+name: usage-based-pricing-simulator
+description: >-
+  Free browser tool for SaaS, API and infrastructure founders setting metered
+  prices: describe up to three plans (platform fee, included units, overage
+  price, volume tier) and your customers' usage, and see revenue, margin,
+  bill shock, customers below cost, revenue if customers pick their cheapest
+  plan, and revenue as usage grows. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "usage-based pricing tier simulator metered billing": top match 0.18,
+# unrelated. Existing pricing ventures cover survey methods (Van Westendorp,
+# Gabor-Granger), annual-plan discounts and CAC payback; none models a
+# metered plan against a skewed customer usage distribution.
+# Users have money and a real decision: usage-based and hybrid pricing is now
+# the default for API, AI and infrastructure products, and the difference
+# between a flat fee, pay-as-you-go and a volume tier is often tens of
+# percent of revenue, plus a wave of bill-shock churn from heavy users.
+#
+# First visitor: founders and product managers searching "usage based pricing
+# calculator", "metered billing pricing model", "how to price an API",
+# "overage pricing"; volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: arithmetic on plans and usage the visitor enters, not advice or a
+# revenue forecast; the page says what it leaves out. Unverified: hand
+# calculation and unit tests only. Figures never leave the browser.
+
+hypotheses:
+  - claim: >-
+      Founders setting or revising metered pricing will use a no-signup tool
+      that simulates plans against a usage distribution, and will return
+      each time they change a price.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a bill or revenue figure contradicts their own hand calculation on the same plan terms.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/usage-based-pricing-simulator/
+  analytics: null
