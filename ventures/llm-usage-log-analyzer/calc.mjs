@@ -323,7 +323,11 @@ export function modelSwitchSavings(records, rates, fromModel, toModel, share) {
 }
 
 export function reportText(analysis) {
-  const usd = (n) => `$${n.toFixed(2)}`;
+  const usd = (n) => {
+    const format = (n) => `$${n.toFixed(2)}`;
+    const text = format(Math.abs(n));
+    return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const lines = [`LLM usage: ${analysis.requests.toLocaleString()} requests, ${usd(analysis.totalCost)} at the rates entered.`];
   if (analysis.forecast) {
     lines.push(`Run rate: ${usd(analysis.forecast.dailyAvg)}/day over ${analysis.forecast.spanDays} days, about ${usd(analysis.forecast.projected30Days)} per 30 days.`);
