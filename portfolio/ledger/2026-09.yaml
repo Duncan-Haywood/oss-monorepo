@@ -48610,6 +48610,30 @@ entries:
         date, category rule, CI workflow and tree counts; inbound link from
         gabor-granger-price-analyzer; regenerated the mirror.
     mrr_end: 0
+  - venture: ad-incrementality-test-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built ad-incrementality-test-analyzer: a browser-local
+        geo/store holdout analyzer for advertisers. Paste wide or long sales
+        by region, name the test regions and start date; builds a
+        non-negative weighted counterfactual from the comparison regions
+        (coordinate-descent NNLS), reports lift, a 90% interval and p-value from
+        rolling-origin placebo windows, the minimum detectable lift, a
+        difference-in-differences second opinion, iROAS, profit after spend and
+        cost per incremental order. Flags unreliable pre-fit, single-region
+        dependence and too few placebo windows; refuses short history. New
+        niche: duplicate_check.py best match customer-lifetime-value-predictor
+        at 0.25. First visitor expected from "geo holdout test calculator" and
+        "incremental ROAS" searches and r/PPC and r/ecommerce threads. Sales
+        files never leave the browser. Unverified against a published
+        experiment: tests use simulated panels with known lifts (+10% found,
+        zero effect not called, drop called negative) and no-network
+        assertions. Registered score row, launch date, category rule, CI
+        workflow and tree counts; inbound link from
+        ab-test-significance-calculator; regenerated the mirror.
+    mrr_end: 0
   - venture: appointment-overbooking-optimizer
     agent_spend_usd: null
     human_hours: 0
