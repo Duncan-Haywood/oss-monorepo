@@ -63,6 +63,12 @@ Deliberate removals still pass, two ways:
 *   `ventures/<slug>/RETIRED.md` in the head. Retiring a shipped product is
     rare and should leave a reviewable artifact saying why -- a file in the
     diff does that where a flag in a CI invocation does not.
+*   A listing in `portfolio/moved-ventures.json` in the head. That is for a
+    batch leaving this repository for another one -- on 2026-09-30, 259
+    calculators moved to the MIT-licensed oss-monorepo -- where 259
+    `RETIRED.md` stubs would leave 259 empty venture directories behind.
+    The registry names the destination and the reason once, in the diff.
+
 *   An exact rename. If the removed `VENTURE.yaml` blob is byte-identical to
     one that appears under a new slug, that is a directory move and not a
     withdrawal, so it passes and is reported as a rename.
@@ -95,6 +101,7 @@ VENTURES_DIR = "ventures"
 VENTURE_MANIFEST = "VENTURE.yaml"
 LAUNCHED_JSON = "platform/pages/launched.json"
 RETIRED_MARKER = "RETIRED.md"
+MOVED_REGISTRY = "portfolio/moved-ventures.json"
 
 EXIT_OK = 0
 EXIT_REGRESSION = 1
@@ -237,6 +244,25 @@ def retired_at_head(slug: str, head: str | None) -> bool:
     return _read_at_ref(head, marker) is not None
 
 
+def moved_at_head(head: str | None) -> set[str]:
+    """Slugs the head lists as moved to another repository."""
+    if head is None:
+        path = REPO_ROOT / MOVED_REGISTRY
+        raw = path.read_text() if path.exists() else None
+    else:
+        raw = _read_at_ref(head, MOVED_REGISTRY)
+    if raw is None:
+        return set()
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise Unrun(f"{MOVED_REGISTRY} is not valid JSON: {exc}") from exc
+    moved: set[str] = set()
+    for batch in data.get("batches", []):
+        moved.update(batch.get("slugs", []))
+    return moved
+
+
 def find_regressions(base: str, head: str | None, allowed: set[str]) -> tuple[list[dict], list[dict]]:
     """Return (regressions, renames).
 
@@ -261,6 +287,8 @@ def find_regressions(base: str, head: str | None, allowed: set[str]) -> tuple[li
         if slug not in base_ventures
     }
 
+    moved = moved_at_head(head)
+
     regressions: list[dict] = []
     renames: list[dict] = []
 
@@ -277,6 +305,8 @@ def find_regressions(base: str, head: str | None, allowed: set[str]) -> tuple[li
         if slug in allowed:
             continue
         if retired_at_head(slug, head):
+            continue
+        if slug in moved:
             continue
 
         lost = []
@@ -335,6 +365,7 @@ def report(
         "  and re-check. That is the shape PR #3740 had -- see this file's docstring.\n"
         "\n  If it IS deliberate, say so in the diff:\n"
         f"    ventures/<slug>/{RETIRED_MARKER}   (preferred -- reviewable, and explains why)\n"
+        f"    {MOVED_REGISTRY}   (a batch moved to another repository)\n"
         "    --allow <slug>                    (for a rename that also edits VENTURE.yaml)"
     )
 

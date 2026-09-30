@@ -141,6 +141,21 @@ class VentureRegressionTest(unittest.TestCase):
         self.commit("retire beta on purpose")
         self.assertEqual(self.run_check(), cvr.EXIT_OK)
 
+    def test_moved_registry_permits_removal(self) -> None:
+        """A batch moved to another repository is listed once, in the diff."""
+        self.base_with(["alpha", "beta", "gamma"])
+        self.remove_venture("beta")
+        self.remove_venture("gamma")
+        (self.repo / "portfolio").mkdir(parents=True, exist_ok=True)
+        (self.repo / "portfolio" / "moved-ventures.json").write_text(
+            json.dumps({"batches": [{"to": "elsewhere", "slugs": ["beta"]}]}) + "\n"
+        )
+        self.write_launched(["alpha"])
+        self.commit("move beta out; gamma goes unlisted")
+        # beta is covered by the registry; gamma is not, so it still fails
+        self.assertEqual(self.run_check(), cvr.EXIT_REGRESSION)
+        self.assertEqual(self.run_check("--allow", "gamma"), cvr.EXIT_OK)
+
     def test_allow_flag_permits_removal(self) -> None:
         self.base_with(["alpha", "beta"])
         self.remove_venture("beta")
