@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 494 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 495 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -105,6 +105,15 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free home sale tax calculator. Enter your sale price, purchase price and improvements to see how much gain the $250,000 or $500,000 exclusion covers, the tax on the rest, and what waiting to reach two years would save. Runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Insurance Agency Book Valuation Calculator — Sell or Keep Your Book of Business</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/insurance-agency-book-valuation-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/insurance-agency-book-valuation-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free insurance agency book of business valuation calculator. Enter revenue, retention, servicing cost and the return you need, and see what the book is worth, compare a purchase offer with upfront and holdback, and find the break-even price. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Job Offer Total Compensation Calculator — Compare Offers With Equity and Hours</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free calculator for the backdoor Roth pro-rata rule: how much of your Roth conversion is taxable given your after-tax basis and your December 31 traditional, SEP and SIMPLE IRA balance, plus the tax you could avoid by rolling pre-tax money into a 401(k). Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Bandcamp Sales Report Analyzer — Fees, Net per Item and Profit</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bandcamp-sales-report-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/bandcamp-sales-report-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free analyzer for Bandcamp artists and labels: drop in your sales report CSV and see fees paid, net per item, small-sale fee drag, vinyl and merch profit after your costs, best releases and repeat buyers. Runs in your browser, the file is never uploaded.</summary>
   </entry>
 </feed>

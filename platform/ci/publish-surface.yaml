@@ -785,6 +785,9 @@ workflows:
 - workflow: interior-door-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: insurance-agency-book-valuation-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: invoice-aging-late-payer-analyzer-ci.yml
   classification: none
   publishes: []

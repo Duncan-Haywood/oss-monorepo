@@ -1093,7 +1093,8 @@ const RELATIVE_SELF = relative(
 // +1: `rule-72t-sepp-calculator` graduated.
 // +1: `locum-tenens-vs-employed-calculator` graduated.
 // +1: `startup-exit-waterfall-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 473;
+// +1: `insurance-agency-book-valuation-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 474;
 
 let counter = 0;
 function fixture(source) {
