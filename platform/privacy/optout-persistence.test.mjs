@@ -1103,7 +1103,8 @@ const RELATIVE_SELF = relative(
 // +1: `sales-seasonality-forecaster` graduated.
 // +1: `clearance-markdown-planner` graduated.
 // +1: `price-elasticity-estimator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 484;
+// +1: `seasonal-buy-quantity-optimizer` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 485;
 
 let counter = 0;
 function fixture(source) {
