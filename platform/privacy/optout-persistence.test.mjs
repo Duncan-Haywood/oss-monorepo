@@ -1071,7 +1071,8 @@ const RELATIVE_SELF = relative(
 // +1: `agent-brokerage-split-calculator` graduated.
 // +1: `home-sale-exclusion-calculator` graduated.
 // +1: `tax-loss-harvesting-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 448;
+// +1: `rd-tax-credit-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 449;
 
 let counter = 0;
 function fixture(source) {

@@ -1145,6 +1145,9 @@ workflows:
 - workflow: radon-mitigation-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: rd-tax-credit-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: real-estate-agent-photo-app-ci.yml
   classification: none
   publishes: []

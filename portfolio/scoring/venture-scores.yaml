@@ -21725,3 +21725,37 @@ ventures:
       no warranty, 2026 limits stated as assumptions, actuary needed. Inputs
       never leave the browser. Ethics: helps an owner weigh a plan before a
       sales call; nothing is sold and no advisor or TPA referral is made.
+  - slug: rd-tax-credit-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Startups and
+      small software companies leave the federal R&D credit unclaimed or pay a
+      study firm a share of it; the tool sizes the credit and the payroll-tax
+      offset privately before that conversation. Distribution 7: "r&d tax
+      credit calculator" and "r&d credit payroll offset startup" are recurring
+      founder queries; volume not measured with an external tool. Defensibility
+      3: the arithmetic is public; the edge is a private, no-signup estimate
+      built around pasted payroll.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimate, cannot judge whether work qualifies, not
+      tax advice, no warranty, assumptions stated not verified. Wages and time
+      shares never leave the browser. Ethics: helps a founder weigh a credit the
+      law provides before a sales call; nothing is sold and no study firm or
+      preparer referral is made.

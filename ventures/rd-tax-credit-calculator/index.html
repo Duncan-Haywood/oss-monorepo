@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>R&amp;D Tax Credit Calculator — Startup Estimate with Payroll Offset, Free</title>
+  <meta name="description" content="Free R&amp;D tax credit calculator for startups and small companies. Paste staff wages and time on research, compare the regular and simplified credit, see the Section 280C cost and the payroll-tax offset. Illustrative; nothing uploaded.">
+  <meta property="og:title" content="R&amp;D Tax Credit Calculator — free, private">
+  <meta property="og:description" content="Estimate the federal research credit from staff wages and time shares, and see how much of it could offset payroll tax. Runs in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "R&D Tax Credit Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Estimates the federal research credit (Section 41) for a small company from pasted staff wages and time shares, supplies and contractor costs, compares the regular and simplified methods, applies the Section 280C cost, and shows the payroll-tax offset for qualified small businesses. Illustrative only; runs in your browser.", "featureList": "regular vs simplified credit comparison, staff wage paste, payroll-tax offset for startups, Section 280C cost, marginal credit per $10,000"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much is the federal R&D tax credit worth to a startup?", "acceptedAnswer": {"@type": "Answer", "text": "Roughly 6% to 14% of qualified research spending under the simplified method, or at most 10% under the regular method, before the Section 280C adjustment. A startup with no history in the prior three years gets 6% of qualified spending. For a team of three engineers spending most of their time on qualified work that is often in the tens of thousands of dollars a year."}}, {"@type": "Question", "name": "Can a startup with no income tax use the R&D credit?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, if it is a qualified small business: under $5 million of gross receipts this year and first gross receipts within the last five years. It can elect to apply up to $250,000 against employer Social Security tax and up to $250,000 more against employer Medicare tax, so a company that pays no income tax still gets cash value through lower payroll tax. The election is made on the return and applies to payroll tax after it is filed."}}, {"@type": "Question", "name": "What counts as a qualified research expense?", "acceptedAnswer": {"@type": "Answer", "text": "Wages for employees doing, supervising or directly supporting qualified research (only the share of time spent on it), supplies used in that research, and 65% of amounts paid to US contractors for it. Overhead, rent and general administration do not count. Whether an activity qualifies turns on the four-part test and on documentation, which a tax professional has to judge."}}, {"@type": "Question", "name": "Does software development qualify for the R&D credit?", "acceptedAnswer": {"@type": "Answer", "text": "Often, yes, when the work aims to resolve technical uncertainty through experimentation grounded in computer science or engineering. Software sold or licensed to customers is treated as ordinary product development. Software built mainly for your own internal use must also pass a high-threshold-of-innovation test, so it is examined more closely."}}, {"@type": "Question", "name": "What is the difference between the regular and simplified credit?", "acceptedAnswer": {"@type": "Answer", "text": "The regular credit is 20% of qualified spending above a base tied to average gross receipts (never less than half of the current spending). The simplified credit is 14% of qualified spending above half of the prior three-year average, or 6% of current spending when any of those three years had none. This tool computes both and shows the larger."}}, {"@type": "Question", "name": "Is this tax advice or a substitute for an R&D credit study?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is an illustrative estimate from stated assumptions. It cannot tell whether your activities qualify, whether your records would hold up, or how the credit interacts with your other returns. Use it to decide whether a study is worth commissioning, and have a qualified tax professional prepare Form 6765."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+      .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">R&amp;D TAX CREDIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much federal R&amp;D credit could your team claim?</h1>
+    <p>For software and engineering startups and small companies: paste who worked on qualified research and
+    for how much of their time, add supplies and contractors, and see the <strong>regular and simplified
+    credit</strong>, what Section 280C takes back, and how much could <strong>offset payroll tax</strong> even
+    if you owe no income tax.</p>
+    <p class="note"><strong>Estimate only, not tax advice.</strong> Whether your work qualifies, and whether
+    your records would hold up, is for a qualified tax professional. Nothing you type leaves this browser.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. People on qualified research</h2>
+    <label for="staff">One person per line: name, annual wages, % of time on qualified research</label>
+    <textarea id="staff" rows="6" placeholder="Ana, 180000, 80%&#10;Bo, 150000, 60%&#10;Cy, 120000, 50%"></textarea>
+    <p class="note">Paste straight from a spreadsheet (tab separated) or type commas. Use W-2 box 1 style wages.
+    Only the share of time spent on qualified research counts, and each share needs a record made at the time.</p>
+    <div class="grid">
+      <div>
+        <label for="supplies">Supplies used in the research ($ per year)</label>
+        <input type="number" id="supplies" step="any" placeholder="e.g. 12000" min="0">
+      </div>
+      <div>
+        <label for="contractors">Paid to US contractors for the research ($ per year)</label>
+        <input type="number" id="contractors" step="any" placeholder="e.g. 40000" min="0">
+      </div>
+      <div>
+        <label for="other-payroll">Other payroll not listed above ($ per year, optional)</label>
+        <input type="number" id="other-payroll" step="any" placeholder="e.g. 80000" min="0">
+      </div>
+    </div>
+    <p class="note">Contractor cost is counted at 65%. Cloud hosting, rent and general overhead are not entered here.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. History and size</h2>
+    <div class="grid">
+      <div>
+        <label for="prior-1">Qualified spending, last year ($)</label>
+        <input type="number" id="prior-1" step="any" placeholder="blank or 0 if none" min="0">
+      </div>
+      <div>
+        <label for="prior-2">Qualified spending, two years ago ($)</label>
+        <input type="number" id="prior-2" step="any" placeholder="blank or 0 if none" min="0">
+      </div>
+      <div>
+        <label for="prior-3">Qualified spending, three years ago ($)</label>
+        <input type="number" id="prior-3" step="any" placeholder="blank or 0 if none" min="0">
+      </div>
+      <div>
+        <label for="avg-receipts">Average yearly gross receipts, prior four years ($)</label>
+        <input type="number" id="avg-receipts" step="any" placeholder="e.g. 600000" min="0">
+      </div>
+      <div>
+        <label for="fixed-base">Fixed-base percentage (%)</label>
+        <input type="number" id="fixed-base" step="any" placeholder="3 (startup default)" min="0" max="16">
+      </div>
+      <div>
+        <label for="receipts">Gross receipts this year ($)</label>
+        <input type="number" id="receipts" step="any" placeholder="e.g. 900000" min="0">
+      </div>
+      <div>
+        <label for="years-since">Years since your first gross receipts (0 = this year)</label>
+        <input type="number" id="years-since" step="any" placeholder="e.g. 2" min="0" max="60">
+      </div>
+    </div>
+    <div class="grid">
+      <div>
+        <label for="entity">Entity type</label>
+        <select id="entity">
+          <option value="c-corp">C corporation (21% for Section 280C)</option>
+          <option value="pass-through">S corp / partnership / sole owner (top rate 37%)</option>
+        </select>
+      </div>
+      <div>
+        <label for="tax-rate">Override Section 280C rate (%, optional)</label>
+        <input type="number" id="tax-rate" step="any" placeholder="leave blank to use the default" min="0" max="60">
+      </div>
+    </div>
+    <p class="note">Assumptions used (stated, not verified for your return): regular credit 20%, simplified credit
+    14% (6% with no history), 65% of contractor cost, payroll offset up to <strong>$250,000</strong> against
+    employer Social Security plus <strong>$250,000</strong> against employer Medicare tax for a company under
+    <strong>$5 million</strong> of receipts with first receipts within five years, Social Security wage base
+    <strong>$184,500</strong>. The fixed-base percentage for a company that is more than a few years old is
+    computed from history; enter your own if you have it.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Estimate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Paste your people and click Estimate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result (illustrative)</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+    <h3>People counted</h3>
+    <div class="scroll"><table><thead><tr><th>Name</th><th>Wages</th><th>Time on research</th><th>Qualified wages</th></tr></thead><tbody id="staff-table"></tbody></table></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Whether the work qualifies.</strong> The four-part test (a permitted purpose, technological in
+      nature, eliminating uncertainty, a process of experimentation) is a facts question. This tool takes your
+      time shares as given.</li>
+      <li><strong>Documentation.</strong> Credits are lost in exams for missing contemporaneous records, not for
+      arithmetic. Keep timesheets, tickets, design notes and test results.</li>
+      <li><strong>Simplified base rules.</strong> The regular method's fixed-base percentage is entered, not
+      derived, and controlled-group, short-year and acquisition rules are not modelled.</li>
+      <li><strong>Payroll offset timing and limits.</strong> The offset is elected on the return and used
+      against payroll tax after it is filed; the payroll-tax capacity here is estimated from the wages you enter.</li>
+      <li><strong>Interaction with other returns.</strong> State credits, the alternative minimum tax, the
+      expensing of domestic research costs under Section 174A and pass-through allocation are not modelled.</li>
+      <li><strong>Point-in-time assumptions.</strong> Limits and rates are stated for 2026 and change.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much is the federal R&amp;D tax credit worth to a startup?</h3>
+    <p>Roughly 6% to 14% of qualified research spending under the simplified method, or at most 10% under the regular method, before the Section 280C adjustment. A startup with no history in the prior three years gets 6% of qualified spending. For a team of three engineers spending most of their time on qualified work that is often in the tens of thousands of dollars a year.</p>
+    <h3>Can a startup with no income tax use the R&amp;D credit?</h3>
+    <p>Yes, if it is a qualified small business: under $5 million of gross receipts this year and first gross receipts within the last five years. It can elect to apply up to $250,000 against employer Social Security tax and up to $250,000 more against employer Medicare tax, so a company that pays no income tax still gets cash value through lower payroll tax. The election is made on the return and applies to payroll tax after it is filed.</p>
+    <h3>What counts as a qualified research expense?</h3>
+    <p>Wages for employees doing, supervising or directly supporting qualified research (only the share of time spent on it), supplies used in that research, and 65% of amounts paid to US contractors for it. Overhead, rent and general administration do not count. Whether an activity qualifies turns on the four-part test and on documentation, which a tax professional has to judge.</p>
+    <h3>Does software development qualify for the R&amp;D credit?</h3>
+    <p>Often, yes, when the work aims to resolve technical uncertainty through experimentation grounded in computer science or engineering. Software sold or licensed to customers is treated as ordinary product development. Software built mainly for your own internal use must also pass a high-threshold-of-innovation test, so it is examined more closely.</p>
+    <h3>What is the difference between the regular and simplified credit?</h3>
+    <p>The regular credit is 20% of qualified spending above a base tied to average gross receipts (never less than half of the current spending). The simplified credit is 14% of qualified spending above half of the prior three-year average, or 6% of current spending when any of those three years had none. This tool computes both and shows the larger.</p>
+    <h3>Is this tax advice or a substitute for an R&amp;D credit study?</h3>
+    <p>No. It is an illustrative estimate from stated assumptions. It cannot tell whether your activities qualify, whether your records would hold up, or how the credit interacts with your other returns. Use it to decide whether a study is worth commissioning, and have a qualified tax professional prepare Form 6765.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own eligibility and records before you claim a credit. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>credit_estimated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: the <a href="../section-174a-catchup-calculator/">Section 174A catch-up calculator</a> covers the separate deduction for domestic research costs, and the <a href="../qsbs-exclusion-calculator/">QSBS exclusion calculator</a> is for founders selling stock.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { rdCreditEstimate, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const ids = { staff: "staff", supplies: "supplies", contractors: "contractors", otherPayroll: "other-payroll", prior1: "prior-1", prior2: "prior-2", prior3: "prior-3", avgReceipts: "avg-receipts", fixedBase: "fixed-base", receipts: "receipts", yearsSince: "years-since", entity: "entity", taxRate: "tax-rate" };
+    const els = {};
+    for (const [key, id] of Object.entries(ids)) els[key] = document.getElementById(id);
+    const status = $("#form-status"), report = $("#report"), stats = $("#report-stats");
+    const resultTable = $("#result-table"), findings = $("#report-findings"), staffTable = $("#staff-table");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+    function renderFindings(container, list) {
+      container.innerHTML = list.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4>
+          <p>${esc(f.detail)}</p>
+        </div>`).join("");
+    }
+
+    function runEstimate() {
+      const r = rdCreditEstimate({
+        employeesText: els.staff.value,
+        supplies: Number(els.supplies.value) || 0,
+        contractors: Number(els.contractors.value) || 0,
+        otherPayroll: Number(els.otherPayroll.value) || 0,
+        priorQres: [Number(els.prior1.value) || 0, Number(els.prior2.value) || 0, Number(els.prior3.value) || 0],
+        avgGrossReceipts: Number(els.avgReceipts.value) || 0,
+        fixedBasePct: els.fixedBase.value === "" ? undefined : Number(els.fixedBase.value) / 100,
+        grossReceipts: Number(els.receipts.value) || 0,
+        yearsSinceFirstReceipts: Number(els.yearsSince.value) || 0,
+        entity: els.entity.value,
+        taxRate: els.taxRate.value === "" ? undefined : Number(els.taxRate.value) / 100,
+      });
+      const o = r.offset;
+      stats.innerHTML = `Estimated credit: <strong>${money(r.grossCredit)}</strong> (${r.method === "simplified" ? "simplified" : "regular"} method) on <strong>${money(r.qres)}</strong> of qualified spending` + (o.eligible ? `, of which about <strong>${money(o.total)}</strong> could offset payroll tax.` : ".");
+      resultTable.innerHTML = [
+        `<tr><th scope="row">Qualified wages</th><td>${money(r.wageQre)}</td></tr>`,
+        `<tr><th scope="row">Supplies</th><td>${money(r.supplies)}</td></tr>`,
+        `<tr><th scope="row">Contractors (65% of ${money(r.contractPaid)})</th><td>${money(r.contractQre)}</td></tr>`,
+        `<tr><th scope="row"><strong>Qualified research expenses</strong></th><td><strong>${money(r.qres)}</strong></td></tr>`,
+        `<tr><th scope="row">Regular credit</th><td>${money(r.regular.credit)} (base ${money(r.regular.base)})</td></tr>`,
+        `<tr><th scope="row">Simplified credit${r.simplified.noHistory ? " (6%, no history)" : ""}</th><td>${money(r.simplified.credit)}</td></tr>`,
+        `<tr><th scope="row"><strong>Credit used (larger)</strong></th><td><strong>${money(r.grossCredit)}</strong></td></tr>`,
+        `<tr><th scope="row">After Section 280C at ${(r.taxRate * 100).toFixed(0)}%</th><td>${money(r.reducedCredit)} (${money(r.section280cCost)} given back)</td></tr>`,
+        `<tr><th scope="row">Payroll-tax offset (${o.eligible ? "eligible" : "not eligible"})</th><td>${money(o.total)} (${money(o.socialSecurity)} Social Security, ${money(o.medicare)} Medicare)</td></tr>`,
+        `<tr><th scope="row">Carried forward</th><td>${money(o.carryforward)}</td></tr>`,
+        `<tr><th scope="row">Each extra $10,000 of qualified spending adds</th><td>${money(r.marginalPer10k)}</td></tr>`,
+      ].join("");
+      staffTable.innerHTML = r.staff.rows.map((p) => `<tr><td>${esc(p.name)}</td><td>${money(p.wages)}</td><td>${(p.share * 100).toFixed(0)}%</td><td>${money(p.wages * p.share)}</td></tr>`).join("");
+      renderFindings(findings, r.findings);
+      report.hidden = false;
+      status.textContent = "";
+      record("credit_estimated");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runEstimate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.staff.value = "Ana, 180000, 80%\nBo, 150000, 60%\nCy, 120000, 50%";
+      const example = { supplies: "12000", contractors: "40000", otherPayroll: "60000", prior1: "150000", prior2: "120000", prior3: "80000", avgReceipts: "600000", fixedBase: "", receipts: "900000", yearsSince: "2", taxRate: "" };
+      for (const [key, value] of Object.entries(example)) els[key].value = value;
+      els.entity.value = "c-corp";
+      runEstimate();
+      record("example_loaded");
+      status.textContent = "Worked example: three engineers, some supplies and a contractor, a company two years past first revenue.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      for (const [key, el] of Object.entries(els)) if (key !== "entity") el.value = "";
+      report.hidden = true;
+      status.textContent = "Paste your people and click Estimate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>
