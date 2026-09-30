@@ -46,6 +46,13 @@ which is what puts it in `discoverability.test.mjs`'s population even though it
 is not a trade calculator at all. Mechanical readiness is not a reason to
 adopt, the same rule the two exclusions above already state.
 
+**Likewise `liquidation-pallet`** (`liquidation-pallet-bid-calculator`, graduated
+2026-09-30) does not adopt, deliberately: it is a reseller's max hammer bid on a
+liquidation pallet or truckload, a figure the buyer keeps to themselves, with no
+customer to hand a proposal to. Its slug ends in `-bid-calculator` because the
+bid is the product, which is what puts it in `discoverability.test.mjs`'s
+population even though it is not a trade calculator.
+
 The last holdout was **`home-staging`** (`home-staging-bid-calculator`,
 graduated in #3580, unblocked in the same session that added this line). It
 priced the job inline from individual `el(...)` reads rather than through the

@@ -144,6 +144,13 @@ const NO_SHARED_SHOP_RATES = {
     'same afternoon and independently landed on `laborRatePerHour`/`targetMarginPercent`, but the ' +
     'underlying quantities differ: that page carries two of the four via aliasing, this one carries ' +
     'zero because there is no crew wage or overhead-on-direct-cost concept here at all.)',
+  'liquidation-pallet-bid-calculator':
+    'this is not a contractor job bid -- it is a max hammer bid for a liquidation pallet or ' +
+    'truckload that the buyer resells. There is no crew wage, payroll burden or overhead-on-direct-' +
+    'cost concept: costs are buyer\'s premium, freight, per-unit handling, storage and cost of ' +
+    'capital, and the target is a profit, ROI and chance-of-loss limit on realized resale revenue ' +
+    'after channel fees. Zero of the four canonical concepts apply, so no bar is shown and no ' +
+    'PARTIAL_SHOP_RATE_PAGES note is due.',
   'window-tinting-bid-calculator':
     'its per-installer rate is spelled `installerRate` rather than `hourlyWage`, but means the same ' +
     'raw, loaded hourly rate for one installer\'s time -- SHOP_RATE_ALIASES maps it. Its "target ' +
