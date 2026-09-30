@@ -48892,11 +48892,32 @@ entries:
         Registered score row, launch date, category rule and CI workflow; inbound
         links from self-storage-rate-increase-calculator and rental-dscr-calculator.
     mrr_end: 0
+  - venture: rental-rent-optimizer
   - venture: str-nightly-rate-optimizer
     agent_spend_usd: null
     human_hours: 0
     outcomes:
       - >-
+        Graduated and built rental-rent-optimizer: a browser-local tool for
+        small landlords. Paste or upload past listings as asking rent, days on
+        market and leased or still vacant (optional per-listing market rent);
+        fits a censored exponential survival model of days to lease on
+        ln(asking / market) by penalised Newton-Raphson, shrunk toward a stated
+        elasticity (nearly fixed under 6 listings), then picks the asking rent
+        with the highest expected net income per month over vacancy, turnover,
+        renewal and costly-tenancy assumptions (renewal-reward average; closed
+        form checked: mean vacancy L/(|b|-1) months without costs). Shows the
+        profit curve, a 300-resample seeded bootstrap range on the best rent,
+        the cost of asking 5% too high, a sensitivity table and a 75/25
+        hold-out back-test, with CSV export. New niche: duplicate_check.py best
+        match rental-dscr-calculator at 0.30 (it tests debt cover, it does not
+        choose a rent). First visitor expected from "what rent should I ask" and
+        "cost of a vacancy" searches and landlord forums. Listings never leave
+        the browser. Unverified against a real landlord's history: tests use
+        simulated listings with known curves (slope recovery with interval
+        coverage, censoring, brute-force optimum) and no-network assertions.
+        Registered score row, launch date, category rule, CI workflow and tree
+        counts; regenerated the mirror.
         Graduated and built str-nightly-rate-optimizer: a browser-local tool for
         short-term rental hosts. Paste or upload listed nights (nightly price and
         booked or empty) and enter the platform fee, turnover cost per stay,
