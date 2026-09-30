@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 472 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 473 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -69,6 +69,15 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste an LLM API usage log (JSONL, JSON or CSV) and see spend by model, feature and day, your cache hit rate, a 30-day run rate, and which levers -- caching, batch, a cheaper model -- would have saved money. Runs in your browser; the log never leaves it. Free, no signup.</summary>
+  </entry>
+  <entry>
+    <title>Rental Property DSCR Calculator — Cash-on-Cash, Cap Rate, Max Loan</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rental-dscr-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/rental-dscr-calculator</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free rental property DSCR calculator for investors. Enter price, rent, loan terms and costs to see DSCR both ways, cash-on-cash, cap rate, break-even occupancy, the largest loan a target DSCR allows, and how a higher rate changes it. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>SAFE Dilution Calculator — Cap Table After Your Round, Free</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free KDP royalty report analyzer for self-published authors: drop in your royalty CSV and see net royalty per book, marketplace and royalty option, refund rates, Kindle Unlimited page reads, delivery costs, a 70% price-band check and what ad spend left. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Late Invoice Collections Kit — Late Fee Calculator and Overdue Invoice Letters</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/late-invoice-collections-kit/"/>
-    <id>tag:marisstella.dev,2026:tool/late-invoice-collections-kit</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free tool for freelancers and small agencies with an overdue invoice: late fee and interest today and on later dates, four ready-to-copy letters (reminder, firm notice, final demand, referral) with your numbers, a small-claims break-even, and .ics reminders. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
