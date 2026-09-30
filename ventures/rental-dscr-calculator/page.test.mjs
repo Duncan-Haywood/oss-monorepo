@@ -100,3 +100,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("LICENSE"), /MIT License/);
   assert.match(page("VENTURE.yaml"), /^name: rental-dscr-calculator$/m);
 });
+
+test("links to the rental rent optimizer, which prices the unit the DSCR test assumes is rented", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/rental-rent-optimizer\/"/);
+});

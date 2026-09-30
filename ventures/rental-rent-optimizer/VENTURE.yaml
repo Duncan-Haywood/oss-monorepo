@@ -1,0 +1,65 @@
+name: rental-rent-optimizer
+description: >-
+  Free browser tool for small landlords (1-50 units): paste past listings as
+  asking rent, days on market and leased or still vacant, plus today's market
+  rent, and get a days-to-lease model fitted from your own history (censored
+  survival fit, shrunk toward a stated elasticity when you have under six
+  listings), the asking rent with the highest expected net income after vacancy,
+  turnover and renewals, the profit curve with a bootstrap range, what asking 5%
+  too high costs, sensitivity and a hold-out back-test. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "asking rent that maximises net income after vacancy for small landlords,
+# days on market model": closest is rental-dscr-calculator at 0.30 (it tests
+# whether a rental covers its debt, it does not choose a rent). Adjacent:
+# rental-dscr-calculator, bid-win-rate-optimizer (same fit-from-your-own-history
+# shape, for quotes) and price-elasticity-estimator (units sold vs price).
+# Alternatives are a rule of thumb ("ask market, drop after two weeks"), a
+# spreadsheet of past days on market, and landlord suites and listing-site
+# "rent estimate" widgets that price from comparables but not from how this
+# landlord's own listings actually leased.
+#
+# First visitor: searches "what rent should I ask", "how much does a vacancy
+# cost a landlord", "how to price a rental to lease fast", "raise rent or keep
+# tenant"; r/landlord, r/realestateinvesting, small-landlord forums and
+# BiggerPockets. Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: listing history never leaves the browser
+# (tests assert no network calls). No vendor is named.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be a saved, portfolio-wide listing log; not built.
+# Liability: statistical estimate from supplied data, not legal, financial or
+# fair-housing advice; rent control and local law caps are not modelled, and the
+# page says "unidentified" when the history cannot support a slope.
+# Unverified: tested on simulated listings with known curves and closed-form
+# optima, not on a published dataset.
+
+hypotheses:
+  - claim: >-
+      Small landlords who relist a unit at least once a year will use a private,
+      no-signup tool that turns their own days-on-market history into an asking
+      rent recommendation, and will come back with each new listing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the fitted slope or the best rent disagrees with a standard censored exponential regression on the same data.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/rental-rent-optimizer/
+  analytics: null
