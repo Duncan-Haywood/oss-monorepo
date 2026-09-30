@@ -1649,3 +1649,6 @@ gitops:
 - workflow: tax-loss-harvesting-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: solar-payback-calculator-ci.yml
+  classification: none
+  publishes: []
