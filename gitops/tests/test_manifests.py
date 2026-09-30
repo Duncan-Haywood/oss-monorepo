@@ -2836,7 +2836,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `heat-pump-vs-furnace-calculator` graduated (browser-local homeowner heat pump vs gas furnace calculator).
     # +1: `van-westendorp-pricing-analyzer` graduated (browser-local Van Westendorp price survey analyzer).
     # +1: `gabor-granger-price-analyzer` graduated (browser-local Gabor-Granger willingness-to-pay analyzer).
-    # -288 (2026-09-30): every browser calculator moved to the public oss-monorepo
+    # +1: `sales-commission-plan-comparison-calculator` graduated (browser-local sales offer comparison across quota attainment).
+    # -289 (2026-09-30): every browser calculator moved to the public oss-monorepo
     # repository (see CLAUDE.md), so the mirror no longer carries them.
     total = 200  # `infra/OWNER_CHECKLIST.md`'s own "N of the 200 tools" wording.
 

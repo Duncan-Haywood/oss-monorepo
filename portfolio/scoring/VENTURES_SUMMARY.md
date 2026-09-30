@@ -252,17 +252,17 @@ Columns: overall rank, tier, composite, then the six scores (AI = ai leverage, O
 
 ### CI checks & developer gates — 87 ventures, mean 5.96
 
-#### Pricing, bid & margin calculator (1, mean 6.00)
-
-| # | Tier | Venture | Score | AI | Ops | TtR | GM | Def | Dist | What it is |
-|---:|---|---|---:|---:|---:|---:|---:|---:|---:|---|
-| 94 | B | [`actions-minutes-estimator`](https://duncan-haywood.github.io/monorepo-projects/actions-minutes-estimator/) | 6.00 | 1 | 10 | 6 | 10 | 3 | 6 | Free browser tool + zero-dependency Node CLI that reads GitHub Actions workflow YAML and projects monthly billable minutes and dollar cost… |
-
 #### Other browser tool (1, mean 6.00)
 
 | # | Tier | Venture | Score | AI | Ops | TtR | GM | Def | Dist | What it is |
 |---:|---|---|---:|---:|---:|---:|---:|---:|---:|---|
 | 62 | B | [`llm-usage-log-analyzer`](https://duncan-haywood.github.io/monorepo-projects/llm-usage-log-analyzer/) | 6.00 | 3 | 10 | 4 | 10 | 3 | 6 | Free browser tool that reads an LLM API usage log the developer already has (JSONL, JSON array or CSV; Anthropic-style and OpenAI-style… |
+
+#### Pricing, bid & margin calculator (1, mean 6.00)
+
+| # | Tier | Venture | Score | AI | Ops | TtR | GM | Def | Dist | What it is |
+|---:|---|---|---:|---:|---:|---:|---:|---:|---:|---|
+| 94 | B | [`actions-minutes-estimator`](https://duncan-haywood.github.io/monorepo-projects/actions-minutes-estimator/) | 6.00 | 1 | 10 | 6 | 10 | 3 | 6 | Free browser tool + zero-dependency Node CLI that reads GitHub Actions workflow YAML and projects monthly billable minutes and dollar cost… |
 
 #### Compliance & CI check (82, mean 5.97)
 
@@ -441,17 +441,17 @@ Columns: overall rank, tier, composite, then the six scores (AI = ai leverage, O
 | 167 | C | [`tiktok-shop-settlement-analyzer`](https://duncan-haywood.github.io/monorepo-projects/tiktok-shop-settlement-analyzer/) | 5.83 | 1 | 10 | 5 | 10 | 3 | 6 | Free browser tool that turns a TikTok Shop seller sales CSV into the service fee actually observed, take-home per order, net revenue per… |
 | 171 | C | [`whatnot-sales-report-analyzer`](https://duncan-haywood.github.io/monorepo-projects/whatnot-sales-report-analyzer/) | 5.83 | 1 | 10 | 5 | 10 | 3 | 6 | Free browser tool that turns a Whatnot seller orders CSV into profit per sale, show, category and month after Whatnot's commission and… |
 
-#### Monitoring & market intel (1, mean 5.83)
-
-| # | Tier | Venture | Score | AI | Ops | TtR | GM | Def | Dist | What it is |
-|---:|---|---|---:|---:|---:|---:|---:|---:|---:|---|
-| 141 | C | [`fba-reimbursement-claim-finder`](https://duncan-haywood.github.io/monorepo-projects/fba-reimbursement-claim-finder/) | 5.83 | 1 | 10 | 5 | 10 | 3 | 6 | Free browser tool that compares an Amazon FBA Inventory Ledger with the Reimbursements report and lists, per SKU, the lost and damaged… |
-
 #### Records, evidence & documents (1, mean 5.83)
 
 | # | Tier | Venture | Score | AI | Ops | TtR | GM | Def | Dist | What it is |
 |---:|---|---|---:|---:|---:|---:|---:|---:|---:|---|
 | 160 | C | [`shopify-inventory-reorder-planner`](https://duncan-haywood.github.io/monorepo-projects/shopify-inventory-reorder-planner/) | 5.83 | 1 | 10 | 5 | 10 | 3 | 6 | Free browser tool for small online sellers. Drop a Shopify orders export (or any date/SKU/quantity sheet) and a stock export and get, per… |
+
+#### Monitoring & market intel (1, mean 5.83)
+
+| # | Tier | Venture | Score | AI | Ops | TtR | GM | Def | Dist | What it is |
+|---:|---|---|---:|---:|---:|---:|---:|---:|---:|---|
+| 141 | C | [`fba-reimbursement-claim-finder`](https://duncan-haywood.github.io/monorepo-projects/fba-reimbursement-claim-finder/) | 5.83 | 1 | 10 | 5 | 10 | 3 | 6 | Free browser tool that compares an Amazon FBA Inventory Ledger with the Reimbursements report and lists, per SKU, the lost and damaged… |
 
 ### Restaurant, bar & food truck pricing — 2 ventures, mean 5.83
 
