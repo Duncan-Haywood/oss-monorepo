@@ -98,3 +98,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("LICENSE"), /MIT License/);
   assert.match(page("VENTURE.yaml"), /^name: bid-win-rate-optimizer$/m);
 });
+
+test("links to the quote follow-up timing tool, which works from the same quote history", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/quote-follow-up-timing\/"/);
+});
