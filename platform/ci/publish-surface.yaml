@@ -356,6 +356,9 @@ workflows:
 - workflow: clearance-markdown-planner-ci.yml
   classification: none
   publishes: []
+- workflow: client-rebooking-predictor-ci.yml
+  classification: none
+  publishes: []
 - workflow: client-profitability-time-analyzer-ci.yml
   classification: none
   publishes: []
