@@ -278,6 +278,9 @@ workflows:
 - workflow: carpet-install-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: cash-balance-plan-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: cash-runway-planner-ci.yml
   classification: none
   publishes: []
@@ -1442,6 +1445,9 @@ workflows:
 - workflow: supabase-rls-check-ci.yml
   classification: none
   publishes: []
+- workflow: tax-loss-harvesting-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: tender-bid-readiness-ci.yml
   classification: none
   publishes: []
@@ -1646,9 +1652,3 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
-- workflow: tax-loss-harvesting-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: cash-balance-plan-calculator-ci.yml
-  classification: none
-  publishes: []
