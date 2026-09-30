@@ -89,6 +89,9 @@ workflows:
 - workflow: actions-transitive-pin-check-ci.yml
   classification: none
   publishes: []
+- workflow: ad-incrementality-test-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: ad-spend-saturation-optimizer-ci.yml
   classification: none
   publishes: []
