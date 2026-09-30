@@ -307,6 +307,7 @@ export function analyze(rawItems, { asOf, costOfMoneyPct = DEFAULT_COST_OF_MONEY
   }
   for (const k of ["d30", "d60", "later", "unforecast"]) forecast[k] = r2(forecast[k]);
   chase.sort((a, b) => (b.balance * b.lateBy) - (a.balance * a.lateBy));
+  const odds = paidInv.length >= 5 && open.length ? payOdds(paidInv, open) : null;
 
   // Findings.
   const findings = [];
@@ -332,7 +333,7 @@ export function analyze(rawItems, { asOf, costOfMoneyPct = DEFAULT_COST_OF_MONEY
 
   const paidToPay = paidInv.map((x) => x.toPay);
   return {
-    aging, clients, chase, findings, forecast,
+    aging, clients, chase, findings, forecast, odds,
     summary: {
       invoices: items.length, billed: r2(items.reduce((s, x) => s + x.amount, 0)), openCount: open.length, openTotal, overdueCount: overdue.length, overdueTotal,
       paidCount: paidInv.length, avgDaysToPay: mean(paidToPay), medianDaysToPay: median(paidToPay),
@@ -342,6 +343,82 @@ export function analyze(rawItems, { asOf, costOfMoneyPct = DEFAULT_COST_OF_MONEY
     },
   };
 }
+
+// ---- Chance an open invoice is paid in the next H days --------------------
+// Kaplan-Meier on the days-past-due clock: a paid invoice is an event at
+// (paid - due), an open one is censored at (as-of - due). The pooled estimate
+// is shrunk toward a stated prior and a client's own history is blended in by
+// how much of it was still at risk. The estimate is scored on the owner's own
+// paid invoices with a leave-one-out backtest, so the page can say whether the
+// percentages beat a constant guess. Replaces "not forecast at all" for an
+// invoice that is already past when its client normally pays.
+export const ODDS_PRIOR_WEIGHT = 3; // invoices' worth of belief in the prior
+export const ODDS_CLIENT_WEIGHT = 4; // invoices' worth of belief in the pooled estimate when blending
+
+export function conditionalPay(obs, a, H) {
+  const risk = obs.reduce((n, o) => n + (o.t >= a + 1 ? 1 : 0), 0);
+  const times = [...new Set(obs.filter((o) => o.event && o.t > a && o.t <= a + H).map((o) => o.t))].sort((x, y) => x - y);
+  let surv = 1;
+  for (const t of times) {
+    const n = obs.reduce((k, o) => k + (o.t >= t ? 1 : 0), 0);
+    const d = obs.reduce((k, o) => k + (o.event && o.t === t ? 1 : 0), 0);
+    if (n > 0) surv *= 1 - d / n;
+  }
+  return { p: 1 - surv, risk };
+}
+
+function oddsModel(obs, priorMonthly, H) {
+  const prior = 1 - Math.pow(1 - priorMonthly, H / 30);
+  const by = new Map();
+  for (const o of obs) (by.get(o.client) ?? by.set(o.client, []).get(o.client)).push(o);
+  return (client, age, exclude) => {
+    const a = Math.max(0, age);
+    const pool = exclude ? obs.filter((o) => o !== exclude) : obs;
+    const pe = conditionalPay(pool, a, H);
+    const pooled = (pe.risk * pe.p + ODDS_PRIOR_WEIGHT * prior) / (pe.risk + ODDS_PRIOR_WEIGHT);
+    const own = (by.get(client) ?? []).filter((o) => o !== exclude);
+    if (!own.some((o) => o.event)) return { p: pooled, ownRisk: 0 };
+    const ce = conditionalPay(own, a, H);
+    return { p: (ce.risk * ce.p + ODDS_CLIENT_WEIGHT * pooled) / (ce.risk + ODDS_CLIENT_WEIGHT), ownRisk: ce.risk };
+  };
+}
+
+export function payOdds(paidInv, open, { horizon = 30, priorMonthly = 0.3 } = {}) {
+  const obs = [
+    ...paidInv.map((x) => ({ t: x.lateBy, event: true, client: norm(x.client) })),
+    ...open.map((x) => ({ t: x.lateBy, event: false, client: norm(x.client), item: x })),
+  ];
+  const predict = oddsModel(obs, priorMonthly, horizon);
+  for (const x of open) {
+    const r = predict(norm(x.client), x.lateBy);
+    x.payChance = r.p;
+    x.payBasis = r.ownRisk >= MIN_CLIENT_HISTORY ? "client" : "book";
+    x.atRisk = x.balance * (1 - r.p);
+  }
+  const expected = r2(open.reduce((s, x) => s + x.balance * x.payChance, 0));
+  // Leave-one-out backtest: for each paid invoice still unpaid at 0, 15 and 30
+  // days past due, hide it, predict, and compare with whether it was paid in time.
+  const rows = [];
+  for (const cp of [0, 15, 30]) {
+    for (const o of obs) {
+      if (o.event && o.t > cp) rows.push({ p: predict(o.client, cp, o).p, y: o.t <= cp + horizon ? 1 : 0 });
+      else if (!o.event && o.t >= cp + horizon) rows.push({ p: predict(o.client, cp, o).p, y: 0 });
+    }
+  }
+  let backtest = { n: rows.length, enough: false };
+  if (rows.length >= 20) {
+    const brier = rows.reduce((s, r) => s + (r.p - r.y) ** 2, 0) / rows.length;
+    const rate = rows.reduce((s, r) => s + r.y, 0) / rows.length;
+    const baseline = rows.reduce((s, r) => s + (rate - r.y) ** 2, 0) / rows.length;
+    const buckets = [[0, 0.25], [0.25, 0.5], [0.5, 0.75], [0.75, 1.0001]].map(([lo, hi]) => {
+      const m = rows.filter((r) => r.p >= lo && r.p < hi);
+      return { lo, hi: Math.min(hi, 1), n: m.length, said: m.length ? m.reduce((s, r) => s + r.p, 0) / m.length : null, actual: m.length ? m.reduce((s, r) => s + r.y, 0) / m.length : null };
+    });
+    backtest = { n: rows.length, enough: true, brier, baseline, skill: baseline > 0 ? 1 - brier / baseline : 0, buckets };
+  }
+  return { horizon, expected, atRisk: r2(open.reduce((s, x) => s + x.atRisk, 0)), backtest };
+}
+
 
 export const money = (n) => (Number.isFinite(n) ? (n < 0 ? "-" : "") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "–");
 export const pct = (n) => (Number.isFinite(n) ? (n * 100).toFixed(0) + "%" : "–");

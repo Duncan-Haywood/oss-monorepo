@@ -23295,6 +23295,117 @@ ventures:
       stated. Customer locations never leave the browser. Ethics: helps a small
       operator cut drive time and see what a missing crew costs; nothing is sold, no
       customer data is collected and no referral is made.
+  - slug: bundle-discount-optimizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Market-basket statistics (pair counts, attach rates, a hold-out persistence check
+      and a seeded bootstrap run in the browser) but no language model and no paid API;
+      the pairing, the break-even and the stated assumption are the product, not an add-on.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Small online sellers paste
+      an order export and product costs and get which pairs already sell together, the
+      bundle discount with the best estimated profit, and the break-even rise in attach
+      rate the discount must cause. Distribution 6: "how much discount on a bundle" and
+      "which products to bundle" are recurring seller queries and seller communities
+      discuss them (volume not measured with an external tool). Defensibility 4:
+      bundle apps and spreadsheets exist; the edge is the private no-signup workflow
+      and stating that a discount's response cannot be read from past orders.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: sizes a pricing decision and sets no price; no warranty, independence
+      from platforms and bundle apps stated, response assumption and limits stated.
+      Orders and costs never leave the browser. Ethics: helps a small seller see
+      whether a bundle discount pays for itself; nothing is sold, no data is
+      collected and no referral is made.
+  - slug: service-van-stock-optimizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Combinatorial optimisation (exact subset enumeration over part units, local
+      search beyond) with a hold-out check and resampled range, run in the browser,
+      but no language model and no paid API; the exact stock list is the product.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Owners of small service
+      shops paste their parts catalog and past jobs and get the van stock that
+      finishes the most jobs on the first visit, dead stock named, tested on jobs it
+      has not seen. Distribution 6: "what parts should an HVAC van carry" and
+      "first time fix rate" are recurring owner queries and the trade tools in this
+      catalogue feed it (volume not measured with an external tool). Defensibility
+      4: field-service suites have truck-stock modules; the edge is the private
+      no-signup workflow and the proven-best list for a small history.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: sizes a stock list from the user's own history and asserts nothing
+      about codes, licensing or safety of any part; no warranty, vendor independence
+      stated, limits stated. Job data never leaves the browser. Ethics: helps a small
+      operator cut return trips and dead stock; nothing is sold, no data is
+      collected and no referral is made.
+  - slug: renewal-rent-optimizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical learning (logistic regression by Newton-Raphson and a seeded
+      stratified bootstrap run in the browser) but no language model and no paid
+      API; the renewal curve, its ranges and the refusal to answer on flat offers
+      are the product, not an add-on.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Small landlords
+      paste past renewals and a unit's vacancy and turnover costs and get a
+      renewal-chance curve by rent increase, what a move-out costs, the increase
+      with the highest expected income inside the range they have offered, and a
+      hold-out back-test. Distribution 6: "how much to raise rent at renewal" and
+      "tenant turnover cost" are recurring landlord queries and the rental
+      calculators in this catalogue are natural feeders (volume not measured with
+      an external tool). Defensibility 4: logistic regression is standard and a
+      spreadsheet can tabulate renewals by increase band; the edge is the private
+      no-upload workflow, the vacancy-and-turnover economics, bootstrap ranges and
+      the plain refusal when offers never varied.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical estimate of supplied data, not advice, no warranty,
+      independence from vendors stated, limits stated (including that no
+      rent-control cap or notice rule is known) and an unidentified verdict when the
+      data cannot support an answer. Rent rolls never leave the browser. Ethics:
+      helps a small landlord see how tenants respond to rent increases before
+      setting one, including the cost of losing a good tenant; nothing is sold, no
+      tenant data is collected and no referral is made.
   - slug: rental-rent-optimizer
     scores:
       ai_leverage: 4
