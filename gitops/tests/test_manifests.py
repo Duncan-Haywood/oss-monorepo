@@ -2855,7 +2855,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `shift-cover-optimizer` graduated (browser-local shift plan, exact min-cost-flow cover of hourly staffing needs).
     # +1: `client-rebooking-predictor` graduated (browser-local client rebooking rhythm, who is overdue versus lost).
     # +1: `crew-dispatch-optimizer` graduated (browser-local dispatch planner, exact Held-Karp plus subset DP for up to 12 jobs).
-    total = 515  # `infra/OWNER_CHECKLIST.md`'s own "N of the 515 tools" wording.
+    # +1: `service-van-stock-optimizer` graduated (browser-local van stock planner, exact subset enumeration for up to 20 part units).
+    total = 516  # `infra/OWNER_CHECKLIST.md`'s own "N of the 516 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

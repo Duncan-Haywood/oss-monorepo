@@ -23295,3 +23295,38 @@ ventures:
       stated. Customer locations never leave the browser. Ethics: helps a small
       operator cut drive time and see what a missing crew costs; nothing is sold, no
       customer data is collected and no referral is made.
+  - slug: service-van-stock-optimizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Combinatorial optimisation (exact subset enumeration over part units, local
+      search beyond) with a hold-out check and resampled range, run in the browser,
+      but no language model and no paid API; the exact stock list is the product.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Owners of small service
+      shops paste their parts catalog and past jobs and get the van stock that
+      finishes the most jobs on the first visit, dead stock named, tested on jobs it
+      has not seen. Distribution 6: "what parts should an HVAC van carry" and
+      "first time fix rate" are recurring owner queries and the trade tools in this
+      catalogue feed it (volume not measured with an external tool). Defensibility
+      4: field-service suites have truck-stock modules; the edge is the private
+      no-signup workflow and the proven-best list for a small history.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: sizes a stock list from the user's own history and asserts nothing
+      about codes, licensing or safety of any part; no warranty, vendor independence
+      stated, limits stated. Job data never leaves the browser. Ethics: helps a small
+      operator cut return trips and dead stock; nothing is sold, no data is
+      collected and no referral is made.
