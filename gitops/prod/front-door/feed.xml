@@ -314,6 +314,15 @@
     <summary type="text">Free seasonal sales forecaster for small shops and restaurants. Paste your monthly sales to get a 12-month forecast with ranges, your slow and peak months, a back-test against last year, and the cash cushion for the slow season. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Seasonal Buy Quantity Optimizer — how many units should you order?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/seasonal-buy-quantity-optimizer/"/>
+    <id>tag:marisstella.dev,2026:tool/seasonal-buy-quantity-optimizer</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free newsvendor calculator for sellers of seasonal, holiday and one-time products. Enter past seasons or a low, likely and high guess, your price, cost and supplier price breaks to get the order quantity that maximises expected profit, the chance of selling out or losing money, and a back-test on your own history. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>83(b) Election Calculator — Tax With vs Without, Restricted Stock</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/section-83b-election-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/section-83b-election-calculator</id>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free startup stock option calculator. See what an offer&#39;s options are really worth after dilution, liquidation preferences, vesting cliff, exercise cost and tax, weighted by the exit odds you choose. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Tax-Loss Harvesting Calculator — How Much Would Selling Losers Save You</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tax-loss-harvesting-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/tax-loss-harvesting-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free tax-loss harvesting calculator. Enter your realized gains, carried-forward losses and the positions you could sell at a loss to see the tax saved this year, the $3,000 ordinary deduction, the carryforward and wash-sale risk. Runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
