@@ -23436,6 +23436,16 @@ ventures:
       standard and paid dynamic-pricing services use market data this does not; the
       edge is free, private, no-upload use, the fee-and-turnover economics,
       bootstrap ranges and the plain refusal when prices never varied.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical estimate of supplied data, not advice, no warranty,
+      independence from platforms and vendors stated, limits stated (taxes,
+      licensing and platform rules not known) and an unidentified verdict when the
+      data cannot support an answer. Bookings never leave the browser. Ethics: helps
+      a small host see how their own bookings respond to price; nothing is sold, no
+      guest data is collected and no referral is made.
   - slug: trial-conversion-timing-analyzer
     scores:
       ai_leverage: 3
@@ -23444,7 +23454,7 @@ ventures:
       gross_margin: 10
       defensibility: 3
       distribution: 6
-    composite: 6.1
+    composite: 6.167
     rater_b: null
     floor: 3
     floor_dimension: ai_leverage
@@ -23467,12 +23477,6 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Liability: statistical estimate of supplied data, not advice, no warranty,
-      independence from platforms and vendors stated, limits stated (taxes,
-      licensing and platform rules not known) and an unidentified verdict when the
-      data cannot support an answer. Bookings never leave the browser. Ethics: helps
-      a small host see how their own bookings respond to price; nothing is sold, no
-      guest data is collected and no referral is made.
       Liability: statistical description of supplied data, not advice, no warranty,
       independence from vendors stated, limits stated (sign-ups, activation, churn
       and longer trials are not modelled). Trial data never leaves the browser.
@@ -23584,3 +23588,65 @@ ventures:
       notice content, foreclosure) stated in three places. Prepares and files
       nothing. Ethics: helps small trades keep payment rights they already have;
       nothing leaves the browser.
+  - slug: donor-retention-analyzer
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Retention arithmetic, a seeded bootstrap and an empirical snapshot model run
+      in the browser; no language model and no paid API. The hold-out check that
+      withdraws the probabilities when giving behaviour shifts is the product.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. A nonprofit pastes a gift
+      history and sees retention by fiscal year with a range, first-year versus
+      repeat retention, and LYBUNT and SYBUNT donors ranked by expected dollars.
+      Distribution 6: "how to calculate donor retention rate" and "LYBUNT report"
+      are recurring development-staff queries and no tool in this catalogue serves
+      charities (volume not measured with an external tool). Defensibility 3: donor
+      databases ship retention and LYBUNT reports; the edge is the private no-upload
+      workflow, the ranking by own-history odds, ranges and the plain limits.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical estimate of supplied data, not advice, no warranty, no
+      vendor named, limits stated (why donors lapsed, gift type, capacity and consent
+      are not modelled; consent and solicitation rules stay with the user). Donor
+      data never leaves the browser. Ethics: helps a small charity see whom it is
+      losing and choose whom to thank first; nothing is sold, no donor data is
+      collected and no referral is made.
+  - slug: route-account-pruner
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Per-account arithmetic in the browser; no model and no paid API.
+    basis: >-
+      Row added 2026-10-01 by a later session to clear `score_ventures.py --check`,
+      which had gone red when #6121 merged without one. Scored conservatively from
+      the venture's own VENTURE.yaml description, not from a fresh screen: ranking
+      route accounts by earnings per route hour for lawn, pool, pest and cleaning
+      routes. Distribution 6 and defensibility 3 follow its sibling route tools.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Browser-local arithmetic on the user's own accounts; no warranty, not advice,
+      nothing uploaded, nothing sold.

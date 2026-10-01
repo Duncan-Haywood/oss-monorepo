@@ -509,6 +509,9 @@ workflows:
 - workflow: dog-walking-route-pricing-ci.yml
   classification: none
   publishes: []
+- workflow: donor-retention-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: dotenv-exposure-check-ci.yml
   classification: none
   publishes: []
