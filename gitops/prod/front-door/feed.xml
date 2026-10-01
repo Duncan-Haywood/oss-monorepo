@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 576 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 577 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -314,6 +314,15 @@
     <summary type="text">Free payroll tax deposit calculator for small employers: monthly or semiweekly due dates, the $100,000 next-day rule, and the failure-to-deposit penalty with the cheapest way to apply your deposits. Runs in your browser.</summary>
   </entry>
   <entry>
+    <title>Postgres EXPLAIN Analyzer — Find Why Your Query Is Slow</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/postgres-explain-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/postgres-explain-analyzer</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste a PostgreSQL EXPLAIN ANALYZE plan (text or JSON) and see where the time went per node, missing indexes, bad row estimates and disk spills, each with a suggested fix. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Private Practice Payer Mix Calculator — insurance panels vs cash pay per hour</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/private-practice-payer-mix-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/private-practice-payer-mix-calculator</id>
@@ -357,14 +366,5 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free rental fleet size optimizer for tent, equipment, kayak, tool and party rental businesses. Enter your seasons, rental lengths, price and what a unit costs to own; it finds the number of units that maximises yearly profit using the Erlang loss formula and a day-by-day simulation. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Retirement Withdrawal Sequencer — which account to draw from first, with Roth conversions</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/retirement-withdrawal-sequencer/"/>
-    <id>tag:marisstella.dev,2026:tool/retirement-withdrawal-sequencer</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free retirement withdrawal calculator. Enter your taxable, traditional and Roth balances, spending and Social Security; it compares withdrawal orders and bracket-filling Roth conversions year by year under 2026 tax rules and shows what each leaves you after tax. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>

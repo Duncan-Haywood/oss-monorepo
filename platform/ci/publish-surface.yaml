@@ -1264,6 +1264,9 @@ workflows:
 - workflow: prometheus-cardinality-cost-ci.yml
   classification: none
   publishes: []
+- workflow: postgres-explain-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: print-atelier-ci.yml
   classification: none
   publishes: []
