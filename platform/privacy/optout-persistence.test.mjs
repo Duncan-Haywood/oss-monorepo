@@ -1166,7 +1166,8 @@ const RELATIVE_SELF = relative(
 // +1: `breakeven-roas-calculator` graduated.
 // +1: `driving-instructor-lesson-pricing-calculator` graduated.
 // +1: `car-wash-membership-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 549;
+// +1: `license-compat-check` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 550;
 
 let counter = 0;
 function fixture(source) {

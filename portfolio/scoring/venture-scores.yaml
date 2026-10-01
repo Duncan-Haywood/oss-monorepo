@@ -24999,3 +24999,29 @@ ventures:
       Liability: arithmetic on user-typed figures, not advice, no warranty, limits
       stated; nothing leaves the browser. Ethics: helps a self-employed artist check
       figures on their own numbers.
+  - slug: license-compat-check
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic rules table, no language model and no paid API.
+    basis: >-
+      Scored 2026-10-01 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 6 and defensibility 4: a
+      searchable single-purpose checker plus a CI gate, volume not measured with an
+      external tool. Scope: Free browser tool and zero-dependency CLI that check dependency licenses against how a project ships (closed-source, SaaS, internal, or an open-source license).
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: applies published compatibility positions to user-supplied license
+      strings, states it is not legal advice and carries a no-warranty clause; nothing
+      leaves the browser. Ethics: helps developers avoid shipping a license breach.

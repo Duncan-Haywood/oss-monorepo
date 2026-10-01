@@ -959,6 +959,9 @@ workflows:
 - workflow: license-drift-check-ci.yml
   classification: none
   publishes: []
+- workflow: license-compat-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: like-kind-exchange-1031-calculator-ci.yml
   classification: none
   publishes: []
