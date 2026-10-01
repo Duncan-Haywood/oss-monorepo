@@ -36,8 +36,8 @@
 #   portfolio-front-tools-0: 145 files, 546808 bytes
 #   portfolio-front-tools-1: 92 files, 554937 bytes
 #   portfolio-front-tools-2: 144 files, 552939 bytes
-#   portfolio-front-tools-3: 131 files, 554949 bytes
-#   portfolio-front-tools-4: 136 files, 555901 bytes
+#   portfolio-front-tools-3: 132 files, 556619 bytes
+#   portfolio-front-tools-4: 136 files, 556452 bytes
 #   portfolio-front-tools-5: 126 files, 555331 bytes
 #   portfolio-front-tools-6: 120 files, 555173 bytes
 #   portfolio-front-tools-7: 137 files, 556883 bytes
@@ -610,6 +610,7 @@ configMapGenerator:
       - 1099k-reconciliation-worksheet__vs-spreadsheet-comparison.html.gz=1099k-reconciliation-worksheet__vs-spreadsheet-comparison.html.gz
       - 1099k-reconciliation-worksheet__why-is-my-1099-k-higher-than-what-i-actually-made.html.gz=1099k-reconciliation-worksheet__why-is-my-1099-k-higher-than-what-i-actually-made.html.gz
       - 3d-print-price-calculator__calc.mjs.gz=3d-print-price-calculator__calc.mjs.gz
+      - 3d-print-price-calculator__gcode.mjs.gz=3d-print-price-calculator__gcode.mjs.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
