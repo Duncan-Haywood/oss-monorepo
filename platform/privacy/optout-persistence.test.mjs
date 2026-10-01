@@ -1137,6 +1137,7 @@ const RELATIVE_SELF = relative(
 // +1: `adu-payback-calculator` graduated.
 // +1: `dog-grooming-profit-calculator` graduated.
 // +1: `laundromat-machine-payback-calculator` graduated.
+// +1: `tire-shop-ticket-margin-calculator` graduated.
 // +1: `massage-therapist-profit-calculator` graduated.
 // +1: `dj-gig-profit-calculator` graduated.
 // +1: `wedding-photographer-profit-calculator` graduated.
