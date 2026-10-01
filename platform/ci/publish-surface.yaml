@@ -884,6 +884,9 @@ workflows:
 - workflow: land-survey-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: contractor-wip-schedule-ci.yml
+  classification: none
+  publishes: []
 - workflow: landlord-repair-or-replace-planner-ci.yml
   classification: none
   publishes: []

@@ -23838,6 +23838,39 @@ ventures:
       not advice, no prediction of any unit's failure; safety, code and warranty
       stated as unchecked. Ethics: helps owners avoid both wasted repairs and
       unplanned outages for tenants; nothing leaves the browser.
+  - slug: contractor-wip-schedule
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Percent-of-completion accounting arithmetic and a stress test, run in the
+      browser; no language model and no paid API. The schedule and the visible
+      assumptions are the product.
+    basis: >-
+      Screened 2026-10-01. duplicate_check.py best match 0.23
+      (invoice-payment-terms-calculator, not a WIP schedule). Distribution 6:
+      "WIP schedule template", "overbilling underbilling" and "percentage of
+      completion" are recurring contractor and bookkeeper queries and a bank or
+      surety asks for the schedule every period (volume not measured with an
+      external tool). Defensibility 3: the method is textbook and a spreadsheet can
+      reproduce it; the edge is a private no-upload tool that flags losses, cash
+      borrowed from the end of a job and backlog against working capital.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied numbers, no warranty, not an accounting
+      opinion or bonding decision; unmodelled items stated. Ethics: helps
+      contractors see overstated profit before a lender or surety does; nothing
+      leaves the browser.
   - slug: market-garden-bed-planner
     scores:
       ai_leverage: 4
