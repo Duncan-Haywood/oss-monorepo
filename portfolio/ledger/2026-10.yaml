@@ -521,3 +521,34 @@ entries:
       Liability: arithmetic and search on user-typed names and wishes, not
       event-planning advice, no guarantee of anyone's comfort, no prices asserted, no
       warranty. No guest data stored or sent. Ethics: helps a host seat guests kindly.
+  - venture: cheap-meal-plan-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built cheap-meal-plan-optimizer: a browser-local minimum-cost diet
+        solver. Enter foods with a price and nutrition per serving, set calorie, protein,
+        fat, carb and fibre bounds and serving caps; a two-phase simplex plus branch and
+        bound (whole, half or quarter servings) finds the lowest-cost daily plan, the
+        weekly cost, the extra cost of each target by re-solving, a shopper's
+        rule-of-thumb comparison, and how cost rises with the protein minimum, with a
+        CSV. Starter foods carry approximate generic nutrition and EXAMPLE prices; a hard
+        floor refuses plans under 1,200 kcal. New niche after a first attempt, a league
+        schedule generator, turned out to have been built in parallel by another session
+        (#6154) and was dropped without shipping: duplicate_check.py closest
+        production-mix-optimizer 0.18. First visitor expected from "cheapest high
+        protein meal plan" and "budget meal plan" searches. No food list leaves the
+        browser. Verified: integer plans equal exhaustive search on 60 random small menus
+        and an independent verifyPlan rechecks bounds, caps, steps and cost. Unverified:
+        no real shopping basket, and nutrition values are approximate. Registered score
+        row, launch date, CI workflow and a guide page whose worked example is recomputed
+        by the suite.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed numbers, not medical or dietary advice,
+      1,200 kcal floor, stated unsuitable for children, pregnancy, eating disorders and
+      medical conditions, example prices labelled, no warranty, nothing stored. Ethics:
+      helps people on a budget see what their protein target costs.

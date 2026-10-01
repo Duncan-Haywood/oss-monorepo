@@ -143,3 +143,8 @@ test("the menu mix analyzer links here, so the two food-side tools are one hop a
   assert.match(other, /href="\.\.\/production-mix-optimizer\/"/);
   assert.match(page("index.html"), /href="\.\.\/restaurant-pos-menu-mix-analyzer\/"/);
 });
+
+test("links to the cheapest meal plan optimizer, a sibling solving the same kind of linear program", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/cheap-meal-plan-optimizer\/"/);
+  assert.ok(existsSync(new URL("../cheap-meal-plan-optimizer/index.html", import.meta.url)));
+});
