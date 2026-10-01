@@ -922,6 +922,9 @@ const CATEGORY_RULES = [
     // time, travel, and a booking policy into a price. Not a trade bid
     // (nothing priced by area or a construction job) and not a marketplace
     // fee.
+    // `laundromat-machine-payback-calculator` joined 2026-10-01 on its first commit: an
+    // owner turning machine lines, vend prices and turns into payback months sits
+    // beside `vending-machine-route-margin`.
     // `dog-grooming-profit-calculator` joined 2026-10-01 on its first commit: a
     // groomer turning services, minutes, supplies and overhead into a profit per
     // hour and a price floor is the `dog-boarding-daycare-pricing` job again.
