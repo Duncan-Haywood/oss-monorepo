@@ -23875,3 +23875,41 @@ ventures:
       not advice, no prediction of any unit's failure; safety, code and warranty
       stated as unchecked. Ethics: helps owners avoid both wasted repairs and
       unplanned outages for tenants; nothing leaves the browser.
+  - slug: market-garden-bed-planner
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      An exact bounded simplex with dual prices and a seeded simulation run in the
+      browser; no language model and no paid API. Which limit binds, and what
+      relaxing it is worth, is the product.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. duplicate_check.py best
+      match 0.21 (custom-farm-rate-calculator, a pipeline candidate about custom
+      hire rates); the reorder, menu, rent and podcast niches tried first were
+      already built and dropped. Distribution 5: "which vegetables make the most
+      money per bed foot" and "market garden crop profitability" are recurring
+      grower queries and growers gather in active forums and groups (volume not
+      measured with an external tool). Defensibility 4: paid crop planners sell
+      scheduling and report on past sales; the edge is a private no-signup
+      optimizer that prices the limits and shows the gain over sorting by profit
+      per bed-foot, with the assumptions on the page.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: planning arithmetic on supplied figures, not advice, no warranty,
+      no vendor ranked, limits stated (planting windows, rotation, weather and
+      losses are not modelled; food-safety and licensing rules stay with the
+      user). Farm data never leaves the browser. Ethics: helps a small grower
+      decide what to plant; nothing is sold, no data is collected and no referral
+      is made.

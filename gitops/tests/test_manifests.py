@@ -2864,8 +2864,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `mechanics-lien-deadline-calculator` graduated (browser-local mechanics-lien notice and filing deadline lookup, five states).
     # +1: `donor-retention-analyzer` graduated (browser-local nonprofit donor retention and ranked LYBUNT/SYBUNT lists from own gift history).
     # +1: `workers-comp-premium-calculator` graduated (browser-local workers' comp premium and audit true-up from user-supplied class rates).
+    # +1: `market-garden-bed-planner` graduated (browser-local crop-mix planner: exact LP over beds, labor and demand, with shadow prices).
     # +1: `private-practice-payer-mix-calculator` graduated (browser-local therapy-practice payer mix: net per clinical hour by panel and cash, break-even refill).
-    total = 531  # `infra/OWNER_CHECKLIST.md`'s own "N of the 531 tools" wording.
+    # +1: `home-care-agency-margin-calculator` graduated (browser-local home care agency margin per billed hour by payer, bill rate for a target margin).
+    total = 533  # `infra/OWNER_CHECKLIST.md`'s own "N of the 533 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -48,6 +48,41 @@ entries:
         no-network assertions. Registered score row, launch date, category rule and CI
         workflow; refreshed the front-door mirror and tree counts.
     mrr_end: 0
+  - venture: market-garden-bed-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built market-garden-bed-planner: a browser-local crop-mix
+        planner for market gardens and small diversified farms. Enter one row per
+        crop (yield per bed-foot, price, days in bed, cost, labor, what can be
+        sold, a committed minimum) plus total bed-feet, season days and labor hours.
+        It solves the plan that earns the most as an exact bounded-simplex linear
+        program over bed-foot-days, labor hours and per-crop demand caps, and reads
+        the dual prices off the same solution: what one more bed-foot, labor hour
+        or 100 units of demand is worth, and the price rise that would bring each
+        left-out crop in. It also prices a plan sorted by profit per bed-foot under
+        the same limits (the folk method), re-solves with 10% more land or labor,
+        and runs 400 seeded seasons with a shared-shock yield and price swing for a
+        profit range. New niche after the e-commerce reorder, menu, agency, rent and
+        podcast niches all hit existing ventures (0.42 to 0.85); duplicate_check.py
+        best match here 0.21. First visitor expected from "which vegetables make the
+        most money per bed foot" and "market garden crop profitability" searches and
+        grower forums. Farm data never leaves the browser. Unverified on a working
+        farm: tests include a hand-solved two-crop plan, strong duality, 200 random
+        instances matched against exhaustive vertex enumeration, an optimizer-never-
+        worse-than-sorted property over 100 random farms, and no-network assertions;
+        a browser run loaded the example with no console errors and no axe violations.
+        Registered score row, launch date, category rule and CI workflow.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: planning arithmetic on supplied figures, not advice, no warranty,
+      independence from vendors stated, limits stated. Farm data never leaves the
+      browser. Ethics: helps a small grower decide what to plant; nothing is sold,
+      no data is collected and no referral is made.
   - venture: home-care-agency-margin-calculator
     agent_spend_usd: null
     human_hours: 0
