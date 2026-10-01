@@ -1,11 +1,11 @@
-"""Build the GitHub Pages homepage from site/projects.json, README.md and research/.
+"""Build the research homepage from research/_homepage/projects.json, research/README.md and research/.
 
-    python site/build.py            # writes _site/index.html
-    python site/build.py --out DIR
+    python3 research/_homepage/build.py            # writes research/_homepage/_site/index.html
+    python3 research/_homepage/build.py --out DIR
 
-Card titles, abstracts and themes come from site/projects.json; the one-line lede is
-each project's README.md bullet; test counts are the `def test_` functions under
-research/<slug>/. The build fails if any research/ project is missing from
+Card titles, abstracts and themes come from projects.json; the one-line lede is
+each project's research/README.md bullet; test counts are the `def test_` functions under
+research/<slug>/. Directories under research/ starting with `_` or `.` are not projects. The build fails if any research/ project is missing from
 projects.json or README.md, or if either lists a project that does not exist.
 """
 import argparse
@@ -15,13 +15,14 @@ import re
 import sys
 from pathlib import Path
 
-REPO = "Duncan-Haywood/oss-research-monorepo"
+REPO = "Duncan-Haywood/fp-monorepo"
 REPO_URL = f"https://github.com/{REPO}"
-ROOT = Path(__file__).resolve().parent.parent
+HERE = Path(__file__).resolve().parent
+RESEARCH = HERE.parent
 
 
 def readme_ledes():
-    text = (ROOT / "README.md").read_text()
+    text = (RESEARCH / "README.md").read_text()
     ledes = {}
     for slug, lede in re.findall(r"^- \[`research/([\w-]+)`\]\([^)]*\)\s*[—-]+\s*(.+)$", text, re.M):
         # Escape, then turn `code` spans into <code>.
@@ -34,7 +35,7 @@ def readme_ledes():
 def test_count(slug):
     return sum(
         len(re.findall(r"^\s*def test_", f.read_text(errors="ignore"), re.M))
-        for f in (ROOT / "research" / slug).rglob("test*.py")
+        for f in (RESEARCH / slug).rglob("test*.py")
     )
 
 
@@ -43,20 +44,20 @@ def plain(s):
 
 
 def validate(data, ledes):
-    projects = {p.name for p in (ROOT / "research").iterdir() if p.is_dir()}
+    projects = {p.name for p in RESEARCH.iterdir() if p.is_dir() and p.name[0] not in "_."}
     listed = [p["slug"] for t in data["themes"] for p in t["projects"]]
     errors = []
-    errors += [f"site/projects.json: missing research/{s}" for s in sorted(projects - set(listed))]
-    errors += [f"site/projects.json: nonexistent research/{s}" for s in sorted(set(listed) - projects)]
-    errors += [f"site/projects.json: research/{s} listed twice" for s in sorted({s for s in listed if listed.count(s) > 1})]
-    errors += [f"README.md: missing bullet for research/{s}" for s in sorted(projects - set(ledes))]
-    errors += [f"README.md: bullet for nonexistent research/{s}" for s in sorted(set(ledes) - projects)]
-    errors += [f"site/projects.json: featured research/{s} not listed" for s in data["featured"] if s not in listed]
+    errors += [f"projects.json: missing research/{s}" for s in sorted(projects - set(listed))]
+    errors += [f"projects.json: nonexistent research/{s}" for s in sorted(set(listed) - projects)]
+    errors += [f"projects.json: research/{s} listed twice" for s in sorted({s for s in listed if listed.count(s) > 1})]
+    errors += [f"research/README.md: missing bullet for research/{s}" for s in sorted(projects - set(ledes))]
+    errors += [f"research/README.md: bullet for nonexistent research/{s}" for s in sorted(set(ledes) - projects)]
+    errors += [f"projects.json: featured research/{s} not listed" for s in data["featured"] if s not in listed]
     for t in data["themes"]:
         for p in t["projects"]:
             for k in ("slug", "title", "summary"):
                 if not p.get(k):
-                    errors.append(f"site/projects.json: research/{p.get('slug')} has no {k}")
+                    errors.append(f"projects.json: research/{p.get('slug')} has no {k}")
     return errors
 
 
@@ -74,7 +75,7 @@ def card(p, theme, lede, tests):
 
 
 def build(out):
-    data = json.loads((ROOT / "site" / "projects.json").read_text())
+    data = json.loads((HERE / "projects.json").read_text())
     ledes = readme_ledes()
     errors = validate(data, ledes)
     if errors:
@@ -110,7 +111,7 @@ def build(out):
         for i, t in enumerate(data["themes"], 1)
     )
 
-    page = (ROOT / "site" / "template.html").read_text()
+    page = (HERE / "template.html").read_text()
     for key, val in {
         "THEME_VARS": theme_vars, "MAP": rmap, "CHIPS": chips, "FEATURED": featured, "SECTIONS": sections,
         "PROJECT_COUNT": str(len(by_slug)), "TEST_COUNT": f"{sum(tests.values()):,}",
@@ -128,5 +129,5 @@ def build(out):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", type=Path, default=ROOT / "_site")
+    ap.add_argument("--out", type=Path, default=HERE / "_site")
     build(ap.parse_args().out)
