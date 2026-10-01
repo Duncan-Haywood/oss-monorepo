@@ -1320,6 +1320,9 @@ workflows:
 - workflow: rental-dscr-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: rental-fleet-size-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: rental-property-schedule-e-categorizer-ci.yml
   classification: none
   publishes: []
@@ -1482,6 +1485,12 @@ workflows:
   classification: none
   publishes: []
 - workflow: shipping-box-size-optimizer-ci.yml
+  classification: none
+  publishes: []
+- workflow: production-mix-optimizer-ci.yml
+  classification: none
+  publishes: []
+- workflow: crypto-cost-basis-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: shop-rate-calculator-ci.yml
