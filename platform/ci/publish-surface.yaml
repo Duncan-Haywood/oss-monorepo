@@ -98,6 +98,9 @@ workflows:
 - workflow: ada-title-ii-evidence-ci.yml
   classification: none
   publishes: []
+- workflow: adu-payback-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: affiliate-disclosure-checker-ci.yml
   classification: none
   publishes: []
