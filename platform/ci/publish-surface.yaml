@@ -416,6 +416,9 @@ workflows:
 - workflow: cost-segregation-study-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: cottage-food-pricing-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: countertop-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -684,6 +687,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: freelance-retainer-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: freelance-retainer-vs-hourly-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: freelance-writer-rate-calculator-ci.yml

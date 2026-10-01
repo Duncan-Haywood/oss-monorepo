@@ -1,0 +1,75 @@
+name: freelance-retainer-vs-hourly-calculator
+description: >-
+  Free browser tool for freelancers, consultants and small agencies: paste your
+  own time log (date, client, hours, optional billed amount), enter an hourly
+  rate and a proposed monthly retainer, and see per client the monthly hours
+  distribution with a seeded bootstrap range, your effective hourly rate under
+  the retainer at the median, 80th-percentile and worst month, break-even hours,
+  the retainer that hits a target rate at a chosen coverage, how often the
+  retainer would have underpaid, and a hold-out check. Refuses clients with
+  fewer than six months. Your time log never leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session. duplicate_check.py on
+# "freelance retainer vs hourly pricing calculator time log" scored 0.41 at most
+# (freelance-writer-rate-calculator, a rate-from-costs tool) and 0.36
+# (freelance-retainer-calculator, which prices a retainer from an income goal,
+# capacity and overhead assumptions; it takes no time log and runs no statistics
+# on past months). An earlier probe scored 0.32 at most (dog-boarding-daycare-
+# pricing). The overlap is the niche, not the method: this tool answers "would
+# the retainer I am about to propose have paid more or less than hourly, given
+# the hours this client really used", which no assumption-based calculator can.
+# Screened-out rows were not hit.
+#
+# Why this niche: freelancers and consultants are paid by the hour until a client
+# asks for a retainer, and the usual advice is "multiply your hours by your rate
+# and add a buffer" with no look at how lumpy the client's months actually were.
+# Most already keep a time log in a tracker or spreadsheet. Underpricing a
+# retainer in a busy month is a real loss that lands on the person least able to
+# model it, and they are the people with money at stake in every proposal.
+#
+# Alternatives: a spreadsheet by hand, income-goal retainer calculators, and
+# the reports inside time-tracking suites (which show hours, not the retainer
+# trade-off). No vendor is named or ranked.
+#
+# First visitor: r/freelance and r/consulting threads about moving a client from
+# hourly to a retainer, and searches for "retainer vs hourly pricing", "how to
+# price a retainer from past hours". Volume not measured with an external tool.
+#
+# Privacy is the boundary: client names and hours are business data. The tool
+# never transmits them (tests assert no network calls). It keeps no record.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: statistical description of supplied data, not tax, legal or
+# financial advice; says what it cannot see (scope creep, rollover, late payment,
+# unlogged hours, client willingness). Unverified: tested on hand-counted logs and
+# simulated hours with a known distribution, not on a published dataset.
+
+hypotheses:
+  - claim: >-
+      Freelancers and consultants with six or more months of time-log history for
+      a client will use a private, no-signup tool to test a proposed retainer
+      against their own months before sending the proposal, and return for the
+      next client.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in log) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that an effective hourly rate or a share of underpaid months disagrees with a hand count of the same log.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-vs-hourly-calculator/
+  analytics: null

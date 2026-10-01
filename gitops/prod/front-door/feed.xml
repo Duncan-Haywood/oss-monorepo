@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 534 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 536 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -17,6 +17,15 @@
     <summary type="text">Free work-in-progress schedule for contractors. Paste your open jobs with contract, estimated cost, cost to date and billings to see percent complete, over- and underbilling, expected losses, cash still to come, a cost-growth stress test and backlog against working capital. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Cottage Food Pricing Calculator — price baked goods and homemade food for profit</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cottage-food-pricing-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/cottage-food-pricing-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Cottage food pricing calculator for home bakers and small food makers. Get the full cost per item with your time, packaging, overhead and unsold goods, the price to charge online, at a farmers market and wholesale, and what you really earn per hour. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Donor Retention Analyzer — LYBUNT and SYBUNT lists from your own gifts</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/donor-retention-analyzer/"/>
     <id>tag:marisstella.dev,2026:tool/donor-retention-analyzer</id>
@@ -24,6 +33,15 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Donor retention analyzer for small nonprofits. Paste your gift history to see retention by fiscal year, first-time versus repeat donor retention, and which lapsed (LYBUNT, SYBUNT) donors are worth a call, ranked from your own giving. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Freelance Retainer vs Hourly Calculator — priced from your own time log</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freelance-retainer-vs-hourly-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/freelance-retainer-vs-hourly-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Retainer vs hourly calculator for freelancers, consultants and small agencies. Paste your time log to see your effective hourly rate under a monthly retainer, break-even hours, and the retainer that covers 80% of your months, from your own history. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Landlord Repair-or-Replace Planner — repair it or replace it?</title>
@@ -348,23 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free merchant cash advance calculator. Turn a factor rate and daily or weekly payments into the annualised cost of the money you actually receive, see what early payoff really costs, and price an invoice factoring quote. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Online Business Valuation Calculator — SaaS, Ecommerce, Content, Agency</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/online-business-valuation-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/online-business-valuation-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free online business valuation calculator. Enter revenue and SDE to get a sale price range for a SaaS, ecommerce, content or agency business, adjusted for growth, churn, concentration and owner hours. Nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Physician wRVU Compensation Calculator — Offer Break-Even, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/physician-wrvu-compensation-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/physician-wrvu-compensation-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free physician wRVU compensation calculator. Compare base-plus-productivity, pure wRVU and fixed salary, find the break-even wRVUs, effective $/wRVU, pay per hour, shortfall exposure and signing-bonus clawback, and compare two offers. Nothing uploaded.</summary>
   </entry>
 </feed>
