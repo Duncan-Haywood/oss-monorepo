@@ -1568,6 +1568,9 @@ workflows:
 - workflow: stucco-repair-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: studio-class-slot-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: subcontractor-cashflow-planner-ci.yml
   classification: none
   publishes: []

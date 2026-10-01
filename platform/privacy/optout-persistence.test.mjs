@@ -1122,7 +1122,8 @@ const RELATIVE_SELF = relative(
 // +1: `route-account-pruner` graduated.
 // +1: `lead-response-time-analyzer` graduated.
 // +1: `revenue-target-lead-planner` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 505;
+// +1: `studio-class-slot-optimizer` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 506;
 
 let counter = 0;
 function fixture(source) {
