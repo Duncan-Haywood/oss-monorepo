@@ -1,0 +1,61 @@
+name: driving-instructor-lesson-pricing-calculator
+description: >-
+  Free browser calculator for independent driving instructors: profit per
+  lesson, break-even price, the price that reaches a take-home target and the
+  cost of a block-booking discount, after fuel, car wear, fixed car costs,
+  unpaid gaps and cancellations. Copies a plain-text summary. Nothing leaves
+  the browser.
+
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture session (session_gate.py: build-now
+# queue empty). duplicate_check.py top hit for "driving instructor lesson
+# pricing and car cost calculator" was locksmith-bid-calculator at 0.27, well
+# under the 0.45 review bar; nothing prices lessons for a car-owning
+# instructor. Cross-linked to music-lesson-break-even (same lessons-by-the-hour
+# shape) and mileage-deduction-method-calculator.
+#
+# First visitor: searches "how much should a driving instructor charge",
+# "driving instructor profit per lesson", "driving instructor costs per hour";
+# instructor forums and Facebook groups. Volume not measured externally.
+#
+# Liability boundary: arithmetic on user-typed figures, before tax; no tax,
+# legal or licensing advice, no market rates quoted; nothing leaves the browser.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. A later
+# paid tier could be saved scenarios or a diary-aware planner; not built.
+
+hypotheses:
+  - claim: >-
+      Self-employed driving instructors will use a private, no-signup tool to
+      check lesson price against their own car and cancellation costs, and
+      return when fuel prices or their diary change.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: all arithmetic runs in the visitor's own
+  # browser against numbers they type in. Serving one more user costs a
+  # static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic, return usage, or unsolicited feedback after being
+    listed and indexed for a fair run (per portfolio/usage/README.md's
+    "fair run" definition).
+  - A materially better free tool covering the same lesson-pricing
+    arithmetic at the same zero-install, zero-signup bar becomes the
+    obvious default, such that this tool's differentiation no longer holds.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/driving-instructor-lesson-pricing-calculator/
+  analytics: null
