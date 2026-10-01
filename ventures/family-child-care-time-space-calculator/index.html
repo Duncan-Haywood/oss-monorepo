@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Family Child Care Time-Space Calculator — home day care tax percentage</title>
+  <meta name="description" content="Time-space percentage calculator for family child care and home day care providers. Enter your rooms, hours and home expenses and see the business share of each, compared with the simplified method. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Family Child Care Time-Space Calculator — free, private, in your browser">
+  <meta property="og:description" content="Work out your home day care time-space percentage and what each extra weekly hour is worth. No account, nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Family Child Care Time-Space Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compute the time-space percentage for a home day care: floor area used, hours in business use, exclusive-use rooms, the business share of mortgage interest, property tax, utilities, insurance, repairs and depreciation, a comparison with the simplified method, and what each extra weekly hour is worth. Runs entirely in your browser; nothing is uploaded.", "featureList": "time-space percentage, exclusive use rooms, regular vs simplified method, hours sensitivity, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the time-space percentage for a home day care?", "acceptedAnswer": {"@type": "Answer", "text": "It is the share of your home's expenses you can treat as business use when you run a day care from space you also live in. You multiply the share of your home's floor area that you use for the business by the share of the year's hours that the space is in business use. A 600 sq ft area used 55 hours a week for 50 weeks, in a 1,500 sq ft home, gives a space share of 40 percent and a time share of about 31 percent, so roughly 12.6 percent of indirect home costs."}}, {"@type": "Question", "name": "Which hours count as business hours?", "acceptedAnswer": {"@type": "Answer", "text": "Hours children are in your care, plus time you spend preparing and cleaning up for the business, are the usual inclusions in the IRS publication on business use of the home. Enter them separately so you can see what each is worth. Keep a log, because hours are the figure most often questioned. Confirm what counts for your situation with a tax professional."}}, {"@type": "Question", "name": "Do I divide by 8,760 hours?", "acceptedAnswer": {"@type": "Answer", "text": "Yes for a full non-leap year, 24 hours times 365 days. If the space was only available for part of the year, for example you moved in mid-year, enter the number of days it was available and the tool uses 24 hours times that number."}}, {"@type": "Question", "name": "What if a room is used only for the day care?", "acceptedAnswer": {"@type": "Answer", "text": "A room used regularly and exclusively for the business is counted at 100 percent of its area with no time factor. Mark such rooms exclusive. Rooms used for the day care and also for family life use the time factor. Note the exclusive-use test is strict; a playroom the family also uses is not exclusive."}}, {"@type": "Question", "name": "Regular method or simplified method, which is bigger?", "acceptedAnswer": {"@type": "Answer", "text": "The tool shows both on your figures. The simplified method is a flat rate per square foot of allowable area up to a cap, with no expense tracking or home depreciation; the rate and cap are inputs because they are set by the IRS and can change. For a part-time-use area the allowable area is reduced by the time share. The regular method is often larger for a home with high interest, tax, utility and depreciation costs, but it has record-keeping and depreciation consequences this tool does not model."}}, {"@type": "Question", "name": "Does it include food and supplies?", "acceptedAnswer": {"@type": "Answer", "text": "Not in the time-space calculation, which covers indirect home expenses only. Food, toys, supplies and similar costs are direct business expenses with their own rules. You can enter a direct-expense total so it appears next to the home deduction, but it is not multiplied by anything."}}, {"@type": "Question", "name": "Is my information uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads. No child or family information is needed or accepted."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FAMILY CHILD CARE TIME-SPACE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What share of your home is your day care?</h1>
+    <p>List the <strong>rooms you use</strong>, the <strong>hours you are in business</strong> and your <strong>home expenses</strong>. The tool computes your <strong>time-space percentage</strong>, the business share of each expense, a comparison with the <strong>simplified method</strong>, and what <strong>one more hour a week</strong> is worth.</p>
+    <p class="note">Arithmetic on figures you supply, using the method described in IRS Publication 587. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your home</h2>
+    <div class="row3">
+      <div><label for="homeSqft">Total home square feet</label><input id="homeSqft" inputmode="decimal" value="1500"></div>
+      <div><label for="daysAvailable">Days the space was available this year</label><input id="daysAvailable" inputmode="decimal" value="365"></div>
+    </div>
+    <label for="rooms">Rooms used for the business (name, square feet, "exclusive" if used only for the business)</label>
+    <textarea id="rooms" spellcheck="false" placeholder="Living room,320&#10;Playroom,150,exclusive"></textarea>
+    <h2 style="margin-top:18px">Your hours</h2>
+    <div class="row3">
+      <div><label for="hoursPerWeek">Hours per week children are in your care</label><input id="hoursPerWeek" inputmode="decimal" value="50"></div>
+      <div><label for="prepHoursPerWeek">Prep and cleanup hours per week</label><input id="prepHoursPerWeek" inputmode="decimal" value="5"></div>
+      <div><label for="weeksOpen">Weeks open per year</label><input id="weeksOpen" inputmode="decimal" value="50"></div>
+    </div>
+    <h2 style="margin-top:18px">Your expenses for the year</h2>
+    <label for="expenses">Indirect home expenses (name, annual amount), one per line</label>
+    <textarea id="expenses" spellcheck="false" placeholder="Mortgage interest,9600&#10;Utilities,4200"></textarea>
+    <div class="row3">
+      <div><label for="directExpenses">Direct business expenses, not prorated ($)</label><input id="directExpenses" inputmode="decimal" value="0"></div>
+      <div><label for="simplifiedRate">Simplified method rate ($ per sq ft)</label><input id="simplifiedRate" inputmode="decimal" value="5"></div>
+      <div><label for="simplifiedCapSqft">Simplified method area cap (sq ft)</label><input id="simplifiedCapSqft" inputmode="decimal" value="300"></div>
+    </div>
+    <p class="note">Check the simplified rate and cap against the current IRS instructions; they are inputs because they can change. Depreciation: enter the annual figure from your own records or preparer.</p>
+    <button type="button" id="analyze">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Fill in your home, then click Calculate.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="verdict"></p>
+    <h3>Business share of each expense</h3>
+    <div class="scroll"><table id="et"><thead><tr><th>Expense</th><th class="n">Annual</th><th class="n">Business share</th><th class="n">Personal share</th></tr></thead><tbody></tbody></table></div>
+    <h3>What the hours are worth</h3>
+    <div class="scroll"><table id="st"><thead><tr><th class="n">Hours per week</th><th class="n">Time share</th><th class="n">Business-use share</th><th class="n">Regular-method deduction</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download the result (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Time share:</strong> (hours per week + prep hours per week) × weeks open ÷ (24 × days available). <strong>Space share:</strong> room area ÷ home area. Rooms marked exclusive count at 100% of their area with no time factor; other rooms are multiplied by the time share. <strong>Business-use share:</strong> exclusive area share + regular area share × time share. Each indirect expense is multiplied by it. <strong>Simplified method:</strong> rate × (exclusive area + regular area × time share), capped at the area you enter.</p>
+    <p><strong>Not modelled:</strong> depreciation itself (enter the annual figure), depreciation recapture when the home is sold, the Schedule A effect of the personal share of mortgage interest and property tax, the income limit on the deduction, state rules, licensing, food and meal reimbursements, and whether your hours and rooms would pass an examination. Unverified: tested on hand-calculated examples, not on a filed return. It computes a percentage; it does not tell you what to claim.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the time-space percentage for a home day care?</h3>
+    <p>It is the share of your home's expenses you can treat as business use when you run a day care from space you also live in. You multiply the share of your home's floor area that you use for the business by the share of the year's hours that the space is in business use. A 600 sq ft area used 55 hours a week for 50 weeks, in a 1,500 sq ft home, gives a space share of 40 percent and a time share of about 31 percent, so roughly 12.6 percent of indirect home costs.</p>
+    <h3>Which hours count as business hours?</h3>
+    <p>Hours children are in your care, plus time you spend preparing and cleaning up for the business, are the usual inclusions in the IRS publication on business use of the home. Enter them separately so you can see what each is worth. Keep a log, because hours are the figure most often questioned. Confirm what counts for your situation with a tax professional.</p>
+    <h3>Do I divide by 8,760 hours?</h3>
+    <p>Yes for a full non-leap year, 24 hours times 365 days. If the space was only available for part of the year, for example you moved in mid-year, enter the number of days it was available and the tool uses 24 hours times that number.</p>
+    <h3>What if a room is used only for the day care?</h3>
+    <p>A room used regularly and exclusively for the business is counted at 100 percent of its area with no time factor. Mark such rooms exclusive. Rooms used for the day care and also for family life use the time factor. Note the exclusive-use test is strict; a playroom the family also uses is not exclusive.</p>
+    <h3>Regular method or simplified method, which is bigger?</h3>
+    <p>The tool shows both on your figures. The simplified method is a flat rate per square foot of allowable area up to a cap, with no expense tracking or home depreciation; the rate and cap are inputs because they are set by the IRS and can change. For a part-time-use area the allowable area is reduced by the time share. The regular method is often larger for a home with high interest, tax, utility and depreciation costs, but it has record-keeping and depreciation consequences this tool does not model.</p>
+    <h3>Does it include food and supplies?</h3>
+    <p>Not in the time-space calculation, which covers indirect home expenses only. Food, toys, supplies and similar costs are direct business expenses with their own rules. You can enter a direct-expense total so it appears next to the home deduction, but it is not multiplied by anything.</p>
+    <h3>Is my information uploaded?</h3>
+    <p>No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads. No child or family information is needed or accepted.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice and does not replace a qualified tax professional or the IRS instructions. Results are arithmetic on the figures you type. You are responsible for reviewing and verifying its output.</p>
+    <p><strong>Independent.</strong> Not affiliated with the IRS, any tax-preparation service, licensing agency or food-program sponsor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../childcare-tuition-calculator/">childcare tuition calculator</a>, the <a href="../home-office-deduction-calculator/">home office deduction calculator</a> and the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseRooms, parseExpenses, analyze, reportCsv, sampleRooms, sampleExpenses, money, money2, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const FIELDS = ["homeSqft", "daysAvailable", "hoursPerWeek", "prepHoursPerWeek", "weeksOpen", "directExpenses", "simplifiedRate", "simplifiedCapSqft"];
+    let last = null;
+
+    function run() {
+      const rooms = parseRooms($("#rooms").value);
+      if (rooms.error) { status.textContent = rooms.error; report.hidden = true; return false; }
+      const exp = parseExpenses($("#expenses").value);
+      const opts = {};
+      for (const k of FIELDS) opts[k] = $("#" + k).value;
+      const r = analyze(rooms.rows, exp.rows, opts);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...rooms.warnings, ...exp.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = [
+        [pct(r.time.pct), `Time share (${Math.round(r.time.hours).toLocaleString("en-US")} of ${Math.round(r.time.available).toLocaleString("en-US")} hours)`],
+        [pct(r.effective), "Business-use share of indirect home expenses"],
+        [money(r.totals.business), "Regular method: business share of your expenses"],
+        [money(r.simplified.amount), `Simplified method${r.simplified.capBinds ? " (area cap applies)" : ""}`],
+        [money2(r.perExtraHour), "Worth of one more hour a week (regular method)"],
+      ];
+      $("#big").innerHTML = big.map(([v, t]) => `<div><strong>${esc(v)}</strong>${esc(t)}</div>`).join("");
+      $("#verdict").textContent = r.verdict;
+      $("#et tbody").innerHTML = r.lines.map((l) => `<tr><td>${esc(l.name)}</td><td class="n">${money(l.amount)}</td><td class="n">${money(l.business)}</td><td class="n">${money(l.personal)}</td></tr>`).join("") + `<tr><th>Total</th><th class="n">${money(r.totals.indirect)}</th><th class="n">${money(r.totals.business)}</th><th class="n">${money(r.totals.personal)}</th></tr>`;
+      $("#st tbody").innerHTML = r.sensitivity.map((s) => `<tr><td class="n">${s.hoursPerWeek}${s.extraHours === 0 ? " (yours)" : ""}</td><td class="n">${pct(s.timePct)}</td><td class="n">${pct(s.effective)}</td><td class="n">${money(s.deduction)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rooms").value = sampleRooms();
+      $("#expenses").value = sampleExpenses();
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented home, not a real provider."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rooms").value = ""; $("#expenses").value = ""; report.hidden = true; last = null; status.textContent = "Fill in your home, then click Calculate."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "time-space-result.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

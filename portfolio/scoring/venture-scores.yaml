@@ -23876,3 +23876,37 @@ ventures:
       user). Farm data never leaves the browser. Ethics: helps a small grower
       decide what to plant; nothing is sold, no data is collected and no referral
       is made.
+  - slug: family-child-care-time-space-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic tax-share arithmetic in the browser; no language model and no
+      paid API. The value is getting the hours, room and exclusive-use rules
+      right and showing what each hour is worth.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 6: "time
+      space percentage calculator" is a perennial filing-season query in family
+      child care provider communities (volume not measured with an external tool).
+      Defensibility 4: providers get this from a paid preparer or a hand-built
+      spreadsheet; the edge is a private no-signup calculator that handles
+      exclusive-use rooms, partial-year availability and the simplified-method
+      comparison.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures using a publicly described method,
+      not tax advice, no warranty, tax-year constants are inputs, limits stated
+      (depreciation, recapture, Schedule A, income limit and state rules are not
+      modelled). No child or family data; nothing leaves the browser. Ethics:
+      helps a small provider compute a figure their preparer will check.
