@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 564 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 565 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -177,6 +177,15 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Margin calculator for non-medical home care agencies. See what each payer really leaves per billed hour after payroll tax, workers&#39; comp, overtime, unpaid travel and slow payment, the bill rate that reaches your target margin, and what a wage raise costs. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>House Cleaning Quote Calculator — price floor, discounts and profit per visit</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/house-cleaning-quote-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/house-cleaning-quote-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">House cleaning quote calculator for cleaning business owners. Enter home size, your cleaners&#39; pace and wages, supplies and drive time to see cost per visit, the lowest price that earns your margin, how far you can discount weekly and biweekly clients, and annual profit. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Landlord Repair-or-Replace Planner — repair it or replace it?</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free ad budget optimizer for multi-channel advertisers. Upload weekly spend and revenue per channel to see each channel&#39;s diminishing-returns curve, the marginal return on the next dollar, the best split of the same budget, and a back-test of the fit. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Real Estate Brokerage Split Calculator — Compare Splits, Caps and Fees</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/agent-brokerage-split-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/agent-brokerage-split-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free real estate brokerage split calculator for agents. Compare up to three brokerages by what you net after the split, cap, transaction and monthly fees, franchise royalty and referral fees, and see the deal count where each plan wins. Runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>

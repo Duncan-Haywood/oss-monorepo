@@ -530,6 +530,9 @@ workflows:
 - workflow: laundromat-machine-payback-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: house-cleaning-quote-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: dog-walking-route-pricing-ci.yml
   classification: none
   publishes: []
