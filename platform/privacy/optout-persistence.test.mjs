@@ -1160,7 +1160,7 @@ const RELATIVE_SELF = relative(
 // +1: `freight-broker-load-margin-calculator` graduated.
 // +1: `breakeven-roas-calculator` graduated.
 // +1: `driving-instructor-lesson-pricing-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 542;
+const SWITCHES_IN_THE_CATALOGUE = 543;
 
 let counter = 0;
 function fixture(source) {

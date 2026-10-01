@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 563 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 564 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -184,7 +184,7 @@
     <id>tag:marisstella.dev,2026:tool/laundromat-machine-payback-calculator</id>
     <published>2026-10-01T00:00:00Z</published>
     <updated>2026-10-01T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Laundromat machine payback calculator for owners and buyers. Enter washers and dryers with price per cycle, turns per day, utilities and installed cost to see payback months, the turns per day you need, store net after overhead, and what a price rise can cost. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
@@ -314,6 +314,15 @@
     <summary type="text">Free vacation and PTO request planner for small teams. Paste your people with roles and the time-off requests you have, set the minimum on duty per role, and see which requests to approve, why each other one clashes and what dates would work. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Tire Shop Ticket Margin Calculator — net per ticket, upsell attach and bay capacity</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tire-shop-ticket-margin-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/tire-shop-ticket-margin-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Tire shop ticket margin calculator for owners and managers. Enter tires, alignments, road hazard coverage and fees with price, parts cost, labor minutes and attach rate to see net per ticket, what each upsell is worth, break-even tickets, bay capacity and what a discount must win back. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Wedding Photographer Profit Calculator — profit per hour worked, editing included</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/wedding-photographer-profit-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/wedding-photographer-profit-calculator</id>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free real estate brokerage split calculator for agents. Compare up to three brokerages by what you net after the split, cap, transaction and monthly fees, franchise royalty and referral fees, and see the deal count where each plan wins. Runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Appointment Overbooking Optimizer — how many extra bookings offset your no-shows</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/appointment-overbooking-optimizer/"/>
-    <id>tag:marisstella.dev,2026:tool/appointment-overbooking-optimizer</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free appointment overbooking calculator for clinics, dentists, salons and studios. Enter your slots, no-show rate or daily booked and showed counts, and what an over-full day costs. Get the profit-maximising number of extra bookings, the chance anyone is over capacity, and how sure the answer is. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
