@@ -33,34 +33,34 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 546832 bytes
-#   portfolio-front-tools-1: 92 files, 555040 bytes
-#   portfolio-front-tools-2: 144 files, 552976 bytes
-#   portfolio-front-tools-3: 132 files, 556700 bytes
-#   portfolio-front-tools-4: 136 files, 556439 bytes
-#   portfolio-front-tools-5: 126 files, 556189 bytes
-#   portfolio-front-tools-6: 120 files, 552523 bytes
-#   portfolio-front-tools-7: 136 files, 556487 bytes
-#   portfolio-front-tools-8: 127 files, 554512 bytes
-#   portfolio-front-tools-9: 119 files, 552007 bytes
-#   portfolio-front-tools-10: 125 files, 543796 bytes
-#   portfolio-front-tools-11: 139 files, 555104 bytes
-#   portfolio-front-tools-12: 119 files, 554925 bytes
-#   portfolio-front-tools-13: 119 files, 549409 bytes
-#   portfolio-front-tools-14: 121 files, 553040 bytes
-#   portfolio-front-tools-15: 116 files, 549365 bytes
-#   portfolio-front-tools-16: 118 files, 556326 bytes
-#   portfolio-front-tools-17: 126 files, 557005 bytes
-#   portfolio-front-tools-18: 127 files, 555462 bytes
-#   portfolio-front-tools-19: 124 files, 555142 bytes
-#   portfolio-front-tools-20: 124 files, 549811 bytes
-#   portfolio-front-tools-21: 123 files, 555579 bytes
-#   portfolio-front-tools-22: 95 files, 550707 bytes
-#   portfolio-front-tools-23: 116 files, 552439 bytes
-#   portfolio-front-tools-24: 121 files, 556421 bytes
-#   portfolio-front-tools-25: 120 files, 551492 bytes
-#   portfolio-front-tools-26: 119 files, 553900 bytes
-#   portfolio-front-tools-27: 78 files, 393558 bytes
+#   portfolio-front-tools-0: 145 files, 546846 bytes
+#   portfolio-front-tools-1: 92 files, 555041 bytes
+#   portfolio-front-tools-2: 144 files, 552980 bytes
+#   portfolio-front-tools-3: 132 files, 556701 bytes
+#   portfolio-front-tools-4: 136 files, 556473 bytes
+#   portfolio-front-tools-5: 126 files, 556203 bytes
+#   portfolio-front-tools-6: 120 files, 552496 bytes
+#   portfolio-front-tools-7: 136 files, 556477 bytes
+#   portfolio-front-tools-8: 127 files, 554455 bytes
+#   portfolio-front-tools-9: 119 files, 552139 bytes
+#   portfolio-front-tools-10: 125 files, 543712 bytes
+#   portfolio-front-tools-11: 139 files, 555130 bytes
+#   portfolio-front-tools-12: 119 files, 554895 bytes
+#   portfolio-front-tools-13: 119 files, 549430 bytes
+#   portfolio-front-tools-14: 121 files, 553116 bytes
+#   portfolio-front-tools-15: 116 files, 549358 bytes
+#   portfolio-front-tools-16: 118 files, 556378 bytes
+#   portfolio-front-tools-17: 126 files, 557009 bytes
+#   portfolio-front-tools-18: 127 files, 555435 bytes
+#   portfolio-front-tools-19: 124 files, 556466 bytes
+#   portfolio-front-tools-20: 126 files, 555672 bytes
+#   portfolio-front-tools-21: 124 files, 555965 bytes
+#   portfolio-front-tools-22: 96 files, 553777 bytes
+#   portfolio-front-tools-23: 116 files, 555951 bytes
+#   portfolio-front-tools-24: 121 files, 556097 bytes
+#   portfolio-front-tools-25: 121 files, 555905 bytes
+#   portfolio-front-tools-26: 119 files, 553924 bytes
+#   portfolio-front-tools-27: 78 files, 393523 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2671,6 +2671,11 @@ configMapGenerator:
       - project-estimate-calibrator__calc.mjs.gz=project-estimate-calibrator__calc.mjs.gz
       - project-estimate-calibrator__index.html.gz=project-estimate-calibrator__index.html.gz
       - project-estimate-calibrator__usage.mjs.gz=project-estimate-calibrator__usage.mjs.gz
+      - prometheus-cardinality-cost__cli.mjs.gz=prometheus-cardinality-cost__cli.mjs.gz
+      - prometheus-cardinality-cost__engine.mjs.gz=prometheus-cardinality-cost__engine.mjs.gz
+      - prometheus-cardinality-cost__index.html.gz=prometheus-cardinality-cost__index.html.gz
+      - prometheus-cardinality-cost__usage.mjs.gz=prometheus-cardinality-cost__usage.mjs.gz
+      - prometheus-cardinality-cost__why-prometheus-metrics-bills-explode-and-which-labels-to-drop.html.gz=prometheus-cardinality-cost__why-prometheus-metrics-bills-explode-and-which-labels-to-drop.html.gz
       - propane-delivery-route-margin__calc.mjs.gz=propane-delivery-route-margin__calc.mjs.gz
       - propane-delivery-route-margin__index.html.gz=propane-delivery-route-margin__index.html.gz
       - propane-delivery-route-margin__is-a-small-propane-customer-worth-keeping.html.gz=propane-delivery-route-margin__is-a-small-propane-customer-worth-keeping.html.gz
@@ -2684,16 +2689,16 @@ configMapGenerator:
       - pslf-vs-refinance-calculator__index.html.gz=pslf-vs-refinance-calculator__index.html.gz
       - pslf-vs-refinance-calculator__usage.mjs.gz=pslf-vs-refinance-calculator__usage.mjs.gz
       - pwa-installability-check__add-to-home-screen-not-showing.html.gz=pwa-installability-check__add-to-home-screen-not-showing.html.gz
-      - pwa-installability-check__analyze.mjs.gz=pwa-installability-check__analyze.mjs.gz
-      - pwa-installability-check__check.mjs.gz=pwa-installability-check__check.mjs.gz
-      - pwa-installability-check__index.html.gz=pwa-installability-check__index.html.gz
-      - pwa-installability-check__probe.mjs.gz=pwa-installability-check__probe.mjs.gz
-      - pwa-installability-check__usage.mjs.gz=pwa-installability-check__usage.mjs.gz
   - name: portfolio-front-tools-20
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - pwa-installability-check__analyze.mjs.gz=pwa-installability-check__analyze.mjs.gz
+      - pwa-installability-check__check.mjs.gz=pwa-installability-check__check.mjs.gz
+      - pwa-installability-check__index.html.gz=pwa-installability-check__index.html.gz
+      - pwa-installability-check__probe.mjs.gz=pwa-installability-check__probe.mjs.gz
+      - pwa-installability-check__usage.mjs.gz=pwa-installability-check__usage.mjs.gz
       - pwa-installability-check__vs-lighthouse.html.gz=pwa-installability-check__vs-lighthouse.html.gz
       - pwa-installability-check__vs-reading-the-manifest-by-eye.html.gz=pwa-installability-check__vs-reading-the-manifest-by-eye.html.gz
       - pypi-provenance-check__cli.mjs.gz=pypi-provenance-check__cli.mjs.gz
@@ -2815,14 +2820,14 @@ configMapGenerator:
       - retainage-cashflow-calculator__should-i-take-partial-retainage-now.html.gz=retainage-cashflow-calculator__should-i-take-partial-retainage-now.html.gz
       - retainage-cashflow-calculator__usage.mjs.gz=retainage-cashflow-calculator__usage.mjs.gz
       - retainage-cashflow-calculator__vs-a-spreadsheet.html.gz=retainage-cashflow-calculator__vs-a-spreadsheet.html.gz
-      - retainage-cashflow-calculator__vs-levelset.html.gz=retainage-cashflow-calculator__vs-levelset.html.gz
-      - retaining-wall-bid-calculator__calc.mjs.gz=retaining-wall-bid-calculator__calc.mjs.gz
-      - retaining-wall-bid-calculator__how-much-to-charge-for-a-retaining-wall.html.gz=retaining-wall-bid-calculator__how-much-to-charge-for-a-retaining-wall.html.gz
   - name: portfolio-front-tools-21
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - retainage-cashflow-calculator__vs-levelset.html.gz=retainage-cashflow-calculator__vs-levelset.html.gz
+      - retaining-wall-bid-calculator__calc.mjs.gz=retaining-wall-bid-calculator__calc.mjs.gz
+      - retaining-wall-bid-calculator__how-much-to-charge-for-a-retaining-wall.html.gz=retaining-wall-bid-calculator__how-much-to-charge-for-a-retaining-wall.html.gz
       - retaining-wall-bid-calculator__index.html.gz=retaining-wall-bid-calculator__index.html.gz
       - retaining-wall-bid-calculator__share.mjs.gz=retaining-wall-bid-calculator__share.mjs.gz
       - retaining-wall-bid-calculator__usage.mjs.gz=retaining-wall-bid-calculator__usage.mjs.gz
@@ -2944,13 +2949,13 @@ configMapGenerator:
       - self-employed-health-insurance-deduction-calculator__index.html.gz=self-employed-health-insurance-deduction-calculator__index.html.gz
       - self-employed-health-insurance-deduction-calculator__usage.mjs.gz=self-employed-health-insurance-deduction-calculator__usage.mjs.gz
       - self-employed-schedule-c-categorizer__calc.mjs.gz=self-employed-schedule-c-categorizer__calc.mjs.gz
-      - self-employed-schedule-c-categorizer__index.html.gz=self-employed-schedule-c-categorizer__index.html.gz
-      - self-employed-schedule-c-categorizer__usage.mjs.gz=self-employed-schedule-c-categorizer__usage.mjs.gz
   - name: portfolio-front-tools-22
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - self-employed-schedule-c-categorizer__index.html.gz=self-employed-schedule-c-categorizer__index.html.gz
+      - self-employed-schedule-c-categorizer__usage.mjs.gz=self-employed-schedule-c-categorizer__usage.mjs.gz
       - self-employment-tax-calculator__calc.mjs.gz=self-employment-tax-calculator__calc.mjs.gz
       - self-employment-tax-calculator__index.html.gz=self-employment-tax-calculator__index.html.gz
       - self-employment-tax-calculator__usage.mjs.gz=self-employment-tax-calculator__usage.mjs.gz
@@ -3045,12 +3050,12 @@ configMapGenerator:
       - shopify-fee-calculator__vs-doing-it-in-a-spreadsheet.html.gz=shopify-fee-calculator__vs-doing-it-in-a-spreadsheet.html.gz
       - shopify-fee-calculator__which-shopify-promo-costs-less.html.gz=shopify-fee-calculator__which-shopify-promo-costs-less.html.gz
       - shopify-fee-calculator__why-paypal-costs-more.html.gz=shopify-fee-calculator__why-paypal-costs-more.html.gz
-      - shopify-inventory-reorder-planner__calc.mjs.gz=shopify-inventory-reorder-planner__calc.mjs.gz
   - name: portfolio-front-tools-23
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shopify-inventory-reorder-planner__calc.mjs.gz=shopify-inventory-reorder-planner__calc.mjs.gz
       - shopify-inventory-reorder-planner__index.html.gz=shopify-inventory-reorder-planner__index.html.gz
       - shopify-inventory-reorder-planner__usage.mjs.gz=shopify-inventory-reorder-planner__usage.mjs.gz
       - shopify-payments-fee-analyzer__calc.mjs.gz=shopify-payments-fee-analyzer__calc.mjs.gz
@@ -3166,12 +3171,12 @@ configMapGenerator:
       - sql-migration-lock-check__sql.mjs.gz=sql-migration-lock-check__sql.mjs.gz
       - sql-migration-lock-check__usage.mjs.gz=sql-migration-lock-check__usage.mjs.gz
       - sql-migration-lock-check__vs-reading-the-migration-by-hand.html.gz=sql-migration-lock-check__vs-reading-the-migration-by-hand.html.gz
-      - sql-migration-lock-check__vs-squawk.html.gz=sql-migration-lock-check__vs-squawk.html.gz
   - name: portfolio-front-tools-24
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sql-migration-lock-check__vs-squawk.html.gz=sql-migration-lock-check__vs-squawk.html.gz
       - sql-migration-lock-check__why-your-migration-locked-the-table.html.gz=sql-migration-lock-check__why-your-migration-locked-the-table.html.gz
       - sri-check__index.html.gz=sri-check__index.html.gz
       - sri-check__sri.mjs.gz=sri-check__sri.mjs.gz
@@ -3292,12 +3297,12 @@ configMapGenerator:
       - sump-pump-bid-calculator__share.mjs.gz=sump-pump-bid-calculator__share.mjs.gz
       - sump-pump-bid-calculator__usage.mjs.gz=sump-pump-bid-calculator__usage.mjs.gz
       - sump-pump-bid-calculator__vs-a-flat-pump-swap-special.html.gz=sump-pump-bid-calculator__vs-a-flat-pump-swap-special.html.gz
-      - sump-pump-bid-calculator__vs-servicetitan.html.gz=sump-pump-bid-calculator__vs-servicetitan.html.gz
   - name: portfolio-front-tools-25
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sump-pump-bid-calculator__vs-servicetitan.html.gz=sump-pump-bid-calculator__vs-servicetitan.html.gz
       - sunroom-bid-calculator__calc.mjs.gz=sunroom-bid-calculator__calc.mjs.gz
       - sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz=sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz
       - sunroom-bid-calculator__index.html.gz=sunroom-bid-calculator__index.html.gz

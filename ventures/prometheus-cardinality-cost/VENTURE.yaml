@@ -1,0 +1,51 @@
+name: prometheus-cardinality-cost
+description: 'Free, zero-network, zero-dependency CLI + browser tool that reads one Prometheus or OpenMetrics /metrics scrape and reports active series per metric, labels with high or unbounded cardinality, the exact number of series removed by dropping each label, and a monthly cost estimate on hosted metrics plans (Grafana Cloud, Datadog-style) from the user''s own target count and editable list prices; usable as a CI series-budget gate. A deterministic calculator over one scrape, not a bill reader and not a guarantee of spend.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, not a trade-bid calculator (portfolio/pipeline/
+# README.md "archetype itself"). duplicate_check.py (run 2026-10-01) scored the
+# closest ventures: terraform-plan-blast-radius-check 0.16, actions-minutes-
+# estimator 0.08 -- nothing touches metrics cardinality. Not in screened-out.md.
+#
+# Where the first real visitor would come from: the search phrases "reduce
+# prometheus cardinality", "grafana cloud active series cost", "datadog custom
+# metrics bill too high", "high cardinality labels prometheus"; r/devops,
+# r/PrometheusMonitoring, r/sre and r/kubernetes threads titled "our metrics
+# bill doubled"; Hacker News posts about observability cost. The buyer-ish
+# reader is a platform/SRE engineer with a five-figure monthly metrics bill and
+# a deadline from finance. Adjacent products (Grafana Cost Management, Datadog
+# Metrics Summary, Chronosphere) analyse live data inside the paid vendor's
+# account; this works on a pasted scrape with no account and fits a PR gate --
+# that is the wedge, and a hosted multi-target series-trend monitor is the
+# natural paid upgrade path later.
+hypotheses:
+  - claim: An engineer whose metrics bill just jumped will search for how to find the high-cardinality label, paste one /metrics scrape, and learn which label to drop and how many series it saves.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will add the CLI to CI with --max-series so a new high-cardinality label fails the pull request instead of the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/prometheus-cardinality-cost/
+  analytics: null
