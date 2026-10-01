@@ -23736,3 +23736,35 @@ ventures:
     gate_note: >-
       Browser-local arithmetic on the user's own data; no warranty, not advice,
       nothing uploaded, nothing sold.
+  - slug: workers-comp-premium-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately: fixed premium arithmetic applied to
+      rates and payroll the user types.
+    basis: >-
+      Screened 2026-09-30. duplicate_check.py best match 0.54 (staffing-markup-
+      calculator, a staffing agency bill rate, not an employer's insurance
+      premium). Distribution 7: "how is workers comp premium calculated", "workers
+      comp audit additional premium" and "experience mod worth" are recurring
+      small-employer queries that recur at every renewal and audit (volume not
+      measured with an external tool). Defensibility 3: the arithmetic is public;
+      the edge is a free, private, no-lead-form decomposition that includes the
+      audit true-up, where carrier and broker calculators gate a quote.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied rates only, no rate table shipped, not
+      insurance or legal advice, no warranty, carrier figures control, limits stated
+      in three places; sells and binds nothing. Ethics: helps small employers
+      understand a bill they already owe; nothing leaves the browser.
