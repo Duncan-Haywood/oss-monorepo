@@ -24465,3 +24465,35 @@ ventures:
       not event-planning advice or a guarantee of anyone's comfort, no prices asserted,
       limits stated. Guest names never leave the browser and are not stored. Ethics:
       helps a host avoid seating conflicts.
+  - slug: cheap-meal-plan-optimizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Linear programming (simplex plus branch and bound) in the browser, checked
+      against exhaustive search on small menus; no language model and no paid API.
+      The value is turning a price list and nutrition targets into the cheapest plan
+      and the price of each target.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 8: "cheapest
+      meal plan", "budget high protein meal plan" and "minimum cost diet" are
+      high-volume consumer searches (volume not measured with an external tool).
+      Defensibility 4: the diet problem is textbook and macro trackers are plentiful;
+      the marginal-cost readout and privacy are the differentiators.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: nutrition is sensitive, so arithmetic on typed numbers only, approximate
+      starter data and example prices labelled, 1,200 kcal floor, not medical advice,
+      stated unsuitable for children, pregnancy, eating disorders and medical
+      conditions. Ethics: helps budget-constrained people plan food.
