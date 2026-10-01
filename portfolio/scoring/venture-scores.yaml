@@ -23436,6 +23436,16 @@ ventures:
       standard and paid dynamic-pricing services use market data this does not; the
       edge is free, private, no-upload use, the fee-and-turnover economics,
       bootstrap ranges and the plain refusal when prices never varied.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical estimate of supplied data, not advice, no warranty,
+      independence from platforms and vendors stated, limits stated (taxes,
+      licensing and platform rules not known) and an unidentified verdict when the
+      data cannot support an answer. Bookings never leave the browser. Ethics: helps
+      a small host see how their own bookings respond to price; nothing is sold, no
+      guest data is collected and no referral is made.
   - slug: trial-conversion-timing-analyzer
     scores:
       ai_leverage: 3
@@ -23444,7 +23454,7 @@ ventures:
       gross_margin: 10
       defensibility: 3
       distribution: 6
-    composite: 6.1
+    composite: 6.167
     rater_b: null
     floor: 3
     floor_dimension: ai_leverage
@@ -23467,12 +23477,8 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Liability: statistical estimate of supplied data, not advice, no warranty,
-      independence from platforms and vendors stated, limits stated (taxes,
-      licensing and platform rules not known) and an unidentified verdict when the
-      data cannot support an answer. Bookings never leave the browser. Ethics: helps
-      a small host see how their own bookings respond to price; nothing is sold, no
-      guest data is collected and no referral is made.
+      Liability: statistical estimate of the user's own data, no warranty, not
+      advice. Ethics: no customer data collected or sold; nothing leaves the browser.
       Liability: statistical description of supplied data, not advice, no warranty,
       independence from vendors stated, limits stated (sign-ups, activation, churn
       and longer trials are not modelled). Trial data never leaves the browser.
@@ -23584,3 +23590,65 @@ ventures:
       notice content, foreclosure) stated in three places. Prepares and files
       nothing. Ethics: helps small trades keep payment rights they already have;
       nothing leaves the browser.
+  - slug: workers-comp-premium-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately: fixed premium arithmetic applied to
+      rates and payroll the user types.
+    basis: >-
+      Screened 2026-09-30. duplicate_check.py best match 0.54 (staffing-markup-
+      calculator, a staffing agency bill rate, not an employer's insurance
+      premium). Distribution 7: "how is workers comp premium calculated", "workers
+      comp audit additional premium" and "experience mod worth" are recurring
+      small-employer queries that recur at every renewal and audit (volume not
+      measured with an external tool). Defensibility 3: the arithmetic is public;
+      the edge is a free, private, no-lead-form decomposition that includes the
+      audit true-up, where carrier and broker calculators gate a quote.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied rates only, no rate table shipped, not
+      insurance or legal advice, no warranty, carrier figures control, limits stated
+      in three places; sells and binds nothing. Ethics: helps small employers
+      understand a bill they already owe; nothing leaves the browser.
+  - slug: route-account-pruner
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product: ranking by profit per route hour and a typed
+      cancellation-rate trade-off, computed in the browser.
+    basis: >-
+      Scored 2026-09-30 to restore the scored-set check after the venture merged
+      without a row; full write-up in this venture's own VENTURE.yaml comment.
+      Route-business owners (lawn, pool, pest, cleaning) paste their accounts and
+      see which earn least per route hour including drive time and what to keep,
+      reprice or drop. Distribution 6: "which customers are not worth it" is a
+      recurring owner query (volume not measured with an external tool).
+      Defensibility 3: a spreadsheet does most of it; the edge is the private
+      no-upload workflow and the explicit cancellation trade-off.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own numbers, no warranty, not advice.
+      Ethics: no customer data collected or sold; nothing leaves the browser.

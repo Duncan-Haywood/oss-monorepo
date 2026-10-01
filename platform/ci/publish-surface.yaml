@@ -1760,6 +1760,9 @@ workflows:
 - workflow: wordpress-plugin-review-check-ci.yml
   classification: none
   publishes: []
+- workflow: workers-comp-premium-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: world-clock-widget-ci.yml
   classification: none
   publishes: []
