@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'tattoo-piece-profit-calculator':
+    'the hourly figure is a take-home target for all of the artist\'s time on a piece, and the shop share is a percentage of price or a monthly booth rent spread over tattooing hours rather than a percentage of direct cost; there is no burden field',
   'handyman-minimum-job-calculator':
     'the hourly pay is the owner\'s own target wage for every hour on a call, drive and estimate included, and overhead is a dollar monthly figure spread over billable hours rather than a percentage of direct cost; the tool solves the smallest job and a price floor from them instead of quoting a shop rate',
   'candle-batch-cost-calculator':

@@ -956,6 +956,9 @@ workflows:
 - workflow: lead-response-time-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: license-compat-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: license-drift-check-ci.yml
   classification: none
   publishes: []
@@ -1695,6 +1698,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: supabase-rls-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: tattoo-piece-profit-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: tax-loss-harvesting-calculator-ci.yml
