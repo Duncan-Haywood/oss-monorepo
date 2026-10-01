@@ -33,34 +33,34 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 546872 bytes
-#   portfolio-front-tools-1: 92 files, 554986 bytes
-#   portfolio-front-tools-2: 144 files, 552940 bytes
-#   portfolio-front-tools-3: 132 files, 556644 bytes
-#   portfolio-front-tools-4: 136 files, 556493 bytes
-#   portfolio-front-tools-5: 126 files, 556233 bytes
-#   portfolio-front-tools-6: 120 files, 552415 bytes
-#   portfolio-front-tools-7: 136 files, 556299 bytes
-#   portfolio-front-tools-8: 127 files, 554230 bytes
-#   portfolio-front-tools-9: 119 files, 553724 bytes
-#   portfolio-front-tools-10: 126 files, 556809 bytes
-#   portfolio-front-tools-11: 141 files, 550222 bytes
-#   portfolio-front-tools-12: 119 files, 550924 bytes
-#   portfolio-front-tools-13: 116 files, 551371 bytes
-#   portfolio-front-tools-14: 123 files, 554178 bytes
-#   portfolio-front-tools-15: 115 files, 555529 bytes
-#   portfolio-front-tools-16: 121 files, 556569 bytes
-#   portfolio-front-tools-17: 125 files, 552190 bytes
-#   portfolio-front-tools-18: 123 files, 553335 bytes
-#   portfolio-front-tools-19: 127 files, 552579 bytes
-#   portfolio-front-tools-20: 119 files, 549408 bytes
-#   portfolio-front-tools-21: 124 files, 555676 bytes
-#   portfolio-front-tools-22: 91 files, 542807 bytes
-#   portfolio-front-tools-23: 115 files, 544418 bytes
-#   portfolio-front-tools-24: 123 files, 554864 bytes
-#   portfolio-front-tools-25: 122 files, 555820 bytes
-#   portfolio-front-tools-26: 116 files, 555237 bytes
-#   portfolio-front-tools-27: 59 files, 302704 bytes
+#   portfolio-front-tools-0: 145 files, 546849 bytes
+#   portfolio-front-tools-1: 92 files, 554974 bytes
+#   portfolio-front-tools-2: 144 files, 552920 bytes
+#   portfolio-front-tools-3: 132 files, 556689 bytes
+#   portfolio-front-tools-4: 136 files, 556471 bytes
+#   portfolio-front-tools-5: 126 files, 556205 bytes
+#   portfolio-front-tools-6: 120 files, 552388 bytes
+#   portfolio-front-tools-7: 136 files, 556324 bytes
+#   portfolio-front-tools-8: 127 files, 554228 bytes
+#   portfolio-front-tools-9: 119 files, 553710 bytes
+#   portfolio-front-tools-10: 126 files, 556753 bytes
+#   portfolio-front-tools-11: 141 files, 550150 bytes
+#   portfolio-front-tools-12: 119 files, 550917 bytes
+#   portfolio-front-tools-13: 116 files, 551361 bytes
+#   portfolio-front-tools-14: 123 files, 554201 bytes
+#   portfolio-front-tools-15: 115 files, 555508 bytes
+#   portfolio-front-tools-16: 121 files, 556536 bytes
+#   portfolio-front-tools-17: 125 files, 552174 bytes
+#   portfolio-front-tools-18: 123 files, 553298 bytes
+#   portfolio-front-tools-19: 127 files, 552445 bytes
+#   portfolio-front-tools-20: 119 files, 549371 bytes
+#   portfolio-front-tools-21: 124 files, 555661 bytes
+#   portfolio-front-tools-22: 91 files, 542795 bytes
+#   portfolio-front-tools-23: 115 files, 544434 bytes
+#   portfolio-front-tools-24: 123 files, 554855 bytes
+#   portfolio-front-tools-25: 120 files, 549934 bytes
+#   portfolio-front-tools-26: 119 files, 553277 bytes
+#   portfolio-front-tools-27: 61 files, 322508 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3285,14 +3285,17 @@ configMapGenerator:
       - supabase-rls-check__vs-manually-checking-the-dashboard.html.gz=supabase-rls-check__vs-manually-checking-the-dashboard.html.gz
       - supabase-rls-check__vs-vibeappscanner.html.gz=supabase-rls-check__vs-vibeappscanner.html.gz
       - supabase-rls-check__why-does-disabling-rls-expose-my-supabase-data.html.gz=supabase-rls-check__why-does-disabling-rls-expose-my-supabase-data.html.gz
-      - tax-loss-harvesting-calculator__calc.mjs.gz=tax-loss-harvesting-calculator__calc.mjs.gz
-      - tax-loss-harvesting-calculator__index.html.gz=tax-loss-harvesting-calculator__index.html.gz
-      - tax-loss-harvesting-calculator__usage.mjs.gz=tax-loss-harvesting-calculator__usage.mjs.gz
+      - tattoo-piece-profit-calculator__calc.mjs.gz=tattoo-piece-profit-calculator__calc.mjs.gz
+      - tattoo-piece-profit-calculator__index.html.gz=tattoo-piece-profit-calculator__index.html.gz
+      - tattoo-piece-profit-calculator__usage.mjs.gz=tattoo-piece-profit-calculator__usage.mjs.gz
   - name: portfolio-front-tools-25
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - tax-loss-harvesting-calculator__calc.mjs.gz=tax-loss-harvesting-calculator__calc.mjs.gz
+      - tax-loss-harvesting-calculator__index.html.gz=tax-loss-harvesting-calculator__index.html.gz
+      - tax-loss-harvesting-calculator__usage.mjs.gz=tax-loss-harvesting-calculator__usage.mjs.gz
       - tender-radar__calc.mjs.gz=tender-radar__calc.mjs.gz
       - tender-radar__draft.mjs.gz=tender-radar__draft.mjs.gz
       - tender-radar__index.html.gz=tender-radar__index.html.gz
@@ -3410,16 +3413,16 @@ configMapGenerator:
       - vehicle-wrap-bid-calculator__vs-shopvox.html.gz=vehicle-wrap-bid-calculator__vs-shopvox.html.gz
       - vending-machine-route-margin__calc.mjs.gz=vending-machine-route-margin__calc.mjs.gz
       - vending-machine-route-margin__how-much-does-a-vending-machine-actually-make.html.gz=vending-machine-route-margin__how-much-does-a-vending-machine-actually-make.html.gz
-      - vending-machine-route-margin__index.html.gz=vending-machine-route-margin__index.html.gz
-      - vending-machine-route-margin__share.mjs.gz=vending-machine-route-margin__share.mjs.gz
-      - vending-machine-route-margin__usage.mjs.gz=vending-machine-route-margin__usage.mjs.gz
-      - vending-machine-route-margin__vs-cantaloupe.html.gz=vending-machine-route-margin__vs-cantaloupe.html.gz
-      - vending-machine-route-margin__vs-vendsoft.html.gz=vending-machine-route-margin__vs-vendsoft.html.gz
   - name: portfolio-front-tools-26
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vending-machine-route-margin__index.html.gz=vending-machine-route-margin__index.html.gz
+      - vending-machine-route-margin__share.mjs.gz=vending-machine-route-margin__share.mjs.gz
+      - vending-machine-route-margin__usage.mjs.gz=vending-machine-route-margin__usage.mjs.gz
+      - vending-machine-route-margin__vs-cantaloupe.html.gz=vending-machine-route-margin__vs-cantaloupe.html.gz
+      - vending-machine-route-margin__vs-vendsoft.html.gz=vending-machine-route-margin__vs-vendsoft.html.gz
       - vendor-change-watch__diff.mjs.gz=vendor-change-watch__diff.mjs.gz
       - vendor-change-watch__examples.mjs.gz=vendor-change-watch__examples.mjs.gz
       - vendor-change-watch__how-often-to-recheck-vendor-pages.html.gz=vendor-change-watch__how-often-to-recheck-vendor-pages.html.gz
@@ -3534,13 +3537,13 @@ configMapGenerator:
       - wheelchair-ramp-bid-calculator__usage.mjs.gz=wheelchair-ramp-bid-calculator__usage.mjs.gz
       - wheelchair-ramp-bid-calculator__vs-a-flat-rate-per-lineal-foot.html.gz=wheelchair-ramp-bid-calculator__vs-a-flat-rate-per-lineal-foot.html.gz
       - wheelchair-ramp-bid-calculator__vs-jobber.html.gz=wheelchair-ramp-bid-calculator__vs-jobber.html.gz
-      - where-to-sell-calculator__calc.mjs.gz=where-to-sell-calculator__calc.mjs.gz
-      - where-to-sell-calculator__does-it-actually-sell-there.html.gz=where-to-sell-calculator__does-it-actually-sell-there.html.gz
   - name: portfolio-front-tools-27
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - where-to-sell-calculator__calc.mjs.gz=where-to-sell-calculator__calc.mjs.gz
+      - where-to-sell-calculator__does-it-actually-sell-there.html.gz=where-to-sell-calculator__does-it-actually-sell-there.html.gz
       - where-to-sell-calculator__etsy-vs-ebay-fees.html.gz=where-to-sell-calculator__etsy-vs-ebay-fees.html.gz
       - where-to-sell-calculator__export.mjs.gz=where-to-sell-calculator__export.mjs.gz
       - where-to-sell-calculator__handoff.mjs.gz=where-to-sell-calculator__handoff.mjs.gz
