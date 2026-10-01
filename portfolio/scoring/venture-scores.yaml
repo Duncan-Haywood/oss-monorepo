@@ -24145,3 +24145,34 @@ ventures:
       warranty, no market prices asserted, limits stated. No client or pet data;
       nothing leaves the browser. Ethics: helps a small business owner price work
       honestly.
+  - slug: laundromat-machine-payback-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic payback arithmetic in the browser; no language model and no paid
+      API. The value is checking a distributor's pro forma against the owner's own
+      turns, vend prices and utility cost per cycle.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 6: laundromat
+      ROI and turns-per-day questions recur in owner and buyer communities (volume
+      not measured with an external tool). Defensibility 4: equipment vendors supply
+      their own pro formas; the edge is a neutral no-signup tool on the owner's own
+      figures.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not tax or financial advice, no
+      warranty, no market prices asserted, limits stated. No customer data; nothing
+      leaves the browser. Ethics: helps a small business owner check a large
+      purchase honestly.
