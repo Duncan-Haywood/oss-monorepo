@@ -100,3 +100,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
 test("footer links the sibling bid win-rate optimizer", () => {
   assert.match(page("index.html"), /href="\.\.\/bid-win-rate-optimizer\/"/);
 });
+
+test("footer links the lead planner", () => {
+  assert.match(page("index.html"), /href="\.\.\/revenue-target-lead-planner\/"/);
+});
