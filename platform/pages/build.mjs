@@ -551,9 +551,11 @@ const CATEGORY_RULES = [
     // per route hour including driving, same owner as the crew and bid tools here; slug names no trade.
     // `project-estimate-calibrator` joined 2026-09-30: it turns a freelancer's or contractor's own estimate-versus-actual
     // history into the buffer and fixed-price risk the bid calculators here leave to a guess; slug names no trade.
+    // `quote-follow-up-timing` and `revenue-target-lead-planner` joined 2026-09-30: both read a small service business's
+    // own quote and lead history (when quotes close; how many leads a revenue target needs); slugs name no trade.
     // `home-service-lead-roi-analyzer` reads a trades owner's lead-buying log (Thumbtack, Angi, Google LSA) to
     // show which paid source books jobs; same reader as the bid calculators here, slug names no trade.
-    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|construction-evidence|shop-rate|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner)/.test(slug),
+    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner)/.test(slug),
   },
   {
     id: 'food-service',
@@ -2618,6 +2620,14 @@ const CATEGORY_RULES = [
     // from `tutor-package-pricing-calculator`'s own commit rather than
     // landing as an orphan, which is also what keeps the catch-all inside
     // the bound `build.test.mjs` puts on it.
+    // `studio-class-slot-optimizer` joined 2026-09-30, filed here on its first
+    // commit rather than after a spell in the catch-all (which it would have
+    // pushed past the bound `build.test.mjs` puts on it). A studio owner
+    // deciding which of their own timetable slots pay for the instructor is
+    // the same move as `personal-trainer-package-pricing-calculator`'s
+    // trainer checking what an hour earns -- one small fitness business
+    // reading its own numbers. Shipped with a reciprocal inbound sibling link
+    // from that venture.
     // `podcast-feed-check` joined 2026-09-23, landing here rather than in the
     // `ci` category above it: the axis this section groups on is the earner,
     // not whether the tool is a calculator or a checker (already established
@@ -2674,6 +2684,7 @@ const CATEGORY_RULES = [
         'podcast-feed-check',
         'podcast-sponsorship-rate-calculator',
         'sponsor-ready',
+        'studio-class-slot-optimizer',
         'tutor-package-pricing-calculator',
         'voiceover-project-rate-calculator',
       ].includes(slug),
@@ -3413,7 +3424,7 @@ const SUBCATEGORY_RULES = {
       // margin, the same job-costing shape as `job-margin` and
       // `shop-rate` for a licensed surveyor's boundary/ALTA retracement
       // work instead of a construction trade.
-      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|project-estimate-calibrator|construction-evidence|shop-rate|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|custom-farm-rate|land-survey|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability)/.test(slug),
+      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|project-estimate-calibrator|construction-evidence|shop-rate|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|custom-farm-rate|land-survey|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability)/.test(slug),
     },
     {
       id: 'trades-cleaning',

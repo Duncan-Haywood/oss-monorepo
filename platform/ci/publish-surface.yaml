@@ -1287,6 +1287,9 @@ workflows:
 - workflow: required-checks-drift-check-ci.yml
   classification: none
   publishes: []
+- workflow: revenue-target-lead-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: restaurant-delivery-commission-analyzer-ci.yml
   classification: none
   publishes: []
@@ -1566,6 +1569,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: stucco-repair-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: studio-class-slot-optimizer-ci.yml
   classification: none
   publishes: []
 - workflow: subcontractor-cashflow-planner-ci.yml
