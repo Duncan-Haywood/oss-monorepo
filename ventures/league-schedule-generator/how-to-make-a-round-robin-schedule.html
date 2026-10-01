@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Make A Round-Robin Schedule: A Worked 5-Team Example</title>
+  <meta name="description" content="How a round-robin league schedule works: the circle method, byes for an odd number of teams, home and away balance, and a worked five-team season with two courts. Then build your own for free.">
+  <meta property="og:title" content="How To Make A Round-Robin Schedule: A Worked Example">
+  <meta property="og:description" content="Byes, home and away balance, courts and blackout dates, with a five-team season worked out. Free, private, in your browser.">
+  <link rel="canonical" href="./how-to-make-a-round-robin-schedule.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a round-robin schedule?", "acceptedAnswer": {"@type": "Answer", "text": "A format where every team plays every other team the same number of times. A single round robin with n teams has n(n-1)/2 matches; a double round robin plays each pair twice, once at each team's home venue. It is the fairest way to rank a small league because nobody is knocked out and the table is decided by everyone's results against everyone."}}, {"@type": "Question", "name": "What happens with an odd number of teams?", "acceptedAnswer": {"@type": "Answer", "text": "The circle method adds an invisible extra team, so each round one real team has a bye. Five teams play five rounds and every team sits out exactly once. The generator lists the bye in each round so the team knows it is not playing that week."}}, {"@type": "Question", "name": "How do you keep home and away fair?", "acceptedAnswer": {"@type": "Answer", "text": "In the circle method the home side of each pairing is set while the rounds are built, not patched afterwards. With an even number of teams the minimum possible number of home or away breaks (two consecutive home games or two consecutive away games) is the number of teams minus two, and the generator reaches it. With an odd number of teams no team gets two home or two away games in a row. A double round robin is mirrored, so every pair plays once at each home."}}, {"@type": "Question", "name": "What if a team cannot play on a certain date?", "acceptedAnswer": {"@type": "Answer", "text": "Type the team and the date as a blackout. The generator moves only the affected match out of that round and plays it in a makeup round after the regular season, so the other teams are not held up. If a date has to be given up entirely, it says so. Check the makeup dates with the teams before you publish."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>How to make a round-robin schedule, with a worked example</h1>
+  <p>A round robin is the simplest fair league: every team plays every other team the same number of times. The hard part is not the pairing, it is everything around it: the odd team who sits out each week, who is at home, which court, and the team captain who cannot play on the 20th.</p>
+  <p><a class="cta" href="./">Open the free schedule generator</a></p>
+  <h2>A worked example</h2>
+  <p>Five invented pickleball teams play on Tuesday evenings from 6 October 2026 on two courts. Five teams means five rounds of two matches, and each team has one bye. The home team is listed first.</p>
+  <table>
+    <thead><tr><th>Round</th><th>Date</th><th>Court 1</th><th>Court 2</th><th>Bye</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>6 Oct</td><td>Bolts v Eagles</td><td>Dinks v Comets</td><td>Aces</td></tr>
+      <tr><td>2</td><td>13 Oct</td><td>Comets v Aces</td><td>Eagles v Dinks</td><td>Bolts</td></tr>
+      <tr><td>3</td><td>20 Oct</td><td>Dinks v Bolts</td><td>Aces v Eagles</td><td>Comets</td></tr>
+      <tr><td>4</td><td>27 Oct</td><td>Eagles v Comets</td><td>Bolts v Aces</td><td>Dinks</td></tr>
+      <tr><td>5</td><td>3 Nov</td><td>Aces v Dinks</td><td>Comets v Bolts</td><td>Eagles</td></tr>
+    </tbody>
+  </table>
+  <p>Every pair meets once (ten matches), every team hosts twice and visits twice, nobody has two home or two away games in a row, and each team plays twice on each court. The generator checks all of that with a separate validator before it shows you the result. Bring a blackout date, for example Comets away on 20 October, and only the one match that clashes moves, to a makeup round on the next free Tuesday.</p>
+  <p><a class="cta" href="./">Make your own schedule</a></p>
+  <h2>Questions</h2>
+  <h3>What is a round-robin schedule?</h3>
+  <p>A format where every team plays every other team the same number of times. A single round robin with n teams has n(n-1)/2 matches; a double round robin plays each pair twice, once at each team's home venue. It is the fairest way to rank a small league because nobody is knocked out and the table is decided by everyone's results against everyone.</p>
+  <h3>What happens with an odd number of teams?</h3>
+  <p>The circle method adds an invisible extra team, so each round one real team has a bye. Five teams play five rounds and every team sits out exactly once. The generator lists the bye in each round so the team knows it is not playing that week.</p>
+  <h3>How do you keep home and away fair?</h3>
+  <p>In the circle method the home side of each pairing is set while the rounds are built, not patched afterwards. With an even number of teams the minimum possible number of home or away breaks (two consecutive home games or two consecutive away games) is the number of teams minus two, and the generator reaches it. With an odd number of teams no team gets two home or two away games in a row. A double round robin is mirrored, so every pair plays once at each home.</p>
+  <h3>What if a team cannot play on a certain date?</h3>
+  <p>Type the team and the date as a blackout. The generator moves only the affected match out of that round and plays it in a makeup round after the regular season, so the other teams are not held up. If a date has to be given up entirely, it says so. Check the makeup dates with the teams before you publish.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Check every date, court and pairing before you send a schedule to a league. The example teams are invented.</p>
+    <p>Everything the generator does runs in your browser; team names and dates are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

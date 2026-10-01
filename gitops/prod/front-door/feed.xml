@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 552 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 553 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -123,6 +123,15 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free tool for landlords and homeowners. Enter a water heater, furnace, AC, roof or appliance with its age, repair quote and replacement cost to see whether repairing or replacing costs less over the years you will own it, and the break-even repair price. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>League Schedule Generator — free round-robin schedule maker for clubs and rec leagues</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/league-schedule-generator/"/>
+    <id>tag:marisstella.dev,2026:tool/league-schedule-generator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free round robin schedule generator. Paste your team names and get a fair league schedule with real dates, balanced home and away, courts and time slots shared evenly, blackout dates, an optional play-off bracket, and CSV, calendar and text exports. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Market Garden Bed Planner — which crops earn the most per bed</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free cost segregation study calculator for rental and commercial property owners. Estimates first-year extra depreciation, tax saved at your bracket, fee payback, the recapture bill on sale and a present-value net. Illustrative; an engineer and your CPA decide. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Crew Dispatch Optimizer — who does which job, in what order</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/crew-dispatch-optimizer/"/>
-    <id>tag:marisstella.dev,2026:tool/crew-dispatch-optimizer</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free job dispatch and route planner for plumbers, HVAC, electricians, cleaners and other service crews. Paste your jobs and crews to get the cheapest assignment and stop order, what it saves against sending the nearest crew, and what losing a crew costs. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
