@@ -2879,8 +2879,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `dj-gig-profit-calculator` graduated (browser-local DJ profit per hour worked and price floor by package; landed in #6139 without its own line here).
     # +1: `shipping-box-size-optimizer` graduated (browser-local carton assortment optimizer: which box sizes to stock, p-median over dimensional-weight landed cost).
     # +1: `container-load-planner` graduated (browser-local 3D container/pallet load planner: units packed and left over, containers for the whole load, to-scale views, loose-versus-pallets comparison).
+    # +1: `crypto-cost-basis-calculator` graduated (browser-local crypto lot matcher: FIFO/LIFO/HIFO/LOFO/tax-aware, short/long rows, Form 8949 style export).
     # +1: `rental-fleet-size-optimizer` graduated (browser-local rental fleet size: Erlang loss plus seeded day-by-day simulation, how many identical units to own).
-    total = 546  # `infra/OWNER_CHECKLIST.md`'s own "N of the 546 tools" wording.
+    total = 547  # `infra/OWNER_CHECKLIST.md`'s own "N of the 547 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
