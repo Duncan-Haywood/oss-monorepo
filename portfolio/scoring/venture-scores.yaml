@@ -24306,3 +24306,35 @@ ventures:
       aid and not a load-securing, axle-weight or legal certificate, no warranty, no
       freight rates asserted, limits stated. No cargo data; nothing leaves the
       browser. Ethics: helps a small shipper plan space honestly.
+  - slug: production-mix-optimizer
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 6
+      distribution: 6
+    composite: 6.667
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      A linear-programming solver (two-phase simplex plus branch and bound on whole
+      batches) with shadow prices, in the browser; no language model and no paid API.
+      The value is pricing the bottleneck instead of ranking products by margin.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 6: "product mix
+      optimization", "bottleneck what to produce" and "is overtime worth it" searches
+      recur among small makers and food producers (volume not measured with an external
+      tool). Defensibility 6: production-planning software is sold to factories and a
+      spreadsheet owner approximates by feel; a free private exact solver with plain
+      shadow-price reporting is uncommon.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not legal, tax or financial advice, no
+      warranty, no prices, costs or capacities asserted, constant-usage assumption and
+      unmodelled setup stated. No customer data; nothing leaves the browser. Ethics:
+      helps a small maker spend scarce hours on what earns most.

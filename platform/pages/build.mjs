@@ -655,6 +655,10 @@ const CATEGORY_RULES = [
       // `shift-cover-optimizer` added 2026-09-30: plans the shifts forward from
       // an hourly need; same reader as the labor daypart analyzer above.
       'shift-cover-optimizer',
+      // `production-mix-optimizer` added 2026-10-01: which products a bakery or
+      // small food maker should bake when oven and labour hours run out; the
+      // same owner as the menu and pour-cost tools above.
+      'production-mix-optimizer',
     ].includes(slug),
   },
   {

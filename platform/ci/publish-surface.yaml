@@ -1484,6 +1484,9 @@ workflows:
 - workflow: shipping-box-size-optimizer-ci.yml
   classification: none
   publishes: []
+- workflow: production-mix-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: shop-rate-calculator-ci.yml
   classification: none
   publishes: []
