@@ -24241,3 +24241,35 @@ ventures:
       warranty, no market prices asserted, limits stated. No client or event data;
       nothing leaves the browser. Ethics: helps a small business owner price work
       honestly.
+  - slug: shipping-box-size-optimizer
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 6
+      distribution: 6
+    composite: 6.667
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      A combinatorial optimizer (p-median over candidate cartons) in the browser; no
+      language model and no paid API. The value is solving the assortment problem on
+      the seller's own order mix instead of a rule of thumb.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 6: "what size
+      shipping boxes should I stock" and dimensional-weight complaints recur in
+      seller forums whenever carrier rates change (volume not measured with an
+      external tool). Defensibility 6: box-assortment optimization is sold to
+      warehouses as packaging-engineering software and consulting; a free private
+      exact solver for a bench-packing seller is uncommon.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and optimization on supplied figures, not legal, tax or
+      shipping advice, no warranty, no carrier rates or box prices asserted, limits
+      stated. No customer data; nothing leaves the browser. Ethics: helps a small
+      seller cut shipping cost and packaging waste.

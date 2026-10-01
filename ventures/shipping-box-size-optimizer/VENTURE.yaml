@@ -1,0 +1,62 @@
+name: shipping-box-size-optimizer
+description: >-
+  Free browser tool for online sellers who pack their own orders: enter products
+  with packed size, weight and orders per month, and the cartons you could buy,
+  and an optimizer chooses which 1 to 10 box sizes to stock so every order ships
+  in its cheapest fitting box, counting dimensional weight, box cost and void fill.
+  Shows the saving of each extra size, the box for each product, and today's boxes
+  against the best set. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture session asked for a deeper, algorithmic
+# tool. duplicate_check.py: closest rows were parcel-dim-weight-calculator 0.17
+# (one carton's billable weight, not which assortment to stock) and
+# cut-list-optimizer 0.11 (unrelated); screened-out rows not hit.
+#
+# Why this niche: DTC and marketplace sellers shipping a few hundred to a few
+# thousand parcels a month pay dimensional weight on most light orders, and the
+# carton assortment is the lever they control. Cartonization / box-assortment
+# optimization is sold as packaging-engineering SaaS and consulting to warehouses
+# and 3PLs at enterprise prices; the small seller packing at a bench gets a
+# rule of thumb. The tool solves the actual p-median problem on their own mix:
+# exact enumeration when small, multi-start swap local search otherwise.
+#
+# First visitor: sellers searching "what size shipping boxes should I stock",
+# "how many box sizes", "reduce dimensional weight"; Shopify, Etsy and eBay
+# seller forums ask it whenever a carrier's rates or divisors change. Volume not
+# measured with an external tool.
+#
+# Liability boundary: arithmetic and optimization on user-typed figures; no
+# carrier rates, divisors or box prices asserted (example data is invented and
+# says so); surcharges not priced and said so.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural
+# lead magnet for a hosted packing-station box picker.
+
+hypotheses:
+  - claim: >-
+      Small online sellers will use a private, no-signup box assortment optimizer
+      when they reorder cartons or when a carrier changes its rates or divisor,
+      and the size-count curve changes how many sizes they buy.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a recommended box set costs more than a set they found by hand on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/shipping-box-size-optimizer/
+  analytics: null
