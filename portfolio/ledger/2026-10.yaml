@@ -84,7 +84,6 @@ entries:
       browser. Ethics: helps a small grower decide what to plant; nothing is sold,
       no data is collected and no referral is made.
   - venture: cottage-food-pricing-calculator
-  - venture: family-child-care-time-space-calculator
     agent_spend_usd: null
     human_hours: 0
     outcomes:
@@ -168,6 +167,11 @@ entries:
         of a towing venture was discarded after finding tow-motor-club-call-calculator
         already covers it (slug greps missed the short stem).
     mrr_end: 0
+  - venture: family-child-care-time-space-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Graduated and built family-child-care-time-space-calculator: a browser-local
         time-space percentage tool for home day care providers. Enter the rooms
         used (exclusive-use rooms count at full area, others scaled by hours),
