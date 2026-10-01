@@ -1,0 +1,58 @@
+name: handyman-minimum-job-calculator
+description: >-
+  Free browser tool for handymen and small repair businesses: enter the hourly pay
+  wanted, monthly overhead, drive, estimate and supply-run time and mileage, and see
+  the minimum trip charge, the smallest job worth driving to at the quoted hourly
+  rate, the price floor and effective hourly for each job quoted, and a job-size
+  ladder. No customer data; nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED,
+# build-now queue empty). duplicate_check.py closest match 0.35 (locksmith-bid-calculator,
+# a different trade and a bid shape); no ventures/ directory names handyman. Adjacent
+# shop-rate-calculator sets an hourly rate from payroll and overhead, and
+# house-cleaning-quote-calculator prices recurring cleans; neither answers "is this
+# 30-minute job worth the drive". screened-out.md rows not hit.
+#
+# Why this niche: small-job work is where handymen lose money. A half-hour fix carries the
+# same drive, estimate and supply-run time as a full day, so the hourly rate on the sign
+# overstates what is kept. Owners want a number for the minimum trip charge and the smallest
+# job to take, and rarely have one that counts unpaid time.
+#
+# First visitor: handymen and side-hustle fixers searching "handyman minimum charge",
+# "how much to charge for a small job", "handyman trip charge", and members of
+# trade-owner forums asking whether to turn down small jobs. Volume not measured with an
+# external tool.
+#
+# Liability boundary: arithmetic on user-typed figures; no market rates, licence rules or
+# tax treatment asserted; says what it does not model. No customer data.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural lead magnet
+# for a future hosted job log that tracks effective hourly across real jobs.
+
+hypotheses:
+  - claim: >-
+      Handymen will use a private, no-signup minimum job calculator when deciding
+      whether to set a trip charge or decline small jobs.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/handyman-minimum-job-calculator/
+  analytics: null
