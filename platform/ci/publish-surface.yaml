@@ -533,6 +533,9 @@ workflows:
 - workflow: tire-shop-ticket-margin-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: handyman-minimum-job-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: house-cleaning-quote-calculator-ci.yml
   classification: none
   publishes: []
