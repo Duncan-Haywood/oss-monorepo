@@ -1,0 +1,66 @@
+name: route-account-pruner
+description: >-
+  Free browser tool for recurring route businesses (lawn, pool, pest, cleaning,
+  grooming, dog walking): paste or upload accounts as price, visits per month,
+  minutes on site, drive minutes and materials, enter what an hour of route time
+  is worth, and get every account ranked by what it earns per route hour with
+  driving and vehicle cost included, a keep, reprice or drop move for each
+  account below the line using a typed cancellation rate, how much of the route
+  is driving, and a check of how the verdicts move if the hour value is 20% off.
+  Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "recurring route service customers ... which accounts to reprice or drop after
+# drive time": closest pool-route-pricing at 0.30 (prices one pool account from
+# labor, drive, chemicals and margin; does not rank an existing book) and
+# pest-control-bid-calculator at 0.27. Adjacent: service-hourly-yield-analyzer
+# (revenue per booked chair hour from a booking export, no drive time, no
+# drop or reprice decision), lawn-care-bid-calculator (one new bid),
+# route-stop-optimizer (stop order). Alternatives: a spreadsheet of accounts
+# (no drive cost per account, no cancellation trade-off) and field-service
+# suites (Jobber, Service Autopilot, Real Green) whose route tools need the
+# customer book in their cloud.
+#
+# First visitor: owner of a one to five crew lawn, pool or cleaning route who
+# searches "which lawn customers are not worth it", "how much to charge for a far
+# away lawn", "should I drop unprofitable customers"; r/lawncare and r/pools
+# business threads, Facebook groups for lawn and pest operators. Volume not
+# measured with an external tool.
+#
+# Privacy is the liability boundary: customer lists never leave the browser.
+# No vendor is ranked.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be saved route books with map-based drive times; not built.
+# Liability: arithmetic on supplied numbers, not advice; the cancellation response
+# is an assumption the user types and the page says so. Unverified: hand-checked
+# accounts in unit tests, not validated against real price changes.
+
+hypotheses:
+  - claim: >-
+      Owners of recurring-service routes with a customer list will use a private,
+      no-signup tool that ranks accounts by profit per route hour including
+      driving, and will return at each price-change season.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that an account's surplus or yield per hour disagrees with the arithmetic documented in the README.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/route-account-pruner/
+  analytics: null

@@ -96,3 +96,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("LICENSE"), /MIT License/);
   assert.match(page("VENTURE.yaml"), /^name: quote-follow-up-timing$/m);
 });
+
+test("footer links the sibling bid win-rate optimizer", () => {
+  assert.match(page("index.html"), /href="\.\.\/bid-win-rate-optimizer\/"/);
+});

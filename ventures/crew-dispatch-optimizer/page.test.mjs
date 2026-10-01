@@ -97,3 +97,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("LICENSE"), /MIT License/);
   assert.match(page("VENTURE.yaml"), /^name: crew-dispatch-optimizer$/m);
 });
+
+test("links to the route account pruner, which ranks the recurring accounts these crews serve", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/route-account-pruner\/"/);
+});

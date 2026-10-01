@@ -541,15 +541,19 @@ const CATEGORY_RULES = [
     // fields on every calculator in this section would never have seen it.
     // `bid-win-rate-optimizer` joined 2026-09-30: it learns from a contractor's own won and lost quotes which
     // markup to put on the job the bid calculators here price; slug names no trade, so it would land in the catch-all.
+    // `quote-follow-up-timing` joined 2026-09-30: it reads a contractor's or agency's own won, lost and open quotes to show when
+    // wins arrive and which open quotes are worth chasing; same reader as the bid calculators here, slug names no trade.
     // `crew-dispatch-optimizer` joined 2026-09-30: plans which crew takes which job and in what order for
     // plumbing, HVAC, electrical and cleaning crews, next to the job-costing tools those owners already use.
     // `service-van-stock-optimizer` joined 2026-09-30: it picks the parts an HVAC, plumbing or electrical van carries from
     // the owner's own job history; same reader as the trade bid calculators here, slug names no trade.
+    // `route-account-pruner` joined 2026-09-30: ranks a recurring route's accounts (lawn, pool, pest, cleaning) by profit
+    // per route hour including driving, same owner as the crew and bid tools here; slug names no trade.
     // `project-estimate-calibrator` joined 2026-09-30: it turns a freelancer's or contractor's own estimate-versus-actual
     // history into the buffer and fixed-price risk the bid calculators here leave to a guess; slug names no trade.
     // `home-service-lead-roi-analyzer` reads a trades owner's lead-buying log (Thumbtack, Angi, Google LSA) to
     // show which paid source books jobs; same reader as the bid calculators here, slug names no trade.
-    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|construction-evidence|shop-rate|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer)/.test(slug),
+    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|construction-evidence|shop-rate|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner)/.test(slug),
   },
   {
     id: 'food-service',
@@ -1105,6 +1109,10 @@ const CATEGORY_RULES = [
     // catches, so it is added by exact match rather than widening the
     // suffix list to a word this is the only user of.
     //
+    // `mechanics-lien-deadline-calculator` joined 2026-09-30: a five-state (CA, TX, FL, AZ, WA) date lookup for the preliminary-notice and
+    // lien-filing clocks an unpaid subcontractor faces, same not-legal-advice reference-table posture as
+    // `final-paycheck-deadline-calculator` right above; added by exact slug, not a new suffix.
+    //
     // `boi-reporting-exemption-checker` joined 2026-09-25, concurrently,
     // filed here on its first commit rather than after a spell in the
     // catch-all -- what `build.test.mjs`'s catch-all bound is for. Its
@@ -1126,6 +1134,7 @@ const CATEGORY_RULES = [
       || slug === '1099-k-threshold-checker'
       || slug === 'osha-trir-dart-calculator'
       || slug === 'final-paycheck-deadline-calculator'
+      || slug === 'mechanics-lien-deadline-calculator'
       || slug === 'boi-reporting-exemption-checker',
   },
   {
@@ -3411,7 +3420,7 @@ const SUBCATEGORY_RULES = {
       // margin, the same job-costing shape as `job-margin` and
       // `shop-rate` for a licensed surveyor's boundary/ALTA retracement
       // work instead of a construction trade.
-      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|project-estimate-calibrator|construction-evidence|shop-rate|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|crew-dispatch-optimizer|service-van-stock-optimizer|custom-farm-rate|land-survey|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability)/.test(slug),
+      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|project-estimate-calibrator|construction-evidence|shop-rate|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|custom-farm-rate|land-survey|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability)/.test(slug),
     },
     {
       id: 'trades-cleaning',
