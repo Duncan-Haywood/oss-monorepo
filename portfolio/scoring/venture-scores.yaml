@@ -24145,3 +24145,35 @@ ventures:
       warranty, no market prices asserted, limits stated. No client or pet data;
       nothing leaves the browser. Ethics: helps a small business owner price work
       honestly.
+  - slug: nsa-idr-offer-calculator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.667
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic expected-value optimization in the browser (offer search over a
+      user-drawn win-chance curve); no language model and no paid API. The value is
+      the file-or-skip decision per claim after fees and the break-even win chance.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 6: providers
+      and billing firms search "No Surprises Act IDR", "IDR offer amount" and
+      "is IDR worth the fees" (volume not measured with an external tool).
+      Defensibility 5: IDR services are sold as managed arbitration support at a
+      percentage of recovery; a free private tool that sizes the offer and the
+      file-or-skip call is a lead magnet for that audience.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures and a user-drawn assumption, not
+      legal or billing advice, no fee schedule, QPA or deadline source of its own,
+      no warranty, limits stated. No patient data; nothing leaves the browser.
+      Ethics: helps small providers decide where fighting a payment is worth the fee.

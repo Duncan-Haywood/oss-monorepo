@@ -246,3 +246,28 @@ entries:
     gate_note: >-
       Liability: arithmetic on supplied figures, not tax advice, no warranty,
       limits stated. No client data. Ethics: helps a small operator price honestly.
+  - venture: nsa-idr-offer-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built nsa-idr-offer-calculator: a browser-local tool for
+        out-of-network providers and billing teams disputing payments under the No
+        Surprises Act. Enter billed charge, QPA and amount paid per claim plus the
+        current IDR fees and a win-chance curve; it searches offers between the QPA
+        and the billed charge for the best expected net, reports the break-even win
+        chance, a file-or-skip call per claim, fee batching, how the total moves when
+        the win-chance assumption shifts, and open-negotiation and IDR-initiation
+        dates. New niche: duplicate_check.py closest 0.20, unrelated. First visitor
+        expected from "No Surprises Act IDR offer", "is IDR worth the fees" and
+        billing-team forums. No patient data; nothing leaves the browser. Unverified
+        on real IDR outcomes: tests use hand-calculated expected-net, break-even and
+        offer-optimum cases. Registered score row, launch date, category rule and CI.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not legal or billing advice, no
+      fee or QPA source, no warranty, limits stated. No patient data. Ethics: helps
+      small providers decide where a dispute is worth its fee.
