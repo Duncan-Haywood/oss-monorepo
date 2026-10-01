@@ -36,7 +36,7 @@ def _load(name: str, path: Path):
 # gitops/ci/ is a manifest directory, not an importable package.
 _sync = _load("sync_readme_counts", CI / "sync_readme_counts.py")
 
-RUNS_ON = "${{ vars.CI_RUNNER || 'ubuntu-latest' }}"
+RUNS_ON = "${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}"
 
 # Jobs that must stay off the switch: `container:` and `services:` both need a
 # Docker daemon to pull and run an image alongside the job, and the
@@ -593,3 +593,11 @@ def _gib(value: str) -> float:
     if value.endswith("Mi"):
         return float(value[:-2]) / 1024
     raise AssertionError(f"unhandled memory unit: {value}")
+
+
+def test_fork_pull_requests_never_reach_a_self_hosted_runner() -> None:
+    # The repository is public. A fork PR must land on a GitHub-hosted runner
+    # whatever CI_RUNNER says, and the guard has to come before the variable.
+    assert RUNS_ON.startswith(
+        "${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER"
+    )

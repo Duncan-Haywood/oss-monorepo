@@ -47,7 +47,7 @@ permissions:
 
 jobs:
   triage:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # Bounded by the dropped-packet case: every port is probed serially at
     # TCP_TIMEOUT each, so the worst case is well under a minute. The ceiling
     # matters because Actions minutes on this account are metered and have

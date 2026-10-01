@@ -93,11 +93,13 @@ two are the Docker-dependent jobs `gitops/tests/test_ci_runner.py`'s
 Docker daemon the self-hosted pod does not have):
 
 ```yaml
-runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
 ```
 
 Unset, `vars.CI_RUNNER` is the empty string, which is falsy, so the expression
-falls back to `ubuntu-latest`. **Merging this changes nothing** until the repo
+falls back to `ubuntu-latest`. A pull request from a fork always gets
+`ubuntu-latest`, whatever the variable says: the repository is public, and a
+self-hosted runner must never execute a stranger's code. **Merging this changes nothing** until the repo
 variable is set. Setting it to `self-hosted` moves every workflow onto this
 stack at once; clearing it moves them all back when metered minutes reset. That
 is the point of routing through one variable rather than editing every

@@ -60,7 +60,7 @@ jobs:
     # The browser surface in site/ is plain ES modules and needs no container,
     # so unlike test-core above it *does* read the CI_RUNNER switch and can run
     # on a self-hosted runner once one exists.
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 20
     defaults:
       run:
