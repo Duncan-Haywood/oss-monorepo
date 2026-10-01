@@ -509,6 +509,9 @@ workflows:
 - workflow: dog-boarding-daycare-pricing-ci.yml
   classification: none
   publishes: []
+- workflow: dog-grooming-profit-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: dog-walking-route-pricing-ci.yml
   classification: none
   publishes: []

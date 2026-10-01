@@ -387,6 +387,8 @@ export const REVIEWED_NOT_CARRIED = {
     'the labour rate is what the operator wants to earn for their own time, not a wage cost, and there is no overhead percentage',
   'dog-walking-route-pricing':
     'the hourly figure is a target sell rate rather than a wage, and overhead is monthly dollars',
+  'dog-grooming-profit-calculator':
+    'the hourly figure is a take-home target rather than a wage, and overhead is monthly dollars spread over bookable hours rather than a percentage of direct cost; there is no burden field',
   'dog-boarding-daycare-pricing':
     'overhead is a flat dollar allowance per dog-day rather than a percentage of direct cost, and there is no burden field, so prefilling from the shared shop-rate bar would put a considered-looking wrong number on the overhead field even though the wage and margin fields are genuine',
   'notary-trip-quote':
