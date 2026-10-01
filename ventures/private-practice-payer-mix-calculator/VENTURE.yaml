@@ -1,0 +1,71 @@
+name: private-practice-payer-mix-calculator
+description: >-
+  Free browser tool for therapists and counselors in private practice: paste one
+  row per payer (allowed amount, sessions a month, share of claims paid, days to
+  payment, billing minutes) and see what every insurance panel and the practice's
+  cash fee really net per session and per clinical hour, the refill rate at which
+  dropping a panel breaks even, annual results at several refill rates, and the
+  contract rate that would match cash. Payer-level totals only, no client data.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED,
+# build-now queue empty). Catalogue check: nothing serves mental-health or
+# allied-health private practice; the nearest are dental-ppo-writeoff-calculator
+# (dental fee schedule write-offs, one carrier's rate against chair time) and
+# no-show-fee-calculator. Screened-out rows were not hit.
+#
+# Why this niche: US therapists, counselors, social workers and psychologists in
+# solo or small group practice number in the hundreds of thousands, and the
+# dominant decision of the first five years is which insurance panels to join,
+# keep or leave versus going cash-pay. Online therapy-business communities argue
+# this constantly with anecdotes, because the real per-hour net of a panel after
+# denials, slow payment and billing time is never computed. People in this
+# segment pay for practice software (EHR $30-100 a month), so willingness to
+# pay for tools that raise income is demonstrated.
+#
+# Alternatives: spreadsheets shared in therapist communities, EHR financial
+# reports (revenue by payer, not net per hour of the clinician's time), and
+# consultants selling "go private pay" courses.
+#
+# First visitor: solo practitioners searching "insurance vs private pay therapist",
+# "should I drop insurance panel", "therapist rate per hour after insurance".
+# Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: rows are payers, never clients, so the tool
+# takes no protected health information by design, and nothing is transmitted
+# (tests assert no network calls). No payer, EHR or billing service is ranked.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural
+# lead magnet for a future hosted practice-finance tool (remittance import).
+# Liability: arithmetic on user-typed figures, not billing, tax, legal or clinical
+# advice; says what it cannot see (referral flow, client attrition, contract
+# terms) and never tells a user to leave a network. Unverified: tested on
+# hand-calculated examples, not on a real practice's books.
+
+hypotheses:
+  - claim: >-
+      Solo and small-group therapy practices with three or more payers will use a
+      private, no-signup tool to compare panels with cash pay per hour, and will
+      return when a rate change or a denial streak arrives.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a net-per-hour figure disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/private-practice-payer-mix-calculator/
+  analytics: null

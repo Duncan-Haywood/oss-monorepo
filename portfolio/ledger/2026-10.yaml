@@ -28,6 +28,26 @@ entries:
         no-network assertions. Registered score row, launch date, category rule and CI
         workflow.
     mrr_end: 0
+  - venture: private-practice-payer-mix-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built private-practice-payer-mix-calculator: a browser-local
+        tool for therapists and counselors in private practice. Paste one row per
+        payer (allowed amount, sessions a month, share of claims paid, days to
+        payment, billing minutes); it computes net per session and per clinical hour
+        for every insurance panel and the cash fee after denials, billing-service
+        fee and admin time, receivables owed, the break-even refill share for
+        dropping a panel (an empty slot earns nothing), annual results at 25 to 100
+        percent refill, and the contract rate that would match cash. Rows are payers,
+        never clients, so no PHI is taken. New niche: nothing in the catalogue serves
+        mental-health practices (nearest dental-ppo-writeoff-calculator). First
+        visitor expected from "insurance vs private pay therapist" searches. Unverified
+        on a real practice: tests use hand-calculated nets, an exact rate solve and
+        no-network assertions. Registered score row, launch date, category rule and CI
+        workflow; refreshed the front-door mirror and tree counts.
+    mrr_end: 0
   - venture: market-garden-bed-planner
     agent_spend_usd: null
     human_hours: 0
