@@ -1,0 +1,66 @@
+name: landlord-repair-or-replace-planner
+description: >-
+  Free browser tool for small landlords and homeowners: paste or upload
+  equipment (water heater, furnace, AC, roof, appliances) as age, repair quote
+  and replacement cost, and get, for each, whether repairing or replacing costs
+  less over the years you will own it under a wear-out failure model, the
+  break-even repair quote, the chance of failing within three years, a
+  comparison with the 50% rule of thumb, whether the verdict flips if the life
+  is 25% off, and a budgeted replacement order. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED,
+# build-now queue empty). duplicate_check.py on "rental property owner repair or
+# replace water heater furnace roof ...": closest fleet-repair-or-replace-planner
+# at 0.20 (vehicles, mileage and resale, not building systems) and
+# equipment-lease-buyout-calculator 0.14. Adjacent: appliance-repair-quote-calculator
+# (a repair shop pricing a job, the opposite side of the quote),
+# water-heater-bid-calculator (a contractor's bid), hoa-reserve-fund-calculator
+# (association reserves, not a repair decision). Alternatives: the 50% rule in a
+# blog post, and property-management suites whose capital-planning modules need the
+# portfolio in their cloud.
+#
+# First visitor: a landlord with one to fifty units holding a repair quote, who
+# searches "repair or replace water heater", "furnace repair vs replace cost",
+# "50 percent rule repair replace"; r/landlord and r/HomeImprovement threads.
+# Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: property lists never leave the browser. No
+# vendor is ranked.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A later
+# paid tier could be a saved portfolio with reminders and a fitted life curve per
+# brand; not built.
+# Liability: arithmetic on supplied numbers and planning lives, not advice or a
+# prediction of any unit's failure; the page says so and that safety, code and
+# warranty are not checked. Unverified: hand-computed cases in unit tests, lives
+# not fitted to failure data.
+
+hypotheses:
+  - claim: >-
+      Small landlords and homeowners holding a repair quote will use a private,
+      no-signup tool that prices repair against replace over their holding period
+      and gives a break-even quote, rather than the 50% rule of thumb, and will
+      return when the next quote arrives.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a verdict or break-even quote disagrees with the arithmetic documented in the README.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/landlord-repair-or-replace-planner/
+  analytics: null
