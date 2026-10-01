@@ -661,6 +661,9 @@ const CATEGORY_RULES = [
       // `time-off-request-planner` joined 2026-10-01 on its first commit: decides which
       // leave requests fit a team's minimum cover; the same owner as the shift tools above.
       'time-off-request-planner',
+      // `retirement-withdrawal-sequencer` joined 2026-10-01 on its first commit: whole-retirement
+      // withdrawal-order comparison, beside `roth-conversion-bracket-fill-calculator`.
+      'retirement-withdrawal-sequencer',
       // `production-mix-optimizer` added 2026-10-01: which products a bakery or
       // small food maker should bake when oven and labour hours run out; the
       // same owner as the menu and pour-cost tools above.
@@ -927,8 +930,12 @@ const CATEGORY_RULES = [
     // `league-schedule-generator` joined 2026-10-01 on its first commit: a volunteer
     // organiser turning a team list, dates and courts into a fair fixture list is
     // the same event-organiser job as `event-seating-chart-optimizer` above.
+    // `coffee-roaster-margin-calculator` joined 2026-10-01 on its first commit: a micro
+    // roaster turning green price, roast loss and channel fees into a per-bag margin is
+    // the same small-operator pricing job as `pour-cost-calculator` and
+    // `cottage-food-pricing-calculator`.
     test: (slug) =>
-      /^(home-care-agency|booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|massage-therapist-profit|dj-gig-profit|wedding-photographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule)/.test(
+      /^(home-care-agency|booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|massage-therapist-profit|dj-gig-profit|wedding-photographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|coffee-roaster-margin)/.test(
         slug,
       ),
   },
