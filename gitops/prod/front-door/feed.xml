@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 562 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 563 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -366,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free appointment overbooking calculator for clinics, dentists, salons and studios. Enter your slots, no-show rate or daily booked and showed counts, and what an over-full day costs. Get the profit-maximising number of extra bookings, the chance anyone is over capacity, and how sure the answer is. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Augusta Rule Calculator — What Renting Your Home to Your Business Saves</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/augusta-rule-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/augusta-rule-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free Augusta rule calculator. Enter days rented to your own business, a fair daily rent and your tax rates to see the federal, self-employment and state tax saved, net of costs, and how the saving changes if the rate is cut back. Runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
