@@ -1,0 +1,13 @@
+# Shaper twin: can an input shaper make a liquid-carrying cart's move robust to a stale slosh-frequency calibration, and how fast can it be?
+
+Pure Python, no dependencies. Follow-up to `slosh-twin` (same cart: 80 kg body, damped spring-mass slosh mode with 20 kg liquid, 0.5 Hz at full tank; twin = one rigid mass). The twin's bang-bang acceleration command is convolved with a zero-vibration (ZV) or zero-vibration-and-derivative (ZVD) shaper designed at the twin's calibrated frequency. Results (all from `experiments/results.txt`): (1) for an undamped mode the shaped residual is exactly `V(ε) ×` the unshaped one, `V = |sin(πε/2)|` (ZV) or `sin²(πε/2)` (ZVD), `ε = ω/ω_model − 1`, matched by exact propagation to 6 printed digits; distance and the acceleration cap are preserved; (2) designed at a full tank, both shapers hold the 1 cm tolerance at every fill from 1.0 to 0.1 (`ε` down to −9.5%) in 5.90 s (ZV) / 6.90 s (ZVD), worst residual 4.8 mm / 0.6 mm; the null-tuned move of `slosh-twin` needs 8 s to half fill and 28 s at 25% and below; (3) closed form for the largest tolerated `|ε|`: `(2/π)asin(ρ)` (ZV) and `(2/π)asin(√ρ)` (ZVD), `ρ = tol/unshaped residual` (e.g. 10.7% and 26.8% at half fill); (4) at real `ζ = 0.05` the undamped-design ZV/ZVD leave 5.6 mm / 0.41 mm; damped-design shapers give 0 at the exact design frequency and 2.3 mm (ZV) at ±2% error; (5) searching the design frequency for a fill band [0.1, 1] gives a 5.85 s ZV move and a 6.51 s ZVD move versus 8.36 s for the best null-tuned order, but these designs deliberately detune and use 98.7–98.8% of the tolerance (9.9 mm), so they have no margin. Stylised: see `paper/whitepaper.md`.
+
+```bash
+cd research/shaper-twin
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, well under 1 s
+PYTHONPATH=src python3 experiments/run.py                 # about 1 s; output in experiments/results.txt
+```
+
+**Builds on.** The digital-twin simulation-fidelity and sim-to-real direction of ARPG (<https://arpg.colorado.edu/>), the HIRO Group's lab-automation and manipulation workcells (<https://hiro-group.ronc.one/>; transporting liquids) and the Autonomous Systems IRT (<https://www.colorado.edu/irt/autonomous-systems/>); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. Input shaping is classical (Smith 1957; Singer & Seering 1990); slosh as a spring-mass analogue follows Ibrahim (2005). Direct follow-up to `slosh-twin` in this repository, whose "next steps" listed ZVD shapers with a calibration-error sweep.
+
+Stylised: simulated "real" system, no measured tank. MIT.

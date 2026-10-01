@@ -1,0 +1,25 @@
+1. Rents are conditional mutual information; ratio of successive rents -> exp(-Chernoff)
+ a=0.6: rent_1=0.0201 rent_2=0.0193 rent_10=0.0145 rent_30=0.00796 total_30=0.3842 (ln2=0.6931) ratio_29=0.972 e^-C=0.980 monotone=True
+ a=0.7: rent_1=0.0823 rent_2=0.0694 rent_10=0.0250 rent_30=0.00306 total_30=0.6632 (ln2=0.6931) ratio_29=0.905 e^-C=0.917 monotone=True
+ a=0.8: rent_1=0.1927 rent_2=0.1265 rent_10=0.0129 rent_30=0.00010 total_30=0.6928 (ln2=0.6931) ratio_29=0.786 e^-C=0.800 monotone=True
+2. Explicit LMSR simulation (a=0.7, b=1, n=5, 200000 trials) vs exact
+ sim  : [0.0822, 0.0698, 0.0595, 0.0524, 0.0455] MM loss 0.3094
+ exact: [0.0823, 0.0694, 0.0599, 0.0522, 0.0457] total 0.3095 worst case b ln2 = 0.6931
+3. Order redistributes a fixed total: accuracies [0.9,0.7,0.6,0.55]
+ best-first  rents [0.3681, 0.0302, 0.0068, 0.0017] total 0.4067
+ worst-first rents [0.005, 0.0199, 0.0783, 0.3034] total 0.4067
+ pair (a1=0.8 vs a2=0.7): first / second rent of the 0.8 trader: [0.1927, 0.1637]
+ pair (a1=0.7 vs a2=0.7): first / second rent: [0.0823, 0.0694]
+4. Entry with cost c: how many verifiers a subsidy b buys (a=0.7, c=0.005)
+ b=0.1  n*=  4 accuracy=0.7840 expected MM loss=0.0264 worst case=0.0693 entrants' cost=0.0200
+ b=0.25 n*= 11 accuracy=0.9218 expected MM loss=0.1231 worst case=0.1733 entrants' cost=0.0550
+ b=0.5  n*= 18 accuracy=0.9597 expected MM loss=0.2976 worst case=0.3466 entrants' cost=0.0900
+ b=1    n*= 25 accuracy=0.9825 expected MM loss=0.6444 worst case=0.6931 entrants' cost=0.1250
+ b=2    n*= 32 accuracy=0.9905 expected MM loss=1.3370 worst case=1.3863 entrants' cost=0.1600
+ b=5    n*= 41 accuracy=0.9964 expected MM loss=3.4138 worst case=3.4657 entrants' cost=0.2050
+5. Liquidity needed for the n-th verifier to break even (a=0.7, c=0.005)
+ n=  1 b>=   0.061 accuracy=0.7000
+ n=  5 b>=   0.109 accuracy=0.8369
+ n= 11 b>=   0.224 accuracy=0.9218
+ n= 21 b>=   0.657 accuracy=0.9736
+ n= 41 b>=   4.814 accuracy=0.9964

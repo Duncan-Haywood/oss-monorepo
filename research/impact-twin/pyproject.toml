@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "impact-twin"
+version = "0.1.0"
+description = "Fixed-step twin of a bouncing ball: exact event-driven truth has a finite Zeno time T = (v1/g)(1+e)/(1-e); the fixed-step twin's restitution, impact times and settling time carry O(dt) errors, calibrating e on the first bounce does not remove the settling-time error, and rest-time error is amplified by 2/(1-e^2)"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

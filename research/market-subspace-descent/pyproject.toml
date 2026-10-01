@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "market-subspace-descent"
+version = "0.1.0"
+description = "Convergence of cost-function prediction markets with partially informed traders as randomized subspace descent: exact rates, correlation slowdown, noisy-belief floors, step-size (liquidity) tradeoff, LMSR check"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

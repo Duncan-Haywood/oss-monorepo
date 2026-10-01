@@ -1,0 +1,82 @@
+E1 exact replay curve vs simulation, d=12 r=3, replay every 4th step (20000 runs)
+ step  1 exact 0.03287 sim 0.03277
+ step  2 exact 0.04355 sim 0.04351
+ step  3 exact 0.04352 sim 0.04321
+ step  4 exact 0.00000 sim 0.00000
+ step  5 exact 0.00797 sim 0.00803
+ step  6 exact 0.01056 sim 0.01065
+ step  7 exact 0.01056 sim 0.01063
+ step  8 exact 0.00000 sim 0.00000
+ step  9 exact 0.00193 sim 0.00194
+ step 10 exact 0.00256 sim 0.00256
+ step 11 exact 0.00256 sim 0.00255
+ step 12 exact 0.00000 sim 0.00000
+
+E2 one replay: best step t* vs forgetting-peak lag, and total forgetting kept (ratio to no replay)
+ d=   8 r= 1 peak lag   5.33  best replay step   5  total kept 0.674  replay at step 1 0.857  at 2*peak 0.763
+ d=  12 r= 3 peak lag   2.46  best replay step   2  total kept 0.577  replay at step 1 0.667  at 2*peak 0.690
+ d=  32 r= 1 peak lag  22.01  best replay step  22  total kept 0.732  replay at step 1 0.968  at 2*peak 0.799
+ d=  32 r= 4 peak lag   5.24  best replay step   5  total kept 0.677  replay at step 1 0.857  at 2*peak 0.748
+ d=  32 r= 8 peak lag   2.43  best replay step   2  total kept 0.578  replay at step 1 0.667  at 2*peak 0.694
+ d= 128 r= 8 peak lag  10.76  best replay step  11  total kept 0.716  replay at step 1 0.933  at 2*peak 0.791
+ d= 128 r= 1 peak lag  88.56  best replay step  89  total kept 0.745  replay at step 1 0.992  at 2*peak 0.809
+
+E3 replay rate vs total forgetting (ratio to none): Bernoulli q, periodic n=1/q
+ d=12 r=3 peak lag 2.5
+   1/ 2: bernoulli 0.247  periodic 0.201  periodic better
+   1/ 3: bernoulli 0.399  periodic 0.372  periodic better
+   1/ 4: bernoulli 0.500  periodic 0.512  RANDOM better
+   1/ 6: bernoulli 0.626  periodic 0.711  RANDOM better
+   1/ 8: bernoulli 0.701  periodic 0.833  RANDOM better
+   1/12: bernoulli 0.787  periodic 0.945  RANDOM better
+   1/16: bernoulli 0.835  periodic 0.982  RANDOM better
+   1/32: bernoulli 0.913  periodic 1.000  RANDOM better
+ d=32 r=4 peak lag 5.2
+   1/ 2: bernoulli 0.169  periodic 0.111  periodic better
+   1/ 3: bernoulli 0.290  periodic 0.211  periodic better
+   1/ 4: bernoulli 0.381  periodic 0.301  periodic better
+   1/ 6: bernoulli 0.506  periodic 0.454  periodic better
+   1/ 8: bernoulli 0.590  periodic 0.575  periodic better
+   1/12: bernoulli 0.693  periodic 0.745  RANDOM better
+   1/16: bernoulli 0.755  periodic 0.848  RANDOM better
+   1/32: bernoulli 0.864  periodic 0.982  RANDOM better
+ d=128 r=8 peak lag 10.8
+   1/ 2: bernoulli 0.102  periodic 0.059  periodic better
+   1/ 3: bernoulli 0.185  periodic 0.114  periodic better
+   1/ 4: bernoulli 0.254  periodic 0.167  periodic better
+   1/ 6: bernoulli 0.362  periodic 0.263  periodic better
+   1/ 8: bernoulli 0.443  periodic 0.349  periodic better
+   1/12: bernoulli 0.555  periodic 0.492  periodic better
+   1/16: bernoulli 0.630  periodic 0.605  periodic better
+   1/32: bernoulli 0.779  periodic 0.857  RANDOM better
+ d=32 r=1 peak lag 22.0
+   1/ 2: bernoulli 0.056  periodic 0.030  periodic better
+   1/ 3: bernoulli 0.105  periodic 0.059  periodic better
+   1/ 4: bernoulli 0.150  periodic 0.087  periodic better
+   1/ 6: bernoulli 0.227  periodic 0.141  periodic better
+   1/ 8: bernoulli 0.292  periodic 0.192  periodic better
+   1/12: bernoulli 0.393  periodic 0.285  periodic better
+   1/16: bernoulli 0.469  periodic 0.368  periodic better
+   1/32: bernoulli 0.646  periodic 0.615  periodic better
+
+E4 Bernoulli total vs simulation (d=12 r=3, T=200 steps, 3000 runs)
+ q=0.1: exact 0.2323 sim 0.2288
+ q=0.25: exact 0.1545 sim 0.1523
+ q=0.5: exact 0.0764 sim 0.0770
+
+E5 replay rate needed to keep a fraction of total forgetting
+ d= 12 r=3: keep 0.75: q=0.101  keep 0.50: q=0.250  keep 0.25: q=0.496  keep 0.10: q=0.744
+ d= 32 r=4: keep 0.75: q=0.064  keep 0.50: q=0.170  keep 0.25: q=0.380  keep 0.10: q=0.647
+ d=128 r=8: keep 0.75: q=0.036  keep 0.50: q=0.102  keep 0.25: q=0.254  keep 0.10: q=0.505
+ d= 32 r=1: keep 0.75: q=0.019  keep 0.50: q=0.056  keep 0.25: q=0.150  keep 0.10: q=0.346
+ d=128 r=1: keep 0.75: q=0.005  keep 0.50: q=0.015  keep 0.25: q=0.044  keep 0.10: q=0.122
+
+E6 peak of the expected curve under replay (d=32 r=4)
+ none: peak (5, 0.026735753242679374)
+ every  2: peak (step, loss) (1, 0.011622390891840608)
+ every  4: peak (step, loss) (3, 0.023584494987782388)
+ every  8: peak (step, loss) (5, 0.026735753242679374)
+ every 16: peak (step, loss) (5, 0.026735753242679374)
+
+E7 big tasks (2r >= d): one replay recovers everything
+ d=6 r=3: total after replay at step 1 0.0000, none 0.1552

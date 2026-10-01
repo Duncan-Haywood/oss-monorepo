@@ -1,0 +1,25 @@
+1. Uniform NLOS on a centred ring (sigma=0.3 m, excess mean m=3 m): rms position error, twin vs real
+   law: rms = GDOP*sqrt(sigma^2 + p(2-p)m^2); bias ~0 by symmetry
+   n= 4 p=0.1: twin 0.300  law 1.342  sim 1.329  ratio sim/twin 4.4x  mean=(-0.002,+0.006)
+   n= 4 p=0.3: twin 0.300  law 2.163  sim 2.205  ratio sim/twin 7.4x  mean=(-0.006,-0.011)
+   n= 6 p=0.1: twin 0.245  law 1.095  sim 1.105  ratio sim/twin 4.5x  mean=(+0.002,+0.002)
+   n= 6 p=0.3: twin 0.245  law 1.766  sim 1.793  ratio sim/twin 7.3x  mean=(-0.007,-0.001)
+   n=12 p=0.1: twin 0.173  law 0.775  sim 0.788  ratio sim/twin 4.6x  mean=(+0.000,+0.006)
+   n=12 p=0.3: twin 0.173  law 1.249  sim 1.267  ratio sim/twin 7.3x  mean=(+0.004,+0.013)
+
+2. Structured NLOS: the anchors on one side (a wall) are blocked.  n=8 ring; anchors 0..k-1 have NLOS w.p. 1 with mean excess m=2
+   k=1: predicted bias (-0.500,+0.000) |b|=0.500   sim mean (-0.501,+0.001)  twin bias 0
+   k=2: predicted bias (-0.854,-0.354) |b|=0.924   sim mean (-0.861,-0.352)  twin bias 0
+   k=3: predicted bias (-0.854,-0.854) |b|=1.207   sim mean (-0.859,-0.872)  twin bias 0
+
+3. Safety: position must be within a 1.0 m corridor 95% of the time.  Anchors needed on a ring (R=50 m), sigma=0.3
+   p=0.0: twin says 4 anchors; real site (NLOS p) needs 4
+   p=0.1: twin says 4 anchors; real site (NLOS p) needs 28
+   p=0.2: twin says 4 anchors; real site (NLOS p) needs 46
+   twin-sized ring (4): real 95th-pct error 4.11 m, P(error>1m) = 0.347 (twin target 0.05)
+
+4. Robust fix: drop the largest-residual anchor once (n=8 ring), rms error (m)
+   p=0.0: LS 0.212  drop1 0.263  drop2 0.307   95th pct LS 0.36 drop1 0.45
+   p=0.1: LS 0.947  drop1 0.414  drop2 0.345   95th pct LS 2.11 drop1 0.74
+   p=0.2: LS 1.304  drop1 0.697  drop2 0.521   95th pct LS 2.75 drop1 1.49
+   p=0.4: LS 1.753  drop1 1.232  drop2 1.087   95th pct LS 3.45 drop1 2.55

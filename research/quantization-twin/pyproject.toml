@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quantization-twin"
+version = "0.1.0"
+description = "A Kalman filter tuned in a digital twin with an ideal continuous sensor: Sheppard noise inflation R+D^2/12 versus simulation-optimal gain on a quantizing sensor"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

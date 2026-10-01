@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "balanced-routing"
+version = "0.1.0"
+description = "Capacity-constrained expert routing as a congestion-priced market: dual prices, certified duality gaps, sign-update (aux-loss-free) balancing and its noise floor, and sampled load audits"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "precision-scores"
+version = "0.1.0"
+description = "Scoring a verifier's vector report (an expected update or drift): quadratic Bregman scores, the precision-matrix score as the uniformly most detectable one, and the Kantorovich price of an isotropic score"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

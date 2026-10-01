@@ -1,0 +1,44 @@
+Doppler aliasing twin. Unambiguous velocity V=10, return noise s=1 (units arbitrary, e.g. m/s).
+
+== 1. Bias of a wrapped return vs true speed mu (twin: 0). Exact; Monte Carlo 200,000 draws ==
+mu     exact bias   MC bias (+-se)      exact MSE1   MC MSE1
+6      -0.00063     0.0004   +-0.0022    1.0073       1.0090
+8      -0.45500     -0.4558  +-0.0062    7.9404       7.9246
+9      -3.17311     -3.1781  +-0.0150    54.7833      54.8910
+10     -10.00000    -9.9891  +-0.0206    185.0423     184.7806
+11     -16.82689    -16.8440 +-0.0149    327.8591     328.2527
+14     -19.99937    -20.0007 +-0.0022    400.9820     401.0394
+
+== 2. Real MSE of the mean of n returns over the twin's claim s^2/n (exact); MC check at mu=8.5, n=10 ==
+mu     n=1        n=10       n=100      n=10000
+6      1.007      1.007      1.007      1.011    
+8      7.94       9.804      28.44      2078     
+9      54.78      145.4      1052       1.007e+05
+9.5    110.3      453        3880       3.809e+05
+10     185        1085       1.009e+04  1e+06    
+n=10, mu=8.5: exact 3.86097, MC 3.83908 +- 0.03313 (40,000 repeats)
+floor: bias^2 (n->inf) at mu=9: 10.0686 (twin claims s^2/n -> 0)
+
+== 3. Speed the twin over-certifies: largest mu with |bias| <= tol (exact) vs leading term V + s*Phi^-1(tol/2V) ==
+tol    s     safe mu   leading term   safe mu / V
+0.01   0.5   8.3547    8.3547         0.835
+0.01   1     6.7095    6.7095         0.671
+0.01   2     3.4189    3.4189         0.342
+0.1    0.5   8.7121    8.7121         0.871
+0.1    1     7.4242    7.4242         0.742
+0.1    2     4.8483    4.8483         0.485
+1      0.5   9.1776    9.1776         0.918
+1      1     8.3551    8.3551         0.836
+1      2     6.7103    6.7103         0.671
+
+== 4. Unwrapping each return against a prior speed (error sp): exact failure probability and MSE ==
+(mu=3, V=10, s=1; MC 150,000 draws)
+sp    P(fail) exact   MSE exact   MC MSE (+-se)        twin claim
+2     7.744e-06       1.0024      1.0010   +-0.0044    1.0000
+4     1.529e-02       6.7086      6.6443   +-0.1184    1.0000
+6     1.002e-01       39.7139     40.0183  +-0.3022    1.0000
+8     2.148e-01       85.3387     84.5706  +-0.4192    1.0000
+10    3.197e-01       130.3177    130.2656 +-0.5164    1.0000
+
+prior error sp needed for MSE within 10% of s^2 (V=10, s=1):
+  sp = 2.572 = 0.257 V

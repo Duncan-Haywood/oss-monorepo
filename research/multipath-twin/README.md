@@ -1,0 +1,13 @@
+# Multipath twin: a free-space radar twin vs the real ground-bounce lobing, and what a slightly wrong two-ray twin costs
+
+Pure Python, no dependencies. Real system: monostatic radar (10 GHz, height 30 m) over a perfectly reflecting flat ground, target at 100 m; two-way power is `16 sin⁴(u)` times free space with `u = 2π h_r h_t/(λ r)`, detection is deterministic (SNR ≥ threshold), free-space detection range `r_fs = 10 km` (20 lobes inside it). Results (all from `experiments/results.txt`): (1) the lobe-averaged gain is exactly 6 and the fraction of target phases detected at `c = (r/r_fs)⁴` is `1 − (2/π) asin((c/16)^{1/4})`, **exactly 2/3 at the free-space range edge**, 0 beyond `2 r_fs`; (2) the free-space twin is right on average nowhere: the real system misses 20% of ranges inside `r_fs` and detects 44% of ranges between `r_fs` and `2r_fs`, where the free-space twin says never; (3) a deterministic two-ray twin whose target height is off by `δh` disagrees with the real detection map with probability `≈ 2δ/π` per lobe shift (`4 h_r δh/(λ r)` at `c≈1`), matching simulation (0.040 vs 0.040 at `δh = 0.1 m`, 0.200 vs 0.200 at 0.5 m); the lobes move by a quarter period inside `r_crit = 8 h_r δh/λ` (4 km for 0.5 m); (4) at `δh = 0.5 m` the two-ray twin is *worse* than free space at short range (0.313 vs 0.156 disagreement at `0.5 r_fs`) and better only near the edge (0.200 vs 0.524 at `r_fs`); (5) scored on Brier against the real outcomes in `0.9–1.1 r_fs` with a 0.5 m height error, deterministic twins score 0.197 (two-ray) and 0.533 (free space), while a height-jitter ensemble with σ = 0.5 m scores 0.119; the ensemble is not best when the geometry is exact (σ=0: 0.000).
+
+```bash
+cd research/multipath-twin
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 16 tests, about 1 s
+PYTHONPATH=src python3 experiments/run.py                 # about 10 s; output in experiments/results.txt
+```
+
+**Builds on.** The radar sensor-simulation and sim-to-real direction of ARPG (<https://arpg.colorado.edu/>) and the digital-twin simulation-fidelity direction of RECUV (<https://www.colorado.edu/recuv/>); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. The two-ray (flat-earth) propagation model is classical (Skolnik 2008; Barton 2013). Companion to `radar-clutter-twin`, `radar-detection-twin`, `nlos-twin` and `mount-twin` (how wrong geometry moves a twin's answer).
+
+Stylised: simulated "real" system, no radar data; perfect reflection coefficient −1, flat earth, small grazing angles, no noise or fluctuation (deterministic threshold), one target height, no diffuse scattering or ground roughness. MIT.

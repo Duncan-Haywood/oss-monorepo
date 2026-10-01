@@ -1,0 +1,26 @@
+E1 exact per-player sampling std (m=100 marginal evals/player): permutation vs size-stratified, and ratio of variances
+ equal n=8      total phi=0.9592 rmse perm=0.01033 strat=0.00000 var ratio perm/strat=inf (strat exact)
+ spread n=8     total phi=0.9965 rmse perm=0.01831 strat=0.00754 var ratio perm/strat=5.89
+ one whale n=8  total phi=0.9753 rmse perm=0.00677 strat=0.00234 var ratio perm/strat=8.38
+ dust n=10      total phi=0.6927 rmse perm=0.00120 strat=0.00041 var ratio perm/strat=8.45
+
+E2 simulation vs exact-variance prediction (spread n=8, m=96, 600 runs)
+ perm   simulated rmse 0.01811 predicted 0.01831 ratio 0.989
+ strat  simulated rmse 0.00752 predicted 0.00754 ratio 0.998
+ antithetic (reverse) permutations rmse 0.01118
+
+E3 efficiency: sum of estimated payments minus v(N) (spread n=8, m=96, 300 runs)
+ perm       mean gap -0.00000  max |gap| 0.00000  (v(N)=0.9965)
+ antithetic mean gap -0.00000  max |gap| 0.00000  (v(N)=0.9965)
+ strat      mean gap +0.00001  max |gap| 0.06793  (v(N)=0.9965)
+
+E4 Hoeffding permutations for max-error eps at delta=0.05 vs permutations actually needed (spread n=8; 95th pct of max error <= eps)
+ eps=0.05: Hoeffding 1154  empirical (power-of-2 grid) 256  looseness 5x
+ eps=0.02: Hoeffding 7211  empirical (power-of-2 grid) 2048  looseness 4x
+ eps=0.01: Hoeffding 28842  empirical (power-of-2 grid) 8192  looseness 4x
+
+E5 rank recovery: probability the top-3 payees by estimate are the exact top-3 (spread n=8)
+ m=   8 perm   0.43 m=   8 strat  0.87
+ m=  32 perm   0.79 m=  32 strat  0.99
+ m= 128 perm   0.97 m= 128 strat  1.00
+ m= 512 perm   1.00 m= 512 strat  1.00

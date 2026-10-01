@@ -1,0 +1,60 @@
+Real human response time: lognormal(mu=0, sigma=1.2), mean 2.0544 s, median 1.000 s. Cost per waiting second w=1, per abort c=5.
+J(tau) = w E[min(T,tau)] + c P(T>tau). Corner costs: J(0)=c=5.000, J(inf)=w E[T]=2.0544.
+
+== 1. Formula checks against direct simulation (400k trials) ==
+tau=1    closed form 3.2364  simulated 3.2398
+tau=3    closed form 2.2369  simulated 2.2394
+tau=9.4  closed form 1.9815  simulated 1.9794
+Weibull k=2 (mean 2.054) tau=3: Simpson 2.8531  simulated 2.8483
+
+== 2. Real optimum and the hazard rule h(tau) = w/c ==
+hazard root tau* = 9.4011, J(tau*) = 1.9815;  grid+golden optimum tau=9.4011 J=1.9815;  h(tau*)=0.200000 vs w/c=0.200000
+regret of never aborting: 0.0729 (3.7% of optimum);  of aborting at once: 3.0185
+
+== 3. Corner policies: twins with monotone hazard (mean matched to the real mean) ==
+Each twin's cost is flat to <0.01 beyond ~8-16 s, so its numerical tau is arbitrary inside the plateau; the
+last column is the real regret of the corner tau=inf that the twin's shape implies.
+twin                      tau_twin   real regret  regret / J*  regret at tau=inf
+Exponential               inf        0.0729       3.7%         0.0729
+Weibull k=2               18.59      0.0258       1.3%         0.0729
+Weibull k=1.5             60.00      0.0662       3.3%         0.0729
+Twin cost curves J_twin(tau) at tau = 1,2,4,8,16,inf (Weibull: J rises above J(0)=c at first, then falls; no interior minimum):
+  Exponential    3.865  3.167  2.475  2.114  2.056  2.054
+  Weibull k=2    5.092  3.973  2.279  2.054  2.054  2.054
+  Weibull k=1.5  4.630  3.675  2.440  2.060  2.054  2.054
+
+== 4. Lognormal twin, mean matched, wrong sigma_twin (real sigma=1.2) ==
+sigma_twin  tau_twin  regret     regret / J*
+0.4         51.31     0.06357    3.21%
+0.6         47.56     0.06205    3.13%
+0.8         22.96     0.03653    1.84%
+1           13.62     0.01000    0.50%
+1.2         9.40      0.00000    0.00%
+1.4         7.22      0.00829    0.42%
+1.6         5.97      0.02796    1.41%
+
+== 5. How much a light-tailed twin costs: regret of never aborting vs sigma and c/(w E[T]) ==
+sigma  E[T]    c/(wE[T])  tau*    J*       regret(never abort)  regret/J*
+0.8    1.377   1.5        7.22    1.3745   0.0027               0.2%
+0.8    1.377   3          20.81   1.3771   0.0000               0.0%
+0.8    1.377   10         102.41  1.3771   0.0000               0.0%
+1.2    2.054   1.5        4.41    1.8672   0.1872               10.0%
+1.2    2.054   3          12.74   2.0084   0.0461               2.3%
+1.2    2.054   10         63.58   2.0527   0.0018               0.1%
+1.6    3.597   1.5        5.24    2.6273   0.9693               36.9%
+1.6    3.597   3          13.91   3.0971   0.4996               16.1%
+1.6    3.597   10         65.86   3.4922   0.1044               3.0%
+2      7.389   1.5        8.86    4.0879   3.3011               80.8%
+2      7.389   3          21.89   5.0986   2.2905               44.9%
+2      7.389   10         97.20   6.4248   0.9642               15.0%
+
+== 6. Real-trial budget: plug-in lognormal MLE (2000 replications per n) ==
+Regret of the fitted timeout vs delta-method 0.5 J'' Var(tau_hat); reference: never abort 0.0729
+n      mean regret  +- se     median regret  delta-method  frac beating never-abort  frac corner
+10     0.03230      0.00233  0.01600        0.03530       0.908                     0.032
+20     0.01592      0.00050  0.00884        0.01765       0.976                     0.001
+50     0.00657      0.00020  0.00332        0.00706       0.999                     0.000
+100    0.00339      0.00010  0.00158        0.00353       1.000                     0.000
+200    0.00173      0.00005  0.00082        0.00176       1.000                     0.000
+500    0.00068      0.00002  0.00032        0.00071       1.000                     0.000
+1000   0.00034      0.00001  0.00015        0.00035       1.000                     0.000

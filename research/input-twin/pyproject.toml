@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "input-twin"
+version = "0.1.0"
+description = "Input uncertainty in a digital twin fitted to finite real data: exact instability probability, delta-method sample size, and false SLA certification for an M/M/1 instrument twin"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

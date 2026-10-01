@@ -1,0 +1,33 @@
+One long twin run summarised as mean +- 1.96 s/sqrt(n) (naive) vs 30 batch means with a t quantile.
+
+== 0. AR(1) output: exact variance of the run mean vs simulation (n=1000, marginal variance 1, 4000 runs) ==
+phi   n*Var exact   n*Var simulated   limit (1+phi)/(1-phi)   ESS   naive cover (known var)   naive cover (s^2)   batch cover (b=30)
+0     1.000         1.000             1.000                   1000  0.950                     0.950               0.949
+0.5   2.996         2.855             3.000                   334   0.743                     0.759               0.949
+0.9   18.820        19.146            19.000                  53    0.349                     0.340               0.904
+0.99  179.201       176.813           199.000                 6     0.116                     0.099               0.535
+
+== 1. M/M/1 waiting time (service rate 1): asymptotic variance of the run mean, exact vs long simulation ==
+rho   mean   Var(W)   asym var exact   asym var simulated (100 batches)   inflation over iid
+0.5   1.000  3.000    29.0             33.9                               9.7
+0.7   2.333  10.111   335.6            415.1                              33.2
+0.9   9.000  99.000   35901.0          37688.5                            362.6
+
+== 2. Coverage of a 95% interval for the true mean wait from ONE run of n=10000 jobs (1000 runs) ==
+rho   true mean   naive cover   batch(30) cover   naive half-width   batch half-width   mean of run means (empty start / 1000 burn)
+0.5   1.000       0.531         0.947             0.034              0.108              1.001 / 1.002
+0.7   2.333       0.263         0.937             0.062              0.354              2.337 / 2.343
+0.9   9.000       0.088         0.825             0.185              2.521              8.966 / 9.074
+
+== 3. False certification: true mean wait 9 (rho=0.9), SLA 8; 'certify' if mean + half-width < 8; n=10000 jobs after 1000 burn (1000 runs) ==
+naive      certifies the SLA in 26.0% of runs
+batch(30)  certifies the SLA in 4.8% of runs
+
+== 4. Run length for a half-width of 10% of the mean (95%) ==
+rho   naive n (iid)   exact n (asymptotic variance)   ratio
+0.5   1152            11141                           9.7
+0.7   713             23678                           33.2
+0.9   470             170268                          362.6
+
+== 5. Does the exact run length deliver? rho=0.7, n = exact length, burn 2000, 1000 runs ==
+n=23677 jobs: naive cover 0.268, batch(30) cover 0.942, mean batch half-width 0.236 (target 0.233)

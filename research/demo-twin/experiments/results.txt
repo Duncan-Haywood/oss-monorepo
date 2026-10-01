@@ -1,0 +1,50 @@
+Plant x'=1.05 x + 1.0 sat(u) + w, w~N(0,1.0), |u|<=1.0, cost x^2+0.1 u^2. Expert command u=-k0 x, k0=0.9626 (unsaturated LQ gain).
+Stationary laws on a grid of width 0.1 (deterministic). 'gap' = real cost of the clone minus real cost of the expert, both clipped.
+
+== 1. Checks ==
+expert stationary E x^2 = 1.3787, expert cost (grid h=0.1) = 1.4331
+grid h=0.20: expert cost 1.4383
+grid h=0.10: expert cost 1.4331
+grid h=0.05: expert cost 1.4318
+Monte Carlo expert cost, 3 runs of 2e6 steps: 1.4328, 1.4274, 1.4346 (mean 1.4316)
+Stein closed form k0*P(|k0 x|<U) with Gaussian x of the expert's variance: 0.6004;  exact grid clone gain: 0.5824
+
+== 2. Perfect twin: cloning applied (clipped) actions, by real actuator limit U (twin uses the same U and noise) ==
+U    sd(x)   k0/k_clone     P(sat)   gap     gap/J_expert
+0.80 1.348   expert itself is unstable under this limit (state escapes the grid); clone gain 0.4201
+1.00 1.174   0.9626 / 0.5824  0.376    0.1411  9.84%
+1.25 1.082   0.9626 / 0.7308  0.230    0.0500  4.04%
+1.50 1.042   0.9626 / 0.8275  0.135    0.0180  1.55%
+2.00 1.013   0.9626 / 0.9229  0.040    0.0019  0.17%
+3.00 1.005   0.9626 / 0.9607  0.002    0.0000  0.00%
+Logging the commanded (pre-clip) action returns k0 exactly: gap 0 by construction.
+Best clipped-linear gain on the real plant (U=1): 0.9958, cost 1.4327 (expert 1.4331)
+
+== 3. Twin errors, one at a time (clone trained on applied actions of the expert run in the twin; U real = 1) ==
+twin noise x s2:   0.25  0.5  0.75  1  1.5  2
+clone gain:        0.922  0.799  0.681  0.582  0.436  0.338
+gap:               0.0017  0.0199  0.0655  0.1411  0.3853  0.7510
+twin b-hat / b:    0.7  0.85  1  1.2  1.5
+clone gain:        0.436  0.528  0.582  0.623  0.642
+gap:               0.3855  0.2067  0.1411  0.1043  0.0897
+twin a-hat:        0.8  0.95  1.05  1.1
+clone gain:        0.656  0.629  0.582  0.503
+gap:               0.0800  0.0996  0.1411  0.2463
+twin limit U-hat:  0.7  1  1.5  2  3
+clone gain:        0.322  0.582  0.828  0.923  0.961
+gap:               0.8388  0.1411  0.0134  0.0017  0.0001
+
+== 4. Coverage the twin can impose: logs from states reset to N(0, v) (Stein closed form for the gain) ==
+sd(x) of logged states / (U/k0)   clone gain (Stein)   clone gain (grid)   gap
+0.25                              0.9625              0.9625              0.0000
+0.50                              0.9188              0.9182              0.0020
+0.75                              0.7870              0.7865              0.0228
+1.00                              0.6571              0.6568              0.0795
+1.50                              0.4765              0.4764              0.2940
+2.00                              0.3686              0.3685              0.6067
+3.00                              0.2513              0.2514              1.4314
+
+== 5. DAgger with applied-action labels (relabel the states the clone visits) ==
+real-plant DAgger path: 0.9626 -> 0.5824 -> 0.5611 -> 0.5580 -> 0.5576 -> 0.5575 -> 0.5575 -> 0.5575 ... fixed point 0.5575, gap 0.1686
+one-shot clone from perfect-twin logs: gain 0.5824, gap 0.1411
+DAgger inside a twin with half the noise: fixed point 0.7914, real gap 0.0217

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "peer-noise-rent"
+version = "0.1.0"
+description = "Finite-sample noise in multi-task peer prediction: exact plug-in variance, sqrt(2) noise saving, noise rent of lazy verifiers under limited liability, deductibles and sample sizes"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

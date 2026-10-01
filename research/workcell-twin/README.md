@@ -1,0 +1,13 @@
+# Workcell twin: what does a deterministic-duration twin of a lab workcell promise, and how many stations does it buy?
+
+Pure Python, no dependencies. A batch of `W=64` min of work is split over `k` parallel stations, a shared arm pays a serial handover `a=1` min per branch, and the batch ends when the slowest branch does. A digital twin that runs each step at its mean duration plans `W/k + a k` and picks `k=8`, promising 16 min. The real makespan `(W/k)·E[max of k branch times] + a k` is computed exactly (quadrature of `1−F(x)^k`, checked against `H_k` and Monte Carlo). Results (stylised): with exponential branches the twin's promise is missed by 1.86× on average (29.7 min; only 2.6% of runs have every branch inside its mean) and the 95%-quantile makespan is 3.03× the promise; branch CV 0.5 still gives 1.40×. Whether the twin also buys the wrong number of stations depends on how variability scales when work is split: with task-level variability (fixed branch shape) it under-buys (real optimum 12 vs 8 for exponential, 4.2% regret on the mean, 24.7% on the 95% quantile, whose optimum is 18), but when a branch is a chain of random unit steps the two effects cancel and `k=8` stays optimal at every step CV tried, so the twin's *decision* is right while the real makespan is still 6–59% above its promise. Fitting the branch-time shape from n real durations needs n≈5 to cut decision regret below 0.3% but n≈50 to bring the predicted makespan within 1%. See `paper/whitepaper.md`.
+
+```bash
+cd research/workcell-twin
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 13 tests, ~15 s
+PYTHONPATH=src python3 experiments/run.py                 # ~30 s; output in experiments/results.txt
+```
+
+**Builds on.** The chemistry-lab and manipulation-workcell direction of the HIRO Group (<https://hiro-group.ronc.one/>), where a simulated workcell is used to plan experiments; no specific paper from that group is reproduced and nothing here is affiliated with or endorsed by it. The method is classical: order statistics of gamma variables and the fork-join makespan (Fulkerson 1962, *Operations Research* 10(6), on expected critical-path length in PERT networks being above the deterministic one; Elmaghraby 1977, *Activity Networks*, Wiley; David & Nagaraja 2003, *Order Statistics*), and the sample-average-approximation view of planning with a fitted distribution. Companion to `twin-transfer`, `handover-twin` and `latency-twin` in this repository.
+
+Stylised: one fork-join stage with i.i.d. branches, a linear serial handover cost, no queueing between batches, no failures or reagent constraints, durations from gamma (and one lognormal check) rather than measured robot logs. MIT.

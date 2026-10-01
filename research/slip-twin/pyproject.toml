@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "slip-twin"
+version = "0.1.0"
+description = "Kinematic-bicycle twin of a car with tyre slip: the real steady-turn radius is (1 + K v^2/L) times the twin's with understeer gradient K, a steady-state calibration of K fixes the radius but not the closed-loop stability limit, which the twin certifies at every speed and gain"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

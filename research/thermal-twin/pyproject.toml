@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "thermal-twin"
+version = "0.1.0"
+description = "Thermal derating a twin does not model: a motor holding a load heats, loses torque constant, draws more current; the real hold has a fold at lambda = 4/27 and a finite runaway time while the constant-gain twin certifies every load"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

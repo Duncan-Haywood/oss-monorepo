@@ -1,0 +1,52 @@
+Budget split for an M/M/1 instrument twin (mu=1): fitted from n real interarrival + n real service times, simulated m jobs.
+Relative variance of the twin's mean-wait estimate about the REAL mean wait: a(rho)/n + b(rho)/m (delta method).
+
+== 0. Simulation-noise coefficient b(rho): m*Var[mean wait]/W^2, Whitt formula vs 600 stationary runs of m=4000 jobs ==
+rho   b formula   b simulated   ratio
+0.5   29.00       30.39         1.048
+0.7   61.63       61.17         0.992
+
+== 1. Coefficients and exchange rate ==
+rho   a(rho)   b(rho)   b/a (simulated jobs worth one real pair)
+0.3   7.9      21.5     2.714
+0.5   13.0     29.0     2.231
+0.7   29.9     61.6     2.062
+0.8   61.0     123.5    2.025
+0.9   221.0    443.2    2.006
+0.95  841.0    1683.1   2.001
+
+== 2. Optimal split of budget B (real pair = 2 units, simulated job = kappa units): fraction f* on real data ==
+rho   kappa   f*      n*(B=1000)  m*(B=1000)   var ratio: 50/50 split   95% on simulation   5% on simulation
+0.5   0.001   0.968   484         32318        1.87                     18.73               1.01
+0.5   0.01    0.904   452         9552         1.65                     16.37               1.04
+0.5   0.05    0.809   404         3821         1.38                     13.13               1.42
+0.5   0.5     0.572   286         855          1.02                     6.75                4.00
+0.8   0.001   0.969   485         30836        1.88                     18.79               1.01
+0.8   0.01    0.909   454         9142         1.67                     16.52               1.04
+0.8   0.05    0.816   408         3673         1.40                     13.36               1.38
+0.8   0.5     0.584   292         831          1.03                     7.01                3.82
+
+== 3. Full pipeline: fit + simulate at fixed budget B=1000, kappa=0.05, rho=0.5 (500 replications; sd of ln of the estimate) ==
+f (real share)  n     m      predicted sd   simulated sd   simulated RMSE of ratio est/W   unstable fits
+0.200           100   16000  0.363          0.399          0.520                           0
+0.500           250   10000  0.234          0.244          0.272                           0
+0.809           404   3821   0.199          0.202          0.212                           0
+0.950           475   1000   0.237          0.224          0.238                           0
+
+== 4. Coverage of the real mean wait by 95% intervals as simulation length grows (n fixed; 500 fits each; 10 replications per twin) ==
+rho   n     m       V_in/V_sim   naive predicted   naive simulated   aware simulated   unstable fits
+0.5   200   200     0.45         0.897             0.786             0.864             0
+0.5   200   1000    2.24         0.724             0.686             0.922             0
+0.5   200   5000    11.21        0.425             0.472             0.946             0
+0.5   200   20000   44.83        0.228             0.232             0.930             0
+0.5   200   50000   112.07       0.146             0.170             0.934             0
+0.5   1000  200     0.09         0.940             0.848             0.854             0
+0.5   1000  1000    0.45         0.897             0.842             0.888             0
+0.5   1000  5000    2.24         0.724             0.752             0.936             0
+0.5   1000  20000   8.97         0.465             0.502             0.948             0
+0.5   1000  50000   22.41        0.315             0.348             0.972             0
+0.7   400   200     0.24         0.921             0.792             0.860             0
+0.7   400   1000    1.21         0.812             0.760             0.902             0
+0.7   400   5000    6.06         0.539             0.582             0.940             0
+0.7   400   20000   24.25        0.304             0.314             0.916             0
+0.7   400   50000   60.62        0.197             0.200             0.926             0

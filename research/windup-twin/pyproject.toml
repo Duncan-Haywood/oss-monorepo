@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "windup-twin"
+version = "0.1.0"
+description = "Command saturation a twin does not model: a PI loop is exact in the twin only while kp*x0 <= U, then integrator windup (peak z = x0^2/2U) makes overshoot and settling depend on step size, and faster twin-tuned gains settle slower"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

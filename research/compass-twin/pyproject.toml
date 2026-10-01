@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "compass-twin"
+version = "0.1.0"
+description = "Compass twin with an ideal magnetometer: hard-iron and soft-iron heading error closed forms, loop-closure error of compass-held paths, and how much of a swing calibration's arc is needed"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

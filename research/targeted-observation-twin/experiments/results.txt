@@ -1,0 +1,65 @@
+n=40 cells, real field N(0,P_real), Gaussian-shape kernel exp(-(d/ell)^2), ell_real=0.20, nugget 1e-3, obs noise r=0.05
+verification region V = cells 24..31 (8 cells), corridor sites = cells 0..19, k=3 observations, twin-greedy planning
+no observation: real verification trace 8.008.  Matched twin (oracle): picks [19, 16, 11], trace after 1/2/3 obs = 6.779 / 6.291 / 6.249
+
+== 1. Exactness ==
+Monte Carlo (20000 draws) of the closed loop vs the exact Joseph-form trace, twin ell_t, picks = twin-greedy, k=3
+ell_t  picks          exact real trace  Monte Carlo   twin-claimed
+0.10   [19, 18, 15]   7.572             7.674 +- 0.067  7.906
+0.30   [19, 15, 14]   7.619             7.644 +- 0.069  4.224
+Harm radius d = (ln2/(ell_r^-2 - ell_t^-2))^(1/2) (no nugget, equal variance): per-cell gain ratio K_twin/K_opt crosses 2 near it
+ell_t  d_harm(formula)  grid crossing of gain ratio 2 from site 0 (with noise r)   benefit at the cell before -> after
+0.25   0.2775           0.2750 .. 0.3000 (grid step 0.025)                          +0.0011 -> -0.0059
+0.30   0.2234           0.2000 .. 0.2250 (grid step 0.025)                          +0.0578 -> -0.0031
+0.40   0.1923           0.1750 .. 0.2000 (grid step 0.025)                          +0.0820 -> -0.0319
+(the benefit 2K P_r[i,j] - K^2 (P_r[j,j]+r) changes sign exactly where the gain ratio equals 2; the closed form ignores r and the crossing is computed with it)
+
+== 2. Correlation-length misspecification (twin ell_t, real ell=0.2) ==
+ell_t  picks          twin-claimed trace after 1/2/3 obs    REAL trace after 1/2/3 obs      real change vs none after 3
+0.05   [19, 18, 17]   8.008 / 8.008 / 8.008                 8.005 / 8.006 / 8.005           -0.0%
+0.10   [19, 18, 15]   7.953 / 7.908 / 7.906                 7.620 / 7.575 / 7.572           -5.5%
+0.15   [19, 17, 13]   7.537 / 7.282 / 7.263                 6.997 / 6.672 / 6.677           -16.6%
+0.20   [19, 16, 11]   6.779 / 6.291 / 6.249                 6.779 / 6.291 / 6.249           -22.0%
+0.30   [19, 15, 14]   5.033 / 4.289 / 4.224                 7.274 / 7.436 / 7.619           -4.9%
+0.40   [19, 13, 18]   3.662 / 2.935 / 2.828                 8.014 / 9.696 / 10.288          +28.5%
+Oracle picks: [19, 16, 11]
+
+== 3. Amplitude misspecification (twin = c * P_real, correct ell) ==
+For ONE observation the per-cell twin/optimal gain ratio is c(s^2+r)/(c s^2+r): at most (s^2+r)/s^2 = 1.050 here (s^2=1.001, r=0.05), never 2 when r < s^2; later observations can still double-count
+c      picks          twin-claimed trace after 3   REAL trace after 1/2/3 obs
+0.1    [19, 14, 18]   0.703                        6.890 / 6.766 / 6.744
+0.25   [19, 15, 18]   1.683                        6.798 / 6.488 / 6.492
+0.5    [19, 16, 15]   3.243                        6.782 / 6.337 / 6.317
+1      [19, 16, 11]   6.249                        6.779 / 6.291 / 6.249
+2      [19, 17, 11]   12.086                       6.780 / 6.399 / 6.436
+4      [19, 17, 12]   23.139                       6.781 / 6.540 / 6.808
+100    [19, 18, 14]   514.519                      6.782 / 9.847 / 16.550
+
+== 4. Misplaced variance (twin knows ell, has a wrong std-dev profile) ==
+real error has a hot spot at x=0.40 (std profile sqrt(0.25+2 exp(-((x-c)/0.08)^2))); no obs: 2.010; oracle picks [19, 16, 12] -> 1.705 / 1.578 / 1.563
+twin hot spot at  picks          claimed after 3   REAL trace after 1/2/3 obs    real change vs none after 3
+x=0.40 (right)   [19, 16, 12]   1.563             1.705 / 1.578 / 1.563          -22.2%
+none (flat)      [19, 16, 11]   6.249             1.931 / 2.014 / 2.243          +11.6%
+x=0.10 (wrong)   [19, 15, 18]   1.691             1.824 / 1.636 / 1.665          -17.2%
+x=0.70 (in V)    [19, 15, 18]   10.687            4.226 / 3.369 / 3.727          +85.4%
+flat twin, first site 19: gain ratio K_twin/K_opt averaged over V = 1.86 (helps below 2; second and third observations compound it)
+
+== 5. Finite-ensemble twin: correct statistics, M members (sample covariance), real ell=0.2 ==
+100 independent ensembles per M; 'harm' = fraction of ensembles whose plan leaves the real trace above no-observation (8.008); +- one s.e. of the mean
+M     untapered: mean real trace after 3 obs   harm     tapered (Gaussian taper c=0.3): mean   harm   claimed (untapered mean)
+5     17.415 +- 1.658                           95%     7.466 +- 0.150                           19%   1.868
+10    10.193 +- 0.329                           71%     6.879 +- 0.067                            8%   3.891
+20    7.760 +- 0.110                           38%     6.685 +- 0.036                            1%   4.991
+50    6.717 +- 0.032                            0%     6.515 +- 0.021                            0%   5.702
+100   6.466 +- 0.014                            0%     6.478 +- 0.012                            0%   6.019
+400   6.298 +- 0.004                            0%     6.449 +- 0.006                            0%   6.160
+(oracle trace after 3 obs: 6.249)
+
+== 6. Repair: fit the twin's (ell, variance) from m real field realisations (parametric family assumed right) ==
+m     ell_hat mean (sd)        mean real trace after 3 obs   harm    (real ell = 0.20)
+3     0.275 (0.214)             8.121 +- 0.294                24%
+5     0.249 (0.157)             7.552 +- 0.243                17%
+10    0.219 (0.103)             6.972 +- 0.163                10%
+20    0.206 (0.061)             6.643 +- 0.107                 4%
+50    0.195 (0.022)             6.341 +- 0.010                 0%
+200   0.196 (0.012)             6.276 +- 0.003                 0%
