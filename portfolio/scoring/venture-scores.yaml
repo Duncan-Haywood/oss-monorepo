@@ -25052,6 +25052,34 @@ ventures:
       Liability: static text scan, estimate labelled as the user's own arithmetic on
       editable list prices, no warranty, nothing leaves the device. Ethics: helps
       developers avoid surprise bills.
+  - slug: regex-redos-check
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 5
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic regex-structure analysis; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-01 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 5 and defensibility 5: developer
+      CLI with steady search demand ("regex denial of service", "catastrophic backtracking")
+      and an uncommon real parser plus a timing probe that confirms findings, but the free
+      alternatives (safe-regex, recheck) exist; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that finds ReDoS-prone regexes in JS, TS and Python source.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: heuristic static analysis labelled as suspects, no warranty, nothing leaves
+      the device, the probe runs only the user's own patterns locally under a hard timeout.
+      Ethics: helps developers harden their own code against a denial-of-service class.
   - slug: freelance-rate-increase-calculator
     scores:
       ai_leverage: 3

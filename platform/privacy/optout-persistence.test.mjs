@@ -1168,8 +1168,9 @@ const RELATIVE_SELF = relative(
 // +1: `car-wash-membership-calculator` graduated.
 // +1: `license-compat-check` graduated.
 // +1: `llm-call-cost-scan` graduated.
+// +1: `regex-redos-check` graduated.
 // +1: `freelance-rate-increase-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 552;
+const SWITCHES_IN_THE_CATALOGUE = 553;
 
 let counter = 0;
 function fixture(source) {
