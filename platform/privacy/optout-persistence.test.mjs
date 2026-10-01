@@ -1125,9 +1125,10 @@ const RELATIVE_SELF = relative(
 // +1: `revenue-target-lead-planner` graduated.
 // +1: `studio-class-slot-optimizer` graduated.
 // +1: `workers-comp-premium-calculator` graduated.
+// +1: `private-practice-payer-mix-calculator` graduated.
 // +1: `landlord-repair-or-replace-planner` graduated.
 // +1: `payroll-tax-deposit-penalty-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 510;
+const SWITCHES_IN_THE_CATALOGUE = 511;
 
 let counter = 0;
 function fixture(source) {
