@@ -2874,7 +2874,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `home-care-agency-margin-calculator` graduated (browser-local home care agency margin per billed hour by payer, bill rate for a target margin).
     # +1: `family-child-care-time-space-calculator` graduated (browser-local home day care time-space percentage, exclusive-use rooms, simplified-method comparison).
     # +1: `adu-payback-calculator` graduated (browser-local ADU payback: yield on cost, equity IRR/NPV, break-even rent, rent and cost sensitivity).
-    total = 540  # `infra/OWNER_CHECKLIST.md`'s own "N of the 540 tools" wording.
+    # +1: `dog-grooming-profit-calculator` graduated (browser-local grooming profit per hour by service, own shop vs booth rent vs commission).
+    # +1: `shipping-box-size-optimizer` graduated (browser-local carton assortment optimizer: which box sizes to stock, p-median over dimensional-weight landed cost).
+    total = 541  # `infra/OWNER_CHECKLIST.md`'s own "N of the 541 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

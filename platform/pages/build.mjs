@@ -986,7 +986,10 @@ const CATEGORY_RULES = [
     // cross-link).
     // `route-stop-optimizer` added 2026-09-30: orders a day's stops to cut drive
     // time, the same reader as the owner-operator and courier tools here.
-    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club|route-stop-optimizer)/.test(
+    // `shipping-box-size-optimizer` joined 2026-10-01 on its first commit: it is
+    // `parcel-dim-weight`'s assortment-level partner (which set of cartons to
+    // stock, rather than what one carton bills at), and the two cross-link.
+    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club|route-stop-optimizer|shipping-box-size)/.test(
       slug,
     ),
   },
