@@ -2873,7 +2873,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `payroll-tax-deposit-penalty-calculator` graduated (browser-local payroll tax deposit due dates and failure-to-deposit penalty with cheapest designation).
     # +1: `home-care-agency-margin-calculator` graduated (browser-local home care agency margin per billed hour by payer, bill rate for a target margin).
     # +1: `family-child-care-time-space-calculator` graduated (browser-local home day care time-space percentage, exclusive-use rooms, simplified-method comparison).
-    total = 539  # `infra/OWNER_CHECKLIST.md`'s own "N of the 539 tools" wording.
+    # +1: `adu-payback-calculator` graduated (browser-local ADU payback: yield on cost, equity IRR/NPV, break-even rent, rent and cost sensitivity).
+    total = 540  # `infra/OWNER_CHECKLIST.md`'s own "N of the 540 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

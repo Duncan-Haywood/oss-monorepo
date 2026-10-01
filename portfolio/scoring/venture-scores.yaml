@@ -24081,6 +24081,38 @@ ventures:
       (depreciation, recapture, Schedule A, income limit and state rules are not
       modelled). No child or family data; nothing leaves the browser. Ethics:
       helps a small provider compute a figure their preparer will check.
+  - slug: adu-payback-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.333
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic cash-flow, loan and IRR/NPV arithmetic in the browser; no
+      language model and no paid API. The value is one honest projection with
+      break-even rent and sensitivities, which a builder can share with a client.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 7: "is an
+      ADU worth it" and "ADU cost vs rental income" are high-intent queries from
+      homeowners in states that legalised ADUs, and ADU builders need a
+      feasibility link for clients (volume not measured with an external tool).
+      Defensibility 3: spreadsheets and builder blog calculators exist; the edge
+      is a private no-signup tool with IRR, NPV, break-even rent and sensitivity.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not investment, tax, lending or
+      construction advice, no warranty, no market data asserted, limits stated in
+      two places. Nothing leaves the browser. Ethics: helps a homeowner see the
+      numbers before a large spend; says the value uplift is the weakest input.
   - slug: dog-grooming-profit-calculator
     scores:
       ai_leverage: 3
