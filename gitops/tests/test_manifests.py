@@ -2865,13 +2865,15 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `donor-retention-analyzer` graduated (browser-local nonprofit donor retention and ranked LYBUNT/SYBUNT lists from own gift history).
     # +1: `workers-comp-premium-calculator` graduated (browser-local workers' comp premium and audit true-up from user-supplied class rates).
     # +1: `market-garden-bed-planner` graduated (browser-local crop-mix planner: exact LP over beds, labor and demand, with shadow prices).
+    # +1: `family-child-care-time-space-calculator` graduated (browser-local home day care time-space percentage, exclusive-use rooms, simplified-method comparison).
     # +1: `private-practice-payer-mix-calculator` graduated (browser-local therapy-practice payer mix: net per clinical hour by panel and cash, break-even refill).
     # +1: `cottage-food-pricing-calculator` graduated (browser-local cottage-food pricing: full cost per sellable unit, online/market/wholesale prices, earned per hour).
     # +1: `contractor-wip-schedule` graduated (browser-local percent-of-completion WIP schedule: over/under billing, loss provision, cash still to come).
     # +1: `freelance-retainer-vs-hourly-calculator` graduated (browser-local retainer-versus-hourly replay of a proposed retainer against the user's own time log).
     # +1: `payroll-tax-deposit-penalty-calculator` graduated (browser-local payroll tax deposit due dates and failure-to-deposit penalty with cheapest designation).
     # +1: `home-care-agency-margin-calculator` graduated (browser-local home care agency margin per billed hour by payer, bill rate for a target margin).
-    total = 537  # `infra/OWNER_CHECKLIST.md`'s own "N of the 537 tools" wording.
+    # +1: `family-child-care-time-space-calculator` graduated (browser-local home day care time-space percentage, exclusive-use rooms, simplified-method comparison).
+    total = 538  # `infra/OWNER_CHECKLIST.md`'s own "N of the 538 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

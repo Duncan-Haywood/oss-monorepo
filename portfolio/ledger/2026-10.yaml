@@ -167,3 +167,31 @@ entries:
         of a towing venture was discarded after finding tow-motor-club-call-calculator
         already covers it (slug greps missed the short stem).
     mrr_end: 0
+  - venture: family-child-care-time-space-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built family-child-care-time-space-calculator: a browser-local
+        time-space percentage tool for home day care providers. Enter the rooms
+        used (exclusive-use rooms count at full area, others scaled by hours),
+        weekly care and prep hours, weeks open, days available and annual home
+        expenses. It reports the time share over 24 x days available, the
+        business-use share, each expense split into business and personal, a
+        simplified-method comparison with the rate and cap as inputs, and what one
+        more weekly hour is worth. New niche: childcare-tuition-calculator prices a
+        classroom and home-office-deduction-calculator is generic; neither does the
+        day-care hours-over-8,760 rule. First visitor expected from "time space
+        percentage calculator daycare" searches in provider communities. No child
+        or family data; nothing leaves the browser. Unverified on a filed return:
+        tests use hand-calculated shares, exclusive and regular rooms, cap and
+        validation cases and no-network assertions. Registered score row, launch
+        date, category rule and CI workflow.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not tax advice, no warranty,
+      tax-year constants are inputs, limits stated. No child data. Ethics: helps a
+      small provider compute a figure their preparer will check.

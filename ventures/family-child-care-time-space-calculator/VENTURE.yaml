@@ -1,0 +1,63 @@
+name: family-child-care-time-space-calculator
+description: >-
+  Free browser tool for family child care and home day care providers: list the
+  rooms used (marking exclusive-use ones), weekly hours, weeks open and annual home
+  expenses, and see the time-space percentage, the business share of each expense,
+  a comparison with the simplified method, and what one more weekly hour is worth.
+  No child or family data; nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED,
+# build-now queue empty). Catalogue check: childcare-tuition-calculator prices a
+# classroom and home-office-deduction-calculator is the generic home-office tool;
+# neither computes the day-care time-space percentage (hours over 8,760 times room
+# share, exclusive-use rooms, partial-year availability). Screened-out rows not hit.
+#
+# Why this niche: licensed family child care providers number in the hundreds of
+# thousands in the US, are self-employed, keep their own books, and the time-space
+# percentage is the single most-asked tax question in their communities every
+# filing season. The usual answer is a hand-built spreadsheet or a paid tax-prep
+# upsell. People in this segment pay for tax software and provider-specific
+# record-keeping apps, so willingness to pay for tools that raise deductions
+# correctly is demonstrated.
+#
+# First visitor: providers searching "time space percentage calculator daycare",
+# "home daycare tax deduction calculator", "family child care time space percent".
+# Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed figures using a publicly described
+# method; no tax-year constants asserted as fact (the simplified rate and cap are
+# inputs); says what it does not model (depreciation, recapture, Schedule A,
+# income limit, state rules) and never tells a user what to claim. No child data.
+# Unverified: hand-calculated examples, not a filed return.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural
+# lead magnet for a future hosted provider record-keeping tool (hours log, meal
+# counts, receipts) with export to the tax preparer.
+
+hypotheses:
+  - claim: >-
+      Home day care providers will use a private, no-signup time-space calculator
+      every filing season and again when their hours or rooms change.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a percentage disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/family-child-care-time-space-calculator/
+  analytics: null
