@@ -2888,7 +2888,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `shift-roster-builder` graduated (browser-local weekly shift roster builder: availability, rest, hour caps, overtime, who-is-critical).
     # +1: `time-off-request-planner` graduated (browser-local time-off request planner: exact search for the leave requests that fit minimum cover per role).
     # +1: `cheap-meal-plan-optimizer` graduated (browser-local minimum-cost diet solver: simplex plus branch and bound, price of each nutrient target).
-    total = 554  # `infra/OWNER_CHECKLIST.md`'s own "N of the 554 tools" wording.
+    total = 555  # `infra/OWNER_CHECKLIST.md`'s own "N of the 555 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
