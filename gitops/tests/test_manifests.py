@@ -2897,7 +2897,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `freelance-rate-increase-calculator` graduated (browser-local freelance rate increase break-even client loss, hours freed and raise ladder calculator).
     # +1: `course-launch-revenue-calculator` graduated (browser-local online course launch net profit, break-even list size and scenario calculator).
     # +1: `postgres-explain-analyzer` graduated (browser + CLI PostgreSQL EXPLAIN ANALYZE plan analyzer).
-    total = 577  # `infra/OWNER_CHECKLIST.md`'s own "N of the 577 tools" wording.
+    total = 578  # `infra/OWNER_CHECKLIST.md`'s own "N of the 578 tools" wording.
     # +1: `breakeven-roas-calculator` graduated (browser-local break-even ROAS, max CPA and LTV-adjusted ad economics calculator).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()

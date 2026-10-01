@@ -25160,6 +25160,34 @@ ventures:
       Liability: arithmetic on pasted text, estimate labelled as the user's own target
       count times editable list prices, no warranty, nothing leaves the device. Ethics:
       helps engineers avoid surprise observability bills.
+  - slug: slo-burn-rate-alerts
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.167
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic and rule generation from typed inputs; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-01 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 5 and defensibility 4: a
+      developer tool with real search demand ("slo error budget calculator", "burn rate
+      alert prometheus") but crowded by installable generators (Sloth, Pyrra) and vendor
+      SLO products; search volume not measured with an external tool.
+      Scope: Free CLI and browser tool that turns an SLO into burn-rate alert rules and flags thresholds that can never fire.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed numbers, generated rules labelled as a starting point
+      to review and test, no warranty, nothing leaves the device. Ethics: helps engineers
+      get alerts that page on real outages and stay quiet otherwise.
   - slug: postgres-explain-analyzer
     scores:
       ai_leverage: 4
