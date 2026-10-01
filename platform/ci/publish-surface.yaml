@@ -686,6 +686,9 @@ workflows:
 - workflow: freelance-retainer-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: freelance-retainer-vs-hourly-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: freelance-writer-rate-calculator-ci.yml
   classification: none
   publishes: []

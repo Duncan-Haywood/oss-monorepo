@@ -28,3 +28,23 @@ entries:
         no-network assertions. Registered score row, launch date, category rule and CI
         workflow.
     mrr_end: 0
+  - venture: freelance-retainer-vs-hourly-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built freelance-retainer-vs-hourly-calculator: a browser-local tool that replays a proposed
+        monthly retainer against a freelancer's own time log. Per client (at least six
+        months, zero-filled gaps) it reports mean, median and 80th-percentile monthly
+        hours with 300-resample seeded bootstrap ranges, the effective hourly rate at the
+        median, 80th-percentile and worst month, break-even hours, the share of months
+        where hourly would have paid more, the retainer that hits a target rate at a
+        chosen coverage percentile, and a hold-out that calls the history unstable when
+        average hours move more than 25%. duplicate_check.py best match 0.41
+        (freelance-writer-rate-calculator); freelance-retainer-calculator prices from
+        income-goal assumptions, not a log. First visitor expected from r/freelance,
+        r/consulting and "retainer vs hourly pricing" searches. Unverified on real logs:
+        tests use hand-counted months, a simulated uniform-hours client with a known
+        80th percentile, a shift the hold-out must flag, and no-network assertions.
+        Registered score row, launch date, category rule and CI workflow.
+    mrr_end: 0
