@@ -1490,6 +1490,9 @@ workflows:
 - workflow: production-mix-optimizer-ci.yml
   classification: none
   publishes: []
+- workflow: crypto-cost-basis-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: shop-rate-calculator-ci.yml
   classification: none
   publishes: []

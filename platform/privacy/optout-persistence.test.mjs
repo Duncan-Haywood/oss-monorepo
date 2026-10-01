@@ -1142,8 +1142,9 @@ const RELATIVE_SELF = relative(
 // +1: `shipping-box-size-optimizer` graduated.
 // +1: `container-load-planner` graduated.
 // +1: `production-mix-optimizer` graduated.
+// +1: `crypto-cost-basis-calculator` graduated.
 // +1: `rental-fleet-size-optimizer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 526;
+const SWITCHES_IN_THE_CATALOGUE = 527;
 
 let counter = 0;
 function fixture(source) {
