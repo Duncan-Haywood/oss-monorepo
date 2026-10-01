@@ -863,6 +863,16 @@ candidate list. Either:
 > great deal more than the "dark" this file has been asserting, and it is not
 > the same as "a stranger has read it".
 >
+> **RETIRED 2026-10-01: the owner deleted the Hetzner servers.** The hel1
+> pair (89.167.29.39, 157.180.80.188), the k3s cluster, Argo CD and the
+> self-hosted runner host are gone for good. The Hetzner/k3s route is
+> retired, not down: there is nothing to restore, so do not ask for
+> `HETZNERSSHKEY`, do not dispatch anything that SSHes to those addresses (a
+> released IP can be reassigned to a stranger), and do not rank cluster
+> recovery. GitHub Pages is the only host. `marisstella.dev` DNS still
+> points at the released IP; repointing or removing it is the
+> `pages-custom-domain` owner ask.
+>
 > **What is still down is `marisstella.dev`** — the k3s cluster, everything in
 > the block below, and it is all still accurate about *that* origin. The two
 > were run together because the repository assumed a single origin; they are
@@ -887,6 +897,16 @@ candidate list. Either:
 > ---
 >
 > **MEASURED 2026-09-04 (about `marisstella.dev`): nothing is served.**
+>
+> **RETIRED 2026-10-01: the owner deleted the Hetzner servers.** The hel1
+> pair (89.167.29.39, 157.180.80.188), the k3s cluster, Argo CD and the
+> self-hosted runner host are gone for good. The Hetzner/k3s route is
+> retired, not down: there is nothing to restore, so do not ask for
+> `HETZNERSSHKEY`, do not dispatch anything that SSHes to those addresses (a
+> released IP can be reassigned to a stranger), and do not rank cluster
+> recovery. GitHub Pages is the only host. `marisstella.dev` DNS still
+> points at the released IP; repointing or removing it is the
+> `pages-custom-domain` owner ask.
 >
 > Every claim in this section was derived from the manifests. On 2026-09-04 the
 > hostnames were asked directly, from a GitHub runner, over real DNS and real

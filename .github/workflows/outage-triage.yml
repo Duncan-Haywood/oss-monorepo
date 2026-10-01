@@ -31,16 +31,10 @@ name: Outage triage
 # is absent.
 
 on:
+  # Dispatch only. The pull_request trigger was dropped 2026-10-01: the Hetzner
+  # servers this probes were deleted by the owner, so a PR run would only probe
+  # released IPs that may now belong to someone else.
   workflow_dispatch:
-  # Also on pull requests that touch the tool itself, so a change to the
-  # decision tree is exercised against the real hosts rather than only against
-  # its stubs. That is what produced the first reading: the workflow could not
-  # be dispatched before it existed on the default branch.
-  pull_request:
-    paths:
-      - "platform/ci/outage_triage.py"
-      - "platform/ci/test_outage_triage.py"
-      - ".github/workflows/outage-triage.yml"
 
 permissions:
   contents: read

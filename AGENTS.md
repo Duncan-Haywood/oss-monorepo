@@ -280,8 +280,9 @@ of done.
 ## Graduating from the pipeline
 
 If anything already on `main` still has no public URL, deploy that first
-(prepare a GitHub Pages artifact or a Hetzner product-box deploy; the
-owner flip is `deploy-settings`). See [`portfolio/hosting/`](portfolio/hosting/README.md).
+(prepare a GitHub Pages artifact; the Hetzner boxes were deleted
+2026-10-01, so there is no product box to deploy to; the owner flip is
+`deploy-settings`). See [`portfolio/hosting/`](portfolio/hosting/README.md).
 Do not add Cloudflare or Vercel. Only then:
 
 If `session_gate.py` names a `build-now` candidate, graduate it:
