@@ -48894,6 +48894,7 @@ entries:
     mrr_end: 0
   - venture: rental-rent-optimizer
   - venture: str-nightly-rate-optimizer
+  - venture: trial-conversion-timing-analyzer
     agent_spend_usd: null
     human_hours: 0
     outcomes:
@@ -48937,4 +48938,35 @@ entries:
         and host forums. Bookings never leave the browser. Unverified against a real
         host's history: tests use simulated nights with known curves and no-network
         assertions. Registered score row, launch date, category rule and CI workflow.
+        Graduated and built trial-conversion-timing-analyzer: a browser-local tool
+        for SaaS and app founders. Paste each free trial's start date and first
+        payment date (blank if none); it keeps only finished trials (start plus
+        trial length on or before the as-of date), plots conversions by trial day,
+        reports median and 90th percentile day, flags a last-two-days deadline
+        pile-up, and counts conversions after each shorter cutoff with 300 seeded
+        bootstrap resamples for an 80% range, value lost per 100 trials and a
+        user-set pull-forward share. A 75/25 hold-out by start date calls timing
+        unstable when the late-share gap exceeds 15 points. Refuses under 30
+        finished trials or 8 conversions and says it cannot speak to trials longer
+        than the one run. New niche: duplicate_check.py best match 0.24 (after an
+        appointment no-show idea was dropped at 0.56 against an existing venture).
+        First visitor expected from "how long should a free trial be" searches and
+        r/SaaS. Trial data never leaves the browser. Unverified on a real product:
+        tests use hand-counted shares, simulated timing with bootstrap coverage,
+        a timing-shift case and no-network assertions. Registered score row,
+        launch date, category rule and CI workflow.
+        Graduated and built mechanics-lien-deadline-calculator: a browser-local
+        tool for unpaid subcontractors and suppliers. From the first and last day
+        on the job it shows the preliminary-notice date and the lien-filing date
+        for California, Texas (commercial and residential month rules), Florida,
+        Arizona and Washington, with days remaining, weekend safe dates, and the
+        cautious fallback (last furnishing) when completion is unknown; California
+        and Arizona notice-of-completion shortening. Unsupported states throw.
+        Figures verified by WebSearch on 2026-09-30 against agreeing lien-service
+        and law-firm sources; first-tier claimants only. New niche:
+        duplicate_check.py best match 0.25. First visitor expected from "[state]
+        preliminary notice deadline" and "how long to file a mechanics lien"
+        searches. Unverified by a lawyer: tests pin hand-counted dates for each
+        state, year-end month arithmetic and no-network assertions. Registered
+        score row, launch date, category rule and CI workflow.
     mrr_end: 0

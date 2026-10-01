@@ -935,6 +935,9 @@ workflows:
 - workflow: mcp-supply-chain-watch-ci.yml
   classification: none
   publishes: []
+- workflow: mechanics-lien-deadline-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: medical-bill-error-checker-ci.yml
   classification: none
   publishes: []
@@ -1641,6 +1644,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: turo-earnings-report-analyzer-ci.yml
+  classification: none
+  publishes: []
+- workflow: trial-conversion-timing-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: turo-host-payout-calculator-ci.yml

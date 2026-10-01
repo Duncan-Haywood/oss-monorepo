@@ -23436,6 +23436,33 @@ ventures:
       standard and paid dynamic-pricing services use market data this does not; the
       edge is free, private, no-upload use, the fee-and-turnover economics,
       bootstrap ranges and the plain refusal when prices never varied.
+  - slug: trial-conversion-timing-analyzer
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.1
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Descriptive statistics and a seeded bootstrap run in the browser; no language
+      model and no paid API. The refusal to speak about trials longer than the one
+      run, the deadline-effect flag and the hold-out shift check are the product.
+    basis: >-
+      Screened 2026-09-30 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. A SaaS or app founder
+      pastes trial start and first-payment dates and sees conversions by trial day,
+      a deadline pile-up flag, what a shorter trial would have lost with bootstrap
+      ranges, and whether timing has shifted between early and recent trials.
+      Distribution 6: "how long should a free trial be" is a recurring founder
+      query and the SaaS pricing calculators in this catalogue feed it (volume not
+      measured with an external tool). Defensibility 3: a pivot table of days to
+      convert does most of it; the edge is the private no-upload workflow, finished
+      trials only, ranges and the plain limits.
     gates:
       liability_containment: pass
       ethical_robustness: pass
@@ -23446,6 +23473,11 @@ ventures:
       data cannot support an answer. Bookings never leave the browser. Ethics: helps
       a small host see how their own bookings respond to price; nothing is sold, no
       guest data is collected and no referral is made.
+      Liability: statistical description of supplied data, not advice, no warranty,
+      independence from vendors stated, limits stated (sign-ups, activation, churn
+      and longer trials are not modelled). Trial data never leaves the browser.
+      Ethics: helps a small founder set a trial length from their own evidence;
+      nothing is sold, no customer data is collected and no referral is made.
   - slug: rental-rent-optimizer
     scores:
       ai_leverage: 4
@@ -23517,3 +23549,68 @@ ventures:
     gate_note: >-
       Liability: statistical estimate of the user's own data, no warranty, not
       advice. Ethics: no customer data collected or sold; nothing leaves the browser.
+  - slug: revenue-target-lead-planner
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical learning (seeded bootstrap and over-dispersed binomial
+      simulation with a hold-out back-test, run in the browser) but no language
+      model and no paid API; the probability and the stated limits are the product.
+    basis: >-
+      Scored 2026-09-30 at graduation; write-up in this venture's own
+      VENTURE.yaml comment. Freelancers and small agencies paste leads, wins and
+      revenue per period and get the chance of hitting a target and the leads
+      needed for 80%. Distribution 6: "how many leads do I need" and "sales funnel
+      calculator" are recurring queries (volume not measured with an external
+      tool). Defensibility 4: CRM forecast modules and spreadsheets exist; the edge
+      is the private no-upload workflow and an honest range with a back-test.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical estimate of the user's own data, no warranty, not
+      advice. Ethics: no customer data collected or sold; nothing leaves the browser.
+  - slug: mechanics-lien-deadline-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately: every result is fixed state-statute
+      timing rules applied to dates the user types.
+    basis: >-
+      Screened 2026-09-30. duplicate_check.py best match 0.25 (final-paycheck-
+      deadline-calculator, a different jurisdictional deadline table). Distribution
+      7: "[state] preliminary notice deadline" and "how long to file a mechanics
+      lien" are recurring subcontractor and supplier queries that lien-service and
+      law-firm pages already rank for (seen via WebSearch; volume not measured with
+      an external tool), and the need recurs on every unpaid job. Defensibility 3:
+      the five-state table is reproducible from public statutes; the edge is a
+      free, private, no-signup lookup with cautious-date handling, where incumbents
+      mostly gate it behind paid notice filing.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: date lookup only, not legal advice, no warranty; five states each
+      verified against agreeing sources, first-tier claimants only, unsupported
+      states refuse, cautious dates, and the limits (second tier, public projects,
+      notice content, foreclosure) stated in three places. Prepares and files
+      nothing. Ethics: helps small trades keep payment rights they already have;
+      nothing leaves the browser.
