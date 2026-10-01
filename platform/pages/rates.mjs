@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'freelance-rate-increase-calculator':
+    'the rates are the freelancer\'s own hourly billing rates compared before and after a raise, with no cost or burden fields; the tool solves a break-even client loss rather than quoting a shop rate',
   'tattoo-piece-profit-calculator':
     'the hourly figure is a take-home target for all of the artist\'s time on a piece, and the shop share is a percentage of price or a monthly booth rent spread over tattooing hours rather than a percentage of direct cost; there is no burden field',
   'handyman-minimum-job-calculator':
