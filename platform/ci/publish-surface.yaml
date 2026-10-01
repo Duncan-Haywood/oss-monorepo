@@ -416,6 +416,9 @@ workflows:
 - workflow: cost-segregation-study-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: cottage-food-pricing-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: countertop-bid-calculator-ci.yml
   classification: none
   publishes: []

@@ -23909,3 +23909,37 @@ ventures:
       user). Farm data never leaves the browser. Ethics: helps a small grower
       decide what to plant; nothing is sold, no data is collected and no referral
       is made.
+  - slug: cottage-food-pricing-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Full-cost, margin-based channel pricing and per-hour earnings are closed-form
+      arithmetic in the browser; no language model and no paid API. The product is
+      pricing from full cost with unsold goods and fees, not from the grocery bill.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. A home baker pastes their
+      products and sees the price to charge online, at a market and wholesale, and
+      what they earn per hour today. Distribution 6: "how to price baked goods" and
+      "cottage food pricing" are recurring beginner queries and nothing in this
+      catalogue prices homemade food (volume not measured with an external tool).
+      Defensibility 3: recipe-costing apps are ingredient-level subscriptions; the
+      edge is the private no-signup workflow, margin-as-share-of-price and the
+      earned-per-hour reading.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed figures, not tax, legal, licensing or
+      food-safety advice, no warranty, no marketplace named, cottage-food rules
+      stated as not modelled. Ethics: helps a small seller charge what the work
+      costs; nothing is sold, no data is collected.
