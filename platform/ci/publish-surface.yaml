@@ -932,6 +932,9 @@ workflows:
 - workflow: ltl-freight-class-estimator-ci.yml
   classification: none
   publishes: []
+- workflow: market-garden-bed-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: marketplace-fee-compare-ci.yml
   classification: none
   publishes: []
