@@ -1781,6 +1781,9 @@ workflows:
 - workflow: wedding-florist-proposal-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: wedding-photographer-profit-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: well-pump-bid-calculator-ci.yml
   classification: none
   publishes: []
