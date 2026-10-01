@@ -1192,6 +1192,9 @@ workflows:
 - workflow: print-on-demand-profit-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: private-practice-payer-mix-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: process-server-fee-calculator-ci.yml
   classification: none
   publishes: []
