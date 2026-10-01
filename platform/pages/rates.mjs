@@ -369,6 +369,8 @@ export const REVIEWED_NOT_CARRIED = {
     'wage and fuel cost are the running cost of a driver on a route being sequenced, not a rate used to price a job; nothing is quoted to a customer',
   'shift-cover-optimizer':
     'wage and burden are the payroll cost of shifts on a staffing plan, not a rate used to price a job; there is no overhead or margin and nothing is quoted to a customer',
+  'freight-broker-load-margin-calculator':
+    'there is no labor or job rate: the tool computes a freight broker\'s net margin on loads from the shipper and carrier rates the user types in; nothing is priced or quoted to a customer',
   'business-loan-offer-comparator':
     'there is no labor or job rate: the tool compares financing offers a business owner has received (APR, factor rate, fees); nothing is priced or quoted to a customer',
   'time-off-request-planner':
