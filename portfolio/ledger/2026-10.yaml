@@ -348,3 +348,34 @@ entries:
       Liability: arithmetic and optimization on supplied figures, no carrier rates or
       box prices asserted, surcharges not priced and said so, no warranty. No
       customer data. Ethics: helps a small seller cut shipping waste.
+  - venture: rental-fleet-size-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built rental-fleet-size-optimizer: a browser-local tool for
+        businesses that rent out identical units (tents, kayaks, scaffold, camera
+        gear, tool kits). Enter seasons of demand, rental lengths, price, cost per
+        rental and the yearly cost of owning a unit; it computes the yearly profit of
+        every fleet size two ways, the Erlang loss formula per season and a seeded
+        day-by-day simulation (Poisson or negative-binomial requests, common random
+        numbers across fleet sizes), and recommends how many units to own with turn-away
+        rates, a bad year (10th percentile), the days the marginal unit adds against
+        the days it needs to pay for itself, an optional turn-away cap and its cost, a
+        comparison with today's fleet, and how the answer moves with demand. New niche:
+        duplicate_check.py closest equipment-rental-break-even 0.18 (one machine's
+        break-even, not how many to own). First visitor expected from "how many units
+        should my rental business own" searches. No customer data; nothing leaves the
+        browser. Unverified on a real business's books: tests check Erlang B against
+        its closed form, the simulation against the exact day-batch formula for
+        one-day rentals, and the guide's worked example is recomputed by the suite.
+        Registered score row, launch date, category rule, CI workflow and a guide page.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and simulation on supplied figures, not tax, financial or
+      business advice, no demand, price or asset cost asserted, no warranty, limits
+      stated. No customer data. Ethics: helps a small rental owner avoid buying units
+      that never pay for themselves.
