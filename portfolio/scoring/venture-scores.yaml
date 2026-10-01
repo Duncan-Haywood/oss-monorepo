@@ -23723,6 +23723,43 @@ ventures:
       clients, so no protected health information is taken. Ethics: helps a small
       practice see what its own contracts pay; nothing is sold, no data is collected
       and no referral is made.
+  - slug: home-care-agency-margin-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Loaded cost, margin per billed hour, a closed-form bill-rate solve and a
+      wage-raise sensitivity run in the browser; no language model and no paid API.
+      Pricing the hour from the true loaded caregiver cost is the product.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. A home care agency owner
+      pastes their payers and sees margin per billed hour for each, the bill rate that
+      reaches a target margin, and what a wage raise costs. Distribution 6: "home care
+      agency profit margin" and "how to price private duty home care" are recurring
+      owner queries and nothing in this catalogue serves home care (volume not
+      measured with an external tool). Defensibility 3: scheduling and billing
+      platforms report operations, not per-payer margin per billed hour; the edge is
+      the private no-upload workflow, the loaded-cost rate solve and the plain limits.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed figures, not payroll, wage-and-hour, tax,
+      insurance or Medicaid-billing advice, no warranty, no insurer, program or vendor
+      named, limits stated (minimum shifts, turnover, program rate rules not modelled).
+      Rows are payers, never clients or caregivers, so no protected health information
+      is taken. Ethics: helps a small agency see what its own payers pay and price its
+      hours sustainably; nothing is sold, no data is collected and nothing tells an
+      owner to stop serving a program.
   - slug: route-account-pruner
     scores:
       ai_leverage: 2

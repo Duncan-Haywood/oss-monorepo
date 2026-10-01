@@ -146,3 +146,24 @@ entries:
         property check and no-network assertions. Registered score row, launch date,
         category rule and CI workflow.
     mrr_end: 0
+  - venture: home-care-agency-margin-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built home-care-agency-margin-calculator: a browser-local tool for non-medical
+        home care agencies. Paste one row per payer (bill rate, billed hours a month,
+        caregiver wage, share paid, days to payment, visit length, unpaid travel); it
+        loads each wage with payroll tax, workers' comp, overtime and unbilled drive
+        time, and computes cost, margin and margin percent per billed hour, the bill
+        rate that reaches a target margin, the monthly cost of a one-dollar wage raise,
+        receivables, and the break-even refill share for dropping a payer (an unfilled
+        hour earns and costs nothing). Rows are payers, never clients or caregivers, so
+        no PHI is taken. New niche: nothing in the catalogue serves home care (nearest
+        employee-cost-calculator, staffing-markup-calculator). First visitor expected
+        from "home care agency profit margin" searches. Unverified on a real agency:
+        tests use hand-calculated costs, exact rate solves and no-network assertions.
+        Registered score row, launch date, category rule and CI workflow. A first draft
+        of a towing venture was discarded after finding tow-motor-club-call-calculator
+        already covers it (slug greps missed the short stem).
+    mrr_end: 0

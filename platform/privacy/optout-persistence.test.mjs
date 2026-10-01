@@ -1132,7 +1132,8 @@ const RELATIVE_SELF = relative(
 // +1: `contractor-wip-schedule` graduated.
 // +1: `freelance-retainer-vs-hourly-calculator` graduated.
 // +1: `payroll-tax-deposit-penalty-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 515;
+// +1: `home-care-agency-margin-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 516;
 
 let counter = 0;
 function fixture(source) {

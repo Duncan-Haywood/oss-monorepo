@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 536 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 537 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -42,6 +42,15 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Retainer vs hourly calculator for freelancers, consultants and small agencies. Paste your time log to see your effective hourly rate under a monthly retainer, break-even hours, and the retainer that covers 80% of your months, from your own history. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Home Care Agency Margin Calculator — bill rate and margin per hour by payer</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/home-care-agency-margin-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/home-care-agency-margin-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Margin calculator for non-medical home care agencies. See what each payer really leaves per billed hour after payroll tax, workers&#39; comp, overtime, unpaid travel and slow payment, the bill rate that reaches your target margin, and what a wage raise costs. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Landlord Repair-or-Replace Planner — repair it or replace it?</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free calculator for the preliminary notice and lien filing deadlines a subcontractor or supplier faces in California, Texas, Florida, Arizona, and Washington. Enter your first and last day on the job; see both dates, weekend flags, and days left. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Merchant Cash Advance True Cost Calculator — Factor Rate to APR, Factoring Cost</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/merchant-cash-advance-true-cost-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/merchant-cash-advance-true-cost-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free merchant cash advance calculator. Turn a factor rate and daily or weekly payments into the annualised cost of the money you actually receive, see what early payoff really costs, and price an invoice factoring quote. Runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

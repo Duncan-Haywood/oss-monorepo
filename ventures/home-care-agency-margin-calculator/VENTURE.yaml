@@ -1,0 +1,73 @@
+name: home-care-agency-margin-calculator
+description: >-
+  Free browser tool for non-medical home care agencies: paste one row per payer
+  (private pay, long-term-care insurance, veterans and state programs) with bill
+  rate, billed hours, caregiver wage, share paid, days to payment, visit length and
+  unpaid travel, and see the loaded cost and margin per billed hour for each, the
+  bill rate that reaches a target margin, what a one-dollar wage raise costs per
+  month, and the refill share at which dropping a payer breaks even. Payer-level
+  totals only.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED,
+# build-now queue empty). Catalogue check by slug and by VENTURE.yaml description:
+# nothing serves home care or caregiving agencies; nearest are employee-cost-
+# calculator (one role, hired vs contracted), staffing-markup-calculator (placement
+# markup) and workers-comp-premium-calculator (premium true-up). Screened-out rows
+# were not hit.
+#
+# Why this niche: tens of thousands of US non-medical home care agencies, most
+# owner-run, bill by the hour and pay caregivers by the hour, in one of the
+# thinnest-margin service businesses there is. Owners set a rate by looking at the
+# wage and a competitor's price, while payroll tax, workers' comp (a high class for
+# caregivers), overtime, unbilled drive time and slow program payers quietly eat the
+# difference, and wage pressure is the constant. Willingness to pay for tools is
+# demonstrated: agencies already pay for scheduling, EVV and billing software.
+#
+# Alternatives: spreadsheets from franchisors and consultants, scheduling and
+# billing platforms (operations, not per-payer margin), and the agency's accountant.
+#
+# First visitor: owners searching "home care agency profit margin", "how to price
+# private duty home care", "home care bill rate calculator". Volume not measured
+# with an external tool.
+#
+# Privacy is the liability boundary: rows are payers, never clients or caregivers,
+# so the tool takes no protected health information by design, and nothing is
+# transmitted (tests assert no network calls). No insurer, program or vendor is
+# named or ranked.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural
+# lead magnet for a future hosted agency-finance tool (billing-export import).
+# Liability: arithmetic on user-typed figures, not payroll, wage-and-hour, tax,
+# insurance or Medicaid-billing advice; says what it cannot see (minimum shifts,
+# turnover, program rate rules) and never tells a user to stop serving a program.
+# Unverified: tested on hand-calculated examples, not on a real agency's books.
+
+hypotheses:
+  - claim: >-
+      Owners of small home care agencies with two or more payers will use a
+      private, no-signup tool to price a bill rate from the loaded caregiver cost
+      and compare payers per billed hour, and will return when wages or a program
+      rate change.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a margin-per-hour figure disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/home-care-agency-margin-calculator/
+  analytics: null
