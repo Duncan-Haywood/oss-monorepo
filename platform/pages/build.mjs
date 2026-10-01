@@ -912,7 +912,7 @@ const CATEGORY_RULES = [
     // groomer turning services, minutes, supplies and overhead into a profit per
     // hour and a price floor is the `dog-boarding-daycare-pricing` job again.
     test: (slug) =>
-      /^(home-care-agency|booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|massage-therapist-profit|dj-gig-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking)/.test(
+      /^(home-care-agency|booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|massage-therapist-profit|dj-gig-profit|wedding-photographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking)/.test(
         slug,
       ),
   },
@@ -987,7 +987,10 @@ const CATEGORY_RULES = [
     // cross-link).
     // `route-stop-optimizer` added 2026-09-30: orders a day's stops to cut drive
     // time, the same reader as the owner-operator and courier tools here.
-    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club|route-stop-optimizer)/.test(
+    // `shipping-box-size-optimizer` joined 2026-10-01 on its first commit: it is
+    // `parcel-dim-weight`'s assortment-level partner (which set of cartons to
+    // stock, rather than what one carton bills at), and the two cross-link.
+    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club|route-stop-optimizer|shipping-box-size)/.test(
       slug,
     ),
   },

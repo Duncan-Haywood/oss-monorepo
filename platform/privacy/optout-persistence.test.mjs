@@ -1138,7 +1138,9 @@ const RELATIVE_SELF = relative(
 // +1: `dog-grooming-profit-calculator` graduated.
 // +1: `massage-therapist-profit-calculator` graduated.
 // +1: `dj-gig-profit-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 521;
+// +1: `wedding-photographer-profit-calculator` graduated.
+// +1: `shipping-box-size-optimizer` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 523;
 
 let counter = 0;
 function fixture(source) {
