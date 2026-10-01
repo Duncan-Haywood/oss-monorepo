@@ -925,6 +925,9 @@ const CATEGORY_RULES = [
     // `laundromat-machine-payback-calculator` joined 2026-10-01 on its first commit: an
     // owner turning machine lines, vend prices and turns into payback months sits
     // beside `vending-machine-route-margin`.
+    // `house-cleaning-quote-calculator` joined 2026-10-01 on its first commit: a cleaning
+    // owner turning home size, crew pace and wages into a price floor and a discount limit
+    // is the same solo-service pricing job as `dog-grooming-profit-calculator` below.
     // `dog-grooming-profit-calculator` joined 2026-10-01 on its first commit: a
     // groomer turning services, minutes, supplies and overhead into a profit per
     // hour and a price floor is the `dog-boarding-daycare-pricing` job again.
@@ -943,7 +946,7 @@ const CATEGORY_RULES = [
     // the same small-operator pricing job as `pour-cost-calculator` and
     // `cottage-food-pricing-calculator`.
     test: (slug) =>
-      /^(home-care-agency|booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|massage-therapist-profit|dj-gig-profit|driving-instructor-lesson-pricing|wedding-photographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|coffee-roaster-margin)/.test(
+      /^(home-care-agency|booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|massage-therapist-profit|dj-gig-profit|driving-instructor-lesson-pricing|wedding-photographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|coffee-roaster-margin|house-cleaning-quote)/.test(
         slug,
       ),
   },
