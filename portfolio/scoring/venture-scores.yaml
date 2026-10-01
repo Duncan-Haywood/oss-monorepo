@@ -24973,3 +24973,30 @@ ventures:
       Liability: arithmetic on user-typed figures, not advice, no warranty, limits
       stated; nothing leaves the browser. Ethics: helps a small repair business owner check
       figures on their own numbers.
+  - slug: llm-call-cost-scan
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.167
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic static scan about LLM usage; contains no model itself and calls no paid API.
+    basis: >-
+      Scored 2026-10-01 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 5 and defensibility 4: a
+      developer CLI with real search demand ("reduce openai api cost") but crowded by
+      runtime-observability products, volume not measured with an external tool.
+      Scope: Free CLI and browser tool that scans source for costly LLM call sites.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: static text scan, estimate labelled as the user's own arithmetic on
+      editable list prices, no warranty, nothing leaves the device. Ethics: helps
+      developers avoid surprise bills.

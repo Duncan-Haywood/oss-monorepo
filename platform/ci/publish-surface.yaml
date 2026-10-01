@@ -194,6 +194,9 @@ workflows:
 - workflow: attic-insulation-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: auction-car-flip-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: augusta-rule-calculator-ci.yml
   classification: none
   publishes: []
@@ -263,6 +266,9 @@ workflows:
 - workflow: brand-deal-rate-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: breakeven-roas-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: bridal-hair-makeup-pricing-calculator-ci.yml
   classification: none
   publishes: []
@@ -290,10 +296,16 @@ workflows:
 - workflow: cam-reconciliation-check-ci.yml
   classification: none
   publishes: []
+- workflow: candle-batch-cost-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: canonical-tag-check-ci.yml
   classification: none
   publishes: []
 - workflow: caption-quality-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: car-wash-membership-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: card-processing-fee-audit-ci.yml
@@ -416,6 +428,9 @@ workflows:
 - workflow: contractor-bid-readiness-ci.yml
   classification: none
   publishes: []
+- workflow: contractor-wip-schedule-ci.yml
+  classification: none
+  publishes: []
 - workflow: cookie-security-check-ci.yml
   classification: none
   publishes: []
@@ -453,6 +468,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: crown-molding-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: crypto-cost-basis-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: custom-farm-rate-calculator-ci.yml
@@ -500,6 +518,9 @@ workflows:
 - workflow: depreciation-recapture-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: dj-gig-profit-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: dns-configuration-evidence-ci.yml
   classification: none
   publishes: []
@@ -515,34 +536,10 @@ workflows:
 - workflow: docker-cache-order-check-ci.yml
   classification: none
   publishes: []
-- workflow: dj-gig-profit-calculator-ci.yml
-  classification: none
-  publishes: []
 - workflow: dog-boarding-daycare-pricing-ci.yml
   classification: none
   publishes: []
 - workflow: dog-grooming-profit-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: auction-car-flip-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: laundromat-machine-payback-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: candle-batch-cost-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: tire-shop-ticket-margin-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: handyman-minimum-job-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: car-wash-membership-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: house-cleaning-quote-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: dog-walking-route-pricing-ci.yml
@@ -803,6 +800,9 @@ workflows:
 - workflow: gutter-install-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: handyman-minimum-job-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: hardwood-refinishing-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -849,6 +849,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: hot-tub-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: house-cleaning-quote-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: hreflang-reciprocity-check-ci.yml
@@ -935,9 +938,6 @@ workflows:
 - workflow: land-survey-bid-calculator-ci.yml
   classification: none
   publishes: []
-- workflow: contractor-wip-schedule-ci.yml
-  classification: none
-  publishes: []
 - workflow: landlord-repair-or-replace-planner-ci.yml
   classification: none
   publishes: []
@@ -945,6 +945,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: late-invoice-collections-kit-ci.yml
+  classification: none
+  publishes: []
+- workflow: laundromat-machine-payback-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: lawn-care-bid-calculator-ci.yml
@@ -966,6 +969,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: llm-api-pricing-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: llm-call-cost-scan-ci.yml
   classification: none
   publishes: []
 - workflow: llm-usage-log-analyzer-ci.yml
@@ -1264,6 +1270,9 @@ workflows:
 - workflow: process-server-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: production-mix-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: project-estimate-calibrator-ci.yml
   classification: none
   publishes: []
@@ -1517,12 +1526,6 @@ workflows:
 - workflow: shipping-box-size-optimizer-ci.yml
   classification: none
   publishes: []
-- workflow: production-mix-optimizer-ci.yml
-  classification: none
-  publishes: []
-- workflow: crypto-cost-basis-calculator-ci.yml
-  classification: none
-  publishes: []
 - workflow: shop-rate-calculator-ci.yml
   classification: none
   publishes: []
@@ -1719,6 +1722,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: tip-pool-compliance-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: tire-shop-ticket-margin-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: toilet-replacement-bid-calculator-ci.yml

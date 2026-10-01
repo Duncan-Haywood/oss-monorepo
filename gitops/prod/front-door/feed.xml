@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 569 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 570 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -242,6 +242,15 @@
     <summary type="text">Free round robin schedule generator. Paste your team names and get a fair league schedule with real dates, balanced home and away, courts and time slots shared evenly, blackout dates, an optional play-off bracket, and CSV, calendar and text exports. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>LLM Call Cost Scan — Find the OpenAI and Claude Calls Quietly Costing You Money</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/llm-call-cost-scan/"/>
+    <id>tag:marisstella.dev,2026:tool/llm-call-cost-scan</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your code and see every OpenAI, Anthropic and Gemini call with no max-tokens cap, inside a loop, on a premium model, or using a retired model name, plus a monthly cost estimate from your own traffic guess. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Market Garden Bed Planner — which crops earn the most per bed</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/market-garden-bed-planner/"/>
     <id>tag:marisstella.dev,2026:tool/market-garden-bed-planner</id>
@@ -357,14 +366,5 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free vacation and PTO request planner for small teams. Paste your people with roles and the time-off requests you have, set the minimum on duty per role, and see which requests to approve, why each other one clashes and what dates would work. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Tire Shop Ticket Margin Calculator — net per ticket, upsell attach and bay capacity</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tire-shop-ticket-margin-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/tire-shop-ticket-margin-calculator</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Tire shop ticket margin calculator for owners and managers. Enter tires, alignments, road hazard coverage and fees with price, parts cost, labor minutes and attach rate to see net per ticket, what each upsell is worth, break-even tickets, bay capacity and what a discount must win back. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
