@@ -1,0 +1,30 @@
+period: 2026-10
+entries:
+  - venture: donor-retention-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built donor-retention-analyzer: a browser-local tool for small
+        nonprofits. Paste or upload a gift history (donor, date, amount) and pick the
+        fiscal year start; it computes retention by fiscal year (donors who gave in
+        two consecutive full years) with a 300-resample seeded bootstrap 80% range,
+        first-year versus repeat retention, net dollar retention, new and won-back
+        donors, concentration of the top ten donors, and LYBUNT and SYBUNT lists
+        ranked by expected dollars: a pooled empirical chance of giving within the
+        next 365 days by status and giving-years band (counted at past dates from
+        the organisation's own gifts, shrunk toward the overall rate), times the
+        median of the donor's last three gifts. A hold-out refits on older dates and
+        calls the model unstable when it misses the latest year's donor count by
+        more than 25%. Refuses under 30 donors, 60 gifts or two full fiscal years;
+        leaves unfinished and mid-year-start years out of every rate. New niche:
+        duplicate_check.py best match 0.12 (stripe-churn-cohort-analyzer, a
+        subscription tool); nothing in the catalogue serves charities. First visitor
+        expected from "how to calculate donor retention rate" and "LYBUNT report"
+        searches. Donor data never leaves the browser. Unverified on a real
+        organisation: tests use hand-counted retention and dollar retention, a fiscal
+        year starting in July, simulated memoryless donors with a known 50% chance
+        recovered by the model, a behaviour shift the hold-out must flag, and
+        no-network assertions. Registered score row, launch date, category rule and CI
+        workflow.
+    mrr_end: 0
