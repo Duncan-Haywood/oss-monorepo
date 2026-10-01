@@ -1,0 +1,57 @@
+name: freelance-rate-increase-calculator
+description: >-
+  Free browser tool for freelancers and consultants: list clients with monthly hours,
+  current rate and the chance each leaves if the rate rises, and see the income change,
+  the hours freed, the share of hours that can be lost before the raise stops paying
+  (r / (1 + r)), which clients make it a bad bet, and the same book at other raises.
+  No client data leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED, build-now
+# queue empty). duplicate_check.py closest match 0.28 (freelance-platform-fee-calculator,
+# which prices a marketplace's cut, not a raise). Siblings freelance-retainer-calculator,
+# freelance-writer-rate-calculator and client-profitability-time-analyzer price work or
+# measure clients; none answers "if I raise my rate and some clients leave, am I ahead".
+# Not in screened-out.md.
+#
+# Why this niche: freelancers under-raise because the fear is one client leaving. The break-even
+# is simple (a 20% raise survives 16.7% fewer hours) but nobody computes it on their own mix of
+# clients, and the freed hours are an upside the fear ignores.
+#
+# First visitor: searches such as "how much should I raise my freelance rate", "raise rates
+# lose clients", "freelance rate increase email", and r/freelance, r/Entrepreneur and
+# r/consulting threads asking when and how much to raise. Volume not measured externally.
+#
+# Liability boundary: arithmetic on user-typed figures; no market rate, contract term or
+# client behaviour is asserted; says what it does not model. No client data is uploaded.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural lead magnet for
+# a future hosted client book that tracks real churn after each raise.
+
+hypotheses:
+  - claim: >-
+      Freelancers weighing a rate increase will use a private, no-signup break-even
+      calculator on their own client list because the fear of losing one client
+      stops them raising, and the break-even share is lower than they expect.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/freelance-rate-increase-calculator/
+  analytics: null

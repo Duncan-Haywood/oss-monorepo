@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 573 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 575 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -170,6 +170,15 @@
     <summary type="text">Time-space percentage calculator for family child care and home day care providers. Enter your rooms, hours and home expenses and see the business share of each, compared with the simplified method. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Freelance Rate Increase Calculator — how many clients can you lose?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freelance-rate-increase-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/freelance-rate-increase-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Freelance rate increase calculator. List your clients, hours and rates, say how likely each is to leave, and see how many clients you can lose after a raise and still earn the same, the hours it frees and which clients make it a bad bet. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Freelance Retainer vs Hourly Calculator — priced from your own time log</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freelance-retainer-vs-hourly-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/freelance-retainer-vs-hourly-calculator</id>
@@ -323,6 +332,15 @@
     <summary type="text">Paste a Prometheus or OpenMetrics /metrics scrape and see active series per metric, the high-cardinality labels, the exact series saved by dropping each one, and a monthly cost estimate on Grafana Cloud or Datadog-style pricing. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Regex ReDoS Check — Find Regexes That Can Hang Your Server</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/regex-redos-check/"/>
+    <id>tag:marisstella.dev,2026:tool/regex-redos-check</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste JavaScript, TypeScript or Python and see every regular expression that can backtrack catastrophically (ReDoS): nested quantifiers, overlapping alternation, adjacent overlapping repeats, unanchored trailing repeats. Free, runs in your browser, nothing is uploaded; the CLI can confirm suspects by timing the real engine.</summary>
+  </entry>
+  <entry>
     <title>Rental Fleet Size Optimizer — how many units to own, from your own demand</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rental-fleet-size-optimizer/"/>
     <id>tag:marisstella.dev,2026:tool/rental-fleet-size-optimizer</id>
@@ -348,23 +366,5 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free employee schedule maker for restaurants, cafes, salons, shops and clinics. List the shifts to cover and your staff&#39;s availability, hour limits and wages; get a weekly roster that avoids overtime, respects rest gaps and shows which shifts could not be filled and why. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Shipping Box Size Optimizer — which carton sizes to stock to cut dimensional weight</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/shipping-box-size-optimizer/"/>
-    <id>tag:marisstella.dev,2026:tool/shipping-box-size-optimizer</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Logistics, freight &amp; cloud cost"/>
-    <summary type="text">Free shipping box size optimizer for online sellers. Enter your products and the cartons you could buy; it solves which 1 to 10 box sizes to stock so every order ships in its cheapest fitting box, counting dimensional weight, box cost and void fill. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>State Residency Day Counter — 183-day rule tracker for remote workers and snowbirds</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/state-residency-day-counter/"/>
-    <id>tag:marisstella.dev,2026:tool/state-residency-day-counter</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free multi-state residency day counter. Enter where you spent the year, see days per state against the 183-day and other statutory residency tests, the room you have left, the date you would cross a limit, and remote-work wages split by state. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
