@@ -1,12 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 533 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 538 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-10-01T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Contractor WIP Schedule — over/under billing from your job list</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/contractor-wip-schedule/"/>
+    <id>tag:marisstella.dev,2026:tool/contractor-wip-schedule</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free work-in-progress schedule for contractors. Paste your open jobs with contract, estimated cost, cost to date and billings to see percent complete, over- and underbilling, expected losses, cash still to come, a cost-growth stress test and backlog against working capital. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Cottage Food Pricing Calculator — price baked goods and homemade food for profit</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cottage-food-pricing-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/cottage-food-pricing-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Cottage food pricing calculator for home bakers and small food makers. Get the full cost per item with your time, packaging, overhead and unsold goods, the price to charge online, at a farmers market and wholesale, and what you really earn per hour. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
   <entry>
     <title>Donor Retention Analyzer — LYBUNT and SYBUNT lists from your own gifts</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/donor-retention-analyzer/"/>
@@ -26,6 +44,24 @@
     <summary type="text">Time-space percentage calculator for family child care and home day care providers. Enter your rooms, hours and home expenses and see the business share of each, compared with the simplified method. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Freelance Retainer vs Hourly Calculator — priced from your own time log</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freelance-retainer-vs-hourly-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/freelance-retainer-vs-hourly-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Retainer vs hourly calculator for freelancers, consultants and small agencies. Paste your time log to see your effective hourly rate under a monthly retainer, break-even hours, and the retainer that covers 80% of your months, from your own history. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Home Care Agency Margin Calculator — bill rate and margin per hour by payer</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/home-care-agency-margin-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/home-care-agency-margin-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Margin calculator for non-medical home care agencies. See what each payer really leaves per billed hour after payroll tax, workers&#39; comp, overtime, unpaid travel and slow payment, the bill rate that reaches your target margin, and what a wage raise costs. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Landlord Repair-or-Replace Planner — repair it or replace it?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/landlord-repair-or-replace-planner/"/>
     <id>tag:marisstella.dev,2026:tool/landlord-repair-or-replace-planner</id>
@@ -42,6 +78,15 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Market garden bed planner for small vegetable and flower farms. Enter your crops, beds, season and labor and get the crop mix that earns the most, what one more bed-foot, labor hour or buyer is worth, and a simulated range. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Payroll Tax Deposit Penalty Calculator — Due Dates and Late-Deposit Cost</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/payroll-tax-deposit-penalty-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/payroll-tax-deposit-penalty-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free payroll tax deposit calculator for small employers: monthly or semiweekly due dates, the $100,000 next-day rule, and the failure-to-deposit penalty with the cheapest way to apply your deposits. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>Private Practice Payer Mix Calculator — insurance panels vs cash pay per hour</title>
@@ -321,50 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free locum tenens vs employed calculator for physicians, NPs, PAs and CRNAs. Compare a 1099 locum contract with a W-2 offer: take-home after federal tax, self-employment tax, malpractice tail, benefits, unpaid gaps, and the break-even locum hourly rate. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Mechanics Lien Deadline Calculator — Free, 5 States</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mechanics-lien-deadline-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/mechanics-lien-deadline-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free calculator for the preliminary notice and lien filing deadlines a subcontractor or supplier faces in California, Texas, Florida, Arizona, and Washington. Enter your first and last day on the job; see both dates, weekend flags, and days left. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Merchant Cash Advance True Cost Calculator — Factor Rate to APR, Factoring Cost</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/merchant-cash-advance-true-cost-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/merchant-cash-advance-true-cost-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free merchant cash advance calculator. Turn a factor rate and daily or weekly payments into the annualised cost of the money you actually receive, see what early payoff really costs, and price an invoice factoring quote. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Online Business Valuation Calculator — SaaS, Ecommerce, Content, Agency</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/online-business-valuation-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/online-business-valuation-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free online business valuation calculator. Enter revenue and SDE to get a sale price range for a SaaS, ecommerce, content or agency business, adjusted for growth, churn, concentration and owner hours. Nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Physician wRVU Compensation Calculator — Offer Break-Even, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/physician-wrvu-compensation-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/physician-wrvu-compensation-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free physician wRVU compensation calculator. Compare base-plus-productivity, pure wRVU and fixed salary, find the break-even wRVUs, effective $/wRVU, pay per hour, shortfall exposure and signing-bonus clawback, and compare two offers. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Physician wRVU Contract Calculator — Compare Two Offers</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/physician-wrvu-contract-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/physician-wrvu-contract-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free physician wRVU contract calculator. Enter two job offers, base salary, incentive threshold and dollars per wRVU, to see what each pays at your expected volume, where they cross, and your effective rate per wRVU. Runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Home Care Agency Margin Calculator — bill rate and margin per hour by payer</title>
+  <meta name="description" content="Margin calculator for non-medical home care agencies. See what each payer really leaves per billed hour after payroll tax, workers' comp, overtime, unpaid travel and slow payment, the bill rate that reaches your target margin, and what a wage raise costs. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Home Care Agency Margin Calculator — free, private, in your browser">
+  <meta property="og:description" content="Put every payer on one margin-per-billed-hour footing, solve the bill rate for your target margin, and price a caregiver wage raise. No client data, nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Home Care Agency Margin Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste the payers a non-medical home care agency bills (bill rate, billed hours, caregiver wage, share paid, days to payment, visit length, unpaid travel). Shows cost, margin and margin percent per billed hour for each payer, the bill rate that reaches a target margin, what each extra dollar of wage costs per month, and the break-even refill share if a payer is dropped. Runs entirely in your browser; nothing is uploaded.", "featureList": "home care bill rate, margin per billed hour, payroll burden and workers comp, overtime and unpaid travel, wage raise impact, break-even refill rate, receivables, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What margin should a home care agency aim for?", "acceptedAnswer": {"@type": "Answer", "text": "Gross margin on billed hours commonly lands somewhere in the 25 to 35 percent range for private-pay care, but the right figure depends on your office cost, local wages and mix of payers. The tool defaults to a 25 percent target, lets you change it, and solves the bill rate that reaches it for every payer from your own wage, burden, travel and paid share."}}, {"@type": "Question", "name": "How do I price a home care hour from the caregiver wage?", "acceptedAnswer": {"@type": "Answer", "text": "Load the wage with employer payroll taxes and workers' compensation, add any overtime premium, spread the unbilled drive time over the billed hours of the visit, add the office cost per hour, then divide by the share you actually collect and by one minus your target margin. Paste your payers and the tool does it per payer and shows the gap to your current rate."}}, {"@type": "Question", "name": "Why does a payer that looks fine lose money per hour?", "acceptedAnswer": {"@type": "Answer", "text": "Because the bill rate is compared with the wage in most people's heads, not with the loaded cost. Payroll tax, workers' comp, overtime, unpaid travel and office cost can add well over a third to the wage, and a rate that clears the wage can still sit under the cost of the hour. The warnings name any payer that bills less than the loaded cost."}}, {"@type": "Question", "name": "What does each extra dollar of caregiver wage cost me?", "acceptedAnswer": {"@type": "Answer", "text": "The tool prices it exactly: for each payer it re-runs the cost with the wage one dollar higher and multiplies by that payer's monthly hours, then totals them. Wage pressure moves most agencies' margin more than the bill rate does, so it is the number to have before a raise or a hiring bonus."}}, {"@type": "Question", "name": "Should I drop a low-margin payer?", "acceptedAnswer": {"@type": "Answer", "text": "Not from one number. Caregivers are paid by the hour worked, so an unfilled hour earns and costs nothing. The break-even refill is the share of the freed hours that private-pay clients must take for dropping the payer to break even, and the table prints the annual result at 25, 50, 75 and 100 percent refill. You supply the estimate, because only you know your local demand."}}, {"@type": "Question", "name": "What counts as a private-pay row?", "acceptedAnswer": {"@type": "Answer", "text": "Any row whose name starts with private, self-pay, cash, direct, family or out-of-pocket. The best of them is the benchmark for the refill comparison."}}, {"@type": "Question", "name": "Is client or caregiver information involved, and is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every row is a payer with period totals; no client, caregiver or case information is asked for or accepted. Nothing you type is sent to a server, there are no accounts or cookies, and it works offline once the page has loaded."}}, {"@type": "Question", "name": "Does this replace payroll software, billing software or an accountant?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does arithmetic on figures you type. It does not file claims, run payroll, read payer contracts, track licensing or give tax, legal, wage-and-hour or insurance advice, and it does not tell you which programs to serve."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">HOME CARE AGENCY MARGIN CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does each payer really leave you per billed hour?</h1>
+    <p>Paste <strong>one row per payer</strong>: bill rate, billed hours a month, caregiver wage, share paid, days to payment, visit length and unpaid travel. The tool loads each wage with <strong>payroll tax, workers' comp, overtime and unbilled drive time</strong>, shows the margin per billed hour for every payer, solves the <strong>bill rate that reaches your target margin</strong>, and prices a one-dollar wage raise.</p>
+    <p class="note">Payer-level totals only, no client or caregiver information. Arithmetic on figures you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your payers</h2>
+    <label for="file">Upload a CSV</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste rows (payer, bill rate per hour, billed hours per month, caregiver wage per hour, share paid, days to payment, hours per visit, unpaid travel minutes per visit)</label>
+    <textarea id="rows" spellcheck="false" placeholder="payer,rate,hours,wage,paid,days,visit hours,travel&#10;Private pay,34,900,17.5,99%,10,4,15&#10;State waiver program,26.5,1100,16.5,93%,50,3.5,20"></textarea>
+    <p class="note">Name your own row “private pay”, “self-pay” or “cash”. The last four columns may be blank (100% paid, 30 days, 4-hour visits, 0 minutes of travel). Use your own remittances for the paid share and the average wage of the caregivers on that payer's cases.</p>
+    <h2 style="margin-top:18px">Your cost loading</h2>
+    <div class="row3">
+      <div><label for="employerTaxPct">Employer payroll taxes (% of wage)</label><input id="employerTaxPct" inputmode="decimal" value="10"></div>
+      <div><label for="workersCompPct">Workers' comp (% of wage)</label><input id="workersCompPct" inputmode="decimal" value="7"></div>
+      <div><label for="overheadPerHour">Office and overhead per billed hour ($)</label><input id="overheadPerHour" inputmode="decimal" value="4"></div>
+      <div><label for="overtimeSharePct">Share of hours paid at time and a half (%)</label><input id="overtimeSharePct" inputmode="decimal" value="0"></div>
+      <div><label for="targetMarginPct">Target margin on collected revenue (%)</label><input id="targetMarginPct" inputmode="decimal" value="25"></div>
+    </div>
+    <button type="button" id="analyze">Compare</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Paste your payers, then click Compare.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h3>Margin per billed hour, by payer</h3>
+    <div id="chart"></div>
+    <div class="scroll"><table id="pt"><thead><tr><th>Payer</th><th class="n">Bill rate</th><th class="n">Paid share</th><th class="n">Loaded cost per hour</th><th class="n">Margin per hour</th><th class="n">Margin</th><th class="n">Monthly margin</th><th class="n">Each +$1 wage costs / month</th><th class="n">Owed to you</th></tr></thead><tbody></tbody></table></div>
+    <h3>Rate for your target margin, and if you dropped a payer</h3>
+    <p class="note" id="sc-note"></p>
+    <div class="scroll"><table id="st"><thead><tr><th>Payer</th><th class="n">Rate for target margin</th><th class="n">Gap to current rate</th><th class="n">Break-even refill</th><th class="n">Per year at 25%</th><th class="n">at 50%</th><th class="n">at 75%</th><th class="n">at 100%</th><th>Read</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download the comparison (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Loaded cost per billed hour:</strong> wage × (1 + ½ × overtime share) × (1 + payroll tax % + workers' comp %) × (1 + unpaid travel ÷ billed hours per visit) + office cost per hour. <strong>Collected per hour:</strong> bill rate × share paid. <strong>Margin per hour:</strong> collected − loaded cost. <strong>Rate for target margin:</strong> loaded cost ÷ (share paid × (1 − target margin)). <strong>Break-even refill:</strong> a payer's margin per hour ÷ your best private-pay row's; caregivers are paid by the hour worked, so an unfilled hour earns and costs nothing. <strong>Wage raise cost:</strong> the loaded cost re-run with the wage one dollar higher, times monthly hours.</p>
+    <p><strong>Not modelled:</strong> minimum-shift and cancellation rules, mileage reimbursement, caregiver turnover and training cost, health benefits, sick and holiday pay, state or program billing rules and rate floors, live-in and overnight pay rules, taxes, and whether wage-and-hour law applies to a given worker. Unverified: tested on hand-calculated examples, not on a real agency's books. It tells you what a payer costs you per hour, not whether to serve it.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What margin should a home care agency aim for?</h3>
+    <p>Gross margin on billed hours commonly lands somewhere in the 25 to 35 percent range for private-pay care, but the right figure depends on your office cost, local wages and mix of payers. The tool defaults to a 25 percent target, lets you change it, and solves the bill rate that reaches it for every payer from your own wage, burden, travel and paid share.</p>
+    <h3>How do I price a home care hour from the caregiver wage?</h3>
+    <p>Load the wage with employer payroll taxes and workers' compensation, add any overtime premium, spread the unbilled drive time over the billed hours of the visit, add the office cost per hour, then divide by the share you actually collect and by one minus your target margin. Paste your payers and the tool does it per payer and shows the gap to your current rate.</p>
+    <h3>Why does a payer that looks fine lose money per hour?</h3>
+    <p>Because the bill rate is compared with the wage in most people's heads, not with the loaded cost. Payroll tax, workers' comp, overtime, unpaid travel and office cost can add well over a third to the wage, and a rate that clears the wage can still sit under the cost of the hour. The warnings name any payer that bills less than the loaded cost.</p>
+    <h3>What does each extra dollar of caregiver wage cost me?</h3>
+    <p>The tool prices it exactly: for each payer it re-runs the cost with the wage one dollar higher and multiplies by that payer's monthly hours, then totals them. Wage pressure moves most agencies' margin more than the bill rate does, so it is the number to have before a raise or a hiring bonus.</p>
+    <h3>Should I drop a low-margin payer?</h3>
+    <p>Not from one number. Caregivers are paid by the hour worked, so an unfilled hour earns and costs nothing. The break-even refill is the share of the freed hours that private-pay clients must take for dropping the payer to break even, and the table prints the annual result at 25, 50, 75 and 100 percent refill. You supply the estimate, because only you know your local demand.</p>
+    <h3>What counts as a private-pay row?</h3>
+    <p>Any row whose name starts with private, self-pay, cash, direct, family or out-of-pocket. The best of them is the benchmark for the refill comparison.</p>
+    <h3>Is client or caregiver information involved, and is my data uploaded?</h3>
+    <p>No. Every row is a payer with period totals; no client, caregiver or case information is asked for or accepted. Nothing you type is sent to a server, there are no accounts or cookies, and it works offline once the page has loaded.</p>
+    <h3>Does this replace payroll software, billing software or an accountant?</h3>
+    <p>No. It does arithmetic on figures you type. It does not file claims, run payroll, read payer contracts, track licensing or give tax, legal, wage-and-hour or insurance advice, and it does not tell you which programs to serve.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, it is not payroll, wage-and-hour, insurance, licensing or Medicaid billing advice, and it does not replace a qualified professional or your payer contract. Results are arithmetic on the figures you type; they do not predict whether private-pay clients will fill freed hours. You are responsible for reviewing and verifying its output.</p>
+    <p><strong>Independent.</strong> Not affiliated with any insurer, government program, payroll provider or scheduling-software vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../employee-cost-calculator/">employee cost calculator</a>, the <a href="../workers-comp-premium-calculator/">workers' comp premium calculator</a> and the <a href="../staffing-markup-calculator/">staffing markup calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseRows, analyze, reportCsv, sampleText, money, money2, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function chart(rows) {
+      const W = 900, rowH = 30, L = 190, R = 70, H = rows.length * rowH + 10;
+      const max = Math.max(...rows.map((r) => r.marginPerHour), 1);
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Margin per billed hour by payer">` + rows.map((r, i) => {
+        const w = Math.max(0, (W - L - R) * r.marginPerHour / max), y = 5 + i * rowH;
+        return `<text x="${L - 8}" y="${y + 17}" font-size="12" text-anchor="end" fill="#1b1f2a">${esc(r.payer.slice(0, 28))}</text><rect x="${L}" y="${y + 3}" width="${w.toFixed(1)}" height="18" fill="${r.private ? "#1d5a24" : "#1f5f86"}"/><text x="${(L + w + 6).toFixed(1)}" y="${y + 17}" font-size="12" fill="#4c5a68">${money2(r.marginPerHour)}</text>`;
+      }).join("") + `</svg>`;
+    }
+
+    function run() {
+      const parsed = parseRows($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const r = analyze(parsed.rows, { employerTaxPct: $("#employerTaxPct").value, workersCompPct: $("#workersCompPct").value, overheadPerHour: $("#overheadPerHour").value, overtimeSharePct: $("#overtimeSharePct").value, targetMarginPct: $("#targetMarginPct").value });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...(parsed.warnings || []), ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const worst = r.rows[r.rows.length - 1], best = r.rows[0];
+      const big = [
+        [money2(r.totals.blendedMarginPerHour), `Blended margin per billed hour (${pct(r.totals.blendedMarginPct, 1)} of collected)`],
+        [money(r.totals.annualMargin), `Margin per year at ${r.totals.hours} billed hours a month`],
+        [money2(best.marginPerHour), `Best: ${best.payer}`],
+        [money2(worst.marginPerHour), `Lowest: ${worst.payer}`],
+        [money(r.totals.wageRaiseCost), "Monthly cost of a $1 wage raise across all caregivers"],
+        [money(r.totals.receivables), "Owed to you at any time, given days to payment"],
+      ];
+      $("#big").innerHTML = big.map(([v, t]) => `<div><strong>${esc(v)}</strong>${esc(t)}</div>`).join("");
+      $("#chart").innerHTML = chart(r.rows);
+      $("#pt tbody").innerHTML = r.rows.map((x) => `<tr><td>${esc(x.payer)}</td><td class="n">${money2(x.rate)}</td><td class="n">${pct(x.collect, 0)}</td><td class="n">${money2(x.costPerHour)}</td><td class="n">${money2(x.marginPerHour)}</td><td class="n">${pct(x.marginPct, 1)}</td><td class="n">${money(x.monthlyMargin)}</td><td class="n">${money(x.wageRaiseCost)}</td><td class="n">${money(x.receivables)}</td></tr>`).join("");
+      $("#sc-note").textContent = r.privateRef
+        ? `Rate for target margin is the bill rate that reaches your ${r.settings.targetMarginPct}% target at today's wage and paid share. Dropping a payer frees its hours; private-pay clients (your best private row, ${r.privateRef}) must take the break-even share of them for you to come out even. Annual figures are the change in margin per year, negative means you lose money.`
+        : "Add a row named private pay to see the refill comparison. The rate for target margin is shown either way.";
+      const money0 = (v) => (v === undefined ? "—" : money(v));
+      $("#st tbody").innerHTML = r.scenarios.map((s) => `<tr><td>${esc(s.payer)}</td><td class="n">${money2(s.targetRate)}</td><td class="n">${money2(s.rateGap)}</td><td class="n">${s.breakEvenRefill === null ? "—" : pct(s.breakEvenRefill, 0)}</td><td class="n">${money0(s.annual[0.25])}</td><td class="n">${money0(s.annual[0.5])}</td><td class="n">${money0(s.annual[0.75])}</td><td class="n">${money0(s.annual[1])}</td><td>${esc(s.verdict)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = sampleText();
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: four invented payers, not a real agency."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Compare.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Paste your payers, then click Compare."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "home-care-payer-margin.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

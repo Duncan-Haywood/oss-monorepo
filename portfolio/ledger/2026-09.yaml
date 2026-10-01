@@ -48998,4 +48998,18 @@ entries:
         memoryless cases, monotonicity checks and no-network assertions; typical
         lives are planning assumptions. Registered score row, launch date,
         category rule and CI workflow.
+        Graduated and built contractor-wip-schedule: a browser-local work-in-progress
+        schedule for contractors. Paste or upload open jobs (contract, estimated
+        total cost, cost to date, billed to date, optional prior estimate); cost-to-
+        cost percent complete gives earned revenue and over/under billing per job,
+        a job estimated above its contract carries its whole loss now, cash still to
+        come flags jobs billed past their margin, a cost-growth stress test names
+        jobs that would turn into losses, and optional working capital gives backlog
+        multiples. New niche: duplicate_check.py best match
+        invoice-payment-terms-calculator at 0.23 (not a WIP schedule). First visitor
+        expected from "WIP schedule template contractor" and "overbilling
+        underbilling" searches. Job lists never leave the browser. Unverified by an
+        accountant or surety: tests pin hand-computed cases, loss-job provision,
+        parsing and no-network assertions; surety multiples are planning figures.
+        Registered score row, launch date, category rule and CI workflow.
     mrr_end: 0
