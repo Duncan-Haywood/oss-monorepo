@@ -378,3 +378,31 @@ entries:
       aid and not a load-securing, axle-weight or legal certificate, no freight rates
       asserted, nominal container sizes labelled and editable, no warranty. No cargo
       data. Ethics: helps a small shipper avoid over-booking space.
+  - venture: crypto-cost-basis-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built crypto-cost-basis-calculator: a browser-local lot matcher
+        for people who bought or earned crypto at several prices. Paste or open a CSV
+        of buys, sales and income (exchange-style headers recognised); it matches each
+        sale to purchase lots under FIFO, LIFO, HIFO, LOFO or a tax-aware greedy rule,
+        splits sales into short-term and long-term rows by holding period, optionally
+        matches wallet by wallet, compares all five methods on the chosen year with an
+        estimated tax, lists coins and basis still held, and exports Form 8949 style
+        rows. New niche: duplicate_check.py closest like-kind-exchange-1031-calculator
+        0.18. First visitor expected from "crypto FIFO vs HIFO" and "Form 8949 crypto
+        csv" searches and r/CryptoTax threads in filing season. No customer data;
+        nothing leaves the browser. Unverified on a real return: tests use hand-computed
+        FIFO/LIFO/HIFO figures plus quantity and basis conservation checks across all
+        methods on seeded random books. Registered score row, launch date, category
+        rule, CI workflow and a guide page whose worked example is recomputed by the
+        suite.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, no prices fetched, no claim about
+      which lot method a filer may use, omissions stated, no warranty. No customer
+      data. Ethics: helps people compute their own gains privately.
