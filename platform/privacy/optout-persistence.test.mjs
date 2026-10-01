@@ -1168,7 +1168,8 @@ const RELATIVE_SELF = relative(
 // +1: `car-wash-membership-calculator` graduated.
 // +1: `license-compat-check` graduated.
 // +1: `llm-call-cost-scan` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 551;
+// +1: `prometheus-cardinality-cost` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 552;
 
 let counter = 0;
 function fixture(source) {

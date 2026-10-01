@@ -1261,6 +1261,9 @@ workflows:
 - workflow: price-elasticity-estimator-ci.yml
   classification: none
   publishes: []
+- workflow: prometheus-cardinality-cost-ci.yml
+  classification: none
+  publishes: []
 - workflow: print-atelier-ci.yml
   classification: none
   publishes: []
