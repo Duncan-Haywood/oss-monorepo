@@ -2892,7 +2892,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `nsa-idr-offer-calculator` graduated (browser-local NSA IDR offer sizing and file-or-skip by claim).
     # +1: `house-cleaning-quote-calculator` graduated (browser-local house cleaning price floor, frequency discount limit and profit per visit calculator).
     # +1: `handyman-minimum-job-calculator` graduated (browser-local handyman minimum trip charge, smallest job and effective hourly calculator).
-    total = 568  # `infra/OWNER_CHECKLIST.md`'s own "N of the 568 tools" wording.
+    total = 569  # `infra/OWNER_CHECKLIST.md`'s own "N of the 569 tools" wording.
     # +1: `breakeven-roas-calculator` graduated (browser-local break-even ROAS, max CPA and LTV-adjusted ad economics calculator).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
