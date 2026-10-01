@@ -2865,7 +2865,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `donor-retention-analyzer` graduated (browser-local nonprofit donor retention and ranked LYBUNT/SYBUNT lists from own gift history).
     # +1: `workers-comp-premium-calculator` graduated (browser-local workers' comp premium and audit true-up from user-supplied class rates).
     # +1: `payroll-tax-deposit-penalty-calculator` graduated (browser-local payroll tax deposit due dates and failure-to-deposit penalty with cheapest designation).
-    total = 530  # `infra/OWNER_CHECKLIST.md`'s own "N of the 530 tools" wording.
+    total = 531  # `infra/OWNER_CHECKLIST.md`'s own "N of the 531 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
