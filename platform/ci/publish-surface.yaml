@@ -1350,6 +1350,9 @@ workflows:
 - workflow: referrer-permissions-policy-check-ci.yml
   classification: none
   publishes: []
+- workflow: regex-redos-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: register-change-rate-ci.yml
   classification: none
   publishes: []
