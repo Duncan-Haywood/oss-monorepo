@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 558 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 559 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -177,6 +177,15 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Massage therapist profit calculator for solo therapists and clinic owners. Enter session types, minutes, supplies, no-shows and sessions per week to see profit per hour after overhead, the price that hits your target, and own practice versus room rent versus employee split. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>No Surprises Act IDR Offer Calculator — what to offer and which claims to file</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/nsa-idr-offer-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/nsa-idr-offer-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">No Surprises Act IDR offer calculator for out-of-network providers and billing teams. Enter billed charge, QPA and amount paid to see the offer with the best expected net, the win chance you need after fees, which claims are worth filing, and the negotiation and IDR deadlines. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Payroll Tax Deposit Penalty Calculator — Due Dates and Late-Deposit Cost</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free BRRRR calculator for real estate investors. Enter price, rehab, hard-money terms, ARV and refinance terms to see the cash left in the deal, refinance cash-out, cash flow, the highest price that pulls all your cash out, and how a low appraisal or rehab overrun changes it. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Bundle Discount Optimizer — which products to bundle, at what discount</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bundle-discount-optimizer/"/>
-    <id>tag:marisstella.dev,2026:tool/bundle-discount-optimizer</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free bundle pricing tool for Shopify, Etsy and Amazon sellers. Paste your order history and product costs to find which products customers already buy together, the bundle discount that earns the most, and how much more often shoppers must add the second item for the discount to pay. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
