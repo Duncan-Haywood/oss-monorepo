@@ -1149,8 +1149,9 @@ const RELATIVE_SELF = relative(
 // +1: `league-schedule-generator` graduated.
 // +1: `state-residency-day-counter` graduated.
 // +1: `shift-roster-builder` graduated.
+// +1: `cheap-meal-plan-optimizer` graduated.
 // +1: `retirement-withdrawal-sequencer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 533;
+const SWITCHES_IN_THE_CATALOGUE = 534;
 
 let counter = 0;
 function fixture(source) {
