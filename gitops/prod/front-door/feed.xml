@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 575 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 576 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -105,6 +105,15 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Cottage food pricing calculator for home bakers and small food makers. Get the full cost per item with your time, packaging, overhead and unsold goods, the price to charge online, at a farmers market and wholesale, and what you really earn per hour. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Course Launch Revenue Calculator — what will your launch really earn?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/course-launch-revenue-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/course-launch-revenue-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Course launch revenue calculator. Enter your email list, conversion rates, price, refunds, platform and processor fees, affiliate commissions and ad spend. See net profit, the break-even list size and what a weaker launch costs. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Crypto Cost Basis Calculator — FIFO vs HIFO vs LIFO, Form 8949 rows, in your browser</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free retirement withdrawal calculator. Enter your taxable, traditional and Roth balances, spending and Social Security; it compares withdrawal orders and bracket-filling Roth conversions year by year under 2026 tax rules and shows what each leaves you after tax. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Shift Roster Builder — a free weekly employee schedule maker that follows your rules</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/shift-roster-builder/"/>
-    <id>tag:marisstella.dev,2026:tool/shift-roster-builder</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free employee schedule maker for restaurants, cafes, salons, shops and clinics. List the shifts to cover and your staff&#39;s availability, hour limits and wages; get a weekly roster that avoids overtime, respects rest gaps and shows which shifts could not be filled and why. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
