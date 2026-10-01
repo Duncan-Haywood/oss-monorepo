@@ -378,3 +378,33 @@ entries:
       aid and not a load-securing, axle-weight or legal certificate, no freight rates
       asserted, nominal container sizes labelled and editable, no warranty. No cargo
       data. Ethics: helps a small shipper avoid over-booking space.
+  - venture: tile-layout-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built tile-layout-optimizer: a browser-local tile layout
+        optimizer for tilers, flooring installers and DIYers. Enter a room, cut-outs
+        (tub, island, L-shaped corner) and tile options with box size and price; a
+        search over grid start, tile direction and straight or brick bond, with
+        offcut reuse packed by a seeded guillotine packer and a narrowest-cut limit,
+        reports the fewest tiles and boxes, compares tile options by box cost against
+        the 10 percent rule and a corner-start layout, draws the plan to scale and
+        lists every cut (CSV). Metric or imperial. New niche: duplicate_check.py
+        closest shipping-box-size-optimizer 0.14; cut-list-optimizer (boards and
+        sheets) and flooring-bid-calculator (area times waste percent) are its
+        neighbours, the latter cross-linked. First visitor expected from "tile
+        layout calculator" and "how many tiles do I need" searches. No room data
+        leaves the browser. Unverified on a real floor: tests use hand-computed
+        rooms and random rooms checked by an independent verifier for exact floor
+        coverage, cut-out overlap, piece-in-tile fit, saw kerf and counts; a guide
+        page whose worked example is recomputed by the suite.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and a layout heuristic on supplied figures, a planning
+      aid and not installation advice, no tile makers, retailers or prices asserted
+      (examples invented), no warranty. No customer data. Ethics: helps a buyer
+      avoid over- or under-buying tile.

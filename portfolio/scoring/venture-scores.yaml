@@ -24306,3 +24306,34 @@ ventures:
       aid and not a load-securing, axle-weight or legal certificate, no warranty, no
       freight rates asserted, limits stated. No cargo data; nothing leaves the
       browser. Ethics: helps a small shipper plan space honestly.
+  - slug: tile-layout-optimizer
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      A layout search plus guillotine bin packing in the browser; no language model
+      and no paid API. The value is laying out the actual room, with offcuts, instead
+      of a flat waste percentage.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 6: "tile
+      layout calculator", "how many tiles do I need" and "tile waste" are recurring
+      searches and DIY forum questions (volume not measured with an external tool).
+      Defensibility 5: retailer calculators are area times a percentage; a free private
+      layout optimizer with offcut reuse and a tile-size cost comparison is uncommon but
+      easy to imitate.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and a layout heuristic on supplied figures, a planning aid
+      and not installation advice, no warranty, no prices asserted. No customer data;
+      nothing leaves the browser. Ethics: helps a buyer order the right amount.

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 545 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 546 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -150,6 +150,15 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Logistics, freight &amp; cloud cost"/>
     <summary type="text">Free shipping box size optimizer for online sellers. Enter your products and the cartons you could buy; it solves which 1 to 10 box sizes to stock so every order ships in its cheapest fitting box, counting dimensional weight, box cost and void fill. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Tile Layout Optimizer — fewest tiles, fewest cuts, for any room</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tile-layout-optimizer/"/>
+    <id>tag:marisstella.dev,2026:tool/tile-layout-optimizer</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free tile layout optimizer for tilers, flooring installers and DIYers. Enter the room, any cut-outs and tile sizes; it searches the grid start, tile direction and brick bond, reuses offcuts, and shows the fewest tiles and boxes to buy, a to-scale layout and a cutting list. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Wedding Photographer Profit Calculator — profit per hour worked, editing included</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free Gabor-Granger price analyzer. Paste the highest price each survey respondent would buy at and get the demand curve, the revenue-maximising price, the profit-maximising price for your unit cost, and bootstrap bands. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Heat Pump vs Furnace Calculator — Running Cost, Break-Even COP, Payback</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/heat-pump-vs-furnace-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/heat-pump-vs-furnace-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free heat pump vs gas furnace calculator for homeowners. Enter your gas therms, prices, COP and quotes to see running cost per million BTU, the break-even COP, payback against a new furnace and AC, and lifetime saving. Runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

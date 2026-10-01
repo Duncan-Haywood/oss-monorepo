@@ -511,6 +511,8 @@ const CATEGORY_RULES = [
     // restoration & insulation" and an HVAC contractor reading "HVAC, plumbing
     // & electrical" never saw them. The tool existed, its audience was browsing
     // the right section, and it was not in it.
+    // `tile-layout` joined 2026-10-01 for the same reason as `cut-list`: it prices no
+    // job but lays out the material a tiler or flooring installer orders.
     // `cut-list` is the one tool here that prices no job at all: it plans how a
     // parts list falls onto sheet stock and boards. It is in this section
     // anyway, because the section is defined by who is reading it, and the
@@ -555,7 +557,7 @@ const CATEGORY_RULES = [
     // own quote and lead history (when quotes close; how many leads a revenue target needs); slugs name no trade.
     // `home-service-lead-roi-analyzer` reads a trades owner's lead-buying log (Thumbtack, Angi, Google LSA) to
     // show which paid source books jobs; same reader as the bid calculators here, slug names no trade.
-    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|lead-response-time)/.test(slug),
+    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tile-layout|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -3495,7 +3497,9 @@ const SUBCATEGORY_RULES = {
       // sells. `home-staging` joins for the same reason as `cut-list`: it
       // sells to the same real-estate-prep visitor as the remodel tools here,
       // even though its own job is furniture, not construction.
-      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|home-staging)/.test(slug),
+      // `tile-layout-optimizer` joined 2026-10-01 on its first commit: it lays out
+      // the tile the flooring and kitchen-tile bid tools price, for the same visitor.
+      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|tile-layout|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|home-staging)/.test(slug),
     },
     {
       id: 'trades-site',
