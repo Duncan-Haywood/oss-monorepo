@@ -23838,6 +23838,39 @@ ventures:
       not advice, no prediction of any unit's failure; safety, code and warranty
       stated as unchecked. Ethics: helps owners avoid both wasted repairs and
       unplanned outages for tenants; nothing leaves the browser.
+  - slug: contractor-wip-schedule
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Percent-of-completion accounting arithmetic and a stress test, run in the
+      browser; no language model and no paid API. The schedule and the visible
+      assumptions are the product.
+    basis: >-
+      Screened 2026-10-01. duplicate_check.py best match 0.23
+      (invoice-payment-terms-calculator, not a WIP schedule). Distribution 6:
+      "WIP schedule template", "overbilling underbilling" and "percentage of
+      completion" are recurring contractor and bookkeeper queries and a bank or
+      surety asks for the schedule every period (volume not measured with an
+      external tool). Defensibility 3: the method is textbook and a spreadsheet can
+      reproduce it; the edge is a private no-upload tool that flags losses, cash
+      borrowed from the end of a job and backlog against working capital.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied numbers, no warranty, not an accounting
+      opinion or bonding decision; unmodelled items stated. Ethics: helps
+      contractors see overstated profit before a lender or surety does; nothing
+      leaves the browser.
   - slug: market-garden-bed-planner
     scores:
       ai_leverage: 4
@@ -23876,6 +23909,40 @@ ventures:
       user). Farm data never leaves the browser. Ethics: helps a small grower
       decide what to plant; nothing is sold, no data is collected and no referral
       is made.
+  - slug: cottage-food-pricing-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Full-cost, margin-based channel pricing and per-hour earnings are closed-form
+      arithmetic in the browser; no language model and no paid API. The product is
+      pricing from full cost with unsold goods and fees, not from the grocery bill.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. A home baker pastes their
+      products and sees the price to charge online, at a market and wholesale, and
+      what they earn per hour today. Distribution 6: "how to price baked goods" and
+      "cottage food pricing" are recurring beginner queries and nothing in this
+      catalogue prices homemade food (volume not measured with an external tool).
+      Defensibility 3: recipe-costing apps are ingredient-level subscriptions; the
+      edge is the private no-signup workflow, margin-as-share-of-price and the
+      earned-per-hour reading.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed figures, not tax, legal, licensing or
+      food-safety advice, no warranty, no marketplace named, cottage-food rules
+      stated as not modelled. Ethics: helps a small seller charge what the work
+      costs; nothing is sold, no data is collected.
   - slug: freelance-retainer-vs-hourly-calculator
     scores:
       ai_leverage: 2

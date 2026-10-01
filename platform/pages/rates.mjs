@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'cottage-food-pricing-calculator':
+    'the wage is what the maker wants an hour of their own time to be worth, overhead is a percentage on ingredients, packaging and that labour, and margin is a share of a per-item price; there is no burden or job quote',
   'crew-dispatch-optimizer':
     'the crew hourly cost is the payroll cost of a van-day being planned, not a rate used to price a job; there is no overhead or margin and nothing is quoted to a customer',
   'route-stop-optimizer':

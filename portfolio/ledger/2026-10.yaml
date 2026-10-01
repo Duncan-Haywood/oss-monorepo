@@ -83,6 +83,25 @@ entries:
       independence from vendors stated, limits stated. Farm data never leaves the
       browser. Ethics: helps a small grower decide what to plant; nothing is sold,
       no data is collected and no referral is made.
+  - venture: cottage-food-pricing-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built cottage-food-pricing-calculator: a browser-local tool
+        for home bakers and cottage-food makers. Paste one row per product
+        (ingredients per batch, units, minutes, packaging, current price); it
+        computes the full cost per sellable unit including the maker's time,
+        overhead and unsold goods, the price to charge online, at a farmers market
+        (booth fee spread over units sold) and wholesale, with margin as a share of
+        price and the card fee paid out of it, a store shelf price, and what the
+        maker earns per hour at the current price. New niche: nothing in the
+        catalogue prices homemade food. First visitor expected from "how to price
+        baked goods" searches. Unverified on a real kitchen: tests use
+        hand-calculated costs and prices and no-network assertions. Registered
+        score row, launch date, category rule and CI workflow; refreshed the
+        front-door mirror and tree counts.
+    mrr_end: 0
   - venture: freelance-retainer-vs-hourly-calculator
     agent_spend_usd: null
     human_hours: 0
