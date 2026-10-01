@@ -1155,8 +1155,9 @@ const RELATIVE_SELF = relative(
 // +1: `coffee-roaster-margin-calculator` graduated.
 // +1: `business-loan-offer-comparator` graduated.
 // +1: `nsa-idr-offer-calculator` graduated.
+// +1: `freight-broker-load-margin-calculator` graduated.
 // +1: `breakeven-roas-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 539;
+const SWITCHES_IN_THE_CATALOGUE = 540;
 
 let counter = 0;
 function fixture(source) {

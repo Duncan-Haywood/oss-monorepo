@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 560 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 561 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -141,6 +141,15 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Retainer vs hourly calculator for freelancers, consultants and small agencies. Paste your time log to see your effective hourly rate under a monthly retainer, break-even hours, and the retainer that covers 80% of your months, from your own history. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Freight Broker Load Margin Calculator — net margin after float, factoring and claims</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freight-broker-load-margin-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/freight-broker-load-margin-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Logistics, freight &amp; cloud cost"/>
+    <summary type="text">Free freight broker margin calculator. Type in your loads and see true net margin after financing the carrier, factoring, claims reserve and overhead, plus the shipper rate to quote and the carrier rate to pay to hit your target. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Home Care Agency Margin Calculator — bill rate and margin per hour by payer</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free AWS Savings Plan and Reserved Instance calculator. Paste your hourly or daily usage and each option&#39;s discount to find the commitment that saves the most, its break-even utilization, upfront payback and what happens if usage falls. Nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Bid Win-Rate Optimizer — find the markup that earns the most from your quotes</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bid-win-rate-optimizer/"/>
-    <id>tag:marisstella.dev,2026:tool/bid-win-rate-optimizer</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free bid win-rate calculator for contractors, agencies and freelancers. Paste your past quotes (price, won or lost, cost) to see how your win chance falls as your markup rises, the markup with the highest expected profit, and a back-test that says whether to trust it. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
