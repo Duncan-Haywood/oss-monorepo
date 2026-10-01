@@ -935,6 +935,9 @@ workflows:
 - workflow: kitchen-tile-backsplash-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: lambda-memory-rightsizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: land-survey-bid-calculator-ci.yml
   classification: none
   publishes: []
