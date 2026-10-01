@@ -1,0 +1,66 @@
+name: tile-layout-planner
+description: >-
+  Free browser tool for tile installers and DIY: enter a room, cut-outs (tub,
+  island, cabinet) and a tile, pick straight, running bond or diagonal, and exact
+  polygon geometry lays out the real tiles, searches starting positions and tile
+  direction for the fewest thin cuts and the fewest tiles, reuses leftover pieces,
+  and shows a to-scale plan, a cut list, tiles and boxes to order and a comparison
+  of corner, centred and best-found starts. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture session asked for a deeper, algorithmic
+# tool. duplicate_check.py: closest rows were flooring-bid-calculator 0.35 (prices
+# a flooring job, does not lay tiles out), carpet-install-bid-calculator 0.22,
+# paver-patio-bid-calculator 0.17 and cut-list-optimizer 0.15 (sheet goods, not
+# tile geometry); nothing near the 0.45 line. By hand: kitchen-tile-backsplash-bid-
+# calculator is a bid for one job type, not a layout. screened-out.md has no tile
+# row.
+#
+# Why this niche: "how many tiles do I need" is a high-volume homeowner search and
+# a daily installer question, and the usual answer (area over tile area plus ten
+# percent) hides what costs money on the day: where the first tile goes, which way
+# it runs, slivers at the far wall and how many tiles the cuts really use.
+# Installers do this by eye or on paper; the free web calculators are area-only;
+# layout software exists mainly inside design suites. This does the real geometry
+# with offcut reuse and a search over starts.
+#
+# First visitor: people searching "tile calculator", "how many tiles do I need",
+# "tile layout planner", "how to start tiling a floor", "running bond offset"; tile
+# and DIY forums when a job is being planned. Volume not measured with an external
+# tool.
+#
+# Liability boundary: arithmetic and geometry on user-typed figures; a planning
+# aid, not installation instructions, a material guarantee or construction advice;
+# no tile price asserted (box price is the user's own); blade width, breakage and
+# warp are not modelled and the page says so; the example room is invented.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural
+# front end for installer job-quote software or a supplier lead form.
+
+hypotheses:
+  - claim: >-
+      Homeowners and small installers will use a private, no-signup tile layout
+      planner before ordering tile, and the starting-position search and cut list
+      change where they start or which way the tile runs.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a plan whose pieces overlap a cut-out, leave the room, or do not add up to the floor they entered.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/tile-layout-planner/
+  analytics: null

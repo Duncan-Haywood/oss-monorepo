@@ -490,7 +490,9 @@ const CATEGORY_RULES = [
     // `shopify-inventory-reorder-planner`.
     // `bundle-discount-optimizer` joined 2026-09-30: it reads a Shopify, Etsy or Amazon seller's own order
     // export to price product bundles, the same reader as the fee tools here; the slug names no platform.
-    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|liquidation-pallet|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace)/.test(slug),
+    // `breakeven-roas-calculator` joined 2026-10-01 on its first commit: turns a DTC seller's per-order
+    // margin into the break-even ROAS and max CPA an ad campaign needs; the same reader as the fee tools here.
+    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|breakeven-roas|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|liquidation-pallet|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace)/.test(slug),
   },
   {
     id: 'trades',
@@ -555,7 +557,7 @@ const CATEGORY_RULES = [
     // own quote and lead history (when quotes close; how many leads a revenue target needs); slugs name no trade.
     // `home-service-lead-roi-analyzer` reads a trades owner's lead-buying log (Thumbtack, Angi, Google LSA) to
     // show which paid source books jobs; same reader as the bid calculators here, slug names no trade.
-    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|lead-response-time)/.test(slug),
+    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tile-layout|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -655,6 +657,19 @@ const CATEGORY_RULES = [
       // `shift-cover-optimizer` added 2026-09-30: plans the shifts forward from
       // an hourly need; same reader as the labor daypart analyzer above.
       'shift-cover-optimizer',
+      // `shift-roster-builder` joined 2026-10-01 on its first commit: assigns named
+      // people to the shifts `shift-cover-optimizer` sizes; the same owner, next door.
+      'shift-roster-builder',
+      // `time-off-request-planner` joined 2026-10-01 on its first commit: decides which
+      // leave requests fit a team's minimum cover; the same owner as the shift tools above.
+      'time-off-request-planner',
+      // `retirement-withdrawal-sequencer` joined 2026-10-01 on its first commit: whole-retirement
+      // withdrawal-order comparison, beside `roth-conversion-bracket-fill-calculator`.
+      'retirement-withdrawal-sequencer',
+      // `production-mix-optimizer` added 2026-10-01: which products a bakery or
+      // small food maker should bake when oven and labour hours run out; the
+      // same owner as the menu and pour-cost tools above.
+      'production-mix-optimizer',
     ].includes(slug),
   },
   {
@@ -913,8 +928,19 @@ const CATEGORY_RULES = [
     // `dog-grooming-profit-calculator` joined 2026-10-01 on its first commit: a
     // groomer turning services, minutes, supplies and overhead into a profit per
     // hour and a price floor is the `dog-boarding-daycare-pricing` job again.
+    // `rental-fleet-size-optimizer` joined 2026-10-01 on its first commit: how many
+    // identical units a small rental business should own is the owner-operator
+    // side of `bounce-house-rental-calculator` and `dumpster-rental-margin-
+    // calculator`, which it sits beside and cross-links.
+    // `league-schedule-generator` joined 2026-10-01 on its first commit: a volunteer
+    // organiser turning a team list, dates and courts into a fair fixture list is
+    // the same event-organiser job as `event-seating-chart-optimizer` above.
+    // `coffee-roaster-margin-calculator` joined 2026-10-01 on its first commit: a micro
+    // roaster turning green price, roast loss and channel fees into a per-bag margin is
+    // the same small-operator pricing job as `pour-cost-calculator` and
+    // `cottage-food-pricing-calculator`.
     test: (slug) =>
-      /^(home-care-agency|booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|laundromat-machine-payback|massage-therapist-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking)/.test(
+      /^(home-care-agency|booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|massage-therapist-profit|dj-gig-profit|wedding-photographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|coffee-roaster-margin)/.test(
         slug,
       ),
   },
@@ -989,7 +1015,13 @@ const CATEGORY_RULES = [
     // cross-link).
     // `route-stop-optimizer` added 2026-09-30: orders a day's stops to cut drive
     // time, the same reader as the owner-operator and courier tools here.
-    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club|route-stop-optimizer)/.test(
+    // `shipping-box-size-optimizer` joined 2026-10-01 on its first commit: it is
+    // `parcel-dim-weight`'s assortment-level partner (which set of cartons to
+    // stock, rather than what one carton bills at), and the two cross-link.
+    // `container-load-planner` joined 2026-10-01 on its first commit: it packs the
+    // cartons and pallets into a container or truck, the same shipper as the box
+    // optimizer above, and the two cross-link.
+    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club|route-stop-optimizer|shipping-box-size|container-load-planner)/.test(
       slug,
     ),
   },
@@ -1237,6 +1269,14 @@ const CATEGORY_RULES = [
       // `rental-property-schedule-e-categorizer` sorts a landlord's bank file after the year is over
       // into tax lines: the same after-the-fact reconciliation job, next to the rent ledger reader.
       || slug === 'rental-property-schedule-e-categorizer'
+      // `state-residency-day-counter` joined 2026-10-01 on its first commit: a tax-year record of days
+      // per state checked against residency limits -- the same tax-obligation axis as
+      // `quarterly-estimated-tax-calendar` above, which it links to.
+      || slug === 'state-residency-day-counter'
+      // `cheap-meal-plan-optimizer` joined 2026-10-01 on its first commit: a household's food budget as a
+      // minimum-cost linear program -- a personal money decision rather than an operator pricing food, so it
+      // sits here and not under `food-service`, which is for people who sell food.
+      || slug === 'cheap-meal-plan-optimizer'
       // `self-employed-schedule-c-categorizer` is the same bank-file-to-tax-lines job for a sole proprietor's
       // Schedule C, and its page sits next to `1099k-reconciliation-worksheet` and the landlord version.
       || slug === 'self-employed-schedule-c-categorizer'
@@ -1572,7 +1612,7 @@ const CATEGORY_RULES = [
       // lookups with an eligibility wrinkle the headline number alone
       // does not capture), with a reciprocal inbound link from that
       // venture's first commit rather than shipping as an orphan.
-      || /^(adu-payback-calculator|wage-garnishment-limit|commercial-lease-effective-rent-calculator|ad-spend-saturation-optimizer|ad-incrementality-test-analyzer|freelance-retainer-vs-hourly-calculator|like-kind-exchange|dependent-care-fsa-vs-credit-calculator|indie-game-payout|google-play-earnings-report|amazon-ppc-search-term|whatnot-sales-report|youtube-revenue-rpm|meta-ads-fatigue|upwork-earnings-fee|turo-earnings-report|patreon-members-churn|substack-subscriber-export|ghost-members-export|bandcamp-sales-report|app-store-sales-report|fiverr-earnings-fee|gumroad-sales-fee|tiktok-shop-settlement|kdp-royalty-report|gig-driver-earnings-report|airbnb-earnings-report|cash-runway|invoice-payment-terms|cam-|saas-seat|saas-annual-plan|saas-cac-payback|stripe-churn-cohort|stripe-failed-payment|google-ads-wasted-spend|subscription-price|subscription-audit-from-statement|self-storage-rate-increase|renewal-rent-optimizer|quote-follow-up-timing|trial-conversion-timing-analyzer|str-nightly-rate-optimizer|seller-net-sheet|property-tax-appeal-calculator|aca-subsidy-cliff-calculator|medical-bill-error-checker|mortgage-escrow-analysis-checker|social-security-claiming-age-calculator|travel-nurse-contract-comparison-calculator|appointment-deposit|appointment-no-show|appointment-overbooking|service-hourly-yield-analyzer|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|card-surcharge|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|workers-comp-premium-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|rd-tax-credit-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|gambling-loss-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker|child-tax-credit-calculator|eitc-calculator|hsa-contribution-limit-calculator|solo-401k-contribution-calculator|mileage-deduction-method-calculator|mileage-log|home-office-deduction-calculator|str-tax-loophole-calculator|estimated-tax-penalty-calculator|self-employment-tax-calculator|backdoor-roth-pro-rata-calculator|roth-conversion-bracket-fill-calculator|rsu-withholding-gap-calculator|iso-exercise-amt-calculator|job-offer-total-comp-calculator|physician-wrvu-compensation-calculator|dental-associate-pay-calculator|solar-payback-calculator|heat-pump-vs-furnace-calculator|cash-balance-plan-calculator|safe-dilution-calculator|cost-segregation-study-calculator|agent-brokerage-split-calculator|espp-tax-calculator|tax-loss-harvesting-calculator|home-sale-exclusion-calculator|medicare-irmaa-cliff-calculator|rmd-calculator|rental-dscr-calculator|rental-rent-optimizer|contractor-wip-schedule|landlord-repair-or-replace-planner|brrrr-calculator|self-employed-health-insurance-deduction-calculator|physician-wrvu-contract-calculator|veterinarian-associate-pay-calculator|section-83b-election-calculator|pslf-vs-refinance-calculator|startup-option-value-calculator|van-westendorp-pricing-analyzer|sales-commission-plan-comparison-calculator|rule-72t-sepp-calculator|locum-tenens-vs-employed-calculator|fix-and-flip-deal-analyzer|merchant-cash-advance-true-cost-calculator|usage-based-pricing-simulator|startup-exit-waterfall-calculator|augusta-rule-calculator|gabor-granger-price-analyzer|insurance-agency-book-valuation-calculator|ab-test-significance-calculator|online-business-valuation-calculator|customer-lifetime-value-predictor|sales-seasonality-forecaster|price-elasticity-estimator|seasonal-buy-quantity-optimizer|donor-retention-analyzer|private-practice-payer-mix-calculator|market-garden-bed-planner|cottage-food-pricing-calculator|payroll-tax-deposit-penalty-calculator|family-child-care-time-space-calculator)/.test(slug),
+      || /^(nsa-idr-offer-calculator|adu-payback-calculator|wage-garnishment-limit|commercial-lease-effective-rent-calculator|ad-spend-saturation-optimizer|ad-incrementality-test-analyzer|freelance-retainer-vs-hourly-calculator|like-kind-exchange|dependent-care-fsa-vs-credit-calculator|indie-game-payout|google-play-earnings-report|amazon-ppc-search-term|whatnot-sales-report|youtube-revenue-rpm|meta-ads-fatigue|upwork-earnings-fee|turo-earnings-report|patreon-members-churn|substack-subscriber-export|ghost-members-export|bandcamp-sales-report|app-store-sales-report|fiverr-earnings-fee|gumroad-sales-fee|tiktok-shop-settlement|kdp-royalty-report|gig-driver-earnings-report|airbnb-earnings-report|cash-runway|invoice-payment-terms|cam-|saas-seat|saas-annual-plan|saas-cac-payback|stripe-churn-cohort|stripe-failed-payment|google-ads-wasted-spend|subscription-price|subscription-audit-from-statement|self-storage-rate-increase|renewal-rent-optimizer|quote-follow-up-timing|trial-conversion-timing-analyzer|str-nightly-rate-optimizer|seller-net-sheet|property-tax-appeal-calculator|aca-subsidy-cliff-calculator|medical-bill-error-checker|mortgage-escrow-analysis-checker|social-security-claiming-age-calculator|travel-nurse-contract-comparison-calculator|appointment-deposit|appointment-no-show|appointment-overbooking|service-hourly-yield-analyzer|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|card-surcharge|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|workers-comp-premium-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|rd-tax-credit-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|gambling-loss-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker|child-tax-credit-calculator|eitc-calculator|hsa-contribution-limit-calculator|solo-401k-contribution-calculator|mileage-deduction-method-calculator|mileage-log|home-office-deduction-calculator|str-tax-loophole-calculator|estimated-tax-penalty-calculator|self-employment-tax-calculator|backdoor-roth-pro-rata-calculator|roth-conversion-bracket-fill-calculator|rsu-withholding-gap-calculator|iso-exercise-amt-calculator|job-offer-total-comp-calculator|physician-wrvu-compensation-calculator|dental-associate-pay-calculator|solar-payback-calculator|heat-pump-vs-furnace-calculator|cash-balance-plan-calculator|safe-dilution-calculator|cost-segregation-study-calculator|agent-brokerage-split-calculator|espp-tax-calculator|tax-loss-harvesting-calculator|crypto-cost-basis-calculator|home-sale-exclusion-calculator|medicare-irmaa-cliff-calculator|rmd-calculator|rental-dscr-calculator|rental-rent-optimizer|contractor-wip-schedule|landlord-repair-or-replace-planner|brrrr-calculator|self-employed-health-insurance-deduction-calculator|physician-wrvu-contract-calculator|veterinarian-associate-pay-calculator|section-83b-election-calculator|pslf-vs-refinance-calculator|startup-option-value-calculator|van-westendorp-pricing-analyzer|sales-commission-plan-comparison-calculator|rule-72t-sepp-calculator|locum-tenens-vs-employed-calculator|fix-and-flip-deal-analyzer|merchant-cash-advance-true-cost-calculator|business-loan-offer-comparator|usage-based-pricing-simulator|startup-exit-waterfall-calculator|augusta-rule-calculator|gabor-granger-price-analyzer|insurance-agency-book-valuation-calculator|ab-test-significance-calculator|online-business-valuation-calculator|customer-lifetime-value-predictor|sales-seasonality-forecaster|price-elasticity-estimator|seasonal-buy-quantity-optimizer|donor-retention-analyzer|private-practice-payer-mix-calculator|market-garden-bed-planner|cottage-food-pricing-calculator|payroll-tax-deposit-penalty-calculator|family-child-care-time-space-calculator)/.test(slug),
   },
   {
     id: 'ci',
@@ -3492,7 +3532,9 @@ const SUBCATEGORY_RULES = {
       // sells. `home-staging` joins for the same reason as `cut-list`: it
       // sells to the same real-estate-prep visitor as the remodel tools here,
       // even though its own job is furniture, not construction.
-      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|home-staging)/.test(slug),
+      // `tile-layout-planner` joined 2026-10-01 on its first commit: it lays out the
+      // floor the flooring and tile-backsplash bids price, for the same remodeler.
+      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging)/.test(slug),
     },
     {
       id: 'trades-site',

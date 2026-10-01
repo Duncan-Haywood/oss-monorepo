@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Eat High-Protein On A Budget: A Worked Example</title>
+  <meta name="description" content="Cheap protein is a linear program: minimise cost subject to calories, protein, fat and fibre bounds. A worked example on 20 starter foods where 100 g of protein a day costs $1.93 and 180 g costs $4.38.">
+  <meta property="og:title" content="How To Eat High-Protein On A Budget: A Worked Example">
+  <meta property="og:description" content="On 20 starter foods at example prices, 100 g of protein a day costs $1.93 and 180 g costs $4.38. Where the cost jumps, and why.">
+  <link rel="canonical" href="./how-to-eat-high-protein-on-a-budget.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much does it cost to eat 100 g of protein a day?", "acceptedAnswer": {"@type": "Answer", "text": "On the starter foods and example prices, the cheapest plan that meets 2,000 to 2,300 calories, 100 g of protein, 28 g of fibre and the fat bounds costs about $1.93 a day, built from lentils, oats, peanut butter, rice and a little oil. Your prices will differ, so edit them."}}, {"@type": "Question", "name": "Why does the cost jump as the protein target rises?", "acceptedAnswer": {"@type": "Answer", "text": "Cheap protein comes from dried beans and lentils, but they also bring a lot of carbohydrate and calories, so once the calorie cap binds the plan has to switch to denser protein such as whey, chicken or yogurt, which cost more per gram."}}, {"@type": "Question", "name": "Can I add my own foods and prices?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Paste one line per food: name, price per serving, calories, protein, carbs, fat, fibre and an optional maximum servings per day. Take the nutrition from the label for the serving you are pricing."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f2d17; background: #f5f8f0; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #3f6d1a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #2b4a12; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2b4a12; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5d3a; }
+    .card { background: #fff; border: 1px solid #d5e2c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2b4a1212; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6b7f58; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 190px; font-family: ui-monospace, monospace; font-size: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3f6d1a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4eed8; color: #2b4a12; }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #edf4e3; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #2b4a12; }
+    table.t { border-collapse: collapse; width: 100%; font-size: .93rem; }
+    table.t th, table.t td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d5e2c8; }
+    table.t th { color: #2b4a12; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .tables { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin: 10px 0; }
+    .tbl { border: 2px solid #b7d19b; border-radius: 12px; padding: 10px 12px; background: #f9fcf5; }
+    .tbl h4 { margin: 0 0 6px; font-size: .95rem; color: #2b4a12; }
+    .tbl ul { margin: 0; padding-left: 18px; }
+    .tbl li { line-height: 1.4; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .bad { background: #f8d9d6; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #6b1a12; }
+    footer { margin-top: 28px; border-top: 1px solid #d5e2c8; padding-top: 16px; }
+    .ghost { color: #4a5d3a; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Cheapest meal plan optimizer</a></p>
+  <h1>How to eat high-protein on a budget</h1>
+  <p>"Cheap" and "high-protein" pull in different directions, and a grocery list built by instinct usually lands on the expensive side of both. The question is a puzzle with a known answer: the minimum-cost diet problem, one of the first linear programs ever solved. Give it foods, prices and targets, and it finds the cheapest combination that meets them.</p>
+  <p><a class="cta" href="./">Open the free cheapest meal plan optimizer</a></p>
+
+  <h2>The method</h2>
+  <p><strong>1. Price one serving of each food.</strong> Use what you pay, and take calories, protein, carbs, fat and fibre from the label for that serving.</p>
+  <p><strong>2. Set the targets.</strong> A calorie range, a protein minimum, fat bounds and a fibre minimum. A maximum number of servings per food keeps the plan eatable.</p>
+  <p><strong>3. Solve.</strong> The optimizer picks servings that meet every bound at the lowest total price, then rounds to whole or half servings.</p>
+  <p><strong>4. Read the price of each target.</strong> Re-solving with a higher protein minimum shows what each extra 10 g costs, which is usually the most useful number on the page.</p>
+
+  <h2>A worked example</h2>
+  <p>Twenty starter foods at <strong>example prices</strong>, 2,000 to 2,300 calories, at least 45 g and at most 80 g of fat, at least 28 g of fibre, no food above its serving cap, half servings. Only the protein minimum changes.</p>
+  <table>
+    <thead><tr><th>Protein minimum</th><th class="n">Cheapest per day</th><th class="n">Per week</th></tr></thead>
+    <tbody>
+      <tr><td>100 g</td><td class="n">$1.93</td><td class="n">$13.51</td></tr>
+      <tr><td>140 g</td><td class="n">$2.74</td><td class="n">$19.21</td></tr>
+      <tr><td>180 g</td><td class="n">$4.38</td><td class="n">$30.66</td></tr>
+    </tbody>
+  </table>
+  <p>The first 100 g come from dried lentils and beans, oats and peanut butter. Beyond that the calorie cap binds, so the plan has to buy protein in a denser form, whey, chicken or yogurt, and the price per extra gram rises. Run it on your own prices: the shape is the point, not these figures.</p>
+
+  <h2>What the plan leaves out</h2>
+  <p>It knows only calories, protein, carbs, fat and fibre and the prices you typed: not vitamins, minerals, allergies, taste, pack sizes or sales. The cheapest plan is often repetitive. It is not medical or dietary advice and will not plan under 1,200 calories a day.</p>
+
+  <h2>Questions</h2>
+  <h3>How much does it cost to eat 100 g of protein a day?</h3>
+  <p>On the starter foods and example prices, the cheapest plan that meets 2,000 to 2,300 calories, 100 g of protein, 28 g of fibre and the fat bounds costs about $1.93 a day, built from lentils, oats, peanut butter, rice and a little oil. Your prices will differ, so edit them.</p>
+  <h3>Why does the cost jump as the protein target rises?</h3>
+  <p>Cheap protein comes from dried beans and lentils, but they also bring a lot of carbohydrate and calories, so once the calorie cap binds the plan has to switch to denser protein such as whey, chicken or yogurt, which cost more per gram.</p>
+  <h3>Can I add my own foods and prices?</h3>
+  <p>Yes. Paste one line per food: name, price per serving, calories, protein, carbs, fat, fibre and an optional maximum servings per day. Take the nutrition from the label for the serving you are pricing.</p>
+
+  <p><a class="cta" href="./">Price your own meal plan</a></p>
+  <p>Related: the <a href="../production-mix-optimizer/">production mix optimizer</a> and the <a href="../cut-list-optimizer/">cut list optimizer</a>, which solve the same kind of problem for a workshop.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. It is not medical, dietary, nutrition, legal, tax or financial advice and does not replace a doctor or registered dietitian. The foods and prices in the example are approximate and illustrative, not quotes, and nothing here is a recommendation to eat any particular diet.</p>
+    <p><strong>Independent.</strong> Not affiliated with any retailer, brand or diet programme, and none is named here.</p>
+    <p>Free and open source under an MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

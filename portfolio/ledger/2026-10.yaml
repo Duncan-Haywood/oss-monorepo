@@ -272,28 +272,308 @@ entries:
       Liability: arithmetic on supplied figures, not tax advice, no warranty,
       limits stated. No client or health data. Ethics: helps a small operator price
       honestly.
-  - venture: laundromat-machine-payback-calculator
+  - venture: dj-gig-profit-calculator
     agent_spend_usd: null
     human_hours: 0
     outcomes:
       - >-
-        Graduated and built laundromat-machine-payback-calculator: a browser-local
-        tool for laundromat owners and buyers. Enter washer and dryer lines with
-        count, price per cycle, turns per day, utility cost and installed cost; it
-        reports payback months and contribution by line, the turns per day each
-        line needs for a target payback, store net after overhead and break-even
-        volume, and the share of cycles a price rise can lose before it costs
-        money. New niche: no laundromat venture existed (duplicate_check.py closest
-        0.34, unrelated). First visitor expected from "laundromat washer payback"
-        and "turns per day" searches. No customer data; nothing leaves the browser.
-        Unverified on a real store's books: tests use hand-calculated line, store
-        and break-even cases. Registered score row, launch date, category rule and
-        CI workflow.
+        Graduated and built dj-gig-profit-calculator: a browser-local tool for
+        mobile and wedding DJs. Enter packages with price, event hours, gig costs
+        and gigs per month plus overhead; it reports profit per hour worked with
+        setup, travel and planning counted, the price that hits an hourly target,
+        direct clients versus a lead marketplace versus an agency subcontract on the
+        same mix, and the share of gigs a price raise can lose before it costs
+        money. New niche: no DJ venture existed (duplicate_check.py closest 0.38,
+        adjacent event trades). First visitor expected from "how much to charge as a
+        wedding DJ" searches and DJ communities. No client data; nothing leaves the
+        browser. Unverified on a real DJ's books: tests use hand-calculated cases.
+        Registered score row, launch date, category rule, rate decision and CI workflow.
     mrr_end: 0
     gates:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Liability: arithmetic on supplied figures, not tax or financial advice, no
-      warranty, limits stated. No customer data. Ethics: helps a small operator
-      check equipment spend against their own numbers.
+      Liability: arithmetic on supplied figures, not tax advice, no warranty, limits
+      stated. No client data. Ethics: helps a small operator price honestly.
+  - venture: wedding-photographer-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built wedding-photographer-profit-calculator: a browser-local
+        tool for wedding and event photographers. Enter packages with price, coverage
+        hours, job costs and jobs per month plus overhead; it counts travel, client
+        time and culling and editing hours on every job and reports profit per hour
+        worked beside the headline rate per coverage hour, the price that hits an
+        hourly target, own clients versus a lead marketplace versus shooting for a
+        studio, and the share of jobs a price raise can lose before it costs money.
+        Niche check: duplicate_check.py closest 0.41 (photo-addon-pricing-calculator,
+        one add-on rather than whole packages). First visitor expected from "how much
+        to charge for wedding photography" searches. No client data; nothing leaves
+        the browser. Unverified on a real photographer's books: tests use
+        hand-calculated cases. Registered score row, launch date, category rule, rate
+        decision and CI workflow.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not tax advice, no warranty, limits
+      stated. No client data. Ethics: helps a small operator price honestly.
+  - venture: shipping-box-size-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built shipping-box-size-optimizer: a browser-local tool for
+        online sellers who pack their own orders. Enter products with packed size,
+        weight and orders per month plus the cartons on offer; it solves which 1 to
+        10 box sizes to stock (p-median: exact enumeration when small, multi-start
+        Teitz-Bart swap search otherwise) counting dimensional weight, box cost and
+        void fill, and reports the saving of each extra size, the box per product,
+        and today's boxes against the best set, with optional custom-size
+        candidates and a pasted rate card. New niche: duplicate_check.py closest
+        parcel-dim-weight-calculator 0.17 (single carton, now cross-linked). First
+        visitor expected from "what size shipping boxes should I stock" searches and
+        seller forums. No customer data; nothing leaves the browser. Unverified on a
+        real shop's invoices: tests use hand-calculated costs and check the local
+        search against exhaustive enumeration. Registered score row, launch date,
+        category rule, CI workflow and a guide page whose worked example is
+        recomputed by the suite.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and optimization on supplied figures, no carrier rates or
+      box prices asserted, surcharges not priced and said so, no warranty. No
+      customer data. Ethics: helps a small seller cut shipping waste.
+  - venture: container-load-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built container-load-planner: a browser-local 3D load planner
+        for small exporters, Amazon/FBA and DTC sellers shipping cartons or pallets.
+        Enter cargo lines (size, weight, quantity, rotation, highest layer, weight
+        allowed on top), pick a 20 ft, 40 ft, 40 ft high cube, 53 ft trailer, box
+        truck, pallet or custom size; an extreme-point packer with seeded restarts
+        reports units packed and left over, volume and weight use, containers for the
+        whole load (greedy, tail merged), to-scale top and side views, a loading list
+        and a loose-versus-pallets comparison across every standard size, metric or
+        imperial. New niche: duplicate_check.py closest amazon-fba-calculator 0.20
+        (fees, not loading); shipping-box-size-optimizer is its cross-linked
+        neighbour. First visitor expected from "how many pallets fit in a 40ft
+        container" searches. No cargo data leaves the browser. Unverified on a real
+        loading: tests use hand-computed fits and random loads checked by an
+        independent verifier for overlap, bounds, payload, rotation, support and
+        stacking. Registered score row, launch date, category rule, CI workflow and a
+        guide page whose worked example is recomputed by the suite.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and a packing heuristic on supplied figures, a planning
+      aid and not a load-securing, axle-weight or legal certificate, no freight rates
+      asserted, nominal container sizes labelled and editable, no warranty. No cargo
+      data. Ethics: helps a small shipper avoid over-booking space.
+  - venture: production-mix-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built production-mix-optimizer: a browser-local tool for
+        bakeries, workshops and small makers. Enter products (price, unit cost,
+        minimum, maximum, batch size) and limited resources (oven, machine, labour
+        hours, optional overtime); a two-phase simplex with branch and bound on whole
+        batches finds the most profitable weekly mix, then reports the shadow price of
+        each bottleneck and how far it holds, each product's resource cost and net per
+        unit, and the plan against two rule-of-thumb plans, with a CSV. New niche
+        after a first idea (container-load-planner) was merged by another session
+        minutes earlier (#6146); duplicate_check.py closest cnc-machining-quote-calculator
+        0.38 (generic word overlap, quotes one job). First visitor expected from "product
+        mix optimization" and "is overtime worth it" searches. No customer data; nothing
+        leaves the browser. Unverified on a real business: tests use hand-solved problems,
+        brute-force comparison, a cycling-prone degenerate LP, duality checks and a guide
+        worked example the suite recomputes. Registered score row, launch date, category
+        rule, CI workflow and publish-surface row.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, no prices, costs or capacities
+      asserted, no warranty. No customer data. Ethics: helps a small maker use scarce
+      hours well.
+  - venture: crypto-cost-basis-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built crypto-cost-basis-calculator: a browser-local lot matcher
+        for people who bought or earned crypto at several prices. Paste or open a CSV
+        of buys, sales and income (exchange-style headers recognised); it matches each
+        sale to purchase lots under FIFO, LIFO, HIFO, LOFO or a tax-aware greedy rule,
+        splits sales into short-term and long-term rows by holding period, optionally
+        matches wallet by wallet, compares all five methods on the chosen year with an
+        estimated tax, lists coins and basis still held, and exports Form 8949 style
+        rows. New niche: duplicate_check.py closest like-kind-exchange-1031-calculator
+        0.18. First visitor expected from "crypto FIFO vs HIFO" and "Form 8949 crypto
+        csv" searches and r/CryptoTax threads in filing season. No customer data;
+        nothing leaves the browser. Unverified on a real return: tests use hand-computed
+        FIFO/LIFO/HIFO figures plus quantity and basis conservation checks across all
+        methods on seeded random books. Registered score row, launch date, category
+        rule, CI workflow and a guide page whose worked example is recomputed by the
+        suite.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, no prices fetched, no claim about
+      which lot method a filer may use, omissions stated, no warranty. No customer
+      data. Ethics: helps people compute their own gains privately.
+  - venture: rental-fleet-size-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built rental-fleet-size-optimizer: a browser-local tool for
+        businesses that rent out identical units (tents, kayaks, scaffold, camera
+        gear, tool kits). Enter seasons of demand, rental lengths, price, cost per
+        rental and the yearly cost of owning a unit; it computes the yearly profit of
+        every fleet size two ways, the Erlang loss formula per season and a seeded
+        day-by-day simulation (Poisson or negative-binomial requests, common random
+        numbers across fleet sizes), and recommends how many units to own with turn-away
+        rates, a bad year (10th percentile), the days the marginal unit adds against
+        the days it needs to pay for itself, an optional turn-away cap and its cost, a
+        comparison with today's fleet, and how the answer moves with demand. New niche:
+        duplicate_check.py closest equipment-rental-break-even 0.18 (one machine's
+        break-even, not how many to own). First visitor expected from "how many units
+        should my rental business own" searches. No customer data; nothing leaves the
+        browser. Unverified on a real business's books: tests check Erlang B against
+        its closed form, the simulation against the exact day-batch formula for
+        one-day rentals, and the guide's worked example is recomputed by the suite.
+        Registered score row, launch date, category rule, CI workflow and a guide page.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and simulation on supplied figures, not tax, financial or
+      business advice, no demand, price or asset cost asserted, no warranty, limits
+      stated. No customer data. Ethics: helps a small rental owner avoid buying units
+      that never pay for themselves.
+  - venture: tile-layout-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built tile-layout-planner: a browser-local tile layout planner
+        for installers and DIY. Enter a room, cut-outs and a tile (straight, running
+        bond or diagonal); exact polygon clipping lays out the real tiles, a search
+        over grid offsets and tile direction finds the layout with the fewest cuts
+        thinner than the user's limit then the fewest tiles, a greedy guillotine plan
+        reuses offcuts, and the page shows a to-scale plan, cut list, tiles and boxes
+        to order and a corner / centred / best comparison, metric or imperial. New
+        niche: duplicate_check.py closest flooring-bid-calculator 0.35 (prices a job,
+        no layout). First visitor expected from "how many tiles do I need" searches.
+        No room data leaves the browser. Unverified on a real floor: tests use
+        hand-computed layouts and random rooms whose pieces must add up to the floor
+        (exactly, with no grout). Registered score row, launch date, category rule, CI
+        workflow and a guide page whose worked example is recomputed by the suite.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and geometry on supplied figures, a planning aid and not
+      installation instructions or a material guarantee, no tile price asserted, no
+      warranty. No customer data. Ethics: helps a homeowner or installer avoid
+      over-buying and bad cuts.
+  - venture: event-seating-chart-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built event-seating-chart-optimizer: a browser-local seating chart
+        optimizer for weddings, banquets and events. Paste a guest list (optional family
+        or party per guest), write wishes as text (+ together, ++ really together, !
+        apart, !! never, @ pin to a table); simulated annealing with a softened
+        never-together penalty plus a hill-climbing polish assigns every guest to a table
+        within capacity, with tables filled evenly by default. Shows each table, every
+        unmet wish and split family, a comparison with seating in list order, and a CSV
+        for place cards. New niche: duplicate_check.py closest bounce-house-rental-
+        calculator 0.14 (no seating). First visitor expected from "wedding seating
+        chart" and "seating chart generator" searches. No guest list leaves the browser
+        and none is stored. Verified: the optimizer equals exhaustive search on 400
+        random small lists (60 in the committed suite), a 200-guest list runs in
+        seconds, and an independent verifyPlan check recomputes capacity, pins and
+        score. Unverified: no real event, and not proven optimal on large lists.
+        Registered score row, launch date, category rule, CI workflow and a guide page
+        whose worked example is recomputed by the suite.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and search on user-typed names and wishes, not
+      event-planning advice, no guarantee of anyone's comfort, no prices asserted, no
+      warranty. No guest data stored or sent. Ethics: helps a host seat guests kindly.
+  - venture: cheap-meal-plan-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built cheap-meal-plan-optimizer: a browser-local minimum-cost diet
+        solver. Enter foods with a price and nutrition per serving, set calorie, protein,
+        fat, carb and fibre bounds and serving caps; a two-phase simplex plus branch and
+        bound (whole, half or quarter servings) finds the lowest-cost daily plan, the
+        weekly cost, the extra cost of each target by re-solving, a shopper's
+        rule-of-thumb comparison, and how cost rises with the protein minimum, with a
+        CSV. Starter foods carry approximate generic nutrition and EXAMPLE prices; a hard
+        floor refuses plans under 1,200 kcal. New niche after a first attempt, a league
+        schedule generator, turned out to have been built in parallel by another session
+        (#6154) and was dropped without shipping: duplicate_check.py closest
+        production-mix-optimizer 0.18. First visitor expected from "cheapest high
+        protein meal plan" and "budget meal plan" searches. No food list leaves the
+        browser. Verified: integer plans equal exhaustive search on 60 random small menus
+        and an independent verifyPlan rechecks bounds, caps, steps and cost. Unverified:
+        no real shopping basket, and nutrition values are approximate. Registered score
+        row, launch date, CI workflow and a guide page whose worked example is recomputed
+        by the suite.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed numbers, not medical or dietary advice,
+      1,200 kcal floor, stated unsuitable for children, pregnancy, eating disorders and
+      medical conditions, example prices labelled, no warranty, nothing stored. Ethics:
+      helps people on a budget see what their protein target costs.
+  - venture: nsa-idr-offer-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built nsa-idr-offer-calculator: a browser-local tool for
+        out-of-network providers and billing teams disputing payments under the No
+        Surprises Act. Enter billed charge, QPA and amount paid per claim plus the
+        current IDR fees and a win-chance curve; it searches offers between the QPA
+        and the billed charge for the best expected net, reports the break-even win
+        chance, a file-or-skip call per claim, fee batching, how the total moves when
+        the win-chance assumption shifts, and open-negotiation and IDR-initiation
+        dates. New niche: duplicate_check.py closest 0.20, unrelated. First visitor
+        expected from "No Surprises Act IDR offer", "is IDR worth the fees" and
+        billing-team forums. No patient data; nothing leaves the browser. Unverified
+        on real IDR outcomes: tests use hand-calculated expected-net, break-even and
+        offer-optimum cases. Registered score row, launch date, category rule and CI.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not legal or billing advice, no
+      fee or QPA source, no warranty, limits stated. No patient data. Ethics: helps
+      small providers decide where a dispute is worth its fee.

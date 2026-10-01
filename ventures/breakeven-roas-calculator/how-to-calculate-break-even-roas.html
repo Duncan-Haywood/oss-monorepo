@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Calculate Break-Even ROAS (And Max CPA) For Your Store</title>
+  <meta name="description" content="A step-by-step way to calculate break-even ROAS and maximum CPA for an ecommerce store: contribution per order after discounts, returns, fees, shipping and cost of goods, then the ROAS you need for a target margin. With a worked example.">
+  <meta property="og:title" content="How To Calculate Break-Even ROAS: A Step-By-Step Method">
+  <meta property="og:description" content="Contribution per order, max CPA, target ROAS and LTV, with a worked example. Free, private calculator included.">
+  <link rel="canonical" href="./how-to-calculate-break-even-roas.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a good ROAS for ecommerce?","acceptedAnswer":{"@type":"Answer","text":"There is no universal good ROAS. The right number is the one above your own break-even, which depends on your margin: a store keeping 60% of revenue before ads breaks even at about 1.7x, while one keeping 25% needs 4x. Industry averages of 3x or 4x are only meaningful if your costs happen to match."}},{"@type":"Question","name":"Is break-even ROAS the same as target ROAS?","acceptedAnswer":{"@type":"Answer","text":"No. Break-even ROAS gives zero profit. Target ROAS is the higher figure you set so the campaign earns the margin you want after ad spend, and it must always sit above break-even."}},{"@type":"Question","name":"Should I use first-order or lifetime-value break-even?","acceptedAnswer":{"@type":"Answer","text":"Use first-order break-even to decide what you can afford while cash is tight, and the lifetime-value figure to see the ceiling if customers really do come back. Only count repeat orders you have measured, over a time window you can fund."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1f5f86; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d9dfe6; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1f5f86; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4c5a68; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Break-even ROAS calculator</a></p>
+  <h1>How to calculate break-even ROAS (and max CPA) for your store</h1>
+  <p>The ad dashboard says 2.4x. Is that good? It depends on what is left of each sale after the product, shipping, fees and refunds, and almost nobody has that number to hand. Break-even ROAS is that number turned into a threshold: the return on ad spend below which every ad dollar loses money.</p>
+  <p><a class="cta" href="./">Open the free calculator</a></p>
+  <h2>The method</h2>
+  <h3>1. Start from the revenue the platform reports</h3>
+  <p>ROAS is reported revenue divided by ad spend, so measure everything against the same revenue: the price after discount, plus any shipping you charge, before returns. Call it R.</p>
+  <h3>2. Take out what you give back and what you pay on every order</h3>
+  <p>Refunds hand some revenue back. The payment fee is usually kept by the processor even when you refund. Marketplace fees apply to what you keep. Cost of goods and outbound shipping are spent on every order, and only partly recovered when returned stock can be resold.</p>
+  <h3>3. What remains is your contribution, and that is your max CPA</h3>
+  <p>Contribution per order is the most you can pay to win that order and still break even. Pay less and you profit.</p>
+  <h3>4. Divide: break-even ROAS = R &divide; contribution</h3>
+  <p>If you earn 40 cents of contribution per reported dollar, break-even ROAS is 1 &divide; 0.40 = 2.5x. The thinner the margin, the higher it climbs, quickly.</p>
+  <h3>5. Set a profit target and recompute</h3>
+  <p>For profit of m of revenue, the allowable CPA is contribution minus m &times; R, and target ROAS is R divided by that. At a 40% contribution margin a 10% net margin needs 3.33x, and a 20% one needs 5x. Above the contribution margin it is not reachable at any ROAS.</p>
+  <h3>6. Decide whether repeat orders count</h3>
+  <p>If customers reorder, the first order does not have to repay the ad spend. Add the expected repeat orders and what each earns to get a lifetime break-even, but keep the first-order figure beside it: it is the one that protects cash.</p>
+  <p><a class="cta" href="./">Try it with your own numbers</a></p>
+  <h2>A worked example</h2>
+  <p>An invented store sells a product at $80 with a 10% average discount, so R is $72. Cost of goods is $22, shipping $7, the payment fee 2.9% plus $0.30, and 8% of orders are refunded.</p>
+  <table>
+    <tr><th>Line</th><th class="n">Per order</th></tr>
+    <tr><td>Reported revenue</td><td class="n">$72.00</td></tr>
+    <tr><td>Refunds (8%)</td><td class="n">-$5.76</td></tr>
+    <tr><td>Payment fee</td><td class="n">-$2.39</td></tr>
+    <tr><td>Cost of goods</td><td class="n">-$22.00</td></tr>
+    <tr><td>Shipping</td><td class="n">-$7.00</td></tr>
+    <tr><td><strong>Contribution = max CPA</strong></td><td class="n"><strong>$34.85</strong></td></tr>
+  </table>
+  <p>Break-even ROAS is 72 &divide; 34.85 = 2.07x. A 10% net margin needs a CPA of 34.85 &minus; 7.20 = $27.65, or 2.60x; 20% needs $20.45, or 3.52x. If the average customer orders 1.6 times and repeat orders earn as much as the first, lifetime contribution is $55.76 and the lifetime break-even drops to 1.29x &mdash; but a campaign at 1.5x is still losing money on the first order.</p>
+  <h2>Questions</h2>
+  <h3>What is a good ROAS for ecommerce?</h3>
+  <p>There is no universal good ROAS. The right number is the one above your own break-even, which depends on your margin: a store keeping 60% of revenue before ads breaks even at about 1.7x, while one keeping 25% needs 4x. Industry averages of 3x or 4x are only meaningful if your costs happen to match.</p>
+  <h3>Is break-even ROAS the same as target ROAS?</h3>
+  <p>No. Break-even ROAS gives zero profit. Target ROAS is the higher figure you set so the campaign earns the margin you want after ad spend, and it must always sit above break-even.</p>
+  <h3>Should I use first-order or lifetime-value break-even?</h3>
+  <p>Use first-order break-even to decide what you can afford while cash is tight, and the lifetime-value figure to see the ceiling if customers really do come back. Only count repeat orders you have measured, over a time window you can fund.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, a planning aid, not legal, tax or financial advice. Costs, fees and refund behaviour differ by store and change over time; check your own numbers. The example is invented.</p>
+    <p>Everything the calculator does runs in your browser; your numbers are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional. Related: the <a href="../print-on-demand-profit-calculator/">print-on-demand profit calculator</a>.</p>
+  </footer>
+</body>
+</html>

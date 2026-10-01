@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 542 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 561 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,51 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">ADU payback calculator for homeowners and builders. Enter build cost, loan, rent and operating costs and see cash flow, yield on cost, payback, IRR, NPV and break-even rent. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Break-Even ROAS Calculator — max CPA, target ROAS and LTV for your ads</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/breakeven-roas-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/breakeven-roas-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free break-even ROAS and max CPA calculator for ecommerce and DTC stores. Enter price, cost of goods, shipping, fees, returns and discounts, add repeat-purchase LTV, and see the ROAS you need for 0%, 10% or 20% profit. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Business Loan Offer Comparator — the true APR of every offer, side by side</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/business-loan-offer-comparator/"/>
+    <id>tag:marisstella.dev,2026:tool/business-loan-offer-comparator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free business loan comparison tool. Type in the term-loan, SBA-style and merchant cash advance offers you have received and see the true APR with fees, total repaid, cash actually received and what paying early would cost. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Cheapest Meal Plan Optimizer — lowest-cost diet for your targets</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cheap-meal-plan-optimizer/"/>
+    <id>tag:marisstella.dev,2026:tool/cheap-meal-plan-optimizer</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free cheapest meal plan optimizer. Enter foods with prices and nutrition, set calorie, protein, fat and fibre targets, and get the lowest-cost daily servings plus the cost of each extra target. A minimum-cost diet solver in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Coffee Roaster Margin Calculator — roast loss, wholesale vs retail margin and cheapest blend</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/coffee-roaster-margin-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/coffee-roaster-margin-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free coffee roaster pricing calculator. Turn green coffee price and roast loss into cost per roasted pound, see margin by channel (retail, subscription, wholesale), find the cheapest blend that still hits your cup score, plan green coffee orders and find break-even volume. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Container Load Planner — 3D load planning for containers, trucks and pallets</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/container-load-planner/"/>
+    <id>tag:marisstella.dev,2026:tool/container-load-planner</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Logistics, freight &amp; cloud cost"/>
+    <summary type="text">Free container load planner for small exporters, Amazon FBA and DTC sellers. Enter cartons or pallets, pick a 20 ft, 40 ft, 40 ft high cube, 53 ft trailer, box truck or pallet; see what fits, what is left over, how many containers the whole load needs, and a to-scale loading plan. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Contractor WIP Schedule — over/under billing from your job list</title>
@@ -35,6 +80,24 @@
     <summary type="text">Cottage food pricing calculator for home bakers and small food makers. Get the full cost per item with your time, packaging, overhead and unsold goods, the price to charge online, at a farmers market and wholesale, and what you really earn per hour. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Crypto Cost Basis Calculator — FIFO vs HIFO vs LIFO, Form 8949 rows, in your browser</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/crypto-cost-basis-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/crypto-cost-basis-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free crypto cost basis calculator. Paste your buys, sales and income as a CSV; it matches every sale to your lots under FIFO, LIFO, HIFO, LOFO or a tax-aware rule, compares the methods side by side and exports Form 8949 style rows. Runs in your browser; your history is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>DJ Gig Profit Calculator — profit per hour worked and price floor by package</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dj-gig-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/dj-gig-profit-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">DJ gig profit calculator for mobile DJs and event entertainers. Enter packages, event hours, setup time and gig costs to see profit per hour worked, the price that hits your target, and direct clients versus a lead marketplace versus an agency.</summary>
+  </entry>
+  <entry>
     <title>Dog Grooming Profit Calculator — profit per hour and price floor by service</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dog-grooming-profit-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/dog-grooming-profit-calculator</id>
@@ -51,6 +114,15 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Donor retention analyzer for small nonprofits. Paste your gift history to see retention by fiscal year, first-time versus repeat donor retention, and which lapsed (LYBUNT, SYBUNT) donors are worth a call, ranked from your own giving. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Event Seating Chart Optimizer — wedding and party table assignment</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/event-seating-chart-optimizer/"/>
+    <id>tag:marisstella.dev,2026:tool/event-seating-chart-optimizer</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free seating chart optimizer for weddings, banquets and events. Paste your guest list, say who sits together and who must be kept apart, and it assigns every guest to a table with the most wishes met. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Family Child Care Time-Space Calculator — home day care tax percentage</title>
@@ -71,6 +143,15 @@
     <summary type="text">Retainer vs hourly calculator for freelancers, consultants and small agencies. Paste your time log to see your effective hourly rate under a monthly retainer, break-even hours, and the retainer that covers 80% of your months, from your own history. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Freight Broker Load Margin Calculator — net margin after float, factoring and claims</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freight-broker-load-margin-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/freight-broker-load-margin-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Logistics, freight &amp; cloud cost"/>
+    <summary type="text">Free freight broker margin calculator. Type in your loads and see true net margin after financing the carrier, factoring, claims reserve and overhead, plus the shipper rate to quote and the carrier rate to pay to hit your target. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Home Care Agency Margin Calculator — bill rate and margin per hour by payer</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/home-care-agency-margin-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/home-care-agency-margin-calculator</id>
@@ -89,13 +170,13 @@
     <summary type="text">Free tool for landlords and homeowners. Enter a water heater, furnace, AC, roof or appliance with its age, repair quote and replacement cost to see whether repairing or replacing costs less over the years you will own it, and the break-even repair price. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
-    <title>Laundromat Machine Payback Calculator — payback and profit by washer and dryer line</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/laundromat-machine-payback-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/laundromat-machine-payback-calculator</id>
+    <title>League Schedule Generator — free round-robin schedule maker for clubs and rec leagues</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/league-schedule-generator/"/>
+    <id>tag:marisstella.dev,2026:tool/league-schedule-generator</id>
     <published>2026-10-01T00:00:00Z</published>
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Laundromat machine payback calculator for owners and buyers. Enter washers and dryers with price per cycle, turns per day, utilities and installed cost to see payback months, the turns per day you need, store net after overhead, and what a price rise can cost. Runs in your browser; nothing is uploaded.</summary>
+    <summary type="text">Free round robin schedule generator. Paste your team names and get a fair league schedule with real dates, balanced home and away, courts and time slots shared evenly, blackout dates, an optional play-off bracket, and CSV, calendar and text exports. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Market Garden Bed Planner — which crops earn the most per bed</title>
@@ -116,6 +197,15 @@
     <summary type="text">Massage therapist profit calculator for solo therapists and clinic owners. Enter session types, minutes, supplies, no-shows and sessions per week to see profit per hour after overhead, the price that hits your target, and own practice versus room rent versus employee split. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>No Surprises Act IDR Offer Calculator — what to offer and which claims to file</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/nsa-idr-offer-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/nsa-idr-offer-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">No Surprises Act IDR offer calculator for out-of-network providers and billing teams. Enter billed charge, QPA and amount paid to see the offer with the best expected net, the win chance you need after fees, which claims are worth filing, and the negotiation and IDR deadlines. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Payroll Tax Deposit Penalty Calculator — Due Dates and Late-Deposit Cost</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/payroll-tax-deposit-penalty-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/payroll-tax-deposit-penalty-calculator</id>
@@ -132,6 +222,87 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Payer mix calculator for therapists and counselors in private practice. See what each insurance panel and your cash fee really net per session and per clinical hour after denials, billing time and slow payment, and what dropping a panel is worth. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Weekly Production Mix Optimizer — what to make when oven hours, labour or machines run out</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/production-mix-optimizer/"/>
+    <id>tag:marisstella.dev,2026:tool/production-mix-optimizer</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free production mix optimizer for bakeries, workshops and small makers. Enter your products, margins and the hours or machines each one uses; it finds the most profitable weekly mix with whole batches and overtime, and shows what one more hour of your bottleneck is worth. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Rental Fleet Size Optimizer — how many units to own, from your own demand</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rental-fleet-size-optimizer/"/>
+    <id>tag:marisstella.dev,2026:tool/rental-fleet-size-optimizer</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free rental fleet size optimizer for tent, equipment, kayak, tool and party rental businesses. Enter your seasons, rental lengths, price and what a unit costs to own; it finds the number of units that maximises yearly profit using the Erlang loss formula and a day-by-day simulation. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Retirement Withdrawal Sequencer — which account to draw from first, with Roth conversions</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/retirement-withdrawal-sequencer/"/>
+    <id>tag:marisstella.dev,2026:tool/retirement-withdrawal-sequencer</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free retirement withdrawal calculator. Enter your taxable, traditional and Roth balances, spending and Social Security; it compares withdrawal orders and bracket-filling Roth conversions year by year under 2026 tax rules and shows what each leaves you after tax. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Shift Roster Builder — a free weekly employee schedule maker that follows your rules</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/shift-roster-builder/"/>
+    <id>tag:marisstella.dev,2026:tool/shift-roster-builder</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free employee schedule maker for restaurants, cafes, salons, shops and clinics. List the shifts to cover and your staff&#39;s availability, hour limits and wages; get a weekly roster that avoids overtime, respects rest gaps and shows which shifts could not be filled and why. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Shipping Box Size Optimizer — which carton sizes to stock to cut dimensional weight</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/shipping-box-size-optimizer/"/>
+    <id>tag:marisstella.dev,2026:tool/shipping-box-size-optimizer</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Logistics, freight &amp; cloud cost"/>
+    <summary type="text">Free shipping box size optimizer for online sellers. Enter your products and the cartons you could buy; it solves which 1 to 10 box sizes to stock so every order ships in its cheapest fitting box, counting dimensional weight, box cost and void fill. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>State Residency Day Counter — 183-day rule tracker for remote workers and snowbirds</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/state-residency-day-counter/"/>
+    <id>tag:marisstella.dev,2026:tool/state-residency-day-counter</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free multi-state residency day counter. Enter where you spent the year, see days per state against the 183-day and other statutory residency tests, the room you have left, the date you would cross a limit, and remote-work wages split by state. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Tile Layout Planner — how many tiles, where to cut, and where to start</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tile-layout-planner/"/>
+    <id>tag:marisstella.dev,2026:tool/tile-layout-planner</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free tile layout planner for installers and DIY. Enter a room, cut-outs and a tile; see the real layout, how many tiles to buy with offcut reuse, the cut list, and the starting position with the fewest thin cuts. Straight, running bond or diagonal. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Time-Off Request Planner — approve the most vacation requests without leaving a shift short</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/time-off-request-planner/"/>
+    <id>tag:marisstella.dev,2026:tool/time-off-request-planner</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free vacation and PTO request planner for small teams. Paste your people with roles and the time-off requests you have, set the minimum on duty per role, and see which requests to approve, why each other one clashes and what dates would work. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Wedding Photographer Profit Calculator — profit per hour worked, editing included</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/wedding-photographer-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/wedding-photographer-profit-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Wedding and event photographer profit calculator. Enter packages, coverage hours, editing time and job costs to see profit per hour actually worked, the price that hits your target, and your own clients versus a lead marketplace versus shooting for a studio.</summary>
   </entry>
   <entry>
     <title>A/B Test Significance Calculator — p-value, SRM, Bayesian and Sequential</title>
@@ -195,176 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free AWS Savings Plan and Reserved Instance calculator. Paste your hourly or daily usage and each option&#39;s discount to find the commitment that saves the most, its break-even utilization, upfront payback and what happens if usage falls. Nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Bid Win-Rate Optimizer — find the markup that earns the most from your quotes</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bid-win-rate-optimizer/"/>
-    <id>tag:marisstella.dev,2026:tool/bid-win-rate-optimizer</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free bid win-rate calculator for contractors, agencies and freelancers. Paste your past quotes (price, won or lost, cost) to see how your win chance falls as your markup rises, the markup with the highest expected profit, and a back-test that says whether to trust it. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>BRRRR Calculator — Cash Left in the Deal, Refinance Cash-Out, Max Price</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/brrrr-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/brrrr-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free BRRRR calculator for real estate investors. Enter price, rehab, hard-money terms, ARV and refinance terms to see the cash left in the deal, refinance cash-out, cash flow, the highest price that pulls all your cash out, and how a low appraisal or rehab overrun changes it. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Bundle Discount Optimizer — which products to bundle, at what discount</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bundle-discount-optimizer/"/>
-    <id>tag:marisstella.dev,2026:tool/bundle-discount-optimizer</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free bundle pricing tool for Shopify, Etsy and Amazon sellers. Paste your order history and product costs to find which products customers already buy together, the bundle discount that earns the most, and how much more often shoppers must add the second item for the discount to pay. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Cash Balance Plan Calculator — 2026 Contribution Estimate, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cash-balance-plan-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/cash-balance-plan-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free cash balance plan calculator for self-employed and small-practice owners aged 40+. Estimates a 2026 contribution range by age, stacked with a 401(k) and profit sharing, tax savings, employee cost and a multi-year projection. Illustrative; an actuary sets the real number. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Clearance Markdown Planner — when and how deep to cut price on leftover stock</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/clearance-markdown-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/clearance-markdown-planner</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free clearance markdown planner for retailers and sellers. Enter the units you have left and the weeks you have; it estimates price elasticity from your own sales history and plans the week-by-week markdown that maximises expected revenue. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Client Rebooking Predictor — find overdue and lapsed clients from your own booking history</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/client-rebooking-predictor/"/>
-    <id>tag:marisstella.dev,2026:tool/client-rebooking-predictor</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free lapsed-client report for salons, barbers, groomers, physio, dental and cleaning businesses. Paste your visits (client, date, amount) to see who is overdue and still worth a call, who has probably gone, and a back-test that says whether to trust the ranking. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Commercial Lease Effective Rent Calculator — Compare Lease Offers, Net Effective Rent</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/commercial-lease-effective-rent-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/commercial-lease-effective-rent-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free commercial lease comparison calculator. Compare up to three offers on net effective rent and all-in cost per square foot after free rent, TI allowance, escalations, NNN costs and fit-out. See the cost of leaving early and the rent needed to match the best offer. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Cost Segregation Calculator — Is a Study Worth the Fee? Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cost-segregation-study-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/cost-segregation-study-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free cost segregation study calculator for rental and commercial property owners. Estimates first-year extra depreciation, tax saved at your bracket, fee payback, the recapture bill on sale and a present-value net. Illustrative; an engineer and your CPA decide. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Crew Dispatch Optimizer — who does which job, in what order</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/crew-dispatch-optimizer/"/>
-    <id>tag:marisstella.dev,2026:tool/crew-dispatch-optimizer</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free job dispatch and route planner for plumbers, HVAC, electricians, cleaners and other service crews. Paste your jobs and crews to get the cheapest assignment and stop order, what it saves against sending the nearest crew, and what losing a crew costs. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Customer Lifetime Value Predictor — BG/NBD CLV from your orders</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/customer-lifetime-value-predictor/"/>
-    <id>tag:marisstella.dev,2026:tool/customer-lifetime-value-predictor</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free customer lifetime value predictor for online shops. Upload an order list to get each customer&#39;s predicted value, the chance they are still active, at-risk big spenders, what a new customer is worth, and a back-test of the forecast. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Dental Associate Pay Calculator — Compare Two Offers</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dental-associate-pay-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/dental-associate-pay-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free dental associate pay calculator. Enter two offers, percent of production or collections, daily guarantee and lab fee share, to see what each pays at your expected production, your effective percentage, and where they cross. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Dependent Care FSA vs Child Care Credit Calculator — Best Split</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dependent-care-fsa-vs-credit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/dependent-care-fsa-vs-credit-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free dependent care FSA vs child and dependent care credit calculator. Enter your income, tax rates and care costs to see which saves more and the best split between the two, using the 2026 $7,500 FSA limit. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>ESPP Tax Calculator — Sell Now or Hold? Qualifying vs Disqualifying</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/espp-tax-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/espp-tax-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free ESPP tax calculator. Enter your offering and purchase prices, discount and lookback to see the after-tax profit of selling at purchase, after a year, or at a qualifying date, and the price where waiting stops paying. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Fix and Flip Deal Analyzer — Max Offer, Profit and Hard-Money Cost</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fix-and-flip-deal-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/fix-and-flip-deal-analyzer</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free fix and flip calculator for house flippers. Enter ARV, purchase price, rehab and hard-money terms to get profit, cash needed, return on cash, the maximum allowable offer, the break-even sale price and how profit changes with price and time on the market. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Gabor-Granger Price Analyzer — Demand Curve and Best Price from Survey Data</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/gabor-granger-price-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/gabor-granger-price-analyzer</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free Gabor-Granger price analyzer. Paste the highest price each survey respondent would buy at and get the demand curve, the revenue-maximising price, the profit-maximising price for your unit cost, and bootstrap bands. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Heat Pump vs Furnace Calculator — Running Cost, Break-Even COP, Payback</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/heat-pump-vs-furnace-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/heat-pump-vs-furnace-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free heat pump vs gas furnace calculator for homeowners. Enter your gas therms, prices, COP and quotes to see running cost per million BTU, the break-even COP, payback against a new furnace and AC, and lifetime saving. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Home Sale Exclusion Calculator — How Much Tax Will You Owe Selling Your House?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/home-sale-exclusion-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/home-sale-exclusion-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free home sale tax calculator. Enter your sale price, purchase price and improvements to see how much gain the $250,000 or $500,000 exclusion covers, the tax on the rest, and what waiting to reach two years would save. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Insurance Agency Book Valuation Calculator — Sell or Keep Your Book of Business</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/insurance-agency-book-valuation-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/insurance-agency-book-valuation-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free insurance agency book of business valuation calculator. Enter revenue, retention, servicing cost and the return you need, and see what the book is worth, compare a purchase offer with upfront and holdback, and find the break-even price. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Job Offer Total Compensation Calculator — Compare Offers With Equity and Hours</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/job-offer-total-comp-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/job-offer-total-comp-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free job offer comparison calculator. Enter up to three offers with base, bonus, sign-on, equity and hours to see four-year average pay, true hourly rate, and the base salary you would need to counter with. Runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

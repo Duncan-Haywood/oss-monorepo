@@ -1138,7 +1138,27 @@ const RELATIVE_SELF = relative(
 // +1: `dog-grooming-profit-calculator` graduated.
 // +1: `laundromat-machine-payback-calculator` graduated.
 // +1: `massage-therapist-profit-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 521;
+// +1: `dj-gig-profit-calculator` graduated.
+// +1: `wedding-photographer-profit-calculator` graduated.
+// +1: `shipping-box-size-optimizer` graduated.
+// +1: `container-load-planner` graduated.
+// +1: `production-mix-optimizer` graduated.
+// +1: `crypto-cost-basis-calculator` graduated.
+// +1: `rental-fleet-size-optimizer` graduated.
+// +1: `tile-layout-planner` graduated.
+// +1: `event-seating-chart-optimizer` graduated.
+// +1: `league-schedule-generator` graduated.
+// +1: `state-residency-day-counter` graduated.
+// +1: `shift-roster-builder` graduated.
+// +1: `time-off-request-planner` graduated.
+// +1: `cheap-meal-plan-optimizer` graduated.
+// +1: `retirement-withdrawal-sequencer` graduated.
+// +1: `coffee-roaster-margin-calculator` graduated.
+// +1: `business-loan-offer-comparator` graduated.
+// +1: `nsa-idr-offer-calculator` graduated.
+// +1: `freight-broker-load-margin-calculator` graduated.
+// +1: `breakeven-roas-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 540;
 
 let counter = 0;
 function fixture(source) {

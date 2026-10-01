@@ -329,6 +329,9 @@ workflows:
 - workflow: charitable-deduction-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: cheap-meal-plan-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: checklist-coverage.yml
   classification: none
   publishes: []
@@ -405,6 +408,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: construction-evidence-log-ci.yml
+  classification: none
+  publishes: []
+- workflow: container-load-planner-ci.yml
   classification: none
   publishes: []
 - workflow: contractor-bid-readiness-ci.yml
@@ -507,6 +513,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: docker-cache-order-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: dj-gig-profit-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: dog-boarding-daycare-pricing-ci.yml
@@ -621,6 +630,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: ev-charger-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: event-seating-chart-optimizer-ci.yml
   classification: none
   publishes: []
 - workflow: excess-business-loss-calculator-ci.yml
@@ -1058,6 +1070,9 @@ workflows:
 - workflow: npm-reachability-triage-ci.yml
   classification: none
   publishes: []
+- workflow: nsa-idr-offer-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: ny-llc-transparency-act-tracker-ci.yml
   classification: none
   publishes: []
@@ -1317,6 +1332,9 @@ workflows:
 - workflow: rental-dscr-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: rental-fleet-size-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: rental-property-schedule-e-categorizer-ci.yml
   classification: none
   publishes: []
@@ -1476,6 +1494,15 @@ workflows:
   classification: none
   publishes: []
 - workflow: shift-cover-optimizer-ci.yml
+  classification: none
+  publishes: []
+- workflow: shipping-box-size-optimizer-ci.yml
+  classification: none
+  publishes: []
+- workflow: production-mix-optimizer-ci.yml
+  classification: none
+  publishes: []
+- workflow: crypto-cost-basis-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: shop-rate-calculator-ci.yml
@@ -1670,6 +1697,9 @@ workflows:
 - workflow: tiktok-shop-settlement-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: tile-layout-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: tip-pool-compliance-calculator-ci.yml
   classification: none
   publishes: []
@@ -1779,6 +1809,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: wedding-florist-proposal-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: wedding-photographer-profit-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: well-pump-bid-calculator-ci.yml

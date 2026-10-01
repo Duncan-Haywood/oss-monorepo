@@ -24177,7 +24177,7 @@ ventures:
       warranty, no market prices asserted, limits stated. No client or health data;
       nothing leaves the browser. Ethics: helps a small business owner price work
       honestly.
-  - slug: laundromat-machine-payback-calculator
+  - slug: dj-gig-profit-calculator
     scores:
       ai_leverage: 3
       autonomous_ops: 10
@@ -24190,21 +24190,414 @@ ventures:
     floor: 3
     floor_dimension: ai_leverage
     floor_note: >-
-      Deterministic payback arithmetic in the browser; no language model and no paid
-      API. The value is checking a distributor's pro forma against the owner's own
-      turns, vend prices and utility cost per cycle.
+      Deterministic per-package margin arithmetic in the browser; no language model
+      and no paid API. The value is charging setup, travel and planning hours to every
+      gig and showing the marketplace-versus-agency answer on the DJ's own mix.
     basis: >-
       Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
-      write-up in this venture's own VENTURE.yaml comment. Distribution 6: laundromat
-      ROI and turns-per-day questions recur in owner and buyer communities (volume
-      not measured with an external tool). Defensibility 4: equipment vendors supply
-      their own pro formas; the edge is a neutral no-signup tool on the owner's own
-      figures.
+      write-up in this venture's own VENTURE.yaml comment. Distribution 6: "how much
+      to charge as a wedding DJ" and "is a lead marketplace worth it" are perennial
+      questions in DJ communities (volume not measured with an external tool).
+      Defensibility 4: booking software sells contracts and payments, not a free
+      private price-floor and break-even; the edge is a no-signup tool that shows
+      profit per hour worked.
     gates:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
       Liability: arithmetic on supplied figures, not tax or financial advice, no
-      warranty, no market prices asserted, limits stated. No customer data; nothing
-      leaves the browser. Ethics: helps a small business owner check a large
-      purchase honestly.
+      warranty, no market prices asserted, limits stated. No client or event data;
+      nothing leaves the browser. Ethics: helps a small business owner price work
+      honestly.
+  - slug: wedding-photographer-profit-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic per-package margin arithmetic in the browser; no language model
+      and no paid API. The value is charging travel, client and editing hours to every
+      job and showing the marketplace-versus-studio answer on the photographer's own mix.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 6: "how much
+      to charge as a wedding photographer" and "is a lead marketplace worth it" are perennial
+      questions in photographer communities (volume not measured with an external tool).
+      Defensibility 4: booking software sells contracts and payments, not a free
+      private price-floor and break-even; the edge is a no-signup tool that shows
+      profit per hour worked.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not tax or financial advice, no
+      warranty, no market prices asserted, limits stated. No client or event data;
+      nothing leaves the browser. Ethics: helps a small business owner price work
+      honestly.
+  - slug: shipping-box-size-optimizer
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 6
+      distribution: 6
+    composite: 6.667
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      A combinatorial optimizer (p-median over candidate cartons) in the browser; no
+      language model and no paid API. The value is solving the assortment problem on
+      the seller's own order mix instead of a rule of thumb.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 6: "what size
+      shipping boxes should I stock" and dimensional-weight complaints recur in
+      seller forums whenever carrier rates change (volume not measured with an
+      external tool). Defensibility 6: box-assortment optimization is sold to
+      warehouses as packaging-engineering software and consulting; a free private
+      exact solver for a bench-packing seller is uncommon.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and optimization on supplied figures, not legal, tax or
+      shipping advice, no warranty, no carrier rates or box prices asserted, limits
+      stated. No customer data; nothing leaves the browser. Ethics: helps a small
+      seller cut shipping cost and packaging waste.
+  - slug: crypto-cost-basis-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic lot matching and tax netting in the browser; no language model and
+      no paid API. The value is a private, no-signup answer on the user's own CSV.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 7: "crypto
+      FIFO vs HIFO", "crypto cost basis calculator" and "Form 8949 crypto csv" are
+      recurring filing-season searches and forum threads (volume not measured with an
+      external tool). Defensibility 5: paid crypto tax suites cover far more, but they
+      require exchange keys or wallet addresses and a subscription; a local matcher
+      is easy to copy.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not legal, tax or investment advice, no
+      prices fetched, no claim about which method a filer may use, omissions stated, no
+      warranty. No customer data; nothing leaves the browser. Ethics: helps people
+      compute their own gains accurately and privately.
+  - slug: container-load-planner
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 6
+      distribution: 6
+    composite: 6.667
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      A 3D bin packing heuristic (extreme-point placement with seeded restarts) in
+      the browser; no language model and no paid API. The value is packing the
+      shipper's own mix under rotation, weight and stacking limits instead of a
+      rule of thumb.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 6: "how many
+      pallets fit in a 40ft container" and "container load calculator" are recurring
+      searches and forum questions when exporters and FBA sellers plan a booking
+      (volume not measured with an external tool). Defensibility 6: cargo-loading
+      software is sold to forwarders and shippers at enterprise prices; a free
+      private to-scale planner for a small shipper is uncommon.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and a packing heuristic on supplied figures, a planning
+      aid and not a load-securing, axle-weight or legal certificate, no warranty, no
+      freight rates asserted, limits stated. No cargo data; nothing leaves the
+      browser. Ethics: helps a small shipper plan space honestly.
+  - slug: production-mix-optimizer
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 6
+      distribution: 6
+    composite: 6.667
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      A linear-programming solver (two-phase simplex plus branch and bound on whole
+      batches) with shadow prices, in the browser; no language model and no paid API.
+      The value is pricing the bottleneck instead of ranking products by margin.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 6: "product mix
+      optimization", "bottleneck what to produce" and "is overtime worth it" searches
+      recur among small makers and food producers (volume not measured with an external
+      tool). Defensibility 6: production-planning software is sold to factories and a
+      spreadsheet owner approximates by feel; a free private exact solver with plain
+      shadow-price reporting is uncommon.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not legal, tax or financial advice, no
+      warranty, no prices, costs or capacities asserted, constant-usage assumption and
+      unmodelled setup stated. No customer data; nothing leaves the browser. Ethics:
+      helps a small maker spend scarce hours on what earns most.
+  - slug: rental-fleet-size-optimizer
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 6
+      distribution: 6
+    composite: 6.667
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      A queueing and simulation tool (Erlang loss plus a seeded day-by-day Monte
+      Carlo) in the browser; no language model and no paid API. The value is solving
+      the fleet-size question on the owner's own seasons and rental lengths instead of
+      a gut feeling.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 6: "how many
+      units should my rental business own" and rental utilization questions recur in
+      owner forums when a season ends or a unit is bought (volume not measured with an
+      external tool). Defensibility 6: booking software sells calendars rather than
+      fleet sizing, and fleet-sizing consulting does not serve a one-owner shop; a
+      free private exact solver is uncommon.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and simulation on supplied figures, not tax, financial or
+      business advice, no warranty, no market prices or demand asserted, limits stated.
+      No customer data; nothing leaves the browser. Ethics: helps a small rental owner
+      avoid over-buying equipment.
+  - slug: tile-layout-planner
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Exact polygon geometry plus a greedy offcut-reuse plan and a search over grid
+      offsets in the browser; no language model and no paid API. The value is laying
+      out the user's own room and tile instead of an area-over-area guess.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 7: "tile
+      calculator", "how many tiles do I need" and "how to start tiling a floor" are
+      high-volume homeowner searches and installer questions (volume not measured with
+      an external tool). Defensibility 5: area-only tile calculators are everywhere;
+      a free private layout search with cuts and offcut reuse is uncommon.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and geometry on supplied figures, a planning aid and not
+      installation instructions or a material guarantee, no tile price asserted,
+      limits stated. No customer data; nothing leaves the browser. Ethics: helps a
+      homeowner or installer avoid over-buying and bad cuts.
+  - slug: event-seating-chart-optimizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.833
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Simulated annealing plus a hill-climbing polish over a pair-weight matrix in the
+      browser, checked against exhaustive search on small lists; no language model and
+      no paid API. The value is turning a pile of seating wishes into a full assignment
+      instead of moving names around by hand.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 7: "wedding
+      seating chart" and "seating chart generator" are high-volume searches by couples
+      and planners (volume not measured with an external tool). Defensibility 5: free
+      drag-and-drop canvases are everywhere; a free private constraint solver that takes
+      wishes as text is uncommon.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and search on user-typed names and wishes, a planning aid and
+      not event-planning advice or a guarantee of anyone's comfort, no prices asserted,
+      limits stated. Guest names never leave the browser and are not stored. Ethics:
+      helps a host avoid seating conflicts.
+  - slug: cheap-meal-plan-optimizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Linear programming (simplex plus branch and bound) in the browser, checked
+      against exhaustive search on small menus; no language model and no paid API.
+      The value is turning a price list and nutrition targets into the cheapest plan
+      and the price of each target.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 8: "cheapest
+      meal plan", "budget high protein meal plan" and "minimum cost diet" are
+      high-volume consumer searches (volume not measured with an external tool).
+      Defensibility 4: the diet problem is textbook and macro trackers are plentiful;
+      the marginal-cost readout and privacy are the differentiators.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: nutrition is sensitive, so arithmetic on typed numbers only, approximate
+      starter data and example prices labelled, 1,200 kcal floor, not medical advice,
+      stated unsuitable for children, pregnancy, eating disorders and medical
+      conditions. Ethics: helps budget-constrained people plan food.
+  - slug: league-schedule-generator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.833
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Algorithmic, browser-local (dates, home/away balance, courts, blackouts and play-offs built by annealing); no language model and no paid API.
+    basis: >-
+      Scored 2026-10-01 when the venture's row was found missing from this file (the
+      scoring check was red on main); see the venture's own VENTURE.yaml comment for the
+      full screening. Distribution 7: volunteer organisers searching "round robin schedule generator" and "league schedule maker" (volume not measured with an external
+      tool). Defensibility 5: paid league software bundles scheduling into registration subscriptions and free generators are mostly bare pairings.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and search on user-typed team names and dates, a planning aid and not league-administration advice, no prices asserted, nothing stored. Ethics: helps volunteers schedule fairly.
+  - slug: shift-roster-builder
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.833
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Algorithmic, browser-local (weekly shift rosters with availability, rest, hour caps and overtime); no language model and no paid API.
+    basis: >-
+      Scored 2026-10-01 when the venture's row was found missing from this file (the
+      scoring check was red on main); see the venture's own VENTURE.yaml comment for the
+      full screening. Distribution 7: small employers searching "shift schedule maker" and "employee roster builder" (volume not measured with an external
+      tool). Defensibility 5: paid scheduling suites dominate and free tools are mostly blank grids; a constraint-aware free one is less common.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and search on user-typed staff names and availability, not employment-law or labour-compliance advice, no guarantee a roster is lawful, nothing stored. Ethics: helps managers cover shifts without breaking stated rest and hour rules.
+  - slug: state-residency-day-counter
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.833
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Algorithmic, browser-local (multi-state day counts against commonly published residency tests); no language model and no paid API.
+    basis: >-
+      Scored 2026-10-01 when the venture's row was found missing from this file (the
+      scoring check was red on main); see the venture's own VENTURE.yaml comment for the
+      full screening. Distribution 7: remote workers and snowbirds searching "183 day rule" and "state residency day counter" (volume not measured with an external
+      tool). Defensibility 5: paid trackers target nomads and accountant software is heavy; a free private counter that shows the crossing date is uncommon.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed dates, never states anyone's tax residency, rule table labelled as commonly published and overridable, no tax filing, nothing stored. Ethics: helps people keep an honest record of where they were.
+  - slug: nsa-idr-offer-calculator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.667
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic expected-value optimization in the browser (offer search over a
+      user-drawn win-chance curve); no language model and no paid API. The value is
+      the file-or-skip decision per claim after fees and the break-even win chance.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 6: providers
+      and billing firms search "No Surprises Act IDR", "IDR offer amount" and
+      "is IDR worth the fees" (volume not measured with an external tool).
+      Defensibility 5: IDR services are sold as managed arbitration support at a
+      percentage of recovery; a free private tool that sizes the offer and the
+      file-or-skip call is a lead magnet for that audience.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures and a user-drawn assumption, not
+      legal or billing advice, no fee schedule, QPA or deadline source of its own,
+      no warranty, limits stated. No patient data; nothing leaves the browser.
+      Ethics: helps small providers decide where fighting a payment is worth the fee.

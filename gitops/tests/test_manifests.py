@@ -2875,7 +2875,23 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `family-child-care-time-space-calculator` graduated (browser-local home day care time-space percentage, exclusive-use rooms, simplified-method comparison).
     # +1: `adu-payback-calculator` graduated (browser-local ADU payback: yield on cost, equity IRR/NPV, break-even rent, rent and cost sensitivity).
     # +1: `massage-therapist-profit-calculator` graduated (browser-local massage profit per hour by session, no-show-adjusted price floor, practice vs room rent vs split).
-    total = 542  # `infra/OWNER_CHECKLIST.md`'s own "N of the 542 tools" wording.
+    # +1: `wedding-photographer-profit-calculator` graduated (browser-local wedding photographer profit per hour worked with editing time, price floor, own clients vs marketplace vs studio associate).
+    # +1: `dj-gig-profit-calculator` graduated (browser-local DJ profit per hour worked and price floor by package; landed in #6139 without its own line here).
+    # +1: `shipping-box-size-optimizer` graduated (browser-local carton assortment optimizer: which box sizes to stock, p-median over dimensional-weight landed cost).
+    # +1: `container-load-planner` graduated (browser-local 3D container/pallet load planner: units packed and left over, containers for the whole load, to-scale views, loose-versus-pallets comparison).
+    # +1: `crypto-cost-basis-calculator` graduated (browser-local crypto lot matcher: FIFO/LIFO/HIFO/LOFO/tax-aware, short/long rows, Form 8949 style export).
+    # +1: `rental-fleet-size-optimizer` graduated (browser-local rental fleet size: Erlang loss plus seeded day-by-day simulation, how many identical units to own).
+    # +1: `tile-layout-planner` graduated (browser-local tile layout planner: exact polygon clipping, offcut reuse, search over starting positions, to-scale plan and cut list).
+    # +1: `event-seating-chart-optimizer` graduated (browser-local seating chart optimizer: simulated annealing over guest wishes, tables balanced, pins honoured).
+    # +1: `state-residency-day-counter` graduated (browser-local multi-state residency day counter: 183-day tests, crossing date, workday wage split).
+    # +1: `league-schedule-generator` graduated (browser-local round-robin league schedule generator: dates, home/away balance, courts and time slots, blackouts, play-offs).
+    # +1: `shift-roster-builder` graduated (browser-local weekly shift roster builder: availability, rest, hour caps, overtime, who-is-critical).
+    # +1: `time-off-request-planner` graduated (browser-local time-off request planner: exact search for the leave requests that fit minimum cover per role).
+    # +1: `cheap-meal-plan-optimizer` graduated (browser-local minimum-cost diet solver: simplex plus branch and bound, price of each nutrient target).
+    # +1: `coffee-roaster-margin-calculator` graduated (browser-local coffee roaster margin, channel and blend-cost calculator).
+    # +1: `nsa-idr-offer-calculator` graduated (browser-local NSA IDR offer sizing and file-or-skip by claim).
+    total = 561  # `infra/OWNER_CHECKLIST.md`'s own "N of the 561 tools" wording.
+    # +1: `breakeven-roas-calculator` graduated (browser-local break-even ROAS, max CPA and LTV-adjusted ad economics calculator).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
