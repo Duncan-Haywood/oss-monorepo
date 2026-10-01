@@ -295,3 +295,28 @@ entries:
     gate_note: >-
       Liability: arithmetic on supplied figures, not tax advice, no warranty, limits
       stated. No client data. Ethics: helps a small operator price honestly.
+  - venture: wedding-photographer-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built wedding-photographer-profit-calculator: a browser-local
+        tool for wedding and event photographers. Enter packages with price, coverage
+        hours, job costs and jobs per month plus overhead; it counts travel, client
+        time and culling and editing hours on every job and reports profit per hour
+        worked beside the headline rate per coverage hour, the price that hits an
+        hourly target, own clients versus a lead marketplace versus shooting for a
+        studio, and the share of jobs a price raise can lose before it costs money.
+        Niche check: duplicate_check.py closest 0.41 (photo-addon-pricing-calculator,
+        one add-on rather than whole packages). First visitor expected from "how much
+        to charge for wedding photography" searches. No client data; nothing leaves
+        the browser. Unverified on a real photographer's books: tests use
+        hand-calculated cases. Registered score row, launch date, category rule, rate
+        decision and CI workflow.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not tax advice, no warranty, limits
+      stated. No client data. Ethics: helps a small operator price honestly.

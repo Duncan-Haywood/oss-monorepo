@@ -24209,3 +24209,35 @@ ventures:
       warranty, no market prices asserted, limits stated. No client or event data;
       nothing leaves the browser. Ethics: helps a small business owner price work
       honestly.
+  - slug: wedding-photographer-profit-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic per-package margin arithmetic in the browser; no language model
+      and no paid API. The value is charging travel, client and editing hours to every
+      job and showing the marketplace-versus-studio answer on the photographer's own mix.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 6: "how much
+      to charge as a wedding photographer" and "is a lead marketplace worth it" are perennial
+      questions in photographer communities (volume not measured with an external tool).
+      Defensibility 4: booking software sells contracts and payments, not a free
+      private price-floor and break-even; the edge is a no-signup tool that shows
+      profit per hour worked.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not tax or financial advice, no
+      warranty, no market prices asserted, limits stated. No client or event data;
+      nothing leaves the browser. Ethics: helps a small business owner price work
+      honestly.
