@@ -369,6 +369,8 @@ export const REVIEWED_NOT_CARRIED = {
     'wage and fuel cost are the running cost of a driver on a route being sequenced, not a rate used to price a job; nothing is quoted to a customer',
   'shift-cover-optimizer':
     'wage and burden are the payroll cost of shifts on a staffing plan, not a rate used to price a job; there is no overhead or margin and nothing is quoted to a customer',
+  'shift-roster-builder':
+    'wage and burden are the payroll cost of a staff roster being assigned, not a rate used to price a job; there is no overhead or margin and nothing is quoted to a customer',
   'restaurant-labor-cost-daypart-analyzer':
     'hourlyWage is only the default for shifts whose time entries carry no pay, and burdenRate is a placeholder for payroll tax on wages already in the export; there is no overhead or margin, and the analysis reads labor cost from a file rather than pricing a job',
   // The trap in the set, and the reason this map exists rather than a bare
