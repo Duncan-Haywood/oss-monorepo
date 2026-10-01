@@ -23712,3 +23712,27 @@ ventures:
     gate_note: >-
       Browser-local arithmetic on the user's own accounts; no warranty, not advice,
       nothing uploaded, nothing sold.
+  - slug: lead-response-time-analyzer
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Browser-local statistics on the user's own lead log; no model, no paid API.
+    basis: >-
+      Row added 2026-10-01 by a later session to clear `score_ventures.py --check`,
+      which had gone red when this venture merged without one. Scored conservatively
+      from its VENTURE.yaml description, not from a fresh screen.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Browser-local arithmetic on the user's own data; no warranty, not advice,
+      nothing uploaded, nothing sold.

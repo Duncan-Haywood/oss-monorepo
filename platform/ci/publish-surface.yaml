@@ -893,6 +893,9 @@ workflows:
 - workflow: lawn-care-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: lead-response-time-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: license-drift-check-ci.yml
   classification: none
   publishes: []
