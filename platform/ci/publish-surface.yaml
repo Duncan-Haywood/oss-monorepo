@@ -1685,6 +1685,9 @@ workflows:
 - workflow: tiktok-shop-settlement-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: tile-layout-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: tip-pool-compliance-calculator-ci.yml
   classification: none
   publishes: []
