@@ -378,3 +378,30 @@ entries:
       aid and not a load-securing, axle-weight or legal certificate, no freight rates
       asserted, nominal container sizes labelled and editable, no warranty. No cargo
       data. Ethics: helps a small shipper avoid over-booking space.
+  - venture: tile-layout-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built tile-layout-planner: a browser-local tile layout planner
+        for installers and DIY. Enter a room, cut-outs and a tile (straight, running
+        bond or diagonal); exact polygon clipping lays out the real tiles, a search
+        over grid offsets and tile direction finds the layout with the fewest cuts
+        thinner than the user's limit then the fewest tiles, a greedy guillotine plan
+        reuses offcuts, and the page shows a to-scale plan, cut list, tiles and boxes
+        to order and a corner / centred / best comparison, metric or imperial. New
+        niche: duplicate_check.py closest flooring-bid-calculator 0.35 (prices a job,
+        no layout). First visitor expected from "how many tiles do I need" searches.
+        No room data leaves the browser. Unverified on a real floor: tests use
+        hand-computed layouts and random rooms whose pieces must add up to the floor
+        (exactly, with no grout). Registered score row, launch date, category rule, CI
+        workflow and a guide page whose worked example is recomputed by the suite.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and geometry on supplied figures, a planning aid and not
+      installation instructions or a material guarantee, no tile price asserted, no
+      warranty. No customer data. Ethics: helps a homeowner or installer avoid
+      over-buying and bad cuts.

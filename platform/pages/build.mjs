@@ -3495,7 +3495,9 @@ const SUBCATEGORY_RULES = {
       // sells. `home-staging` joins for the same reason as `cut-list`: it
       // sells to the same real-estate-prep visitor as the remodel tools here,
       // even though its own job is furniture, not construction.
-      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|home-staging)/.test(slug),
+      // `tile-layout-planner` joined 2026-10-01 on its first commit: it lays out the
+      // floor the flooring and tile-backsplash bids price, for the same remodeler.
+      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging)/.test(slug),
     },
     {
       id: 'trades-site',
