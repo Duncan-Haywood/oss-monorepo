@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Coffee Roaster Margin Calculator — roast loss, wholesale vs retail margin and cheapest blend</title>
+  <meta name="description" content="Free coffee roaster pricing calculator. Turn green coffee price and roast loss into cost per roasted pound, see margin by channel (retail, subscription, wholesale), find the cheapest blend that still hits your cup score, plan green coffee orders and find break-even volume. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Coffee Roaster Margin Calculator — free, private, in your browser">
+  <meta property="og:description" content="Roast loss, bag margin by channel, cheapest blend for a target cup score, weekly green coffee plan and break-even for small roasters.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Coffee Roaster Margin Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free coffee roaster pricing tool: roast loss, cost per roasted pound, bag margin by channel, the cheapest blend that still hits a cup score, a weekly green coffee plan and break-even volume. Runs in your browser; nothing is uploaded.", "featureList": "coffee roasting cost calculator, roast loss shrinkage cost, wholesale coffee pricing, coffee blend cost optimizer, green coffee order planner, coffee roaster break-even"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I calculate the cost of a pound of roasted coffee?", "acceptedAnswer": {"@type": "Answer", "text": "Divide the green price per pound by one minus your roast loss, then add labor and energy. At $5.10 per green pound and 15% roast loss, a roasted pound costs $6.00 in green coffee alone, before labor, packaging or fees."}}, {"@type": "Question", "name": "How much weight does coffee lose when roasted?", "acceptedAnswer": {"@type": "Answer", "text": "Most roasts lose roughly 12% to 20% of their weight as moisture and chaff, more for a darker roast. Weigh a few of your own batches in and out and type your real number, because it changes your cost on every pound."}}, {"@type": "Question", "name": "What margin should a coffee roaster aim for?", "acceptedAnswer": {"@type": "Answer", "text": "The tool shows your margin by channel instead of quoting a rule. Retail bags usually leave much more per pound than wholesale, but wholesale fills roasting hours with fewer orders, so it also shows profit per roasted pound and per roasting hour."}}, {"@type": "Question", "name": "How does the blend optimizer work?", "acceptedAnswer": {"@type": "Answer", "text": "List your green coffees with price, cup score and optional limits. It checks every blend in 5% steps and returns the cheapest one whose weighted cup score meets your target, plus the next-best alternatives and the saving against the cheapest single origin that clears the same score."}}, {"@type": "Question", "name": "Does it tell me what my coffee will taste like?", "acceptedAnswer": {"@type": "Answer", "text": "No. Cup score is a number you supply from your own cupping or your importer's sheet, and a weighted average is a planning aid, not a taste prediction. Cup every blend before you sell it."}}, {"@type": "Question", "name": "Is my pricing uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser from what you type, nothing is sent to a server, there are no accounts, and it works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #2a1f18; background: #f7f2ec; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #7a3e12; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #3b2417; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #3b2417; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5a4a3e; }
+    .card { background: #fff; border: 1px solid #e1d5c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3b241712; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #7a6a5c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #7a3e12; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #eadfd3; color: #3b2417; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px 6px; border-bottom: 1px solid #eadfd3; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #5a4a3e; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f3ebe2; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #3b2417; }
+    .row4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+    .scroll { overflow-x: auto; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .good { color: #1d5a24; font-weight: 700; }
+    pre { background: #f3ebe2; border-radius: 10px; padding: 12px; overflow-x: auto; white-space: pre-wrap; font-size: .9rem; }
+    footer { margin-top: 28px; border-top: 1px solid #e1d5c8; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">COFFEE ROASTER MARGIN CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does a bag of your coffee really earn you?</h1>
+    <p>Type your <strong>green coffee price</strong> and <strong>roast loss</strong> and see the true <strong>cost per roasted pound</strong>, the <strong>margin on every channel</strong> (retail, subscription, wholesale), the <strong>cheapest blend that still hits your cup score</strong>, how much <strong>green coffee to order</strong>, and the <strong>volume that breaks even</strong>.</p>
+    <p class="note">For small and micro roasters, cafe roasters and home roasters turning pro. New to this? Read <a href="./how-to-price-roasted-coffee.html">how to price roasted coffee, with a worked example</a>.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>1. Your costs</h2>
+    <div class="row4">
+      <div><label for="green">Green coffee, $ per lb (your usual lot)</label><input id="green" inputmode="decimal" value="5.10"></div>
+      <div><label for="shrink">Roast loss, % of weight</label><input id="shrink" inputmode="decimal" value="15"></div>
+      <div><label for="labor">Labor per roasted lb, $</label><input id="labor" inputmode="decimal" value="0.40"></div>
+      <div><label for="energy">Gas / power per roasted lb, $</label><input id="energy" inputmode="decimal" value="0.10"></div>
+      <div><label for="bagoz">Bag size, oz</label><input id="bagoz" inputmode="decimal" value="12"></div>
+      <div><label for="pack">Bag, label and valve per bag, $</label><input id="pack" inputmode="decimal" value="0.90"></div>
+      <div><label for="retail">Retail price per bag, $</label><input id="retail" inputmode="decimal" value="16"></div>
+      <div><label for="lbhr">Roasted lb you can roast per hour (optional)</label><input id="lbhr" inputmode="decimal" value="60"></div>
+    </div>
+    <label for="channels">Channels, one per line: <code>name, price, fee %, fixed fee, shipping you pay, shipping you charge</code></label>
+    <textarea id="channels" rows="4">Online store, 16, 2.9, 0.30, 5.50, 0
+Subscription, 14.40, 2.9, 0.30, 5.50, 0
+Wholesale to cafes, 9.60
+Farmers market, 16, 2.6, 0.10</textarea>
+    <div class="check"><button type="button" id="calc">Show my margins</button> <button type="button" class="secondary" id="dl-csv">Download CSV</button></div>
+    <div id="out" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="card">
+    <h2>2. Cheapest blend for a cup score</h2>
+    <label for="lots">Green coffees, one per line: <code>name, $/lb, cup score, roast loss %, lb available, min %, max %</code> (last four optional)</label>
+    <textarea id="lots" rows="6">Brazil Cerrado, 3.90, 82, 14
+Colombia Huila, 4.90, 85, 15
+Ethiopia Guji, 7.20, 89, 15, 200
+Sumatra Mandheling, 4.40, 83, 17</textarea>
+    <div class="row4">
+      <div><label for="target">Target cup score (weighted)</label><input id="target" inputmode="decimal" value="86"></div>
+      <div><label for="batch">Blend to make, roasted lb</label><input id="batch" inputmode="decimal" value="100"></div>
+    </div>
+    <button type="button" id="blend">Find the cheapest blend</button>
+    <div id="blendout" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="card">
+    <h2>3. This week's green coffee</h2>
+    <label for="skus">Bags you expect to sell this week, one per line: <code>bags, size in oz</code></label>
+    <textarea id="skus" rows="3">100, 12
+10, 80
+20, 32</textarea>
+    <div class="row4">
+      <div><label for="batchgreen">Batch size, green lb</label><input id="batchgreen" inputmode="decimal" value="30"></div>
+      <div><label for="mins">Minutes per batch</label><input id="mins" inputmode="decimal" value="18"></div>
+      <div><label for="onhand">Green on hand, lb</label><input id="onhand" inputmode="decimal" value="100"></div>
+      <div><label for="cover">Weeks of cover to hold</label><input id="cover" inputmode="decimal" value="4"></div>
+      <div><label for="sack">Sack size, lb (60 kg = 132)</label><input id="sack" inputmode="decimal" value="132"></div>
+      <div><label for="fixed">Fixed costs per month, $ (rent, lease, salary)</label><input id="fixed" inputmode="decimal" value="6000"></div>
+    </div>
+    <button type="button" id="plan">Plan the week and break-even</button>
+    <div id="planout" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="card">
+    <h2>Questions roasters ask</h2>
+    <h3>How do I calculate the cost of a pound of roasted coffee?</h3>
+    <p>Divide the green price per pound by one minus your roast loss, then add labor and energy. At $5.10 per green pound and 15% roast loss, a roasted pound costs $6.00 in green coffee alone, before labor, packaging or fees.</p>
+    <h3>How much weight does coffee lose when roasted?</h3>
+    <p>Most roasts lose roughly 12% to 20% of their weight as moisture and chaff, more for a darker roast. Weigh a few of your own batches in and out and type your real number, because it changes your cost on every pound.</p>
+    <h3>What margin should a coffee roaster aim for?</h3>
+    <p>The tool shows your margin by channel instead of quoting a rule. Retail bags usually leave much more per pound than wholesale, but wholesale fills roasting hours with fewer orders, so it also shows profit per roasted pound and per roasting hour.</p>
+    <h3>How does the blend optimizer work?</h3>
+    <p>List your green coffees with price, cup score and optional limits. It checks every blend in 5% steps and returns the cheapest one whose weighted cup score meets your target, plus the next-best alternatives and the saving against the cheapest single origin that clears the same score.</p>
+    <h3>Does it tell me what my coffee will taste like?</h3>
+    <p>No. Cup score is a number you supply from your own cupping or your importer's sheet, and a weighted average is a planning aid, not a taste prediction. Cup every blend before you sell it.</p>
+    <h3>Is my pricing uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser from what you type, nothing is sent to a server, there are no accounts, and it works offline once the page has loaded.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or financial advice and does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Cup scores are numbers you supply; a weighted average is a planning aid and does not predict taste, so cup every blend before you sell it.</p>
+    <p><strong>Independent.</strong> Not affiliated with any coffee importer, roaster, equipment maker or sales platform, and none is named or ranked here. The example coffees and prices are invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; your costs, prices and coffees are never uploaded. Anonymous feature counts (<code>margins_shown</code>, <code>blend_found</code>, <code>plan_made</code>, <code>csv_downloaded</code>) stay in local storage on this device, never with any of your data, and can be switched off.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../pour-cost-calculator/">pour cost calculator</a> for drinks you serve, and the <a href="../cottage-food-pricing-calculator/">cottage food pricing calculator</a> for baked and packaged goods.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> is the optional way to say thanks.</p>
+  </footer>
+
+  <script type="module">
+    import { roastedCostPerLb, channelTable, parseChannels, parseLots, optimizeBlend, costOfScoreFrontier, weeklyPlan, breakEven, channelsCsv, blendText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toFixed(2);
+    const v = (id) => $("#" + id).value;
+    let lastRows = null, lastProfit = null;
+
+    function download(name, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    const fail = (el, e) => { el.innerHTML = `<div class="warn">${esc(e.message)}</div>`; };
+
+    $("#calc").addEventListener("click", () => {
+      const out = $("#out");
+      try {
+        const cost = roastedCostPerLb({ greenPerLb: v("green"), shrinkPct: v("shrink"), laborPerRoastedLb: v("labor"), energyPerRoastedLb: v("energy") });
+        const { channels, problems } = parseChannels(v("channels"));
+        if (!channels.length) throw new Error("Add at least one channel line, like: Online store, 16, 2.9, 0.30");
+        const t = channelTable({ costPerRoastedLb: cost.total, bagOz: v("bagoz"), packagingPerBag: v("pack"), retailPrice: v("retail"), channels, roastedLbPerHour: Number(v("lbhr")) || 0 });
+        lastRows = t.rows;
+        lastProfit = t.rows.find((r) => r.name === t.bestChannel)?.profit ?? null;
+        const hr = t.rows[0].profitPerRoastingHour != null;
+        out.innerHTML = `<div class="big"><div><strong>${usd(cost.total)}</strong>cost per roasted lb</div><div><strong>${usd(cost.shrinkCostPerRoastedLb)}</strong>of that is roast loss</div><div><strong>${esc(t.bestChannel)}</strong>earns most per roasted lb</div></div>`
+          + (problems.length ? `<div class="warn">${problems.map(esc).join("<br>")}</div>` : "")
+          + `<div class="scroll"><table><thead><tr><th>Channel</th><th class="n">Price</th><th class="n">Coffee</th><th class="n">Pack + ship</th><th class="n">Fees</th><th class="n">Profit / bag</th><th class="n">Margin</th><th class="n">Profit / roasted lb</th>${hr ? '<th class="n">Profit / roasting hour</th>' : ""}</tr></thead><tbody>`
+          + t.rows.map((r) => `<tr><td>${esc(r.name)}</td><td class="n">${usd(r.price)}</td><td class="n">${usd(r.coffeeCost)}</td><td class="n">${usd(r.packaging + r.shipping)}</td><td class="n">${usd(r.fees)}</td><td class="n">${usd(r.profit)}</td><td class="n">${r.marginPct}%</td><td class="n">${usd(r.profitPerRoastedLb)}</td>${hr ? `<td class="n">${usd(r.profitPerRoastingHour)}</td>` : ""}</tr>`).join("")
+          + `</tbody></table></div>`;
+        record("margins_shown");
+      } catch (e) { fail(out, e); }
+    });
+    $("#dl-csv").addEventListener("click", () => { if (!lastRows) return; download("roaster-margins.csv", channelsCsv(lastRows), "text/csv"); record("csv_downloaded"); });
+
+    $("#blend").addEventListener("click", () => {
+      const out = $("#blendout");
+      try {
+        const { lots, problems } = parseLots(v("lots"), { shrinkPct: Number(v("shrink")) || 15 });
+        if (problems.length) throw new Error(problems[0]);
+        const r = optimizeBlend({ lots, targetScore: v("target"), batchRoastedLb: Number(v("batch")) || 100 });
+        if (!r.best) { out.innerHTML = `<div class="warn">No blend reaches ${esc(v("target"))} with those limits. The best any blend can do is ${r.reachableScore} (before pounds-available limits), so lower the target or add a coffee.</div>`; return; }
+        const f = costOfScoreFrontier({ lots, batchRoastedLb: Number(v("batch")) || 100, stepScore: 1 }).filter((x) => x.greenCostPerRoastedLb != null);
+        out.innerHTML = `<div class="big"><div><strong>${r.best.score}</strong>blend cup score</div><div><strong>${usd(r.best.greenCostPerRoastedLb)}</strong>green cost per roasted lb</div><div><strong>${r.savingVsSingleOrigin == null ? "n/a" : usd(r.savingVsSingleOrigin)}</strong>saved per lb vs cheapest single origin${r.cheapestSingleOrigin ? " (" + esc(r.cheapestSingleOrigin.name) + ")" : ""}</div></div>`
+          + `<div class="scroll"><table><thead><tr><th>Coffee</th><th class="n">Share</th><th class="n">Roasted lb</th><th class="n">Green lb to weigh out</th></tr></thead><tbody>`
+          + r.best.shares.map((s) => `<tr><td>${esc(s.name)}</td><td class="n">${s.pct}%</td><td class="n">${s.roastedLb}</td><td class="n">${s.greenLb}</td></tr>`).join("") + `</tbody></table></div>`
+          + `<p class="note">${r.feasible} blends checked in ${r.stepPct}% steps. Alternatives: ${r.alternatives.slice(0, 3).map((a) => esc(a.shares.map((s) => s.pct + "% " + s.name).join(" + ")) + " (score " + a.score + ", " + usd(a.greenCostPerRoastedLb) + ")").join("; ") || "none"}.</p>`
+          + `<h3>What each cup-score point costs you</h3><p class="note">${f.map((x) => `${x.targetScore} → ${usd(x.greenCostPerRoastedLb)}`).join(" · ")} per roasted lb in green coffee.</p>`
+          + `<pre>${esc(blendText(r.best))}</pre>`;
+        record("blend_found");
+      } catch (e) { fail(out, e); }
+    });
+
+    $("#plan").addEventListener("click", () => {
+      const out = $("#planout");
+      try {
+        const skus = v("skus").split(/\n/).map((l) => l.trim()).filter(Boolean).map((l) => l.split(/\s*[,;\t]\s*/).map(Number));
+        if (!skus.length || skus.some((s) => !(s[0] >= 0) || !(s[1] > 0))) throw new Error('Type bags and bag size in oz, one SKU per line, like: 100, 12');
+        const p = weeklyPlan({ skus: skus.map((s) => ({ bags: s[0], bagOz: s[1] })), shrinkPct: v("shrink"), batchGreenLb: v("batchgreen"), minutesPerBatch: v("mins"), greenOnHandLb: v("onhand"), targetWeeksCover: v("cover"), sackLb: v("sack") });
+        const be = lastProfit == null ? null : breakEven({ fixedMonthly: v("fixed"), profitPerBag: lastProfit, bagOz: v("bagoz") });
+        out.innerHTML = `<div class="big"><div><strong>${p.roastedLb} lb</strong>to roast</div><div><strong>${p.greenLb} lb</strong>green needed</div><div><strong>${p.batches}</strong>batches (${p.roastingHours} h)</div><div><strong>${p.weeksCover ?? "n/a"} wk</strong>cover on hand</div><div><strong>${p.sacksToOrder}</strong>sacks to order (${p.orderLb} lb)</div></div>`
+          + (be ? (be.bagsPerMonth == null ? `<div class="warn">${esc(be.note)}</div>` : `<p>At the best channel's profit per bag, <strong>${be.bagsPerMonth} bags a month</strong> (about ${be.bagsPerWeek} a week, ${be.roastedLbPerMonth} roasted lb) cover ${usd(Number(v("fixed")))} of fixed costs.</p>`) : `<p class="note">Press "Show my margins" first to get a break-even from your best channel.</p>`);
+        record("plan_made");
+      } catch (e) { fail(out, e); }
+    });
+
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
