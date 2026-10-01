@@ -120,3 +120,8 @@ test("the guide's worked example matches the counter", () => {
   assert.match(guide, /17 October/);
   assert.equal(r.states.find((s) => s.code === "NY").daysToDate, 167);
 });
+
+test("footer links back to the quarterly estimated tax calendar, which links here", () => {
+  assert.match(page("index.html"), /href="\.\.\/quarterly-estimated-tax-calendar\/"/);
+  assert.match(readFileSync(new URL("../quarterly-estimated-tax-calendar/index.html", import.meta.url), "utf8"), /href="\.\.\/state-residency-day-counter\/"/);
+});

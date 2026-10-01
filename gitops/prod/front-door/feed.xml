@@ -179,6 +179,15 @@
     <summary type="text">Free shipping box size optimizer for online sellers. Enter your products and the cartons you could buy; it solves which 1 to 10 box sizes to stock so every order ships in its cheapest fitting box, counting dimensional weight, box cost and void fill. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>State Residency Day Counter — 183-day rule tracker for remote workers and snowbirds</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/state-residency-day-counter/"/>
+    <id>tag:marisstella.dev,2026:tool/state-residency-day-counter</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free multi-state residency day counter. Enter where you spent the year, see days per state against the 183-day and other statutory residency tests, the room you have left, the date you would cross a limit, and remote-work wages split by state. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Tile Layout Planner — how many tiles, where to cut, and where to start</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tile-layout-planner/"/>
     <id>tag:marisstella.dev,2026:tool/tile-layout-planner</id>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free dental associate pay calculator. Enter two offers, percent of production or collections, daily guarantee and lab fee share, to see what each pays at your expected production, your effective percentage, and where they cross. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Dependent Care FSA vs Child Care Credit Calculator — Best Split</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dependent-care-fsa-vs-credit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/dependent-care-fsa-vs-credit-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free dependent care FSA vs child and dependent care credit calculator. Enter your income, tax rates and care costs to see which saves more and the best split between the two, using the 2026 $7,500 FSA limit. Runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
