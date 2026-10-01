@@ -416,6 +416,9 @@ workflows:
 - workflow: cost-segregation-study-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: cottage-food-pricing-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: countertop-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -686,6 +689,9 @@ workflows:
 - workflow: freelance-retainer-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: freelance-retainer-vs-hourly-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: freelance-writer-rate-calculator-ci.yml
   classification: none
   publishes: []
@@ -885,6 +891,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: land-survey-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: contractor-wip-schedule-ci.yml
   classification: none
   publishes: []
 - workflow: landlord-repair-or-replace-planner-ci.yml
@@ -1101,6 +1110,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: payment-reconciliation-workbench-ci.yml
+  classification: none
+  publishes: []
+- workflow: payroll-tax-deposit-penalty-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: pdf-accessibility-tag-check-ci.yml

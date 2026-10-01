@@ -23875,6 +23875,39 @@ ventures:
       not advice, no prediction of any unit's failure; safety, code and warranty
       stated as unchecked. Ethics: helps owners avoid both wasted repairs and
       unplanned outages for tenants; nothing leaves the browser.
+  - slug: contractor-wip-schedule
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Percent-of-completion accounting arithmetic and a stress test, run in the
+      browser; no language model and no paid API. The schedule and the visible
+      assumptions are the product.
+    basis: >-
+      Screened 2026-10-01. duplicate_check.py best match 0.23
+      (invoice-payment-terms-calculator, not a WIP schedule). Distribution 6:
+      "WIP schedule template", "overbilling underbilling" and "percentage of
+      completion" are recurring contractor and bookkeeper queries and a bank or
+      surety asks for the schedule every period (volume not measured with an
+      external tool). Defensibility 3: the method is textbook and a spreadsheet can
+      reproduce it; the edge is a private no-upload tool that flags losses, cash
+      borrowed from the end of a job and backlog against working capital.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied numbers, no warranty, not an accounting
+      opinion or bonding decision; unmodelled items stated. Ethics: helps
+      contractors see overstated profit before a lender or surety does; nothing
+      leaves the browser.
   - slug: market-garden-bed-planner
     scores:
       ai_leverage: 4
@@ -23913,3 +23946,104 @@ ventures:
       user). Farm data never leaves the browser. Ethics: helps a small grower
       decide what to plant; nothing is sold, no data is collected and no referral
       is made.
+  - slug: cottage-food-pricing-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Full-cost, margin-based channel pricing and per-hour earnings are closed-form
+      arithmetic in the browser; no language model and no paid API. The product is
+      pricing from full cost with unsold goods and fees, not from the grocery bill.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. A home baker pastes their
+      products and sees the price to charge online, at a market and wholesale, and
+      what they earn per hour today. Distribution 6: "how to price baked goods" and
+      "cottage food pricing" are recurring beginner queries and nothing in this
+      catalogue prices homemade food (volume not measured with an external tool).
+      Defensibility 3: recipe-costing apps are ingredient-level subscriptions; the
+      edge is the private no-signup workflow, margin-as-share-of-price and the
+      earned-per-hour reading.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed figures, not tax, legal, licensing or
+      food-safety advice, no warranty, no marketplace named, cottage-food rules
+      stated as not modelled. Ethics: helps a small seller charge what the work
+      costs; nothing is sold, no data is collected.
+  - slug: freelance-retainer-vs-hourly-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Percentiles, a seeded bootstrap and a hold-out run in the browser; no language
+      model and no paid API. The refusal under six months and the unstable verdict
+      are the product.
+    basis: >-
+      Screened 2026-10-01. duplicate_check.py best match 0.41 (freelance-writer-rate-
+      calculator, a rate-from-costs tool) and 0.36 (freelance-retainer-calculator,
+      which prices a retainer from income-goal assumptions and takes no time log).
+      Distribution 6: "retainer vs hourly pricing" and "how to price a retainer" are
+      recurring freelancer and consultant queries and r/freelance and r/consulting
+      threads (volume not measured with an external tool). Defensibility 3: the
+      percentile arithmetic is simple; the edge is a free, private, no-upload replay
+      of the retainer against the user's own months, with ranges and the plain
+      refusal on thin history.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical description of supplied data, not legal, tax or
+      financial advice, no warranty, no vendor named, limits stated (scope creep,
+      rollover, late payment, taxes and unlogged hours are not modelled). The time log
+      never leaves the browser. Ethics: helps a freelancer see what a retainer would
+      have paid before proposing it; nothing is sold and no client data is collected.
+  - slug: payroll-tax-deposit-penalty-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately: statutory date and percentage
+      arithmetic plus a small min-cost matching, on figures the user types.
+    basis: >-
+      Screened 2026-10-01. duplicate_check.py best match 0.20 (rd-tax-credit-
+      calculator, an unrelated credit; nothing in the catalogue covers Form 941
+      deposits). Distribution 7: "monthly or semiweekly depositor", "failure to
+      deposit penalty calculator" and "941 deposit due date" recur every payday
+      and quarter for small employers (volume not measured with an external
+      tool). Defensibility 3: the rules are public; the edge is a free, private
+      tool that dates every deposit and solves the designation question payroll
+      providers do not show.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: date and percentage arithmetic on user-supplied figures, no
+      interest or notice tier, not tax or legal advice, no warranty, limits stated
+      in three places; files and pays nothing. Ethics: helps small employers see
+      a penalty they may already owe; nothing leaves the browser.
