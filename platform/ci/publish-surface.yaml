@@ -881,6 +881,9 @@ workflows:
 - workflow: land-survey-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: landlord-repair-or-replace-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: landscape-lighting-bid-calculator-ci.yml
   classification: none
   publishes: []
