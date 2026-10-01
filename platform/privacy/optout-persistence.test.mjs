@@ -1140,7 +1140,8 @@ const RELATIVE_SELF = relative(
 // +1: `dj-gig-profit-calculator` graduated.
 // +1: `wedding-photographer-profit-calculator` graduated.
 // +1: `shipping-box-size-optimizer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 523;
+// +1: `container-load-planner` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 524;
 
 let counter = 0;
 function fixture(source) {
