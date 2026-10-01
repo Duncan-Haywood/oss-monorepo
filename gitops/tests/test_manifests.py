@@ -2885,7 +2885,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `event-seating-chart-optimizer` graduated (browser-local seating chart optimizer: simulated annealing over guest wishes, tables balanced, pins honoured).
     # +1: `state-residency-day-counter` graduated (browser-local multi-state residency day counter: 183-day tests, crossing date, workday wage split).
     # +1: `league-schedule-generator` graduated (browser-local round-robin league schedule generator: dates, home/away balance, courts and time slots, blackouts, play-offs).
-    total = 552  # `infra/OWNER_CHECKLIST.md`'s own "N of the 552 tools" wording.
+    # +1: `shift-roster-builder` graduated (browser-local weekly shift roster builder: availability, rest, hour caps, overtime, who-is-critical).
+    total = 553  # `infra/OWNER_CHECKLIST.md`'s own "N of the 553 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

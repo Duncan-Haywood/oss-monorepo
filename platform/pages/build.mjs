@@ -655,6 +655,9 @@ const CATEGORY_RULES = [
       // `shift-cover-optimizer` added 2026-09-30: plans the shifts forward from
       // an hourly need; same reader as the labor daypart analyzer above.
       'shift-cover-optimizer',
+      // `shift-roster-builder` joined 2026-10-01 on its first commit: assigns named
+      // people to the shifts `shift-cover-optimizer` sizes; the same owner, next door.
+      'shift-roster-builder',
       // `production-mix-optimizer` added 2026-10-01: which products a bakery or
       // small food maker should bake when oven and labour hours run out; the
       // same owner as the menu and pour-cost tools above.
