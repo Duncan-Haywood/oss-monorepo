@@ -492,3 +492,32 @@ entries:
       installation instructions or a material guarantee, no tile price asserted, no
       warranty. No customer data. Ethics: helps a homeowner or installer avoid
       over-buying and bad cuts.
+  - venture: event-seating-chart-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built event-seating-chart-optimizer: a browser-local seating chart
+        optimizer for weddings, banquets and events. Paste a guest list (optional family
+        or party per guest), write wishes as text (+ together, ++ really together, !
+        apart, !! never, @ pin to a table); simulated annealing with a softened
+        never-together penalty plus a hill-climbing polish assigns every guest to a table
+        within capacity, with tables filled evenly by default. Shows each table, every
+        unmet wish and split family, a comparison with seating in list order, and a CSV
+        for place cards. New niche: duplicate_check.py closest bounce-house-rental-
+        calculator 0.14 (no seating). First visitor expected from "wedding seating
+        chart" and "seating chart generator" searches. No guest list leaves the browser
+        and none is stored. Verified: the optimizer equals exhaustive search on 400
+        random small lists (60 in the committed suite), a 200-guest list runs in
+        seconds, and an independent verifyPlan check recomputes capacity, pins and
+        score. Unverified: no real event, and not proven optimal on large lists.
+        Registered score row, launch date, category rule, CI workflow and a guide page
+        whose worked example is recomputed by the suite.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and search on user-typed names and wishes, not
+      event-planning advice, no guarantee of anyone's comfort, no prices asserted, no
+      warranty. No guest data stored or sent. Ethics: helps a host seat guests kindly.
