@@ -509,6 +509,9 @@ workflows:
 - workflow: docker-cache-order-check-ci.yml
   classification: none
   publishes: []
+- workflow: dj-gig-profit-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: dog-boarding-daycare-pricing-ci.yml
   classification: none
   publishes: []
@@ -957,6 +960,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: marketplace-fee-compare-ci.yml
+  classification: none
+  publishes: []
+- workflow: massage-therapist-profit-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: mcp-config-risk-check-ci.yml
