@@ -1320,6 +1320,9 @@ workflows:
 - workflow: rental-dscr-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: rental-fleet-size-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: rental-property-schedule-e-categorizer-ci.yml
   classification: none
   publishes: []

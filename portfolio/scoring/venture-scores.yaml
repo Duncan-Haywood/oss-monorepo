@@ -24337,3 +24337,36 @@ ventures:
       aid and not a load-securing, axle-weight or legal certificate, no warranty, no
       freight rates asserted, limits stated. No cargo data; nothing leaves the
       browser. Ethics: helps a small shipper plan space honestly.
+  - slug: rental-fleet-size-optimizer
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 6
+      distribution: 6
+    composite: 6.667
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      A queueing and simulation tool (Erlang loss plus a seeded day-by-day Monte
+      Carlo) in the browser; no language model and no paid API. The value is solving
+      the fleet-size question on the owner's own seasons and rental lengths instead of
+      a gut feeling.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 6: "how many
+      units should my rental business own" and rental utilization questions recur in
+      owner forums when a season ends or a unit is bought (volume not measured with an
+      external tool). Defensibility 6: booking software sells calendars rather than
+      fleet sizing, and fleet-sizing consulting does not serve a one-owner shop; a
+      free private exact solver is uncommon.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and simulation on supplied figures, not tax, financial or
+      business advice, no warranty, no market prices or demand asserted, limits stated.
+      No customer data; nothing leaves the browser. Ethics: helps a small rental owner
+      avoid over-buying equipment.

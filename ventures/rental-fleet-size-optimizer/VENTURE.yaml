@@ -1,0 +1,67 @@
+name: rental-fleet-size-optimizer
+description: >-
+  Free browser tool for businesses that rent out identical units (party tents,
+  kayaks, scaffold, camera gear, tool kits): enter seasons of demand, rental
+  lengths, price and what a unit costs to own, and it computes the yearly profit
+  of every fleet size with the Erlang loss formula and a seeded day-by-day
+  simulation, recommends how many units to own, and shows turn-away rates, a bad
+  year, an optional turn-away cap and how the answer moves if demand changes.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture session asked for a deeper, algorithmic
+# tool. duplicate_check.py "how many rental units to own: Erlang loss and
+# simulation ...": closest rows were equipment-rental-break-even (one machine, published from site/) and
+# revenue-target-lead-planner 0.18, bounce-house-rental-calculator 0.14 (one
+# machine's break-even or one product's price, not how many units to own);
+# screened-out rows not hit.
+#
+# Why this niche: small rental businesses (party and event rental, outdoor and
+# water-sports rental, tool and equipment rental) buy their next unit on a
+# feeling. The right fleet size is a queueing problem with a known answer
+# (Erlang loss) that rental management software (Booqable, Rentle and similar,
+# sold as per-month booking systems) does not solve, and that consultants do not
+# bother with at this size. The tool solves it on the owner's own seasons and
+# lengths, adds a seeded simulation for calendar-date booking and clustered
+# demand, and reports the marginal unit, a bad year and the cost of a
+# turn-away promise.
+#
+# First visitor: owners searching "how many units should my rental business
+# own", "how many tents should I buy", "rental fleet size calculator",
+# "equipment rental utilization target". Volume not measured with an external
+# tool.
+#
+# Liability boundary: arithmetic and simulation on user-typed figures; no
+# prices, demand or asset costs asserted (example data is invented and says
+# so); no tax, financing or business advice.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a
+# natural lead magnet for a hosted booking calendar for small rental shops.
+
+hypotheses:
+  - claim: >-
+      Small rental owners will use a private, no-signup fleet size optimizer
+      when deciding whether to buy another unit, and seeing the profit of the
+      marginal unit changes how many units they buy.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a recommended fleet size earns less than another size on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/rental-fleet-size-optimizer/
+  analytics: null
