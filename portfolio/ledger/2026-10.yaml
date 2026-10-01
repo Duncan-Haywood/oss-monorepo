@@ -246,6 +246,32 @@ entries:
     gate_note: >-
       Liability: arithmetic on supplied figures, not tax advice, no warranty,
       limits stated. No client data. Ethics: helps a small operator price honestly.
+  - venture: massage-therapist-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built massage-therapist-profit-calculator: a browser-local
+        tool for massage therapists. Enter session types with price, minutes,
+        supplies and sessions per week plus overhead and a no-show rate; it reports
+        profit per hour by session after card fees, no-shows and overhead, the price
+        that hits an hourly target (repriced for no-shows), own practice versus room
+        rent versus employee split on the same weekly mix, and the share of clients
+        a price raise can lose before it costs money. New niche: no massage venture
+        existed (duplicate_check.py closest 0.27, unrelated). First visitor expected
+        from "how much to charge for a massage" and "room rent vs commission
+        massage" searches and therapist communities. No client or health data;
+        nothing leaves the browser. Unverified on a real practice's books: tests use
+        hand-calculated per-session, no-show, weekly, model and break-even cases.
+        Registered score row, launch date, category rule and CI workflow.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not tax advice, no warranty,
+      limits stated. No client or health data. Ethics: helps a small operator price
+      honestly.
   - venture: laundromat-machine-payback-calculator
     agent_spend_usd: null
     human_hours: 0

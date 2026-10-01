@@ -962,6 +962,9 @@ workflows:
 - workflow: marketplace-fee-compare-ci.yml
   classification: none
   publishes: []
+- workflow: massage-therapist-profit-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: mcp-config-risk-check-ci.yml
   classification: none
   publishes: []
