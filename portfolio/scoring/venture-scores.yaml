@@ -24433,3 +24433,35 @@ ventures:
       installation instructions or a material guarantee, no tile price asserted,
       limits stated. No customer data; nothing leaves the browser. Ethics: helps a
       homeowner or installer avoid over-buying and bad cuts.
+  - slug: event-seating-chart-optimizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.833
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Simulated annealing plus a hill-climbing polish over a pair-weight matrix in the
+      browser, checked against exhaustive search on small lists; no language model and
+      no paid API. The value is turning a pile of seating wishes into a full assignment
+      instead of moving names around by hand.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 7: "wedding
+      seating chart" and "seating chart generator" are high-volume searches by couples
+      and planners (volume not measured with an external tool). Defensibility 5: free
+      drag-and-drop canvases are everywhere; a free private constraint solver that takes
+      wishes as text is uncommon.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and search on user-typed names and wishes, a planning aid and
+      not event-planning advice or a guarantee of anyone's comfort, no prices asserted,
+      limits stated. Guest names never leave the browser and are not stored. Ethics:
+      helps a host avoid seating conflicts.
