@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 539 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 540 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -33,6 +33,15 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Cottage food pricing calculator for home bakers and small food makers. Get the full cost per item with your time, packaging, overhead and unsold goods, the price to charge online, at a farmers market and wholesale, and what you really earn per hour. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Dog Grooming Profit Calculator — profit per hour and price floor by service</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dog-grooming-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/dog-grooming-profit-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Dog grooming profit calculator for groomers and salon owners. Enter services, minutes, supplies and dogs per week to see profit per hour after overhead, the price that hits your target, and own shop versus booth rent versus commission. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Donor Retention Analyzer — LYBUNT and SYBUNT lists from your own gifts</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free liquidation pallet bid calculator. Paste a manifest to get the maximum bid for a chance of loss you accept, with a Monte Carlo simulation of recovery rate, sell-through and damage, break-even recovery and concentration risk. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>LLM Usage Log Analyzer — where your Claude and GPT API spend goes</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/llm-usage-log-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/llm-usage-log-analyzer</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste an LLM API usage log (JSONL, JSON or CSV) and see spend by model, feature and day, your cache hit rate, a 30-day run rate, and which levers -- caching, batch, a cheaper model -- would have saved money. Runs in your browser; the log never leaves it. Free, no signup.</summary>
   </entry>
 </feed>

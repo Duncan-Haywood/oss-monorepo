@@ -221,3 +221,28 @@ entries:
       Liability: arithmetic on supplied figures, not investment or construction
       advice, no warranty, no market data asserted, limits stated. Ethics: helps a
       homeowner see the numbers before a large spend.
+  - venture: dog-grooming-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built dog-grooming-profit-calculator: a browser-local tool for
+        dog groomers. Enter services with price, minutes, supplies and dogs per
+        week plus overhead; it reports profit per hour by service after card fees
+        and overhead, the price that hits an hourly target, own shop versus booth
+        rent versus commission on the same weekly mix, and the share of dogs a
+        price raise can lose before it costs money. New niche: no grooming venture
+        existed (duplicate_check.py closest 0.32, unrelated). First visitor expected
+        from "how much to charge for dog grooming" and "booth rent vs commission dog
+        groomer" searches and groomer communities. No client or pet data; nothing
+        leaves the browser. Unverified on a real shop's books: tests use
+        hand-calculated per-service, weekly, model and break-even cases. Registered
+        score row, launch date, category rule and CI workflow. Also published the
+        stale gh-pages snapshot at session start (pages_state: current).
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not tax advice, no warranty,
+      limits stated. No client data. Ethics: helps a small operator price honestly.
