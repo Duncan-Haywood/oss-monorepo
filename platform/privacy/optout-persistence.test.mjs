@@ -1121,9 +1121,10 @@ const RELATIVE_SELF = relative(
 // +1: `mechanics-lien-deadline-calculator` graduated.
 // +1: `route-account-pruner` graduated.
 // +1: `donor-retention-analyzer` graduated.
+// +1: `lead-response-time-analyzer` graduated.
 // +1: `revenue-target-lead-planner` graduated.
 // +1: `studio-class-slot-optimizer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 506;
+const SWITCHES_IN_THE_CATALOGUE = 507;
 
 let counter = 0;
 function fixture(source) {
