@@ -237,3 +237,14 @@ test('index links one hop to the 3d-print-price-calculator sibling', () => {
     'index must link ../3d-print-price-calculator/ so the sibling pair stays closed in both directions',
   );
 });
+
+// A grower selling at the same markets: the bed planner decides what to grow,
+// this decides whether a given market is worth the table. Closed in both
+// directions so a crawler on either page reaches the other in one hop.
+test('index links one hop to the market-garden-bed-planner sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/market-garden-bed-planner\/"/,
+    'index must link ../market-garden-bed-planner/ so the sibling pair stays closed in both directions',
+  );
+});
