@@ -2601,6 +2601,8 @@ const CATEGORY_RULES = [
     // whether the tool is a calculator or a checker, and `ats-resume-checker`
     // is already the precedent for a checker-shaped member here.
     //
+    // `candle-batch-cost-calculator` joined 2026-10-01: a candle or soap maker costing wax, fragrance and
+    // their own hours across online, fair and wholesale sales is the same person as the maker above.
     // `craft-fair-booth-calculator` joined 2026-09-10, and it is the clearest
     // member yet: a maker deciding whether one market booth is worth their
     // weekend is the same person as `3d-print-price-calculator`'s maker
@@ -2744,6 +2746,7 @@ const CATEGORY_RULES = [
         'ats-resume-checker',
         'brand-deal-rate-calculator',
         'cat-adjuster-fee-calculator',
+        'candle-batch-cost-calculator',
         'craft-fair-booth-calculator',
         'epk-generator',
         'freelance-writer-rate-calculator',
