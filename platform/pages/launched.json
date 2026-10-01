@@ -386,6 +386,7 @@
     "process-server-fee-calculator": "2026-09-11",
     "production-mix-optimizer": "2026-10-01",
     "project-estimate-calibrator": "2026-09-30",
+    "prometheus-cardinality-cost": "2026-10-01",
     "propane-delivery-route-margin": "2026-09-17",
     "property-tax-appeal-calculator": "2026-09-29",
     "pslf-vs-refinance-calculator": "2026-09-30",
@@ -573,7 +574,6 @@
     "wordpress-plugin-review-check": "2026-09-09",
     "workers-comp-premium-calculator": "2026-09-30",
     "world-clock-widget": "2026-09-16",
-    "prometheus-cardinality-cost": "2026-10-01",
     "youtube-revenue-rpm-analyzer": "2026-09-29"
   }
 }
