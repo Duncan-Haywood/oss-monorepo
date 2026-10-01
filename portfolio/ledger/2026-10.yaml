@@ -378,12 +378,28 @@ entries:
       aid and not a load-securing, axle-weight or legal certificate, no freight rates
       asserted, nominal container sizes labelled and editable, no warranty. No cargo
       data. Ethics: helps a small shipper avoid over-booking space.
+  - venture: production-mix-optimizer
   - venture: crypto-cost-basis-calculator
   - venture: rental-fleet-size-optimizer
     agent_spend_usd: null
     human_hours: 0
     outcomes:
       - >-
+        Graduated and built production-mix-optimizer: a browser-local tool for
+        bakeries, workshops and small makers. Enter products (price, unit cost,
+        minimum, maximum, batch size) and limited resources (oven, machine, labour
+        hours, optional overtime); a two-phase simplex with branch and bound on whole
+        batches finds the most profitable weekly mix, then reports the shadow price of
+        each bottleneck and how far it holds, each product's resource cost and net per
+        unit, and the plan against two rule-of-thumb plans, with a CSV. New niche
+        after a first idea (container-load-planner) was merged by another session
+        minutes earlier (#6146); duplicate_check.py closest cnc-machining-quote-calculator
+        0.38 (generic word overlap, quotes one job). First visitor expected from "product
+        mix optimization" and "is overtime worth it" searches. No customer data; nothing
+        leaves the browser. Unverified on a real business: tests use hand-solved problems,
+        brute-force comparison, a cycling-prone degenerate LP, duality checks and a guide
+        worked example the suite recomputes. Registered score row, launch date, category
+        rule, CI workflow and publish-surface row.
         Graduated and built crypto-cost-basis-calculator: a browser-local lot matcher
         for people who bought or earned crypto at several prices. Paste or open a CSV
         of buys, sales and income (exchange-style headers recognised); it matches each
@@ -421,6 +437,9 @@ entries:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
+      Liability: arithmetic on supplied figures, no prices, costs or capacities
+      asserted, no warranty. No customer data. Ethics: helps a small maker use scarce
+      hours well.
       Liability: arithmetic on supplied figures, no prices fetched, no claim about
       which lot method a filer may use, omissions stated, no warranty. No customer
       data. Ethics: helps people compute their own gains privately.
