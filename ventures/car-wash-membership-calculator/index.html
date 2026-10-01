@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Car Wash Membership Calculator — unlimited plan margin, break-even washes and price test</title>
+  <meta name="description" content="Car wash membership calculator for owners and managers. Enter your unlimited plan price, cost per wash and how often members wash to see net per member, break-even washes, heavy users who lose money, lifetime value, tunnel capacity and a price sensitivity table. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Car Wash Membership Calculator — free, private, in your browser">
+  <meta property="og:description" content="Does your unlimited wash plan make money? Break-even washes, heavy-user segments, cannibalized retail washes and price sensitivity. No account, nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Car Wash Membership Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter your unlimited wash plan price, cost per wash and how often member segments wash. See net per member, break-even washes, members who lose money, cannibalized retail washes, lifetime value, tunnel capacity and a price sensitivity table. Runs entirely in your browser; nothing is uploaded.", "featureList": "net per member after fees and wash cost, break-even washes per month, heavy-user segments, cannibalization of retail washes, member lifetime value, capacity use, price sensitivity, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a good unlimited wash club price?", "acceptedAnswer": {"@type": "Answer", "text": "There is no single number, and this tool does not assert one. Enter your own plan price, cost per wash and how often your members actually wash. It shows the net per member, the number of washes at which the plan stops making money, and what a price change does at the same usage."}}, {"@type": "Question", "name": "How many washes a month makes an unlimited plan lose money?", "acceptedAnswer": {"@type": "Answer", "text": "The break-even is the plan price after payment fees divided by your cost per wash. Past that many washes a month, a member costs more than they pay. The tool also shows what share of your members sit past it, because an average can look healthy while a heavy segment loses money."}}, {"@type": "Question", "name": "What counts as cost per wash?", "acceptedAnswer": {"@type": "Answer", "text": "Chemicals, water and sewer, power, wash-line labor and anything else that rises with each car. Leave out rent and fixed payroll, which go in monthly overhead. If you enter zero the tool treats every wash as free and warns you."}}, {"@type": "Question", "name": "What is cannibalization and why does it matter?", "acceptedAnswer": {"@type": "Answer", "text": "Some members were already paying for single washes. When they join, you swap a retail sale for a share of the plan price. The tool subtracts the retail net those converted members used to bring, so you can see what the plan adds beyond what you already earned."}}, {"@type": "Question", "name": "How is member lifetime value worked out?", "acceptedAnswer": {"@type": "Answer", "text": "Net per member per month divided by monthly churn gives lifetime value, less the signup cost per member. Churn of 5% a month is an average life of 20 months. It is arithmetic on the churn you type, not a forecast."}}, {"@type": "Question", "name": "Does the price table predict how many members I will lose or win?", "acceptedAnswer": {"@type": "Answer", "text": "No. It holds your member count and usage fixed, then shows the net at each price and how many members you would need at the new price to earn the same plan contribution. Whether you can win or keep those members is your judgment."}}, {"@type": "Question", "name": "Is my information uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CAR WASH MEMBERSHIP CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Does your unlimited wash plan actually make money?</h1>
+    <p>Enter your <strong>plan price</strong>, your <strong>cost per wash</strong> and how often each kind of member washes. The tool shows <strong>net per member</strong>, the <strong>washes a month at which a member starts to lose you money</strong>, how many retail washes the plan <strong>cannibalizes</strong>, member lifetime value, tunnel capacity, and what a <strong>price change</strong> does at the same usage.</p>
+    <p class="note">Arithmetic on figures you supply. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>How your members wash</h2>
+    <label for="items">Segment, share of members %, washes per member per month (one per line; shares are scaled to 100%)</label>
+    <textarea id="items" spellcheck="false" placeholder="Light,40,1&#10;Typical,40,3&#10;Heavy,20,8"></textarea>
+    <h2 style="margin-top:18px">Your wash</h2>
+    <div class="row3">
+      <div><label for="membershipPrice">Membership price per month ($)</label><input id="membershipPrice" inputmode="decimal" value="30"></div>
+      <div><label for="retailPrice">Single-wash price people pay now ($)</label><input id="retailPrice" inputmode="decimal" value="15"></div>
+      <div><label for="costPerWash">Cost per wash: chemicals, water, power, wash-line labor ($)</label><input id="costPerWash" inputmode="decimal" value="2.5"></div>
+      <div><label for="cardFeePct">Payment fee (% of revenue)</label><input id="cardFeePct" inputmode="decimal" value="3"></div>
+      <div><label for="members">Members now (or target)</label><input id="members" inputmode="decimal" value="400"></div>
+      <div><label for="retailWashesPerMonth">Paid single washes per month from non-members</label><input id="retailWashesPerMonth" inputmode="decimal" value="1500"></div>
+      <div><label for="overheadMonthly">Monthly overhead: rent, fixed payroll, insurance, other ($)</label><input id="overheadMonthly" inputmode="decimal" value="0"></div>
+      <div><label for="churnPct">Members who cancel per month (%)</label><input id="churnPct" inputmode="decimal" value="5"></div>
+      <div><label for="signupCost">Cost to sign up a member: promo, ads, commission ($)</label><input id="signupCost" inputmode="decimal" value="20"></div>
+      <div><label for="cannibalPct">Members who used to pay for single washes (%)</label><input id="cannibalPct" inputmode="decimal" value="40"></div>
+      <div><label for="priorVisits">Single washes those members bought per month before</label><input id="priorVisits" inputmode="decimal" value="1.5"></div>
+      <div><label for="washesPerHour">Cars per hour the tunnel can run</label><input id="washesPerHour" inputmode="decimal" value="60"></div>
+      <div><label for="hoursPerDay">Hours open per day</label><input id="hoursPerDay" inputmode="decimal" value="10"></div>
+      <div><label for="daysPerMonth">Days open per month</label><input id="daysPerMonth" inputmode="decimal" value="30"></div>
+      <div><label for="priceStep">Price step for the sensitivity table ($)</label><input id="priceStep" inputmode="decimal" value="5"></div>
+    </div>
+    <p class="note">Cost per wash is charged on every member wash. Overhead is used in the store result only. Single washes per month are the non-member cars you expect with the plan running.</p>
+    <button type="button" id="analyze">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Add your member segments, then click Calculate.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="verdict"></p>
+    <h3>Net by member segment</h3>
+    <div class="scroll"><table id="lt"><thead><tr><th>Segment</th><th class="n">Share</th><th class="n">Washes / month</th><th class="n">Wash cost</th><th class="n">Net per member</th><th class="n">Retail value used</th></tr></thead><tbody></tbody></table></div>
+    <h3>Wash per month</h3>
+    <div class="scroll"><table id="st"><thead><tr><th>Item</th><th class="n">Value</th></tr></thead><tbody></tbody></table></div>
+    <h3>What a price change does at the same usage</h3>
+    <div class="scroll"><table id="pt"><thead><tr><th class="n">Plan price</th><th class="n">Net per member</th><th class="n">Monthly change, same members</th><th class="n">Members to hold contribution</th><th class="n">Break-even washes</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download the result (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Net per member:</strong> plan price × (1 − payment fee) − average washes per month × cost per wash, where average washes is the share-weighted mean of your segments. <strong>Break-even washes:</strong> plan price after fees ÷ cost per wash. <strong>Cannibalization:</strong> members who used to pay for single washes × their old washes per month × the net of a single wash. <strong>Break-even members:</strong> (overhead − single-wash contribution) ÷ net per member. <strong>Lifetime value:</strong> net per member ÷ monthly churn − signup cost. <strong>Capacity:</strong> cars per hour × hours × days against member plus single washes. <strong>Price table:</strong> same members, same usage, new price; members to hold contribution is current member contribution ÷ net per member at the new price.</p>
+    <p><strong>Not modelled:</strong> sales tax, how many members a price change wins or loses, seasonal and weather swings, plan tiers and add-on upsells, fleet or family plans, free-trial and failed-payment churn, equipment wear, and the cost of capital. Unverified: tested on hand-calculated examples, not on a real wash's books. It computes arithmetic; it does not tell you what to charge.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a good unlimited wash club price?</h3>
+    <p>There is no single number, and this tool does not assert one. Enter your own plan price, cost per wash and how often your members actually wash. It shows the net per member, the number of washes at which the plan stops making money, and what a price change does at the same usage.</p>
+    <h3>How many washes a month makes an unlimited plan lose money?</h3>
+    <p>The break-even is the plan price after payment fees divided by your cost per wash. Past that many washes a month, a member costs more than they pay. The tool also shows what share of your members sit past it, because an average can look healthy while a heavy segment loses money.</p>
+    <h3>What counts as cost per wash?</h3>
+    <p>Chemicals, water and sewer, power, wash-line labor and anything else that rises with each car. Leave out rent and fixed payroll, which go in monthly overhead. If you enter zero the tool treats every wash as free and warns you.</p>
+    <h3>What is cannibalization and why does it matter?</h3>
+    <p>Some members were already paying for single washes. When they join, you swap a retail sale for a share of the plan price. The tool subtracts the retail net those converted members used to bring, so you can see what the plan adds beyond what you already earned.</p>
+    <h3>How is member lifetime value worked out?</h3>
+    <p>Net per member per month divided by monthly churn gives lifetime value, less the signup cost per member. Churn of 5% a month is an average life of 20 months. It is arithmetic on the churn you type, not a forecast.</p>
+    <h3>Does the price table predict how many members I will lose or win?</h3>
+    <p>No. It holds your member count and usage fixed, then shows the net at each price and how many members you would need at the new price to earn the same plan contribution. Whether you can win or keep those members is your judgment.</p>
+    <h3>Is my information uploaded?</h3>
+    <p>No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice and does not replace a qualified accountant. Results are arithmetic on the figures you type. You are responsible for reviewing and verifying its output.</p>
+    <p><strong>Independent.</strong> Not affiliated with any car wash equipment maker, membership software vendor or payment processor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../mobile-detailing-bid-calculator/">mobile detailing bid calculator</a>, the <a href="../pressure-washing-bid-calculator/">pressure washing bid calculator</a>, the <a href="../laundromat-machine-payback-calculator/">laundromat machine payback calculator</a> and the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseSegments, analyze, reportCsv, sampleSegments, money, money2, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const FIELDS = ["membershipPrice", "retailPrice", "costPerWash", "cardFeePct", "members", "retailWashesPerMonth", "overheadMonthly", "churnPct", "signupCost", "cannibalPct", "priorVisits", "washesPerHour", "hoursPerDay", "daysPerMonth", "priceStep"];
+    let last = null;
+
+    function run() {
+      const mp = parseSegments($("#items").value);
+      if (mp.error) { status.textContent = mp.error; report.hidden = true; return false; }
+      const opts = {};
+      for (const k of FIELDS) opts[k] = $("#" + k).value;
+      const r = analyze(mp.rows, opts);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...mp.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const s = r.store, m = r.member;
+      const big = [
+        [money2(m.margin), "Net per average member per month"],
+        [m.breakEvenWashes === null ? "n/a" : m.breakEvenWashes.toFixed(1), "Washes a month where a member breaks even"],
+        [pct(m.underwater, 0), "Of members past break-even"],
+        [money(s.net), "Net per month after overhead"],
+      ];
+      $("#big").innerHTML = big.map(([v, t]) => `<div><strong>${esc(v)}</strong>${esc(t)}</div>`).join("");
+      $("#verdict").textContent = r.verdict;
+      $("#lt tbody").innerHTML = r.segments.map((x) => `<tr><td>${esc(x.name)}</td><td class="n">${pct(x.weight, 0)}</td><td class="n">${x.washes}</td><td class="n">${money2(x.cost)}</td><td class="n">${money2(x.margin)}</td><td class="n">${money(x.retailValue)}</td></tr>`).join("");
+      $("#st tbody").innerHTML = [["Member contribution after fees and wash cost", money(s.memberContribution)], ["Single-wash contribution", money(s.retailContribution)], ["Overhead", money(-s.overhead)], ["Net", money(s.net)], ["Net per year", money(s.annual)], ["Retail net lost on converted members", money(-s.lostRetail)], ["Plan contribution beyond what converts paid before", money(s.incremental)], ["Members to cover overhead", s.breakEvenMembers === null ? "n/a" : String(Math.ceil(s.breakEvenMembers))], ["Member lifetime value after signup cost", m.lifetimeValue === null ? "n/a (no churn)" : money(m.lifetimeValue)], ["Months to earn back signup cost", m.paybackMonths === null ? "n/a" : m.paybackMonths.toFixed(1)], ["Tunnel capacity used", pct(s.utilization, 0)], ["Most members the tunnel could serve", s.maxMembers === null ? "n/a" : String(Math.floor(s.maxMembers))]].map(([a, b]) => `<tr><td>${a}</td><td class="n">${b}</td></tr>`).join("");
+      $("#pt tbody").innerHTML = r.prices.map((p) => `<tr><td class="n">${money2(p.price)}${p.step === 0 ? " (now)" : ""}</td><td class="n">${money2(p.margin)}</td><td class="n">${money(p.monthlyChange)}</td><td class="n">${p.membersToHold === null ? "n/a" : Math.ceil(p.membersToHold) + " (" + (p.memberChangePct >= 0 ? "+" : "") + pct(p.memberChangePct, 0) + ")"}</td><td class="n">${p.breakEvenWashes === null ? "n/a" : p.breakEvenWashes.toFixed(1)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#items").value = sampleSegments();
+      $("#overheadMonthly").value = "14000";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented wash, not a real business."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#items").value = ""; report.hidden = true; last = null; status.textContent = "Add your member segments, then click Calculate."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "car-wash-membership-result.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

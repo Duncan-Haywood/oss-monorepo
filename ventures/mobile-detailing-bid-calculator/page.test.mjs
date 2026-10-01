@@ -322,3 +322,10 @@ test('every figure quoted on the flat-price-card page is what the calculator act
   assert.match(vsPage, /4\.25 hours/);
   assert.match(vsPage, /\b5 hours\b/);
 });
+
+// Inbound link for `car-wash-membership-calculator`: the same vehicle-appearance owner,
+// selling monthly wash plans rather than one-off details.
+test('index links one hop to the car-wash-membership-calculator sibling', () => {
+  assert.match(html, /href="\.\.\/car-wash-membership-calculator\/"/);
+  assert.match(html, /car wash membership calculator/i);
+});
