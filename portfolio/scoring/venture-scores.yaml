@@ -23549,3 +23549,35 @@ ventures:
     gate_note: >-
       Liability: statistical estimate of the user's own data, no warranty, not
       advice. Ethics: no customer data collected or sold; nothing leaves the browser.
+  - slug: studio-class-slot-optimizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical learning (empirical-Bayes shrinkage and seeded bootstrap over a
+      class attendance log, run in the browser) but no language model and no paid
+      API; the verdicts and the stated limits are the product, not an add-on.
+    basis: >-
+      Scored 2026-09-30 at graduation; full write-up in this venture's own
+      VENTURE.yaml comment. Studio owners paste an attendance log and get which
+      timetable slots pay for their instructor, which to cut or move and which are
+      full enough to double. Distribution 6: "which classes should I cut" and
+      "break even class size" are recurring studio-owner queries (volume not
+      measured with an external tool). Defensibility 4: booking-software reports
+      and spreadsheets exist; the edge is the private no-upload workflow and
+      small-sample shrinkage.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical estimate of the user's own data, no warranty, not
+      advice, what is not modelled stated. Ethics: no member data collected or
+      sold; nothing leaves the browser.

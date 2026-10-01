@@ -233,3 +233,9 @@ test('index links one hop to the ai-engineering-academy electronics tools', () =
     'index must link ../ai-engineering-academy/ so crawlers reach the electronics calculators in one hop',
   );
 });
+
+// Reciprocal sibling link with `studio-class-slot-optimizer`, which would
+// otherwise be a crawlable orphan (platform/pages/siblings.mjs).
+test('index links one hop to the studio class slot optimizer', () => {
+  assert.match(html, /href="\.\.\/studio-class-slot-optimizer\/"/);
+});

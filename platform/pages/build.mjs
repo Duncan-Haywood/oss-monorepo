@@ -2607,6 +2607,14 @@ const CATEGORY_RULES = [
     // from `tutor-package-pricing-calculator`'s own commit rather than
     // landing as an orphan, which is also what keeps the catch-all inside
     // the bound `build.test.mjs` puts on it.
+    // `studio-class-slot-optimizer` joined 2026-09-30, filed here on its first
+    // commit rather than after a spell in the catch-all (which it would have
+    // pushed past the bound `build.test.mjs` puts on it). A studio owner
+    // deciding which of their own timetable slots pay for the instructor is
+    // the same move as `personal-trainer-package-pricing-calculator`'s
+    // trainer checking what an hour earns -- one small fitness business
+    // reading its own numbers. Shipped with a reciprocal inbound sibling link
+    // from that venture.
     // `podcast-feed-check` joined 2026-09-23, landing here rather than in the
     // `ci` category above it: the axis this section groups on is the earner,
     // not whether the tool is a calculator or a checker (already established
@@ -2663,6 +2671,7 @@ const CATEGORY_RULES = [
         'podcast-feed-check',
         'podcast-sponsorship-rate-calculator',
         'sponsor-ready',
+        'studio-class-slot-optimizer',
         'tutor-package-pricing-calculator',
         'voiceover-project-rate-calculator',
       ].includes(slug),
