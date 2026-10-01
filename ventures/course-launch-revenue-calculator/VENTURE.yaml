@@ -1,0 +1,55 @@
+name: course-launch-revenue-calculator
+description: >-
+  Free browser tool for online course creators: enter list size, page visit and conversion
+  rates, price, refunds, processor and platform fees, affiliate commissions and ad spend, and
+  see the launch's net profit, the break-even list size, return on ad spend, a conversion
+  scenario table and a price table. No data leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED, build-now queue
+# empty). duplicate_check.py closest match 0.22 (tiktok-shop-fee-calculator); nearest in purpose
+# are breakeven-roas-calculator (ad economics for ecommerce), patreon-fee-calculator (fees on a
+# membership) and gabor-granger-price-analyzer (survey-based pricing). None models a launch funnel
+# with refunds, affiliates and a list. Not in screened-out.md.
+#
+# Why this niche: course creators, coaches and newsletter owners decide to build a course, pick a
+# price and buy ads on gut feel. The funnel arithmetic (list x visit x conversion x net per buyer
+# vs. ad and fixed costs) is simple but rarely done with refunds, affiliate cuts and processor fees
+# that stay on a refund.
+#
+# First visitor: searches such as "course launch revenue calculator", "how many email subscribers
+# to launch a course", "course launch break even", and creator communities asking whether a list of
+# a given size can pay for a course. Volume not measured externally.
+#
+# Liability boundary: arithmetic on user-typed figures; asserts no conversion rate, price or fee
+# schedule; says what it does not model. Nothing is uploaded.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural top of funnel for a
+# future hosted launch tracker that records actual conversion per launch.
+
+hypotheses:
+  - claim: >-
+      Course creators planning a launch will use a private, no-signup break-even calculator on their
+      own list and fee figures because they cannot tell beforehand whether the list is big enough.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/course-launch-revenue-calculator/
+  analytics: null
