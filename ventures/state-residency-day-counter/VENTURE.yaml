@@ -1,0 +1,63 @@
+name: state-residency-day-counter
+description: >-
+  Free browser tool for remote workers, snowbirds and digital nomads: list where
+  you were and when, and it totals the days per state, checks them against the
+  commonly published 183-day (and 200-day, nine-month) residency tests, shows the
+  room left and the date a limit would be crossed, splits remote-work wages by
+  workdays, draws a year calendar and exports a day-range record. Nothing leaves
+  the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture session. duplicate_check.py: closest rows
+# were economic-nexus-threshold-tracker 0.14 (sales tax for sellers, a different
+# question) and quarterly-estimated-tax-calendar 0.11; nothing near the 0.45 line.
+# screened-out.md has no residency row.
+#
+# Why this niche: millions of remote workers and part-year residents have a real
+# dollar problem (being taxed as a resident by two states, or by the wrong one)
+# and the only tools are paid trackers aimed at nomads or professional-services
+# software aimed at accountants. A person with a spreadsheet and a calendar can
+# keep the record; the part nobody does is checking it against the limit and
+# seeing the date it would be crossed while there is still time to change plans.
+#
+# First visitor: people searching "183 day rule", "how many days can I spend in
+# another state", "state residency day counter", "remote work tax two states",
+# "snowbird days tracker"; remote-work and expat forums at filing season. Volume
+# not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed dates; never states anyone's tax
+# residency; the rule table is summarised from commonly published tests, labelled
+# as such, user-overridable and told to be checked against the state; the example
+# year is invented; no payroll or tax filing.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural
+# front end for a paid CPA/payroll referral or a year-end multi-state tax
+# worksheet.
+
+hypotheses:
+  - claim: >-
+      Remote workers and part-year residents will use a private, no-signup day
+      counter to check their days against a state limit, and the room-left and
+      crossing-date figures change a travel or stay decision.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a day count that disagrees with their own calendar for the dates they typed.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/state-residency-day-counter/
+  analytics: null
