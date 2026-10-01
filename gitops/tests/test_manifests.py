@@ -2862,7 +2862,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `quote-follow-up-timing` graduated (browser-local quote follow-up timing, Aalen-Johansen competing risks over open/won/lost quotes).
     # +1: `rental-rent-optimizer` graduated (browser-local asking-rent optimizer from own listing history).
     # +1: `mechanics-lien-deadline-calculator` graduated (browser-local mechanics-lien notice and filing deadline lookup, five states).
-    total = 525  # `infra/OWNER_CHECKLIST.md`'s own "N of the 525 tools" wording.
+    total = 526  # `infra/OWNER_CHECKLIST.md`'s own "N of the 526 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
