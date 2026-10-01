@@ -48969,6 +48969,18 @@ entries:
         searches. Unverified by a lawyer: tests pin hand-counted dates for each
         state, year-end month arithmetic and no-network assertions. Registered
         score row, launch date, category rule and CI workflow.
+        Graduated and built workers-comp-premium-calculator: a browser-local tool
+        that rebuilds a small employer's workers' comp premium from the class-code
+        rates on their own quote (payroll per $100, overtime exclusion, experience
+        mod, schedule debit, premium discount, expense constant), shows what each
+        0.10 of mod is worth, the premium impact of a different class, and the
+        final-audit true-up on actual payroll. No rate table is shipped, so nothing
+        can go stale. New niche: duplicate_check.py best match 0.54 (a staffing
+        agency markup tool, not insurance). First visitor expected from "how is
+        workers comp premium calculated" and "workers comp audit additional
+        premium" searches. Unverified by an insurance professional: tests pin
+        hand-counted figures for every step, audit direction, validation and
+        no-network assertions. Registered score row, launch date and CI workflow.
         Graduated and built landlord-repair-or-replace-planner: a browser-local
         tool for small landlords and homeowners holding a repair quote. Paste or
         upload equipment (age, repair quote, replacement cost, optional yearly

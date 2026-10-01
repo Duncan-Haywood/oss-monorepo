@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 525 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 530 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-10-01T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Donor Retention Analyzer — LYBUNT and SYBUNT lists from your own gifts</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/donor-retention-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/donor-retention-analyzer</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Donor retention analyzer for small nonprofits. Paste your gift history to see retention by fiscal year, first-time versus repeat donor retention, and which lapsed (LYBUNT, SYBUNT) donors are worth a call, ranked from your own giving. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
   <entry>
     <title>Landlord Repair-or-Replace Planner — repair it or replace it?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/landlord-repair-or-replace-planner/"/>
@@ -251,6 +260,15 @@
     <summary type="text">Free job offer comparison calculator. Enter up to three offers with base, bonus, sign-on, equity and hours to see four-year average pay, true hourly rate, and the base salary you would need to counter with. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Lead Response Time Analyzer — what slow replies cost you</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/lead-response-time-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/lead-response-time-analyzer</id>
+    <published>2026-09-30T00:00:00Z</published>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free tool for home-service and other lead-driven businesses. Paste your leads with minutes to first reply and won or lost to see win rate by response time and the jobs and revenue a faster reply would have won. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Liquidation Pallet Bid Calculator — max bid from your manifest</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/liquidation-pallet-bid-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/liquidation-pallet-bid-calculator</id>
@@ -348,23 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free PSLF vs refinance calculator. Enter your federal loan balance, income and a refinance offer to see total paid under Public Service Loan Forgiveness, the amount forgiven, the income where refinancing wins, and what leaving public service early costs. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Quote Follow-Up Timing — when to chase a quote and when to let it go</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/quote-follow-up-timing/"/>
-    <id>tag:marisstella.dev,2026:tool/quote-follow-up-timing</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free quote follow-up timing tool for contractors, agencies and freelancers. Paste your past quotes (days to decision, won, lost or open) to see when your wins actually arrive, your real win rate with open quotes counted correctly, and which open quotes still have a chance. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>R&amp;D Tax Credit Calculator — Startup Estimate with Payroll Offset, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rd-tax-credit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/rd-tax-credit-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free R&amp;D tax credit calculator for startups and small companies. Paste staff wages and time on research, compare the regular and simplified credit, see the Section 280C cost and the payroll-tax offset. Illustrative; nothing uploaded.</summary>
   </entry>
 </feed>
