@@ -1,0 +1,60 @@
+name: shift-roster-builder
+description: >-
+  Free browser tool for restaurants, cafes, salons, shops and clinics: list the
+  shifts to cover and your staff with availability, weekly hour limits, minimum
+  hours and wages, and get a weekly roster that never breaks availability, rest,
+  hour-cap or days-in-a-row rules, covers as many shifts as possible, avoids
+  overtime and balances hours. Shows which shifts could not be filled and why,
+  which people the week depends on, and what filling in listed order would have
+  cost. CSV export. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture session. duplicate_check.py closest was
+# shift-cover-optimizer at 0.13 (that tool sizes shifts from hourly demand; this
+# one assigns named people to given shifts: the other half of scheduling, and the
+# two link to each other). Competing paid products are workforce schedulers
+# charging per user per month; the gap is a private, signup-free one-week roster
+# solve that shows the cost of the rules and the single points of failure.
+#
+# First visitor: searches "employee schedule maker", "free work schedule
+# generator", "restaurant staff scheduling template", "how to make an employee
+# schedule", "avoid clopening", "overtime avoidance scheduling"; r/restaurateur,
+# r/smallbusiness, salon and cafe owner groups. Volume not measured with an
+# external tool.
+#
+# Liability boundary: arithmetic and search on user-typed names, wages and
+# availability; never asserts a roster is legally compliant (predictive
+# scheduling, breaks, minor labor not modelled and said so); staff lists never
+# leave the browser (tests assert no network calls); no vendor named.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. A later
+# paid tier could be saved multi-week rosters, shift-swap links and multi-location
+# plans; not built.
+
+hypotheses:
+  - claim: >-
+      Small-business owners who build the weekly schedule by hand will use a
+      private, no-signup tool that assigns people by availability and limits,
+      names the shifts it cannot fill and why, and will return each week.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a roster that breaks an availability, rest or hour-limit rule they typed in.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/
+  analytics: null

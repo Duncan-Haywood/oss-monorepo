@@ -24497,3 +24497,75 @@ ventures:
       starter data and example prices labelled, 1,200 kcal floor, not medical advice,
       stated unsuitable for children, pregnancy, eating disorders and medical
       conditions. Ethics: helps budget-constrained people plan food.
+  - slug: league-schedule-generator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.833
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Algorithmic, browser-local (dates, home/away balance, courts, blackouts and play-offs built by annealing); no language model and no paid API.
+    basis: >-
+      Scored 2026-10-01 when the venture's row was found missing from this file (the
+      scoring check was red on main); see the venture's own VENTURE.yaml comment for the
+      full screening. Distribution 7: volunteer organisers searching "round robin schedule generator" and "league schedule maker" (volume not measured with an external
+      tool). Defensibility 5: paid league software bundles scheduling into registration subscriptions and free generators are mostly bare pairings.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and search on user-typed team names and dates, a planning aid and not league-administration advice, no prices asserted, nothing stored. Ethics: helps volunteers schedule fairly.
+  - slug: shift-roster-builder
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.833
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Algorithmic, browser-local (weekly shift rosters with availability, rest, hour caps and overtime); no language model and no paid API.
+    basis: >-
+      Scored 2026-10-01 when the venture's row was found missing from this file (the
+      scoring check was red on main); see the venture's own VENTURE.yaml comment for the
+      full screening. Distribution 7: small employers searching "shift schedule maker" and "employee roster builder" (volume not measured with an external
+      tool). Defensibility 5: paid scheduling suites dominate and free tools are mostly blank grids; a constraint-aware free one is less common.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and search on user-typed staff names and availability, not employment-law or labour-compliance advice, no guarantee a roster is lawful, nothing stored. Ethics: helps managers cover shifts without breaking stated rest and hour rules.
+  - slug: state-residency-day-counter
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.833
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Algorithmic, browser-local (multi-state day counts against commonly published residency tests); no language model and no paid API.
+    basis: >-
+      Scored 2026-10-01 when the venture's row was found missing from this file (the
+      scoring check was red on main); see the venture's own VENTURE.yaml comment for the
+      full screening. Distribution 7: remote workers and snowbirds searching "183 day rule" and "state residency day counter" (volume not measured with an external
+      tool). Defensibility 5: paid trackers target nomads and accountant software is heavy; a free private counter that shows the crossing date is uncommon.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed dates, never states anyone's tax residency, rule table labelled as commonly published and overridable, no tax filing, nothing stored. Ethics: helps people keep an honest record of where they were.

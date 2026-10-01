@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 553 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 554 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -22,7 +22,7 @@
     <id>tag:marisstella.dev,2026:tool/cheap-meal-plan-optimizer</id>
     <published>2026-10-01T00:00:00Z</published>
     <updated>2026-10-01T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free cheapest meal plan optimizer. Enter foods with prices and nutrition, set calorie, protein, fat and fibre targets, and get the lowest-cost daily servings plus the cost of each extra target. A minimum-cost diet solver in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
@@ -197,6 +197,15 @@
     <summary type="text">Free rental fleet size optimizer for tent, equipment, kayak, tool and party rental businesses. Enter your seasons, rental lengths, price and what a unit costs to own; it finds the number of units that maximises yearly profit using the Erlang loss formula and a day-by-day simulation. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Shift Roster Builder — a free weekly employee schedule maker that follows your rules</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/shift-roster-builder/"/>
+    <id>tag:marisstella.dev,2026:tool/shift-roster-builder</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free employee schedule maker for restaurants, cafes, salons, shops and clinics. List the shifts to cover and your staff&#39;s availability, hour limits and wages; get a weekly roster that avoids overtime, respects rest gaps and shows which shifts could not be filled and why. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Shipping Box Size Optimizer — which carton sizes to stock to cut dimensional weight</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/shipping-box-size-optimizer/"/>
     <id>tag:marisstella.dev,2026:tool/shipping-box-size-optimizer</id>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free commercial lease comparison calculator. Compare up to three offers on net effective rent and all-in cost per square foot after free rent, TI allowance, escalations, NNN costs and fit-out. See the cost of leaving early and the rent needed to match the best offer. Runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Cost Segregation Calculator — Is a Study Worth the Fee? Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cost-segregation-study-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/cost-segregation-study-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free cost segregation study calculator for rental and commercial property owners. Estimates first-year extra depreciation, tax saved at your bracket, fee payback, the recapture bill on sale and a present-value net. Illustrative; an engineer and your CPA decide. Nothing uploaded.</summary>
   </entry>
 </feed>
