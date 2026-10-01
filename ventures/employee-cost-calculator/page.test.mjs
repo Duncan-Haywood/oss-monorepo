@@ -142,3 +142,7 @@ test('notes never claim a worker-classification verdict', () => {
   const resultCopy = /<div id="output"[\s\S]*?<\/div>\s*<\/div>/.exec(markup)?.[0] ?? '';
   assert.doesNotMatch(resultCopy, /is legally an employee|is legally a contractor|is the correct classification/i);
 });
+
+test('index links the workers comp premium calculator so crawlers reach it in one hop', () => {
+  assert.match(page('index.html'), /href="\.\.\/workers-comp-premium-calculator\/"/);
+});
