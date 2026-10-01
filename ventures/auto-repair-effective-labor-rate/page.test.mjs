@@ -478,3 +478,10 @@ test('every figure quoted on the divide-it-yourself page is what the calculator 
     'the sold-vs-consumed difference is no longer the calculator\'s',
   );
 });
+
+// Inbound link for `tire-shop-ticket-margin-calculator`: the same shop owner,
+// selling tires and add-ons by the ticket rather than repair orders by the hour.
+test('index links one hop to the tire-shop-ticket-margin-calculator sibling', () => {
+  assert.match(markup, /href="\.\.\/tire-shop-ticket-margin-calculator\/"/);
+  assert.match(markup, /tire shop ticket margin calculator/i);
+});

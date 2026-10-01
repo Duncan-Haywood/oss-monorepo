@@ -1137,6 +1137,7 @@ const RELATIVE_SELF = relative(
 // +1: `adu-payback-calculator` graduated.
 // +1: `dog-grooming-profit-calculator` graduated.
 // +1: `laundromat-machine-payback-calculator` graduated.
+// +1: `tire-shop-ticket-margin-calculator` graduated.
 // +1: `house-cleaning-quote-calculator` graduated.
 // +1: `auction-car-flip-calculator` graduated.
 // +1: `massage-therapist-profit-calculator` graduated.
@@ -1161,7 +1162,7 @@ const RELATIVE_SELF = relative(
 // +1: `freight-broker-load-margin-calculator` graduated.
 // +1: `breakeven-roas-calculator` graduated.
 // +1: `driving-instructor-lesson-pricing-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 544;
+const SWITCHES_IN_THE_CATALOGUE = 545;
 
 let counter = 0;
 function fixture(source) {
