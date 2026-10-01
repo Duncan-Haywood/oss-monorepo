@@ -524,10 +524,16 @@ workflows:
 - workflow: dog-grooming-profit-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: auction-car-flip-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: laundromat-machine-payback-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: tire-shop-ticket-margin-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: house-cleaning-quote-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: dog-walking-route-pricing-ci.yml

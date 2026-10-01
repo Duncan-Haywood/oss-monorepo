@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'house-cleaning-quote-calculator':
+    'the wage and burden are the pay behind each cleaner-hour of a recurring home visit and the target margin is a share of the visit price solved into a price floor; there is no overhead rate and no shop rate being quoted, the discount limit per frequency is the output',
   'home-care-agency-margin-calculator':
     'the wage is the caregiver pay behind an hourly bill rate and overheadPerHour is a dollar cost per billed hour, not a percentage of direct cost; the target margin is a percentage of collected revenue and the tool solves the bill rate from it rather than being quoted a shop rate',
   'cottage-food-pricing-calculator':

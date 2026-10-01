@@ -407,6 +407,9 @@ const CATEGORY_RULES = [
     // one storefront — and would otherwise sit in the catch-all for the same
     // reason those two did: the slug names the storefront, not a marketplace
     // keyword this rule already recognised.
+    // `auction-car-flip-calculator` joined 2026-10-01 on its first commit: a reseller
+    // turning a resale price, repairs and tiered buyer fees into a max bid is the
+    // `storage-auction-max-bid-calculator` job for a vehicle.
     // `liquidation-pallet-bid-calculator` is `storage-auction-max-bid-calculator`'s
     // manifest-driven sibling: an auction hammer plus buyer's premium for goods
     // the winner resells, so it files with the marketplace tools, not with the
@@ -492,7 +495,7 @@ const CATEGORY_RULES = [
     // export to price product bundles, the same reader as the fee tools here; the slug names no platform.
     // `breakeven-roas-calculator` joined 2026-10-01 on its first commit: turns a DTC seller's per-order
     // margin into the break-even ROAS and max CPA an ad campaign needs; the same reader as the fee tools here.
-    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|breakeven-roas|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|liquidation-pallet|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace)/.test(slug),
+    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|breakeven-roas|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|auction-car-flip|liquidation-pallet|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace)/.test(slug),
   },
   {
     id: 'trades',
@@ -541,9 +544,7 @@ const CATEGORY_RULES = [
     // names neither a trade nor a bid, so no keyword caught it and it fell to
     // the catch-all — where the shop owner meeting the burden and overhead
     // fields on every calculator in this section would never have seen it.
-    // `tire-shop-ticket-margin-calculator` joined 2026-10-01 on its first commit: a tire shop owner
-    // turning ticket lines, attach rates and bay hours into net per ticket is the same reader as
-    // `auto-repair-effective-labor-rate` above; slug names no trade, so it would land in the catch-all.
+    // `tire-shop-ticket-margin-calculator` joined 2026-10-01: same reader as `auto-repair-effective-labor-rate` above; slug names no trade.
     // `bid-win-rate-optimizer` joined 2026-09-30: it learns from a contractor's own won and lost quotes which
     // markup to put on the job the bid calculators here price; slug names no trade, so it would land in the catch-all.
     // `quote-follow-up-timing` joined 2026-09-30: it reads a contractor's or agency's own won, lost and open quotes to show when
@@ -928,6 +929,9 @@ const CATEGORY_RULES = [
     // `laundromat-machine-payback-calculator` joined 2026-10-01 on its first commit: an
     // owner turning machine lines, vend prices and turns into payback months sits
     // beside `vending-machine-route-margin`.
+    // `house-cleaning-quote-calculator` joined 2026-10-01 on its first commit: a cleaning
+    // owner turning home size, crew pace and wages into a price floor and a discount limit
+    // is the same solo-service pricing job as `dog-grooming-profit-calculator` below.
     // `dog-grooming-profit-calculator` joined 2026-10-01 on its first commit: a
     // groomer turning services, minutes, supplies and overhead into a profit per
     // hour and a price floor is the `dog-boarding-daycare-pricing` job again.
@@ -946,7 +950,7 @@ const CATEGORY_RULES = [
     // the same small-operator pricing job as `pour-cost-calculator` and
     // `cottage-food-pricing-calculator`.
     test: (slug) =>
-      /^(home-care-agency|booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|laundromat-machine-payback|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|massage-therapist-profit|dj-gig-profit|driving-instructor-lesson-pricing|wedding-photographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|coffee-roaster-margin)/.test(
+      /^(laundromat-machine-payback|home-care-agency|booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|massage-therapist-profit|dj-gig-profit|driving-instructor-lesson-pricing|wedding-photographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|coffee-roaster-margin|house-cleaning-quote)/.test(
         slug,
       ),
   },
@@ -3488,7 +3492,7 @@ const SUBCATEGORY_RULES = {
       // margin, the same job-costing shape as `job-margin` and
       // `shop-rate` for a licensed surveyor's boundary/ALTA retracement
       // work instead of a construction trade.
-      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|project-estimate-calibrator|construction-evidence|shop-rate|auto-repair-effective-labor-rate|tire-shop-ticket-margin|tender-bid-readiness|tender-radar|which-job-first|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|lead-response-time|custom-farm-rate|land-survey|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability)/.test(slug),
+      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|project-estimate-calibrator|construction-evidence|shop-rate|tire-shop-ticket-margin|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|lead-response-time|custom-farm-rate|land-survey|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability)/.test(slug),
     },
     {
       id: 'trades-cleaning',
