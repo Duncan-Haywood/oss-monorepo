@@ -1127,7 +1127,7 @@ const RELATIVE_SELF = relative(
 // +1: `workers-comp-premium-calculator` graduated.
 // +1: `private-practice-payer-mix-calculator` graduated.
 // +1: `landlord-repair-or-replace-planner` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 510;
+const SWITCHES_IN_THE_CATALOGUE = 511;
 
 let counter = 0;
 function fixture(source) {
