@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 566 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 567 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -42,6 +42,15 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free business loan comparison tool. Type in the term-loan, SBA-style and merchant cash advance offers you have received and see the true APR with fees, total repaid, cash actually received and what paying early would cost. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Candle Batch Cost Calculator — cost per candle, price floor and wholesale margin</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/candle-batch-cost-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/candle-batch-cost-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Candle and soap maker cost calculator. Enter wax, fragrance load, vessel and labor to see cost per candle, margin online, at craft fairs and wholesale, the price floor for your target margin, break-even units and what a wax price rise costs. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Cheapest Meal Plan Optimizer — lowest-cost diet for your targets</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free A/B test significance calculator. Enter visitors and conversions to get the p-value, confidence interval, sample ratio mismatch check, Bayesian chance to beat control and an always-valid result for tests you peeked at. Plans sample size too. Nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Ad Incrementality Test Analyzer — did your ads cause the sales?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ad-incrementality-test-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/ad-incrementality-test-analyzer</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free ad incrementality calculator for geo and store holdout tests. Paste sales by region, name the test regions and the start date to get the incremental lift with an interval, incremental ROAS, profit after ad spend and the smallest lift your test could detect. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
