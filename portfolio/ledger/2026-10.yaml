@@ -195,3 +195,29 @@ entries:
       Liability: arithmetic on supplied figures, not tax advice, no warranty,
       tax-year constants are inputs, limits stated. No child data. Ethics: helps a
       small provider compute a figure their preparer will check.
+  - venture: adu-payback-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built adu-payback-calculator: a browser-local payback and
+        return calculator for an accessory dwelling unit. Enter build cost lines
+        with contingency, financing share, rate and term, rent with vacancy,
+        management, owner-use months and growth, operating costs, hold period,
+        value uplift and discount rate. It projects year-by-year cash flow and
+        reports yield on cost, simple payback, equity IRR and NPV, the rent for
+        NPV zero and for year-1 cash zero, and rent and build-cost sensitivity
+        tables, with CSV export. New niche: duplicate_check.py top score 0.17, no
+        venture covers ADUs. First visitor expected from "is an ADU worth it" and
+        "ADU cost vs rental income" searches and r/ADU threads. Unverified on a
+        real project: tests use hand-calculated amortisation, IRR/NPV and
+        break-even cases and no-network assertions. Registered score row, launch
+        date, category rule and CI workflow.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not investment or construction
+      advice, no warranty, no market data asserted, limits stated. Ethics: helps a
+      homeowner see the numbers before a large spend.
