@@ -29,6 +29,8 @@ directory that inherits the platform automatically.
 
 ```
 ventures/     one directory per business; each has a VENTURE.yaml
+research/     the open research portfolio (MIT), formerly oss-research-monorepo;
+              its homepage is published at /research/ on the Pages site
 platform/     shared agent definitions, skills, and CI — versioned once
 portfolio/    the ledger, the router that allocates agent effort, and the
               candidate pipeline of researched-but-not-started businesses
