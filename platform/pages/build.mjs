@@ -407,6 +407,9 @@ const CATEGORY_RULES = [
     // one storefront — and would otherwise sit in the catch-all for the same
     // reason those two did: the slug names the storefront, not a marketplace
     // keyword this rule already recognised.
+    // `auction-car-flip-calculator` joined 2026-10-01 on its first commit: a reseller
+    // turning a resale price, repairs and tiered buyer fees into a max bid is the
+    // `storage-auction-max-bid-calculator` job for a vehicle.
     // `liquidation-pallet-bid-calculator` is `storage-auction-max-bid-calculator`'s
     // manifest-driven sibling: an auction hammer plus buyer's premium for goods
     // the winner resells, so it files with the marketplace tools, not with the
@@ -492,7 +495,7 @@ const CATEGORY_RULES = [
     // export to price product bundles, the same reader as the fee tools here; the slug names no platform.
     // `breakeven-roas-calculator` joined 2026-10-01 on its first commit: turns a DTC seller's per-order
     // margin into the break-even ROAS and max CPA an ad campaign needs; the same reader as the fee tools here.
-    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|breakeven-roas|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|liquidation-pallet|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace)/.test(slug),
+    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|breakeven-roas|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|auction-car-flip|liquidation-pallet|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace)/.test(slug),
   },
   {
     id: 'trades',
@@ -946,7 +949,7 @@ const CATEGORY_RULES = [
     // the same small-operator pricing job as `pour-cost-calculator` and
     // `cottage-food-pricing-calculator`.
     test: (slug) =>
-      /^(home-care-agency|booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|massage-therapist-profit|dj-gig-profit|driving-instructor-lesson-pricing|wedding-photographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|coffee-roaster-margin|house-cleaning-quote|laundromat-machine-payback)/.test(
+      /^(laundromat-machine-payback|home-care-agency|booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|massage-therapist-profit|dj-gig-profit|driving-instructor-lesson-pricing|wedding-photographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|coffee-roaster-margin|house-cleaning-quote)/.test(
         slug,
       ),
   },

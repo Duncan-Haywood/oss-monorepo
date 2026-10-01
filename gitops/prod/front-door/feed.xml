@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 564 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 565 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">ADU payback calculator for homeowners and builders. Enter build cost, loan, rent and operating costs and see cash flow, yield on cost, payback, IRR, NPV and break-even rent. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Auction Car Flip Calculator — max bid, profit and repair stress test</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/auction-car-flip-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/auction-car-flip-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Auction car flip calculator for dealers and flippers. Enter resale price, repairs, the auction&#39;s buyer fee tiers, transport, tax and holding costs to get the max bid, the break-even bid, and a stress table for repair overruns and a lower resale. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Break-Even ROAS Calculator — max CPA, target ROAS and LTV for your ads</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free ad budget optimizer for multi-channel advertisers. Upload weekly spend and revenue per channel to see each channel&#39;s diminishing-returns curve, the marginal return on the next dollar, the best split of the same budget, and a back-test of the fit. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Real Estate Brokerage Split Calculator — Compare Splits, Caps and Fees</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/agent-brokerage-split-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/agent-brokerage-split-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free real estate brokerage split calculator for agents. Compare up to three brokerages by what you net after the split, cap, transaction and monthly fees, franchise royalty and referral fees, and see the deal count where each plan wins. Runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>
