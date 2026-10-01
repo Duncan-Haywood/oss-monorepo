@@ -1,0 +1,782 @@
+// League schedule generator: pure functions, no dependencies, nothing leaves the browser.
+//
+// Pipeline: parse the text fields -> circle-method rounds (home/away built in) ->
+// real dates (weekdays, skip dates, team blackouts, makeup rounds) -> court/time slot
+// assignment by seeded simulated annealing -> outputs (tables, CSV, .ics, text) and an
+// independent validator that re-checks the finished schedule from its output alone.
+
+export const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const WEEKDAY_NAMES = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+export const MAX_TEAMS = 64;
+const MAX_SCAN_DAYS = 2000;
+
+// ---------------------------------------------------------------- dates
+
+/** Days since 1970-01-01 for a real calendar date, or null. */
+export function toDay(y, m, d) {
+  if (![y, m, d].every(Number.isInteger) || y < 1900 || y > 2200 || m < 1 || m > 12 || d < 1 || d > 31) return null;
+  const t = Date.UTC(y, m - 1, d);
+  const back = new Date(t);
+  if (back.getUTCFullYear() !== y || back.getUTCMonth() !== m - 1 || back.getUTCDate() !== d) return null;
+  return t / 86400000;
+}
+
+export function dayIso(day) {
+  return new Date(day * 86400000).toISOString().slice(0, 10);
+}
+
+export function dayOfWeek(day) {
+  return new Date(day * 86400000).getUTCDay();
+}
+
+/** "Tue 6 Oct 2026" */
+export function dayLabel(day) {
+  const d = new Date(day * 86400000);
+  return `${WEEKDAYS[d.getUTCDay()]} ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+}
+
+/** Accepts YYYY-MM-DD and M/D/YYYY. */
+export function parseDate(text) {
+  const s = String(text ?? "").trim();
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (m) return toDay(Number(m[1]), Number(m[2]), Number(m[3]));
+  m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (m) return toDay(Number(m[3]), Number(m[1]), Number(m[2]));
+  return null;
+}
+
+const RANGE_SPLIT = /\s+(?:to|through|thru|until)\s+|\s+[–—-]\s+|\.\./i;
+
+/** "2026-12-24, 2026-12-30 to 2027-01-02" -> { days, errors }. Ranges are capped at 366 days. */
+export function parseDateList(text) {
+  const days = [];
+  const errors = [];
+  for (const raw of String(text ?? "").split(/[,;\n]+/)) {
+    const token = raw.trim();
+    if (!token) continue;
+    const parts = token.split(RANGE_SPLIT).map((p) => p.trim()).filter(Boolean);
+    if (parts.length === 1) {
+      const d = parseDate(parts[0]);
+      if (d === null) errors.push(`"${token}" is not a date. Use YYYY-MM-DD.`);
+      else days.push(d);
+    } else if (parts.length === 2) {
+      const a = parseDate(parts[0]);
+      const b = parseDate(parts[1]);
+      if (a === null || b === null) errors.push(`"${token}" is not a date range. Use YYYY-MM-DD to YYYY-MM-DD.`);
+      else if (b < a) errors.push(`"${token}" ends before it starts.`);
+      else if (b - a > 365) errors.push(`"${token}" is longer than a year.`);
+      else for (let d = a; d <= b; d++) days.push(d);
+    } else errors.push(`"${token}" is not a date or a range.`);
+  }
+  return { days: [...new Set(days)].sort((x, y) => x - y), errors };
+}
+
+export function parseWeekdays(input) {
+  const list = Array.isArray(input) ? input : String(input ?? "").split(/[\s,;/]+/);
+  const out = new Set();
+  const errors = [];
+  for (const raw of list) {
+    if (typeof raw === "number" && raw >= 0 && raw <= 6 && Number.isInteger(raw)) { out.add(raw); continue; }
+    const t = String(raw).trim().toLowerCase();
+    if (!t) continue;
+    let idx = WEEKDAY_NAMES.findIndex((n) => n === t || (t.length >= 3 && n.startsWith(t)));
+    if (idx < 0 && /^[0-6]$/.test(t)) idx = Number(t);
+    if (idx < 0) errors.push(`"${raw}" is not a weekday.`);
+    else out.add(idx);
+  }
+  return { weekdays: [...out].sort((a, b) => a - b), errors };
+}
+
+/** "6:30pm", "18:00", "7pm" -> "18:30" or null. */
+export function parseTime(text) {
+  const m = String(text ?? "").trim().toLowerCase().match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$/);
+  if (!m) return null;
+  let h = Number(m[1]);
+  const min = m[2] === undefined ? 0 : Number(m[2]);
+  if (min > 59) return null;
+  if (m[3]) {
+    if (h < 1 || h > 12) return null;
+    if (m[3] === "pm" && h !== 12) h += 12;
+    if (m[3] === "am" && h === 12) h = 0;
+  } else if (h > 23) return null;
+  return `${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
+}
+
+// ---------------------------------------------------------------- text fields
+
+export function parseTeams(text) {
+  const teams = [];
+  const errors = [];
+  const seen = new Map();
+  for (const line of String(text ?? "").split(/\r?\n/)) {
+    const name = line.replace(/\s+/g, " ").trim();
+    if (!name) continue;
+    const key = name.toLowerCase();
+    if (seen.has(key)) { errors.push(`"${name}" is listed twice.`); continue; }
+    seen.set(key, teams.length);
+    teams.push(name);
+  }
+  if (teams.length < 2) errors.push("Enter at least two teams, one per line.");
+  if (teams.length > MAX_TEAMS) errors.push(`Up to ${MAX_TEAMS} teams are supported.`);
+  return { teams, errors };
+}
+
+function teamIndex(teams, name) {
+  const key = name.replace(/\s+/g, " ").trim().toLowerCase();
+  return teams.findIndex((t) => t.toLowerCase() === key);
+}
+
+/** Lines like "Hawks: 2026-11-05, 2026-11-12 to 2026-11-19" or "Hawks cannot play 2026-11-05". */
+export function parseBlackouts(text, teams) {
+  const blackouts = {};
+  const errors = [];
+  for (const [i, raw] of String(text ?? "").split(/\r?\n/).entries()) {
+    const line = raw.trim();
+    if (!line) continue;
+    const m = line.match(/^(.*?)\s*(?::|\bcannot play\b|\bcan't play\b|\bunavailable\b)\s*(.+)$/i);
+    if (!m) { errors.push(`Line ${i + 1}: write the team, a colon, then the dates (Hawks: 2026-11-05).`); continue; }
+    const idx = teamIndex(teams, m[1]);
+    if (idx < 0) { errors.push(`Line ${i + 1}: "${m[1].trim()}" is not one of the teams.`); continue; }
+    const { days, errors: e } = parseDateList(m[2]);
+    for (const x of e) errors.push(`Line ${i + 1}: ${x}`);
+    blackouts[idx] = [...new Set([...(blackouts[idx] || []), ...days])].sort((a, b) => a - b);
+  }
+  return { blackouts, errors };
+}
+
+export function parseNameList(text) {
+  return [...new Set(String(text ?? "").split(/[\n,;]+/).map((s) => s.replace(/\s+/g, " ").trim()).filter(Boolean))];
+}
+
+export function parseTimes(text) {
+  const times = [];
+  const errors = [];
+  for (const raw of parseNameList(text)) {
+    const t = parseTime(raw);
+    if (t === null) errors.push(`"${raw}" is not a time. Use 18:00 or 6:30pm.`);
+    else if (!times.includes(t)) times.push(t);
+  }
+  return { times, errors };
+}
+
+/** Turn the page's text fields into a spec for buildSchedule. */
+export function readSpec(f) {
+  const errors = [];
+  const t = parseTeams(f.teams);
+  errors.push(...t.errors);
+  const start = parseDate(f.start);
+  if (start === null) errors.push("The season start date must be a real date, like 2026-10-06.");
+  const w = parseWeekdays(f.weekdays);
+  errors.push(...w.errors);
+  if (!w.weekdays.length) errors.push("Pick at least one weekday to play on.");
+  const skip = parseDateList(f.skip);
+  errors.push(...skip.errors.map((e) => `Skip dates: ${e}`));
+  const b = parseBlackouts(f.blackouts, t.teams);
+  errors.push(...b.errors);
+  const times = parseTimes(f.times);
+  errors.push(...times.errors);
+  const seed = Number.isFinite(Number(f.seed)) ? Math.trunc(Number(f.seed)) : 1;
+  const minutes = f.minutes === undefined || f.minutes === "" ? 60 : Number(f.minutes);
+  if (!Number.isFinite(minutes) || minutes < 5 || minutes > 600) errors.push("Match length must be between 5 and 600 minutes.");
+  return {
+    errors,
+    spec: {
+      teams: t.teams, double: Boolean(f.double), start, weekdays: w.weekdays, skipDays: skip.days,
+      blackouts: b.blackouts, courts: parseNameList(f.courts), times: times.times, seed, minutes,
+    },
+  };
+}
+
+// ---------------------------------------------------------------- rounds (circle method)
+
+/**
+ * Round-robin rounds by the circle method. Team n-1 (or the phantom bye team when n is odd)
+ * stays fixed and the rest rotate. Home/away is built in rather than patched afterwards:
+ * the fixed team alternates, and the pair at distance k from the rotating team puts the
+ * "ahead" side at home for odd k. That gives every even-n league the minimum n-2 home/away
+ * breaks (a break is two consecutive home games or two consecutive away games) and every
+ * team a home/away split within one game. A double round robin plays the same rounds again
+ * with every venue reversed.
+ */
+export function roundRobin(n, { double = false } = {}) {
+  if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
+  const N = n % 2 === 0 ? n : n + 1;
+  const first = [];
+  for (let r = 0; r < N - 1; r++) {
+    const pairs = [r % 2 === 0 ? [r, N - 1] : [N - 1, r]];
+    for (let k = 1; k < N / 2; k++) {
+      const a = (r + k) % (N - 1);
+      const b = (r - k + (N - 1)) % (N - 1);
+      pairs.push(k % 2 === 1 ? [a, b] : [b, a]);
+    }
+    let bye = null;
+    const matches = [];
+    for (const [h, a] of pairs) {
+      if (h >= n) bye = a;
+      else if (a >= n) bye = h;
+      else matches.push([h, a]);
+    }
+    first.push({ leg: 0, matches, bye });
+  }
+  if (!double) return first;
+  const second = first.map((r) => ({ leg: 1, matches: r.matches.map(([h, a]) => [a, h]), bye: r.bye }));
+  return [...first, ...second];
+}
+
+/** Home/away breaks per team over the rounds as given; a bye or an idle round resets the streak. */
+export function countBreaks(schedule) {
+  const n = schedule.teams.length;
+  const last = Array(n).fill(null);
+  const breaks = Array(n).fill(0);
+  for (const round of schedule.rounds) {
+    const today = Array(n).fill(null);
+    for (const m of round.matches) { today[m.home] = "H"; today[m.away] = "A"; }
+    for (let t = 0; t < n; t++) {
+      if (today[t] === null) { last[t] = null; continue; }
+      if (last[t] === today[t]) breaks[t]++;
+      last[t] = today[t];
+    }
+  }
+  return breaks;
+}
+
+// ---------------------------------------------------------------- seeded randomness
+
+export function mulberry32(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// ---------------------------------------------------------------- slot assignment
+
+function sumSq(arr) {
+  let s = 0;
+  for (const v of arr) s += v * v;
+  return s;
+}
+
+/**
+ * Give every match a (time, court) slot in its round so that each team's court use and
+ * time-slot use are as even as possible across the season. Simulated annealing over swaps
+ * and moves inside a round with a seeded PRNG, so the same seed gives the same schedule.
+ * Mutates match.slot; returns the final cost (sum over teams of squared usage counts).
+ */
+export function assignSlots(rounds, nTeams, courtCount, timeCount, seed = 1) {
+  const cap = courtCount * timeCount;
+  const cc = Array.from({ length: nTeams }, () => Array(courtCount).fill(0));
+  const tc = Array.from({ length: nTeams }, () => Array(timeCount).fill(0));
+  const occ = rounds.map((r) => {
+    const o = Array(cap).fill(-1);
+    r.matches.forEach((m, i) => { m.slot = i; o[i] = i; });
+    return o;
+  });
+  const bump = (m, slot, sign) => {
+    const c = slot % courtCount;
+    const t = Math.floor(slot / courtCount);
+    for (const x of [m.home, m.away]) { cc[x][c] += sign; tc[x][t] += sign; }
+  };
+  const teamCost = (x) => sumSq(cc[x]) + sumSq(tc[x]);
+  for (const r of rounds) for (const m of r.matches) bump(m, m.slot, 1);
+  let cost = 0;
+  for (let x = 0; x < nTeams; x++) cost += teamCost(x);
+  if (cap <= 1) return cost;
+
+  const movable = rounds.map((r, i) => (r.matches.length ? i : -1)).filter((i) => i >= 0);
+  if (!movable.length) return cost;
+  const total = rounds.reduce((s, r) => s + r.matches.length, 0);
+  const iterations = Math.min(80000, 800 * total);
+  const rand = mulberry32(seed * 2654435761 + 12345);
+  let best = cost;
+  let bestSlots = rounds.map((r) => r.matches.map((m) => m.slot));
+  for (let it = 0; it < iterations; it++) {
+    const temp = Math.max(0.02, 1.5 * (1 - it / iterations));
+    const ri = movable[Math.floor(rand() * movable.length)];
+    const r = rounds[ri];
+    const i = Math.floor(rand() * r.matches.length);
+    const mi = r.matches[i];
+    const s1 = mi.slot;
+    let s2 = Math.floor(rand() * (cap - 1));
+    if (s2 >= s1) s2++;
+    const j = occ[ri][s2];
+    const mj = j >= 0 ? r.matches[j] : null;
+    const affected = new Set([mi.home, mi.away]);
+    if (mj) { affected.add(mj.home); affected.add(mj.away); }
+    let before = 0;
+    for (const x of affected) before += teamCost(x);
+    bump(mi, s1, -1);
+    if (mj) bump(mj, s2, -1);
+    bump(mi, s2, 1);
+    if (mj) bump(mj, s1, 1);
+    let after = 0;
+    for (const x of affected) after += teamCost(x);
+    const delta = after - before;
+    if (delta <= 0 || rand() < Math.exp(-delta / temp)) {
+      mi.slot = s2;
+      occ[ri][s2] = i;
+      occ[ri][s1] = j;
+      if (mj) mj.slot = s1;
+      cost += delta;
+      if (cost < best) { best = cost; bestSlots = rounds.map((rr) => rr.matches.map((m) => m.slot)); }
+    } else {
+      bump(mi, s2, -1);
+      if (mj) bump(mj, s1, -1);
+      bump(mi, s1, 1);
+      if (mj) bump(mj, s2, 1);
+    }
+  }
+  // restore the best state seen
+  rounds.forEach((r, ri) => r.matches.forEach((m, i) => { m.slot = bestSlots[ri][i]; }));
+  return best;
+}
+
+// ---------------------------------------------------------------- building the schedule
+
+function nextPlayDay(from, weekdaySet, skipSet) {
+  let d = from;
+  for (let guard = 0; guard < MAX_SCAN_DAYS; guard++, d++) {
+    if (weekdaySet.has(dayOfWeek(d)) && !skipSet.has(d)) return d;
+  }
+  return null;
+}
+
+/**
+ * spec: { teams[], double, start (day), weekdays[], skipDays[], blackouts{teamIndex: days[]},
+ *         courts[], times[] ("HH:MM"), seed, minutes }
+ * Returns { teams, config, rounds[], notices[], stats }.
+ */
+export function buildSchedule(spec) {
+  const teams = spec.teams;
+  const n = teams.length;
+  if (n < 2) throw new Error("Enter at least two teams.");
+  if (n > MAX_TEAMS) throw new Error(`Up to ${MAX_TEAMS} teams are supported.`);
+  if (!Number.isInteger(spec.start)) throw new Error("The season start date is not a real date.");
+  const weekdaySet = new Set(spec.weekdays || []);
+  if (!weekdaySet.size) throw new Error("Pick at least one weekday to play on.");
+  const skipSet = new Set(spec.skipDays || []);
+  const blackSet = Array.from({ length: n }, (_, i) => new Set((spec.blackouts || {})[i] || []));
+  const notices = [];
+
+  const perRound = Math.floor(n / 2);
+  const times = spec.times && spec.times.length ? spec.times : [""];
+  let courts = spec.courts && spec.courts.length ? spec.courts : null;
+  if (!courts) courts = Array.from({ length: Math.ceil(perRound / times.length) }, (_, i) => `Court ${i + 1}`);
+  if (courts.length * times.length < perRound) {
+    throw new Error(`${n} teams play ${perRound} matches a round, but ${courts.length} court(s) x ${times.length} time slot(s) only fit ${courts.length * times.length}. Add courts or time slots.`);
+  }
+
+  const plan = roundRobin(n, { double: Boolean(spec.double) });
+  const remaining = plan.map((r, i) => ({ ...r, order: i }));
+  const isBlocked = (t, day) => blackSet[t].has(day);
+  const placed = [];
+  const pool = [];
+  let day = spec.start;
+  let scanned = 0;
+  while (remaining.length) {
+    day = nextPlayDay(day, weekdaySet, skipSet);
+    if (day === null || scanned++ > MAX_SCAN_DAYS) throw new Error("Could not find enough playable dates. Check the weekdays, skip dates and blackouts.");
+    const leg = Math.min(...remaining.map((r) => r.leg));
+    let best = null;
+    let bestConf = Infinity;
+    for (const r of remaining) {
+      if (r.leg !== leg) continue;
+      const conf = r.matches.filter(([h, a]) => isBlocked(h, day) || isBlocked(a, day)).length;
+      if (conf < bestConf) { best = r; bestConf = conf; }
+      if (conf === 0) break;
+    }
+    const playable = best.matches.filter(([h, a]) => !isBlocked(h, day) && !isBlocked(a, day));
+    if (!playable.length && best.matches.length) {
+      notices.push(`${dayLabel(day)}: no round could be played because of team blackouts, so that date is unused.`);
+      day++;
+      continue;
+    }
+    for (const [h, a] of best.matches) if (isBlocked(h, day) || isBlocked(a, day)) pool.push([h, a]);
+    placed.push({ day, leg: best.leg, bye: best.bye, matches: playable.map(([h, a]) => ({ home: h, away: a })), makeup: false });
+    remaining.splice(remaining.indexOf(best), 1);
+    day++;
+  }
+  // matches displaced by a blackout are packed into makeup rounds after the regular season
+  let guard = 0;
+  while (pool.length) {
+    day = nextPlayDay(day, weekdaySet, skipSet);
+    if (day === null || guard++ > MAX_SCAN_DAYS) throw new Error("Could not find dates for the makeup matches. Check the blackouts.");
+    const used = new Set();
+    const matches = [];
+    for (let i = 0; i < pool.length && matches.length < courts.length * times.length; i++) {
+      const [h, a] = pool[i];
+      if (used.has(h) || used.has(a) || isBlocked(h, day) || isBlocked(a, day)) continue;
+      used.add(h); used.add(a);
+      matches.push({ home: h, away: a });
+      pool.splice(i, 1);
+      i--;
+    }
+    if (matches.length) placed.push({ day, leg: 1, bye: null, matches, makeup: true });
+    day++;
+  }
+  let regular = 0;
+  let makeupN = 0;
+  const rounds = placed.map((p) => {
+    const label = p.makeup ? `Makeup ${++makeupN}` : `Round ${++regular}`;
+    return { number: p.makeup ? null : regular, label, makeup: p.makeup, day: p.day, bye: p.bye, matches: p.matches };
+  });
+  const displaced = rounds.filter((r) => r.makeup).reduce((s, r) => s + r.matches.length, 0);
+  if (displaced) notices.push(`${displaced} match(es) moved to makeup rounds because a team could not play on its scheduled date.`);
+
+  const cost = assignSlots(rounds, n, courts.length, times.length, spec.seed ?? 1);
+  for (const r of rounds) {
+    for (const m of r.matches) {
+      m.court = courts[m.slot % courts.length];
+      m.time = times[Math.floor(m.slot / courts.length)];
+      m.homeName = teams[m.home];
+      m.awayName = teams[m.away];
+    }
+    r.matches.sort((a, b) => a.slot - b.slot);
+  }
+
+  const schedule = {
+    teams,
+    config: {
+      double: Boolean(spec.double), start: spec.start, weekdays: [...weekdaySet].sort(), skipDays: [...skipSet].sort((a, b) => a - b),
+      blackouts: Object.fromEntries(blackSet.map((s, i) => [i, [...s].sort((a, b) => a - b)]).filter(([, d]) => d.length)),
+      courts, times, seed: spec.seed ?? 1, minutes: spec.minutes ?? 60,
+    },
+    rounds,
+    notices,
+    slotCost: cost,
+  };
+  schedule.stats = scheduleStats(schedule);
+  return schedule;
+}
+
+export function scheduleStats(schedule) {
+  const n = schedule.teams.length;
+  const { courts, times } = schedule.config;
+  const home = Array(n).fill(0);
+  const away = Array(n).fill(0);
+  const byCourt = Array.from({ length: n }, () => Object.fromEntries(courts.map((c) => [c, 0])));
+  const byTime = Array.from({ length: n }, () => Object.fromEntries(times.map((t) => [t, 0])));
+  let matches = 0;
+  for (const r of schedule.rounds) {
+    for (const m of r.matches) {
+      matches++;
+      home[m.home]++; away[m.away]++;
+      for (const x of [m.home, m.away]) { byCourt[x][m.court]++; byTime[x][m.time]++; }
+    }
+  }
+  const breaks = countBreaks(schedule);
+  const spread = (rec) => Math.max(0, ...rec.map((o) => { const v = Object.values(o); return v.length ? Math.max(...v) - Math.min(...v) : 0; }));
+  return {
+    matches, home, away, breaks, totalBreaks: breaks.reduce((a, b) => a + b, 0), byCourt, byTime,
+    courtSpread: spread(byCourt), timeSpread: spread(byTime),
+    lastDay: schedule.rounds.length ? schedule.rounds[schedule.rounds.length - 1].day : null,
+  };
+}
+
+// ---------------------------------------------------------------- independent validator
+
+/**
+ * Re-checks a finished schedule from its output alone (it calls none of the generator's
+ * helpers): every pair meets the right number of times, no team plays twice in a round,
+ * home/away is balanced, no slot is double-booked, dates fall on the chosen weekdays and
+ * avoid skip dates and blackouts. Returns { ok, errors[] }.
+ */
+export function validateSchedule(schedule) {
+  const errors = [];
+  const n = schedule.teams.length;
+  const cfg = schedule.config;
+  const want = cfg.double ? 2 : 1;
+  const pair = new Map();
+  const homeOf = Array(n).fill(0);
+  const awayOf = Array(n).fill(0);
+  const seenDays = new Set();
+  let prevDay = -Infinity;
+  for (const round of schedule.rounds) {
+    if (!Number.isInteger(round.day)) { errors.push(`${round.label}: no date.`); continue; }
+    if (seenDays.has(round.day)) errors.push(`${round.label}: another round is already on ${dayIso(round.day)}.`);
+    seenDays.add(round.day);
+    if (round.day < prevDay) errors.push(`${round.label}: dated before the round above it.`);
+    prevDay = round.day;
+    if (!cfg.weekdays.includes(new Date(round.day * 86400000).getUTCDay())) errors.push(`${round.label}: ${dayIso(round.day)} is not a chosen weekday.`);
+    if (cfg.skipDays.includes(round.day)) errors.push(`${round.label}: ${dayIso(round.day)} is a skip date.`);
+    const inRound = new Set();
+    const cells = new Set();
+    for (const m of round.matches) {
+      const { home, away } = m;
+      if (![home, away].every((t) => Number.isInteger(t) && t >= 0 && t < n) || home === away) { errors.push(`${round.label}: bad match ${home} v ${away}.`); continue; }
+      for (const t of [home, away]) {
+        if (inRound.has(t)) errors.push(`${round.label}: ${schedule.teams[t]} plays twice.`);
+        inRound.add(t);
+        if ((cfg.blackouts[t] || []).includes(round.day)) errors.push(`${round.label}: ${schedule.teams[t]} cannot play on ${dayIso(round.day)}.`);
+      }
+      const key = `${Math.min(home, away)}-${Math.max(home, away)}`;
+      const rec = pair.get(key) || { count: 0, hostedByLow: 0, hostedByHigh: 0 };
+      rec.count++;
+      if (home < away) rec.hostedByLow++; else rec.hostedByHigh++;
+      pair.set(key, rec);
+      homeOf[home]++; awayOf[away]++;
+      const cell = `${m.court}|${m.time}`;
+      if (cells.has(cell)) errors.push(`${round.label}: ${m.court} at ${m.time || "the one time slot"} is booked twice.`);
+      cells.add(cell);
+      if (!cfg.courts.includes(m.court)) errors.push(`${round.label}: unknown court ${m.court}.`);
+      if (!cfg.times.includes(m.time)) errors.push(`${round.label}: unknown time ${m.time}.`);
+    }
+  }
+  for (let a = 0; a < n; a++) {
+    for (let b = a + 1; b < n; b++) {
+      const rec = pair.get(`${a}-${b}`);
+      const c = rec ? rec.count : 0;
+      if (c !== want) errors.push(`${schedule.teams[a]} and ${schedule.teams[b]} meet ${c} time(s), expected ${want}.`);
+      if (want === 2 && rec && (rec.hostedByLow !== 1 || rec.hostedByHigh !== 1)) errors.push(`${schedule.teams[a]} and ${schedule.teams[b]} do not each host once.`);
+    }
+  }
+  const tolerance = want === 2 ? 0 : 1;
+  for (let t = 0; t < n; t++) {
+    if (Math.abs(homeOf[t] - awayOf[t]) > tolerance) errors.push(`${schedule.teams[t]} has ${homeOf[t]} home and ${awayOf[t]} away games.`);
+  }
+  return { ok: errors.length === 0, errors };
+}
+
+// ---------------------------------------------------------------- views and exports
+
+export function teamSchedule(schedule, teamIdx) {
+  const rows = [];
+  for (const r of schedule.rounds) {
+    const m = r.matches.find((x) => x.home === teamIdx || x.away === teamIdx);
+    if (m) {
+      const home = m.home === teamIdx;
+      rows.push({ round: r.label, day: r.day, time: m.time, court: m.court, opponent: schedule.teams[home ? m.away : m.home], venue: home ? "Home" : "Away", bye: false });
+    } else if (r.bye === teamIdx) {
+      rows.push({ round: r.label, day: r.day, time: "", court: "", opponent: "", venue: "", bye: true });
+    }
+  }
+  return rows;
+}
+
+function csvCell(v) {
+  let s = String(v ?? "");
+  if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`; // never let a team name run as a spreadsheet formula
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+export function scheduleCsv(schedule) {
+  const lines = [["Round", "Date", "Day", "Time", "Court", "Home", "Away"].join(",")];
+  for (const r of schedule.rounds) {
+    for (const m of r.matches) {
+      lines.push([r.label, dayIso(r.day), WEEKDAYS[dayOfWeek(r.day)], m.time, m.court, m.homeName, m.awayName].map(csvCell).join(","));
+    }
+    if (r.bye !== null && r.bye !== undefined) lines.push([r.label, dayIso(r.day), WEEKDAYS[dayOfWeek(r.day)], "", "", schedule.teams[r.bye], "BYE"].map(csvCell).join(","));
+  }
+  return lines.join("\r\n") + "\r\n";
+}
+
+function icsEscape(s) {
+  return String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+}
+
+function icsFold(line) {
+  const enc = new TextEncoder();
+  if (enc.encode(line).length <= 75) return line;
+  const out = [];
+  let cur = "";
+  let bytes = 0;
+  for (const ch of line) {
+    const b = enc.encode(ch).length;
+    if (bytes + b > (out.length ? 74 : 75)) { out.push(cur); cur = ""; bytes = 0; }
+    cur += ch; bytes += b;
+  }
+  out.push(cur);
+  return out.map((l, i) => (i ? " " + l : l)).join("\r\n");
+}
+
+const compactDate = (day) => dayIso(day).replace(/-/g, "");
+
+/**
+ * An iCalendar file for one team (teamIdx) or every match (teamIdx omitted).
+ * Times are floating local times, so a phone shows them as written at the venue.
+ * `stamp` (YYYYMMDDTHHMMSSZ) is injectable so the output is reproducible in tests.
+ */
+export function scheduleIcs(schedule, teamIdx = null, stamp = null) {
+  const dtstamp = stamp || new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
+  const minutes = schedule.config.minutes || 60;
+  const out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//league-schedule-generator//EN", "CALSCALE:GREGORIAN",
+    `X-WR-CALNAME:${icsEscape(teamIdx === null ? "League schedule" : `${schedule.teams[teamIdx]} schedule`)}`];
+  for (const r of schedule.rounds) {
+    r.matches.forEach((m, i) => {
+      if (teamIdx !== null && m.home !== teamIdx && m.away !== teamIdx) return;
+      const summary = teamIdx === null
+        ? `${m.homeName} vs ${m.awayName}`
+        : `${schedule.teams[teamIdx]} vs ${schedule.teams[m.home === teamIdx ? m.away : m.home]} (${m.home === teamIdx ? "home" : "away"})`;
+      out.push("BEGIN:VEVENT", `UID:${m.home}-${m.away}-${compactDate(r.day)}-${i}@league-schedule-generator`, `DTSTAMP:${dtstamp}`);
+      if (m.time) {
+        const [hh, mm] = m.time.split(":").map(Number);
+        const startMin = hh * 60 + mm;
+        const endMin = startMin + minutes;
+        const endDay = r.day + Math.floor(endMin / 1440);
+        const em = endMin % 1440;
+        out.push(`DTSTART:${compactDate(r.day)}T${String(hh).padStart(2, "0")}${String(mm).padStart(2, "0")}00`,
+          `DTEND:${compactDate(endDay)}T${String(Math.floor(em / 60)).padStart(2, "0")}${String(em % 60).padStart(2, "0")}00`);
+      } else {
+        out.push(`DTSTART;VALUE=DATE:${compactDate(r.day)}`, `DTEND;VALUE=DATE:${compactDate(r.day + 1)}`);
+      }
+      out.push(`SUMMARY:${icsEscape(summary)}`, `LOCATION:${icsEscape(m.court)}`, `DESCRIPTION:${icsEscape(r.label)}`, "END:VEVENT");
+    });
+  }
+  out.push("END:VCALENDAR");
+  return out.map(icsFold).join("\r\n") + "\r\n";
+}
+
+export function scheduleText(schedule, bracket = null) {
+  const n = schedule.teams.length;
+  const lines = [`${n}-team ${schedule.config.double ? "double" : "single"} round robin`, ""];
+  for (const r of schedule.rounds) {
+    lines.push(`${r.label} - ${dayLabel(r.day)}`);
+    for (const m of r.matches) lines.push(`  ${m.time ? m.time + " " : ""}${m.court}: ${m.homeName} (home) vs ${m.awayName}`);
+    if (r.bye !== null && r.bye !== undefined) lines.push(`  Bye: ${schedule.teams[r.bye]}`);
+    lines.push("");
+  }
+  if (bracket) lines.push(bracketText(bracket));
+  lines.push("Made with the free league schedule generator. Check the dates before you send them round.");
+  return lines.join("\n");
+}
+
+// ---------------------------------------------------------------- results, standings, play-offs
+
+/** Lines like "Hawks 3 - 2 Owls". Names are matched against the team list. */
+export function parseResults(text, teams) {
+  const results = [];
+  const errors = [];
+  for (const [i, raw] of String(text ?? "").split(/\r?\n/).entries()) {
+    const line = raw.trim();
+    if (!line) continue;
+    const m = line.match(/^(.*?)\s+(\d+)\s*[-–:]\s*(\d+)\s+(.*)$/);
+    if (!m) { errors.push(`Result line ${i + 1}: write it like "Hawks 3 - 2 Owls".`); continue; }
+    const a = teamIndex(teams, m[1]);
+    const b = teamIndex(teams, m[4]);
+    if (a < 0 || b < 0) { errors.push(`Result line ${i + 1}: "${a < 0 ? m[1] : m[4]}" is not one of the teams.`); continue; }
+    if (a === b) { errors.push(`Result line ${i + 1}: a team cannot play itself.`); continue; }
+    results.push({ a, b, ga: Number(m[2]), gb: Number(m[3]) });
+  }
+  return { results, errors };
+}
+
+/** Points, then goal difference, then goals for, then the order the teams were entered. */
+export function standings(teams, results, { win = 3, draw = 1, loss = 0 } = {}) {
+  const rows = teams.map((name, i) => ({ index: i, name, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, points: 0 }));
+  for (const r of results) {
+    const A = rows[r.a];
+    const B = rows[r.b];
+    A.played++; B.played++;
+    A.gf += r.ga; A.ga += r.gb; B.gf += r.gb; B.ga += r.ga;
+    if (r.ga > r.gb) { A.won++; B.lost++; A.points += win; B.points += loss; }
+    else if (r.ga < r.gb) { B.won++; A.lost++; B.points += win; A.points += loss; }
+    else { A.drawn++; B.drawn++; A.points += draw; B.points += draw; }
+  }
+  for (const r of rows) r.gd = r.gf - r.ga;
+  rows.sort((x, y) => y.points - x.points || y.gd - x.gd || y.gf - x.gf || x.index - y.index);
+  rows.forEach((r, i) => { r.rank = i + 1; });
+  return rows;
+}
+
+const nextPow2 = (k) => { let p = 1; while (p < k) p *= 2; return p; };
+
+/** Standard single-elimination seed order for a bracket of `size` (1 v size, 2 v size-1, ...). */
+export function seedOrder(size) {
+  let order = [1];
+  while (order.length < size) {
+    const len = order.length * 2;
+    order = order.flatMap((s) => [s, len + 1 - s]);
+  }
+  return order;
+}
+
+function roundName(matchesInRound) {
+  return { 1: "Final", 2: "Semifinals", 4: "Quarterfinals", 8: "Round of 16", 16: "Round of 32" }[matchesInRound] || `Round of ${matchesInRound * 2}`;
+}
+
+/**
+ * Single-elimination bracket for the seeds given in order (best first). A non-power-of-two
+ * field gives the top seeds a first-round bye. Later-round slots name the match they come
+ * from. Optional dates continue after `afterDay` on the league's weekdays.
+ */
+export function playoffBracket(seedNames, { afterDay = null, weekdays = [], skipDays = [] } = {}) {
+  const k = seedNames.length;
+  if (k < 2) throw new Error("A play-off needs at least two teams.");
+  const size = nextPow2(k);
+  const order = seedOrder(size);
+  const seedTeam = (s) => (s <= k ? { seed: s, name: seedNames[s - 1] } : null);
+  const rounds = [];
+  let current = [];
+  for (let i = 0; i < size; i += 2) {
+    const a = seedTeam(order[i]);
+    const b = seedTeam(order[i + 1]);
+    current.push({ id: `R1M${i / 2 + 1}`, a, b, bye: !a || !b });
+  }
+  rounds.push({ name: roundName(size / 2), matches: current });
+  let level = 2;
+  while (current.length > 1) {
+    const next = [];
+    for (let i = 0; i < current.length; i += 2) {
+      const slot = (m) => (m.bye ? m.a || m.b : { from: m.id });
+      next.push({ id: `R${level}M${i / 2 + 1}`, a: slot(current[i]), b: slot(current[i + 1]), bye: false });
+    }
+    rounds.push({ name: roundName(next.length), matches: next });
+    current = next;
+    level++;
+  }
+  if (afterDay !== null && weekdays.length) {
+    const wd = new Set(weekdays);
+    const skip = new Set(skipDays);
+    let d = afterDay + 1;
+    for (const r of rounds) {
+      if (r.matches.every((m) => m.bye)) continue;
+      d = nextPlayDay(d, wd, skip);
+      if (d === null) break;
+      r.day = d;
+      d++;
+    }
+  }
+  const games = rounds.reduce((s, r) => s + r.matches.filter((m) => !m.bye).length, 0);
+  return { size, teams: k, rounds, games };
+}
+
+function slotText(s) {
+  if (!s) return "BYE";
+  if (s.from) return `winner of ${s.from}`;
+  return `#${s.seed} ${s.name}`;
+}
+
+export function bracketText(bracket) {
+  const lines = [`Play-offs (${bracket.teams} teams, single elimination)`];
+  for (const r of bracket.rounds) {
+    const real = r.matches.filter((m) => !m.bye);
+    if (real.length) lines.push(`${r.name}${r.day ? " - " + dayLabel(r.day) : ""}`);
+    for (const m of real) lines.push(`  ${m.id}: ${slotText(m.a)} vs ${slotText(m.b)}`);
+    for (const m of r.matches.filter((x) => x.bye)) lines.push(`  Bye: ${slotText(m.a || m.b)}`);
+  }
+  return lines.join("\n");
+}
+
+// ---------------------------------------------------------------- example
+
+export function sampleFields() {
+  return {
+    teams: "Net Ninjas\nDink Dynasty\nKitchen Kings\nLob Squad\nSpin Doctors\nThird Shot Drops",
+    double: false,
+    start: "2026-10-06",
+    weekdays: ["Tue"],
+    skip: "2026-11-24",
+    blackouts: "Dink Dynasty: 2026-10-20",
+    courts: "Court 1\nCourt 2",
+    times: "18:00, 19:00",
+    seed: 1,
+    minutes: 60,
+    results: "",
+    playoff: 4,
+  };
+}

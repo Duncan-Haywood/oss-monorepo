@@ -97,3 +97,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("LICENSE"), /MIT License/);
   assert.match(page("VENTURE.yaml"), /^name: shift-cover-optimizer$/m);
 });
+
+test("footer points at the league schedule generator", () => {
+  assert.match(page("index.html"), /href="\.\.\/league-schedule-generator\/"/);
+});

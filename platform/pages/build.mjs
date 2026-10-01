@@ -918,8 +918,11 @@ const CATEGORY_RULES = [
     // identical units a small rental business should own is the owner-operator
     // side of `bounce-house-rental-calculator` and `dumpster-rental-margin-
     // calculator`, which it sits beside and cross-links.
+    // `league-schedule-generator` joined 2026-10-01 on its first commit: a volunteer
+    // organiser turning a team list, dates and courts into a fair fixture list is
+    // the same event-organiser job as `event-seating-chart-optimizer` above.
     test: (slug) =>
-      /^(home-care-agency|booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|massage-therapist-profit|dj-gig-profit|wedding-photographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart)/.test(
+      /^(home-care-agency|booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|massage-therapist-profit|dj-gig-profit|wedding-photographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule)/.test(
         slug,
       ),
   },
