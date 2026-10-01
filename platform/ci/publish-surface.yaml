@@ -1109,6 +1109,9 @@ workflows:
 - workflow: payment-reconciliation-workbench-ci.yml
   classification: none
   publishes: []
+- workflow: payroll-tax-deposit-penalty-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: pdf-accessibility-tag-check-ci.yml
   classification: none
   publishes: []

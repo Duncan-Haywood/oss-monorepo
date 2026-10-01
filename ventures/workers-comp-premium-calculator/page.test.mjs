@@ -77,3 +77,7 @@ test("the linked sibling ventures exist", () => {
     assert.doesNotThrow(() => readFileSync(new URL(`../${slug}/index.html`, import.meta.url)), slug);
   }
 });
+
+test("the footer links the payroll tax deposit penalty calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/payroll-tax-deposit-penalty-calculator\/"/);
+});

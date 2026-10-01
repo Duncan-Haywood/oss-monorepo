@@ -23978,3 +23978,35 @@ ventures:
       rollover, late payment, taxes and unlogged hours are not modelled). The time log
       never leaves the browser. Ethics: helps a freelancer see what a retainer would
       have paid before proposing it; nothing is sold and no client data is collected.
+  - slug: payroll-tax-deposit-penalty-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately: statutory date and percentage
+      arithmetic plus a small min-cost matching, on figures the user types.
+    basis: >-
+      Screened 2026-10-01. duplicate_check.py best match 0.20 (rd-tax-credit-
+      calculator, an unrelated credit; nothing in the catalogue covers Form 941
+      deposits). Distribution 7: "monthly or semiweekly depositor", "failure to
+      deposit penalty calculator" and "941 deposit due date" recur every payday
+      and quarter for small employers (volume not measured with an external
+      tool). Defensibility 3: the rules are public; the edge is a free, private
+      tool that dates every deposit and solves the designation question payroll
+      providers do not show.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: date and percentage arithmetic on user-supplied figures, no
+      interest or notice tier, not tax or legal advice, no warranty, limits stated
+      in three places; files and pays nothing. Ethics: helps small employers see
+      a penalty they may already owe; nothing leaves the browser.

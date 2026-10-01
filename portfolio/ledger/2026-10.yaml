@@ -122,3 +122,27 @@ entries:
         80th percentile, a shift the hold-out must flag, and no-network assertions.
         Registered score row, launch date, category rule and CI workflow.
     mrr_end: 0
+  - venture: payroll-tax-deposit-penalty-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built payroll-tax-deposit-penalty-calculator: a browser-local
+        tool for small employers. Paste payday liabilities and deposits; it sets the
+        schedule from the lookback total ($50,000 line), dates every deposit (the
+        15th for monthly, Wednesday or Friday for semiweekly with the third-banking-day
+        holiday rule, the $100,000 next-day rule and the monthly-to-semiweekly switch,
+        a federal banking calendar computed from rules rather than a table), prices
+        late deposits at the 2%, 5% and 10% tiers, and shows the penalty three ways:
+        the IRS newest-liability-first default, oldest first, and the cheapest legal
+        designation of the user's own deposits, solved as a min-cost transportation
+        problem. Omits interest and the 15% post-notice tier and says so. New niche:
+        duplicate_check.py best match 0.20 (rd-tax-credit-calculator, an unrelated
+        credit); no Form 941 deposit tool exists in the catalogue. First visitor
+        expected from "monthly or semiweekly depositor", "failure to deposit penalty
+        calculator" and "941 deposit due dates" searches. Unverified by a tax
+        professional: tests pin hand-counted holidays and due dates, tier boundaries,
+        a worked designation example (default 1,040 vs designated 740), an optimality
+        property check and no-network assertions. Registered score row, launch date,
+        category rule and CI workflow.
+    mrr_end: 0
