@@ -1171,9 +1171,10 @@ const RELATIVE_SELF = relative(
 // +1: `regex-redos-check` graduated.
 // +1: `freelance-rate-increase-calculator` graduated.
 // +1: `course-launch-revenue-calculator` graduated.
+// +1: `postgres-explain-analyzer` graduated.
 // +1: `prometheus-cardinality-cost` graduated.
 // +1: `slo-burn-rate-alerts` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 556;
+const SWITCHES_IN_THE_CATALOGUE = 557;
 
 let counter = 0;
 function fixture(source) {

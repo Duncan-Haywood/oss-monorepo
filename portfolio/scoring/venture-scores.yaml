@@ -25188,3 +25188,31 @@ ventures:
       Liability: arithmetic on typed numbers, generated rules labelled as a starting point
       to review and test, no warranty, nothing leaves the device. Ethics: helps engineers
       get alerts that page on real outages and stay quiet otherwise.
+  - slug: postgres-explain-analyzer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic plan parser and rule set over pasted EXPLAIN text; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-01 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 6 and defensibility 4: very
+      high search demand ("postgres explain analyze", "slow query") with established
+      free viewers (explain.dalibo.com, explain.depesz.com) and paid pgMustard; the
+      wedge is local-only, concrete fixes and a CI gate; volume not measured with an
+      external tool.
+      Scope: Free CLI and browser tool that finds why a Postgres query is slow from one EXPLAIN ANALYZE plan.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: heuristics over pasted text, suggestions labelled hypotheses to test, no
+      warranty, nothing leaves the device. Ethics: helps engineers fix slow queries.
