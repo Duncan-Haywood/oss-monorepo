@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 570 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 571 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -350,6 +350,15 @@
     <summary type="text">Free multi-state residency day counter. Enter where you spent the year, see days per state against the 183-day and other statutory residency tests, the room you have left, the date you would cross a limit, and remote-work wages split by state. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Tattoo Piece Profit Calculator — what you really keep per hour</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tattoo-piece-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/tattoo-piece-profit-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Tattoo piece profit calculator. Enter the hourly take-home you want, your shop commission or booth rent, setup time, supplies and free touch-ups to see the lowest price for each piece, what you really keep per hour including drawing time, and your shop minimum. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Tile Layout Planner — how many tiles, where to cut, and where to start</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tile-layout-planner/"/>
     <id>tag:marisstella.dev,2026:tool/tile-layout-planner</id>
@@ -357,14 +366,5 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free tile layout planner for installers and DIY. Enter a room, cut-outs and a tile; see the real layout, how many tiles to buy with offcut reuse, the cut list, and the starting position with the fewest thin cuts. Straight, running bond or diagonal. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Time-Off Request Planner — approve the most vacation requests without leaving a shift short</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/time-off-request-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/time-off-request-planner</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free vacation and PTO request planner for small teams. Paste your people with roles and the time-off requests you have, set the minimum on duty per role, and see which requests to approve, why each other one clashes and what dates would work. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
