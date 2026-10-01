@@ -391,6 +391,8 @@ export const REVIEWED_NOT_CARRIED = {
     'the hourly figure is a take-home target rather than a wage, and overhead is monthly dollars spread over working hours rather than a percentage of direct cost; there is no burden field',
   'dog-grooming-profit-calculator':
     'the hourly figure is a take-home target rather than a wage, and overhead is monthly dollars spread over bookable hours rather than a percentage of direct cost; there is no burden field',
+  'massage-therapist-profit-calculator':
+    'the hourly figure is a take-home target rather than a wage, and overhead is monthly dollars spread over bookable hours rather than a percentage of direct cost; there is no burden field',
   'dog-boarding-daycare-pricing':
     'overhead is a flat dollar allowance per dog-day rather than a percentage of direct cost, and there is no burden field, so prefilling from the shared shop-rate bar would put a considered-looking wrong number on the overhead field even though the wage and margin fields are genuine',
   'notary-trip-quote':
