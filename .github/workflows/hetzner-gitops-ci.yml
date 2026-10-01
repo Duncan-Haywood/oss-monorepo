@@ -91,6 +91,12 @@ jobs:
       # _to_run_it` fails if it ever skips on a *hosted* runner instead.
       - name: Install nginx
         run: sudo apt-get install -y --no-install-recommends nginx-light || true
+      # test_load_secrets.py drives `load-secrets.sh --encrypt`, which checks
+      # for the `age` binary before anything else. The hosted image stopped
+      # shipping it, so every gitops run on main went red on
+      # test_encrypt_refuses_an_empty_recipient_list (2026-10-01).
+      - name: Install age
+        run: sudo apt-get install -y --no-install-recommends age || true
       - name: pyflakes governor
         run: pyflakes gitops/agents/governor/governor.py
       - name: pytest
