@@ -2882,7 +2882,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `crypto-cost-basis-calculator` graduated (browser-local crypto lot matcher: FIFO/LIFO/HIFO/LOFO/tax-aware, short/long rows, Form 8949 style export).
     # +1: `rental-fleet-size-optimizer` graduated (browser-local rental fleet size: Erlang loss plus seeded day-by-day simulation, how many identical units to own).
     # +1: `tile-layout-planner` graduated (browser-local tile layout planner: exact polygon clipping, offcut reuse, search over starting positions, to-scale plan and cut list).
-    total = 549  # `infra/OWNER_CHECKLIST.md`'s own "N of the 549 tools" wording.
+    # +1: `event-seating-chart-optimizer` graduated (browser-local seating chart optimizer: simulated annealing over guest wishes, tables balanced, pins honoured).
+    total = 550  # `infra/OWNER_CHECKLIST.md`'s own "N of the 550 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
