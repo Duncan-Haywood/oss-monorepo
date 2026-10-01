@@ -536,6 +536,9 @@ workflows:
 - workflow: handyman-minimum-job-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: car-wash-membership-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: house-cleaning-quote-calculator-ci.yml
   classification: none
   publishes: []
