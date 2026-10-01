@@ -23943,3 +23943,38 @@ ventures:
       food-safety advice, no warranty, no marketplace named, cottage-food rules
       stated as not modelled. Ethics: helps a small seller charge what the work
       costs; nothing is sold, no data is collected.
+  - slug: freelance-retainer-vs-hourly-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Percentiles, a seeded bootstrap and a hold-out run in the browser; no language
+      model and no paid API. The refusal under six months and the unstable verdict
+      are the product.
+    basis: >-
+      Screened 2026-10-01. duplicate_check.py best match 0.41 (freelance-writer-rate-
+      calculator, a rate-from-costs tool) and 0.36 (freelance-retainer-calculator,
+      which prices a retainer from income-goal assumptions and takes no time log).
+      Distribution 6: "retainer vs hourly pricing" and "how to price a retainer" are
+      recurring freelancer and consultant queries and r/freelance and r/consulting
+      threads (volume not measured with an external tool). Defensibility 3: the
+      percentile arithmetic is simple; the edge is a free, private, no-upload replay
+      of the retainer against the user's own months, with ranges and the plain
+      refusal on thin history.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical description of supplied data, not legal, tax or
+      financial advice, no warranty, no vendor named, limits stated (scope creep,
+      rollover, late payment, taxes and unlogged hours are not modelled). The time log
+      never leaves the browser. Ethics: helps a freelancer see what a retainer would
+      have paid before proposing it; nothing is sold and no client data is collected.

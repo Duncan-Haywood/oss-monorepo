@@ -173,6 +173,14 @@ assert.match(
   'index must link ../freelance-platform-fee-calculator/ so crawlers reach the Upwork vs. Fiverr fee calculator in one hop',
 );
 
+// Crawlable-orphan link: `freelance-retainer-vs-hourly-calculator` prices the
+// same retainer from the freelancer's own time log rather than an income goal.
+assert.match(
+  index,
+  /href="\.\.\/freelance-retainer-vs-hourly-calculator\/"/,
+  'index must link ../freelance-retainer-vs-hourly-calculator/ so crawlers reach the time-log retainer replay in one hop',
+);
+
 // Crawlable-orphan link, closed from freelance-writer-rate-calculator's
 // first commit rather than shipping that new tool as an orphan to close
 // later. Both tools price a self-employed writer's own work -- one an

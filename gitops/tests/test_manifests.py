@@ -2868,7 +2868,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `private-practice-payer-mix-calculator` graduated (browser-local therapy-practice payer mix: net per clinical hour by panel and cash, break-even refill).
     # +1: `cottage-food-pricing-calculator` graduated (browser-local cottage-food pricing: full cost per sellable unit, online/market/wholesale prices, earned per hour).
     # +1: `contractor-wip-schedule` graduated (browser-local percent-of-completion WIP schedule: over/under billing, loss provision, cash still to come).
-    total = 534  # `infra/OWNER_CHECKLIST.md`'s own "N of the 534 tools" wording.
+    # +1: `freelance-retainer-vs-hourly-calculator` graduated (browser-local retainer-versus-hourly replay of a proposed retainer against the user's own time log).
+    total = 535  # `infra/OWNER_CHECKLIST.md`'s own "N of the 535 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
