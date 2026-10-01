@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Landlord Repair-or-Replace Planner — repair it or replace it?</title>
+  <meta name="description" content="Free tool for landlords and homeowners. Enter a water heater, furnace, AC, roof or appliance with its age, repair quote and replacement cost to see whether repairing or replacing costs less over the years you will own it, and the break-even repair price. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Landlord Repair-or-Replace Planner — free, private, in your browser">
+  <meta property="og:description" content="Repair or replace? Price both paths over your holding period, with the chance of failure and the cost of an unplanned one.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Landlord Repair-or-Replace Planner","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Paste or upload your rental property equipment with age, repair quote and replacement cost. Compares repairing with replacing over your holding period using a wear-out failure model, shows the break-even repair quote, and plans replacements within a budget. Runs in your browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I repair or replace a water heater, furnace or appliance?","acceptedAnswer":{"@type":"Answer","text":"Compare what each path costs over the years you will own the building, not the size of today's quote. Repairing leaves the unit as old as it was, so the chance it fails again stays high; replacing resets that chance and may cut utility cost. This tool prices both paths over your horizon, including the cost of an unplanned failure, and shows the repair price at which the two break even."}},{"@type":"Question","name":"What is the 50% rule and why does this tool not just use it?","acceptedAnswer":{"@type":"Answer","text":"The rule of thumb says replace when the repair costs more than half of a new unit, or when the unit is past half its life and the repair costs a third or more. It ignores what a failure costs you, what a new unit saves in energy, and how steeply this kind of equipment wears out. The tool shows whether the rule would say replace next to its own answer, so you can see where they disagree."}},{"@type":"Question","name":"What is the break-even repair quote?","acceptedAnswer":{"@type":"Answer","text":"It is the most a repair can cost before replacing is cheaper over your horizon. If the quote in hand is under it, repair; if it is over, replace. It falls as the unit ages, because an old unit is likelier to fail again soon and the repair buys less."}},{"@type":"Question","name":"Where do the typical lives come from?","acceptedAnswer":{"@type":"Answer","text":"They are rule-of-thumb planning figures (for example 12 years for a tank water heater, 18 for a furnace, 15 for central air, 22 for an asphalt roof) that you can overwrite per asset. They are starting points, not measured lives of your unit. Enter your own if a technician or your history says otherwise; the tool also shows how the answer changes if the life is 25% shorter or longer."}},{"@type":"Question","name":"What does wear-out sharpness mean?","acceptedAnswer":{"@type":"Answer","text":"It is how quickly the failure chance climbs as a unit approaches the end of its life. At 1 a unit has no memory and fails at random at any age; at 3, the default, most units fail in a band around their typical life; at 5 or more, almost all fail near it. Leave it at 3 unless you have reason to change it."}},{"@type":"Question","name":"What does an unplanned failure cost?","acceptedAnswer":{"@type":"Answer","text":"More than the unit: an emergency call-out, a rush install, lost rent while a tenant has no heat or hot water, and sometimes water damage. The default adds 200 dollars for each failure and you can change it for all assets. Raising it pushes the answer toward replacing before the unit fails."}},{"@type":"Question","name":"Does it work for a homeowner, not just a landlord?","acceptedAnswer":{"@type":"Answer","text":"Yes. Any owner deciding between a repair quote and a replacement on equipment with a rough life expectancy can use it: water heater, furnace, air conditioner, heat pump, roof, refrigerator, washer, dryer, dishwasher, range, disposal or sump pump. Put the years you expect to keep the property in the horizon."}},{"@type":"Question","name":"Is my property list uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your assets. It works offline once the page has loaded."}}]}</script>
+    <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">LANDLORD REPAIR-OR-REPLACE PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>The repair quote is $420. Is it worth it?</h1>
+    <p>Enter each water heater, furnace, AC, roof or appliance with its <strong>age, the repair quote and the replacement cost</strong>. The tool models how likely each unit is to fail again, prices <strong>repairing now and replacing at the next failure</strong> against <strong>replacing now</strong> over the years you will own the property, and tells you <strong>the most a repair can cost before replacing is cheaper</strong>. Give it a budget and it picks which replacements to make first.</p>
+    <p class="note">Your property list never leaves this browser tab. Arithmetic on numbers and life expectancies you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your equipment</h2>
+    <label for="file">Upload a CSV</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste rows (header optional: asset, type, age in years, repair quote, replacement cost, yearly savings from a new one, life in years)</label>
+    <textarea id="rows" spellcheck="false" placeholder="asset,type,age,repair quote,replacement cost,savings per year&#10;Unit 2 water heater,water heater,13,420,1450,40&#10;Main St furnace,furnace,19,1100,5200,180"></textarea>
+    <h2 style="margin-top:18px">Your assumptions</h2>
+    <div class="row3">
+      <div><label for="horizon">Years you will own it</label><input id="horizon" inputmode="numeric" value="10"></div>
+      <div><label for="discount">Yearly discount rate (%)</label><input id="discount" inputmode="decimal" value="5"></div>
+      <div><label for="shape">Wear-out sharpness (1 to 8)</label><input id="shape" inputmode="decimal" value="3"></div>
+      <div><label for="extra">Extra cost of an unplanned failure ($)</label><input id="extra" inputmode="decimal" value="200"></div>
+      <div><label for="budget">Replacement budget ($, optional)</label><input id="budget" inputmode="decimal" placeholder="none"></div>
+    </div>
+    <p class="note">Leave the repair quote blank for a working unit with no quote: the comparison is then replace now against run it until it fails. The discount rate is what a dollar next year is worth to you today. The typical lives are rule-of-thumb figures you can overwrite in the last column; they are not measured lives of your units.</p>
+    <button type="button" id="analyze">Analyse</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your equipment, then click Analyse.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h3>Assets, strongest case for replacing first</h3>
+    <p class="note">Cost a year is each path's expected cost over your horizon spread evenly by year, with a credit for the remaining life of what is in service at the end. Repair up to is the break-even quote: a quote under it favours repairing.</p>
+    <div class="scroll"><table id="acc"><thead><tr><th>Asset</th><th class="n">Age / life</th><th class="n">Fails within 3 years</th><th class="n">Repair a year</th><th class="n">Replace a year</th><th class="n">Repair up to</th><th>Verdict</th></tr></thead><tbody></tbody></table></div>
+    <div id="plan"></div>
+    <button type="button" id="download">Download verdicts CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>Each unit fails on a Weibull curve whose mean is its life; the chance it fails in the coming year given its age is computed from that curve. <strong>Repair</strong> pays the quote now and leaves the unit at its current age (a repair does not make it younger); the first time it fails afterwards it is replaced. <strong>Replace</strong> pays the replacement cost now and starts a new unit at age zero. Every failure costs the replacement plus your extra cost of an unplanned failure, and every year a new unit is in service saves the yearly savings you enter. Costs are discounted yearly over your horizon, and whatever is in service at the end gets a straight-line credit for its remaining life. The <strong>break-even quote</strong> is the repair price at which both paths cost the same. The table also shows whether the 50% rule of thumb would say replace, and whether the verdict changes if the life is 25% shorter or 25% longer.</p>
+    <p><strong>Not modelled:</strong> the real condition of your unit, brand and installation quality, maintenance history, rebates and tax credits, depreciation and tax treatment, code or refrigerant changes that force a replacement, a repair that fixes only part of the problem, tenant turnover, and a replacement that costs more or less next year. <strong>Unverified:</strong> the arithmetic is checked in unit tests against hand-calculated cases; the typical lives and the wear-out curve are planning assumptions and have not been fitted to failure data for your equipment.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Should I repair or replace a water heater, furnace or appliance?</h3>
+    <p>Compare what each path costs over the years you will own the building, not the size of today's quote. Repairing leaves the unit as old as it was, so the chance it fails again stays high; replacing resets that chance and may cut utility cost. This tool prices both paths over your horizon, including the cost of an unplanned failure, and shows the repair price at which the two break even.</p>
+    <h3>What is the 50% rule and why does this tool not just use it?</h3>
+    <p>The rule of thumb says replace when the repair costs more than half of a new unit, or when the unit is past half its life and the repair costs a third or more. It ignores what a failure costs you, what a new unit saves in energy, and how steeply this kind of equipment wears out. The tool shows whether the rule would say replace next to its own answer, so you can see where they disagree.</p>
+    <h3>What is the break-even repair quote?</h3>
+    <p>It is the most a repair can cost before replacing is cheaper over your horizon. If the quote in hand is under it, repair; if it is over, replace. It falls as the unit ages, because an old unit is likelier to fail again soon and the repair buys less.</p>
+    <h3>Where do the typical lives come from?</h3>
+    <p>They are rule-of-thumb planning figures (for example 12 years for a tank water heater, 18 for a furnace, 15 for central air, 22 for an asphalt roof) that you can overwrite per asset. They are starting points, not measured lives of your unit. Enter your own if a technician or your history says otherwise; the tool also shows how the answer changes if the life is 25% shorter or longer.</p>
+    <h3>What does wear-out sharpness mean?</h3>
+    <p>It is how quickly the failure chance climbs as a unit approaches the end of its life. At 1 a unit has no memory and fails at random at any age; at 3, the default, most units fail in a band around their typical life; at 5 or more, almost all fail near it. Leave it at 3 unless you have reason to change it.</p>
+    <h3>What does an unplanned failure cost?</h3>
+    <p>More than the unit: an emergency call-out, a rush install, lost rent while a tenant has no heat or hot water, and sometimes water damage. The default adds 200 dollars for each failure and you can change it for all assets. Raising it pushes the answer toward replacing before the unit fails.</p>
+    <h3>Does it work for a homeowner, not just a landlord?</h3>
+    <p>Yes. Any owner deciding between a repair quote and a replacement on equipment with a rough life expectancy can use it: water heater, furnace, air conditioner, heat pump, roof, refrigerator, washer, dryer, dishwasher, range, disposal or sump pump. Put the years you expect to keep the property in the horizon.</p>
+    <h3>Is my property list uploaded anywhere?</h3>
+    <p>No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your assets. It works offline once the page has loaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a licensed contractor, inspector or other qualified professional. Results are arithmetic on the equipment and assumptions you supply; they do not predict when any unit will fail, and they do not check safety, code or warranty conditions that apply to you.</p>
+    <p><strong>Independent.</strong> Not affiliated with any property-management, home-warranty or equipment vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your equipment list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../rental-rent-optimizer/">rental rent optimizer</a>, the <a href="../water-heater-bid-calculator/">water heater bid calculator</a> and the <a href="../hoa-reserve-fund-calculator/">HOA reserve fund calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseRows, analyze, reportCsv, sampleText, money, pct, num } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const val = (id) => ($(id).value.trim() === "" ? undefined : Number($(id).value));
+    let last = null;
+
+    function run() {
+      const parsed = parseRows($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const disc = val("#discount"), budget = val("#budget");
+      const r = analyze(parsed.assets, {
+        horizon: val("#horizon"), discount: disc === undefined ? undefined : disc / 100, shape: val("#shape"),
+        failureExtra: val("#extra"), budget: budget === undefined ? undefined : budget,
+      });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...parsed.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = [
+        [`${r.replaceCount} replace, ${r.repairCount} repair`, `Verdicts across ${r.n} assets${r.closeCount ? `; ${r.closeCount} too close to call` : ""}`],
+        [money(r.spendToReplace), "Replacement spend the verdicts call for"],
+        [money(r.savingsIfReplaced), "Expected saving over your horizon from replacing those instead of repairing"],
+        [String(r.sensitiveCount), "Assets whose verdict flips if the life is 25% shorter or longer"],
+      ];
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#acc tbody").innerHTML = r.rows.map((x) => {
+        const v = x.action === "replace" ? "Replace" : x.action === "repair" ? (x.repairBlank ? "Keep running it" : "Repair") : "Close call";
+        const tags = [x.sensitive ? "depends on the life you assume" : "", x.fiftyRule ? "50% rule says replace" : ""].filter(Boolean).join("; ");
+        const upTo = x.breakEven > 0 ? money(x.breakEven) : "replace even if free";
+        return `<tr><td>${esc(x.name)}<br><span class="note">${esc(x.type)}</span></td><td class="n">${num(x.age, 0)} / ${num(x.life, 0)}</td><td class="n">${pct(x.pFail3, 0)}</td><td class="n">${money(x.repairAnnual)}</td><td class="n">${money(x.replaceAnnual)}</td><td class="n">${upTo}</td><td>${esc(v)}${x.inPlan ? " · in budget plan" : ""}${tags ? `<br><span class="note">${esc(tags)}</span>` : ""}</td></tr>`;
+      }).join("");
+      $("#plan").innerHTML = r.options.budget ? `<div class="warn">Budget plan: ${r.plan.length ? `replace ${esc(r.plan.join(", "))} for ${money(r.planSpent)} of your ${money(r.options.budget)}.` : "nothing the verdicts call for fits the budget."}</div>` : "";
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = sampleText(); $("#horizon").value = "10"; $("#discount").value = "5"; $("#shape").value = "3"; $("#extra").value = "200"; $("#budget").value = "";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: ten invented units, not a real property."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Analyse.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your equipment, then click Analyse."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "repair-or-replace-verdicts.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

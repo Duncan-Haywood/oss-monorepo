@@ -143,6 +143,7 @@ test('notes never claim a worker-classification verdict', () => {
   assert.doesNotMatch(resultCopy, /is legally an employee|is legally a contractor|is the correct classification/i);
 });
 
-test('index links the workers comp premium calculator so crawlers reach it in one hop', () => {
-  assert.match(page('index.html'), /href="\.\.\/workers-comp-premium-calculator\/"/);
+test("the employee cost calculator links to the workers comp premium calculator", async () => {
+  const { readFileSync } = await import("node:fs");
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/workers-comp-premium-calculator\/"/);
 });

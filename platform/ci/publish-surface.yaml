@@ -887,6 +887,9 @@ workflows:
 - workflow: land-survey-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: landlord-repair-or-replace-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: landscape-lighting-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -1190,6 +1193,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: print-on-demand-profit-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: private-practice-payer-mix-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: process-server-fee-calculator-ci.yml

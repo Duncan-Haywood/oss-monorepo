@@ -48981,4 +48981,21 @@ entries:
         premium" searches. Unverified by an insurance professional: tests pin
         hand-counted figures for every step, audit direction, validation and
         no-network assertions. Registered score row, launch date and CI workflow.
+        Graduated and built landlord-repair-or-replace-planner: a browser-local
+        tool for small landlords and homeowners holding a repair quote. Paste or
+        upload equipment (age, repair quote, replacement cost, optional yearly
+        savings and life); each unit wears out on a Weibull curve with mean equal
+        to its typical or typed life, repair keeps it at its age and replaces it at
+        the next failure, replace starts a new unit, both costed over the holding
+        period with discounting and a remaining-life credit. Shows the break-even
+        repair quote, chance of failing within one and three years, the 50% rule
+        beside the model, whether the verdict flips with the life 25% off, and a
+        budgeted replacement order. New niche: duplicate_check.py best match
+        fleet-repair-or-replace-planner at 0.20 (vehicles, not building systems).
+        First visitor expected from "repair or replace water heater" and "furnace
+        repair vs replace" searches. Equipment lists never leave the browser.
+        Unverified against real failure data: tests use hand-computed one-year and
+        memoryless cases, monotonicity checks and no-network assertions; typical
+        lives are planning assumptions. Registered score row, launch date,
+        category rule and CI workflow.
     mrr_end: 0
