@@ -23477,8 +23477,6 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Liability: statistical estimate of the user's own data, no warranty, not
-      advice. Ethics: no customer data collected or sold; nothing leaves the browser.
       Liability: statistical description of supplied data, not advice, no warranty,
       independence from vendors stated, limits stated (sign-ups, activation, churn
       and longer trials are not modelled). Trial data never leaves the browser.
@@ -23555,6 +23553,36 @@ ventures:
     gate_note: >-
       Liability: statistical estimate of the user's own data, no warranty, not
       advice. Ethics: no customer data collected or sold; nothing leaves the browser.
+  - slug: revenue-target-lead-planner
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical learning (seeded bootstrap and over-dispersed binomial
+      simulation with a hold-out back-test, run in the browser) but no language
+      model and no paid API; the probability and the stated limits are the product.
+    basis: >-
+      Scored 2026-09-30 at graduation; write-up in this venture's own
+      VENTURE.yaml comment. Freelancers and small agencies paste leads, wins and
+      revenue per period and get the chance of hitting a target and the leads
+      needed for 80%. Distribution 6: "how many leads do I need" and "sales funnel
+      calculator" are recurring queries (volume not measured with an external
+      tool). Defensibility 4: CRM forecast modules and spreadsheets exist; the edge
+      is the private no-upload workflow and an honest range with a back-test.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical estimate of the user's own data, no warranty, not
+      advice. Ethics: no customer data collected or sold; nothing leaves the browser.
   - slug: mechanics-lien-deadline-calculator
     scores:
       ai_leverage: 1
@@ -23590,6 +23618,124 @@ ventures:
       notice content, foreclosure) stated in three places. Prepares and files
       nothing. Ethics: helps small trades keep payment rights they already have;
       nothing leaves the browser.
+  - slug: studio-class-slot-optimizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Statistical learning (empirical-Bayes shrinkage and seeded bootstrap over a
+      class attendance log, run in the browser) but no language model and no paid
+      API; the verdicts and the stated limits are the product, not an add-on.
+    basis: >-
+      Scored 2026-09-30 at graduation; full write-up in this venture's own
+      VENTURE.yaml comment. Studio owners paste an attendance log and get which
+      timetable slots pay for their instructor, which to cut or move and which are
+      full enough to double. Distribution 6: "which classes should I cut" and
+      "break even class size" are recurring studio-owner queries (volume not
+      measured with an external tool). Defensibility 4: booking-software reports
+      and spreadsheets exist; the edge is the private no-upload workflow and
+      small-sample shrinkage.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical estimate of the user's own data, no warranty, not
+      advice, what is not modelled stated. Ethics: no member data collected or
+      sold; nothing leaves the browser.
+  - slug: donor-retention-analyzer
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Retention arithmetic, a seeded bootstrap and an empirical snapshot model run
+      in the browser; no language model and no paid API. The hold-out check that
+      withdraws the probabilities when giving behaviour shifts is the product.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. A nonprofit pastes a gift
+      history and sees retention by fiscal year with a range, first-year versus
+      repeat retention, and LYBUNT and SYBUNT donors ranked by expected dollars.
+      Distribution 6: "how to calculate donor retention rate" and "LYBUNT report"
+      are recurring development-staff queries and no tool in this catalogue serves
+      charities (volume not measured with an external tool). Defensibility 3: donor
+      databases ship retention and LYBUNT reports; the edge is the private no-upload
+      workflow, the ranking by own-history odds, ranges and the plain limits.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: statistical estimate of supplied data, not advice, no warranty, no
+      vendor named, limits stated (why donors lapsed, gift type, capacity and consent
+      are not modelled; consent and solicitation rules stay with the user). Donor
+      data never leaves the browser. Ethics: helps a small charity see whom it is
+      losing and choose whom to thank first; nothing is sold, no donor data is
+      collected and no referral is made.
+  - slug: route-account-pruner
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Per-account arithmetic in the browser; no model and no paid API.
+    basis: >-
+      Row added 2026-10-01 by a later session to clear `score_ventures.py --check`,
+      which had gone red when #6121 merged without one. Scored conservatively from
+      the venture's own VENTURE.yaml description, not from a fresh screen: ranking
+      route accounts by earnings per route hour for lawn, pool, pest and cleaning
+      routes. Distribution 6 and defensibility 3 follow its sibling route tools.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Browser-local arithmetic on the user's own accounts; no warranty, not advice,
+      nothing uploaded, nothing sold.
+  - slug: lead-response-time-analyzer
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Browser-local statistics on the user's own lead log; no model, no paid API.
+    basis: >-
+      Row added 2026-10-01 by a later session to clear `score_ventures.py --check`,
+      which had gone red when this venture merged without one. Scored conservatively
+      from its VENTURE.yaml description, not from a fresh screen.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Browser-local arithmetic on the user's own data; no warranty, not advice,
+      nothing uploaded, nothing sold.
   - slug: workers-comp-premium-calculator
     scores:
       ai_leverage: 1
@@ -23622,33 +23768,3 @@ ventures:
       insurance or legal advice, no warranty, carrier figures control, limits stated
       in three places; sells and binds nothing. Ethics: helps small employers
       understand a bill they already owe; nothing leaves the browser.
-  - slug: route-account-pruner
-    scores:
-      ai_leverage: 2
-      autonomous_ops: 10
-      time_to_revenue: 6
-      gross_margin: 10
-      defensibility: 3
-      distribution: 6
-    composite: 6.167
-    rater_b: null
-    floor: 2
-    floor_dimension: ai_leverage
-    floor_note: >-
-      No model in the product: ranking by profit per route hour and a typed
-      cancellation-rate trade-off, computed in the browser.
-    basis: >-
-      Scored 2026-09-30 to restore the scored-set check after the venture merged
-      without a row; full write-up in this venture's own VENTURE.yaml comment.
-      Route-business owners (lawn, pool, pest, cleaning) paste their accounts and
-      see which earn least per route hour including drive time and what to keep,
-      reprice or drop. Distribution 6: "which customers are not worth it" is a
-      recurring owner query (volume not measured with an external tool).
-      Defensibility 3: a spreadsheet does most of it; the edge is the private
-      no-upload workflow and the explicit cancellation trade-off.
-    gates:
-      liability_containment: pass
-      ethical_robustness: pass
-    gate_note: >-
-      Liability: arithmetic on the user's own numbers, no warranty, not advice.
-      Ethics: no customer data collected or sold; nothing leaves the browser.

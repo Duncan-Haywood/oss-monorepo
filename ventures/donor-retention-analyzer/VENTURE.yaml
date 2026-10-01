@@ -1,0 +1,71 @@
+name: donor-retention-analyzer
+description: >-
+  Free browser tool for small nonprofits and school or club fundraisers: paste
+  a gift history (donor, date, amount) and get retention by fiscal year with a
+  seeded bootstrap range, first-year versus repeat retention, dollar retention,
+  and LYBUNT and SYBUNT lists ranked by expected dollars from the organisation's
+  own giving, with a hold-out check that says when the ranking is not a
+  forecast. Refuses too little data. Donor data never leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED,
+# build-now queue empty). duplicate_check.py on "nonprofit donor retention
+# analyzer lapsed donors RFM" scored 0.12 at most (stripe-churn-cohort-analyzer,
+# a subscription-revenue tool; patreon-members-churn-analyzer, creator members).
+# Nothing in the catalogue serves charities. Screened-out rows were not hit.
+#
+# Why this niche: US nonprofits number over a million and most run on a
+# spreadsheet or a donor database whose retention and LYBUNT reports are either
+# missing or behind a paid tier of donor-management suites. Retention is the
+# metric fundraising consultants lead with, because keeping a donor costs far
+# less than finding one, and a development director with a gift export and no
+# analyst has no way to rank 400 lapsed names. The tool does the arithmetic and
+# the ranking in the browser, so no donor list is handed to a third party.
+#
+# Alternatives: the donor-retention and LYBUNT reports built into paid donor
+# databases (the data lives there, the ranking is usually just last gift size),
+# consultant spreadsheets, and benchmark blog posts that give an average but no
+# way to compute one's own.
+#
+# First visitor: development directors, volunteer treasurers and school or club
+# fundraisers searching "how to calculate donor retention rate", "LYBUNT report
+# template", "SYBUNT donors". Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: a donor list is personal data, and the tool
+# never transmits it (tests assert no network calls). No vendor is ranked. It
+# sends nothing to donors and keeps no record.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only; a
+# natural lead magnet for a future hosted nonprofit analytics service.
+# Liability: statistical description of supplied data, not advice; says what it
+# cannot see (why donors lapsed, gift type, capacity, consent) and puts consent
+# and solicitation rules on the user. Unverified: tested on simulated donors with
+# known giving odds, not on a published dataset.
+
+hypotheses:
+  - claim: >-
+      Small nonprofit development staff with 30 or more donors and two full years
+      of gifts will use a private, no-signup tool to compute retention and rank
+      lapsed donors, and will return after each year-end export.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a retention rate disagrees with a hand count of the same gift rows.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/donor-retention-analyzer/
+  analytics: null

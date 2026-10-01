@@ -1,0 +1,63 @@
+name: revenue-target-lead-planner
+description: >-
+  Free browser tool for freelancers, agencies and small sales teams: paste or
+  upload past weeks or months of leads, deals won and revenue, enter a revenue
+  target, and see the chance of hitting it at a planned lead count and how many
+  leads give a 50%, 80% or 90% chance. Seeded bootstrap plus over-dispersed
+  binomial simulation, with a hold-out back-test on your recent periods. Refuses
+  a history too short or too flat. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "estimate how many leads needed per month to hit a revenue target from your own
+# funnel conversion history with uncertainty": closest is cut-list-optimizer at
+# 0.20, well below the read-this-first bar. Siblings answer adjacent questions:
+# quote-follow-up-timing (when do quotes close), bid-win-rate-optimizer (win
+# chance vs markup), cash-runway-planner (cash, not pipeline). Nothing plans lead
+# volume against a target with a probability attached.
+# Alternatives: CRM forecast modules (HubSpot, Pipedrive, Salesforce) which want
+# an account and the whole pipeline, and the "target / deal size / close rate"
+# back-of-envelope in a spreadsheet, which gives the 50% answer and no range.
+#
+# First visitor: searches "how many leads do I need to hit my revenue goal",
+# "sales funnel calculator", "lead to customer conversion rate calculator",
+# "pipeline coverage ratio"; r/freelance, r/agency, r/smallbusiness, r/sales.
+# Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: sales history never leaves the browser
+# (tests assert no network calls). No vendor is ranked.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: statistical estimate of supplied data, not advice; refuses when the
+# data cannot support an answer and says what is not modelled (sales-cycle lag,
+# seasonality, capacity).
+# Unverified: tested on simulated histories with known conversion, not a
+# published dataset.
+
+hypotheses:
+  - claim: >-
+      Freelancers and small agencies with 6 or more months of lead and win
+      counts will use a private, no-signup tool that turns them into a lead
+      target with an 80% chance attached, and will return as history grows.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the conversion range or the 80% lead count disagrees with a standard bootstrap or binomial simulation on the same data.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/revenue-target-lead-planner/
+  analytics: null

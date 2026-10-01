@@ -509,6 +509,9 @@ workflows:
 - workflow: dog-walking-route-pricing-ci.yml
   classification: none
   publishes: []
+- workflow: donor-retention-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: dotenv-exposure-check-ci.yml
   classification: none
   publishes: []
@@ -888,6 +891,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: lawn-care-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: lead-response-time-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: license-drift-check-ci.yml
@@ -1313,6 +1319,9 @@ workflows:
 - workflow: retaining-wall-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: revenue-target-lead-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: reverb-fee-calculator-ci.yml
   classification: none
   publishes: []
@@ -1323,6 +1332,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: roth-conversion-bracket-fill-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: route-account-pruner-ci.yml
   classification: none
   publishes: []
 - workflow: route-stop-optimizer-ci.yml
@@ -1544,10 +1556,10 @@ workflows:
 - workflow: str-host-payout-calculator-ci.yml
   classification: none
   publishes: []
-- workflow: str-occupancy-tax-calculator-ci.yml
+- workflow: str-nightly-rate-optimizer-ci.yml
   classification: none
   publishes: []
-- workflow: str-nightly-rate-optimizer-ci.yml
+- workflow: str-occupancy-tax-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: str-tax-loophole-calculator-ci.yml
@@ -1563,6 +1575,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: stucco-repair-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: studio-class-slot-optimizer-ci.yml
   classification: none
   publishes: []
 - workflow: subcontractor-cashflow-planner-ci.yml
@@ -1634,6 +1649,9 @@ workflows:
 - workflow: tree-service-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: trial-conversion-timing-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: trump-account-calculator-ci.yml
   classification: none
   publishes: []
@@ -1641,9 +1659,6 @@ workflows:
   classification: none
   publishes: []
 - workflow: turo-earnings-report-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: trial-conversion-timing-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: turo-host-payout-calculator-ci.yml

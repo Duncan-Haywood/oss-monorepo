@@ -1120,8 +1120,12 @@ const RELATIVE_SELF = relative(
 // +1: `rental-rent-optimizer` graduated.
 // +1: `mechanics-lien-deadline-calculator` graduated.
 // +1: `route-account-pruner` graduated.
+// +1: `donor-retention-analyzer` graduated.
+// +1: `lead-response-time-analyzer` graduated.
+// +1: `revenue-target-lead-planner` graduated.
+// +1: `studio-class-slot-optimizer` graduated.
 // +1: `workers-comp-premium-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 504;
+const SWITCHES_IN_THE_CATALOGUE = 508;
 
 let counter = 0;
 function fixture(source) {
