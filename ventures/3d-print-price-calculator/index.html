@@ -18,7 +18,11 @@
 
 <main class="layout">
 <section><h2>Price one print</h2>
-<fieldset><legend>Print</legend><div class="fields">
+<fieldset><legend>Print</legend>
+<p class="note"><label>Import grams and print time from your sliced G-code (optional)<input id="gcodeFile" type="file" accept=".gcode,.gco,.g,.txt"></label>
+Reads the slicer's own summary comments (PrusaSlicer, OrcaSlicer, Bambu Studio, Cura, Simplify3D) in this browser; the file is never uploaded.</p>
+<p id="gcodeStatus" class="note" role="status" aria-live="polite"></p>
+<div class="fields">
 <label>Filament used (grams)<input id="filamentUsedGrams" type="number" min="0" step="1" value="45"></label>
 <label>Filament cost ($/kg)<input id="filamentCostPerKg" type="number" min="0" step="0.5" value="22"></label>
 <label>Print time (hours)<input id="printTimeHours" type="number" min="0.1" step="0.1" value="3"></label>
@@ -80,7 +84,7 @@
 </dl>
 </section>
 
-<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your costs and prices are never uploaded, there is no account, and nothing is saved when you close the tab unless you choose to save it. We count only anonymous local feature events (<code>price-calculated</code>, <code>price-checked</code>) so we can tell whether the calculator gets used — no costs or prices are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p><p class="privacy">The Save button writes your scenario to this browser's own local storage on this device only, and Forget deletes it. Copy shareable link puts the same numbers in the page's URL fragment instead of a server — nothing about your scenario leaves your device either way, but whoever holds the link can read it.</p></section>
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your costs and prices are never uploaded, there is no account, and nothing is saved when you close the tab unless you choose to save it. We count only anonymous local feature events (<code>price-calculated</code>, <code>price-checked</code>, <code>gcode_imported</code>) so we can tell whether the calculator gets used — no costs or prices are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p><p class="privacy">The Save button writes your scenario to this browser's own local storage on this device only, and Forget deletes it. Copy shareable link puts the same numbers in the page's URL fragment instead of a server — nothing about your scenario leaves your device either way, but whoever holds the link can read it.</p></section>
 
 <section><h2>Common questions</h2>
 <h3>Why does the calculator inflate cost for a failure rate instead of just adding a flat buffer?</h3><p>Because a failed print still burns filament, electricity, and printer hours before it gets scrapped, and the eventual successful print has to earn that back. On average, 1/(1 − failure rate) attempts are needed to land one sellable part, so material, electricity, and machine wear are multiplied by that factor rather than by a flat percentage guess.</p>
@@ -100,6 +104,7 @@
 
 <script type="module">
 import { calculatePrice } from './calc.mjs';
+import { parseGcode } from './gcode.mjs';
 import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
 import { encodeInputs, decodeInputs, formValues, REQUIRED_FIELD_IDS } from './share.mjs';
 const DRAFT_KEY = '3d-print-price-calculator-draft';
@@ -168,6 +173,28 @@ function updateActual(count = false) {
 
 FIELD_IDS.forEach(id => el(id).addEventListener('input', () => { updatePrice(true); updateActual(false); }));
 el('actualSellingPrice').addEventListener('input', () => updateActual(true));
+// Slicers write their summary at the head (Bambu, Cura) or the tail (Prusa,
+// Orca) of a file that can be hundreds of MB, so only both ends are read.
+el('gcodeFile').addEventListener('change', async (ev) => {
+  const file = ev.target.files && ev.target.files[0];
+  if (!file) return;
+  const CHUNK = 262144;
+  try {
+    const [head, tail] = await Promise.all([file.slice(0, CHUNK).text(), file.slice(Math.max(0, file.size - CHUNK)).text()]);
+    const r = parseGcode(`${head}\n${tail}`);
+    if (!r.ok) {
+      el('gcodeStatus').textContent = `Could not find ${r.missing.join(' or ')} in this file. Type the figures from your slicer instead.`;
+      return;
+    }
+    el('filamentUsedGrams').value = r.grams;
+    el('printTimeHours').value = r.hours;
+    el('gcodeStatus').textContent = `Read ${r.grams} g and ${r.hours} h (${r.slicer}). ${r.derived.join(' ')} Check them against your slicer before relying on the price.`;
+    updatePrice(true); updateActual(false);
+    recordEvent('gcode_imported');
+  } catch {
+    el('gcodeStatus').textContent = 'This browser could not read that file. Type the figures from your slicer instead.';
+  }
+});
 el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
 el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
 if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';

@@ -33,19 +33,19 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 546829 bytes
-#   portfolio-front-tools-1: 92 files, 554953 bytes
-#   portfolio-front-tools-2: 144 files, 552953 bytes
-#   portfolio-front-tools-3: 131 files, 555050 bytes
-#   portfolio-front-tools-4: 136 files, 555919 bytes
-#   portfolio-front-tools-5: 126 files, 555363 bytes
-#   portfolio-front-tools-6: 120 files, 555126 bytes
-#   portfolio-front-tools-7: 137 files, 556889 bytes
-#   portfolio-front-tools-8: 126 files, 555419 bytes
-#   portfolio-front-tools-9: 121 files, 556352 bytes
-#   portfolio-front-tools-10: 129 files, 547711 bytes
-#   portfolio-front-tools-11: 136 files, 555843 bytes
-#   portfolio-front-tools-12: 117 files, 547654 bytes
+#   portfolio-front-tools-0: 145 files, 546822 bytes
+#   portfolio-front-tools-1: 92 files, 554945 bytes
+#   portfolio-front-tools-2: 144 files, 552942 bytes
+#   portfolio-front-tools-3: 132 files, 556703 bytes
+#   portfolio-front-tools-4: 136 files, 556451 bytes
+#   portfolio-front-tools-5: 126 files, 555358 bytes
+#   portfolio-front-tools-6: 120 files, 555122 bytes
+#   portfolio-front-tools-7: 137 files, 556887 bytes
+#   portfolio-front-tools-8: 126 files, 555413 bytes
+#   portfolio-front-tools-9: 121 files, 556349 bytes
+#   portfolio-front-tools-10: 129 files, 547705 bytes
+#   portfolio-front-tools-11: 136 files, 555844 bytes
+#   portfolio-front-tools-12: 117 files, 547647 bytes
 #   portfolio-front-tools-13: 120 files, 556038 bytes
 #   portfolio-front-tools-14: 118 files, 555279 bytes
 #   portfolio-front-tools-15: 115 files, 551960 bytes
@@ -610,6 +610,7 @@ configMapGenerator:
       - 1099k-reconciliation-worksheet__vs-spreadsheet-comparison.html.gz=1099k-reconciliation-worksheet__vs-spreadsheet-comparison.html.gz
       - 1099k-reconciliation-worksheet__why-is-my-1099-k-higher-than-what-i-actually-made.html.gz=1099k-reconciliation-worksheet__why-is-my-1099-k-higher-than-what-i-actually-made.html.gz
       - 3d-print-price-calculator__calc.mjs.gz=3d-print-price-calculator__calc.mjs.gz
+      - 3d-print-price-calculator__gcode.mjs.gz=3d-print-price-calculator__gcode.mjs.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
