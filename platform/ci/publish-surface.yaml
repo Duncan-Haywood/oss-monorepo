@@ -407,6 +407,9 @@ workflows:
 - workflow: construction-evidence-log-ci.yml
   classification: none
   publishes: []
+- workflow: container-load-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: contractor-bid-readiness-ci.yml
   classification: none
   publishes: []

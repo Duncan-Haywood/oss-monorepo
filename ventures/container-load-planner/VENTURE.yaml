@@ -1,0 +1,69 @@
+name: container-load-planner
+description: >-
+  Free browser tool for small exporters, Amazon/FBA and DTC sellers shipping
+  cartons or pallets: enter cargo lines with size, weight, quantity, rotation and
+  stacking limits, pick a 20 ft, 40 ft, 40 ft high cube, 53 ft trailer, box truck,
+  pallet or custom size, and a 3D packing heuristic shows what fits, what is left
+  over, how many containers the whole load needs, a to-scale top and side view and
+  a loading list, and compares other containers and pallets. Nothing leaves the
+  browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture session asked for a deeper, algorithmic
+# tool. duplicate_check.py (re-run before commit): closest rows were
+# amazon-fba-calculator 0.20 (fees, not loading), fba-aged-inventory-fee-analyzer
+# 0.15 and fba-reimbursement-claim-finder 0.15 (unrelated), and a screened-out row
+# for local-business websites / print-on-demand 0.15 (unrelated); nothing near the
+# 0.45 line. Existing neighbours by hand: shipping-box-size-optimizer (which carton
+# sizes to stock, cross-linked), parcel-dim-weight-calculator (one carton),
+# ltl-freight-class-estimator (one pallet's class) and liquidation-pallet-bid-
+# calculator (bidding on pallets). None packs a load into a container.
+#
+# Why this niche: a small exporter, an Amazon FBA seller sending a pallet shipment
+# or a DTC brand moving stock to a 3PL has to answer "will it fit, and how many
+# containers or trucks?" before it books space. Load-planning software
+# (cube optimisation, "cargo loading" tools) is sold to forwarders and shippers at
+# enterprise prices; the small shipper gets a rule of thumb and a surprise at the
+# dock. This tool does the real 3D packing with rotation, weight and stacking
+# limits and shows it to scale.
+#
+# First visitor: people searching "how many pallets fit in a 40ft container",
+# "container load calculator", "will my cartons fit in a 20ft container", plus
+# FBA and export forums when a booking is being planned. Volume not measured with
+# an external tool.
+#
+# Liability boundary: arithmetic and a packing heuristic on user-typed figures; a
+# planning aid, not a load-securing, axle-weight or legal certificate; no freight
+# rate asserted; container sizes and payloads are nominal, editable and labelled
+# as such; the example cargo is invented and says so.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural
+# front end for a hosted multi-shipment planner or forwarder quote request.
+
+hypotheses:
+  - claim: >-
+      Small shippers will use a private, no-signup container load planner when
+      they plan a booking, and the to-scale view and container comparison change
+      the container size or the number of containers they book.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a plan places units that overlap, exceed the payload or break a stacking limit they entered.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/container-load-planner/
+  analytics: null
