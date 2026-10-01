@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'handyman-minimum-job-calculator':
+    'the hourly pay is the owner\'s own target wage for every hour on a call, drive and estimate included, and overhead is a dollar monthly figure spread over billable hours rather than a percentage of direct cost; the tool solves the smallest job and a price floor from them instead of quoting a shop rate',
   'house-cleaning-quote-calculator':
     'the wage and burden are the pay behind each cleaner-hour of a recurring home visit and the target margin is a share of the visit price solved into a price floor; there is no overhead rate and no shop rate being quoted, the discount limit per frequency is the output',
   'home-care-agency-margin-calculator':
