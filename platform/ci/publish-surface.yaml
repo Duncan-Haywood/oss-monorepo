@@ -329,6 +329,9 @@ workflows:
 - workflow: charitable-deduction-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: cheap-meal-plan-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: checklist-coverage.yml
   classification: none
   publishes: []

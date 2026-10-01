@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 554 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 556 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">ADU payback calculator for homeowners and builders. Enter build cost, loan, rent and operating costs and see cash flow, yield on cost, payback, IRR, NPV and break-even rent. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Cheapest Meal Plan Optimizer — lowest-cost diet for your targets</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cheap-meal-plan-optimizer/"/>
+    <id>tag:marisstella.dev,2026:tool/cheap-meal-plan-optimizer</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free cheapest meal plan optimizer. Enter foods with prices and nutrition, set calorie, protein, fat and fibre targets, and get the lowest-cost daily servings plus the cost of each extra target. A minimum-cost diet solver in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Coffee Roaster Margin Calculator — roast loss, wholesale vs retail margin and cheapest blend</title>
@@ -197,6 +206,15 @@
     <summary type="text">Free rental fleet size optimizer for tent, equipment, kayak, tool and party rental businesses. Enter your seasons, rental lengths, price and what a unit costs to own; it finds the number of units that maximises yearly profit using the Erlang loss formula and a day-by-day simulation. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Retirement Withdrawal Sequencer — which account to draw from first, with Roth conversions</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/retirement-withdrawal-sequencer/"/>
+    <id>tag:marisstella.dev,2026:tool/retirement-withdrawal-sequencer</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free retirement withdrawal calculator. Enter your taxable, traditional and Roth balances, spending and Social Security; it compares withdrawal orders and bracket-filling Roth conversions year by year under 2026 tax rules and shows what each leaves you after tax. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Shift Roster Builder — a free weekly employee schedule maker that follows your rules</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/shift-roster-builder/"/>
     <id>tag:marisstella.dev,2026:tool/shift-roster-builder</id>
@@ -348,23 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free clearance markdown planner for retailers and sellers. Enter the units you have left and the weeks you have; it estimates price elasticity from your own sales history and plans the week-by-week markdown that maximises expected revenue. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Client Rebooking Predictor — find overdue and lapsed clients from your own booking history</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/client-rebooking-predictor/"/>
-    <id>tag:marisstella.dev,2026:tool/client-rebooking-predictor</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free lapsed-client report for salons, barbers, groomers, physio, dental and cleaning businesses. Paste your visits (client, date, amount) to see who is overdue and still worth a call, who has probably gone, and a back-test that says whether to trust the ranking. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Commercial Lease Effective Rent Calculator — Compare Lease Offers, Net Effective Rent</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/commercial-lease-effective-rent-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/commercial-lease-effective-rent-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free commercial lease comparison calculator. Compare up to three offers on net effective rent and all-in cost per square foot after free rent, TI allowance, escalations, NNN costs and fit-out. See the cost of leaving early and the rent needed to match the best offer. Runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

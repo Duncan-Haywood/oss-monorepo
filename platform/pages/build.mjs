@@ -658,6 +658,9 @@ const CATEGORY_RULES = [
       // `shift-roster-builder` joined 2026-10-01 on its first commit: assigns named
       // people to the shifts `shift-cover-optimizer` sizes; the same owner, next door.
       'shift-roster-builder',
+      // `retirement-withdrawal-sequencer` joined 2026-10-01 on its first commit: whole-retirement
+      // withdrawal-order comparison, beside `roth-conversion-bracket-fill-calculator`.
+      'retirement-withdrawal-sequencer',
       // `production-mix-optimizer` added 2026-10-01: which products a bakery or
       // small food maker should bake when oven and labour hours run out; the
       // same owner as the menu and pour-cost tools above.
@@ -1262,6 +1265,10 @@ const CATEGORY_RULES = [
       // per state checked against residency limits -- the same tax-obligation axis as
       // `quarterly-estimated-tax-calendar` above, which it links to.
       || slug === 'state-residency-day-counter'
+      // `cheap-meal-plan-optimizer` joined 2026-10-01 on its first commit: a household's food budget as a
+      // minimum-cost linear program -- a personal money decision rather than an operator pricing food, so it
+      // sits here and not under `food-service`, which is for people who sell food.
+      || slug === 'cheap-meal-plan-optimizer'
       // `self-employed-schedule-c-categorizer` is the same bank-file-to-tax-lines job for a sole proprietor's
       // Schedule C, and its page sits next to `1099k-reconciliation-worksheet` and the landlord version.
       || slug === 'self-employed-schedule-c-categorizer'
