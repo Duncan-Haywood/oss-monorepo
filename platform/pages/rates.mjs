@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'course-launch-revenue-calculator':
+    'there is no labor rate or job pricing: the tool turns a course creator\'s own list, conversion rates, price and fees into launch profit; nothing is quoted to a customer',
   'freelance-rate-increase-calculator':
     'the rates are the freelancer\'s own hourly billing rates compared before and after a raise, with no cost or burden fields; the tool solves a break-even client loss rather than quoting a shop rate',
   'tattoo-piece-profit-calculator':
