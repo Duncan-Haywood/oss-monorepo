@@ -509,6 +509,9 @@ workflows:
 - workflow: docker-cache-order-check-ci.yml
   classification: none
   publishes: []
+- workflow: dj-gig-profit-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: dog-boarding-daycare-pricing-ci.yml
   classification: none
   publishes: []
