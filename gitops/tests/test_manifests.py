@@ -2875,8 +2875,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `family-child-care-time-space-calculator` graduated (browser-local home day care time-space percentage, exclusive-use rooms, simplified-method comparison).
     # +1: `adu-payback-calculator` graduated (browser-local ADU payback: yield on cost, equity IRR/NPV, break-even rent, rent and cost sensitivity).
     # +1: `massage-therapist-profit-calculator` graduated (browser-local massage profit per hour by session, no-show-adjusted price floor, practice vs room rent vs split).
+    # +1: `dj-gig-profit-calculator` graduated (browser-local DJ profit per hour worked and price floor by package; landed in #6139 without its own line here).
     # +1: `shipping-box-size-optimizer` graduated (browser-local carton assortment optimizer: which box sizes to stock, p-median over dimensional-weight landed cost).
-    total = 542  # `infra/OWNER_CHECKLIST.md`'s own "N of the 542 tools" wording.
+    total = 543  # `infra/OWNER_CHECKLIST.md`'s own "N of the 543 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
