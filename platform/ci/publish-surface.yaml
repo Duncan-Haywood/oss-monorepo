@@ -1703,6 +1703,9 @@ workflows:
 - workflow: tattoo-piece-profit-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: freelance-rate-increase-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: tax-loss-harvesting-calculator-ci.yml
   classification: none
   publishes: []
