@@ -24145,3 +24145,35 @@ ventures:
       warranty, no market prices asserted, limits stated. No client or pet data;
       nothing leaves the browser. Ethics: helps a small business owner price work
       honestly.
+  - slug: massage-therapist-profit-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic per-session margin arithmetic in the browser; no language model
+      and no paid API. The value is charging overhead, turnover and no-shows to every
+      slot and showing the room-rent-versus-split answer on the therapist's own mix.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 6: "how much
+      to charge for a massage" and "room rent vs commission" are perennial questions
+      in therapist communities (volume not measured with an external tool).
+      Defensibility 4: booking software sells scheduling and payments, not a free
+      private price-floor and no-show-adjusted profit per hour; the edge is a
+      no-signup tool that answers which sessions lose money.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not tax or financial advice, no
+      warranty, no market prices asserted, limits stated. No client or health data;
+      nothing leaves the browser. Ethics: helps a small business owner price work
+      honestly.

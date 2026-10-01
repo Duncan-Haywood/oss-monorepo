@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 540 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 541 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -96,6 +96,15 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Market garden bed planner for small vegetable and flower farms. Enter your crops, beds, season and labor and get the crop mix that earns the most, what one more bed-foot, labor hour or buyer is worth, and a simulated range. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Massage Therapist Profit Calculator — profit per hour and price floor by session</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/massage-therapist-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/massage-therapist-profit-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Massage therapist profit calculator for solo therapists and clinic owners. Enter session types, minutes, supplies, no-shows and sessions per week to see profit per hour after overhead, the price that hits your target, and own practice versus room rent versus employee split. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Payroll Tax Deposit Penalty Calculator — Due Dates and Late-Deposit Cost</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free tool for home-service and other lead-driven businesses. Paste your leads with minutes to first reply and won or lost to see win rate by response time and the jobs and revenue a faster reply would have won. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Liquidation Pallet Bid Calculator — max bid from your manifest</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/liquidation-pallet-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/liquidation-pallet-bid-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free liquidation pallet bid calculator. Paste a manifest to get the maximum bid for a chance of loss you accept, with a Monte Carlo simulation of recovery rate, sell-through and damage, break-even recovery and concentration risk. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>

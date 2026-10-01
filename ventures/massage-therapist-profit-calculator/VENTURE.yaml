@@ -1,0 +1,59 @@
+name: massage-therapist-profit-calculator
+description: >-
+  Free browser tool for massage therapists and small practice owners: enter session
+  types with price, minutes, supplies and sessions per week, plus overhead and a
+  no-show rate, and see profit per hour by session, the price that hits an hourly
+  target, own practice vs room rent vs employee split, and the client loss a price
+  raise can absorb. No client or health data; nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED,
+# build-now queue empty). duplicate_check.py: closest rows were
+# personal-trainer-package-pricing-calculator 0.27 and unrelated trade rows; no
+# massage venture exists, screened-out rows not hit. Sibling method:
+# dog-grooming-profit-calculator, with a no-show/late-cancel rate added because
+# an empty table slot is the main hidden cost for appointment-based therapists.
+#
+# Why this niche: massage therapy is a large US small-business category (solo
+# therapists, room renters, clinic and spa employees) with price-by-feel and a hard
+# ceiling on hands-on hours. Therapists already pay monthly for booking and payment
+# software (Vagaro, Square, Noterro, Jane), so willingness to pay for tooling is
+# demonstrated. "Which sessions pay, what should I charge, and is renting a room
+# better than a split?" is not answered by those products in a free private page.
+#
+# First visitor: therapists searching "how much to charge for a massage", "massage
+# therapist hourly profit", "room rent vs commission massage"; therapist forums and
+# groups ask the split-vs-rent question constantly. Volume not measured externally.
+#
+# Liability boundary: arithmetic on user-typed figures; no market prices asserted;
+# no tax advice; says what it does not model. No client or health data.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural
+# lead magnet for a future hosted session-menu and margin tracker.
+
+hypotheses:
+  - claim: >-
+      Massage therapists will use a private, no-signup profit-per-hour calculator
+      when setting prices and when choosing between room rent and an employee split.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/massage-therapist-profit-calculator/
+  analytics: null
