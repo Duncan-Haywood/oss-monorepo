@@ -2,6 +2,9 @@
 
     python3 research/_homepage/build.py            # writes research/_homepage/_site/index.html
     python3 research/_homepage/build.py --out DIR
+    python3 research/_homepage/build.py --out DIR --base-url URL   # adds canonical + social tags
+
+platform/pages/build.mjs runs the last form to publish the page at <site>/research/.
 
 Card titles, abstracts and themes come from projects.json; the one-line lede is
 each project's research/README.md bullet; test counts are the `def test_` functions under
@@ -74,7 +77,20 @@ def card(p, theme, lede, tests):
     </article>"""
 
 
-def build(out):
+def social_meta(base_url):
+    if not base_url:
+        return ""
+    base = html.escape(base_url.rstrip("/") + "/")
+    url = f"{base}research/"
+    return (
+        f'<link rel="canonical" href="{url}">\n'
+        f'<meta property="og:url" content="{url}">\n'
+        f'<meta property="og:image" content="{base}social-card.png">\n'
+        '<meta name="twitter:card" content="summary_large_image">\n'
+    )
+
+
+def build(out, base_url=None):
     data = json.loads((HERE / "projects.json").read_text())
     ledes = readme_ledes()
     errors = validate(data, ledes)
@@ -115,7 +131,7 @@ def build(out):
     for key, val in {
         "THEME_VARS": theme_vars, "MAP": rmap, "CHIPS": chips, "FEATURED": featured, "SECTIONS": sections,
         "PROJECT_COUNT": str(len(by_slug)), "TEST_COUNT": f"{sum(tests.values()):,}",
-        "THEME_COUNT": str(len(data["themes"])), "REPO_URL": REPO_URL, "REPO": REPO,
+        "THEME_COUNT": str(len(data["themes"])), "SOCIAL_META": social_meta(base_url), "REPO_URL": REPO_URL, "REPO": REPO,
     }.items():
         page = page.replace("{{" + key + "}}", val)
     leftover = re.findall(r"\{\{\w+\}\}", page)
@@ -130,4 +146,6 @@ def build(out):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, default=HERE / "_site")
-    build(ap.parse_args().out)
+    ap.add_argument("--base-url", help="published site root; the page lives at <base-url>research/")
+    args = ap.parse_args()
+    build(args.out, args.base_url)

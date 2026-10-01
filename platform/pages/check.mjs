@@ -109,12 +109,15 @@ export const COMPARE_DIR = 'compare';
 // by trade and by tool. Same shape as `about` and `compare`: a page the build
 // writes about the site, not a venture.
 export const GUIDES_DIR = 'guides';
+// The research portfolio's homepage (`research/_homepage/build.py`). Same
+// shape again: a page about the repository, not a venture.
+export const RESEARCH_DIR = 'research';
 
 // Directories the site builds for itself. They are not products, so the
 // reachability check below must not demand a `data-tool` card on the hub for
 // them — the hub links these from its footer, which is the right weight for a
 // page about the site rather than a tool.
-export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR]);
+export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
@@ -652,6 +655,20 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
 
   // ---- About page ----------------------------------------------------------
   //
+  {
+    const relative = path.join(RESEARCH_DIR, 'index.html');
+    const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
+    // Optional: a fixture or a build without the research tree has none.
+    if (html !== null) {
+      if (!DISCLAIMER_MARKER.test(html)) {
+        problems.push(`${relative}: carries no disclaimer, so it must not ship`);
+      }
+      if (hubHtml !== null && !/href="research\/"/.test(hubHtml)) {
+        problems.push(`${RESEARCH_DIR}/: shipped but the hub does not link it, so nobody can reach it`);
+      }
+    }
+  }
+
   // Exempted from the product sweep above (it is not a tool), so it needs its
   // own reachability check or it has none at all. It is the page that answers
   // "is this thing going to email my numbers to someone" and the one a linker

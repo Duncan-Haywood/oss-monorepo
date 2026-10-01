@@ -12,6 +12,11 @@ Usage — the metric while everything is free — is specified in
 
 `README.md` covers repo layout.
 
+**`research/` is the open research portfolio** (formerly the
+`oss-research-monorepo` repository). Work inside it follows
+[`research/CLAUDE.md`](research/CLAUDE.md) and its brief, not the product
+rules below; the public-repository rules apply everywhere.
+
 Four agent families (GitHub Actions, Kilo, Cursor, Claude) also run an
 automated cross-review layer — see `.github/prompts/review-open-prs-first.md`
 and `platform/ci/agent_review/README.md`. It posts APPROVE/REQUEST_CHANGES

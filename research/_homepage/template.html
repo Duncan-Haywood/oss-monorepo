@@ -8,7 +8,7 @@
 <meta property="og:title" content="Duncan Haywood — Verifiable ML Research">
 <meta property="og:description" content="{{PROJECT_COUNT}} open-source research projects on incentive-compatible verification of decentralised ML training.">
 <meta property="og:type" content="website">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234f46e5'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11.5' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+{{SOCIAL_META}}<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234f46e5'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11.5' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -157,7 +157,7 @@ footer a{color:var(--muted)}
 <body>
 <header class="topbar"><div class="wrap">
   <a class="brand" href="#"><span class="mark"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6.3l2.4 2.4L10 3.2" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Duncan Haywood</a>
-  <nav><a href="../">Tools</a><a href="#projects">Projects</a><a href="{{REPO_URL}}">GitHub</a></nav>
+  <nav><a href="../" data-pf-to="hub">Tools</a><a href="#projects">Projects</a><a href="{{REPO_URL}}">GitHub</a></nav>
 </div></header>
 
 <section class="hero"><div class="wrap hero-grid">
@@ -203,7 +203,7 @@ footer a{color:var(--muted)}
 </main>
 
 <footer><div class="wrap">
-  <span>© Duncan Haywood · MIT licensed · {{PROJECT_COUNT}} projects, {{TEST_COUNT}} tests</span>
+  <span>© Duncan Haywood · MIT licensed, provided as is with no warranty · {{PROJECT_COUNT}} projects, {{TEST_COUNT}} tests</span>
   <span><a href="{{REPO_URL}}">github.com/{{REPO}}</a></span>
 </div></footer>
 

@@ -59,6 +59,8 @@ on:
     paths:
       - "ventures/**"
       - "platform/pages/**"
+      - "research/_homepage/**"
+      - "research/README.md"
       - ".github/workflows/publish-pages-branch.yml"
   workflow_dispatch:
 

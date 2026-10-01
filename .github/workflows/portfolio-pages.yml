@@ -28,11 +28,15 @@ on:
     paths:
       - "ventures/**"
       - "platform/pages/**"
+      - "research/_homepage/**"
+      - "research/README.md"
       - ".github/workflows/portfolio-pages.yml"
   pull_request:
     paths:
       - "ventures/**"
       - "platform/pages/**"
+      - "research/_homepage/**"
+      - "research/README.md"
       - ".github/workflows/portfolio-pages.yml"
   workflow_dispatch:
 

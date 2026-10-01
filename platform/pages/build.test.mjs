@@ -80,6 +80,7 @@ import {
   CARD_FOOTER,
   CARD_FOOTER_EXCEPTION,
   COMPARE_PATH,
+  RESEARCH_PATH,
   COMPARISON_FILE_PATTERN,
   comparisonSubject,
   comparisonSubjectKey,
@@ -711,13 +712,11 @@ test('llms.txt keeps each tool on one line, so no description leaks into prose',
   const { surfaces } = await site();
   const bullets = (await read('llms.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Six trailing bullets under "Optional" describe the site's own surfaces
-  // rather than a tool — About, the comparison index, the guides index,
-  // catalog.json, the sitemap and the Atom feed — so the count is tools plus
-  // those. A seventh, "Source", used to point at this repository's GitHub URL;
-  // the repository is private, so that link 404s for every real visitor and was
-  // removed rather than left false.
-  assert.equal(bullets.length, surfaces.length + 6);
+  // Seven trailing bullets under "Optional" describe the site's own surfaces
+  // rather than a tool — About, the research portfolio, the comparison index,
+  // the guides index, catalog.json, the sitemap and the Atom feed — so the
+  // count is tools plus those.
+  assert.equal(bullets.length, surfaces.length + 7);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -4454,7 +4453,7 @@ test('the About page documents the embed feature that #2561 shipped, not just th
   assert.match(about, new RegExp(`min-height:${DEFAULT_EMBED_HEIGHT}px`));
 });
 
-test('the hub sitemap holds the hub, the categories, About, /compare/ and /guides/, and nothing else', () => {
+test('the hub sitemap holds the hub, the categories, About, /compare/, /research/ and /guides/, and nothing else', () => {
   const xml = renderHubSitemap(BASE, ['marketplace', 'trades']);
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   // About, the comparison index and the guides index are hub-level pages
@@ -4466,6 +4465,7 @@ test('the hub sitemap holds the hub, the categories, About, /compare/ and /guide
     `${BASE}c/trades/`,
     `${BASE}about/`,
     `${BASE}${COMPARE_PATH}`,
+    `${BASE}${RESEARCH_PATH}`,
     `${BASE}${GUIDES_PATH}`,
   ]);
 
