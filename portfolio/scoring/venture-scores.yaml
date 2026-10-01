@@ -24601,3 +24601,219 @@ ventures:
       legal or billing advice, no fee schedule, QPA or deadline source of its own,
       no warranty, limits stated. No patient data; nothing leaves the browser.
       Ethics: helps small providers decide where fighting a payment is worth the fee.
+  - slug: breakeven-roas-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic browser-local arithmetic; no language model and no paid API.
+    basis: >-
+      Scored 2026-10-01 when the venture's row was found missing from this file (the
+      scoring check was red on main); the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 6 and defensibility 4: a
+      searchable single-purpose calculator with no signup, volume not measured with an
+      external tool. Scope: Free browser calculator for ecommerce and DTC sellers: enter price, discount, cost of goods, shipping, payment and platform fees, return rate and optional repeat-purchase lifetime value, and get break-even ROAS, max CPA and the ROAS needed for a target profit margin on both a first-order and an LTV basis, a scenario table, a sensitivity grid over returns and cost of goods, a campaign checker (spend and revenue against break-even), a MER versus platform-ROAS explainer and CSV export.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed figures, not advice, no warranty, limits
+      stated; nothing leaves the browser. Ethics: helps a small operator check
+      figures on their own numbers.
+  - slug: business-loan-offer-comparator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic browser-local arithmetic; no language model and no paid API.
+    basis: >-
+      Scored 2026-10-01 when the venture's row was found missing from this file (the
+      scoring check was red on main); the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 6 and defensibility 4: a
+      searchable single-purpose calculator with no signup, volume not measured with an
+      external tool. Scope: Free browser tool for small-business owners comparing financing offers that are quoted differently: type in each term loan, SBA-style loan or merchant cash advance (amount, APR or factor rate, term, fees, payment frequency) and get the true APR after fees, cash actually received, total repaid, cost per dollar, payment against revenue and cash flow, and the cost of repaying early, ranked side by side.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed figures, not advice, no warranty, limits
+      stated; nothing leaves the browser. Ethics: helps a small operator check
+      figures on their own numbers.
+  - slug: coffee-roaster-margin-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic browser-local arithmetic; no language model and no paid API.
+    basis: >-
+      Scored 2026-10-01 when the venture's row was found missing from this file (the
+      scoring check was red on main); the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 6 and defensibility 4: a
+      searchable single-purpose calculator with no signup, volume not measured with an
+      external tool. Scope: Free browser tool for small and micro coffee roasters: type the green coffee price and roast loss and it shows cost per roasted pound, margin by channel (retail, subscription, wholesale, market) with fees and postage, profit per roasting hour, the cheapest blend of your green coffees that still meets a target cup score, a weekly green-coffee order plan and a break-even volume.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed figures, not advice, no warranty, limits
+      stated; nothing leaves the browser. Ethics: helps a small operator check
+      figures on their own numbers.
+  - slug: driving-instructor-lesson-pricing-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic browser-local arithmetic; no language model and no paid API.
+    basis: >-
+      Scored 2026-10-01 when the venture's row was found missing from this file (the
+      scoring check was red on main); the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 6 and defensibility 4: a
+      searchable single-purpose calculator with no signup, volume not measured with an
+      external tool. Scope: Free browser calculator for independent driving instructors: profit per lesson, break-even price, the price that reaches a take-home target and the cost of a block-booking discount, after fuel, car wear, fixed car costs, unpaid gaps and cancellations.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed figures, not advice, no warranty, limits
+      stated; nothing leaves the browser. Ethics: helps a small operator check
+      figures on their own numbers.
+  - slug: freight-broker-load-margin-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic browser-local arithmetic; no language model and no paid API.
+    basis: >-
+      Scored 2026-10-01 when the venture's row was found missing from this file (the
+      scoring check was red on main); the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 6 and defensibility 4: a
+      searchable single-purpose calculator with no signup, volume not measured with an
+      external tool. Scope: Free browser tool for freight brokers, dispatchers and small freight agencies: type in loads (shipper rate, carrier rate, miles, accessorials, days each side takes to pay) and get net margin after the cost of fronting the carrier, factoring, claims reserve, overhead and rep commission, the shipper rate to quote and the highest carrier rate to pay to hit a target net margin, per-mile figures and a CSV.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed figures, not advice, no warranty, limits
+      stated; nothing leaves the browser. Ethics: helps a small operator check
+      figures on their own numbers.
+  - slug: laundromat-machine-payback-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic browser-local arithmetic; no language model and no paid API.
+    basis: >-
+      Scored 2026-10-01 when the venture's row was found missing from this file (the
+      scoring check was red on main); the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 6 and defensibility 4: a
+      searchable single-purpose calculator with no signup, volume not measured with an
+      external tool. Scope: Free browser tool for laundromat owners and buyers: enter washer and dryer lines with count, price per cycle, turns per day, utility cost per cycle and installed cost, and see payback months and contribution by line, the turns per day each line needs for a target payback, store net after overhead, and the share of cycles a price rise can lose before it costs money.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed figures, not advice, no warranty, limits
+      stated; nothing leaves the browser. Ethics: helps a small operator check
+      figures on their own numbers.
+  - slug: retirement-withdrawal-sequencer
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic browser-local arithmetic; no language model and no paid API.
+    basis: >-
+      Scored 2026-10-01 when the venture's row was found missing from this file (the
+      scoring check was red on main); the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 6 and defensibility 4: a
+      searchable single-purpose calculator with no signup, volume not measured with an
+      external tool. Scope: Free browser tool for people near or in retirement: enter taxable, traditional and Roth balances, spending, Social Security and pension, and get a year-by-year plan under 2026 US tax rules that compares withdrawal orders and bracket-filling Roth-conversion strategies, ranked by what is left after tax and by lifetime tax paid, re-run at lower returns.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed figures, not advice, no warranty, limits
+      stated; nothing leaves the browser. Ethics: helps a small operator check
+      figures on their own numbers.
+  - slug: time-off-request-planner
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic browser-local arithmetic; no language model and no paid API.
+    basis: >-
+      Scored 2026-10-01 when the venture's row was found missing from this file (the
+      scoring check was red on main); the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 6 and defensibility 4: a
+      searchable single-purpose calculator with no signup, volume not measured with an
+      external tool. Scope: Free browser tool for small teams: paste your people with roles and the vacation or PTO requests you have, set the minimum on duty per role, and get the set of requests to approve that never drops a role below its minimum on any working day (exact search, priority-weighted), with the reason, who is already off and the nearest alternative dates for each request it cannot approve, a comparison with first come first served and a day-by-day cover calendar.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed figures, not advice, no warranty, limits
+      stated; nothing leaves the browser. Ethics: helps a small operator check
+      figures on their own numbers.
