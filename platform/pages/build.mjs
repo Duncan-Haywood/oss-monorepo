@@ -658,6 +658,9 @@ const CATEGORY_RULES = [
       // `shift-roster-builder` joined 2026-10-01 on its first commit: assigns named
       // people to the shifts `shift-cover-optimizer` sizes; the same owner, next door.
       'shift-roster-builder',
+      // `time-off-request-planner` joined 2026-10-01 on its first commit: decides which
+      // leave requests fit a team's minimum cover; the same owner as the shift tools above.
+      'time-off-request-planner',
       // `retirement-withdrawal-sequencer` joined 2026-10-01 on its first commit: whole-retirement
       // withdrawal-order comparison, beside `roth-conversion-bracket-fill-calculator`.
       'retirement-withdrawal-sequencer',

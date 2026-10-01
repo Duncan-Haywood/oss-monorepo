@@ -2886,9 +2886,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `state-residency-day-counter` graduated (browser-local multi-state residency day counter: 183-day tests, crossing date, workday wage split).
     # +1: `league-schedule-generator` graduated (browser-local round-robin league schedule generator: dates, home/away balance, courts and time slots, blackouts, play-offs).
     # +1: `shift-roster-builder` graduated (browser-local weekly shift roster builder: availability, rest, hour caps, overtime, who-is-critical).
+    # +1: `time-off-request-planner` graduated (browser-local time-off request planner: exact search for the leave requests that fit minimum cover per role).
     # +1: `cheap-meal-plan-optimizer` graduated (browser-local minimum-cost diet solver: simplex plus branch and bound, price of each nutrient target).
     # +1: `coffee-roaster-margin-calculator` graduated (browser-local coffee roaster margin, channel and blend-cost calculator).
-    total = 556  # `infra/OWNER_CHECKLIST.md`'s own "N of the 556 tools" wording.
+    total = 557  # `infra/OWNER_CHECKLIST.md`'s own "N of the 557 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
