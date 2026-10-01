@@ -35,6 +35,15 @@
     <summary type="text">Cottage food pricing calculator for home bakers and small food makers. Get the full cost per item with your time, packaging, overhead and unsold goods, the price to charge online, at a farmers market and wholesale, and what you really earn per hour. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>DJ Gig Profit Calculator — profit per hour worked and price floor by package</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dj-gig-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/dj-gig-profit-calculator</id>
+    <published>2026-10-01T00:00:00Z</published>
+    <updated>2026-10-01T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">DJ gig profit calculator for mobile DJs and event entertainers. Enter packages, event hours, setup time and gig costs to see profit per hour worked, the price that hits your target, and direct clients versus a lead marketplace versus an agency.</summary>
+  </entry>
+  <entry>
     <title>Dog Grooming Profit Calculator — profit per hour and price floor by service</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dog-grooming-profit-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/dog-grooming-profit-calculator</id>
@@ -357,14 +366,5 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free tool for home-service and other lead-driven businesses. Paste your leads with minutes to first reply and won or lost to see win rate by response time and the jobs and revenue a faster reply would have won. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Liquidation Pallet Bid Calculator — max bid from your manifest</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/liquidation-pallet-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/liquidation-pallet-bid-calculator</id>
-    <published>2026-09-30T00:00:00Z</published>
-    <updated>2026-09-30T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free liquidation pallet bid calculator. Paste a manifest to get the maximum bid for a chance of loss you accept, with a Monte Carlo simulation of recovery rate, sell-through and damage, break-even recovery and concentration risk. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>

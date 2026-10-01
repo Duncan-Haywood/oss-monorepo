@@ -387,6 +387,8 @@ export const REVIEWED_NOT_CARRIED = {
     'the labour rate is what the operator wants to earn for their own time, not a wage cost, and there is no overhead percentage',
   'dog-walking-route-pricing':
     'the hourly figure is a target sell rate rather than a wage, and overhead is monthly dollars',
+  'dj-gig-profit-calculator':
+    'the hourly figure is a take-home target rather than a wage, and overhead is monthly dollars spread over working hours rather than a percentage of direct cost; there is no burden field',
   'dog-grooming-profit-calculator':
     'the hourly figure is a take-home target rather than a wage, and overhead is monthly dollars spread over bookable hours rather than a percentage of direct cost; there is no burden field',
   'dog-boarding-daycare-pricing':

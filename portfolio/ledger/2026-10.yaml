@@ -246,3 +246,26 @@ entries:
     gate_note: >-
       Liability: arithmetic on supplied figures, not tax advice, no warranty,
       limits stated. No client data. Ethics: helps a small operator price honestly.
+  - venture: dj-gig-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built dj-gig-profit-calculator: a browser-local tool for
+        mobile and wedding DJs. Enter packages with price, event hours, gig costs
+        and gigs per month plus overhead; it reports profit per hour worked with
+        setup, travel and planning counted, the price that hits an hourly target,
+        direct clients versus a lead marketplace versus an agency subcontract on the
+        same mix, and the share of gigs a price raise can lose before it costs
+        money. New niche: no DJ venture existed (duplicate_check.py closest 0.38,
+        adjacent event trades). First visitor expected from "how much to charge as a
+        wedding DJ" searches and DJ communities. No client data; nothing leaves the
+        browser. Unverified on a real DJ's books: tests use hand-calculated cases.
+        Registered score row, launch date, category rule, rate decision and CI workflow.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not tax advice, no warranty, limits
+      stated. No client data. Ethics: helps a small operator price honestly.
