@@ -107,6 +107,7 @@ python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new ven
 python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline infra/tests -q
 python3 -m pytest portfolio/research/<probe> -q          # one at a time: 4 share a test_measure.py basename
 python3 -m pytest portfolio/pipeline/probes/<probe> -q   # one at a time: root pytest --ignore's this tree
+(cd research/<project> && PYTHONPATH=$(ls -d ../*/src | tr '\n' :) python3 -m pytest tests -q)  # research/ changes: one project at a time
 python3 platform/ci/run_workflow_locally.py --for-changes  # the validators no pytest line reaches
 python3 platform/ci/run_workflow_locally.py --tree          # and: is main itself green right now?
 ```

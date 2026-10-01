@@ -392,7 +392,9 @@ def test_every_published_tool_is_reachable_by_slug_for() -> None:
             # — whether an informational query sends anyone to the index is the
             # question the page exists to answer — so it is named here rather
             # than folded onto the hub.
-            | {"_hub", "about", "compare", "guides", "404", "offline"}
+            # `research` is the research portfolio's homepage, published by
+            # build.mjs at RESEARCH_PATH, a top-level page like `about`.
+            | {"_hub", "about", "compare", "guides", "research", "404", "offline"}
         )
         for page in sorted(out.rglob("*.html")):
             uri = "/" + page.relative_to(out).as_posix()
