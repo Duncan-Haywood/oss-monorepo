@@ -26116,3 +26116,29 @@ ventures:
       Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
       leaves the device; the page warns that safety calls and contractual obligations come first. Ethics: helps
       small mobile service businesses earn more from a day's calls; the operator decides and remains responsible.
+  - slug: str-turnover-crew-planner
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic CSV parser, exact dynamic-programming route search and exact crew split; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for vacation-rental cleaning companies with real search demand
+      ("airbnb cleaning scheduling") and scheduling suites that do not say which turnover to refuse
+      or whether a second crew pays; the wedge is an exact best split across crews under checkout and
+      check-in windows plus the break-even fee of every declined turnover, free and client-side; volume
+      not measured with an external tool.
+      Scope: Free CLI and browser tool that picks the most profitable turnovers and crew assignment for a cleaning company.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass

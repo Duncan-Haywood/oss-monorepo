@@ -1781,6 +1781,9 @@ workflows:
 - workflow: str-tax-loophole-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: str-turnover-crew-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: stripe-churn-cohort-analyzer-ci.yml
   classification: none
   publishes: []

@@ -1202,8 +1202,9 @@ const RELATIVE_SELF = relative(
 // +1: `support-staffing-planner` graduated.
 // +1: `consignment-markdown-planner` graduated.
 // +1: `dog-grooming-day-planner` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 588;
+const SWITCHES_IN_THE_CATALOGUE = 589;
 // +1: `embroidery-shop-quote-calculator` graduated.
+// +1: `str-turnover-crew-planner` graduated.
 
 let counter = 0;
 function fixture(source) {
