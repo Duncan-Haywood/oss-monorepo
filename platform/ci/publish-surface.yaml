@@ -440,6 +440,9 @@ workflows:
 - workflow: consent-change-record-ci.yml
   classification: none
   publishes: []
+- workflow: consignment-markdown-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: construction-evidence-log-ci.yml
   classification: none
   publishes: []

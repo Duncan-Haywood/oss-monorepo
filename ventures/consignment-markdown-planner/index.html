@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Consignment Markdown Planner — When to Mark Down and What to Decline</title>
+  <meta name="description" content="Paste the items in your consignment or resale shop and get the exact best markdown schedule for each, which items to decline at intake, and how much a fixed 30/60-day rule leaves on the table. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="When should a consignment shop mark things down?">
+  <meta property="og:description" content="The best markdown schedule per item, intake declines, and the cost of a fixed 30/60-day rule. Paste your items. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Consignment Markdown Planner", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste the items on your floor with price, weekly sell rate, shop share and shelf cost and get the best markdown schedule for each, which items to decline at intake and what a fixed 30/60-day rule leaves on the table. Browser or zero-dependency Node CLI."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does it upload my item list?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page works on the text you paste, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call."}}, {"@type": "Question", "name": "How is the best schedule found?", "acceptedAnswer": {"@type": "Answer", "text": "Each week an item can sell with a chance that rises with the discount, and every week on the floor costs shelf space. The tool works backwards week by week over the markdown levels you allow, never raising a price, and keeps the schedule with the highest expected net to the shop. It is checked against trying every possible schedule in the tests."}}, {"@type": "Question", "name": "Why would it tell me to decline an item?", "acceptedAnswer": {"@type": "Answer", "text": "If the shop's cut of the likely sale does not cover shelf space and handling, taking the item loses money even at the best schedule. The tool says what price or shop share would make the item worth taking."}}, {"@type": "Question", "name": "Where do the sell rates and the lift come from?", "acceptedAnswer": {"@type": "Answer", "text": "From your own history: how many weeks items like this usually sit, and how much faster they sell after a markdown. They are your estimates, so treat the plan as a decision aid, not a forecast."}}, {"@type": "Question", "name": "Who is it for?", "acceptedAnswer": {"@type": "Answer", "text": "Consignment and resale boutiques, thrift and vintage shops and furniture consignors deciding when to mark things down and what to accept."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    input[type=number] { width: 6.5em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CONSIGNMENT MARKDOWN PLANNER · RUNS IN YOUR BROWSER</p>
+    <h1>When should a consignment shop mark things down, and what should it decline?</h1>
+    <p>Every week an item sits, it uses a rack slot you pay for. A fixed rule (25% off at 30 days, 50% at 60) treats a $12 tee and a $210 handbag the same. Paste your items — <strong>price, how fast it sells, your share of the sale and what a slot costs per week</strong> — and get <strong>the exact markdown schedule with the highest expected profit for each</strong>, <strong>which items are not worth taking in</strong>, and what a fixed rule leaves on the table.</p>
+    <p class="note">For consignment and resale boutiques, thrift, vintage and furniture shops. Nothing is uploaded: the text box is analysed in this browser and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your items</h2>
+    <label for="ev-input">One row per item or item type: name, price, weekly sell % at full price, shop share %, shelf cost per week, optional weeks on floor, optional note</label>
+    <textarea id="ev-input" spellcheck="false" placeholder="Designer silk blazer,120,8,40,0.60,12&#10;Graphic tee,12,10,40,0.60,12"></textarea>
+    <p>
+      <label for="weeks">Weeks on floor</label><input type="number" id="weeks" value="12" min="1" max="52" step="1">
+      <label for="lift">Lift per 10% off</label><input type="number" id="lift" value="0.35" min="0" step="0.05">
+      <label for="levels">Allowed discounts (%)</label><input type="text" id="levels" value="0,10,25,40,50" size="14">
+      <label for="handling">Handling per item ($)</label><input type="number" id="handling" value="2" min="0" step="0.5">
+      <label for="slow">Slow-season sell rate (% of estimate)</label><input type="number" id="slow" value="60" min="0" max="100" step="5">
+    </p>
+    <p>
+      <button type="button" id="analyze">Plan the markdowns</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. The plan</h2>
+    <p id="summary"></p>
+    <h3>Every item</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Item</th><th>Take it?</th><th>Best schedule</th><th>Expected net</th><th>Chance it sells</th><th>Fixed 30/60 rule</th><th>Never mark down</th><th>Slow season</th><th>Worth taking at price</th><th>or at shop share</th></tr></thead>
+      <tbody id="item-rows"></tbody>
+    </table></div>
+    <h3>Totals</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Rule</th><th>Expected net</th></tr></thead>
+      <tbody id="compare-rows"></tbody>
+    </table></div>
+    <ul id="findings"></ul>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI?</h2>
+    <p>Same logic, zero dependencies, one command — reads a file or stdin:</p>
+    <pre class="cmd">node cli.mjs plan items.csv --weeks 12 --lift 0.35 --levels 0,10,25,40,50 --json
+cat items.csv | node cli.mjs plan - --handling 2</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="how-should-a-consignment-shop-mark-down.html">How should a consignment shop mark down? 30/60/90-day schedule math</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">The schedule is exact for the numbers you type (dynamic programming over every non-decreasing schedule, up to 200 items). Seasonality, consignor price-floor agreements, items that sell as a group and unsold-item returns or donation value are not modelled; enter shelf cost and sell rates as they really are for you.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does it upload my item list?</h3>
+    <p>No. The browser page works on the text you paste, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+    <h3>How is the best schedule found?</h3>
+    <p>Each week an item can sell with a chance that rises with the discount, and every week on the floor costs shelf space. The tool works backwards week by week over the markdown levels you allow, never raising a price, and keeps the schedule with the highest expected net to the shop. It is checked against trying every possible schedule in the tests.</p>
+    <h3>Why would it tell me to decline an item?</h3>
+    <p>If the shop's cut of the likely sale does not cover shelf space and handling, taking the item loses money even at the best schedule. The tool says what price or shop share would make the item worth taking.</p>
+    <h3>Where do the sell rates and the lift come from?</h3>
+    <p>From your own history: how many weeks items like this usually sit, and how much faster they sell after a markdown. They are your estimates, so treat the plan as a decision aid, not a forecast.</p>
+    <h3>Who is it for?</h3>
+    <p>Consignment and resale boutiques, thrift and vintage shops and furniture consignors deciding when to mark things down and what to accept.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, for the accuracy of the prices, sell rates and costs you type, and for the terms of your consignment agreements, including any markdown schedule or price floor you have promised a consignor. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It chooses between options using the numbers you supply; it is not a forecast of what will sell.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../clearance-markdown-planner/">Clearance Markdown Planner</a>, <a href="../price-elasticity-estimator/">Price Elasticity Estimator</a> and <a href="../booth-rent-vs-commission/">Booth Rent vs Commission</a>.</p>
+    <p class="support">Free and open source. If this earned your shop a better season, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseItems, plan, summarize, money, pct, INPUT_NOTES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    function renderReport() {
+      const status = $("#status");
+      const text = $("#ev-input").value;
+      if (!text.trim()) {
+        status.innerHTML = `<span class="error">Paste some rows first (or load the worked example).</span>`;
+        return;
+      }
+      const parsed = parseItems(text);
+      if (parsed.errors.length) {
+        status.innerHTML = `<span class="error">${parsed.errors.map(escapeHtml).join("<br>")}</span>`;
+        return;
+      }
+      let p;
+      try {
+        p = plan(parsed, { weeks: $("#weeks").value, lift: $("#lift").value, levels: $("#levels").value, handling: $("#handling").value, slow: $("#slow").value });
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarize(p);
+      $("#summary").innerHTML = `<span class="${s.status === "gain" ? "gain" : s.status === "none" ? "error" : "ok"}">${escapeHtml(s.text)}</span>`;
+      const fin = (n, f) => (Number.isFinite(n) ? f(n) : "n/a");
+      $("#item-rows").innerHTML = p.items.map((x) => `<tr><td>${escapeHtml(x.name)}</td><td>${x.accept ? "Take" : "Decline"}</td><td>${escapeHtml(x.schedule)}</td><td>${money(x.net)}</td><td>${pct(x.plan.sold * 100)}</td><td>${money(x.standard.net)}</td><td>${money(x.noMarkdown.net)}</td><td>${money(x.slow.net)}</td><td>${fin(x.minPriceToAccept, money)}</td><td>${fin(x.minShareToAccept, (v) => pct(v * 100, 1))}</td></tr>`).join("");
+      const t = p.totals;
+      $("#compare-rows").innerHTML = [
+        ["Best schedules, items worth taking (this tool)", t.planAcceptedOnly],
+        ["Same items on a fixed 25% at week 5, 50% at week 9 rule", t.planAcceptedOnly - t.upliftVsStandard],
+        ["Same items never marked down", t.planAcceptedOnly - t.upliftVsNoMarkdown],
+        [`Best schedules if sell rates hit ${p.options.slow}% of estimate (all items)`, t.slowSeason],
+      ].map(([l, v]) => `<tr><td>${escapeHtml(l)}</td><td>${money(v)}</td></tr>`).join("");
+      $("#findings").innerHTML = p.findings.map((f) => `<li>${escapeHtml(f.message)}</li>`).join("");
+      $("#report-card").hidden = false;
+      record("plan_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `name,price,weekly_sell_pct,shop_share_pct,shelf_cost_per_week,weeks,note
+Designer silk blazer,120,8,40,0.60,12,Designer
+Denim jacket,38,14,40,0.60,12,Basics
+Leather boots,85,9,40,0.60,12,Seasonal
+Cocktail dress,150,5,50,0.60,12,Occasion
+Graphic tee,12,10,40,0.60,12,Low ticket
+Wool coat,95,7,40,0.60,12,Winter
+Oak side table,160,4,40,3.50,12,Furniture
+Vintage lamp,45,6,40,1.50,12,Small furniture
+Kids puzzle set,8,12,40,0.40,12,Low ticket
+Handbag,210,6,50,0.80,12,Designer`;
+
+    $("#load-example").addEventListener("click", () => {
+      $("#ev-input").value = EXAMPLE_SOURCE;
+      $("#weeks").value = 12; $("#lift").value = 0.35; $("#levels").value = "0,10,25,40,50"; $("#handling").value = 2; $("#slow").value = 60;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      $("#ev-input").value = "";
+      $("#status").textContent = "";
+      $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>
