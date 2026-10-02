@@ -46,3 +46,7 @@ test("index links to the EBS and DynamoDB cost advisor siblings", async () => {
   assert.ok(idx.includes('href="../ebs-volume-cost-advisor/"'));
   assert.ok(idx.includes('href="../dynamodb-capacity-mode-advisor/"'));
 });
+
+test("index links to the BigQuery cost advisor sibling", async () => {
+  assert.ok((await read("index.html")).includes('href="../bigquery-query-cost-advisor/"'));
+});
