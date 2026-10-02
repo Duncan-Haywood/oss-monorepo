@@ -173,6 +173,9 @@ workflows:
 - workflow: appointment-overbooking-optimizer-ci.yml
   classification: none
   publishes: []
+- workflow: appraisal-assignment-picker-ci.yml
+  classification: none
+  publishes: []
 - workflow: artificial-turf-bid-calculator-ci.yml
   classification: none
   publishes: []

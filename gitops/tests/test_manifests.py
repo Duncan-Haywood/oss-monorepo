@@ -2911,9 +2911,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `free-shipping-threshold-optimizer` graduated (browser + CLI free-shipping minimum sweep from an orders export).
     # +1: `returns-policy-cost-analyzer` graduated (browser + CLI returns-cost and return-fee analyzer).
     # +1: `card-grading-submission-picker` graduated (browser + CLI which-cards-to-grade picker with exact break-even and budgeted subset).
+    # +1: `appraisal-assignment-picker` graduated (browser + CLI which-assignments-to-accept picker with exact deadline-capacity search and break-even fee).
     # +1: `saas-renewal-planner` graduated (browser + CLI SaaS renewal notice-deadline and negotiation planner).
     # +1: `thrift-haul-buy-picker` graduated (browser + CLI thrift/estate-sale buy picker with walk-away price and exact best set under cash or hours caps).
-    total = 617  # `infra/OWNER_CHECKLIST.md`'s own "N of the 617 tools" wording.
+    total = 618  # `infra/OWNER_CHECKLIST.md`'s own "N of the 618 tools" wording.
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).
     # +1: `ticket-resale-profit-calculator` graduated (browser + CLI ticket resale payout, break-even and sales-log audit).
