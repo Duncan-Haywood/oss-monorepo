@@ -25706,3 +25706,34 @@ ventures:
       credit assessment or valuation, no warranty, nothing leaves the device. Ethics: helps a
       small business owner see a dependence that a lender or buyer would otherwise price in
       without telling them.
+  - slug: ticket-resale-profit-calculator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 6.167
+    rater_b: null
+    floor: 3
+    floor_dimension: defensibility
+    floor_note: >-
+      Deterministic fee arithmetic and a sales-log parser; contains no model and calls no paid API.
+      Defensibility is low because seller-fee calculators are easy to copy.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in the venture's
+      own VENTURE.yaml comment. Ticket resellers enter cost and list price and get payout,
+      break-even and expected profit once unsold listings are allowed for, and can audit past sales by
+      marketplace. Distribution 5: "stubhub seller fees" style queries and reseller subreddits are
+      real but unmeasured with an external tool; the wedge is the sale-probability line that fee
+      calculators omit.
+      Scope: Free browser and CLI tool for ticket resale pricing and sales audit.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on numbers the user enters with editable fee presets stated as typical
+      and changeable, not tax advice, no warranty, nothing leaves the device. Ethics: resale is
+      legal in most places but price caps and licensing vary; the page tells the user to check local
+      rules and does not help evade any.

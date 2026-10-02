@@ -1,0 +1,51 @@
+name: ticket-resale-profit-calculator
+description: 'Free, zero-network, zero-dependency browser tool + CLI for people who resell event tickets: net payout, break-even and target-profit list price after the marketplace seller fee, the same order across StubHub / SeatGeek / Vivid Seats / Ticketmaster resale, expected profit once some listings do not sell, and a past-sales audit with profit, ROI and effective fee rate per marketplace. Fee presets are typical rates, editable; buyer fees and tax are not modelled.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/analyzer archetype (portfolio/pipeline/README.md). Checked
+# 2026-10-02: duplicate_check.py "StubHub Vivid Seats SeatGeek ticket reseller
+# fee net payout calculator" top hit 0.18 (faire-wholesale-calculator,
+# unrelated); the nearest sibling is stockx-seller-payout-calculator (sneakers).
+# Not in screened-out.md.
+#
+# Money: a reseller holding $500-$5,000 of tickets per event loses it whole when
+# a listing does not sell. The wedge is the sale-probability line no fee
+# calculator shows: a 12% margin on the sales that happen is a negative
+# expected return at an 80% sell-through. The paid upgrade path is a hosted
+# log that tracks sell-through by event type and alerts when a listing should
+# be repriced.
+#
+# Where the first real visitor would come from: search phrases "stubhub seller
+# fees calculator", "how much does stubhub take from sellers", "ticket resale
+# profit calculator"; r/ticketsales, r/StubHub and r/ticketresale threads asking
+# what price breaks even; the competitor fee-help pages these queries land on.
+hypotheses:
+  - claim: A ticket reseller will search for seller fees, enter what they paid, and leave knowing their break-even list price and whether a thin margin survives unsold listings.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Resellers will paste a sales log to learn which marketplace actually nets them the most.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: all arithmetic runs in the visitor's browser or local CLI.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository, spreadsheet or forum thread is found linking or reusing cli.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ticket-resale-profit-calculator/
+  analytics: null

@@ -2908,7 +2908,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `lambda-vs-fargate-cost-breakeven` graduated (browser + CLI Lambda / Cloud Run / Fargate / EC2 cost break-even).
     # +1: `rds-instance-rightsizer` graduated (browser + CLI RDS/Aurora instance right-sizer from CloudWatch metrics).
     # +1: `free-shipping-threshold-optimizer` graduated (browser + CLI free-shipping minimum sweep from an orders export).
-    total = 595  # `infra/OWNER_CHECKLIST.md`'s own "N of the 595 tools" wording.
+    total = 596  # `infra/OWNER_CHECKLIST.md`'s own "N of the 596 tools" wording.
+    # +1: `ticket-resale-profit-calculator` graduated (browser + CLI ticket resale payout, break-even and sales-log audit).
     # +1: `breakeven-roas-calculator` graduated (browser-local break-even ROAS, max CPA and LTV-adjusted ad economics calculator).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
