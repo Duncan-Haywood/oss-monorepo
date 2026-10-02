@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Price Catering Per Person, and What a Minimum Guest Count Is For</title>
+  <meta name="description" content="How to turn a catering cost sheet into a per-guest price, why a bigger event costs less per head, how to set a deposit, and how to find the minimum guest count below which a job loses money.">
+  <link rel="canonical" href="./catering-pricing-guide.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should a caterer charge per person?", "acceptedAnswer": {"@type": "Answer", "text": "Enough that cost divided by one minus your margin and overhead share gives the price. With a 30% margin and 10% overhead that is cost divided by 0.6, so a $26 per guest cost needs a price near $43. The calculator does this from your own lines."}}, {"@type": "Question", "name": "What is a minimum guest count for?", "acceptedAnswer": {"@type": "Answer", "text": "Staff, rentals and fuel cost the same whether 40 or 60 people come, so below a certain headcount the event loses money. The break-even guest count is where the price you quoted covers those fixed costs, and the minimum should sit at or above it."}}, {"@type": "Question", "name": "What food cost percentage should a caterer target?", "acceptedAnswer": {"@type": "Answer", "text": "Many caterers aim for food at roughly 25 to 35 percent of the quote and staff at a similar level, but menus differ widely. The tool warns at 35 percent for each and the levels are yours to change."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">Catering Quote Calculator</a> · guide</p>
+  <h1>How to price catering per person, and what a minimum guest count is for</h1>
+  <p>Short answer: <strong>price = total cost ÷ (1 − margin − overhead), divided by guests</strong>. The part that catches caterers is that only some costs grow with headcount, so a flat per-head price quietly loses money on small events.</p>
+
+  <h2>Sort every cost into three kinds</h2>
+  <ul>
+    <li><strong>Per guest</strong>: food, plates, cutlery, napkins. Add a waste allowance (5% is a common start) because you always cook or buy more than is eaten.</li>
+    <li><strong>Per event</strong>: van and fuel, chafing dishes, linen rental, permits. They do not change with the guest count.</li>
+    <li><strong>Staff hours</strong>: cooks, servers, setup. Add payroll burden (taxes and workers' comp, 10 to 15 percent is typical) and remember setup and breakdown hours count.</li>
+  </ul>
+
+  <h2>Why price per head falls as the event grows</h2>
+  <p>With $1,400 of fixed cost and $10 of food per guest, 30 guests cost $56.67 per head and 120 guests cost $21.67. The calculator prints this tier table so you can quote different headcounts without redoing the sheet.</p>
+
+  <h2>Find the minimum guest count</h2>
+  <p>Take the per-guest price you will actually quote, subtract overhead and the per-guest cost, and divide the fixed costs by what is left. That is the break-even headcount. Put a minimum at or above it in the contract, with the price per head for fewer guests stated.</p>
+
+  <h2>Deposits and tax</h2>
+  <p>A deposit of half the quote at booking is common because ingredients and staff are committed early. Sales tax, service charges and gratuity are usually shown on separate lines; whether they apply, and who keeps them, depends on your state, so check the local rule instead of assuming.</p>
+
+  <pre>node cli.mjs quote event.csv --guests 60 --price 28</pre>
+
+  <h2>Common questions</h2>
+  <h3>How much should a caterer charge per person?</h3>
+  <p>Enough that cost divided by one minus your margin and overhead share gives the price. With a 30% margin and 10% overhead that is cost divided by 0.6, so a $26 per guest cost needs a price near $43. The calculator does this from your own lines.</p>
+  <h3>What is a minimum guest count for?</h3>
+  <p>Staff, rentals and fuel cost the same whether 40 or 60 people come, so below a certain headcount the event loses money. The break-even guest count is where the price you quoted covers those fixed costs, and the minimum should sit at or above it.</p>
+  <h3>What food cost percentage should a caterer target?</h3>
+  <p>Many caterers aim for food at roughly 25 to 35 percent of the quote and staff at a similar level, but menus differ widely. The tool warns at 35 percent for each and the levels are yours to change.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide and the tool are free and as-is, without warranty of any kind. Not financial, tax, legal or food-safety advice; the levels quoted are rules of thumb. Licensing, insurance, health-code and sales-tax rules for catering vary by place.</p>
+  </footer>
+</body>
+</html>
