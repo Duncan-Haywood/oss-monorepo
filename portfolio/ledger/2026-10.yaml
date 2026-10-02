@@ -752,3 +752,26 @@ entries:
       Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
       warranty; the user remains responsible for working-time and break rules.
       Ethics: helps small teams staff to a service target without overstaffing.
+  - venture: csa-share-pricing-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built csa-share-pricing-calculator: a browser-local tool and
+        zero-dependency CLI for small vegetable farms and market gardens that sell
+        CSA shares. Paste the items in the weekly box (quantity, retail value,
+        cost, labour minutes, weeks in season) and set the season, share count,
+        price, fees, packing and delivery costs, fixed costs and your hourly pay; it
+        gives the retail value a member receives and the value ratio, season profit
+        before and after paying yourself, the closed-form price that pays a target
+        wage, shares needed to break even, items that cost more to grow than they
+        are worth, and a price sweep under a stated elasticity. New niche: the
+        closest existing tools (market-garden-bed-planner, market-event-picker,
+        custom-farm-rate-calculator) plan crops, market choice and contract rates;
+        none prices a CSA share. First visitor expected from "how to price a CSA
+        share" searches. Nothing leaves the browser. Unverified with a real farm's
+        box list.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
