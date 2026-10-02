@@ -889,3 +889,35 @@ entries:
       Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
       warranty, safety calls and contracts come first. Ethics: helps small mobile service
       shops earn more from a day's calls.
+  - venture: insurance-denial-appeal-builder
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built insurance-denial-appeal-builder: a browser-local tool for
+        patients holding a denied health insurance claim. Pasting the denial letter or
+        EOB text scores adjustment reason codes (CO-50, CO-197, CO-96, CO-18 and others)
+        and phrases to suggest the denial reason with the evidence shown, and picks up
+        the notice date, a stated appeal window, claim number, member ID and urgency.
+        Deadlines come from plan type and receipt date (180 days commercial, 60
+        Medicare Advantage, 120 Original Medicare, Medicaid by the notice), a window
+        stated in the notice overrides, and a passed window adds a good-cause request.
+        Each of eleven reasons has its own first step (call the provider first for
+        billing, authorization and filing problems), things to ask the plan for and
+        documents to enclose; the letter shows placeholders for facts not supplied.
+        Exports the letter and an .ics file with the deadline and two reminders. New
+        niche: duplicate_check.py found no denial or appeal venture; the closest,
+        medical-bill-error-checker, reads an itemised bill, and is cross-linked. First
+        visitor expected from "health insurance denial appeal letter", "CO-50 denial
+        code" and "how to appeal insurance claim denial" searches and r/HealthInsurance.
+        Nothing leaves the browser; 31 tests cover the engine, page wiring and privacy.
+        Unverified against real insurer denial letters or by a benefits adviser.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: dates are reminders from rules of thumb with the notice controlling,
+      no outcome promised, not legal or medical advice, letter states only user-supplied
+      facts, health text never leaves the device. Ethics: helps patients use appeal
+      rights they already have.
