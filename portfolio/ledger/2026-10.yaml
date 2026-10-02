@@ -889,6 +889,90 @@ entries:
       Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
       warranty, safety calls and contracts come first. Ethics: helps small mobile service
       shops earn more from a day's calls.
+  - venture: insurance-denial-appeal-builder
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built insurance-denial-appeal-builder: a browser-local tool for
+        patients holding a denied health insurance claim. Pasting the denial letter or
+        EOB text scores adjustment reason codes (CO-50, CO-197, CO-96, CO-18 and others)
+        and phrases to suggest the denial reason with the evidence shown, and picks up
+        the notice date, a stated appeal window, claim number, member ID and urgency.
+        Deadlines come from plan type and receipt date (180 days commercial, 60
+        Medicare Advantage, 120 Original Medicare, Medicaid by the notice), a window
+        stated in the notice overrides, and a passed window adds a good-cause request.
+        Each of eleven reasons has its own first step (call the provider first for
+        billing, authorization and filing problems), things to ask the plan for and
+        documents to enclose; the letter shows placeholders for facts not supplied.
+        Exports the letter and an .ics file with the deadline and two reminders. New
+        niche: duplicate_check.py found no denial or appeal venture; the closest,
+        medical-bill-error-checker, reads an itemised bill, and is cross-linked. First
+        visitor expected from "health insurance denial appeal letter", "CO-50 denial
+        code" and "how to appeal insurance claim denial" searches and r/HealthInsurance.
+        Nothing leaves the browser; 31 tests cover the engine, page wiring and privacy.
+        Unverified against real insurer denial letters or by a benefits adviser.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: dates are reminders from rules of thumb with the notice controlling,
+      no outcome promised, not legal or medical advice, letter states only user-supplied
+      facts, health text never leaves the device. Ethics: helps patients use appeal
+      rights they already have.
+  - venture: str-turnover-crew-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built str-turnover-crew-planner: a browser-local tool and
+        zero-dependency CLI for vacation-rental cleaning companies with one to three
+        crews. Paste the day's turnovers (fee, supplies, clean minutes, checkout,
+        next check-in, location) and it finds the exact most profitable set of cleans,
+        which crew does each and in what order (dynamic programming per crew plus an
+        exact split across crews, tested against every assignment and order), the exact
+        break-even fee of each declined turnover, what a second or third crew adds, and
+        what first-come and biggest-fee-first booking leave behind. New niche:
+        str-cleaning-fee-pricing-calculator and house-cleaning-quote-calculator price one
+        clean; route-stop-optimizer orders stops without fees; none decides which
+        turnovers to take or how many crews a day needs under checkout and check-in
+        windows. First visitor expected from "how many cleaners do I need for STR
+        turnovers" and "airbnb cleaning scheduling" searches. Nothing leaves the
+        browser. Unverified with a real cleaning company's day.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty, guest-ready standards and management contracts come first. Ethics: helps
+      small cleaning companies earn more from their crews' hours.
+  - venture: mobile-signing-agent-day-picker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built mobile-signing-agent-day-picker: a browser-local tool and
+        zero-dependency CLI for mobile notaries and loan signing agents. Paste the day's
+        offered signings (fee, print cost, appointment length, window, location) and it
+        finds the exact most profitable set and order (dynamic programming over signing
+        sets with non-dominated time/profit labels, same engine verified against every
+        ordering of every subset in mobile-tire-van-job-picker), the exact break-even fee
+        of each declined signing, and what first-come and highest-fee-first booking leave
+        behind. New niche: notary-trip-quote prices one trip, process-server-fee-calculator
+        one serve, route-stop-optimizer orders stops without fees; none chooses which
+        offered signings to take under appointment windows. First visitor expected from
+        "loan signing agent schedule" searches. Nothing leaves the browser. Unverified with
+        a real agent's day.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty, borrowers waiting on closings and signing-service agreements come first.
+      Ethics: helps independent notaries earn more from a day's offers.
   - venture: used-car-lot-aging-planner
     agent_spend_usd: null
     human_hours: 0

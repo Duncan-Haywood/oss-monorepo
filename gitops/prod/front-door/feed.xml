@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 610 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 613 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -125,6 +125,15 @@
     <summary type="text">Paste your weekly hours and the project offers on the table and get the exact set to accept for the highest income, with the fee each declined project would need to earn its place. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Insurance Denial Appeal Builder — Appeal Letter, Deadline and Checklist for a Denied Claim</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/insurance-denial-appeal-builder/"/>
+    <id>tag:marisstella.dev,2026:tool/insurance-denial-appeal-builder</id>
+    <published>2026-10-02T00:00:00Z</published>
+    <updated>2026-10-02T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free tool for patients: paste your health insurance denial letter and get the likely denial reason, your appeal deadline, a draft appeal letter, a checklist of what to gather and calendar reminders. Runs in your browser, the letter is never uploaded.</summary>
+  </entry>
+  <entry>
     <title>Kubernetes Requests Rightsizer — Are Your Pod CPU and Memory Requests Wasting Money</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/k8s-requests-rightsizer/"/>
     <id>tag:marisstella.dev,2026:tool/k8s-requests-rightsizer</id>
@@ -159,6 +168,15 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Paste the markets, fairs and festivals you could work and get the exact set that earns the most net profit after booth fees, travel, crew hours and cost of goods, with the reason for every event skipped. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Mobile Signing Agent Day Picker — Which Signings to Take Today</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mobile-signing-agent-day-picker/"/>
+    <id>tag:marisstella.dev,2026:tool/mobile-signing-agent-day-picker</id>
+    <published>2026-10-02T00:00:00Z</published>
+    <updated>2026-10-02T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Paste the day&#39;s offered loan signings and notary appointments and get the most profitable set and order for one mobile notary or signing agent, with appointment windows, drive cost and the fee every declined signing would need. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Mobile Tire Van Job Picker — Which Calls to Run Today</title>
@@ -231,6 +249,15 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your Snowflake warehouses (size, credits used, AUTO_SUSPEND, resumes) and get what each costs, the AUTO_SUSPEND tail you are paying for, idle warehouses and a bounded right-sizing note, with the ALTER WAREHOUSE commands. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>STR Turnover Crew Planner — Which Cleans to Take, and Which Crew</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/str-turnover-crew-planner/"/>
+    <id>tag:marisstella.dev,2026:tool/str-turnover-crew-planner</id>
+    <published>2026-10-02T00:00:00Z</published>
+    <updated>2026-10-02T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Paste the day&#39;s vacation-rental turnovers and get the most profitable set of cleans, which of your one to three crews does each and in what order, with checkout and check-in windows, drive cost and the fee every turnover it declines would need. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Support Staffing Planner — Erlang C Agents and Cheapest Shifts</title>
@@ -339,32 +366,5 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free coffee roaster pricing calculator. Turn green coffee price and roast loss into cost per roasted pound, see margin by channel (retail, subscription, wholesale), find the cheapest blend that still hits your cup score, plan green coffee orders and find break-even volume. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Container Load Planner — 3D load planning for containers, trucks and pallets</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/container-load-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/container-load-planner</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Logistics, freight &amp; cloud cost"/>
-    <summary type="text">Free container load planner for small exporters, Amazon FBA and DTC sellers. Enter cartons or pallets, pick a 20 ft, 40 ft, 40 ft high cube, 53 ft trailer, box truck or pallet; see what fits, what is left over, how many containers the whole load needs, and a to-scale loading plan. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Contractor WIP Schedule — over/under billing from your job list</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/contractor-wip-schedule/"/>
-    <id>tag:marisstella.dev,2026:tool/contractor-wip-schedule</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free work-in-progress schedule for contractors. Paste your open jobs with contract, estimated cost, cost to date and billings to see percent complete, over- and underbilling, expected losses, cash still to come, a cost-growth stress test and backlog against working capital. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Cottage Food Pricing Calculator — price baked goods and homemade food for profit</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cottage-food-pricing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/cottage-food-pricing-calculator</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Cottage food pricing calculator for home bakers and small food makers. Get the full cost per item with your time, packaging, overhead and unsold goods, the price to charge online, at a farmers market and wholesale, and what you really earn per hour. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>

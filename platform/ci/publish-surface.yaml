@@ -941,6 +941,9 @@ workflows:
 - workflow: insurance-agency-book-valuation-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: insurance-denial-appeal-builder-ci.yml
+  classification: none
+  publishes: []
 - workflow: interior-door-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -1134,6 +1137,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: mobile-detailing-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: mobile-signing-agent-day-picker-ci.yml
   classification: none
   publishes: []
 - workflow: mobile-tire-van-job-picker-ci.yml
@@ -1779,6 +1785,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: str-tax-loophole-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: str-turnover-crew-planner-ci.yml
   classification: none
   publishes: []
 - workflow: stripe-churn-cohort-analyzer-ci.yml

@@ -1,0 +1,46 @@
+name: str-turnover-crew-planner
+description: 'Free, zero-network, zero-dependency browser tool and CLI for vacation-rental cleaning companies with one to three crews: paste the day''s turnovers (fee, supplies, clean minutes, checkout, next check-in and where each unit is) and get the exact most profitable set of cleans, which crew does each and in what order, the exact fee at which each declined turnover would earn a place, what a second or third crew adds, and the dollars first-come and biggest-fee-first booking leave behind. Numbers are the ones the user supplies, not a forecast.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: raises what a short-term-rental cleaning company keeps from a day's turnovers.
+# Checked 2026-10-02: ventures/ has str-cleaning-fee-pricing-calculator (what to charge an owner for one clean),
+# house-cleaning-quote-calculator (one residential quote), route-stop-optimizer (orders stops, no fees or windows) and
+# mobile-tire-van-job-picker (one van); none chooses which turnovers to take, and which crew does which, under
+# checkout and check-in windows with drive cost between units, or says what a second or third crew adds. Not in
+# screened-out.md.
+#
+# First visitor: searches "airbnb cleaning scheduling", "how many cleaners do I need for turnovers", "str cleaning
+# business profit per day"; STR host and cleaner groups. Volume not measured with an external tool. Scheduling
+# suites assign cleaners but do not say which turnover to refuse or what a far unit needs to pay; a hosted version
+# that reads the day's bookings from a calendar feed is the natural paid upgrade.
+hypotheses:
+  - claim: A cleaning company owner will paste a busy checkout day's turnovers, see how much first-come booking leaves behind, and change which turnovers they accept, what they quote for far units, or how many crews they staff.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: An owner will return before each busy day with new turnovers, so the page earns repeat visits.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No cleaning company reports changing a turnover they accept, a fee they quote or a crew count because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/str-turnover-crew-planner/
+  analytics: null
