@@ -290,6 +290,9 @@ workflows:
 - workflow: client-concentration-risk-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: catering-quote-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: caa-record-check-ci.yml
   classification: none
   publishes: []

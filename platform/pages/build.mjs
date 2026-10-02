@@ -652,6 +652,9 @@ const CATEGORY_RULES = [
       'menu-engineering-calculator',
       'food-truck-event-margin-calculator',
       'pour-cost-calculator',
+      // `catering-quote-calculator` joined 2026-10-02 on its first commit: per-guest event pricing for the
+      // operator who sells food, one hop from `food-truck-event-margin-calculator`.
+      'catering-quote-calculator',
       'commissary-kitchen-cost-split-calculator',
       // `restaurant-pos-menu-mix-analyzer` added 2026-09-29: the POS-export
       // sibling of `menu-engineering-calculator`, same owner reading the same
@@ -1285,6 +1288,9 @@ const CATEGORY_RULES = [
       // `client-concentration-risk-analyzer` joined 2026-10-02 on its first commit: it reads the same invoice
       // export as `invoice-payment-terms-calculator` here and asks how much revenue one client carries.
       || slug === 'client-concentration-risk-analyzer'
+      // `price-increase-breakeven-calculator` filed here 2026-10-02: it was landing in the catch-all (bound 5) and is
+      // the same after-the-fact margin arithmetic as the break-even tools above.
+      || slug === 'price-increase-breakeven-calculator'
       // `rent-roll-delinquency-analyzer` reads a landlord's rent ledger after the rent fell due
       // (what is unpaid, how old, who pays late) -- the same after-the-fact reconciliation job
       // as `cam-reconciliation-check` above, for tenants' payments instead of a CAM statement.
