@@ -1186,6 +1186,7 @@ const RELATIVE_SELF = relative(
 // +1: `databricks-cluster-cost-advisor` graduated.
 // +1: `k8s-requests-rightsizer` graduated.
 // +1: `lambda-vs-fargate-cost-breakeven` graduated.
+// +1: `rds-instance-cost-advisor` graduated.
 const SWITCHES_IN_THE_CATALOGUE = 570;
 
 let counter = 0;

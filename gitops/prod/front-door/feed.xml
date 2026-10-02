@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 590 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 591 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -69,6 +69,15 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your NAT gateway traffic per destination and get the monthly NAT cost, which AWS services should use a free S3/DynamoDB gateway endpoint or an interface endpoint, the net saving after endpoint fees, and the create-vpc-endpoint commands. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>RDS Instance Cost Advisor — Multi-AZ, io1 IOPS, Graviton and Idle Instances</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rds-instance-cost-advisor/"/>
+    <id>tag:marisstella.dev,2026:tool/rds-instance-cost-advisor</id>
+    <published>2026-10-02T00:00:00Z</published>
+    <updated>2026-10-02T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your Amazon RDS instances (class, engine, Multi-AZ, storage, IOPS, CPU) and get what each costs, Multi-AZ you pay for outside production, io1 IOPS that gp3 covers, Graviton twins and idle instances, with the aws rds command to change each. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>S3 Storage Class Advisor — Standard, IA, Intelligent-Tiering or Glacier, Whichever Costs Less</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free round robin schedule generator. Paste your team names and get a fair league schedule with real dates, balanced home and away, courts and time slots shared evenly, blackout dates, an optional play-off bracket, and CSV, calendar and text exports. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>License Compatibility Check — Can You Ship These Dependencies?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/license-compat-check/"/>
-    <id>tag:marisstella.dev,2026:tool/license-compat-check</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your dependency licenses, say how you ship (closed-source app, SaaS, internal tool, or an open-source license) and see which dependencies conflict — GPL in a proprietary app, Apache-2.0 in GPL-2.0-only, AGPL and SSPL in a service. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
