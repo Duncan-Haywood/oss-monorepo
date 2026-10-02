@@ -26199,3 +26199,32 @@ ventures:
       Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
       leaves the device; the page warns that a borrower waiting on a closing and any signing-service agreement come
       first. Ethics: helps independent notaries earn more from a day's offers; the agent decides and remains responsible.
+  - slug: card-grading-submission-picker
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic CSV parser, closed-form break-even and exact knapsack subset selection; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for card sellers and collectors with real search demand
+      ("is it worth grading this card") where nothing multiplies a seller's own grade odds against the fee tier;
+      the wedge is the exact break-even chance of a 10 per card plus the exact best subset under a grading budget,
+      free and client-side; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that picks which cards to send to a grader from the user's own value and grade-chance estimates.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at user-supplied estimates, stated so and not a price guide, example fee
+      tiers labelled as examples to replace, no warranty, nothing leaves the device. Ethics: helps small card sellers decide
+      where grading spend is worth it; the user decides and remains responsible.
