@@ -26371,6 +26371,65 @@ ventures:
       licensing, competency and independence rules named as coming first, no warranty, nothing leaves the device. Ethics:
       helps small independent practitioners decide which files are worth their hours; the user decides and remains
       responsible, and the page says no fee or deadline should influence an opinion of value.
+  - slug: owner-operator-load-chain-planner
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic CSV parser, exact label-setting dynamic programme with closed-form walk-away rates; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for independent truckers with real search demand ("how to string loads together owner operator",
+      "reduce deadhead miles") where the cost-per-mile calculators price one rate and nothing sequences paid loads across
+      windows and rest; the wedge is the exact best chain plus a walk-away rate per load, free and client-side; volume not
+      measured with an external tool.
+      Scope: Free CLI and browser tool that picks the loads to chain and the lowest rate each is worth from the user's own shortlist and costs.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at user-supplied estimates, stated so and not a market rate, route plan or hours-of-service
+      tool, no warranty, the driver checks load acceptance, safety and driving-time rules, nothing leaves the device. Ethics: helps
+      independent drivers decide which loads are worth running; the driver decides and remains responsible.
+  - slug: translation-job-picker
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic CSV parser and exact deadline-pruned subset search; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in the venture's own
+      VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a direct earn-more decision for
+      freelance translators who accept or decline agency offers against delivery dates, where nothing prices a
+      declined job against the hours it would take; the wedge is the exact best set under a daily-hours capacity plus
+      the exact rate at which each declined job earns a place, free and client-side; volume not measured with an
+      external tool. Shares its engine with appraisal-assignment-picker, which lowers defensibility's upside.
+      Scope: Free CLI and browser tool that picks which jobs to accept from the user's own fees, hours and due dates.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at user-supplied estimates, stated so and not business advice,
+      competence, certification, confidentiality and agency terms named as coming first, no warranty, nothing leaves
+      the device. Ethics: helps small independent practitioners decide which jobs are worth their hours; the user
+      decides and remains responsible.
   - slug: bookkeeping-client-fee-calculator
     scores:
       ai_leverage: 4

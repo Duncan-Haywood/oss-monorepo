@@ -1229,6 +1229,9 @@ workflows:
 - workflow: owner-operator-cpm-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: owner-operator-load-chain-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: package-exports-drift-check-ci.yml
   classification: none
   publishes: []
@@ -1902,6 +1905,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: trade-show-roi-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: translation-job-picker-ci.yml
   classification: none
   publishes: []
 - workflow: translator-project-quote-ci.yml
