@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 618 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 619 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -332,6 +332,15 @@
     <summary type="text">Paste the trade shows and conferences you could exhibit at and get cost per lead, expected deals, ROI and break-even leads for each, plus the exact set of shows that earns the most under your yearly budget. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Translation Job Picker — Which Agency Offers to Accept</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/translation-job-picker/"/>
+    <id>tag:marisstella.dev,2026:tool/translation-job-picker</id>
+    <published>2026-10-02T00:00:00Z</published>
+    <updated>2026-10-02T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Paste the translation jobs you have been offered and get the set that earns the most before the due dates, the order to work them, and the fee each declined file would need. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Used Car Lot Aging Planner — When to Wholesale Each Unit</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/used-car-lot-aging-planner/"/>
     <id>tag:marisstella.dev,2026:tool/used-car-lot-aging-planner</id>
@@ -357,14 +366,5 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Auction car flip calculator for dealers and flippers. Enter resale price, repairs, the auction&#39;s buyer fee tiers, transport, tax and holding costs to get the max bid, the break-even bid, and a stress table for repair overruns and a lower resale. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Break-Even ROAS Calculator — max CPA, target ROAS and LTV for your ads</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/breakeven-roas-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/breakeven-roas-calculator</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free break-even ROAS and max CPA calculator for ecommerce and DTC stores. Enter price, cost of goods, shipping, fees, returns and discounts, add repeat-purchase LTV, and see the ROAS you need for 0%, 10% or 20% profit. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
