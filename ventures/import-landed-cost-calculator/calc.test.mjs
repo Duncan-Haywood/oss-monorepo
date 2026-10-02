@@ -184,3 +184,17 @@ test('insurance adds straight to total landed cost without affecting customs val
     200,
   );
 });
+
+test('pricing: margin at a selling price and minimum price for a target margin', async () => {
+  const { calculateLandedCost } = await import('./calc.mjs');
+  const r = calculateLandedCost({ sellPricePerUnit: 24, targetMarginPct: 30 });
+  const unit = r.perUnitLandedCost;
+  assert.ok(Math.abs(r.pricing.profitPerUnit - (24 - unit)) < 1e-9);
+  assert.ok(Math.abs(r.pricing.marginPct - (24 - unit) / 24 * 100) < 1e-9);
+  assert.ok(Math.abs(r.pricing.minPriceForTarget * 0.7 - unit) < 1e-9);
+  assert.equal(r.pricing.breakEvenPrice, unit);
+  const blank = calculateLandedCost({ sellPricePerUnit: '' });
+  assert.equal(blank.pricing.profitPerUnit, null);
+  assert.equal(blank.pricing.marginPct, null);
+  assert.throws(() => calculateLandedCost({ targetMarginPct: 100 }), /under 100/);
+});
