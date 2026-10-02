@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How Much Revenue From One Client Is Too Much, and What to Do About It</title>
+  <meta name="description" content="What client concentration is, the levels lenders and buyers react to, how to measure it from an invoice export, and the practical ways to reduce it without firing your best client.">
+  <link rel="canonical" href="./client-concentration-guide.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much revenue from one client is too much?", "acceptedAnswer": {"@type": "Answer", "text": "There is no fixed line. Lenders and acquirers commonly start asking about a client above 25% of revenue and often discount a business for one above 40%. What matters more is whether you could cover your costs without that client, which the tool tests if you give it your monthly costs."}}, {"@type": "Question", "name": "Is a long contract enough to make concentration safe?", "acceptedAnswer": {"@type": "Answer", "text": "It helps, but it does not remove the risk: contracts end, get renegotiated, or are terminated for convenience. Treat a long contract as time to diversify, not as a reason not to."}}, {"@type": "Question", "name": "What is the fastest way to reduce dependence on one client?", "acceptedAnswer": {"@type": "Answer", "text": "Grow everything else rather than shrinking the big client: raise your rate on new work, productise a repeatable offer for a second segment, and ask the big client for a longer commitment or a retainer in exchange for the volume."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">Client Concentration Risk Analyzer</a> · guide</p>
+  <h1>How much revenue from one client is too much, and what to do about it</h1>
+  <p>Short answer: <strong>once one client is a quarter of your revenue, losing them hurts; once it is two-fifths, losing them can end the business</strong>. Those are rules of thumb, not law, but they are the levels at which lenders, buyers and insurers tend to start asking.</p>
+
+  <h2>What to measure</h2>
+  <ul>
+    <li><strong>Top-client share</strong>: the largest client's revenue divided by total revenue over the last 12 months.</li>
+    <li><strong>Top-three share</strong>: the same for your three largest clients together.</li>
+    <li><strong>Effective number of clients</strong>: one divided by the sum of squared shares. It tells you how many equal clients your book behaves like.</li>
+    <li><strong>Trend</strong>: is the top client's share higher in the newer half of the year than the older half? Rising dependence is worse than a high but falling number.</li>
+    <li><strong>Survivability</strong>: average monthly revenue without the top client against your monthly costs.</li>
+  </ul>
+
+  <h2>Why the answer is a range, not a verdict</h2>
+  <p>A client that has paid on time for six years under a multi-year contract is not the same risk as one that arrived last quarter, and an invoice export cannot tell them apart. The analyzer reports shares and arithmetic, flags the levels people commonly use, and leaves the judgement about contract length and replaceability to you.</p>
+
+  <h2>Reducing it without firing your best client</h2>
+  <ol>
+    <li>Run the <a href="./">analyzer</a> on the last 12 months, or <code>node cli.mjs analyze invoices.csv --costs 24000</code>.</li>
+    <li>Add your monthly costs and read the "without the top client" line first.</li>
+    <li>Grow the rest: raise rates on new work and productise a repeatable offer for a second segment.</li>
+    <li>Ask the big client for a longer commitment or a retainer in exchange for the volume.</li>
+    <li>Re-run monthly; a cron job with <code>--fail-on warn</code> tells you the month a client crosses your line.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How much revenue from one client is too much?</h3>
+  <p>There is no fixed line. Lenders and acquirers commonly start asking about a client above 25% of revenue and often discount a business for one above 40%. What matters more is whether you could cover your costs without that client, which the tool tests if you give it your monthly costs.</p>
+  <h3>Is a long contract enough to make concentration safe?</h3>
+  <p>It helps, but it does not remove the risk: contracts end, get renegotiated, or are terminated for convenience. Treat a long contract as time to diversify, not as a reason not to.</p>
+  <h3>What is the fastest way to reduce dependence on one client?</h3>
+  <p>Grow everything else rather than shrinking the big client: raise your rate on new work, productise a repeatable offer for a second segment, and ask the big client for a longer commitment or a retainer in exchange for the volume.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not financial, legal or business advice, and lenders, buyers and insurers use their own criteria. Product names are trademarks of their owners and are used only to describe where numbers come from.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

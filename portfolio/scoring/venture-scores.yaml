@@ -25642,3 +25642,36 @@ ventures:
       Liability: arithmetic on pasted rows plus two stated behavioural assumptions the user sets,
       not a forecast, no warranty, nothing leaves the device. Ethics: helps a small seller see the
       cost of a pricing policy they would otherwise set by rule of thumb.
+  - slug: client-concentration-risk-analyzer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic invoice-row parser and share/Herfindahl arithmetic with stated rule-of-thumb
+      levels; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in the
+      venture's own VENTURE.yaml comment. Agencies, freelancers and small service firms paste an
+      invoice export and learn each client's share of revenue, whether dependence is rising, and
+      whether they cover costs without the biggest client. Distribution 5 and defensibility 4:
+      "client concentration risk" is a recurring lender, buyer and owner query with spreadsheets
+      and accounting-software reports as incumbents; the wedge is no login, no upload, and
+      answering "do I survive losing them" from the owner's own costs; volume not measured with
+      an external tool.
+      Scope: Free CLI and browser tool that measures client concentration from pasted invoices.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted rows with warning levels stated as rules of thumb, not a
+      credit assessment or valuation, no warranty, nothing leaves the device. Ethics: helps a
+      small business owner see a dependence that a lender or buyer would otherwise price in
+      without telling them.
