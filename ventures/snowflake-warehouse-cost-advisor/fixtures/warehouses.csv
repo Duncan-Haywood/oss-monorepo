@@ -1,0 +1,5 @@
+warehouse,size,credits_month,auto_suspend_seconds,queries_month,avg_query_seconds,resumes_month
+BI_DASHBOARDS,L,1400,600,52000,3,520
+ETL_NIGHTLY,XL,880,60,420,540,30
+ADHOC_ANALYSTS,M,310,900,6800,12,120
+OLD_REPORTING,S,1460,never,0,0,0

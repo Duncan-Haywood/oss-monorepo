@@ -1,0 +1,53 @@
+name: snowflake-warehouse-cost-advisor
+description: 'Free, zero-network, zero-dependency CLI + browser tool that reads a list of Snowflake warehouses (size, credits used, AUTO_SUSPEND, queries, resumes), prices them in dollars, estimates the idle tail a long AUTO_SUSPEND bills, flags idle and never-suspending warehouses with the ALTER WAREHOUSE command, and gives a bounded right-sizing note; usable as a CI check. Numbers are supplied by the user and the credit price is editable, not a bill.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype (portfolio/pipeline/README.md "archetype itself").
+# Sibling of bigquery-query-cost-advisor, cloudwatch-logs-cost-advisor and
+# ebs-volume-cost-advisor in the cloud-cost-from-pasted-numbers family.
+# Checked 2026-10-02: nothing in ventures/ prices Snowflake warehouses
+# (bigquery-query-cost-advisor covers BigQuery only). Not in screened-out.md.
+# Duplicate check scored 0.20 against bigquery-query-cost-advisor, the same
+# archetype on a different vendor.
+#
+# Where the first real visitor would come from: the search phrases "snowflake
+# cost optimization", "snowflake auto suspend best practice", "reduce
+# snowflake credits", "snowflake warehouse sizing"; r/snowflake and r/dataengineering
+# threads about a surprise credit bill. The reader is a data engineer or FinOps
+# owner whose Snowflake line is five or six figures a year. Adjacent tools
+# (Snowflake's own cost management views, Select Star, Keebo, Sundeck and other
+# vendors) need account access or a contract; this works on pasted rows with
+# no access and emits the ALTER WAREHOUSE command -- the wedge. A hosted
+# monitor that reads ACCOUNT_USAGE read-only and alerts on new always-on
+# warehouses is the natural paid upgrade.
+hypotheses:
+  - claim: A data engineer with a Snowflake credit bill will search for it, paste a warehouse list, and leave knowing which warehouses are idle or billing a long AUTO_SUSPEND tail, with an ALTER WAREHOUSE command each.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will run the CLI on a schedule against an ACCOUNT_USAGE export with --fail-on warn so a new always-on or idle warehouse is flagged before the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/snowflake-warehouse-cost-advisor/
+  analytics: null

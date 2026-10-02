@@ -34,34 +34,34 @@
 #
 # Shards as generated:
 #   portfolio-front-tools-0: 145 files, 546840 bytes
-#   portfolio-front-tools-1: 92 files, 555028 bytes
-#   portfolio-front-tools-2: 144 files, 552973 bytes
-#   portfolio-front-tools-3: 132 files, 556701 bytes
+#   portfolio-front-tools-1: 92 files, 555042 bytes
+#   portfolio-front-tools-2: 144 files, 552982 bytes
+#   portfolio-front-tools-3: 132 files, 556702 bytes
 #   portfolio-front-tools-4: 136 files, 556795 bytes
-#   portfolio-front-tools-5: 126 files, 556244 bytes
-#   portfolio-front-tools-6: 122 files, 556886 bytes
-#   portfolio-front-tools-7: 134 files, 541751 bytes
-#   portfolio-front-tools-8: 127 files, 555369 bytes
-#   portfolio-front-tools-9: 120 files, 553274 bytes
-#   portfolio-front-tools-10: 129 files, 551678 bytes
-#   portfolio-front-tools-11: 138 files, 554412 bytes
-#   portfolio-front-tools-12: 118 files, 552775 bytes
-#   portfolio-front-tools-13: 121 files, 556098 bytes
-#   portfolio-front-tools-14: 120 files, 552435 bytes
-#   portfolio-front-tools-15: 120 files, 553080 bytes
-#   portfolio-front-tools-16: 119 files, 555369 bytes
-#   portfolio-front-tools-17: 123 files, 555477 bytes
-#   portfolio-front-tools-18: 126 files, 554835 bytes
-#   portfolio-front-tools-19: 123 files, 549099 bytes
-#   portfolio-front-tools-20: 133 files, 555021 bytes
-#   portfolio-front-tools-21: 118 files, 554336 bytes
-#   portfolio-front-tools-22: 111 files, 549001 bytes
-#   portfolio-front-tools-23: 104 files, 553235 bytes
-#   portfolio-front-tools-24: 119 files, 555768 bytes
-#   portfolio-front-tools-25: 121 files, 544821 bytes
-#   portfolio-front-tools-26: 118 files, 555948 bytes
-#   portfolio-front-tools-27: 72 files, 337222 bytes
-#   portfolio-front-tools-28: 51 files, 262908 bytes
+#   portfolio-front-tools-5: 126 files, 556256 bytes
+#   portfolio-front-tools-6: 122 files, 556944 bytes
+#   portfolio-front-tools-7: 134 files, 541743 bytes
+#   portfolio-front-tools-8: 127 files, 555342 bytes
+#   portfolio-front-tools-9: 120 files, 553306 bytes
+#   portfolio-front-tools-10: 129 files, 551764 bytes
+#   portfolio-front-tools-11: 138 files, 554421 bytes
+#   portfolio-front-tools-12: 118 files, 552747 bytes
+#   portfolio-front-tools-13: 121 files, 556086 bytes
+#   portfolio-front-tools-14: 120 files, 552425 bytes
+#   portfolio-front-tools-15: 120 files, 553048 bytes
+#   portfolio-front-tools-16: 119 files, 555489 bytes
+#   portfolio-front-tools-17: 123 files, 555454 bytes
+#   portfolio-front-tools-18: 126 files, 554806 bytes
+#   portfolio-front-tools-19: 123 files, 549157 bytes
+#   portfolio-front-tools-20: 133 files, 554971 bytes
+#   portfolio-front-tools-21: 118 files, 554438 bytes
+#   portfolio-front-tools-22: 111 files, 548973 bytes
+#   portfolio-front-tools-23: 107 files, 552839 bytes
+#   portfolio-front-tools-24: 116 files, 549578 bytes
+#   portfolio-front-tools-25: 122 files, 551114 bytes
+#   portfolio-front-tools-26: 121 files, 555340 bytes
+#   portfolio-front-tools-27: 73 files, 355148 bytes
+#   portfolio-front-tools-28: 51 files, 262935 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3167,6 +3167,11 @@ configMapGenerator:
       - snow-removal-bid-calculator__usage.mjs.gz=snow-removal-bid-calculator__usage.mjs.gz
       - snow-removal-bid-calculator__vs-a-flat-seasonal-rate.html.gz=snow-removal-bid-calculator__vs-a-flat-seasonal-rate.html.gz
       - snow-removal-bid-calculator__vs-aspire.html.gz=snow-removal-bid-calculator__vs-aspire.html.gz
+      - snowflake-warehouse-cost-advisor__cli.mjs.gz=snowflake-warehouse-cost-advisor__cli.mjs.gz
+      - snowflake-warehouse-cost-advisor__engine.mjs.gz=snowflake-warehouse-cost-advisor__engine.mjs.gz
+      - snowflake-warehouse-cost-advisor__index.html.gz=snowflake-warehouse-cost-advisor__index.html.gz
+      - snowflake-warehouse-cost-advisor__snowflake-warehouse-auto-suspend-and-sizing.html.gz=snowflake-warehouse-cost-advisor__snowflake-warehouse-auto-suspend-and-sizing.html.gz
+      - snowflake-warehouse-cost-advisor__usage.mjs.gz=snowflake-warehouse-cost-advisor__usage.mjs.gz
       - social-preview-check__analyze.mjs.gz=social-preview-check__analyze.mjs.gz
       - social-preview-check__index.html.gz=social-preview-check__index.html.gz
       - social-preview-check__social-preview-fallback-rules.html.gz=social-preview-check__social-preview-fallback-rules.html.gz
@@ -3178,13 +3183,13 @@ configMapGenerator:
       - social-security-claiming-age-calculator__usage.mjs.gz=social-security-claiming-age-calculator__usage.mjs.gz
       - sod-install-bid-calculator__calc.mjs.gz=sod-install-bid-calculator__calc.mjs.gz
       - sod-install-bid-calculator__how-much-to-charge-to-install-sod.html.gz=sod-install-bid-calculator__how-much-to-charge-to-install-sod.html.gz
-      - sod-install-bid-calculator__index.html.gz=sod-install-bid-calculator__index.html.gz
-      - sod-install-bid-calculator__usage.mjs.gz=sod-install-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-24
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sod-install-bid-calculator__index.html.gz=sod-install-bid-calculator__index.html.gz
+      - sod-install-bid-calculator__usage.mjs.gz=sod-install-bid-calculator__usage.mjs.gz
       - sod-install-bid-calculator__vs-a-flat-per-square-foot-special.html.gz=sod-install-bid-calculator__vs-a-flat-per-square-foot-special.html.gz
       - sod-install-bid-calculator__vs-aspire.html.gz=sod-install-bid-calculator__vs-aspire.html.gz
       - soffit-fascia-bid-calculator__calc.mjs.gz=soffit-fascia-bid-calculator__calc.mjs.gz
@@ -3299,16 +3304,16 @@ configMapGenerator:
       - str-tax-loophole-calculator__index.html.gz=str-tax-loophole-calculator__index.html.gz
       - str-tax-loophole-calculator__usage.mjs.gz=str-tax-loophole-calculator__usage.mjs.gz
       - stripe-churn-cohort-analyzer__calc.mjs.gz=stripe-churn-cohort-analyzer__calc.mjs.gz
-      - stripe-churn-cohort-analyzer__index.html.gz=stripe-churn-cohort-analyzer__index.html.gz
-      - stripe-churn-cohort-analyzer__usage.mjs.gz=stripe-churn-cohort-analyzer__usage.mjs.gz
-      - stripe-failed-payment-recovery-analyzer__calc.mjs.gz=stripe-failed-payment-recovery-analyzer__calc.mjs.gz
-      - stripe-failed-payment-recovery-analyzer__index.html.gz=stripe-failed-payment-recovery-analyzer__index.html.gz
-      - stripe-failed-payment-recovery-analyzer__usage.mjs.gz=stripe-failed-payment-recovery-analyzer__usage.mjs.gz
   - name: portfolio-front-tools-25
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - stripe-churn-cohort-analyzer__index.html.gz=stripe-churn-cohort-analyzer__index.html.gz
+      - stripe-churn-cohort-analyzer__usage.mjs.gz=stripe-churn-cohort-analyzer__usage.mjs.gz
+      - stripe-failed-payment-recovery-analyzer__calc.mjs.gz=stripe-failed-payment-recovery-analyzer__calc.mjs.gz
+      - stripe-failed-payment-recovery-analyzer__index.html.gz=stripe-failed-payment-recovery-analyzer__index.html.gz
+      - stripe-failed-payment-recovery-analyzer__usage.mjs.gz=stripe-failed-payment-recovery-analyzer__usage.mjs.gz
       - structured-data-drift-check__cli.mjs.gz=structured-data-drift-check__cli.mjs.gz
       - structured-data-drift-check__engine.mjs.gz=structured-data-drift-check__engine.mjs.gz
       - structured-data-drift-check__index.html.gz=structured-data-drift-check__index.html.gz
@@ -3426,15 +3431,15 @@ configMapGenerator:
       - tow-motor-club-call-calculator__index.html.gz=tow-motor-club-call-calculator__index.html.gz
       - tow-motor-club-call-calculator__usage.mjs.gz=tow-motor-club-call-calculator__usage.mjs.gz
       - travel-nurse-contract-comparison-calculator__calc.mjs.gz=travel-nurse-contract-comparison-calculator__calc.mjs.gz
-      - travel-nurse-contract-comparison-calculator__index.html.gz=travel-nurse-contract-comparison-calculator__index.html.gz
-      - travel-nurse-contract-comparison-calculator__usage.mjs.gz=travel-nurse-contract-comparison-calculator__usage.mjs.gz
-      - tree-service-bid-calculator__calc.mjs.gz=tree-service-bid-calculator__calc.mjs.gz
-      - tree-service-bid-calculator__how-to-bid-tree-removal.html.gz=tree-service-bid-calculator__how-to-bid-tree-removal.html.gz
   - name: portfolio-front-tools-26
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - travel-nurse-contract-comparison-calculator__index.html.gz=travel-nurse-contract-comparison-calculator__index.html.gz
+      - travel-nurse-contract-comparison-calculator__usage.mjs.gz=travel-nurse-contract-comparison-calculator__usage.mjs.gz
+      - tree-service-bid-calculator__calc.mjs.gz=tree-service-bid-calculator__calc.mjs.gz
+      - tree-service-bid-calculator__how-to-bid-tree-removal.html.gz=tree-service-bid-calculator__how-to-bid-tree-removal.html.gz
       - tree-service-bid-calculator__index.html.gz=tree-service-bid-calculator__index.html.gz
       - tree-service-bid-calculator__usage.mjs.gz=tree-service-bid-calculator__usage.mjs.gz
       - tree-service-bid-calculator__vs-a-flat-per-inch-rate.html.gz=tree-service-bid-calculator__vs-a-flat-per-inch-rate.html.gz
@@ -3552,12 +3557,12 @@ configMapGenerator:
       - walk-in-shower-bid-calculator__vs-tracking-it-in-a-spreadsheet.html.gz=walk-in-shower-bid-calculator__vs-tracking-it-in-a-spreadsheet.html.gz
       - walk-in-tub-bid-calculator__calc.mjs.gz=walk-in-tub-bid-calculator__calc.mjs.gz
       - walk-in-tub-bid-calculator__how-much-to-charge-to-install-a-walk-in-tub.html.gz=walk-in-tub-bid-calculator__how-much-to-charge-to-install-a-walk-in-tub.html.gz
-      - walk-in-tub-bid-calculator__index.html.gz=walk-in-tub-bid-calculator__index.html.gz
   - name: portfolio-front-tools-27
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - walk-in-tub-bid-calculator__index.html.gz=walk-in-tub-bid-calculator__index.html.gz
       - walk-in-tub-bid-calculator__should-i-install-a-customer-supplied-walk-in-tub.html.gz=walk-in-tub-bid-calculator__should-i-install-a-customer-supplied-walk-in-tub.html.gz
       - walk-in-tub-bid-calculator__should-i-take-a-saturday-walk-in-tub-call.html.gz=walk-in-tub-bid-calculator__should-i-take-a-saturday-walk-in-tub-call.html.gz
       - walk-in-tub-bid-calculator__usage.mjs.gz=walk-in-tub-bid-calculator__usage.mjs.gz

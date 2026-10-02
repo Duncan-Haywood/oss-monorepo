@@ -25442,6 +25442,35 @@ ventures:
       Liability: arithmetic on pasted text at editable list prices, slot-hours as supplied by the user (Editions stated as a floor)
       and stated so, no warranty, nothing leaves the device. Ethics: helps engineers avoid paying for
       BigQuery scan costs they do not need.
+  - slug: snowflake-warehouse-cost-advisor
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.167
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic warehouse row parser and credit cost model over pasted rows; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 5 and defensibility 4: real
+      search demand ("snowflake cost optimization", "snowflake auto suspend") with
+      Snowflake's own cost views and paid FinOps vendors as incumbents; the wedge is no
+      account access, pasted rows, a ready ALTER WAREHOUSE command and a CI check; volume
+      not measured with an external tool.
+      Scope: Free CLI and browser tool that prices Snowflake warehouses from a pasted list and prints AUTO_SUSPEND and idle-warehouse fixes.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at an editable credit price, figures as supplied by the user
+      and stated so, no warranty, nothing leaves the device. Ethics: helps data teams avoid paying for
+      idle Snowflake compute.
   - slug: k8s-requests-rightsizer
     scores:
       ai_leverage: 4
