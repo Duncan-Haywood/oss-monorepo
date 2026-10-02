@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 609 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 610 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -123,6 +123,15 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Paste your weekly hours and the project offers on the table and get the exact set to accept for the highest income, with the fee each declined project would need to earn its place. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Insurance Denial Appeal Builder — Appeal Letter, Deadline and Checklist for a Denied Claim</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/insurance-denial-appeal-builder/"/>
+    <id>tag:marisstella.dev,2026:tool/insurance-denial-appeal-builder</id>
+    <published>2026-10-02T00:00:00Z</published>
+    <updated>2026-10-02T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free tool for patients: paste your health insurance denial letter and get the likely denial reason, your appeal deadline, a draft appeal letter, a checklist of what to gather and calendar reminders. Runs in your browser, the letter is never uploaded.</summary>
   </entry>
   <entry>
     <title>Kubernetes Requests Rightsizer — Are Your Pod CPU and Memory Requests Wasting Money</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Cottage food pricing calculator for home bakers and small food makers. Get the full cost per item with your time, packaging, overhead and unsold goods, the price to charge online, at a farmers market and wholesale, and what you really earn per hour. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Course Launch Revenue Calculator — what will your launch really earn?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/course-launch-revenue-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/course-launch-revenue-calculator</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Course launch revenue calculator. Enter your email list, conversion rates, price, refunds, platform and processor fees, affiliate commissions and ad spend. See net profit, the break-even list size and what a weaker launch costs. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
