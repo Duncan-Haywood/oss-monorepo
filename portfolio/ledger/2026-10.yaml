@@ -663,3 +663,29 @@ entries:
     gate_note: >-
       Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
       warranty. Ethics: helps small vendors earn more from their own season.
+  - venture: lot-split-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built lot-split-calculator: a browser-local tool and
+        zero-dependency CLI for resellers, estate liquidators, storage-unit buyers and
+        pallet flippers. Paste the lines of a bulk lot (quantity, expected price,
+        sell-through, shipping, minutes each) and a whole-lot offer; it says whether
+        listing item by item beats the offer after marketplace fees, shipping and the
+        value of the reseller's own hours, which lines to list and which to sell on in
+        bulk, a stress test at lower sell-through, profit against what was paid, and
+        the hourly rate at which the offer starts to win. New niche: the closest
+        existing tools price what to bid for a lot (liquidation-pallet-bid-calculator)
+        or the consignor's view (estate-sale-net-proceeds-calculator); none decides
+        line by line between listing and bulk. First visitor expected from "sell lot
+        whole or piece by piece" searches and reseller forums. Nothing leaves the
+        browser. Tests check the optimiser against every list-or-bulk combination on
+        300 random lots. Unverified with a real reseller's lot.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty. Ethics: helps small resellers earn more from lots they already own.
