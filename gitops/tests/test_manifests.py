@@ -2899,8 +2899,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `postgres-explain-analyzer` graduated (browser + CLI PostgreSQL EXPLAIN ANALYZE plan analyzer).
     # +1: `lambda-memory-rightsizer` graduated (browser + CLI Lambda memory right-sizer from CloudWatch REPORT lines).
     # +1: `dynamodb-capacity-mode-advisor` graduated (browser + CLI DynamoDB on-demand vs provisioned cost advisor from CloudWatch consumed capacity).
+    # +1: `nat-gateway-cost-advisor` graduated (browser + CLI NAT gateway vs VPC endpoint cost advisor from GB per destination).
     # +1: `s3-storage-class-advisor` graduated (browser + CLI S3 storage-class cost advisor from per-bucket Storage Lens numbers).
-    total = 584  # `infra/OWNER_CHECKLIST.md`'s own "N of the 584 tools" wording.
+    total = 585  # `infra/OWNER_CHECKLIST.md`'s own "N of the 585 tools" wording.
     # +1: `breakeven-roas-calculator` graduated (browser-local break-even ROAS, max CPA and LTV-adjusted ad economics calculator).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 584 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 585 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -24,6 +24,15 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your EBS volumes (type, size, provisioned and peak IOPS) and get the cheapest volume type that still covers the peak, the aws ec2 modify-volume command, gp2 burst risk and unattached volumes. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>NAT Gateway Cost Advisor — S3 and DynamoDB Endpoints, Interface Endpoint Break-Even</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/nat-gateway-cost-advisor/"/>
+    <id>tag:marisstella.dev,2026:tool/nat-gateway-cost-advisor</id>
+    <published>2026-10-02T00:00:00Z</published>
+    <updated>2026-10-02T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your NAT gateway traffic per destination and get the monthly NAT cost, which AWS services should use a free S3/DynamoDB gateway endpoint or an interface endpoint, the net saving after endpoint fees, and the create-vpc-endpoint commands. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>S3 Storage Class Advisor — Standard, IA, Intelligent-Tiering or Glacier, Whichever Costs Less</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free payroll tax deposit calculator for small employers: monthly or semiweekly due dates, the $100,000 next-day rule, and the failure-to-deposit penalty with the cheapest way to apply your deposits. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Postgres EXPLAIN Analyzer — Find Why Your Query Is Slow</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/postgres-explain-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/postgres-explain-analyzer</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste a PostgreSQL EXPLAIN ANALYZE plan (text or JSON) and see where the time went per node, missing indexes, bad row estimates and disk spills, each with a suggested fix. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
