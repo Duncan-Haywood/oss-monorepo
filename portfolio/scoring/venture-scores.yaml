@@ -25610,3 +25610,32 @@ ventures:
       Liability: arithmetic on pasted text at editable approximate list prices, recommendation from
       metrics and not a bill, metrics must be sampled over a representative period, no warranty, nothing
       leaves the device. Ethics: helps engineers stop paying for database capacity they do not use.
+  - slug: booking-request-chooser
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic calendar parser and exact dynamic-programming request selector; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for small hosts (vacation rentals, cabins, campsites, B&Bs) with real
+      search demand ("orphan nights", "minimum stay gap") and paid channel-manager rules as incumbents;
+      the wedge is choosing between concrete competing requests and a counter-offer, free and
+      client-side; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that picks the booking requests to accept for the highest calendar income.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
+      leaves the device. Ethics: helps small hosts earn more from their own calendar; no deception of
+      guests, and the user decides and remains responsible for any platform rule on responding to requests.
