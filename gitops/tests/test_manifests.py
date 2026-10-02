@@ -2898,7 +2898,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `course-launch-revenue-calculator` graduated (browser-local online course launch net profit, break-even list size and scenario calculator).
     # +1: `postgres-explain-analyzer` graduated (browser + CLI PostgreSQL EXPLAIN ANALYZE plan analyzer).
     # +1: `lambda-memory-rightsizer` graduated (browser + CLI Lambda memory right-sizer from CloudWatch REPORT lines).
-    total = 580  # `infra/OWNER_CHECKLIST.md`'s own "N of the 580 tools" wording.
+    # +1: `dynamodb-capacity-mode-advisor` graduated (browser + CLI DynamoDB on-demand vs provisioned cost advisor from CloudWatch consumed capacity).
+    total = 581  # `infra/OWNER_CHECKLIST.md`'s own "N of the 581 tools" wording.
     # +1: `breakeven-roas-calculator` graduated (browser-local break-even ROAS, max CPA and LTV-adjusted ad economics calculator).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()

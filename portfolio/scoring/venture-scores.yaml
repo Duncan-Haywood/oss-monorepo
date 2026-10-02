@@ -25244,6 +25244,34 @@ ventures:
       Liability: arithmetic on pasted text, duration at other sizes labelled a model to verify,
       list prices editable, no warranty, nothing leaves the device. Ethics: helps engineers
       avoid paying for memory they do not use.
+  - slug: dynamodb-capacity-mode-advisor
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.167
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic metric parser and cost model over pasted CloudWatch rows; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-01 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 5 and defensibility 4: real
+      search demand ("dynamodb on-demand vs provisioned") with the free AWS pricing
+      calculator and Cost Explorer as incumbents; the wedge is no AWS access, pasted
+      metrics and a CI check; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that prices a DynamoDB table on-demand vs provisioned from CloudWatch consumed capacity.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at editable list prices, traffic inside a period treated as flat
+      and stated so, no warranty, nothing leaves the device. Ethics: helps engineers avoid paying for
+      capacity mode they do not need.
   - slug: s3-storage-class-savings
     scores:
       ai_leverage: 4

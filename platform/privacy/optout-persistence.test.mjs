@@ -1175,8 +1175,9 @@ const RELATIVE_SELF = relative(
 // +1: `prometheus-cardinality-cost` graduated.
 // +1: `slo-burn-rate-alerts` graduated.
 // +1: `lambda-memory-rightsizer` graduated.
+// +1: `dynamodb-capacity-mode-advisor` graduated.
 // +1: `s3-storage-class-savings` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 559;
+const SWITCHES_IN_THE_CATALOGUE = 560;
 
 let counter = 0;
 function fixture(source) {

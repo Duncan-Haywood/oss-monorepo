@@ -1,0 +1,49 @@
+name: dynamodb-capacity-mode-advisor
+description: 'Free, zero-network, zero-dependency CLI + browser tool that reads a DynamoDB table''s CloudWatch consumed read/write capacity and prices the same traffic on-demand, provisioned with autoscaling and provisioned at a fixed peak, with the break-even utilisation, throttling check for your current provisioned capacity, and autoscaling ramp-risk warning; usable as a CI check. Traffic inside a period is treated as flat and prices are editable list prices, not a bill.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype (portfolio/pipeline/README.md "archetype itself").
+# duplicate_check.py (run 2026-10-01) scored the nearest ventures
+# tire-shop-ticket-margin-calculator 0.25 (noise) and lambda-memory-rightsizer
+# 0.20 -- nothing touches DynamoDB. Not in screened-out.md.
+#
+# Where the first real visitor would come from: the search phrases "dynamodb
+# on-demand vs provisioned", "dynamodb pricing calculator", "dynamodb
+# on-demand cost too high", "switch dynamodb to provisioned"; r/aws and Stack
+# Overflow threads about a DynamoDB bill that jumped. The reader is a backend
+# engineer or FinOps owner with a four- to five-figure monthly DynamoDB bill.
+# Adjacent tools (AWS pricing calculator, Cost Explorer, Compute Optimizer-style
+# vendor views) need hand-typed request counts, an AWS account or a paid
+# vendor; this works on pasted CloudWatch rows with no access -- the wedge.
+# A hosted multi-table capacity monitor with PR comments is the natural paid upgrade.
+hypotheses:
+  - claim: An engineer with a high DynamoDB bill will search for on-demand vs provisioned, paste CloudWatch consumed capacity, and learn which mode is cheaper and by how much.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will add the CLI to CI against exported metrics with --fail-on warn so a table on the wrong capacity mode is flagged before the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/dynamodb-capacity-mode-advisor/
+  analytics: null
