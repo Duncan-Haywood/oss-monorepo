@@ -1,0 +1,46 @@
+name: market-event-picker
+description: 'Free, zero-network, zero-dependency browser tool and CLI for food trucks, market and craft vendors, pop-up shops, caterers and bands: paste the markets, fairs and festivals you could work (date, hours, expected sales, flat and percentage booth fee, travel), set cost of goods, crew rate, setup and teardown hours and a weekly limit, and get the exact set of events that earns the most net, the reason each other event is skipped and what swapping it in would cost, break-even sales for every event kept, a bad-weather re-check, a fee-cut that would flip a skipped event, and a comparison with taking events in the order listed or biggest sales first (exhaustive search over each cluster of overlapping events, verified against brute force). Numbers are the ones the user supplies, not a forecast.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: raises what a vendor's own season nets.
+# Checked 2026-10-02: ventures/ has food-truck-event-margin-calculator (margin of ONE event),
+# craft-fair-booth-calculator, dj-gig-profit-calculator, booth-rent-vs-commission and
+# photo-booth-event-quote; none chooses between competing or overlapping events across a season,
+# applies a weekly limit, or states the cost of swapping. Not in screened-out.md.
+#
+# First visitor: searches "which craft fairs are worth doing", "is this festival worth the booth fee",
+# "farmers market vs festival profit", "food truck event schedule"; r/foodtrucks, r/craftfairs,
+# vendor Facebook groups. Volume not measured with an external tool. Vendors with a few staff choose
+# among dozens of paid events a season with a spreadsheet or gut feel. A hosted version that pulls
+# event listings and past sales from a POS export is the natural paid upgrade.
+hypotheses:
+  - claim: A vendor choosing among overlapping events will search for how to compare them, paste their list, and leave knowing which to take and which to skip.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A vendor will reuse the CLI each season on a new event list, so the page earns repeat visits.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No vendor reports dropping or choosing an event because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/market-event-picker/
+  analytics: null

@@ -634,3 +634,32 @@ entries:
     gate_note: >-
       Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
       warranty. Ethics: helps freelancers earn more from their own hours.
+  - venture: market-event-picker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built market-event-picker: a browser-local tool and
+        zero-dependency CLI for food trucks, market and craft vendors, pop-up
+        shops and bands. Paste the markets, fairs and festivals on offer (date,
+        hours, expected sales, flat and percentage booth fee, travel) and set cost
+        of goods, crew rate, setup and teardown hours and a weekly limit; it finds
+        the exact set of events that nets the most (exhaustive search with pruning
+        over each cluster of overlapping events), says why each other event is
+        skipped and what swapping it in would cost, shows break-even sales for
+        each event kept, re-checks the plan at bad-weather sales, names the fee cut
+        that would flip a skipped event, and compares with taking events in the
+        order listed or biggest sales first. New niche: the closest existing tools
+        (food-truck-event-margin-calculator, craft-fair-booth-calculator) price one
+        event, none chooses between overlapping events across a season. First
+        visitor expected from "is this festival worth the booth fee" and "which
+        craft fairs to do" searches and vendor forums. Nothing leaves the browser.
+        Tests check the optimiser against brute force over every subset on 300
+        random seasons. Unverified with a real vendor's event list.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty. Ethics: helps small vendors earn more from their own season.

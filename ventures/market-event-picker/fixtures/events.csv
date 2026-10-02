@@ -1,0 +1,11 @@
+name,date,start,end,expected_sales,flat_fee,pct_fee,travel,note
+Harvest Fair,2026-09-12,09:00,17:00,3200,150,0,40,Sat market
+Craft Brew Fest,2026-09-12,12:00,22:00,5200,400,10,60,Sat evening
+Farmers Market,2026-09-12,08:00,13:00,900,35,0,0,Sat morning
+Pumpkin Patch Day,2026-09-13,10:00,16:00,2100,100,0,30,Sun
+Food Truck Rally,2026-09-19,11:00,21:00,4300,300,8,55,Sat
+Farmers Market,2026-09-19,08:00,13:00,950,35,0,0,Sat morning
+School Fun Run,2026-09-20,07:00,12:00,1500,0,12,20,Sun
+Octoberfest,2026-09-26,12:00,23:00,6100,600,10,80,Sat
+Farmers Market,2026-09-26,08:00,13:00,980,35,0,0,Sat morning
+Church Bazaar,2026-09-27,09:00,15:00,700,50,0,10,Sun
