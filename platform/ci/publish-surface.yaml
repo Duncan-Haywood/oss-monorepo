@@ -587,6 +587,9 @@ workflows:
 - workflow: bigquery-query-cost-advisor-ci.yml
   classification: none
   publishes: []
+- workflow: snowflake-warehouse-cost-advisor-ci.yml
+  classification: none
+  publishes: []
 - workflow: eaa-wcag-triage-ci.yml
   classification: none
   publishes: []

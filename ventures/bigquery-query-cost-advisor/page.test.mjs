@@ -44,3 +44,7 @@ test("the page's worked example demonstrates the headline rule (dogfooding)", as
 test("index links to the cloud-egress sibling", async () => {
   assert.ok((await read("index.html")).includes('href="../cloud-egress-calculator/"'));
 });
+
+test("index links to the Snowflake warehouse cost advisor sibling", async () => {
+  assert.ok((await read("index.html")).includes('href="../snowflake-warehouse-cost-advisor/"'));
+});
