@@ -1292,6 +1292,9 @@ const CATEGORY_RULES = [
       // `client-concentration-risk-analyzer` joined 2026-10-02 on its first commit: it reads the same invoice
       // export as `invoice-payment-terms-calculator` here and asks how much revenue one client carries.
       || slug === 'client-concentration-risk-analyzer'
+      // `bookkeeping-client-fee-calculator` joined 2026-10-02 on its first commit: a bookkeeper's retainer, cleanup and walk-away price from a client's
+      // workload, and a roster ranked by effective hourly -- the back-office pricing job `client-profitability-time-analyzer` does after the fact.
+      || slug === 'bookkeeping-client-fee-calculator'
       // `price-increase-breakeven-calculator` filed here 2026-10-02: it was landing in the catch-all (bound 5) and is
       // the same after-the-fact margin arithmetic as the break-even tools above.
       || slug === 'price-increase-breakeven-calculator'

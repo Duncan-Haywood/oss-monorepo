@@ -1210,7 +1210,8 @@ const RELATIVE_SELF = relative(
 // +1: `card-grading-submission-picker` graduated.
 // +1: `appraisal-assignment-picker` graduated.
 // +1: `thrift-haul-buy-picker` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 597;
+// +1: `bookkeeping-client-fee-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 598;
 // +1: `embroidery-shop-quote-calculator` graduated.
 
 let counter = 0;
