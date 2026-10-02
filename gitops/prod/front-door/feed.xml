@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 598 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 599 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -69,6 +69,15 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Paste your past orders and see what each free-shipping minimum would earn, how many buyers it must win back to pay for the shipping you give away, and the threshold that loses least if your assumptions are wrong. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Freelance Project Picker — Which Projects to Accept for the Most Income</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freelance-project-picker/"/>
+    <id>tag:marisstella.dev,2026:tool/freelance-project-picker</id>
+    <published>2026-10-02T00:00:00Z</published>
+    <updated>2026-10-02T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Paste your weekly hours and the project offers on the table and get the exact set to accept for the highest income, with the fee each declined project would need to earn its place. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Kubernetes Requests Rightsizer — Are Your Pod CPU and Memory Requests Wasting Money</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Retainer vs hourly calculator for freelancers, consultants and small agencies. Paste your time log to see your effective hourly rate under a monthly retainer, break-even hours, and the retainer that covers 80% of your months, from your own history. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Freight Broker Load Margin Calculator — net margin after float, factoring and claims</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freight-broker-load-margin-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/freight-broker-load-margin-calculator</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Logistics, freight &amp; cloud cost"/>
-    <summary type="text">Free freight broker margin calculator. Type in your loads and see true net margin after financing the carrier, factoring, claims reserve and overhead, plus the shipper rate to quote and the carrier rate to pay to hit your target. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>

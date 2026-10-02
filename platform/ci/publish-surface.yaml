@@ -755,6 +755,9 @@ workflows:
 - workflow: freelance-platform-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: freelance-project-picker-ci.yml
+  classification: none
+  publishes: []
 - workflow: freelance-rate-increase-calculator-ci.yml
   classification: none
   publishes: []

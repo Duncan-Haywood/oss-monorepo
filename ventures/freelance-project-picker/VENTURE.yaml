@@ -1,0 +1,47 @@
+name: freelance-project-picker
+description: 'Free, zero-network, zero-dependency browser tool and CLI for freelancers, consultants and small studios: paste weekly billable hours (with holidays and existing-client weeks) and the project offers on the table (fee, hours, deadline week) and get the exact set to accept for the highest income (dynamic programming over deadlines with cumulative capacity, verified against brute force), why each other offer loses, the fee each declined project would need to earn its place (the counter-offer number), a scope-creep buffer, and a comparison with highest-fee-first, best-hourly-rate-first and listed order. Numbers are the ones the user supplies, not a forecast.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: raises what a solo operator's limited hours earn.
+# Checked 2026-10-02: ventures/ has freelance-rate-increase-calculator, freelance-retainer-calculator,
+# freelance-retainer-vs-hourly-calculator, freelance-platform-fee-calculator, bid-win-rate-optimizer,
+# service-hourly-yield-analyzer; none chooses between competing offers under a weekly-hours budget with
+# deadlines. Not in screened-out.md.
+#
+# First visitor: searches "which freelance project to take", "too many client requests capacity",
+# "should I turn down a project", "how to say no to a freelance client"; r/freelance, r/webdev,
+# agency-owner and consultant groups. Volume not measured with an external tool. Alternatives:
+# a spreadsheet, gut feel, resource-planning SaaS (built for teams with named staff, not a one-person
+# accept/decline decision). A hosted version that syncs with a calendar and a pipeline CRM is the
+# natural paid upgrade.
+hypotheses:
+  - claim: A freelancer with more offers than hours will search for how to choose between them, paste their offers, and leave knowing which to accept and what to counter with.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A freelancer will rerun it each time a new lead arrives, so the page earns repeat visits.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No freelancer reports using a decline or counter-offer number the tool produced within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/freelance-project-picker/
+  analytics: null
