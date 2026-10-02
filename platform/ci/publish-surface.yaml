@@ -281,6 +281,9 @@ workflows:
 - workflow: bundle-discount-optimizer-ci.yml
   classification: none
   publishes: []
+- workflow: free-shipping-threshold-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: caa-record-check-ci.yml
   classification: none
   publishes: []
