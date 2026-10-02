@@ -26170,3 +26170,32 @@ ventures:
     gates:
       liability_containment: pass
       ethical_robustness: pass
+  - slug: mobile-signing-agent-day-picker
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic CSV parser and exact dynamic-programming signing selection; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for mobile notaries and loan signing agents with real search demand
+      ("loan signing agent schedule") where signing services text offers one at a time and nothing says which to refuse;
+      the wedge is an exact best set and order under appointment windows plus the break-even fee of every declined
+      signing, free and client-side; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that picks the most profitable signings for one agent from a day's offers with appointment windows.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
+      leaves the device; the page warns that a borrower waiting on a closing and any signing-service agreement come
+      first. Ethics: helps independent notaries earn more from a day's offers; the agent decides and remains responsible.

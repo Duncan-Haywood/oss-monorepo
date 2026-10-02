@@ -948,3 +948,28 @@ entries:
       Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
       warranty, guest-ready standards and management contracts come first. Ethics: helps
       small cleaning companies earn more from their crews' hours.
+  - venture: mobile-signing-agent-day-picker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built mobile-signing-agent-day-picker: a browser-local tool and
+        zero-dependency CLI for mobile notaries and loan signing agents. Paste the day's
+        offered signings (fee, print cost, appointment length, window, location) and it
+        finds the exact most profitable set and order (dynamic programming over signing
+        sets with non-dominated time/profit labels, same engine verified against every
+        ordering of every subset in mobile-tire-van-job-picker), the exact break-even fee
+        of each declined signing, and what first-come and highest-fee-first booking leave
+        behind. New niche: notary-trip-quote prices one trip, process-server-fee-calculator
+        one serve, route-stop-optimizer orders stops without fees; none chooses which
+        offered signings to take under appointment windows. First visitor expected from
+        "loan signing agent schedule" searches. Nothing leaves the browser. Unverified with
+        a real agent's day.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty, borrowers waiting on closings and signing-service agreements come first.
+      Ethics: helps independent notaries earn more from a day's offers.
