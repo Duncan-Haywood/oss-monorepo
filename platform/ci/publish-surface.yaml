@@ -1369,6 +1369,9 @@ workflows:
 - workflow: private-practice-payer-mix-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: process-server-day-picker-ci.yml
+  classification: none
+  publishes: []
 - workflow: process-server-fee-calculator-ci.yml
   classification: none
   publishes: []
@@ -1563,6 +1566,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: saas-cac-payback-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: saas-renewal-planner-ci.yml
   classification: none
   publishes: []
 - workflow: saas-seat-true-up-ci.yml
@@ -1926,6 +1932,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: usage-based-pricing-simulator-ci.yml
+  classification: none
+  publishes: []
+- workflow: used-car-lot-aging-planner-ci.yml
   classification: none
   publishes: []
 - workflow: van-westendorp-pricing-analyzer-ci.yml

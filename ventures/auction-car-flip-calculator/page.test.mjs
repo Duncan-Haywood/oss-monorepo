@@ -105,3 +105,7 @@ test("related-tool links point at ventures that exist", () => {
     assert.ok(existsSync(new URL(`../${m[1]}/index.html`, import.meta.url)), m[1]);
   }
 });
+
+test("links the used car lot aging planner, its sibling for units already on the lot", () => {
+  assert.ok(page("index.html").includes('href="../used-car-lot-aging-planner/"'));
+});
