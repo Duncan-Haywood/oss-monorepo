@@ -584,6 +584,9 @@ workflows:
 - workflow: cloudwatch-logs-cost-advisor-ci.yml
   classification: none
   publishes: []
+- workflow: bigquery-query-cost-advisor-ci.yml
+  classification: none
+  publishes: []
 - workflow: eaa-wcag-triage-ci.yml
   classification: none
   publishes: []
