@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 613 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 614 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -251,6 +251,15 @@
     <summary type="text">Paste per-bucket S3 size, object count and read activity and see the monthly cost in Standard, Standard-IA, Intelligent-Tiering and Glacier Instant Retrieval, with the small-object and minimum-duration traps. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>SaaS Renewal Planner — Notice Deadlines and Which Renewals to Negotiate First</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/saas-renewal-planner/"/>
+    <id>tag:marisstella.dev,2026:tool/saas-renewal-planner</id>
+    <published>2026-10-02T00:00:00Z</published>
+    <updated>2026-10-02T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Paste your SaaS subscriptions and get the last day to give notice before each auto-renewal, which renewals to negotiate first, a floor and stretch target price, a calendar file and an email draft per vendor. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Snowflake Warehouse Cost Advisor — AUTO_SUSPEND, Idle Warehouses and Sizing</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/snowflake-warehouse-cost-advisor/"/>
     <id>tag:marisstella.dev,2026:tool/snowflake-warehouse-cost-advisor</id>
@@ -357,14 +366,5 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free cheapest meal plan optimizer. Enter foods with prices and nutrition, set calorie, protein, fat and fibre targets, and get the lowest-cost daily servings plus the cost of each extra target. A minimum-cost diet solver in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Coffee Roaster Margin Calculator — roast loss, wholesale vs retail margin and cheapest blend</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/coffee-roaster-margin-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/coffee-roaster-margin-calculator</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free coffee roaster pricing calculator. Turn green coffee price and roast loss into cost per roasted pound, see margin by channel (retail, subscription, wholesale), find the cheapest blend that still hits your cup score, plan green coffee orders and find break-even volume. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>

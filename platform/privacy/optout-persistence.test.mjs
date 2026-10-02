@@ -1205,8 +1205,9 @@ const RELATIVE_SELF = relative(
 // +1: `insurance-denial-appeal-builder` graduated.
 // +1: `str-turnover-crew-planner` graduated.
 // +1: `mobile-signing-agent-day-picker` graduated.
+// +1: `saas-renewal-planner` graduated.
 // +1: `process-server-day-picker` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 592;
+const SWITCHES_IN_THE_CATALOGUE = 593;
 // +1: `embroidery-shop-quote-calculator` graduated.
 
 let counter = 0;
