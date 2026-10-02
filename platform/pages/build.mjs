@@ -499,7 +499,9 @@ const CATEGORY_RULES = [
     // seller's own order export to choose a free-shipping minimum, the same reader as `bundle-discount-optimizer` here.
     // `breakeven-roas-calculator` joined 2026-10-01 on its first commit: turns a DTC seller's per-order
     // margin into the break-even ROAS and max CPA an ad campaign needs; the same reader as the fee tools here.
-    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|free-shipping-threshold|returns-policy|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|auction-car-flip|liquidation-pallet|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace|ticket-resale|price-increase-breakeven)/.test(slug),
+    // `used-car-lot-aging-planner` joined 2026-10-02 on its first commit: an independent dealer deciding when an
+    // aged unit goes to auction is the same reseller as `auction-car-flip-calculator` here, and the two cross-link.
+    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|free-shipping-threshold|returns-policy|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|auction-car-flip|used-car-lot|liquidation-pallet|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace|ticket-resale|price-increase-breakeven)/.test(slug),
   },
   {
     id: 'trades',

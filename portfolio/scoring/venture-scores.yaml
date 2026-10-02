@@ -26116,3 +26116,33 @@ ventures:
       Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
       leaves the device; the page warns that safety calls and contractual obligations come first. Ethics: helps
       small mobile service businesses earn more from a day's calls; the operator decides and remains responsible.
+  - slug: used-car-lot-aging-planner
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic CSV parser and exact backward-induction wholesale-day search; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for independent used-car dealers on a floorplan line with real search demand
+      ("when to wholesale a used car", "used car aging policy") and DMS inventory tools that show days on lot but
+      not which unit to wholesale as the incumbent; the wedge is an exact wholesale day per unit plus the dollars
+      waiting leaves behind, free and client-side; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that plans when each unit on a used-car lot should go to wholesale.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
+      leaves the device; the page says the floorplan agreement's curtailment and payoff terms come first. Ethics:
+      helps small independent dealers earn more from units already on the lot; the dealer decides and remains
+      responsible.
