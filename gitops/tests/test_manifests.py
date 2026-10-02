@@ -2912,6 +2912,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `returns-policy-cost-analyzer` graduated (browser + CLI returns-cost and return-fee analyzer).
     total = 599  # `infra/OWNER_CHECKLIST.md`'s own "N of the 599 tools" wording.
     # +1: `ticket-resale-profit-calculator` graduated (browser + CLI ticket resale payout, break-even and sales-log audit).
+    # +1: `catering-quote-calculator` graduated (browser + CLI per-guest catering quote, tier table and break-even guest count).
     # +1: `breakeven-roas-calculator` graduated (browser-local break-even ROAS, max CPA and LTV-adjusted ad economics calculator).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
