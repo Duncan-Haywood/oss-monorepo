@@ -25301,3 +25301,31 @@ ventures:
       Liability: arithmetic on a local file, estimates labelled not a bill, list prices
       editable, access pattern an explicit assumption, no warranty, nothing leaves the
       device. Ethics: helps engineers avoid paying for storage and fees they do not need.
+  - slug: ebs-volume-cost-advisor
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.167
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic volume parser and cost model over pasted rows; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 5 and defensibility 4: real
+      search demand ("gp2 vs gp3", "migrate gp2 to gp3") with the free AWS pricing
+      calculator and Compute Optimizer as incumbents; the wedge is no AWS access, pasted
+      rows, a ready modify-volume command and a CI check; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that prices EBS volumes across gp2, gp3, io1/io2, st1 and sc1 from a pasted volume list and prints the modify-volume command.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at editable list prices, peaks as supplied by the user
+      and stated so, no warranty, nothing leaves the device. Ethics: helps engineers avoid paying for
+      EBS volume types and IOPS they do not need.
