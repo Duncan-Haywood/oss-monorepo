@@ -1,0 +1,53 @@
+name: catering-quote-calculator
+description: 'Free, zero-network, zero-dependency CLI + browser tool for caterers and event cooks: reads a cost sheet (name, basis guest/flat/staff-hour, qty, unit cost) and prints the per-guest price that hits your margin, food and labor as a share of the quote, the deposit, a price-by-headcount table and the break-even guest count for a price you name; a CLI exit code lets a script refuse to send a losing quote. Margin, overhead and warning levels are rules of thumb, not an industry standard.'
+stage: prototype
+
+owner: duncan
+
+# Calculator archetype (portfolio/pipeline/README.md). Checked 2026-10-02:
+# duplicate_check.py "catering event per-guest quote food cost labor margin
+# deposit" top hit 0.39 (food-truck-event-margin-calculator, a different job:
+# one truck at one event); nothing in ventures/ prices a plated or buffet
+# catering job per guest. Not in screened-out.md. Adjacent: menu-engineering-
+# calculator (menu item mix), pour-cost-calculator (bar), photo-booth-event-quote.
+#
+# Money: a caterer with a flat per-head price loses money on small events because
+# staff, rentals and fuel do not scale with headcount; the wedge is the tier
+# table and the break-even guest count that becomes the contract minimum. A
+# caterer quoting $35 a head on a job that needs $44 gives away the margin of
+# the whole event.
+#
+# Where the first real visitor would come from: the search phrases "catering
+# pricing calculator", "how much to charge per person catering", "catering
+# minimum guest count"; r/catering and r/foodservice threads on quoting;
+# caterer Facebook groups. A hosted version that stores recipes and past events
+# and generates the client-facing proposal PDF is the natural paid upgrade.
+hypotheses:
+  - claim: A caterer will search for how to price per guest, paste a cost sheet, and leave with a price and a minimum guest count they use in the quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Caterers will reuse the CLI or saved cost sheet for each new event, changing only the guest count and price.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository, catering or events newsletter is found linking or reusing cli.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/catering-quote-calculator/
+  analytics: null

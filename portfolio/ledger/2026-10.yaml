@@ -606,6 +606,34 @@ entries:
     gate_note: >-
       Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
       warranty. Ethics: helps small hosts earn more from their own calendar.
+  - venture: freelance-project-picker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built freelance-project-picker: a browser-local tool and
+        zero-dependency CLI for freelancers, consultants and small studios. Paste
+        weekly billable hours (with per-week overrides for holidays and existing
+        clients) and the project offers on the table (fee, hours, deadline week); it
+        finds the exact set to accept for the highest total fee (dynamic programming
+        over deadlines against cumulative capacity), says why each other offer loses,
+        gives the fee at which each declined project would earn its place (the
+        counter-offer number), applies an optional scope-creep buffer, and compares
+        with highest-fee-first, best-hourly-rate-first and listed order. New niche:
+        the freelance siblings price a rate or a retainer; none chooses between
+        competing offers under a weekly-hours budget. First visitor expected from
+        "which freelance project to take" and "too many client requests" searches.
+        Nothing leaves the browser. Tests check the optimiser against brute force
+        over every subset on 300 random instances. Unverified with a real
+        freelancer's pipeline. Registered score row, launch date, category rule and
+        CI workflow; inbound link from freelance-rate-increase-calculator.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty. Ethics: helps freelancers earn more from their own hours.
   - venture: market-event-picker
     agent_spend_usd: null
     human_hours: 0

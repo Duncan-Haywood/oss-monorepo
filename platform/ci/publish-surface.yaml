@@ -335,6 +335,9 @@ workflows:
 - workflow: cat-adjuster-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: catering-quote-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: certified-payroll-calculator-ci.yml
   classification: none
   publishes: []
@@ -750,6 +753,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: freelance-platform-fee-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: freelance-project-picker-ci.yml
   classification: none
   publishes: []
 - workflow: freelance-rate-increase-calculator-ci.yml
