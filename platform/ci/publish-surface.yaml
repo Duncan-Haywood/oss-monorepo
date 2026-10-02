@@ -581,6 +581,9 @@ workflows:
 - workflow: nat-gateway-cost-advisor-ci.yml
   classification: none
   publishes: []
+- workflow: cloudwatch-logs-cost-advisor-ci.yml
+  classification: none
+  publishes: []
 - workflow: eaa-wcag-triage-ci.yml
   classification: none
   publishes: []
@@ -1457,6 +1460,7 @@ workflows:
 - workflow: s-corp-reasonable-compensation-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: s3-storage-class-advisor-ci.yml
 - workflow: s3-storage-class-savings-ci.yml
   classification: none
   publishes: []
