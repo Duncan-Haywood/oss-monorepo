@@ -721,6 +721,117 @@ entries:
     gate_note: >-
       Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
       warranty. Ethics: helps small exhibitors earn more from their own show budget.
+  - venture: support-staffing-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built support-staffing-planner: a browser-local tool and
+        zero-dependency CLI for small support desks, answering services, clinic
+        front desks and sales lines. Paste contacts per half hour (and handle
+        time) for a typical week and set a service target (for example 80% answered
+        in 20 seconds), shrinkage, an occupancy cap, allowed shift lengths and an
+        hourly cost; it gives the agents each interval needs by the Erlang C
+        formula, the exact cheapest set of shifts that covers every interval
+        (min-cost flow), what each service target costs, what a shorter handle
+        time, fewer contacts or different shrinkage would save, and a comparison
+        with flat peak staffing, full-length shifts only and the occupancy-only
+        rule that misses the target at low volumes. New niche: the closest existing
+        tools (shift-cover-optimizer, shift-roster-builder) take a headcount per
+        hour or named staff; none turns contact volume and handle time into the
+        requirement with queueing maths or prices the service target. First visitor
+        expected from "erlang c calculator" and "how many call center agents do I
+        need" searches. Nothing leaves the browser. Tests check Erlang C against the
+        textbook sum and the shift cover against brute force over every combination
+        on 60 random small days. Unverified with a real team's volumes.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty; the user remains responsible for working-time and break rules.
+      Ethics: helps small teams staff to a service target without overstaffing.
+  - venture: csa-share-pricing-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built csa-share-pricing-calculator: a browser-local tool and
+        zero-dependency CLI for small vegetable farms and market gardens that sell
+        CSA shares. Paste the items in the weekly box (quantity, retail value,
+        cost, labour minutes, weeks in season) and set the season, share count,
+        price, fees, packing and delivery costs, fixed costs and your hourly pay; it
+        gives the retail value a member receives and the value ratio, season profit
+        before and after paying yourself, the closed-form price that pays a target
+        wage, shares needed to break even, items that cost more to grow than they
+        are worth, and a price sweep under a stated elasticity. New niche: the
+        closest existing tools (market-garden-bed-planner, market-event-picker,
+        custom-farm-rate-calculator) plan crops, market choice and contract rates;
+        none prices a CSA share. First visitor expected from "how to price a CSA
+        share" searches. Nothing leaves the browser. Unverified with a real farm's
+        box list.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+  - venture: consignment-markdown-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built consignment-markdown-planner: a browser-local tool and
+        zero-dependency CLI for consignment, resale, thrift and vintage shops. Paste
+        the items on the floor (price, weekly sell chance at full price, shop share
+        of the sale, shelf cost per week) and it finds the exact best markdown
+        schedule for each over the discount levels the shop allows (dynamic
+        programming, tested against every non-decreasing schedule), flags items not
+        worth taking in with the price and shop share at which they would pay,
+        compares with a fixed 30/60-day rule and never marking down, and re-checks
+        at a slow-season sell rate. New niche: clearance-markdown-planner covers
+        retail clearance without a consignor split or shelf-slot cost; none plans
+        per-item markdowns under consignment terms or screens at intake. First
+        visitor expected from "consignment shop markdown schedule" searches.
+        Nothing leaves the browser. Unverified with a real shop's sell-through data.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty. Ethics: helps small resale shops earn more from stock they already hold.
+  - venture: embroidery-shop-quote-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built embroidery-shop-quote-calculator: a browser-local tool and
+        zero-dependency CLI for home and micro embroidery shops running 1-6 head machines.
+        Enter a job (quantity, garment cost, stitch count, colors, digitizing fee) and the
+        shop (heads, stitches per minute, real efficiency, hooping and setup minutes,
+        thread and backing cost, labor rate, machine overhead, target margin, minimum
+        charge, rush surcharge); it gives the per-piece price that hits the margin
+        (integer cents, rounded up), clock time, true cost, profit and effective hourly
+        rate, a quantity-break table with the quantities where the minimum charge or setup
+        dominates, a stitch-count sensitivity, a check of whether a flat price-per-1000-
+        stitches rule loses money at low quantities and from what quantity it covers cost,
+        and a take / counter / pass verdict at the owner's lowest acceptable hourly rate
+        (with the price that reaches it). New niche: apparel-decoration-price-calculator
+        prices a decorated piece across screen print, embroidery and DTF tiers and
+        3d-print-price-calculator prices machine time, but neither models a multi-head
+        embroidery machine's clock time, a per-stitch rule's break-even quantity or an
+        hourly-floor verdict. First visitor expected from "embroidery pricing calculator"
+        and "how much to charge for embroidery" searches. Nothing leaves the browser.
+        Tests replay the clock time hoop by hoop and search for the smallest whole-cent
+        price that reaches the margin on 300 random jobs. Unverified with a real shop's
+        numbers.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty. Ethics: helps small embroidery shops stop underpricing short runs.
   - venture: dog-grooming-day-planner
     agent_spend_usd: null
     human_hours: 0

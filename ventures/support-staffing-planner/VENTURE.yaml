@@ -1,0 +1,47 @@
+name: support-staffing-planner
+description: 'Free, zero-network, zero-dependency browser tool and CLI for small support desks, answering services, clinic front desks and sales lines: paste contacts per half hour (and handle time) for a typical week, set a service target (for example 80% answered in 20 seconds), shrinkage, an occupancy cap, allowed shift lengths and an hourly cost, and get the agents each interval needs (Erlang C), the exact cheapest set of shifts that covers every interval (min-cost flow, verified against brute force), what each service target costs, what a shorter handle time, fewer contacts or different shrinkage would save, and a comparison with flat peak staffing, full-length shifts only and the occupancy-only rule that misses the target. Numbers are the ones the user supplies, not a forecast.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more / cost-down: a small team sets its headcount by feel; the paid
+# alternatives are workforce-management SaaS (Assembled, Playvox, Calabrio) sold per agent per month.
+# Checked 2026-10-02: ventures/ has shift-cover-optimizer (hourly requirement to cheapest shifts, retail
+# and restaurant) and shift-roster-builder (named staff and availability); neither turns contact volume
+# and handle time into the requirement with Erlang C, shrinkage and an occupancy cap, or prices the
+# service target. The shift-cover step here is the same class of problem, deliberately: it is the
+# second half of this tool, and the sibling is linked from the page. Not in screened-out.md.
+#
+# First visitor: searches "erlang c calculator", "how many call center agents do I need", "call center
+# staffing calculator", "support team staffing"; r/CustomerSuccess, r/sysadmin helpdesk and small
+# answering-service forums. Volume not measured with an external tool. A hosted version that pulls
+# contact counts from a help-desk export is the natural paid upgrade.
+hypotheses:
+  - claim: A support lead sizing a team will search for an Erlang C calculator, paste a week of volumes, and leave with a headcount and a shift list.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team lead will reuse the CLI when volumes or handle times change, so the page earns repeat visits.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No team lead reports changing a headcount or shift plan because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/support-staffing-planner/
+  analytics: null

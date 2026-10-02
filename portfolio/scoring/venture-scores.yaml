@@ -25944,6 +25944,121 @@ ventures:
       Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
       leaves the device. Ethics: helps small exhibitors earn more from their own show budget; the user decides
       and remains responsible for any contract signed with a show.
+  - slug: support-staffing-planner
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic CSV parser, Erlang C search and exact min-cost-flow shift cover; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct cost-down decision for small support teams with real search demand ("erlang c calculator",
+      "how many call center agents do I need") and spreadsheets or per-seat workforce-management SaaS as
+      the incumbent; the wedge is Erlang C requirement plus exact cheapest shifts and a priced service
+      target, free and client-side; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that turns contact volume into agents per interval and the cheapest shift plan.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
+      leaves the device. Ethics: helps small teams staff to a service target without overstaffing; the user
+      decides and remains responsible for working-time and break rules.
+  - slug: csa-share-pricing-calculator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic box parser and closed-form wage price, break-even and price sweep; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for small farms with real search demand ("how to price a CSA share") and
+      copying the neighbour's price as the incumbent; the wedge is a price from the box's own costs and
+      hours rather than the market's, free and client-side; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that prices a CSA share from box contents, hours and fixed costs.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
+      leaves the device. Ethics: helps small farms earn a fair wage from their own season; the farmer decides
+      and remains responsible for food-safety, licensing and tax rules.
+  - slug: consignment-markdown-planner
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic CSV parser and exact dynamic-programming markdown schedule; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for consignment and resale shops with real search demand ("consignment
+      shop markdown schedule") and consignment software with one fixed schedule as the incumbent; the
+      wedge is a per-item optimal schedule under a consignor split plus an intake screen, free and
+      client-side; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that plans per-item markdown schedules and intake declines for consignment shops.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
+      leaves the device. Ethics: helps small resale shops earn more from stock they already hold; the shop
+      remains responsible for its consignment agreements.
+  - slug: embroidery-shop-quote-calculator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic integer-cent quote model and CSV parser; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for small embroidery shops with real search demand ("how much to charge
+      for embroidery") and per-stitch charts and spreadsheets as the incumbent; the wedge is showing the
+      quantity at which a per-1000-stitches rule stops losing money and the price that reaches the owner's
+      hourly floor, free and client-side; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that quotes embroidery jobs and quantity breaks at a target margin.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, stated so, no warranty, nothing
+      leaves the device. Ethics: helps small embroidery shops price short runs above cost; the user decides
+      and remains responsible for every quote and order they accept.
   - slug: dog-grooming-day-planner
     scores:
       ai_leverage: 4
