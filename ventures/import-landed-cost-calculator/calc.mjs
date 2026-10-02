@@ -27,6 +27,8 @@ export const INPUT_FIELDS = [
   'brokerFee',
   'entryType',
   'oceanFreight',
+  'sellPricePerUnit',
+  'targetMarginPct',
 ];
 
 export const ENTRY_TYPES = ['formal', 'informal'];
@@ -58,6 +60,8 @@ export const LANDED_COST_DEFAULTS = {
   brokerFee: 125,
   entryType: 'formal',
   oceanFreight: true,
+  sellPricePerUnit: 24,
+  targetMarginPct: 30,
 };
 
 function number(value, name, fallback) {
@@ -113,6 +117,12 @@ export function calculateLandedCost(input = {}) {
   const dutyRatePct = number(input.dutyRatePct, 'Duty rate', LANDED_COST_DEFAULTS.dutyRatePct);
   const supplementalRatePct = number(input.supplementalRatePct, 'Supplemental tariff rate', LANDED_COST_DEFAULTS.supplementalRatePct);
   const brokerFee = number(input.brokerFee, 'Broker / entry fee', LANDED_COST_DEFAULTS.brokerFee);
+  // Selling price is optional: blank means "do not show a margin". The
+  // target margin falls back to the worked-example figure like the rates do.
+  const sellPricePerUnit = input.sellPricePerUnit === undefined || input.sellPricePerUnit === null || input.sellPricePerUnit === ''
+    ? null : number(input.sellPricePerUnit, 'Selling price per unit', 0);
+  const targetMarginPct = number(input.targetMarginPct, 'Target margin', LANDED_COST_DEFAULTS.targetMarginPct);
+  if (targetMarginPct >= 100) throw new Error('Target margin must be under 100%');
   const entry = entryType(input.entryType, 'formal');
   const ocean = boolean(input.oceanFreight, false);
 
@@ -144,7 +154,22 @@ export function calculateLandedCost(input = {}) {
   const tariffBurden = duty + supplementalTariff + mpf + hmf;
   const effectiveTariffBurdenPct = itemCost === 0 ? 0 : tariffBurden / itemCost * 100;
 
+  // Pricing: what the landed cost means for the shelf price. Margin is
+  // profit / selling price (not markup). Marketplace fees, shipping to the
+  // customer and ad spend are not modelled -- subtract them yourself.
+  const pricing = {
+    sellPricePerUnit,
+    profitPerUnit: sellPricePerUnit === null ? null : sellPricePerUnit - perUnitLandedCost,
+    marginPct: sellPricePerUnit === null || sellPricePerUnit === 0 ? null : (sellPricePerUnit - perUnitLandedCost) / sellPricePerUnit * 100,
+    totalProfit: sellPricePerUnit === null ? null : (sellPricePerUnit - perUnitLandedCost) * quantity,
+    targetMarginPct,
+    minPriceForTarget: perUnitLandedCost / (1 - targetMarginPct / 100),
+    // Price at which the shipment merely recovers its landed cost.
+    breakEvenPrice: perUnitLandedCost,
+  };
+
   return {
+    pricing,
     itemCost,
     freightCost,
     insuranceCost,

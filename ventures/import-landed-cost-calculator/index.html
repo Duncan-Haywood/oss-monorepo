@@ -72,6 +72,12 @@
           </select>
           <span class="field-note">Formal entries pay a percentage-based Merchandise Processing Fee (floor/ceiling apply); informal entries pay a flat fee. Ask your broker which applies to you.</span>
         </label>
+        <label>Your selling price per unit ($, optional)
+          <input id="sellPricePerUnit" type="number" min="0" step="0.01" value="24" placeholder="leave blank to skip margin">
+        </label>
+        <label>Target gross margin (%)
+          <input id="targetMarginPct" type="number" min="0" max="99.9" step="0.1" value="30">
+        </label>
         <label class="checkbox-field"><input id="oceanFreight" type="checkbox" checked> Shipped by ocean freight (Harbor Maintenance Fee applies)</label>
       </div>
     </section>
@@ -84,6 +90,15 @@
         <dt>Effective tariff burden</dt><dd id="tariffBurdenPct"></dd>
         <dt>Customs value (item + freight)</dt><dd id="customsValue"></dd>
       </dl>
+      <h3>Pricing</h3>
+      <dl>
+        <dt>Break-even price per unit</dt><dd id="breakEvenPrice"></dd>
+        <dt id="minPriceLabel">Minimum price for target margin</dt><dd id="minPrice"></dd>
+        <dt>Profit per unit at your price</dt><dd id="profitPerUnit"></dd>
+        <dt>Gross margin at your price</dt><dd id="marginPct"></dd>
+        <dt>Profit on the whole shipment</dt><dd id="totalProfit"></dd>
+      </dl>
+      <p class="note">Gross margin = (price − landed cost) ÷ price, before marketplace fees, shipping to customers, returns and ad spend.</p>
       <hr>
       <table>
         <thead><tr><th>Line item</th><th>Amount</th></tr></thead>
@@ -214,6 +229,13 @@
       field('perUnit').textContent = `${money(result.perUnitLandedCost)} per unit`;
       field('tariffBurdenPct').textContent = `${result.effectiveTariffBurdenPct.toFixed(2)}% of item cost`;
       field('customsValue').textContent = money(result.customsValue);
+      const p = result.pricing;
+      field('breakEvenPrice').textContent = money(p.breakEvenPrice);
+      field('minPriceLabel').textContent = `Minimum price for ${p.targetMarginPct}% margin`;
+      field('minPrice').textContent = money(p.minPriceForTarget);
+      field('profitPerUnit').textContent = p.profitPerUnit === null ? '—' : money(p.profitPerUnit);
+      field('marginPct').textContent = p.marginPct === null ? '—' : `${p.marginPct.toFixed(1)}%`;
+      field('totalProfit').textContent = p.totalProfit === null ? '—' : money(p.totalProfit);
 
       const rows = breakdownRows(result);
       field('breakdown').innerHTML = rows.map(([label, amount], i) =>
