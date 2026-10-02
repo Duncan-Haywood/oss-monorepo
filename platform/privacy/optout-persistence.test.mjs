@@ -1176,7 +1176,8 @@ const RELATIVE_SELF = relative(
 // +1: `slo-burn-rate-alerts` graduated.
 // +1: `lambda-memory-rightsizer` graduated.
 // +1: `dynamodb-capacity-mode-advisor` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 559;
+// +1: `s3-storage-class-savings` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 560;
 
 let counter = 0;
 function fixture(source) {
