@@ -493,9 +493,11 @@ const CATEGORY_RULES = [
     // `shopify-inventory-reorder-planner`.
     // `bundle-discount-optimizer` joined 2026-09-30: it reads a Shopify, Etsy or Amazon seller's own order
     // export to price product bundles, the same reader as the fee tools here; the slug names no platform.
+    // `free-shipping-threshold-optimizer` joined 2026-10-02 on its first commit: it reads a Shopify, WooCommerce or Etsy
+    // seller's own order export to choose a free-shipping minimum, the same reader as `bundle-discount-optimizer` here.
     // `breakeven-roas-calculator` joined 2026-10-01 on its first commit: turns a DTC seller's per-order
     // margin into the break-even ROAS and max CPA an ad campaign needs; the same reader as the fee tools here.
-    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|auction-car-flip|liquidation-pallet|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace)/.test(slug),
+    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|free-shipping-threshold|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|auction-car-flip|liquidation-pallet|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace)/.test(slug),
   },
   {
     id: 'trades',
@@ -3503,7 +3505,7 @@ const SUBCATEGORY_RULES = {
       // margin, the same job-costing shape as `job-margin` and
       // `shop-rate` for a licensed surveyor's boundary/ALTA retracement
       // work instead of a construction trade.
-      test: (slug) => /^(quote-margin|retainage|freelance-retainer|freelance-rate-increase|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|project-estimate-calibrator|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|lead-response-time|custom-farm-rate|land-survey|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability)/.test(slug),
+      test: (slug) => /^(quote-margin|retainage|freelance-retainer|price-increase-breakeven|freelance-rate-increase|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|project-estimate-calibrator|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|lead-response-time|custom-farm-rate|land-survey|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability)/.test(slug),
     },
     {
       id: 'trades-cleaning',

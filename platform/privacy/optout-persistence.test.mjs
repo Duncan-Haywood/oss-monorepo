@@ -1189,7 +1189,8 @@ const RELATIVE_SELF = relative(
 // +1: `rds-instance-cost-advisor` graduated.
 // +1: `booking-request-chooser` graduated.
 // +1: `rds-instance-rightsizer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 572;
+// +1: `free-shipping-threshold-optimizer` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 574;
 
 let counter = 0;
 function fixture(source) {

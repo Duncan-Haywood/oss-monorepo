@@ -1,0 +1,50 @@
+name: price-increase-breakeven-calculator
+description: 'Free, zero-network, zero-dependency CLI + browser tool for small businesses: reads items (name, price, unit cost, units sold), tests a proposed price increase, and prints per item how much volume can be lost before the raise stops paying and the customer elasticity at which it breaks even; usable as a CI check. Customer reaction is an input, not a measurement.'
+stage: prototype
+
+owner: duncan
+
+# Calculator archetype (portfolio/pipeline/README.md). Checked 2026-10-02: nothing
+# in ventures/ computes break-even volume loss from a price list; adjacent are
+# price-elasticity-estimator (estimates elasticity), freelance-rate-increase-calculator
+# (one hourly rate) and clearance-markdown-planner (price cuts). Not in screened-out.md.
+#
+# Money: every owner who has been afraid to raise prices faces one number -- the share
+# of customers they can lose before the raise costs them money -- and it is simple
+# arithmetic that rarely gets done per item. Salons, repair shops, cafes, stores and
+# small SaaS vendors with a price list can read it in a minute. Wedge: per-item,
+# paste-a-price-list, prints the sensitivity at which it fails instead of a verdict.
+#
+# First visitors: searches such as "price increase break-even calculator", "how many
+# customers can I lose after raising prices", r/smallbusiness and r/Entrepreneur
+# threads on raising prices. A hosted version reading a POS export monthly is the
+# natural paid upgrade.
+hypotheses:
+  - claim: A small-business owner will paste a price list, test a raise, and leave with the items to raise first and the volume loss each can absorb.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Operators will rerun the CLI on each period's export with --fail-on warn to be warned when a planned raise would lose money.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository, script or newsletter is found linking or reusing cli.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/price-increase-breakeven-calculator/
+  analytics: null
