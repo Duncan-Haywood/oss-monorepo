@@ -593,6 +593,9 @@ workflows:
 - workflow: snowflake-warehouse-cost-advisor-ci.yml
   classification: none
   publishes: []
+- workflow: rds-instance-cost-advisor-ci.yml
+  classification: none
+  publishes: []
 - workflow: databricks-cluster-cost-advisor-ci.yml
   classification: none
   publishes: []
@@ -942,6 +945,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: k8s-requests-rightsizer-ci.yml
+  classification: none
+  publishes: []
+- workflow: lambda-vs-fargate-cost-breakeven-ci.yml
   classification: none
   publishes: []
 - workflow: k8s-resource-limits-check-ci.yml
@@ -1368,6 +1374,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: rd-tax-credit-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: rds-instance-rightsizer-ci.yml
   classification: none
   publishes: []
 - workflow: real-estate-agent-photo-app-ci.yml

@@ -48,3 +48,7 @@ test("index links to the cloud-egress sibling", async () => {
 test("index links to the Snowflake warehouse cost advisor sibling", async () => {
   assert.ok((await read("index.html")).includes('href="../snowflake-warehouse-cost-advisor/"'));
 });
+
+test("index links to the RDS instance cost advisor sibling", async () => {
+  assert.ok((await read("index.html")).includes('href="../rds-instance-cost-advisor/"'));
+});

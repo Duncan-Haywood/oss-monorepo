@@ -1184,9 +1184,12 @@ const RELATIVE_SELF = relative(
 // +1: `bigquery-query-cost-advisor` graduated.
 // +1: `snowflake-warehouse-cost-advisor` graduated.
 // +1: `databricks-cluster-cost-advisor` graduated.
-// +1: `free-shipping-threshold-optimizer` graduated.
 // +1: `k8s-requests-rightsizer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 569;
+// +1: `lambda-vs-fargate-cost-breakeven` graduated.
+// +1: `rds-instance-cost-advisor` graduated.
+// +1: `rds-instance-rightsizer` graduated.
+// +1: `free-shipping-threshold-optimizer` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 572;
 
 let counter = 0;
 function fixture(source) {

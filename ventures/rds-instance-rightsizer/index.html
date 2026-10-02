@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>RDS Instance Rightsizer — Is Your RDS or Aurora Instance Too Big</title>
+  <meta name="description" content="Paste CloudWatch CPU, freeable memory and connection numbers (or describe-db-instances JSON) and see which RDS and Aurora instances are over- or under-provisioned, the next class in the same family, Graviton savings, Multi-AZ cost and the modify-db-instance command. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Is your RDS instance too big?">
+  <meta property="og:description" content="Paste CloudWatch metrics, get per-instance right-sizing, Graviton savings and ready-to-paste modify-db-instance commands. No AWS access, no account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "RDS Instance Rightsizer", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste CloudWatch numbers per RDS or Aurora instance (CSV) and/or aws rds describe-db-instances JSON and see over- and under-provisioned instances, the next class in the same family, Graviton migration savings, Multi-AZ cost, estimated monthly savings and ready-to-paste aws rds modify-db-instance commands. Runs in the browser or as a zero-dependency Node CLI."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this connect to my AWS account?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads the text you paste and never contacts AWS or any server. It cannot see your real invoice, reserved instances, Savings Plans, storage or I/O charges, so every dollar figure is the instance list price you can edit, times 730 hours."}}, {"@type": "Question", "name": "How long should the CloudWatch window be?", "acceptedAnswer": {"@type": "Answer", "text": "Long enough to include your busiest period: at least two weeks, and a month-end or batch cycle if you have one. Use the p95 of CPUUtilization, the minimum of FreeableMemory and the p95 of DatabaseConnections. A quiet week will recommend a class that falls over on payroll day."}}, {"@type": "Question", "name": "Is low freeable memory always a problem?", "acceptedAnswer": {"@type": "Answer", "text": "No. MySQL and PostgreSQL use free memory as cache, so a low minimum is a prompt to check SwapUsage and read latency, not proof of trouble. The tool keeps a 20% freeable reserve on the new class at your observed peak, and you can change it."}}, {"@type": "Question", "name": "Will changing the instance class cause downtime?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Modifying the class restarts the instance. A single-AZ instance is unavailable for several minutes and a Multi-AZ instance fails over, usually in one to two minutes. Without --apply-immediately the change waits for the next maintenance window; with it, the restart starts now."}}, {"@type": "Question", "name": "Is my pasted text uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page analyses the text in your own browser and never sends it anywhere. The CLI reads local files or stdin and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .pill.ok { background: #dcfce7; color: #14532d; }
+    .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">RDS INSTANCE RIGHTSIZER · RUNS IN YOUR BROWSER</p>
+    <h1>Is your RDS or Aurora instance too big?</h1>
+    <p>Paste a CSV of CloudWatch numbers per instance (and/or <code>aws rds describe-db-instances --output json</code>) and get, per instance, an <strong>over- or under-provisioned verdict</strong>, the <strong>next class in the same family</strong> that still fits CPU, memory and connections, a <strong>Graviton</strong> saving for x86 classes, the <strong>monthly saving</strong> (Multi-AZ doubles the price) and the <code>aws rds modify-db-instance</code> command to paste.</p>
+    <p class="note">Nothing is uploaded and no AWS account is contacted. The text box is analysed in this browser and never leaves your device. This is a recommendation from metrics, not a bill: metrics must be sampled over a representative period, and prices are approximate.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste instances and CloudWatch numbers</h2>
+    <label for="input">CSV rows and/or describe-db-instances JSON (together or separately; other lines are ignored)</label>
+    <textarea id="input" spellcheck="false" placeholder="db_identifier,engine,instance_class,multi_az,storage_gb,cpu_avg,cpu_p95,freeable_mem_gb_min,connections_p95,count&#10;orders-prod,postgres,db.r5.2xlarge,true,500,12,22,38,180,1"></textarea>
+    <div class="row">
+      <div><label for="cput">Max p95 CPU on the new class %</label><input type="number" id="cput" min="1" max="100" value="70"></div>
+      <div><label for="memr">Min freeable memory reserve %</label><input type="number" id="memr" min="0" max="100" value="20"></div>
+      <div><label for="apply"><input type="checkbox" id="apply">Add --apply-immediately</label></div>
+    </div>
+    <details>
+      <summary>Approximate us-east-1 on-demand $/hour per class (editable JSON)</summary>
+      <p class="note">Single-AZ, MySQL/PostgreSQL-style list prices, approximate and dated; Aurora, Oracle, SQL Server and your discounts differ. Edit a number, or add a class as <code>{"price": 0.4, "vcpu": 2, "memGib": 16}</code>.</p>
+      <textarea id="prices" spellcheck="false" aria-label="Price table JSON"></textarea>
+    </details>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What it found</h2>
+    <p id="summary"></p>
+    <h3>Per instance</h3>
+    <div style="overflow-x:auto"><table id="inst-table" hidden>
+      <thead><tr><th>Instance</th><th>Class</th><th>Multi-AZ</th><th>CPU p95</th><th>Free mem (GiB)</th><th>Verdict</th><th>Recommended</th><th>$/month now</th><th>Saves/month</th></tr></thead>
+      <tbody id="inst-rows"></tbody>
+    </table></div>
+    <h3>Findings</h3>
+    <table id="results-table" hidden>
+      <thead><tr><th>Rule</th><th>Level</th><th>Detail</th></tr></thead>
+      <tbody id="results-rows"></tbody>
+    </table>
+    <h3>Commands</h3>
+    <pre class="cmd" id="commands"></pre>
+    <p><button type="button" class="secondary" id="copy-commands">Copy commands</button></p>
+    <p class="note"><strong>Downtime:</strong> changing the class restarts the instance. A single-AZ instance is unavailable for several minutes; a Multi-AZ instance fails over in about one to two minutes. Without <code>--apply-immediately</code> the change waits for the next maintenance window. Try it on a snapshot restore first.</p>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want a CI check?</h2>
+    <p>Same logic, zero dependencies, one command — reads files or stdin:</p>
+    <pre class="cmd">aws rds describe-db-instances --output json &gt; rds.json
+node cli.mjs analyze rds.json metrics.csv --commands
+node cli.mjs analyze instances.csv --cpu-target 60 --mem-reserve 25 --prices my-prices.json
+node cli.mjs analyze instances.csv --fail-on warn          # exit 1 when over-provisioned or under pressure
+node cli.mjs classes                                       # print the embedded price table
+node cli.mjs analyze instances.csv --json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="how-to-right-size-an-rds-instance.html">how to right-size an RDS instance</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table>
+    <p class="note">Covered classes: db.t3, t4g, m5, m6i, m6g, m7g, r5, r6i, r6g, r7g. Reserved instances, storage, I/O, backups and data transfer are not modelled.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this connect to my AWS account?</h3>
+    <p>No. It reads the text you paste and never contacts AWS or any server. It cannot see your real invoice, reserved instances, Savings Plans, storage or I/O charges, so every dollar figure is the instance list price you can edit, times 730 hours.</p>
+    <h3>How long should the CloudWatch window be?</h3>
+    <p>Long enough to include your busiest period: at least two weeks, and a month-end or batch cycle if you have one. Use the p95 of CPUUtilization, the minimum of FreeableMemory and the p95 of DatabaseConnections. A quiet week will recommend a class that falls over on payroll day.</p>
+    <h3>Is low freeable memory always a problem?</h3>
+    <p>No. MySQL and PostgreSQL use free memory as cache, so a low minimum is a prompt to check SwapUsage and read latency, not proof of trouble. The tool keeps a 20% freeable reserve on the new class at your observed peak, and you can change it.</p>
+    <h3>Will changing the instance class cause downtime?</h3>
+    <p>Yes. Modifying the class restarts the instance. A single-AZ instance is unavailable for several minutes and a Multi-AZ instance fails over, usually in one to two minutes. Without --apply-immediately the change waits for the next maintenance window; with it, the restart starts now.</p>
+    <h3>Is my pasted text uploaded anywhere?</h3>
+    <p>No. The browser page analyses the text in your own browser and never sends it anywhere. The CLI reads local files or stdin and makes no network call.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, security or engineering advice. It reads text you paste and recommends instance classes from metrics; it is not a bill, not a guarantee of what AWS will charge, and a class it suggests can cause slowness, swapping or connection errors where your real workload differs. <strong>Metrics must be sampled over a representative period, prices are approximate list prices, and you are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. AWS, Amazon RDS, Aurora and other product names are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analyze_run</code>, <code>example_loaded</code>, <code>commands_copied</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks on the same repo: <a href="../lambda-memory-rightsizer/">Lambda Memory Rightsizer</a> and <a href="../k8s-requests-rightsizer/">Kubernetes Requests Rightsizer</a> do the same for Lambda and pod requests, <a href="../rds-instance-cost-advisor/">RDS Instance Cost Advisor</a> covers Multi-AZ, io1 and Graviton on the same instances, <a href="../ebs-volume-cost-advisor/">EBS Volume Cost Advisor</a> prices the storage side, and <a href="../aws-commitment-breakeven-calculator/">AWS Commitment Break-Even Calculator</a> prices Savings Plans and reserved capacity.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseInput, analyze, summarize, fmtUsd, buildTable, CLASS_TABLE, INPUT_NOTES, PRICES_AS_OF } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      input: $("#input"), status: $("#status"), reportCard: $("#report-card"), summary: $("#summary"),
+      table: $("#results-table"), rows: $("#results-rows"), instT: $("#inst-table"), instR: $("#inst-rows"),
+      commands: $("#commands"), estimate: $("#estimate"), patterns: $("#patterns-rows"), prices: $("#prices"),
+    };
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const DEFAULT_PRICE_JSON = JSON.stringify(Object.fromEntries(Object.entries(CLASS_TABLE).map(([k, v]) => [k, v.price])), null, 1);
+    els.prices.value = DEFAULT_PRICE_JSON;
+    els.patterns.innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+    const VERDICT_PILL = { "over-provisioned": "warn", "under-provisioned": "error", "right-sized": "ok" };
+
+    function renderReport() {
+      const text = els.input.value;
+      if (!text.trim()) {
+        els.status.innerHTML = `<span class="error">Paste some CSV rows or describe-db-instances JSON first (or load the worked example).</span>`;
+        return;
+      }
+      let prices;
+      try { prices = JSON.parse(els.prices.value || "{}"); } catch {
+        els.status.innerHTML = `<span class="error">The price table is not valid JSON. Fix it or reload the page to restore the defaults.</span>`;
+        return;
+      }
+      els.status.textContent = "";
+      const pct = (id, d) => { const n = Number($(id).value); return Number.isFinite(n) && n >= 0 && n <= 100 ? n / 100 : d; };
+      const report = analyze(parseInput(text), { cpuTarget: pct("#cput", 0.7), memReserve: pct("#memr", 0.2), applyImmediately: $("#apply").checked, prices });
+      const { status, text: summaryText } = summarize(report);
+      els.summary.innerHTML = `<span class="${status === "ok" ? "ok" : status === "none" ? "error" : "changed"}">${escapeHtml(summaryText)}</span>`;
+      const shown = report.instances.filter((i) => i.monthlyNow > 0);
+      els.instT.hidden = !shown.length;
+      els.instR.innerHTML = shown.map((i) => `<tr><td>${escapeHtml(i.id)}</td><td>${escapeHtml(i.cls)}</td><td>${i.multiAz && !/^aurora/.test(i.engine) ? "yes" : "no"}</td><td>${i.cpuP95 === null ? "-" : i.cpuP95 + "%"}</td><td>${i.freeMemGb === null ? "-" : i.freeMemGb}</td><td><span class="pill ${VERDICT_PILL[i.verdict] || "info"}">${i.verdict}</span></td><td>${i.finalCls ? "<strong>" + escapeHtml(i.finalCls) + "</strong>" : "-"}</td><td>${fmtUsd(i.monthlyNow)}</td><td>${fmtUsd(i.savings)}</td></tr>`).join("");
+      const all = [...report.findings, ...report.notes.map((n) => ({ rule: "note", severity: "info", message: n }))];
+      els.table.hidden = all.length === 0;
+      els.rows.innerHTML = all.map((f) => `<tr><td><code>${escapeHtml(f.rule)}</code></td><td><span class="pill ${f.severity}">${f.severity}</span></td><td>${escapeHtml(f.message)}</td></tr>`).join("");
+      els.commands.textContent = report.analysed ? (shown.filter((i) => i.command).map((i) => i.command).join("\n") || "Nothing to change.") : "";
+      els.estimate.textContent = report.analysed ? `A recommendation from metrics, not a bill. Prices are ${PRICES_AS_OF}. Metrics must be sampled over a representative period, including peaks; test any change first.` : "";
+      els.reportCard.hidden = false;
+      record("analyze_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `db_identifier,engine,instance_class,multi_az,storage_gb,cpu_avg,cpu_p95,freeable_mem_gb_min,connections_p95,count
+orders-prod,postgres,db.r5.2xlarge,true,500,12,22,38,180,1
+reports-replica,postgres,db.m5.2xlarge,false,1000,9,15,20,60,1
+checkout-prod,mysql,db.m6g.xlarge,true,200,70,92,1.1,420,1
+dev-sandbox,mysql,db.t3.large,false,50,4,9,6.5,12,1
+analytics-aurora,aurora-postgresql,db.r6g.2xlarge,false,0,18,30,10,90,2
+billing-prod,postgres,db.m6g.large,false,100,35,55,2.5,1100,1`;
+
+    $("#load-example").addEventListener("click", () => {
+      els.input.value = EXAMPLE_SOURCE;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#copy-commands").addEventListener("click", async (event) => {
+      try { await navigator.clipboard.writeText(els.commands.textContent); event.target.textContent = "Copied"; record("commands_copied"); } catch { event.target.textContent = "Select the text and copy it"; }
+    });
+    $("#clear").addEventListener("click", () => {
+      els.input.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>
