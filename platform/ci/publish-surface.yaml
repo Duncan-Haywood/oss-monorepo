@@ -590,6 +590,9 @@ workflows:
 - workflow: snowflake-warehouse-cost-advisor-ci.yml
   classification: none
   publishes: []
+- workflow: rds-instance-cost-advisor-ci.yml
+  classification: none
+  publishes: []
 - workflow: databricks-cluster-cost-advisor-ci.yml
   classification: none
   publishes: []

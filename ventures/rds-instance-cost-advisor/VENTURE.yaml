@@ -1,0 +1,49 @@
+name: rds-instance-cost-advisor
+description: 'Free, zero-network, zero-dependency CLI + browser tool that reads a list of Amazon RDS instances (class, engine, Multi-AZ, storage type and size, provisioned IOPS, average CPU, environment), prices them in dollars at editable list prices, flags Multi-AZ outside production, io1 provisioned IOPS a gp3 volume covers, x86 classes with a cheaper Graviton twin and idle instances with the aws rds command, and gives bounded right-sizing and Reserved Instance notes; usable as a CI check. Numbers are supplied by the user and prices are editable, not a bill.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype (portfolio/pipeline/README.md "archetype itself").
+# Sibling of ebs-volume-cost-advisor, nat-gateway-cost-advisor and
+# cloudwatch-logs-cost-advisor in the cloud-cost-from-pasted-numbers family.
+# Checked 2026-10-02: nothing in ventures/ prices RDS instances (ebs-volume-cost-advisor
+# covers EBS volumes, dynamodb-capacity-mode-advisor DynamoDB, aws-commitment-breakeven-calculator
+# is a generic commitment calculator). Not in screened-out.md.
+#
+# Where the first real visitor would come from: the search phrases "rds cost optimization",
+# "rds multi-az cost", "rds io1 vs gp3", "rds graviton savings"; r/aws and r/devops threads about a
+# surprise RDS bill. The reader is a platform or backend engineer whose RDS line is four to six
+# figures a year. Adjacent tools (AWS Cost Explorer, Compute Optimizer, Vantage, CloudZero, ProsperOps)
+# need account access or a contract; this works on pasted rows with no access and names the setting
+# to change -- the wedge. A hosted read-only scan of describe-db-instances and CloudWatch that
+# alerts on new non-production Multi-AZ is the natural paid upgrade.
+hypotheses:
+  - claim: A backend or platform engineer with an RDS bill will search for it, paste an instance list, and leave knowing which databases are Multi-AZ outside production, which io1 volumes gp3 covers and which classes have a Graviton twin, with the aws rds command to change each.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will run the CLI on a schedule against a describe-db-instances export with --fail-on warn so a new non-production Multi-AZ instance is flagged before the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/rds-instance-cost-advisor/
+  analytics: null

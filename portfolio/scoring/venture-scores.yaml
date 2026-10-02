@@ -25471,6 +25471,35 @@ ventures:
       Liability: arithmetic on pasted text at an editable credit price, figures as supplied by the user
       and stated so, no warranty, nothing leaves the device. Ethics: helps data teams avoid paying for
       idle Snowflake compute.
+  - slug: rds-instance-cost-advisor
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.167
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic instance row parser and RDS list-price cost model over pasted rows; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 5 and defensibility 4: real
+      search demand ("rds cost optimization", "rds multi-az cost") with
+      AWS Cost Explorer, Compute Optimizer and paid FinOps vendors as incumbents; the wedge is no
+      account access, pasted rows, a ready aws rds command and a CI check; volume
+      not measured with an external tool.
+      Scope: Free CLI and browser tool that prices RDS instances from a pasted list and prints Multi-AZ, io1-to-gp3, Graviton and idle-instance fixes.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at an editable list price, figures as supplied by the user
+      and stated so, no warranty, nothing leaves the device. Ethics: helps engineering teams avoid paying for
+      non-production Multi-AZ, per-IOPS charges and idle RDS instances.
   - slug: k8s-requests-rightsizer
     scores:
       ai_leverage: 4
