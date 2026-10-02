@@ -26116,6 +26116,34 @@ ventures:
       Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
       leaves the device; the page warns that safety calls and contractual obligations come first. Ethics: helps
       small mobile service businesses earn more from a day's calls; the operator decides and remains responsible.
+  - slug: insurance-denial-appeal-builder
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic code and phrase scoring, date arithmetic and templated letters; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; screening and first-visitor channel are in the venture's own
+      VENTURE.yaml comment. Distribution 6: consumers search "appeal insurance denial letter" and denial
+      codes by name, and the alternatives are advocates taking a share or tools that upload the letter;
+      time to revenue 5 and defensibility 4 because it is free, client-side and rule-table based; volume
+      not measured with an external tool.
+      Scope: Free browser tool that reads a denial letter, computes the appeal deadline and drafts the appeal.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: dates are reminders from rules of thumb with the notice controlling, no outcome promised, no
+      legal or medical advice, letter states only what the user supplied, nothing leaves the device. Ethics:
+      helps patients use appeal rights they already have; the user decides and remains responsible for what is sent.
   - slug: str-turnover-crew-planner
     scores:
       ai_leverage: 4
