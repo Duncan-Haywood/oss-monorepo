@@ -1181,7 +1181,8 @@ const RELATIVE_SELF = relative(
 // +1: `ebs-volume-cost-advisor` graduated.
 // +1: `nat-gateway-cost-advisor` graduated.
 // +1: `cloudwatch-logs-cost-advisor` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 564;
+// +1: `bigquery-query-cost-advisor` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 565;
 
 let counter = 0;
 function fixture(source) {
