@@ -1366,6 +1366,9 @@ workflows:
 - workflow: private-practice-payer-mix-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: process-server-day-picker-ci.yml
+  classification: none
+  publishes: []
 - workflow: process-server-fee-calculator-ci.yml
   classification: none
   publishes: []

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 612 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 613 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -206,6 +206,15 @@
     <summary type="text">Paste your prices, unit costs and volumes, set a price increase, and see how many units you can lose before the raise stops paying, item by item. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Process Server Day Picker — Which Serves to Take Today</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/process-server-day-picker/"/>
+    <id>tag:marisstella.dev,2026:tool/process-server-day-picker</id>
+    <published>2026-10-02T00:00:00Z</published>
+    <updated>2026-10-02T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Paste the day&#39;s requested process-serving assignments and get the most profitable set and order for one server, with time windows, drive cost and a price for every job it turns down. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>RDS Instance Cost Advisor — Multi-AZ, io1 IOPS, Graviton and Idle Instances</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rds-instance-cost-advisor/"/>
     <id>tag:marisstella.dev,2026:tool/rds-instance-cost-advisor</id>
@@ -357,14 +366,5 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free coffee roaster pricing calculator. Turn green coffee price and roast loss into cost per roasted pound, see margin by channel (retail, subscription, wholesale), find the cheapest blend that still hits your cup score, plan green coffee orders and find break-even volume. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Container Load Planner — 3D load planning for containers, trucks and pallets</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/container-load-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/container-load-planner</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Logistics, freight &amp; cloud cost"/>
-    <summary type="text">Free container load planner for small exporters, Amazon FBA and DTC sellers. Enter cartons or pallets, pick a 20 ft, 40 ft, 40 ft high cube, 53 ft trailer, box truck or pallet; see what fits, what is left over, how many containers the whole load needs, and a to-scale loading plan. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
