@@ -1,0 +1,45 @@
+name: mobile-signing-agent-day-picker
+description: 'Free, zero-network, zero-dependency browser tool and CLI for mobile notaries and loan signing agents: paste the day''s offered signings (fee, print and supply cost, appointment length, the window the borrower or title company gives, and where each is) and get the exact most profitable set and order for one agent (dynamic programming over signing sets with non-dominated time/profit labels), the exact fee at which each declined signing would earn a place, and the dollars first-come and highest-fee-first booking leave behind. Numbers are the ones the user supplies, not a forecast.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: raises what a mobile notary or loan signing agent keeps from a day's offers.
+# Checked 2026-10-02: ventures/ has notary-trip-quote (price of one trip), process-server-fee-calculator (one serve),
+# route-stop-optimizer (orders stops, no fees or windows) and mobile-tire-van-job-picker (same exact search, tire
+# vocabulary); none chooses which offered signings to take, in what order, under appointment windows with drive cost
+# between them, or says what fee a far signing needs. Not in screened-out.md.
+#
+# First visitor: searches "loan signing agent schedule", "mobile notary how many signings a day", "is a far signing
+# worth it", "signing service fee too low"; notary and signing-agent forums and groups. Volume not measured with an
+# external tool. Signing services and title companies text offers one at a time; nothing tells the agent which to refuse
+# or what a far signing must pay. A hosted version that reads offers from email or a phone is the natural paid upgrade.
+hypotheses:
+  - claim: A mobile notary or signing agent will paste a day's offers, see how much first-come booking leaves behind, and change which signings they accept or what fee they quote for far ones.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: An agent will return each morning with new offers, so the page earns repeat visits.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No operator reports changing a call they accept or a price they quote because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mobile-signing-agent-day-picker/
+  analytics: null
