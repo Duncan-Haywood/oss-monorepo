@@ -1452,6 +1452,7 @@ workflows:
   classification: none
   publishes: []
 - workflow: s3-storage-class-advisor-ci.yml
+- workflow: s3-storage-class-savings-ci.yml
   classification: none
   publishes: []
 - workflow: saas-annual-plan-discount-calculator-ci.yml

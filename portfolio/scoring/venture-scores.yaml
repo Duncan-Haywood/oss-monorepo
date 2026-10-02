@@ -25269,10 +25269,38 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Liability: arithmetic on pasted text at editable list prices, Intelligent-Tiering modelled
+      Liability: arithmetic on pasted text at editable list prices, traffic inside a period treated as flat
       and stated so, no warranty, nothing leaves the device. Ethics: helps engineers avoid paying for
       capacity mode they do not need.
-
+  - slug: s3-storage-class-savings
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.167
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic CSV parser and cost model over a pasted S3 Inventory; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-01 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 5 and defensibility 4: real
+      search demand ("s3 lifecycle transition cost", "glacier minimum object size") with
+      free S3 Storage Lens and Storage Class Analysis as incumbents; the wedge is no AWS
+      access, a downloaded inventory, per-object fees counted and a CI check; volume not
+      measured with an external tool.
+      Scope: Free CLI and browser tool that estimates the net 12-month saving of S3 lifecycle transitions from an S3 Inventory CSV.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on a local file, estimates labelled not a bill, list prices
+      editable, access pattern an explicit assumption, no warranty, nothing leaves the
+      device. Ethics: helps engineers avoid paying for storage and fees they do not need.
   - slug: s3-storage-class-advisor
     scores:
       ai_leverage: 4

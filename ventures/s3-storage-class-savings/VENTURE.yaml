@@ -1,0 +1,54 @@
+name: s3-storage-class-savings
+description: 'Free, zero-network, zero-dependency CLI + browser tool that reads an S3 Inventory CSV and reports current monthly storage cost by class, objects by age, and the net 12-month saving of each lifecycle transition (Standard-IA, Glacier Instant, Glacier Flexible, Deep Archive, Intelligent-Tiering) after per-object transition fees, minimum billable size, Glacier overhead, minimum storage duration, Intelligent-Tiering monitoring and an editable retrieval assumption; flags small objects that lose money and emits a ready-to-paste lifecycle configuration with an ObjectSizeGreaterThan filter; usable as a CI check. Estimates at editable list prices, not a bill.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype (portfolio/pipeline/README.md "archetype itself").
+# duplicate_check.py (run 2026-10-01) scored the nearest ventures
+# shopify-inventory-reorder-planner, amazon-fba-calculator and
+# fba-aged-inventory-fee-analyzer 0.12 (word overlap on "inventory" only) and
+# cloud-bucket-exposure-check 0.12 (a security check on the same service, not
+# cost); aws-commitment-breakeven-calculator scored 0.07 -- nothing prices S3
+# lifecycle transitions. Not in screened-out.md.
+#
+# Where the first real visitor would come from: the search phrases "s3
+# lifecycle transition cost", "s3 glacier minimum object size", "s3
+# intelligent-tiering monitoring fee small objects", "s3 storage class
+# calculator"; r/aws and Stack Overflow threads about a lifecycle rule that
+# raised the bill. The reader is an engineer or FinOps owner with a five- or
+# six-figure monthly S3 bill. Adjacent tools (S3 Storage Lens, Storage Class
+# Analysis, the AWS pricing calculator, vendor FinOps suites) need an AWS
+# account, work on bucket-level averages, or sit inside a paid product; this
+# works on a downloaded inventory with no access and counts the per-object
+# fees -- the wedge. A hosted multi-bucket savings monitor with PR comments is
+# the natural paid upgrade.
+hypotheses:
+  - claim: An engineer planning an S3 lifecycle rule will search for the hidden transition and minimum-size costs, paste an inventory, and learn which objects to filter out and which class nets the most.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will add the CLI to CI or a scheduled job with --fail-on warn so avoidable S3 spend above a threshold is flagged before the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool reads only a file or text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/s3-storage-class-savings/
+  analytics: null
