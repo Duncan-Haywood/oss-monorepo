@@ -1136,6 +1136,9 @@ workflows:
 - workflow: mobile-detailing-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: mobile-tire-van-job-picker-ci.yml
+  classification: none
+  publishes: []
 - workflow: mold-remediation-bid-calculator-ci.yml
   classification: none
   publishes: []

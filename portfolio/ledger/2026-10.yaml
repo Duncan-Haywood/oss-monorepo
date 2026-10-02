@@ -864,3 +864,28 @@ entries:
     gate_note: >-
       Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
       warranty. Ethics: helps small groomers earn more from their own table hours.
+  - venture: mobile-tire-van-job-picker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built mobile-tire-van-job-picker: a browser-local tool and
+        zero-dependency CLI for one-van mobile tire and roadside operators. Paste the
+        day's requested jobs (price, materials, minutes on site, time window, location)
+        and it finds the exact most profitable set and order for the van (dynamic
+        programming over job sets with non-dominated time/profit labels, tested against
+        every ordering of every subset), the exact break-even price of each declined
+        job, and what first-come and biggest-ticket-first dispatch leave behind. New
+        niche: tow-motor-club-call-calculator accepts or declines one call at a time and
+        ranks a batch by profit per truck-hour, route-stop-optimizer orders stops
+        without prices; none chooses which jobs to run under time windows with drive
+        cost between them. First visitor expected from "mobile tire service scheduling"
+        searches. Nothing leaves the browser. Unverified with a real operator's day.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty, safety calls and contracts come first. Ethics: helps small mobile service
+      shops earn more from a day's calls.

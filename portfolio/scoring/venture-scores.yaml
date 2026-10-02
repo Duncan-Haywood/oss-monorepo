@@ -26087,3 +26087,32 @@ ventures:
       Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
       leaves the device. Ethics: helps small groomers earn more from their own table hours; the user decides
       and remains responsible for every quote and booking.
+  - slug: mobile-tire-van-job-picker
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic CSV parser and exact dynamic-programming job selection; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for one-van mobile tire and roadside operators with real search demand
+      ("mobile tire service scheduling") and field-service schedulers that do not say which call to refuse
+      as the incumbent; the wedge is an exact best set and order under time windows plus the break-even price
+      of every declined job, free and client-side; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that picks the most profitable jobs for one van from a queue with time windows.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
+      leaves the device; the page warns that safety calls and contractual obligations come first. Ethics: helps
+      small mobile service businesses earn more from a day's calls; the operator decides and remains responsible.

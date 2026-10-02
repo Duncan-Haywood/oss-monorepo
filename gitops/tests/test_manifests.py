@@ -2910,7 +2910,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `booking-request-chooser` graduated (browser + CLI booking-request chooser for rental hosts, exact DP over gap nights).
     # +1: `free-shipping-threshold-optimizer` graduated (browser + CLI free-shipping minimum sweep from an orders export).
     # +1: `returns-policy-cost-analyzer` graduated (browser + CLI returns-cost and return-fee analyzer).
-    total = 608  # `infra/OWNER_CHECKLIST.md`'s own "N of the 608 tools" wording.
+    total = 609  # `infra/OWNER_CHECKLIST.md`'s own "N of the 609 tools" wording.
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `ticket-resale-profit-calculator` graduated (browser + CLI ticket resale payout, break-even and sales-log audit).
     # +1: `catering-quote-calculator` graduated (browser + CLI per-guest catering quote, tier table and break-even guest count).
