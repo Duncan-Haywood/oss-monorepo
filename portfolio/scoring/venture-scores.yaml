@@ -25915,3 +25915,32 @@ ventures:
       Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
       leaves the device. Ethics: helps small resellers earn more from lots they already own; the user decides
       and remains responsible for the terms of the lot they buy or sell.
+  - slug: trade-show-roi-calculator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic CSV parser and exact budgeted show selection; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for small B2B exhibitors with real search demand ("is a trade show booth
+      worth it") and spreadsheets as the incumbent; the wedge is picking the best shows under a budget and
+      stating the break-even lead count of each, free and client-side; volume not measured with an
+      external tool.
+      Scope: Free CLI and browser tool that costs trade show booths and picks the shows to buy for the highest net.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
+      leaves the device. Ethics: helps small exhibitors earn more from their own show budget; the user decides
+      and remains responsible for any contract signed with a show.

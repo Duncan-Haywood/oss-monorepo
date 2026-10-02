@@ -689,3 +689,35 @@ entries:
     gate_note: >-
       Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
       warranty. Ethics: helps small resellers earn more from lots they already own.
+  - venture: trade-show-roi-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built trade-show-roi-calculator: a browser-local tool and
+        zero-dependency CLI for small B2B exhibitors (manufacturers, software
+        firms, local-service companies). Paste the trade shows on the table (booth
+        fee, travel and lodging, staff days, swag, expected leads) and set the
+        funnel (lead to qualified, qualified to deal, deal value, margin, optional
+        lifetime multiplier); it gives cost per lead, cost per qualified lead,
+        expected deals, gross profit, ROI and the break-even leads, close rate and
+        deals for every show, then finds the exact set of shows that nets the most
+        under a yearly budget and an optional per-quarter cap (branch-and-bound),
+        says why each other show is skipped and what swapping it in would cost,
+        names the lead count that would flip each losing show, re-checks the plan
+        with leads cut, and compares with going to every show and buying the
+        cheapest first. New niche: the closest existing tools (market-event-picker,
+        craft-fair-booth-calculator, revenue-target-lead-planner) cover vendor
+        markets, retail booths and ad funnels; none costs a B2B show booth through
+        a lead funnel or chooses shows under a budget. First visitor expected from
+        "is a trade show booth worth it" and "trade show ROI calculator" searches.
+        Nothing leaves the browser. Tests check the optimiser against brute force
+        over every subset on 300 random years. Unverified with a real exhibitor's
+        show list.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty. Ethics: helps small exhibitors earn more from their own show budget.

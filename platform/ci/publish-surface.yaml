@@ -1856,6 +1856,9 @@ workflows:
 - workflow: tow-motor-club-call-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: trade-show-roi-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: translator-project-quote-ci.yml
   classification: none
   publishes: []
