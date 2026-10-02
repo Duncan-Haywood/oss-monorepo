@@ -1,0 +1,48 @@
+name: rds-instance-rightsizer
+description: 'Free, zero-network, zero-dependency CLI + browser tool that reads a CSV of RDS/Aurora instance data with CloudWatch stats and/or aws rds describe-db-instances JSON and reports per instance over-provisioned classes (a smaller class in the same family), idle instances, under-provisioned risk, Graviton swap and gp2/io1 to gp3 storage savings, Multi-AZ on non-prod, an estimated monthly saving at an editable list-price table, and ready-to-paste aws rds modify-db-instance commands; usable as a CI check (--fail-on warn). An estimate from a snapshot, not a bill: sample a representative period; resizing restarts the instance.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype (portfolio/pipeline/README.md "archetype itself").
+# Sibling of lambda-memory-rightsizer, ebs-volume-cost-advisor and k8s-requests-rightsizer
+# (same engine/CLI/page shape, RDS and Aurora instances). Nothing else in the catalogue
+# right-sizes database instances.
+#
+# Where the first real visitor would come from: the search phrases "rds instance too big",
+# "right size rds instance", "rds over provisioned", "rds graviton savings", "rds multi-az
+# dev environment cost"; r/aws, r/devops and FinOps threads about a database bill that
+# kept growing. The reader is a platform engineer or FinOps owner with a five- or
+# six-figure monthly RDS bill. Adjacent tools (AWS Compute Optimizer, Trusted Advisor,
+# vendor cost platforms) need account access, an IAM role or a paid plan; this works on
+# pasted text with no access -- the wedge. A hosted multi-account RDS right-sizing
+# monitor with PR comments is the natural paid upgrade.
+hypotheses:
+  - claim: A platform engineer with an over-sized RDS fleet will search for how to right-size RDS instances, paste CloudWatch stats, and find the instances worth resizing first.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will add the CLI to CI with --fail-on warn so an instance inventory with idle, over-provisioned or non-prod Multi-AZ databases is flagged before the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/rds-instance-rightsizer/
+  analytics: null

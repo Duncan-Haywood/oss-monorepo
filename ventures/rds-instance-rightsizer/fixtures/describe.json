@@ -1,0 +1,31 @@
+{
+  "DBInstances": [
+    {
+      "DBInstanceIdentifier": "orders-prod",
+      "DBInstanceClass": "db.m5.2xlarge",
+      "Engine": "postgres",
+      "MultiAZ": true,
+      "AllocatedStorage": 500,
+      "StorageType": "gp2",
+      "TagList": [{ "Key": "Environment", "Value": "prod" }]
+    },
+    {
+      "DBInstanceIdentifier": "reports-staging",
+      "DBInstanceClass": "db.r5.xlarge",
+      "Engine": "mysql",
+      "MultiAZ": true,
+      "AllocatedStorage": 200,
+      "StorageType": "io1",
+      "Iops": 3000,
+      "TagList": [{ "Key": "Environment", "Value": "staging" }]
+    },
+    {
+      "DBInstanceIdentifier": "no-stats-db",
+      "DBInstanceClass": "db.m6i.large",
+      "Engine": "mysql",
+      "MultiAZ": false,
+      "AllocatedStorage": 50,
+      "StorageType": "gp2"
+    }
+  ]
+}

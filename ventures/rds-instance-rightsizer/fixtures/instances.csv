@@ -1,0 +1,6 @@
+instance_id,class,engine,multi_az,env,avg_cpu,p95_cpu,min_freeable_gib,max_connections,storage_gib,storage_type,iops
+orders-prod,db.m5.2xlarge,postgres,true,prod,9,22,24,140,500,gp2,
+reports-staging,db.r5.xlarge,mysql,true,staging,6,14,20,25,200,io1,3000
+legacy-admin,db.t3.large,mysql,false,prod,1.2,3,6.5,0,100,gp2,
+checkout-prod,db.m6g.large,postgres,true,prod,55,91,0.4,380,300,gp3,
+analytics-dev,db.r6g.2xlarge,postgres,false,dev,12,30,40,12,1000,gp3,
