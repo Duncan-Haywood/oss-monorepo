@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 582 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 583 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your EBS volumes (type, size, provisioned and peak IOPS) and get the cheapest volume type that still covers the peak, the aws ec2 modify-volume command, gp2 burst risk and unattached volumes. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>NAT Gateway Cost Advisor — S3 and DynamoDB Endpoints, Interface Endpoint Break-Even</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/nat-gateway-cost-advisor/"/>
+    <id>tag:marisstella.dev,2026:tool/nat-gateway-cost-advisor</id>
+    <published>2026-10-02T00:00:00Z</published>
+    <updated>2026-10-02T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your NAT gateway traffic per destination and get the monthly NAT cost, which AWS services should use a free S3/DynamoDB gateway endpoint or an interface endpoint, the net saving after endpoint fees, and the create-vpc-endpoint commands. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>ADU Payback Calculator — is a backyard unit worth building?</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Payer mix calculator for therapists and counselors in private practice. See what each insurance panel and your cash fee really net per session and per clinical hour after denials, billing time and slow payment, and what dropping a panel is worth. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Weekly Production Mix Optimizer — what to make when oven hours, labour or machines run out</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/production-mix-optimizer/"/>
-    <id>tag:marisstella.dev,2026:tool/production-mix-optimizer</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free production mix optimizer for bakeries, workshops and small makers. Enter your products, margins and the hours or machines each one uses; it finds the most profitable weekly mix with whole batches and overtime, and shows what one more hour of your bottleneck is worth. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>

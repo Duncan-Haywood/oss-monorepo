@@ -25329,3 +25329,32 @@ ventures:
       Liability: arithmetic on pasted text at editable list prices, peaks as supplied by the user
       and stated so, no warranty, nothing leaves the device. Ethics: helps engineers avoid paying for
       EBS volume types and IOPS they do not need.
+  - slug: nat-gateway-cost-advisor
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.167
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic traffic parser and cost model over pasted rows; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 5 and defensibility 4: real
+      search demand ("nat gateway cost", "vpc endpoint vs nat gateway") with the AWS
+      pricing calculator, Cost Explorer and FinOps suites as incumbents; the wedge is no
+      AWS access, pasted rows, a ready create-vpc-endpoint command and a CI check; volume
+      not measured with an external tool.
+      Scope: Free CLI and browser tool that prices NAT gateway traffic per destination against S3/DynamoDB gateway endpoints and interface endpoints and prints the create-vpc-endpoint commands.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at editable list prices, traffic as supplied by the user
+      and stated so, no warranty, nothing leaves the device. Ethics: helps engineers avoid paying for
+      NAT gateway data processing charges they can avoid.
