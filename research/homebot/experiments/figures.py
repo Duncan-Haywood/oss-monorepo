@@ -1,0 +1,115 @@
+"""Figures for the README and white paper from experiments/runs/*.
+
+    PYTHONPATH=src python experiments/figures.py    # -> paper/figures/*.png
+
+Colours: categorical slots 1-2 of a validated palette (blue = trained on the nominal twin,
+orange = trained with domain randomisation); text stays in neutral ink.
+"""
+from __future__ import annotations
+
+import csv
+import json
+from pathlib import Path
+
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt  # noqa: E402
+import numpy as np  # noqa: E402
+
+HERE = Path(__file__).resolve().parent
+RUNS = HERE / "runs"
+OUT = HERE.parent / "paper" / "figures"
+BLUE, ORANGE = "#2a78d6", "#eb6834"
+INK, INK2, GRID, SURFACE = "#0b0b0b", "#52514e", "#e4e3df", "#fcfcfb"
+LABEL = {False: "nominal twin", True: "randomised twin"}
+COLOR = {False: BLUE, True: ORANGE}
+
+
+def style(ax):
+    ax.set_facecolor(SURFACE)
+    for s in ("top", "right"):
+        ax.spines[s].set_visible(False)
+    for s in ("left", "bottom"):
+        ax.spines[s].set_color(GRID)
+    ax.tick_params(colors=INK2, labelsize=9)
+    ax.grid(True, color=GRID, linewidth=0.6)
+    ax.set_axisbelow(True)
+
+
+def runs():
+    out = []
+    for p in sorted(RUNS.glob("*/eval.json")):
+        d = json.loads(p.read_text())
+        rows = list(csv.DictReader(open(p.parent / "progress.csv")))
+        d["steps"] = np.array([int(r["time/total_timesteps"]) for r in rows])
+        d["succ"] = np.array([float(r["rollout/success_rate"] or 0) for r in rows])
+        out.append(d)
+    return out
+
+
+def learning(rs):
+    envs = [e for e in ("ArmReach", "BimanualReach", "MobileReach") if any(r["meta"]["env"] == e for r in rs)]
+    fig, axes = plt.subplots(1, len(envs), figsize=(4.0 * len(envs), 3.0), sharey=True, facecolor=SURFACE)
+    axes = np.atleast_1d(axes)
+    for ax, env in zip(axes, envs):
+        style(ax)
+        for dr in (False, True):
+            g = [r for r in rs if r["meta"]["env"] == env and r["meta"]["dr"] == dr]
+            if not g:
+                continue
+            n = min(len(r["steps"]) for r in g)
+            x = g[0]["steps"][:n] / 1e6
+            ys = np.array([r["succ"][:n] for r in g])
+            if len(g) > 1:
+                ax.fill_between(x, ys.min(0), ys.max(0), color=COLOR[dr], alpha=0.18, linewidth=0)
+            ax.plot(x, ys.mean(0), color=COLOR[dr], linewidth=2)
+            ax.text(x[-1], ys.mean(0)[-1] - 0.06, f"{LABEL[dr]} ({len(g)} seed{'s' if len(g) > 1 else ''})",
+                    color=INK2, fontsize=8, ha="right", va="top")
+        ax.set_title(env, color=INK, fontsize=10, loc="left")
+        ax.set_xlabel("environment steps (millions)", color=INK2, fontsize=9)
+        ax.set_ylim(0, 1.02)
+    axes[0].set_ylabel("training success rate", color=INK2, fontsize=9)
+    fig.tight_layout()
+    fig.savefig(OUT / "learning_curves.png", dpi=160, facecolor=SURFACE)
+    plt.close(fig)
+
+
+def gaps(rs, env="ArmReach"):
+    g_all = [r for r in rs if r["meta"]["env"] == env]
+    if not g_all:
+        return
+    names = list(g_all[0]["eval"].keys())
+    fig, ax = plt.subplots(figsize=(6.4, 0.42 * len(names) + 0.9), facecolor=SURFACE)
+    style(ax)
+    ax.grid(True, axis="x", color=GRID, linewidth=0.6)
+    ax.grid(False, axis="y")
+    y = np.arange(len(names))[::-1]
+    for dr, off in ((False, 0.12), (True, -0.12)):
+        g = [r for r in g_all if r["meta"]["dr"] == dr]
+        if not g:
+            continue
+        s = np.array([[r["eval"][n]["success_rate"] for n in names] for r in g])
+        ax.hlines(y + off, s.min(0), s.max(0), color=COLOR[dr], linewidth=2, alpha=0.6)
+        ax.scatter(s.mean(0), y + off, s=46, color=COLOR[dr], edgecolor=SURFACE, linewidth=2, zorder=3,
+                   label=f"trained on {LABEL[dr]} (mean, range over {len(g)} seeds)")
+    ax.set_yticks(y)
+    ax.set_yticklabels([n.replace("_", " ") for n in names], color=INK, fontsize=9)
+    ax.set_xlim(-0.03, 1.03)
+    ax.set_xlabel(f"{env}: success rate on the perturbed twin (100 episodes each)", color=INK2, fontsize=9)
+    ax.legend(loc="lower left", bbox_to_anchor=(0, 1.0), frameon=False, fontsize=8, labelcolor=INK2, ncol=1)
+    fig.tight_layout()
+    fig.savefig(OUT / f"gaps_{env}.png", dpi=160, facecolor=SURFACE)
+    plt.close(fig)
+
+
+def main():
+    OUT.mkdir(parents=True, exist_ok=True)
+    rs = runs()
+    learning(rs)
+    for env in ("ArmReach", "BimanualReach", "MobileReach"):
+        gaps(rs, env)
+
+
+if __name__ == "__main__":
+    main()

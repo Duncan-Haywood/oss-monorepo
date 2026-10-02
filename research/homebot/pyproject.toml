@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "homebot"
+version = "0.1.0"
+description = "A printable 22-DOF bimanual mobile manipulator built from STS3215 bus servos and PLA, with a MuJoCo twin, RL environments and a real-robot driver"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = ["numpy", "scipy", "mujoco>=3.1", "gymnasium>=0.29", "pyserial"]
+
+[project.optional-dependencies]
+rl = ["stable-baselines3>=2.3", "torch"]
+cad = ["cadquery>=2.4", "trimesh", "shapely"]
+test = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
