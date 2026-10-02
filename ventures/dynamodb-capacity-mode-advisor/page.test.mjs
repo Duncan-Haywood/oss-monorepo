@@ -41,6 +41,10 @@ test("the page's worked example demonstrates the headline rule (dogfooding)", as
   assert.equal(summarize(report).status, "warn");
 });
 
+test("index links to the S3 storage-class sibling", async () => {
+  assert.ok((await read("index.html")).includes('href="../s3-storage-class-advisor/"'));
+});
+
 test("index links to the CloudWatch Logs cost advisor sibling", async () => {
   assert.ok((await read("index.html")).includes('href="../cloudwatch-logs-cost-advisor/"'));
 });
