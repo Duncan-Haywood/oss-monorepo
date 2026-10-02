@@ -2903,7 +2903,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `s3-storage-class-advisor` graduated (browser + CLI S3 storage-class cost advisor from per-bucket Storage Lens numbers).
     # +1: `bigquery-query-cost-advisor` graduated (browser + CLI BigQuery on-demand vs Editions cost advisor).
     # +1: `snowflake-warehouse-cost-advisor` graduated (browser + CLI Snowflake warehouse cost advisor).
-    total = 587  # `infra/OWNER_CHECKLIST.md`'s own "N of the 587 tools" wording.
+    # +1: `k8s-requests-rightsizer` graduated (browser + CLI Kubernetes requests right-sizer from kubectl top / pods JSON / CSV).
+    total = 588  # `infra/OWNER_CHECKLIST.md`'s own "N of the 588 tools" wording.
     # +1: `breakeven-roas-calculator` graduated (browser-local break-even ROAS, max CPA and LTV-adjusted ad economics calculator).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
