@@ -577,3 +577,32 @@ entries:
       Liability: arithmetic on supplied figures, not legal or billing advice, no
       fee or QPA source, no warranty, limits stated. No patient data. Ethics: helps
       small providers decide where a dispute is worth its fee.
+  - venture: booking-request-chooser
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built booking-request-chooser: a browser-local tool and
+        zero-dependency CLI for vacation-rental, cabin, campsite and B&B hosts.
+        Paste confirmed bookings and pending requests (check-in, check-out, price)
+        and set turnover cost, the value of a sellable leftover night and the
+        minimum stay; it finds the exact set of requests to accept for the highest
+        calendar income (dynamic programming over the gaps between confirmed
+        bookings, a gap shorter than the minimum stay is dead), says why each other
+        request is declined, suggests one- or two-night counter-offers, compares
+        with arrival-order and highest-price-first acceptance and states whether the
+        plan survives a different empty-night value. New niche: duplicate_check.py
+        closest str-nightly-rate-optimizer at 0.37 (what to charge, not which
+        request to accept). First visitor expected from "orphan nights", "minimum
+        stay gap" and "which booking to accept" searches and host forums. Nothing
+        leaves the browser. Tests check the optimiser against brute force over every
+        subset on 300 random calendars. Unverified with a real host's calendar.
+        Registered score row, launch date, category rule and CI workflow; inbound link
+        from str-nightly-rate-optimizer.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty. Ethics: helps small hosts earn more from their own calendar.
