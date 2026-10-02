@@ -40,3 +40,7 @@ test("the page's worked example demonstrates the headline rule (dogfooding)", as
   assert.ok(report.findings.some((f) => f.rule === "switch-volume-type"));
   assert.equal(summarize(report).status, "error");
 });
+
+test("index links to the NAT gateway sibling", async () => {
+  assert.match(await read("index.html"), /href="\.\.\/nat-gateway-cost-advisor\/"/);
+});

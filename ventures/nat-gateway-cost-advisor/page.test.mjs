@@ -40,3 +40,7 @@ test("the page's worked example demonstrates the headline rule (dogfooding)", as
   assert.ok(report.findings.some((f) => f.rule === "gateway-endpoint-free"));
   assert.equal(summarize(report).status, "error");
 });
+
+test("index links to the EBS sibling", async () => {
+  assert.match(await read("index.html"), /href="\.\.\/ebs-volume-cost-advisor\/"/);
+});
