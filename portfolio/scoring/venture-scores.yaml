@@ -26341,6 +26341,36 @@ ventures:
       Liability: arithmetic on pasted text at user-supplied estimates, stated so and not a price guide or sales forecast,
       no warranty, the user checks authenticity and resale legality, nothing leaves the device. Ethics: helps small
       resellers decide where sourcing money and time are worth spending; the user decides and remains responsible.
+  - slug: appraisal-assignment-picker
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic CSV parser and exact deadline-pruned subset search; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for solo appraisers and inspectors who must accept or decline per-file requests
+      against due dates, where nothing prices a declined file against the hours it would take; the wedge is the exact
+      best set under a daily-hours capacity plus the exact fee at which each declined file earns a place, free and
+      client-side; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that picks which assignments to accept from the user's own fees, hours and due dates.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at user-supplied estimates, stated so and not valuation or business advice,
+      licensing, competency and independence rules named as coming first, no warranty, nothing leaves the device. Ethics:
+      helps small independent practitioners decide which files are worth their hours; the user decides and remains
+      responsible, and the page says no fee or deadline should influence an opinion of value.
   - slug: owner-operator-load-chain-planner
     scores:
       ai_leverage: 4
