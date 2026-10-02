@@ -2009,3 +2009,6 @@ gitops:
 - workflow: returns-policy-cost-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: ticket-resale-profit-calculator-ci.yml
+  classification: none
+  publishes: []
