@@ -1,0 +1,46 @@
+name: trade-show-roi-calculator
+description: 'Free, zero-network, zero-dependency browser tool and CLI for small B2B exhibitors (manufacturers, software firms, local-service companies): paste the trade shows and conferences you could exhibit at (booth fee, travel, staff days, swag, expected leads), set lead-to-qualified and close rates, deal value and margin, and get cost per lead, cost per qualified lead, expected deals, gross profit, ROI and break-even leads for each show, plus the exact set of shows that earns the most under a yearly budget and quarter cap, a weak-lead re-check, the lead count that would flip each losing show, and a comparison with going to every show or buying the cheapest first (branch-and-bound verified against brute force). Numbers are the ones the user supplies, not a forecast.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: raises what a small exhibitor's own show budget returns.
+# Checked 2026-10-02: ventures/ has market-event-picker (vendor markets and festivals, sales-based),
+# craft-fair-booth-calculator and booth-rent-vs-commission (retail booths), revenue-target-lead-planner
+# and breakeven-roas-calculator (ad and pipeline funnels); none costs a B2B trade show booth through a
+# lead funnel or chooses shows under a yearly budget. Not in screened-out.md.
+#
+# First visitor: searches "is a trade show booth worth it", "trade show roi calculator", "cost per lead
+# trade show", "which trade shows should we exhibit at"; r/sales, r/smallbusiness, marketing-ops and
+# manufacturing forums. Volume not measured with an external tool. Small exhibitors pick shows by habit
+# and a spreadsheet. A hosted version that pulls past badge-scan exports from a lead-retrieval app is
+# the natural paid upgrade.
+hypotheses:
+  - claim: An exhibitor deciding on a booth will search for how to calculate trade show ROI, paste their list, and leave knowing which shows to buy and which to drop.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: An exhibitor will reuse the CLI each planning season on a new show list, so the page earns repeat visits.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No exhibitor reports dropping or choosing a show because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/trade-show-roi-calculator/
+  analytics: null

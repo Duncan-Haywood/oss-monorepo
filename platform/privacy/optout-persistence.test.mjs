@@ -1196,7 +1196,8 @@ const RELATIVE_SELF = relative(
 // +1: `catering-quote-calculator` graduated.
 // +1: `freelance-project-picker` graduated.
 // +1: `market-event-picker` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 580;
+// +1: `trade-show-roi-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 581;
 
 let counter = 0;
 function fixture(source) {

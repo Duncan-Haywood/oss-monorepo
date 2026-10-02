@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Trade Show ROI Calculator — Is a Booth Worth It and Which Shows to Buy</title>
+  <meta name="description" content="Paste the trade shows and conferences you could exhibit at and get cost per lead, expected deals, ROI and break-even leads for each, plus the exact set of shows that earns the most under your yearly budget. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Is that trade show booth worth it?">
+  <meta property="og:description" content="Cost per qualified lead, break-even leads and the best shows to buy under a budget. Paste your list. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Trade Show ROI Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste the trade shows you could exhibit at, with booth, travel, staff and swag costs and expected leads, and see cost per lead, expected deals, ROI, break-even leads and the exact set of shows that earns the most under a yearly budget. Browser or zero-dependency Node CLI."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does it upload my show list?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page works on the text you paste, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call."}}, {"@type": "Question", "name": "How is ROI worked out?", "acceptedAnswer": {"@type": "Answer", "text": "Expected leads x lead-to-qualified % x qualified-to-deal % gives deals; deals x average first-year deal value x lifetime multiplier x gross margin gives expected gross profit. ROI is gross profit minus total cost, divided by total cost. Every rate is your estimate."}}, {"@type": "Question", "name": "Why skip a show that is profitable on its own?", "acceptedAnswer": {"@type": "Answer", "text": "The budget (and the quarter limit, if you set one) can only buy so many. The tool compares every allowed combination and keeps the set with the highest total net gain, and states what swapping a skipped show in would cost."}}, {"@type": "Question", "name": "Is the plan guaranteed to be best?", "acceptedAnswer": {"@type": "Answer", "text": "It is the exact best answer for the numbers you typed, found by branch-and-bound and checked against trying every combination in the tests. Leads and conversion rates are your estimates, so the result is a decision aid, not a forecast. The page also re-checks the plan with leads cut."}}, {"@type": "Question", "name": "Who is it for?", "acceptedAnswer": {"@type": "Answer", "text": "Small B2B exhibitors, manufacturers, software firms and local-service companies, deciding whether a booth pays back and which shows to buy in a year."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    input[type=number] { width: 6.5em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">TRADE SHOW ROI CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>Is that trade show booth worth it, and which shows should you buy?</h1>
+    <p>A booth fee is the small part of the bill: travel, staff days and swag often double it. Paste the shows you could exhibit at — <strong>costs and the leads you expect</strong> — and set your funnel (lead to qualified, qualified to deal, deal value, margin). See <strong>cost per lead, cost per qualified lead, expected deals, ROI and the break-even lead count</strong> for each show, and <strong>the exact set of shows that earns the most under your yearly budget</strong>.</p>
+    <p class="note">For small manufacturers, software firms and local-service businesses. Nothing is uploaded: the text box is analysed in this browser and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your shows</h2>
+    <label for="ev-input">One row per show: name, date, booth fee, travel and lodging, staff count, staff days, cost per staff day, swag and collateral, expected leads, optional note</label>
+    <textarea id="ev-input" spellcheck="false" placeholder="Regional Manufacturing Expo,2027-02-09,6500,1800,2,3,450,1200,45&#10;FabTech Midwest,2027-03-16,14000,4200,3,4,450,3000,110"></textarea>
+    <p>
+      <label for="leadqual">Lead to qualified (%)</label><input type="number" id="leadqual" value="30" min="0" max="100" step="1">
+      <label for="close">Qualified to deal (%)</label><input type="number" id="close" value="20" min="0" max="100" step="1">
+      <label for="dealvalue">Average first-year deal value ($)</label><input type="number" id="dealvalue" value="12000" min="0" step="100">
+      <label for="margin">Gross margin (%)</label><input type="number" id="margin" value="60" min="0" max="100" step="1">
+      <label for="cycle">Sales cycle (months)</label><input type="number" id="cycle" value="6" min="0" step="1">
+      <label for="ltv">Lifetime-value multiplier (1 = first year only)</label><input type="number" id="ltv" value="1" min="0.1" step="0.1">
+      <label for="budget">Yearly show budget ($, 0 = none)</label><input type="number" id="budget" value="40000" min="0" step="1000">
+      <label for="maxq">Most shows per quarter (0 = no limit)</label><input type="number" id="maxq" value="2" min="0" step="1">
+      <label for="downside">Weak-show leads (% of estimate)</label><input type="number" id="downside" value="70" min="0" max="100" step="5">
+    </p>
+    <p>
+      <button type="button" id="analyze">Find the best shows</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. The plan</h2>
+    <p id="summary"></p>
+    <h3>Every show, ranked by ROI</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>#</th><th>Show</th><th>Cost</th><th>Per lead</th><th>Per qualified</th><th>Deals</th><th>Gross profit</th><th>ROI</th><th>Break-even leads</th><th>Break-even close</th><th>Break-even deals</th></tr></thead>
+      <tbody id="rank-rows"></tbody>
+    </table></div>
+    <h3>Buy</h3>
+    <div class="tablewrap"><table id="work-table" hidden>
+      <thead><tr><th>Date</th><th>Show</th><th>Cost</th><th>Net gain</th><th>Net with weak leads</th></tr></thead>
+      <tbody id="work-rows"></tbody>
+    </table></div>
+    <h3>Skip</h3>
+    <div class="tablewrap"><table id="skip-table" hidden>
+      <thead><tr><th>Date</th><th>Show</th><th>Why</th></tr></thead>
+      <tbody id="skip-rows"></tbody>
+    </table></div>
+    <h3>Plan against the usual shortcuts</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Rule</th><th>Spend</th><th>Net gain</th></tr></thead>
+      <tbody id="compare-rows"></tbody>
+    </table></div>
+    <ul id="findings"></ul>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI?</h2>
+    <p>Same logic, zero dependencies, one command — reads a file or stdin:</p>
+    <pre class="cmd">node cli.mjs plan shows.csv --lead-qual 30 --close 20 --deal-value 12000 --margin 60 --budget 40000 --json
+cat shows.csv | node cli.mjs plan - --budget 40000</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="is-a-trade-show-booth-worth-it.html">Is a trade show booth worth it? Cost per lead and break-even math</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">The plan is exact for the numbers you type (search over every allowed combination, up to 40 shows). Brand awareness, existing-customer meetings, speaking slots and deals that would have closed anyway are not modelled; enter costs as they will really cost you and leads as you will really log them.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does it upload my show list?</h3>
+    <p>No. The browser page works on the text you paste, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+    <h3>How is ROI worked out?</h3>
+    <p>Expected leads x lead-to-qualified % x qualified-to-deal % gives deals; deals x average first-year deal value x lifetime multiplier x gross margin gives expected gross profit. ROI is gross profit minus total cost, divided by total cost. Every rate is your estimate.</p>
+    <h3>Why skip a show that is profitable on its own?</h3>
+    <p>The budget (and the quarter limit, if you set one) can only buy so many. The tool compares every allowed combination and keeps the set with the highest total net gain, and states what swapping a skipped show in would cost.</p>
+    <h3>Is the plan guaranteed to be best?</h3>
+    <p>It is the exact best answer for the numbers you typed, found by branch-and-bound and checked against trying every combination in the tests. Leads and conversion rates are your estimates, so the result is a decision aid, not a forecast. The page also re-checks the plan with leads cut.</p>
+    <h3>Who is it for?</h3>
+    <p>Small B2B exhibitors, manufacturers, software firms and local-service companies, deciding whether a booth pays back and which shows to buy in a year.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, for the accuracy of the costs, lead counts and conversion rates you type, and for any contract, deposit or cancellation term of the shows you choose. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It chooses between options using the numbers you supply; it is not a forecast of the leads or deals you will get.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../market-event-picker/">Market Event Picker</a> (vendor markets and festivals), <a href="../revenue-target-lead-planner/">Revenue Target Lead Planner</a> and <a href="../breakeven-roas-calculator/">Break-even ROAS Calculator</a>.</p>
+    <p class="support">Free and open source. If this earned you a better show season, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseShows, plan, summarize, money, pct, INPUT_NOTES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+    const be = (n) => (Number.isFinite(n) ? Math.ceil(n) : "n/a");
+    const day = (d) => new Date(d * 86400000).toISOString().slice(0, 10);
+
+    function renderReport() {
+      const status = $("#status");
+      const text = $("#ev-input").value;
+      if (!text.trim()) {
+        status.innerHTML = `<span class="error">Paste some rows first (or load the worked example).</span>`;
+        return;
+      }
+      const parsed = parseShows(text);
+      if (parsed.errors.length) {
+        status.innerHTML = `<span class="error">${parsed.errors.map(escapeHtml).join("<br>")}</span>`;
+        return;
+      }
+      let p;
+      try {
+        p = plan(parsed, { leadQual: $("#leadqual").value, close: $("#close").value, dealValue: $("#dealvalue").value, margin: $("#margin").value, cycleMonths: $("#cycle").value, ltv: $("#ltv").value, budget: $("#budget").value, maxPerQuarter: $("#maxq").value, downside: $("#downside").value });
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarize(p);
+      $("#summary").innerHTML = `<span class="${s.status === "gain" ? "gain" : s.status === "none" ? "error" : "ok"}">${escapeHtml(s.text)}</span>`;
+      $("#rank-rows").innerHTML = p.ranked.map((r) => `<tr><td>${r.rank}</td><td>${escapeHtml(r.name)}</td><td>${money(r.cost)}</td><td>${money(r.costPerLead)}</td><td>${money(r.costPerQualified)}</td><td>${r.deals.toFixed(2)}</td><td>${money(r.grossProfit)}</td><td>${pct(r.roi)}</td><td>${be(r.breakEven.leads)}</td><td>${pct(r.breakEven.closeRate, 1)}</td><td>${r.breakEven.deals.toFixed(2)}</td></tr>`).join("");
+      $("#work-table").hidden = !p.chosen.length;
+      $("#work-rows").innerHTML = p.chosen.map((c) => `<tr><td>${day(c.day)}</td><td>${escapeHtml(c.name)}</td><td>${money(c.cost)}</td><td>${money(c.net)}</td><td>${money(c.downsideNet)}</td></tr>`).join("");
+      $("#skip-table").hidden = !p.skipped.length;
+      $("#skip-rows").innerHTML = p.skipped.map((d) => `<tr><td>${day(d.day)}</td><td>${escapeHtml(d.name)}</td><td>${escapeHtml(d.reason)}</td></tr>`).join("");
+      const t = p.totals;
+      $("#compare-rows").innerHTML = [
+        ["Best shows (this tool)", t.planSpend, t.plan], ["Go to every show" + (t.everyShowWithinBudget ? "" : " (over budget)"), t.everyShowSpend, t.everyShow],
+        ["Cheapest shows first", t.cheapestFirstSpend, t.cheapestFirst], [`This plan if leads hit ${p.options.downside}% of estimate`, t.planSpend, t.downsidePlan],
+      ].map(([l, sp, v]) => `<tr><td>${escapeHtml(l)}</td><td>${money(sp)}</td><td>${money(v)}</td></tr>`).join("");
+      $("#findings").innerHTML = p.findings.map((f) => `<li>${escapeHtml(f.message)}</li>`).join("");
+      $("#report-card").hidden = false;
+      record("plan_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `name,date,booth_fee,travel_lodging,staff_count,staff_days,staff_day_cost,swag_collateral,expected_leads,note
+Regional Manufacturing Expo,2027-02-09,6500,1800,2,3,450,1200,45,Local
+FabTech Midwest,2027-03-16,14000,4200,3,4,450,3000,110,Flagship
+Industry Supply Summit,2027-04-21,4800,900,2,2,450,800,18,Small
+Packaging Innovations,2027-05-12,11000,3500,3,3,450,2200,60,Mid
+Automation Showcase,2027-06-08,9000,2600,2,3,450,1800,80,Good fit
+Trade Mart Fall Market,2027-09-14,7500,1500,2,3,450,1500,25,Retail heavy
+Safety and Compliance Expo,2027-10-05,5200,2200,2,3,450,900,22,Niche
+National Industrial Show,2027-11-09,18000,5200,4,4,450,4000,130,Biggest
+Local Chamber Mixer,2027-03-02,900,100,1,1,450,200,3,Cheap
+Distribution Leaders Forum,2027-10-26,8500,2400,2,3,450,1400,50,Buyers`;
+
+    $("#load-example").addEventListener("click", () => {
+      $("#ev-input").value = EXAMPLE_SOURCE;
+      $("#leadqual").value = 30; $("#close").value = 20; $("#dealvalue").value = 12000; $("#margin").value = 60; $("#cycle").value = 6; $("#ltv").value = 1; $("#budget").value = 40000; $("#maxq").value = 2; $("#downside").value = 70;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      $("#ev-input").value = "";
+      $("#status").textContent = "";
+      $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

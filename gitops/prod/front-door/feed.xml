@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 601 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 602 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -188,6 +188,15 @@
     <summary type="text">Find the list price that breaks even or hits your profit target after StubHub, SeatGeek, Vivid Seats or Ticketmaster seller fees, see whether a listing pays once you allow for the chance it does not sell, and audit your past sales by marketplace. Free, runs in your browser.</summary>
   </entry>
   <entry>
+    <title>Trade Show ROI Calculator — Is a Booth Worth It and Which Shows to Buy</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/trade-show-roi-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/trade-show-roi-calculator</id>
+    <published>2026-10-02T00:00:00Z</published>
+    <updated>2026-10-02T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Paste the trade shows and conferences you could exhibit at and get cost per lead, expected deals, ROI and break-even leads for each, plus the exact set of shows that earns the most under your yearly budget. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>ADU Payback Calculator — is a backyard unit worth building?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/adu-payback-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/adu-payback-calculator</id>
@@ -357,14 +366,5 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free seating chart optimizer for weddings, banquets and events. Paste your guest list, say who sits together and who must be kept apart, and it assigns every guest to a table with the most wishes met. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Family Child Care Time-Space Calculator — home day care tax percentage</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/family-child-care-time-space-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/family-child-care-time-space-calculator</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Time-space percentage calculator for family child care and home day care providers. Enter your rooms, hours and home expenses and see the business share of each, compared with the simplified method. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
