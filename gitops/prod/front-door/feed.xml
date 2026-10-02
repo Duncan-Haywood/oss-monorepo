@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 596 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 599 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your BigQuery query groups (runs per month, GB billed, slot-hours) and see on-demand vs Editions cost, the expensive queries to cap with maximum_bytes_billed, and repeat large scans. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Booking Request Chooser — Which Rental Requests to Accept for the Most Income</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/booking-request-chooser/"/>
+    <id>tag:marisstella.dev,2026:tool/booking-request-chooser</id>
+    <published>2026-10-02T00:00:00Z</published>
+    <updated>2026-10-02T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Paste your confirmed bookings and pending requests and get the exact set of requests to accept for the highest income, counting turnover cost and the dead gap nights a short stay leaves behind. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Catering Quote Calculator — Price Per Guest, Margin and Break-Even Headcount</title>
@@ -103,7 +112,7 @@
     <id>tag:marisstella.dev,2026:tool/price-increase-breakeven-calculator</id>
     <published>2026-10-02T00:00:00Z</published>
     <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
+    <category term="Marketplace seller tools"/>
     <summary type="text">Paste your prices, unit costs and volumes, set a price increase, and see how many units you can lose before the raise stops paying, item by item. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
@@ -125,6 +134,15 @@
     <summary type="text">Paste CloudWatch CPU, freeable memory and connection numbers (or describe-db-instances JSON) and see which RDS and Aurora instances are over- or under-provisioned, the next class in the same family, Graviton savings, Multi-AZ cost and the modify-db-instance command. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Returns Policy Cost Analyzer — What Returns Really Cost Your Store</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/returns-policy-cost-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/returns-policy-cost-analyzer</id>
+    <published>2026-10-02T00:00:00Z</published>
+    <updated>2026-10-02T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Paste your orders and refunds and see what each return really costs, which product categories lose money after returns, and whether a return fee or restocking fee would pay. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>S3 Storage Class Advisor — Standard, IA, Intelligent-Tiering or Glacier, Whichever Costs Less</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/s3-storage-class-advisor/"/>
     <id>tag:marisstella.dev,2026:tool/s3-storage-class-advisor</id>
@@ -141,6 +159,15 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your Snowflake warehouses (size, credits used, AUTO_SUSPEND, resumes) and get what each costs, the AUTO_SUSPEND tail you are paying for, idle warehouses and a bounded right-sizing note, with the ALTER WAREHOUSE commands. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Ticket Resale Profit Calculator — Break-Even List Price After Seller Fees</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ticket-resale-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/ticket-resale-profit-calculator</id>
+    <published>2026-10-02T00:00:00Z</published>
+    <updated>2026-10-02T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Find the list price that breaks even or hits your profit target after StubHub, SeatGeek, Vivid Seats or Ticketmaster seller fees, see whether a listing pays once you allow for the chance it does not sell, and audit your past sales by marketplace. Free, runs in your browser.</summary>
   </entry>
   <entry>
     <title>ADU Payback Calculator — is a backyard unit worth building?</title>
@@ -339,32 +366,5 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Retainer vs hourly calculator for freelancers, consultants and small agencies. Paste your time log to see your effective hourly rate under a monthly retainer, break-even hours, and the retainer that covers 80% of your months, from your own history. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Freight Broker Load Margin Calculator — net margin after float, factoring and claims</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freight-broker-load-margin-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/freight-broker-load-margin-calculator</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Logistics, freight &amp; cloud cost"/>
-    <summary type="text">Free freight broker margin calculator. Type in your loads and see true net margin after financing the carrier, factoring, claims reserve and overhead, plus the shipper rate to quote and the carrier rate to pay to hit your target. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Handyman Minimum Job Calculator — smallest job worth driving to</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/handyman-minimum-job-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/handyman-minimum-job-calculator</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Handyman minimum job calculator. Enter the hourly pay you want, overhead, drive and estimate time and mileage to see your minimum trip charge, the smallest job worth driving to, the lowest price for each job you quote and what you really keep per hour. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Home Care Agency Margin Calculator — bill rate and margin per hour by payer</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/home-care-agency-margin-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/home-care-agency-margin-calculator</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Margin calculator for non-medical home care agencies. See what each payer really leaves per billed hour after payroll tax, workers&#39; comp, overtime, unpaid travel and slow payment, the bill rate that reaches your target margin, and what a wage raise costs. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>

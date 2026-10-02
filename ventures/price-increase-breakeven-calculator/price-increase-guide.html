@@ -34,12 +34,23 @@ price 100, cost 95, raise  2%  ->   2 /  7  = 29% of units</pre>
   <h2>Why the answer is a sensitivity, not a number</h2>
   <p>Past sales show your margin exactly and say nothing about how customers will react. The calculator therefore reports, for every item, the <em>elasticity at which the raise stops paying</em>. If you believe your customers are less sensitive than that, raise; if not, leave it.</p>
 
+  <h2>Common questions</h2>
+  <h3>How much volume can I lose after a price increase?</h3>
+  <p>Divide the dollar raise by the new unit margin: with a unit margin of 40 on a price of 100, a 10% raise lets you lose 10 / 50 = 20% of units before profit falls; at a unit margin of 10 the same raise tolerates 10 / 20 = 50%. Thin-margin items can lose more units. </p>
+  <h3>What elasticity should I assume?</h3>
+  <p>Nobody knows without testing. Treat 1.0 as a neutral placeholder and read the tool's break-even elasticity for each item: if your customers are less sensitive than that number, the raise pays.</p>
   <h2>Test it</h2>
   <ol>
     <li>Export items with price, unit cost and units sold.</li>
     <li>Paste them into the <a href="./">calculator</a>, or run <code>node cli.mjs analyze items.csv --increase 8</code>.</li>
     <li>Raise the items with the largest cushion first, and compare units sold for a few weeks before touching the rest.</li>
   </ol>
+
+  <h2>Questions</h2>
+  <h3>How much volume can I lose after a price increase?</h3>
+  <p>Divide the dollar raise by the new unit margin: with a unit margin of 40 on a price of 100, a 10% raise lets you lose 10 / 50 = 20% of units before profit falls; at a unit margin of 10 the same raise tolerates 10 / 20 = 50%. Thin-margin items can lose more units.</p>
+  <h3>What elasticity should I assume?</h3>
+  <p>Nobody knows without testing. Treat 1.0 as a neutral placeholder and read the tool's break-even elasticity for each item: if your customers are less sensitive than that number, the raise pays.</p>
 
   <footer>
     <p><strong>No warranty.</strong> Provided free and as-is. Not financial, tax, legal or business advice; arithmetic on numbers you supply, not a forecast. Check contracts and rules that limit price changes.</p>
