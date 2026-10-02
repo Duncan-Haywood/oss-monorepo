@@ -721,3 +721,34 @@ entries:
     gate_note: >-
       Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
       warranty. Ethics: helps small exhibitors earn more from their own show budget.
+  - venture: support-staffing-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built support-staffing-planner: a browser-local tool and
+        zero-dependency CLI for small support desks, answering services, clinic
+        front desks and sales lines. Paste contacts per half hour (and handle
+        time) for a typical week and set a service target (for example 80% answered
+        in 20 seconds), shrinkage, an occupancy cap, allowed shift lengths and an
+        hourly cost; it gives the agents each interval needs by the Erlang C
+        formula, the exact cheapest set of shifts that covers every interval
+        (min-cost flow), what each service target costs, what a shorter handle
+        time, fewer contacts or different shrinkage would save, and a comparison
+        with flat peak staffing, full-length shifts only and the occupancy-only
+        rule that misses the target at low volumes. New niche: the closest existing
+        tools (shift-cover-optimizer, shift-roster-builder) take a headcount per
+        hour or named staff; none turns contact volume and handle time into the
+        requirement with queueing maths or prices the service target. First visitor
+        expected from "erlang c calculator" and "how many call center agents do I
+        need" searches. Nothing leaves the browser. Tests check Erlang C against the
+        textbook sum and the shift cover against brute force over every combination
+        on 60 random small days. Unverified with a real team's volumes.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty; the user remains responsible for working-time and break rules.
+      Ethics: helps small teams staff to a service target without overstaffing.
