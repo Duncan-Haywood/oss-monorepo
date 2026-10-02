@@ -26430,3 +26430,34 @@ ventures:
       competence, certification, confidentiality and agency terms named as coming first, no warranty, nothing leaves
       the device. Ethics: helps small independent practitioners decide which jobs are worth their hours; the user
       decides and remains responsible.
+  - slug: tax-season-client-picker
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic CSV parser and exact deadline-pruned subset search; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in the venture's own
+      VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a direct earn-more decision for
+      independent tax preparers who accept or decline late-season clients against filing and extension deadlines,
+      where nothing prices a declined client against the hours it would take; the wedge is the exact best set under
+      a daily-hours capacity plus the exact fee at which each declined client earns a place, free and client-side;
+      volume not measured with an external tool. Shares its engine with translation-job-picker and
+      appraisal-assignment-picker, which lowers defensibility's upside.
+      Scope: Free CLI and browser tool that picks which engagements to accept from the user's own fees, hours and due dates.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at user-supplied estimates, stated so and not tax or business advice,
+      competence, due diligence, Circular 230 and engagement terms named as coming first, no warranty, nothing leaves
+      the device. Ethics: helps small independent practitioners decide which engagements are worth their hours; the
+      user decides and remains responsible.

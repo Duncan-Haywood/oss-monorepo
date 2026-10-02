@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 620 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 621 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -314,6 +314,15 @@
     <summary type="text">Paste contacts per half hour and get the agents each interval needs (Erlang C, shrinkage, occupancy cap) and the cheapest shifts that cover them, plus what each service target costs. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Tax Season Client Picker — Which Late Engagements to Accept</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tax-season-client-picker/"/>
+    <id>tag:marisstella.dev,2026:tool/tax-season-client-picker</id>
+    <published>2026-10-02T00:00:00Z</published>
+    <updated>2026-10-02T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Paste the late-season client engagements you have been offered and get the set that earns the most before the filing and extension deadlines, the order to work them, and the fee each declined client would need. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Thrift Haul Buy Picker — What to Buy and the Most to Pay for Resale</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/thrift-haul-buy-picker/"/>
     <id>tag:marisstella.dev,2026:tool/thrift-haul-buy-picker</id>
@@ -357,14 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Paste your used-car inventory and get each unit&#39;s true carrying cost on the floorplan, the exact best day to wholesale it, which units to wholesale now ranked by earnings per $1,000 of line per day, and what waiting until it sells leaves behind. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>ADU Payback Calculator — is a backyard unit worth building?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/adu-payback-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/adu-payback-calculator</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">ADU payback calculator for homeowners and builders. Enter build cost, loan, rent and operating costs and see cash flow, yield on cost, payback, IRR, NPV and break-even rent. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>

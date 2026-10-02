@@ -1,0 +1,46 @@
+name: tax-season-client-picker
+description: 'Free, zero-network, zero-dependency browser tool and CLI for independent tax preparers, enrolled agents, bookkeepers and other solo practitioners paid per engagement: paste the late-season client engagements on offer (fee, hours of work, business day due by the filing or extension deadline, direct cost) with the hours you can give per day and any hours already booked, and get the exact set to accept for the highest total net that can still be finished on time (depth-first search over due-date order with deadline pruning, verified against every subset), the order to work them, the fee at which each declined client would earn a place, and the dollars first-come, biggest-fee-first and best-per-hour acceptance leave behind. Numbers are the ones the user supplies, not a forecast and not tax advice.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: raises what an independent tax preparer keeps from the late-season clients on offer.
+# Checked 2026-10-02: ventures/ has quarterly-estimated-tax-calendar and estimated-tax-penalty-calculator (taxpayer-side),
+# freelance-project-picker (no hard per-engagement due dates against a daily-hours capacity), translation-job-picker and
+# appraisal-assignment-picker (same engine, other professions); none chooses which late-season tax engagements to accept under
+# deadline capacity or prices what a declined client would need to pay. No tax-prep picker exists. Not in screened-out.md.
+#
+# First visitor: searches "tax preparer turn down clients", "how many returns can a tax preparer do before the deadline",
+# "extension season client too low fee"; preparer forums and EA groups. Volume not measured with an external tool. Late-season
+# callers want a return done by a deadline and the preparer has minutes to quote; a hosted version reading a practice-software
+# export is the natural paid upgrade. The tool chooses between engagements on the user's numbers only: competence,
+# credentials, due diligence, Circular 230 and engagement-letter terms are outside it and come first.
+hypotheses:
+  - claim: An independent tax preparer will paste the late-season requests on offer, see how much first-come acceptance leaves behind, and change which clients they accept or what fee they quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A solo preparer will return whenever a new batch of late-season requests arrives, so the page earns repeat visits.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No preparer reports changing a client they accept or a fee they quote with because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/tax-season-client-picker/
+  analytics: null
