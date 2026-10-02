@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 588 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 589 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -24,6 +24,15 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your CloudWatch log groups (stored GB, retention, GB ingested per month) and get what each costs, the retention policy to set, dead groups and Infrequent Access candidates. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Databricks Cluster Cost Advisor — Autotermination, Jobs Compute and DBU Cost</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/databricks-cluster-cost-advisor/"/>
+    <id>tag:marisstella.dev,2026:tool/databricks-cluster-cost-advisor</id>
+    <published>2026-10-02T00:00:00Z</published>
+    <updated>2026-10-02T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your Databricks clusters (kind, DBUs used, autotermination) and get what each costs, scheduled work running on pricier all-purpose compute, clusters that never terminate and long autotermination tails, with the setting to change. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>EBS Volume Cost Advisor — gp2 to gp3, io1 Over-Provisioning and Unattached Volumes</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your code and see every OpenAI, Anthropic and Gemini call with no max-tokens cap, inside a loop, on a premium model, or using a retired model name, plus a monthly cost estimate from your own traffic guess. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Market Garden Bed Planner — which crops earn the most per bed</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/market-garden-bed-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/market-garden-bed-planner</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Market garden bed planner for small vegetable and flower farms. Enter your crops, beds, season and labor and get the crop mix that earns the most, what one more bed-foot, labor hour or buyer is worth, and a simulated range. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>

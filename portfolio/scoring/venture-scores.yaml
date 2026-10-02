@@ -25498,3 +25498,32 @@ ventures:
       Liability: arithmetic on pasted text at editable list prices, recommendation from a snapshot and not
       a bill, usage must be sampled over a representative period, no warranty, nothing leaves the device.
       Ethics: helps engineers stop paying for compute reservations they do not use.
+  - slug: databricks-cluster-cost-advisor
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.167
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic cluster row parser and DBU cost model over pasted rows; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 5 and defensibility 4: real
+      search demand ("databricks cost optimization", "databricks jobs compute vs all purpose") with
+      Databricks' own usage dashboards and paid FinOps vendors as incumbents; the wedge is no
+      account access, pasted rows, the exact setting to change and a CI check; volume
+      not measured with an external tool.
+      Scope: Free CLI and browser tool that prices Databricks clusters from a pasted list and prints Jobs-compute and autotermination fixes.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at an editable DBU price, figures as supplied by the user
+      and stated so, no warranty, nothing leaves the device. Ethics: helps data teams avoid paying for
+      idle or mis-sized Databricks compute.
