@@ -2917,7 +2917,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `bookkeeping-client-fee-calculator` graduated (browser + CLI bookkeeping retainer, cleanup and walk-away fee calculator with a client roster ranked by effective hourly).
     # +1: `owner-operator-load-chain-planner` graduated (browser + CLI best chain of paid loads with exact walk-away rate per load).
     # +1: `translation-job-picker` graduated (browser + CLI which-translation-jobs-to-accept picker).
-    total = 621  # `infra/OWNER_CHECKLIST.md`'s own "N of the 621 tools" wording.
+    # +1: `tax-season-client-picker` graduated (browser + CLI late-season tax client picker).
+    total = 622  # `infra/OWNER_CHECKLIST.md`'s own "N of the 622 tools" wording.
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).
     # +1: `ticket-resale-profit-calculator` graduated (browser + CLI ticket resale payout, break-even and sales-log audit).

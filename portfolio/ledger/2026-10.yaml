@@ -1201,3 +1201,27 @@ entries:
       not market rates, tax, accounting or legal advice, no warranty, engagement terms and
       licensing rules left to the user. Ethics: helps small bookkeepers charge for the time
       clients really take; no scraping.
+  - venture: tax-season-client-picker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built tax-season-client-picker: a browser-local tool and zero-dependency CLI
+        for independent tax preparers, enrolled agents and bookkeepers paid per engagement. Paste the
+        late-season client engagements on offer (fee, hours, business day due by the filing or
+        extension deadline, direct cost) with daily hours and any hours already booked; it returns
+        the exact set to accept for the highest total net that can still be finished on time, the
+        order to work them, the exact fee at which each declined client would earn a place, and what
+        first-come, biggest-fee and best-per-hour acceptance leave behind. Same verified engine as
+        translation-job-picker and appraisal-assignment-picker, re-labelled for a third
+        per-job-deadline market; nothing chooses between late-season tax engagements today. Nothing
+        leaves the browser. Unverified with a real preparer's queue.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied estimates, stated prominently as not tax, legal or business
+      advice, preparer competence, due diligence, Circular 230 and engagement terms named as coming first,
+      no warranty, no taxpayer identifiers requested. Ethics: helps small independent practitioners decide
+      which engagements are worth their hours; the preparer decides and remains responsible.

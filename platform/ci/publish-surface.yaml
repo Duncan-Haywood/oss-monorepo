@@ -1862,6 +1862,9 @@ workflows:
 - workflow: tax-loss-harvesting-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: tax-season-client-picker-ci.yml
+  classification: none
+  publishes: []
 - workflow: tender-bid-readiness-ci.yml
   classification: none
   publishes: []

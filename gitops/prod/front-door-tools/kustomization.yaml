@@ -33,36 +33,36 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547074 bytes
-#   portfolio-front-tools-1: 92 files, 555060 bytes
-#   portfolio-front-tools-2: 144 files, 552994 bytes
-#   portfolio-front-tools-3: 132 files, 556849 bytes
-#   portfolio-front-tools-4: 136 files, 556519 bytes
-#   portfolio-front-tools-5: 125 files, 543837 bytes
-#   portfolio-front-tools-6: 119 files, 553175 bytes
-#   portfolio-front-tools-7: 137 files, 555830 bytes
-#   portfolio-front-tools-8: 130 files, 546873 bytes
-#   portfolio-front-tools-9: 120 files, 544099 bytes
-#   portfolio-front-tools-10: 131 files, 553744 bytes
-#   portfolio-front-tools-11: 130 files, 549216 bytes
-#   portfolio-front-tools-12: 133 files, 556807 bytes
-#   portfolio-front-tools-13: 120 files, 554641 bytes
-#   portfolio-front-tools-14: 117 files, 551212 bytes
-#   portfolio-front-tools-15: 119 files, 554073 bytes
-#   portfolio-front-tools-16: 117 files, 555290 bytes
-#   portfolio-front-tools-17: 127 files, 556056 bytes
-#   portfolio-front-tools-18: 129 files, 556209 bytes
-#   portfolio-front-tools-19: 125 files, 555261 bytes
-#   portfolio-front-tools-20: 125 files, 552231 bytes
-#   portfolio-front-tools-21: 128 files, 552181 bytes
-#   portfolio-front-tools-22: 123 files, 556238 bytes
-#   portfolio-front-tools-23: 106 files, 529216 bytes
-#   portfolio-front-tools-24: 107 files, 552813 bytes
-#   portfolio-front-tools-25: 117 files, 553366 bytes
-#   portfolio-front-tools-26: 127 files, 555442 bytes
-#   portfolio-front-tools-27: 124 files, 553036 bytes
-#   portfolio-front-tools-28: 99 files, 486555 bytes
-#   portfolio-front-tools-29: 51 files, 262825 bytes
+#   portfolio-front-tools-0: 145 files, 547083 bytes
+#   portfolio-front-tools-1: 92 files, 555069 bytes
+#   portfolio-front-tools-2: 144 files, 553000 bytes
+#   portfolio-front-tools-3: 132 files, 556838 bytes
+#   portfolio-front-tools-4: 136 files, 556521 bytes
+#   portfolio-front-tools-5: 125 files, 543819 bytes
+#   portfolio-front-tools-6: 119 files, 553171 bytes
+#   portfolio-front-tools-7: 137 files, 555852 bytes
+#   portfolio-front-tools-8: 130 files, 546899 bytes
+#   portfolio-front-tools-9: 120 files, 544113 bytes
+#   portfolio-front-tools-10: 131 files, 553711 bytes
+#   portfolio-front-tools-11: 130 files, 549230 bytes
+#   portfolio-front-tools-12: 133 files, 556845 bytes
+#   portfolio-front-tools-13: 120 files, 554647 bytes
+#   portfolio-front-tools-14: 117 files, 551227 bytes
+#   portfolio-front-tools-15: 119 files, 554081 bytes
+#   portfolio-front-tools-16: 117 files, 555272 bytes
+#   portfolio-front-tools-17: 127 files, 556050 bytes
+#   portfolio-front-tools-18: 129 files, 556181 bytes
+#   portfolio-front-tools-19: 125 files, 555312 bytes
+#   portfolio-front-tools-20: 125 files, 552280 bytes
+#   portfolio-front-tools-21: 128 files, 552175 bytes
+#   portfolio-front-tools-22: 123 files, 556244 bytes
+#   portfolio-front-tools-23: 106 files, 529225 bytes
+#   portfolio-front-tools-24: 107 files, 552810 bytes
+#   portfolio-front-tools-25: 117 files, 553337 bytes
+#   portfolio-front-tools-26: 127 files, 553714 bytes
+#   portfolio-front-tools-27: 124 files, 552992 bytes
+#   portfolio-front-tools-28: 104 files, 507412 bytes
+#   portfolio-front-tools-29: 51 files, 262853 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3528,6 +3528,11 @@ configMapGenerator:
       - tax-loss-harvesting-calculator__calc.mjs.gz=tax-loss-harvesting-calculator__calc.mjs.gz
       - tax-loss-harvesting-calculator__index.html.gz=tax-loss-harvesting-calculator__index.html.gz
       - tax-loss-harvesting-calculator__usage.mjs.gz=tax-loss-harvesting-calculator__usage.mjs.gz
+      - tax-season-client-picker__cli.mjs.gz=tax-season-client-picker__cli.mjs.gz
+      - tax-season-client-picker__engine.mjs.gz=tax-season-client-picker__engine.mjs.gz
+      - tax-season-client-picker__how-to-choose-which-tax-clients-to-accept-late-season.html.gz=tax-season-client-picker__how-to-choose-which-tax-clients-to-accept-late-season.html.gz
+      - tax-season-client-picker__index.html.gz=tax-season-client-picker__index.html.gz
+      - tax-season-client-picker__usage.mjs.gz=tax-season-client-picker__usage.mjs.gz
       - tender-radar__calc.mjs.gz=tender-radar__calc.mjs.gz
       - tender-radar__draft.mjs.gz=tender-radar__draft.mjs.gz
       - tender-radar__index.html.gz=tender-radar__index.html.gz
@@ -3571,16 +3576,16 @@ configMapGenerator:
       - time-off-request-planner__usage.mjs.gz=time-off-request-planner__usage.mjs.gz
       - tip-pool-compliance-calculator__calc.mjs.gz=tip-pool-compliance-calculator__calc.mjs.gz
       - tip-pool-compliance-calculator__can-managers-be-in-a-tip-pool.html.gz=tip-pool-compliance-calculator__can-managers-be-in-a-tip-pool.html.gz
-      - tip-pool-compliance-calculator__index.html.gz=tip-pool-compliance-calculator__index.html.gz
-      - tip-pool-compliance-calculator__share.mjs.gz=tip-pool-compliance-calculator__share.mjs.gz
-      - tip-pool-compliance-calculator__usage.mjs.gz=tip-pool-compliance-calculator__usage.mjs.gz
-      - tip-pool-compliance-calculator__vs-guessing-from-a-staff-meeting.html.gz=tip-pool-compliance-calculator__vs-guessing-from-a-staff-meeting.html.gz
-      - tire-shop-ticket-margin-calculator__calc.mjs.gz=tire-shop-ticket-margin-calculator__calc.mjs.gz
   - name: portfolio-front-tools-27
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - tip-pool-compliance-calculator__index.html.gz=tip-pool-compliance-calculator__index.html.gz
+      - tip-pool-compliance-calculator__share.mjs.gz=tip-pool-compliance-calculator__share.mjs.gz
+      - tip-pool-compliance-calculator__usage.mjs.gz=tip-pool-compliance-calculator__usage.mjs.gz
+      - tip-pool-compliance-calculator__vs-guessing-from-a-staff-meeting.html.gz=tip-pool-compliance-calculator__vs-guessing-from-a-staff-meeting.html.gz
+      - tire-shop-ticket-margin-calculator__calc.mjs.gz=tire-shop-ticket-margin-calculator__calc.mjs.gz
       - tire-shop-ticket-margin-calculator__index.html.gz=tire-shop-ticket-margin-calculator__index.html.gz
       - tire-shop-ticket-margin-calculator__usage.mjs.gz=tire-shop-ticket-margin-calculator__usage.mjs.gz
       - toilet-replacement-bid-calculator__calc.mjs.gz=toilet-replacement-bid-calculator__calc.mjs.gz
@@ -3700,16 +3705,16 @@ configMapGenerator:
       - vinyl-liner-bid-calculator__vs-jobber.html.gz=vinyl-liner-bid-calculator__vs-jobber.html.gz
       - voiceover-project-rate-calculator__calc.mjs.gz=voiceover-project-rate-calculator__calc.mjs.gz
       - voiceover-project-rate-calculator__how-much-should-i-charge-for-a-voice-over-project.html.gz=voiceover-project-rate-calculator__how-much-should-i-charge-for-a-voice-over-project.html.gz
-      - voiceover-project-rate-calculator__index.html.gz=voiceover-project-rate-calculator__index.html.gz
-      - voiceover-project-rate-calculator__usage.mjs.gz=voiceover-project-rate-calculator__usage.mjs.gz
-      - voiceover-project-rate-calculator__vs-a-flat-rate-regardless-of-usage.html.gz=voiceover-project-rate-calculator__vs-a-flat-rate-regardless-of-usage.html.gz
-      - voiceover-project-rate-calculator__vs-voices-com.html.gz=voiceover-project-rate-calculator__vs-voices-com.html.gz
-      - vpat-acr-generator__calc.mjs.gz=vpat-acr-generator__calc.mjs.gz
   - name: portfolio-front-tools-28
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - voiceover-project-rate-calculator__index.html.gz=voiceover-project-rate-calculator__index.html.gz
+      - voiceover-project-rate-calculator__usage.mjs.gz=voiceover-project-rate-calculator__usage.mjs.gz
+      - voiceover-project-rate-calculator__vs-a-flat-rate-regardless-of-usage.html.gz=voiceover-project-rate-calculator__vs-a-flat-rate-regardless-of-usage.html.gz
+      - voiceover-project-rate-calculator__vs-voices-com.html.gz=voiceover-project-rate-calculator__vs-voices-com.html.gz
+      - vpat-acr-generator__calc.mjs.gz=vpat-acr-generator__calc.mjs.gz
       - vpat-acr-generator__index.html.gz=vpat-acr-generator__index.html.gz
       - vpat-acr-generator__usage.mjs.gz=vpat-acr-generator__usage.mjs.gz
       - vpat-acr-generator__vs-filling-out-the-vpat-template-by-hand.html.gz=vpat-acr-generator__vs-filling-out-the-vpat-template-by-hand.html.gz
