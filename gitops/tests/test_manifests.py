@@ -2906,7 +2906,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `databricks-cluster-cost-advisor` graduated (browser + CLI Databricks cluster cost advisor).
     # +1: `k8s-requests-rightsizer` graduated (browser + CLI Kubernetes requests right-sizer from kubectl top / pods JSON / CSV).
     # +1: `lambda-vs-fargate-cost-breakeven` graduated (browser + CLI Lambda / Cloud Run / Fargate / EC2 cost break-even).
-    total = 591  # `infra/OWNER_CHECKLIST.md`'s own "N of the 591 tools" wording.
+    # +1: `rds-instance-rightsizer` graduated (browser + CLI RDS/Aurora instance right-sizer from CloudWatch metrics).
+    total = 592  # `infra/OWNER_CHECKLIST.md`'s own "N of the 592 tools" wording.
     # +1: `breakeven-roas-calculator` graduated (browser-local break-even ROAS, max CPA and LTV-adjusted ad economics calculator).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
