@@ -25828,3 +25828,32 @@ ventures:
       Liability: arithmetic on pasted cost lines with margin and warning levels stated as rules of
       thumb, no warranty, not tax, food-safety or legal advice, nothing leaves the device. Ethics:
       helps a small food business see the true cost of a job before quoting it.
+  - slug: freelance-project-picker
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic offer parser and exact dynamic-programming project selector; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for freelancers with more offers than hours, real search demand
+      ("which freelance project to take", "too many client requests") and spreadsheets or gut feel as
+      incumbents; the wedge is the break-even fee for a counter-offer, free and client-side; volume not
+      measured with an external tool.
+      Scope: Free CLI and browser tool that picks the freelance projects to accept for the highest income from limited weekly hours.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
+      leaves the device. Ethics: helps freelancers earn more from their own hours; the user decides and
+      remains responsible for any commitment made to a client.
