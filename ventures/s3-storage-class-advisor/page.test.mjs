@@ -40,3 +40,7 @@ test("the page's worked example demonstrates the headline rule (dogfooding)", as
   assert.ok(report.findings.some((f) => f.rule.startsWith("move-to-")));
   assert.equal(summarize(report).status, "warn");
 });
+
+test("index links to the EBS sibling", async () => {
+  assert.ok((await read("index.html")).includes('href="../ebs-volume-cost-advisor/"'));
+});
