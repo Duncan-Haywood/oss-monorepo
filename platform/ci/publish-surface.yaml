@@ -572,6 +572,9 @@ workflows:
 - workflow: dog-boarding-daycare-pricing-ci.yml
   classification: none
   publishes: []
+- workflow: dog-grooming-day-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: dog-grooming-profit-calculator-ci.yml
   classification: none
   publishes: []

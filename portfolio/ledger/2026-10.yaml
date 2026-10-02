@@ -832,6 +832,38 @@ entries:
     gate_note: >-
       Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
       warranty. Ethics: helps small embroidery shops stop underpricing short runs.
+  - venture: dog-grooming-day-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built dog-grooming-day-planner: a browser-local tool and
+        zero-dependency CLI for independent dog groomers, salons and mobile vans.
+        A quote card prices one groom so it nets the groomer's target per table
+        hour (groom minutes plus turnover, plus supplies). Pasting the day's
+        requests (dog, size, minutes, price, supplies) gives net per table hour for
+        each, then the exact set of dogs that earns the most under the day's table
+        minutes, an optional dog cap and an optional large-dog cap
+        (branch-and-bound), says what taking each skipped dog would cost, prints
+        the price that brings each under-target dog up to the target, and compares
+        with booking in arrival order and highest price first. New niche: the
+        closest existing tools are dog-grooming-profit-calculator (profit per hour by
+        service and the price that hits a target, which this venture's quote card
+        overlaps) and pet-grooming-bid-calculator; neither chooses which grooming
+        requests on a waitlist to book for a day with fixed table minutes and
+        dog caps, which is this venture's reason to exist. duplicate_check.py did
+        not surface the two grooming ventures; a grep of ventures/ did. First visitor expected from "how much to charge for dog
+        grooming" and "dog grooming price calculator" searches and groomer
+        communities. Nothing leaves the browser. Tests check the optimiser against
+        brute force over every subset on 300 random days. Unverified with a real
+        groomer's request list.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty. Ethics: helps small groomers earn more from their own table hours.
   - venture: mobile-tire-van-job-picker
     agent_spend_usd: null
     human_hours: 0

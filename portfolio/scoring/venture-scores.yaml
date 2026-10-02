@@ -26059,6 +26059,34 @@ ventures:
       Liability: arithmetic on user-supplied numbers, stated so, no warranty, nothing
       leaves the device. Ethics: helps small embroidery shops price short runs above cost; the user decides
       and remains responsible for every quote and order they accept.
+  - slug: dog-grooming-day-planner
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic CSV parser and exact budgeted booking selection; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for independent groomers with real search demand ("how much to charge
+      for dog grooming") and breed price lists as the incumbent; the wedge is pricing by table minutes
+      and picking the best dogs for a day, free and client-side; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that quotes a groom by table hour and chooses a day's bookings.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
+      leaves the device. Ethics: helps small groomers earn more from their own table hours; the user decides
+      and remains responsible for every quote and booking.
   - slug: mobile-tire-van-job-picker
     scores:
       ai_leverage: 4

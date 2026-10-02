@@ -1,0 +1,47 @@
+name: dog-grooming-day-planner
+description: 'Free, zero-network, zero-dependency browser tool and CLI for independent dog groomers and mobile grooming vans: quote a groom so it nets your target per table hour (minutes, turnover and supplies), then paste the requests on the books and get the exact set of dogs that earns the most in a day with fixed table minutes, an optional dog cap and a large-dog cap (branch-and-bound verified against brute force), what taking each skipped dog would cost, the price that would bring each under-target dog up to your rate, and a comparison with booking in arrival order or highest price first. Numbers are the ones the user supplies, not a forecast.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: raises what a groomer's own table hours earn.
+# Checked 2026-10-02: ventures/ already has dog-grooming-profit-calculator (profit per hour by service
+# after card fees and overhead, and the price that hits an hourly target) and pet-grooming-bid-calculator
+# (a per-job bid); the quote card here overlaps the first and is secondary. What neither does, and the
+# reason this venture exists, is choose WHICH requests on a waitlist to book for a day with fixed table
+# minutes, a dog cap and a large-dog cap, and say what each skipped dog would cost. (duplicate_check.py
+# did not surface the two grooming ventures; found by grepping ventures/ for "groom".) Not in screened-out.md.
+#
+# First visitor: searches "how much to charge for dog grooming", "dog grooming price calculator",
+# "dog groomer hourly rate"; r/doggrooming, groomer Facebook groups and forums. Volume not measured with
+# an external tool. Groomers price by habit and breed-size lists and fill the day first-come. A hosted
+# version that reads past appointments from a booking app is the natural paid upgrade.
+hypotheses:
+  - claim: A groomer unsure what to charge for a matted or double-coated dog will search for it, enter their minutes and supplies, and leave with a price that hits their hourly target.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A groomer with a long waitlist will use the day planner to pick which dogs to take and will reprice the ones the tool shows as under target.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No groomer reports changing a quote or a day's bookings because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/dog-grooming-day-planner/
+  analytics: null
