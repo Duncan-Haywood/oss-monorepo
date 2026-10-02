@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Returns Policy Cost Analyzer — What Returns Really Cost Your Store</title>
+  <meta name="description" content="Paste your orders and refunds and see what each return really costs, which product categories lose money after returns, and whether a return fee or restocking fee would pay. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="What do returns really cost your store?">
+  <meta property="og:description" content="Paste orders and refunds, set two assumptions, see the cost per return by category and what a return fee would earn. No store access, no account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Returns Policy Cost Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste orders and refunds and see what returns really cost you per return and per product category, and whether a return fee or restocking fee would pay. Free, runs in your browser, nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this connect to my store?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads the order rows you paste and never contacts Shopify, WooCommerce, Etsy, Amazon or any carrier. Every figure is arithmetic on your numbers plus two behaviours you set, so nothing here is a measurement of your customers."}}, {"@type": "Question", "name": "How do I get the numbers?", "acceptedAnswer": {"@type": "Answer", "text": "Export orders from your store with the product category, the merchandise subtotal and the amount refunded. In Shopify the orders export carries Subtotal and Refunded Amount; the return label cost comes from your carrier report and is optional. Orders that were not returned get a refund of 0."}}, {"@type": "Question", "name": "What counts as the cost of a return?", "acceptedAnswer": {"@type": "Answer", "text": "The outbound shipping you paid and cannot recover, the return label, the time to receive and inspect it, the share of returned goods you cannot resell, and the card fee, which processors generally keep when you refund. The margin on the sale is gone too, so a returned order is usually a loss, not a zero."}}, {"@type": "Question", "name": "Would a return fee or restocking fee pay?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on two things past orders cannot tell you: how many returns the fee talks buyers out of, and how many buyers it scares away at checkout. You set both, and the tool shows the drop-off at which each policy breaks even and the policy that loses least if your guesses are off."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page runs on the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  
+    .inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 4px 14px; }
+    .inputs input[type=number] { width: 100%; box-sizing: border-box; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.best td { background: #eaf5ee; }
+    tr.safe td { background: #eef3fa; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">RETURNS POLICY COST ANALYZER · RUNS IN YOUR BROWSER</p>
+    <h1>What do returns really cost your store?</h1>
+    <p>Paste your orders — category, subtotal, amount refunded — and see <strong>what each return costs you</strong>, <strong>which categories lose money once returns are counted</strong>, and <strong>whether a return fee or restocking fee would pay</strong>.</p>
+    <p class="note">Nothing is uploaded and no store is contacted. The text box is analysed in this browser and never leaves your device. Two behaviours — a fee talking buyers out of returning, and buyers leaving at checkout because of it — cannot be read from past orders, so you set them and the result shows how much they matter.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your orders</h2>
+    <label for="orders-input">One order per line: category, merchandise subtotal, amount refunded (0 if kept), then (optional) the return label you paid</label>
+    <textarea id="orders-input" spellcheck="false" placeholder="Dresses,64.00,64.00,6.20"></textarea>
+    <div class="inputs">
+      <div><label for="in-margin">Margin on merchandise (%)</label><input type="number" id="in-margin" min="1" max="100" step="1" value="40"></div>
+      <div><label for="in-out">Outbound shipping you pay ($)</label><input type="number" id="in-out" min="0" step="0.01" value="7"></div>
+      <div><label for="in-label">Default return label ($)</label><input type="number" id="in-label" min="0" step="0.01" value="6"></div>
+      <div><label for="in-handling">Handling per return ($)</label><input type="number" id="in-handling" min="0" step="0.01" value="2"></div>
+      <div><label for="in-resale">Returns you can resell (%)</label><input type="number" id="in-resale" min="0" max="100" step="1" value="85"></div>
+      <div><label for="in-deter">Deterrence (x)</label><input type="number" id="in-deter" min="0" step="0.1" value="1"></div>
+      <div><label for="in-drag">Checkout drop-off at a 10% fee (%)</label><input type="number" id="in-drag" min="0" max="30" step="0.5" value="3"></div>
+      <div><label for="in-days">Days of orders pasted</label><input type="number" id="in-days" min="1" step="1" value="30"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What it found</h2>
+    <p id="summary"></p>
+    <h3>By category, worst first</h3>
+    <table id="cat-table" hidden>
+      <thead><tr><th>Category</th><th class="num">Orders</th><th class="num">Return rate</th><th class="num">Returns cost</th><th class="num">Margin before → after</th></tr></thead>
+      <tbody id="cat-rows"></tbody>
+    </table>
+    <h3>Every policy, against free returns</h3>
+    <table id="cost-table" hidden>
+      <thead><tr><th>Policy</th><th class="num">Profit vs now</th><th>Pays when</th></tr></thead>
+      <tbody id="cost-rows"></tbody>
+    </table>
+    <h3>Findings</h3>
+    <table id="results-table" hidden>
+      <thead><tr><th>Rule</th><th>Level</th><th>Detail</th></tr></thead>
+      <tbody id="results-rows"></tbody>
+    </table>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want a CI check?</h2>
+    <p>Same logic, zero dependencies, one command — reads a file or stdin:</p>
+    <pre class="cmd">node cli.mjs analyze orders.csv
+cat orders.csv | node cli.mjs analyze -
+node cli.mjs analyze orders.csv --margin 45 --out-ship 6.5 --resale 70 --days 90
+node cli.mjs analyze orders.csv --deterrence 0.5 --drag 5 --json --fail-on warn</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="returns-policy-guide.html">What a return really costs, and when a return fee pays</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table>
+    <p class="note">Deterrence and checkout drop-off are assumptions you set (defaults: a fee worth 10% of the order prevents 10% of its returns; 3% of buyers do not check out when a return fee worth 10% of the order is shown, more for bigger fees); exchanges, store credit, repeat purchases and lifetime value are not modelled; margin is the profit share of merchandise before shipping and fees.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this connect to my store?</h3>
+    <p>No. It reads the order rows you paste and never contacts Shopify, WooCommerce, Etsy, Amazon or any carrier. Every figure is arithmetic on your numbers plus two behaviours you set, so nothing here is a measurement of your customers.</p>
+    <h3>How do I get the numbers?</h3>
+    <p>Export orders from your store with the product category, the merchandise subtotal and the amount refunded. In Shopify the orders export carries Subtotal and Refunded Amount; the return label cost comes from your carrier report and is optional. Orders that were not returned get a refund of 0.</p>
+    <h3>What counts as the cost of a return?</h3>
+    <p>The outbound shipping you paid and cannot recover, the return label, the time to receive and inspect it, the share of returned goods you cannot resell, and the card fee, which processors generally keep when you refund. The margin on the sale is gone too, so a returned order is usually a loss, not a zero.</p>
+    <h3>Would a return fee or restocking fee pay?</h3>
+    <p>It depends on two things past orders cannot tell you: how many returns the fee talks buyers out of, and how many buyers it scares away at checkout. You set both, and the tool shows the drop-off at which each policy breaks even and the policy that loses least if your guesses are off.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The browser page runs on the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice. It does arithmetic on order rows you paste plus two behavioural assumptions you set; it is not a measurement of your customers and not a forecast of what a change will earn. Changing a returns policy changes what shoppers see and may be limited by consumer-protection law where you sell: check the rules for your market, try a change for a few weeks and compare conversion and return rate before keeping it. Shopify, WooCommerce and other store names are trademarks of their owners, used only to describe where numbers come from.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analyze_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: the <a href="../free-shipping-threshold-optimizer/">Free Shipping Threshold Optimizer</a>, the <a href="../bundle-discount-optimizer/">Bundle Discount Optimizer</a>, the <a href="../shopify-fee-calculator/">Shopify Fee Calculator</a> and the <a href="../breakeven-roas-calculator/">Break-even ROAS Calculator</a>.</p>
+    <p class="support">Free and open source. If this saved you some guesswork, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseOrders, analyze, summarize, INPUT_NOTES, MODEL_NOTE } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      input: $("#orders-input"), status: $("#status"), reportCard: $("#report-card"), summary: $("#summary"),
+      table: $("#results-table"), rows: $("#results-rows"), costT: $("#cost-table"), costR: $("#cost-rows"), catT: $("#cat-table"), catR: $("#cat-rows"), estimate: $("#estimate"), patterns: $("#patterns-rows"),
+      margin: $("#in-margin"), out: $("#in-out"), label: $("#in-label"), handling: $("#in-handling"), resale: $("#in-resale"), deter: $("#in-deter"), drag: $("#in-drag"), days: $("#in-days"),
+    };
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    els.patterns.innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    const num = (el) => (el.value.trim() === "" ? undefined : Number(el.value));
+    function options() {
+      const o = {};
+      const m = num(els.margin), out = num(els.out), lab = num(els.label), h = num(els.handling), rs = num(els.resale), k = num(els.deter), d = num(els.drag), days = num(els.days);
+      if (m > 0 && m <= 100) o.margin = m / 100;
+      if (out >= 0) o.outShip = out;
+      if (lab >= 0) o.returnShip = lab;
+      if (h >= 0) o.handling = h;
+      if (rs >= 0 && rs <= 100) o.resale = rs / 100;
+      if (k >= 0) o.deterrence = k;
+      if (d >= 0 && d <= 30) o.drag = d / 100;
+      if (days >= 1) o.days = days;
+      return o;
+    }
+    const usd = (n) => `${n < 0 ? "-" : "+"}$${Math.abs(n).toFixed(2)}`;
+    const pays = (b) => (b.kind === "always" ? "at any drop-off tested" : b.kind === "never" ? "never" : `drop-off is ${(b.drag * 100).toFixed(1)}% or less`);
+
+    function renderReport() {
+      const text = els.input.value;
+      if (!text.trim()) {
+        els.status.innerHTML = `<span class="error">Paste some order rows first (or load the worked example).</span>`;
+        return;
+      }
+      els.status.textContent = "";
+      const report = analyze(parseOrders(text), options());
+      const { status, text: summaryText } = summarize(report);
+      els.summary.innerHTML = `<span class="${status === "ok" ? "ok" : status === "none" ? "error" : "changed"}">${escapeHtml(summaryText)}</span>`;
+      els.catT.hidden = !report.count;
+      els.catR.innerHTML = report.count ? report.categories.map((c) => `<tr><td>${escapeHtml(c.cat)}</td><td class="num">${c.orders}</td><td class="num">${(c.rate * 100).toFixed(0)}%</td><td class="num">$${c.cost.toFixed(2)}</td><td class="num">${(c.marginBefore * 100).toFixed(0)}% → ${(c.margin * 100).toFixed(0)}%</td></tr>`).join("") : "";
+      els.costT.hidden = !report.count;
+      els.costR.innerHTML = report.count ? report.table.map((t) => `<tr class="${t === report.best ? "best" : t === report.robust ? "safe" : ""}"><td>${escapeHtml(t.label)}${t === report.best ? " · best" : t === report.robust ? " · safest" : ""}</td><td class="num">${usd(t.gain)}</td><td>${escapeHtml(pays(t.breakEven))}</td></tr>`).join("") : "";
+      els.table.hidden = report.findings.length === 0;
+      els.rows.innerHTML = report.findings.map((f) => `<tr><td><code>${escapeHtml(f.rule)}</code></td><td><span class="pill ${f.severity}">${f.severity}</span></td><td>${escapeHtml(f.message)}</td></tr>`).join("");
+      els.estimate.textContent = report.count ? `${MODEL_NOTE}. Try a policy change for a few weeks and compare conversion and return rate before keeping it.` : "";
+      els.reportCard.hidden = false;
+      record("analyze_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `category,subtotal,refund,return_label
+Jeans,82.48,0,
+Dresses,95.91,0,
+Dresses,103.99,0,
+Tops,41.54,0,
+Accessories,23.43,0,
+Jeans,59.93,59.93,7.25
+Candles,29.51,0,
+Dresses,70.65,0,
+Dresses,81.16,0,
+Accessories,34.41,0,
+Jeans,51.13,0,
+Jeans,43.06,0,
+Jeans,86.81,0,
+Jeans,82.86,0,
+Dresses,69.34,69.34,5.01
+Accessories,30.82,0,
+Accessories,33.47,0,
+Accessories,32.30,0,
+Accessories,35.08,0,
+Jeans,49.27,0,
+Jeans,37.52,0,
+Accessories,18.95,0,
+Tops,34.08,0,
+Candles,25.09,0,
+Tops,31.99,0,
+Dresses,66.32,0,
+Candles,41.49,0,
+Tops,25.40,0,
+Tops,51.94,51.94,7.24
+Tops,56.83,0,
+Jeans,79.05,0,
+Candles,20.05,0,
+Candles,26.14,0,
+Accessories,26.55,0,
+Dresses,42.62,42.62,7.29
+Dresses,65.08,0,
+Dresses,76.88,0,
+Tops,24.79,0,
+Tops,28.96,0,
+Tops,26.79,0,
+Tops,28.02,0,
+Accessories,24.39,0,
+Accessories,20.94,20.94,7.36
+Tops,43.33,0,
+Jeans,45.49,0,
+Dresses,62.49,0,
+Tops,53.92,0,
+Dresses,104.32,104.32,6.29
+Candles,26.30,0,
+Dresses,62.88,62.88,6.62
+Dresses,84.95,0,
+Dresses,96.86,0,
+Tops,48.25,0,
+Tops,52.26,0,
+Dresses,42.70,42.70,7.82
+Tops,50.50,0,
+Dresses,83.40,83.40,5.16
+Candles,35.19,0,
+Candles,35.48,35.48,6.23
+Candles,45.45,0,
+Candles,19.22,0,
+Tops,52.66,0,
+Accessories,32.72,0,
+Jeans,54.78,0,
+Candles,30.97,0,
+Tops,45.38,0,
+Candles,41.18,0,
+Jeans,39.82,0,
+Jeans,71.06,71.06,7.51
+Candles,39.56,0,
+Candles,24.26,0,
+Jeans,42.73,0,
+Dresses,68.22,0,
+Candles,28.23,0,
+Tops,39.07,0,
+Jeans,57.77,0,
+Jeans,57.57,57.57,5.75
+Accessories,32.77,0,
+Candles,23.22,0,
+Jeans,45.39,0,
+Dresses,72.60,72.60,6.22
+Dresses,62.35,62.35,7.88
+Dresses,60.51,0,
+Jeans,66.03,0,
+Accessories,30.09,0,
+Dresses,100.71,0,
+Tops,32.25,0,
+Dresses,58.46,58.46,7.84
+Jeans,51.17,0,
+Accessories,28.16,0,
+Jeans,45.20,0,
+Candles,44.17,0,
+Dresses,102.32,0,
+Tops,47.41,0,
+Tops,40.32,0,
+Jeans,70.98,0,
+Accessories,24.91,0,
+Candles,29.12,0,
+Accessories,26.58,0,
+Candles,24.46,0,
+Jeans,56.26,0,
+Accessories,17.06,0,
+Accessories,17.97,0,
+Dresses,73.86,0,
+Jeans,60.01,0,
+Accessories,28.98,0,
+Dresses,51.52,0,
+Dresses,49.73,49.73,7.67
+Accessories,20.03,0,
+Dresses,54.10,0,
+Dresses,101.44,0,
+Candles,29.18,0,
+Jeans,69.80,0,
+Candles,47.97,0,
+Tops,26.69,26.69,5.40
+Candles,45.26,0,
+Candles,35.61,0,
+Tops,26.81,0,
+Candles,46.43,0,
+Tops,40.02,0,
+Tops,33.34,0,
+Accessories,32.26,0,
+Accessories,35.92,0,
+Tops,36.07,0,
+Tops,32.80,0,
+Jeans,46.80,0,
+Jeans,69.29,69.29,6.59
+Dresses,99.08,0,
+Jeans,63.29,0,
+Jeans,77.12,77.12,7.25
+Accessories,30.24,0,
+Tops,25.23,0,
+Accessories,20.31,0,
+Tops,22.85,0,
+Tops,55.95,0,
+Candles,22.75,0,
+Dresses,68.66,0,
+Accessories,30.43,30.43,6.58
+Jeans,68.72,0,
+Accessories,16.42,0,
+Candles,26.36,0,
+Tops,24.33,0,
+Tops,27.65,0,
+Dresses,65.00,65.00,7.48
+Dresses,96.90,96.90,6.90
+Candles,35.17,0,
+Tops,38.60,0,
+Jeans,47.13,47.13,5.49
+Accessories,32.63,0,
+Jeans,40.69,0,
+Jeans,78.61,78.61,6.90
+Candles,33.10,0,
+Dresses,86.83,0,
+Accessories,21.32,0,
+Accessories,20.37,0,
+Dresses,99.96,0,
+Jeans,64.86,64.86,6.34
+Candles,22.05,0,
+Candles,22.48,0,
+Dresses,102.91,102.91,5.45
+Accessories,28.57,0,
+Tops,31.49,31.49,6.06
+Candles,36.21,0,
+Dresses,55.01,55.01,7.46
+Accessories,32.80,0,
+Accessories,15.22,0,
+Dresses,67.70,0,
+Dresses,101.84,0,
+Tops,33.31,0,
+Dresses,86.77,0,
+Tops,32.78,0,
+Dresses,92.27,0,
+Jeans,85.45,0,
+Accessories,16.65,0,
+Candles,35.18,0,
+Candles,25.08,0,
+Accessories,17.82,0,
+Candles,24.52,0,
+Jeans,69.19,0,
+Tops,24.08,0,
+Jeans,41.03,0,
+Dresses,80.67,80.67,6.75
+Dresses,91.01,91.01,7.41
+Candles,23.33,0,
+Jeans,65.80,0,
+Candles,28.20,0,
+Accessories,22.19,0,
+Candles,45.35,0,
+Candles,30.10,0,
+Jeans,35.98,35.98,6.35
+Tops,46.46,0,
+Jeans,77.64,0,
+Tops,53.16,53.16,7.29
+Accessories,33.20,0,
+Jeans,58.64,0,
+Dresses,44.17,0,
+Accessories,29.89,0,
+Candles,45.91,0,
+Accessories,20.91,0,
+Accessories,34.51,0,
+Jeans,45.51,0,
+Candles,41.53,0,
+Tops,36.40,36.40,7.26
+Accessories,29.11,0,
+Jeans,86.80,0,
+Accessories,15.82,15.82,5.43
+Accessories,14.46,0,
+Accessories,31.88,0,
+Tops,43.40,0,
+Jeans,39.24,0,
+Candles,19.90,0,
+Dresses,89.48,89.48,7.11
+Dresses,102.90,102.90,7.65
+Jeans,51.28,0,
+Candles,35.95,0,
+Tops,37.54,0,
+Tops,23.66,0,
+Dresses,104.90,0,
+Accessories,26.68,0,
+Jeans,76.44,0,`;
+    const EXAMPLE_SETTINGS = { margin: 40 };
+
+    $("#load-example").addEventListener("click", () => {
+      els.input.value = EXAMPLE_SOURCE;
+      els.margin.value = EXAMPLE_SETTINGS.margin;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      els.input.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>
