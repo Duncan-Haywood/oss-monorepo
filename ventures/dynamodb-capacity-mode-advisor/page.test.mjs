@@ -40,3 +40,7 @@ test("the page's worked example demonstrates the headline rule (dogfooding)", as
   assert.ok(report.findings.some((f) => f.rule === "switch-capacity-mode"));
   assert.equal(summarize(report).status, "warn");
 });
+
+test("index links to the S3 storage-class sibling", async () => {
+  assert.ok((await read("index.html")).includes('href="../s3-storage-class-advisor/"'));
+});
