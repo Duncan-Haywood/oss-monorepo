@@ -575,6 +575,9 @@ workflows:
 - workflow: dynamodb-capacity-mode-advisor-ci.yml
   classification: none
   publishes: []
+- workflow: ebs-volume-cost-advisor-ci.yml
+  classification: none
+  publishes: []
 - workflow: eaa-wcag-triage-ci.yml
   classification: none
   publishes: []
