@@ -25357,3 +25357,31 @@ ventures:
       Liability: arithmetic on pasted text at editable list prices, Intelligent-Tiering modelled
       and stated so, no warranty, nothing leaves the device. Ethics: helps engineers avoid paying for
       storage class they do not need.
+  - slug: cloudwatch-logs-cost-advisor
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.167
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic log group parser and cost model over pasted rows; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 5 and defensibility 4: real
+      search demand ("cloudwatch logs cost", "reduce cloudwatch logs bill") with the free AWS pricing
+      calculator and Cost Explorer as incumbents; the wedge is no AWS access, pasted
+      rows, a ready put-retention-policy command and a CI check; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that prices CloudWatch log groups (ingestion and storage) from a pasted list and prints the retention command.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at editable list prices, peaks as supplied by the user
+      and stated so, no warranty, nothing leaves the device. Ethics: helps engineers avoid paying for
+      CloudWatch Logs ingestion and retention they do not need.
