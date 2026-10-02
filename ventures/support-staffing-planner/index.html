@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Support Staffing Planner — Erlang C Agents and Cheapest Shifts</title>
+  <meta name="description" content="Paste contacts per half hour and get the agents each interval needs (Erlang C, shrinkage, occupancy cap) and the cheapest shifts that cover them, plus what each service target costs. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="How many agents does your support queue need, and what is the cheapest schedule?">
+  <meta property="og:description" content="Erlang C staffing and an exact cheapest-shift schedule from your own volumes. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Support Staffing Planner", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste contacts per half hour and get the agents each interval needs (Erlang C with shrinkage and an occupancy cap) and the cheapest set of shifts that covers them, with the cost of each service target. Browser or zero-dependency Node CLI."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does it upload my volumes?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page works on the text you paste, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call."}}, {"@type": "Question", "name": "What is Erlang C?", "acceptedAnswer": {"@type": "Answer", "text": "The standard queueing formula for how many agents a phone or chat queue needs so that a target share of contacts is answered within a target time, given how many contacts arrive and how long each takes. It assumes random arrivals and that nobody hangs up while waiting, so real results are usually a little worse than the formula."}}, {"@type": "Question", "name": "How are the shifts chosen?", "acceptedAnswer": {"@type": "Answer", "text": "The tool finds the cheapest combination of the shift lengths you allow that covers the scheduled requirement in every interval. It is an exact solution, checked in the tests against trying every combination on small cases."}}, {"@type": "Question", "name": "What is shrinkage?", "acceptedAnswer": {"@type": "Answer", "text": "The share of paid time an agent is not available for the queue: breaks, meetings, training, leave and sickness. The tool divides the agents needed on the queue by one minus shrinkage to get the agents to schedule."}}, {"@type": "Question", "name": "Who is it for?", "acceptedAnswer": {"@type": "Answer", "text": "Small support, helpdesk, answering-service, clinic front-desk and sales-line teams that staff by feel or a spreadsheet and want to see what a service target costs."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    input[type=number] { width: 6.5em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+
+</head>
+<body>
+  <header>
+    <p class="note">SUPPORT STAFFING PLANNER · RUNS IN YOUR BROWSER</p>
+    <h1>How many agents does your queue need, and what is the cheapest schedule?</h1>
+    <p>Paste <strong>contacts per half hour</strong> for a typical week. The planner works out the <strong>agents each interval needs</strong> to hit a service target such as 80% answered in 20 seconds (Erlang C, with shrinkage and an occupancy cap), then finds the <strong>cheapest set of shifts that covers every interval</strong>. It also shows what each service target costs and what a shorter handle time or fewer contacts would save.</p>
+    <p class="note">For small support desks, answering services, clinic front desks and sales lines. Nothing is uploaded: the text box is analysed in this browser and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your volumes</h2>
+    <label for="ev-input">One row per interval: day, start time (HH:MM), contacts that arrive, optional handle time in seconds</label>
+    <textarea id="ev-input" spellcheck="false" placeholder="Mon,09:00,32,300&#10;Mon,09:30,38,300"></textarea>
+    <p>
+      <label for="sl">Service level (% answered in time)</label><input type="number" id="sl" value="80" min="1" max="99" step="1">
+      <label for="answer">Answer time (seconds)</label><input type="number" id="answer" value="20" min="0" step="5">
+      <label for="shrink">Shrinkage (%)</label><input type="number" id="shrink" value="30" min="0" max="90" step="1">
+      <label for="occ">Max occupancy (%, 0 = none)</label><input type="number" id="occ" value="85" min="0" max="100" step="1">
+      <label for="aht">Default handle time (seconds)</label><input type="number" id="aht" value="300" min="10" step="10">
+      <label for="wage">Cost per paid hour ($)</label><input type="number" id="wage" value="22" min="0" step="0.5">
+      <label for="shifts">Shift lengths (hours)</label><input type="text" id="shifts" value="8,4" size="8">
+      <label for="interval">Minutes per row</label><input type="number" id="interval" value="30" min="5" step="5">
+      <label for="step">Shift start step (minutes)</label><input type="number" id="step" value="60" min="5" step="5">
+      <label for="minshift">Shortest closing shift (hours)</label><input type="number" id="minshift" value="3" min="1" step="1">
+    </p>
+    <p>
+      <button type="button" id="analyze">Build the schedule</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. The schedule</h2>
+    <p id="summary"></p>
+    <div id="days"></div>
+    <h3>What the service target costs</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Service target</th><th>Cost of the schedule</th></tr></thead>
+      <tbody id="curve-rows"></tbody>
+    </table></div>
+    <h3>What if</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Change</th><th>Cost</th><th>Difference</th></tr></thead>
+      <tbody id="whatif-rows"></tbody>
+    </table></div>
+    <h3>Against the usual shortcuts</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Rule</th><th>Cost</th><th>Note</th></tr></thead>
+      <tbody id="compare-rows"></tbody>
+    </table></div>
+    <ul id="findings"></ul>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI?</h2>
+    <p>Same logic, zero dependencies, one command — reads a file or stdin:</p>
+    <pre class="cmd">node cli.mjs plan demand.csv --sl 80 --answer 20 --shrinkage 30 --shifts 8,4 --wage 22 --json
+cat demand.csv | node cli.mjs plan - --sl 90 --answer 30</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="how-many-support-agents-do-i-need.html">How many support agents do I need? Erlang C staffing explained</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">The schedule is exact for the numbers you type. Callers who give up, callbacks, skills routing, multi-channel concurrency (a chat agent handling several chats) and individual availability are not modelled; use a longer answer time or a lower occupancy cap as a rough allowance for chat concurrency.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does it upload my volumes?</h3>
+    <p>No. The browser page works on the text you paste, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+    <h3>What is Erlang C?</h3>
+    <p>The standard queueing formula for how many agents a phone or chat queue needs so that a target share of contacts is answered within a target time, given how many contacts arrive and how long each takes. It assumes random arrivals and that nobody hangs up while waiting, so real results are usually a little worse than the formula.</p>
+    <h3>How are the shifts chosen?</h3>
+    <p>The tool finds the cheapest combination of the shift lengths you allow that covers the scheduled requirement in every interval. It is an exact solution, checked in the tests against trying every combination on small cases.</p>
+    <h3>What is shrinkage?</h3>
+    <p>The share of paid time an agent is not available for the queue: breaks, meetings, training, leave and sickness. The tool divides the agents needed on the queue by one minus shrinkage to get the agents to schedule.</p>
+    <h3>Who is it for?</h3>
+    <p>Small support, helpdesk, answering-service, clinic front-desk and sales-line teams that staff by feel or a spreadsheet and want to see what a service target costs.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, employment or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, for the accuracy of the volumes, handle times and shrinkage you type, and for compliance with working-time, break and scheduling laws and any contract that applies to your staff. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It plans from the numbers you supply; it is not a forecast of the contacts you will receive.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../shift-roster-builder/">Shift Roster Builder</a>, <a href="../shift-cover-optimizer/">Shift Cover Optimizer</a> and <a href="../employee-cost-calculator/">Employee Cost Calculator</a>.</p>
+    <p class="support">Free and open source. If this saved you a shift, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseDemand, plan, summarize, money, pct, INPUT_NOTES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    function renderReport() {
+      const status = $("#status");
+      const text = $("#ev-input").value;
+      if (!text.trim()) {
+        status.innerHTML = `<span class="error">Paste some rows first (or load the worked example).</span>`;
+        return;
+      }
+      const parsed = parseDemand(text);
+      if (parsed.errors.length) {
+        status.innerHTML = `<span class="error">${parsed.errors.map(escapeHtml).join("<br>")}</span>`;
+        return;
+      }
+      let p;
+      try {
+        p = plan(parsed, { serviceLevel: $("#sl").value, answerSeconds: $("#answer").value, shrinkage: $("#shrink").value, maxOccupancy: $("#occ").value, aht: $("#aht").value, wage: $("#wage").value, shifts: $("#shifts").value, intervalMinutes: $("#interval").value, startStepMinutes: $("#step").value, minShiftHours: $("#minshift").value });
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarize(p);
+      $("#summary").innerHTML = `<span class="${s.status === "plan" ? "gain" : "error"}">${escapeHtml(s.text)}</span>`;
+      $("#days").innerHTML = p.days.map((d) => `<h3>${escapeHtml(d.day)} — ${d.contacts} contacts, ${money(d.cost)}</h3>
+        <div class="tablewrap"><table><thead><tr><th>Shifts</th><th>Start</th><th>End</th><th>Hours</th></tr></thead><tbody>${d.shifts.map((x) => `<tr><td>${x.count}</td><td>${x.start}</td><td>${x.end}</td><td>${x.hours}</td></tr>`).join("")}</tbody></table></div>
+        <div class="tablewrap"><table><thead><tr><th>Time</th>${d.slots.map((x) => `<th>${x.time}</th>`).join("")}</tr></thead><tbody>
+          <tr><td>Contacts</td>${d.slots.map((x) => `<td>${x.contacts}</td>`).join("")}</tr>
+          <tr><td>On queue needed</td>${d.slots.map((x) => `<td>${x.onQueue}</td>`).join("")}</tr>
+          <tr><td>Required (with shrinkage)</td>${d.slots.map((x) => `<td>${x.required}</td>`).join("")}</tr>
+          <tr><td>Scheduled</td>${d.slots.map((x) => `<td>${x.scheduled}</td>`).join("")}</tr>
+          <tr><td>Service level</td>${d.slots.map((x) => `<td>${x.contacts ? pct(x.serviceLevel) : "-"}</td>`).join("")}</tr>
+          <tr><td>Occupancy</td>${d.slots.map((x) => `<td>${x.onQueue ? pct(x.occupancy * 100) : "-"}</td>`).join("")}</tr></tbody></table></div>`).join("");
+      $("#curve-rows").innerHTML = p.curve.map((c) => `<tr><td>${pct(c.serviceLevel)} within ${p.options.answerSeconds}s${c.current ? " (your target)" : ""}</td><td>${money(c.cost)}</td></tr>`).join("");
+      $("#whatif-rows").innerHTML = p.whatIf.map((w) => `<tr><td>${escapeHtml(w.label)}</td><td>${money(w.cost)}</td><td>${w.delta >= 0 ? "+" : ""}${money(w.delta)}</td></tr>`).join("");
+      const t = p.totals;
+      $("#compare-rows").innerHTML = [
+        ["This schedule", t.cost, "Exact cheapest cover of the requirement"],
+        ["Flat peak staffing all day", t.flatPeak, "Everyone scheduled at the day's peak"],
+        [`${Math.max(...p.options.shifts)}-hour shifts only`, t.fullShiftOnly, "No part-time or shorter shifts"],
+        ["Occupancy rule only", t.occupancyRule, `Misses the target in ${t.occupancyRuleMissedIntervals} intervals (worst ${pct(t.occupancyRuleWorstServiceLevel)})`],
+      ].map(([l, c, n]) => `<tr><td>${escapeHtml(l)}</td><td>${c == null ? "n/a" : money(c)}</td><td>${escapeHtml(n)}</td></tr>`).join("");
+      $("#findings").innerHTML = p.findings.map((f) => `<li>${escapeHtml(f.message)}</li>`).join("");
+      $("#report-card").hidden = false;
+      record("plan_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `day,start,contacts,aht_seconds
+Mon,08:00,8,300
+Mon,08:30,14,300
+Mon,09:00,23,300
+Mon,09:30,29,300
+Mon,10:00,32,310
+Mon,10:30,30,310
+Mon,11:00,26,300
+Mon,11:30,22,300
+Mon,12:00,20,290
+Mon,12:30,21,290
+Mon,13:00,23,300
+Mon,13:30,26,300
+Mon,14:00,27,310
+Mon,14:30,24,310
+Mon,15:00,21,300
+Mon,15:30,17,300
+Mon,16:00,14,290
+Mon,16:30,9,290
+Tue,08:00,6,300
+Tue,08:30,11,300
+Tue,09:00,18,300
+Tue,09:30,22,300
+Tue,10:00,24,300
+Tue,10:30,23,300
+Tue,11:00,21,300
+Tue,11:30,18,300
+Tue,12:00,16,290
+Tue,12:30,17,290
+Tue,13:00,19,300
+Tue,13:30,21,300
+Tue,14:00,22,300
+Tue,14:30,20,300
+Tue,15:00,16,300
+Tue,15:30,13,300
+Tue,16:00,10,290
+Tue,16:30,6,290
+Sat,09:00,4,330
+Sat,09:30,5,330
+Sat,10:00,8,330
+Sat,10:30,9,330
+Sat,11:00,10,330
+Sat,11:30,9,330
+Sat,12:00,7,330
+Sat,12:30,5,330`;
+
+    $("#load-example").addEventListener("click", () => {
+      $("#ev-input").value = EXAMPLE_SOURCE;
+      $("#sl").value = 80; $("#answer").value = 20; $("#shrink").value = 30; $("#occ").value = 85; $("#aht").value = 300; $("#wage").value = 22; $("#shifts").value = "8,4"; $("#interval").value = 30; $("#step").value = 60; $("#minshift").value = 3;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      $("#ev-input").value = "";
+      $("#status").textContent = "";
+      $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>
