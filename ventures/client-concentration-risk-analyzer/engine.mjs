@@ -71,7 +71,11 @@ export function parseInvoices(text) {
 }
 
 const pct = (x) => `${(x * 100).toFixed(0)}%`;
-const usd = (n) => `$${Math.round(n).toLocaleString("en-US")}`;
+const usd = (n) => {
+  const format = (n) => `$${Math.round(n).toLocaleString("en-US")}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 function shares(rows) {
   const by = new Map();

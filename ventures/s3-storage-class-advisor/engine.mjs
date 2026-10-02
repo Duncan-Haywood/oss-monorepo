@@ -84,7 +84,11 @@ export function analyze(parsed, options = {}) {
   const prices = { ...DEFAULT_PRICES, ...(options.prices ?? {}) };
   const records = parsed.records;
   if (!records.length) return { count: 0, rows: [], findings: [], skipped: parsed.skipped ?? 0 };
-  const usd = (n) => `$${n.toFixed(2)}`;
+  const usd = (n) => {
+    const format = (n) => `$${n.toFixed(2)}`;
+    const text = format(Math.abs(n));
+    return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const findings = [];
   const add = (rule, severity, name, message) => findings.push({ rule, severity, row: name, message });
   const rows = records.map((r) => {

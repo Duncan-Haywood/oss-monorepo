@@ -116,7 +116,11 @@ export function analyze(parsed, options = {}) {
   if (!rows.length) return { count: 0, findings: [], skipped: parsed.skipped ?? 0 };
   const findings = [];
   const add = (rule, severity, message) => findings.push({ rule, severity, message });
-  const usd = (n) => `$${Math.abs(n).toFixed(2)}`;
+  const usd = (n) => {
+    const format = (n) => `$${Math.abs(n).toFixed(2)}`;
+    const text = format(Math.abs(n));
+    return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const pct = (x) => `${Math.round(x * 100)}%`;
   const annual = (v) => (v * 365) / o.days;
 

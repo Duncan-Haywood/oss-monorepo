@@ -96,7 +96,11 @@ export function analyze(parsed, options = {}) {
   if (!rows.length) return { count: 0, findings: [], skipped: parsed.skipped ?? 0 };
   const findings = [];
   const add = (rule, severity, row, message) => findings.push({ rule, severity, row, message });
-  const usd = (n) => `$${n.toFixed(2)}`;
+  const usd = (n) => {
+    const format = (n) => `$${n.toFixed(2)}`;
+    const text = format(Math.abs(n));
+    return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const az = (r) => (r.multiAz ? 2 : 1);
   const instanceCost = (cls, r) => (hourly[cls] ?? HOURLY[cls]) * o.hoursPerMonth * az(r);
   const storageCost = (r, type = r.type, iops = r.iops) => (r.gb * prices.gbMonth[type] + (type === "io1" || type === "io2" ? (iops ?? 0) * prices.iopsMonth : 0)) * az(r);
