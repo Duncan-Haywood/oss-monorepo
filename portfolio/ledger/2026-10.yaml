@@ -1151,3 +1151,27 @@ entries:
       rate, route plan or hours-of-service tool, no warranty, load acceptance, safety and
       driving-time rules left to the driver. Ethics: helps independent drivers earn more from
       the same week; no scraping, no personal data.
+  - venture: translation-job-picker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built translation-job-picker: a browser-local tool and zero-dependency CLI
+        for freelance translators, editors and transcribers paid per job. Paste the agency offers
+        on the table (fee, hours, business day due, direct cost) with daily hours and any hours
+        already booked; it returns the exact set to accept for the highest total net that can
+        still be delivered on time, the order to work them, the exact fee at which each declined
+        job would earn a place, and what first-come, biggest-fee and best-per-hour acceptance
+        leave behind. Same verified engine as appraisal-assignment-picker, re-labelled and
+        re-framed for a second per-job-deadline market; translator-project-quote prices one
+        project but nothing chooses between offers. Nothing leaves the browser. Unverified with a
+        real translator's queue.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied estimates, stated prominently as not business advice,
+      language-pair competence, certification, confidentiality and agency terms named as coming
+      first, no warranty. Ethics: helps small independent practitioners decide which jobs are
+      worth their hours; the user decides and remains responsible.

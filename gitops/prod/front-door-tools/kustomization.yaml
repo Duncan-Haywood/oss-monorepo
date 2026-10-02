@@ -33,36 +33,36 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547015 bytes
-#   portfolio-front-tools-1: 92 files, 555084 bytes
-#   portfolio-front-tools-2: 144 files, 553008 bytes
-#   portfolio-front-tools-3: 132 files, 556825 bytes
-#   portfolio-front-tools-4: 136 files, 556574 bytes
-#   portfolio-front-tools-5: 125 files, 543834 bytes
-#   portfolio-front-tools-6: 119 files, 556419 bytes
-#   portfolio-front-tools-7: 138 files, 556739 bytes
-#   portfolio-front-tools-8: 130 files, 556870 bytes
-#   portfolio-front-tools-9: 121 files, 544785 bytes
-#   portfolio-front-tools-10: 131 files, 556154 bytes
-#   portfolio-front-tools-11: 133 files, 553297 bytes
-#   portfolio-front-tools-12: 130 files, 546728 bytes
-#   portfolio-front-tools-13: 118 files, 554454 bytes
-#   portfolio-front-tools-14: 120 files, 554521 bytes
-#   portfolio-front-tools-15: 116 files, 544011 bytes
-#   portfolio-front-tools-16: 117 files, 551151 bytes
-#   portfolio-front-tools-17: 124 files, 555759 bytes
-#   portfolio-front-tools-18: 131 files, 553520 bytes
-#   portfolio-front-tools-19: 124 files, 554230 bytes
-#   portfolio-front-tools-20: 125 files, 552092 bytes
-#   portfolio-front-tools-21: 127 files, 548639 bytes
-#   portfolio-front-tools-22: 124 files, 556100 bytes
-#   portfolio-front-tools-23: 104 files, 547580 bytes
-#   portfolio-front-tools-24: 111 files, 555706 bytes
-#   portfolio-front-tools-25: 119 files, 552930 bytes
-#   portfolio-front-tools-26: 124 files, 544692 bytes
-#   portfolio-front-tools-27: 124 files, 555501 bytes
-#   portfolio-front-tools-28: 90 files, 445265 bytes
-#   portfolio-front-tools-29: 51 files, 262920 bytes
+#   portfolio-front-tools-0: 145 files, 547072 bytes
+#   portfolio-front-tools-1: 92 files, 555061 bytes
+#   portfolio-front-tools-2: 144 files, 552992 bytes
+#   portfolio-front-tools-3: 132 files, 556832 bytes
+#   portfolio-front-tools-4: 136 files, 556564 bytes
+#   portfolio-front-tools-5: 125 files, 543817 bytes
+#   portfolio-front-tools-6: 119 files, 556393 bytes
+#   portfolio-front-tools-7: 138 files, 556702 bytes
+#   portfolio-front-tools-8: 130 files, 556854 bytes
+#   portfolio-front-tools-9: 121 files, 544747 bytes
+#   portfolio-front-tools-10: 131 files, 556224 bytes
+#   portfolio-front-tools-11: 133 files, 553314 bytes
+#   portfolio-front-tools-12: 130 files, 546697 bytes
+#   portfolio-front-tools-13: 118 files, 554440 bytes
+#   portfolio-front-tools-14: 120 files, 554466 bytes
+#   portfolio-front-tools-15: 116 files, 544013 bytes
+#   portfolio-front-tools-16: 117 files, 551167 bytes
+#   portfolio-front-tools-17: 124 files, 555778 bytes
+#   portfolio-front-tools-18: 131 files, 553564 bytes
+#   portfolio-front-tools-19: 124 files, 554165 bytes
+#   portfolio-front-tools-20: 125 files, 552049 bytes
+#   portfolio-front-tools-21: 127 files, 548675 bytes
+#   portfolio-front-tools-22: 124 files, 556088 bytes
+#   portfolio-front-tools-23: 104 files, 547571 bytes
+#   portfolio-front-tools-24: 111 files, 555731 bytes
+#   portfolio-front-tools-25: 119 files, 552931 bytes
+#   portfolio-front-tools-26: 124 files, 544638 bytes
+#   portfolio-front-tools-27: 125 files, 556625 bytes
+#   portfolio-front-tools-28: 94 files, 462563 bytes
+#   portfolio-front-tools-29: 51 files, 262863 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3594,6 +3594,11 @@ configMapGenerator:
       - trade-show-roi-calculator__index.html.gz=trade-show-roi-calculator__index.html.gz
       - trade-show-roi-calculator__is-a-trade-show-booth-worth-it.html.gz=trade-show-roi-calculator__is-a-trade-show-booth-worth-it.html.gz
       - trade-show-roi-calculator__usage.mjs.gz=trade-show-roi-calculator__usage.mjs.gz
+      - translation-job-picker__cli.mjs.gz=translation-job-picker__cli.mjs.gz
+      - translation-job-picker__engine.mjs.gz=translation-job-picker__engine.mjs.gz
+      - translation-job-picker__how-to-choose-which-translation-jobs-to-accept.html.gz=translation-job-picker__how-to-choose-which-translation-jobs-to-accept.html.gz
+      - translation-job-picker__index.html.gz=translation-job-picker__index.html.gz
+      - translation-job-picker__usage.mjs.gz=translation-job-picker__usage.mjs.gz
       - travel-nurse-contract-comparison-calculator__calc.mjs.gz=travel-nurse-contract-comparison-calculator__calc.mjs.gz
       - travel-nurse-contract-comparison-calculator__index.html.gz=travel-nurse-contract-comparison-calculator__index.html.gz
       - travel-nurse-contract-comparison-calculator__usage.mjs.gz=travel-nurse-contract-comparison-calculator__usage.mjs.gz
@@ -3700,15 +3705,15 @@ configMapGenerator:
       - vpat-acr-generator__vs-filling-out-the-vpat-template-by-hand.html.gz=vpat-acr-generator__vs-filling-out-the-vpat-template-by-hand.html.gz
       - vpat-acr-generator__vs-hiring-a-vpat-consultant.html.gz=vpat-acr-generator__vs-hiring-a-vpat-consultant.html.gz
       - vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz=vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz
-      - vscode-extension-drift-check__cli.mjs.gz=vscode-extension-drift-check__cli.mjs.gz
-      - vscode-extension-drift-check__engine.mjs.gz=vscode-extension-drift-check__engine.mjs.gz
-      - vscode-extension-drift-check__index.html.gz=vscode-extension-drift-check__index.html.gz
-      - vscode-extension-drift-check__usage.mjs.gz=vscode-extension-drift-check__usage.mjs.gz
   - name: portfolio-front-tools-28
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vscode-extension-drift-check__cli.mjs.gz=vscode-extension-drift-check__cli.mjs.gz
+      - vscode-extension-drift-check__engine.mjs.gz=vscode-extension-drift-check__engine.mjs.gz
+      - vscode-extension-drift-check__index.html.gz=vscode-extension-drift-check__index.html.gz
+      - vscode-extension-drift-check__usage.mjs.gz=vscode-extension-drift-check__usage.mjs.gz
       - vscode-extension-drift-check__vs-vscan.html.gz=vscode-extension-drift-check__vs-vscan.html.gz
       - vscode-extension-drift-check__vs-vsix-audit.html.gz=vscode-extension-drift-check__vs-vsix-audit.html.gz
       - vscode-extension-drift-check__why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html.gz=vscode-extension-drift-check__why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html.gz
