@@ -1192,8 +1192,9 @@ const RELATIVE_SELF = relative(
 // +1: `free-shipping-threshold-optimizer` graduated.
 // +1: `client-concentration-risk-analyzer` graduated.
 // +1: `returns-policy-cost-analyzer` graduated.
+// +1: `market-event-picker` graduated.
 // +1: `ticket-resale-profit-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 577;
+const SWITCHES_IN_THE_CATALOGUE = 578;
 
 let counter = 0;
 function fixture(source) {

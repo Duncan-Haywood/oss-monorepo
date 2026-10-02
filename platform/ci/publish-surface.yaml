@@ -287,15 +287,6 @@ workflows:
 - workflow: bundle-discount-optimizer-ci.yml
   classification: none
   publishes: []
-- workflow: free-shipping-threshold-optimizer-ci.yml
-  classification: none
-  publishes: []
-- workflow: price-increase-breakeven-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: client-concentration-risk-analyzer-ci.yml
-  classification: none
-  publishes: []
 - workflow: caa-record-check-ci.yml
   classification: none
   publishes: []
@@ -393,6 +384,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: clearance-markdown-planner-ci.yml
+  classification: none
+  publishes: []
+- workflow: client-concentration-risk-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: client-profitability-time-analyzer-ci.yml
@@ -752,6 +746,9 @@ workflows:
 - workflow: foundation-repair-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: free-shipping-threshold-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: freelance-platform-fee-calculator-ci.yml
   classification: none
   publishes: []
@@ -1037,6 +1034,9 @@ workflows:
 - workflow: ltl-freight-class-estimator-ci.yml
   classification: none
   publishes: []
+- workflow: market-event-picker-ci.yml
+  classification: none
+  publishes: []
 - workflow: market-garden-bed-planner-ci.yml
   classification: none
   publishes: []
@@ -1309,6 +1309,9 @@ workflows:
 - workflow: price-elasticity-estimator-ci.yml
   classification: none
   publishes: []
+- workflow: price-increase-breakeven-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: print-atelier-ci.yml
   classification: none
   publishes: []
@@ -1464,6 +1467,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: retaining-wall-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: returns-policy-cost-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: revenue-target-lead-planner-ci.yml
@@ -1790,6 +1796,9 @@ workflows:
 - workflow: terraform-plan-secret-exposure-check-ci.yml
   classification: none
   publishes: []
+- workflow: ticket-resale-profit-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: tiktok-shop-fee-calculator-ci.yml
   classification: none
   publishes: []
@@ -2006,9 +2015,3 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
-- workflow: returns-policy-cost-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: ticket-resale-profit-calculator-ci.yml
-  classification: none
-  publishes: []

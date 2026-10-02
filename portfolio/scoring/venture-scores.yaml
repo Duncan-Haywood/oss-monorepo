@@ -25797,3 +25797,32 @@ ventures:
       and changeable, not tax advice, no warranty, nothing leaves the device. Ethics: resale is
       legal in most places but price caps and licensing vary; the page tells the user to check local
       rules and does not help evade any.
+  - slug: market-event-picker
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic event parser and exact search over overlapping events; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for small vendors (food trucks, market and craft sellers, bands) with real
+      search demand ("is this festival worth it") and spreadsheets as the incumbent; the wedge is choosing
+      between concrete overlapping events and stating the cost of each swap, free and client-side; volume
+      not measured with an external tool.
+      Scope: Free CLI and browser tool that picks the markets and festivals to work for the highest net.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
+      leaves the device. Ethics: helps small vendors earn more from their own season; the user decides
+      and remains responsible for event terms and deadlines.
