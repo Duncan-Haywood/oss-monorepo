@@ -26312,6 +26312,35 @@ ventures:
       Liability: arithmetic on pasted text at user-supplied estimates, stated so and not a price guide, example fee
       tiers labelled as examples to replace, no warranty, nothing leaves the device. Ethics: helps small card sellers decide
       where grading spend is worth it; the user decides and remains responsible.
+  - slug: thrift-haul-buy-picker
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic CSV parser, closed-form walk-away price and break-even sell chance, exact branch-and-bound best set; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for resellers with real search demand ("how much to pay for thrift items to resell")
+      where the fee calculators price a sale and nothing prices the buy side of a mixed cart; the wedge is the
+      walk-away price per item including time and cash cost plus the exact best set under a cash or hours cap,
+      free and client-side; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that picks what to buy and the most to pay from the user's own resale and sell-chance estimates.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at user-supplied estimates, stated so and not a price guide or sales forecast,
+      no warranty, the user checks authenticity and resale legality, nothing leaves the device. Ethics: helps small
+      resellers decide where sourcing money and time are worth spending; the user decides and remains responsible.
   - slug: appraisal-assignment-picker
     scores:
       ai_leverage: 4

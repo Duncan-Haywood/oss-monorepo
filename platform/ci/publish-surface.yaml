@@ -1868,6 +1868,9 @@ workflows:
 - workflow: terraform-plan-secret-exposure-check-ci.yml
   classification: none
   publishes: []
+- workflow: thrift-haul-buy-picker-ci.yml
+  classification: none
+  publishes: []
 - workflow: ticket-resale-profit-calculator-ci.yml
   classification: none
   publishes: []
