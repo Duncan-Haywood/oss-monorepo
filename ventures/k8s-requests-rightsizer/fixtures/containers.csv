@@ -1,0 +1,7 @@
+namespace,pod,container,cpu_request,mem_request,cpu_usage_p95,mem_usage_p95,replicas
+prod,api,api,1,2Gi,180m,520Mi,3
+prod,api,envoy,100m,128Mi,30m,70Mi,3
+prod,worker,worker,500m,512Mi,360m,470Mi,2
+prod,web,web,200m,256Mi,175m,200Mi,4
+data,redis,redis,2,8Gi,260m,2100Mi,3
+batch,report-job,report,4,16Gi,300m,1500Mi,1

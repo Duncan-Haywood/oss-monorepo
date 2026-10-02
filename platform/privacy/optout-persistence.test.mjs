@@ -1184,7 +1184,8 @@ const RELATIVE_SELF = relative(
 // +1: `bigquery-query-cost-advisor` graduated.
 // +1: `snowflake-warehouse-cost-advisor` graduated.
 // +1: `databricks-cluster-cost-advisor` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 567;
+// +1: `k8s-requests-rightsizer` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 568;
 
 let counter = 0;
 function fixture(source) {
