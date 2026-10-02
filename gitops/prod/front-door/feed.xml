@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 616 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 617 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -296,6 +296,15 @@
     <summary type="text">Paste contacts per half hour and get the agents each interval needs (Erlang C, shrinkage, occupancy cap) and the cheapest shifts that cover them, plus what each service target costs. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Thrift Haul Buy Picker — What to Buy and the Most to Pay for Resale</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/thrift-haul-buy-picker/"/>
+    <id>tag:marisstella.dev,2026:tool/thrift-haul-buy-picker</id>
+    <published>2026-10-02T00:00:00Z</published>
+    <updated>2026-10-02T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Paste what you found at a thrift store, estate sale or liquidation with your own resale estimates and get which items to buy, the most to pay for each, the sell chance each needs to break even and the exact best set under a cash, item or hours cap. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Ticket Resale Profit Calculator — Break-Even List Price After Seller Fees</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ticket-resale-profit-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/ticket-resale-profit-calculator</id>
@@ -357,14 +366,5 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free business loan comparison tool. Type in the term-loan, SBA-style and merchant cash advance offers you have received and see the true APR with fees, total repaid, cash actually received and what paying early would cost. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Candle Batch Cost Calculator — cost per candle, price floor and wholesale margin</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/candle-batch-cost-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/candle-batch-cost-calculator</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Candle and soap maker cost calculator. Enter wax, fragrance load, vessel and labor to see cost per candle, margin online, at craft fairs and wholesale, the price floor for your target margin, break-even units and what a wax price rise costs. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
