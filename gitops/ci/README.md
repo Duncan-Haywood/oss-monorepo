@@ -87,7 +87,7 @@ k3s back up.
 
 ## The switch
 
-674 of the 676 `runs-on` lines across 635 workflows now read this. The other
+675 of the 677 `runs-on` lines across 636 workflows now read this. The other
 two are the Docker-dependent jobs `gitops/tests/test_ci_runner.py`'s
 `DOCKER_DEPENDENT_JOBS` names and pins to `ubuntu-latest` instead (they need a
 Docker daemon the self-hosted pod does not have):

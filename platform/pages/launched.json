@@ -142,6 +142,7 @@
     "custom-farm-rate-calculator": "2026-09-06",
     "customer-lifetime-value-predictor": "2026-09-30",
     "cut-list-optimizer": "2026-08-24",
+    "databricks-cluster-cost-advisor": "2026-10-02",
     "deck-bid-calculator": "2026-08-26",
     "deck-staining-bid-calculator": "2026-08-26",
     "delivery-app-margin-calculator": "2026-08-26",
