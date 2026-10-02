@@ -68,3 +68,7 @@ test("usage events named on the page are the ones the code records", () => {
 test("page links to the late invoice collections kit for a single overdue invoice", () => {
   assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/late-invoice-collections-kit\/"/);
 });
+
+test("page links to the client concentration risk analyzer", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/client-concentration-risk-analyzer\/"/);
+});

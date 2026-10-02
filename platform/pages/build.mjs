@@ -1282,6 +1282,9 @@ const CATEGORY_RULES = [
     test: (slug) =>
       /(break-even|reconciliation-check|reconciliation-workbench)$/.test(slug)
       || slug === '1099k-reconciliation-worksheet'
+      // `client-concentration-risk-analyzer` joined 2026-10-02 on its first commit: it reads the same invoice
+      // export as `invoice-payment-terms-calculator` here and asks how much revenue one client carries.
+      || slug === 'client-concentration-risk-analyzer'
       // `rent-roll-delinquency-analyzer` reads a landlord's rent ledger after the rent fell due
       // (what is unpaid, how old, who pays late) -- the same after-the-fact reconciliation job
       // as `cam-reconciliation-check` above, for tenants' payments instead of a CAM statement.
