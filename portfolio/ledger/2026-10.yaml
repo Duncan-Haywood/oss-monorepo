@@ -800,3 +800,35 @@ entries:
     gate_note: >-
       Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
       warranty. Ethics: helps small resale shops earn more from stock they already hold.
+  - venture: embroidery-shop-quote-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built embroidery-shop-quote-calculator: a browser-local tool and
+        zero-dependency CLI for home and micro embroidery shops running 1-6 head machines.
+        Enter a job (quantity, garment cost, stitch count, colors, digitizing fee) and the
+        shop (heads, stitches per minute, real efficiency, hooping and setup minutes,
+        thread and backing cost, labor rate, machine overhead, target margin, minimum
+        charge, rush surcharge); it gives the per-piece price that hits the margin
+        (integer cents, rounded up), clock time, true cost, profit and effective hourly
+        rate, a quantity-break table with the quantities where the minimum charge or setup
+        dominates, a stitch-count sensitivity, a check of whether a flat price-per-1000-
+        stitches rule loses money at low quantities and from what quantity it covers cost,
+        and a take / counter / pass verdict at the owner's lowest acceptable hourly rate
+        (with the price that reaches it). New niche: apparel-decoration-price-calculator
+        prices a decorated piece across screen print, embroidery and DTF tiers and
+        3d-print-price-calculator prices machine time, but neither models a multi-head
+        embroidery machine's clock time, a per-stitch rule's break-even quantity or an
+        hourly-floor verdict. First visitor expected from "embroidery pricing calculator"
+        and "how much to charge for embroidery" searches. Nothing leaves the browser.
+        Tests replay the clock time hoop by hoop and search for the smallest whole-cent
+        price that reaches the margin on 300 random jobs. Unverified with a real shop's
+        numbers.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty. Ethics: helps small embroidery shops stop underpricing short runs.

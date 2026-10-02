@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 606 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 607 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -87,6 +87,15 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your EBS volumes (type, size, provisioned and peak IOPS) and get the cheapest volume type that still covers the peak, the aws ec2 modify-volume command, gp2 burst risk and unattached volumes. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Embroidery Pricing Calculator for Small Shops: Quotes, Quantity Breaks and Margin</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/embroidery-shop-quote-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/embroidery-shop-quote-calculator</id>
+    <published>2026-10-02T00:00:00Z</published>
+    <updated>2026-10-02T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Price an embroidery job from your own machine time and costs: per-piece price that hits your target margin, quantity breaks, stitch-count sensitivity, and whether a per-1000-stitches rule loses money. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Free Shipping Threshold Optimizer — What Minimum Earns You the Most</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">DJ gig profit calculator for mobile DJs and event entertainers. Enter packages, event hours, setup time and gig costs to see profit per hour worked, the price that hits your target, and direct clients versus a lead marketplace versus an agency.</summary>
-  </entry>
-  <entry>
-    <title>Dog Grooming Profit Calculator — profit per hour and price floor by service</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dog-grooming-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/dog-grooming-profit-calculator</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Dog grooming profit calculator for groomers and salon owners. Enter services, minutes, supplies and dogs per week to see profit per hour after overhead, the price that hits your target, and own shop versus booth rent versus commission. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
