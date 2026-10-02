@@ -500,6 +500,9 @@ workflows:
 - workflow: crypto-cost-basis-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: csa-share-pricing-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: custom-farm-rate-calculator-ci.yml
   classification: none
   publishes: []
@@ -1812,6 +1815,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: supabase-rls-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: support-staffing-planner-ci.yml
   classification: none
   publishes: []
 - workflow: tattoo-piece-profit-calculator-ci.yml
