@@ -532,6 +532,7 @@
     "str-nightly-rate-optimizer": "2026-09-30",
     "str-occupancy-tax-calculator": "2026-09-24",
     "str-tax-loophole-calculator": "2026-09-29",
+    "str-turnover-crew-planner": "2026-10-02",
     "stripe-churn-cohort-analyzer": "2026-09-29",
     "stripe-failed-payment-recovery-analyzer": "2026-09-29",
     "structured-data-drift-check": "2026-09-09",

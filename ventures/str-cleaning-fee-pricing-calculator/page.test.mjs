@@ -36,3 +36,7 @@ test("robots and sitemap let crawlers find the page", () => {
 test("index links one hop to the str-host-payout-calculator sibling", () => {
   assert.match(page("index.html"), /href="\.\.\/str-host-payout-calculator\/"/);
 });
+
+test("index links one hop to the str-turnover-crew-planner sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/str-turnover-crew-planner\/"/);
+});
