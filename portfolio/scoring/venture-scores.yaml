@@ -25498,3 +25498,29 @@ ventures:
       Liability: arithmetic on pasted text at editable list prices, recommendation from a snapshot and not
       a bill, usage must be sampled over a representative period, no warranty, nothing leaves the device.
       Ethics: helps engineers stop paying for compute reservations they do not use.
+  - slug: lambda-vs-fargate-cost-breakeven
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.167
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over typed workload numbers; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the first-visitor channel is in the venture's own
+      VENTURE.yaml comment. Distribution 5 and defensibility 4: steady search demand ("lambda vs fargate
+      cost") with vendor calculators and blog posts as incumbents; the wedge is one workload form that
+      returns all four platforms, the break-even volume and a CI gate; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that compares Lambda, Cloud Run, Fargate and EC2 cost and finds the break-even request volume.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed numbers at editable list prices, an estimate and not a bill, no warranty,
+      nothing leaves the device. Ethics: helps engineers avoid overpaying for compute.

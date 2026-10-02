@@ -287,6 +287,7 @@
     "k8s-deprecated-api-check": "2026-09-17",
     "k8s-requests-rightsizer": "2026-10-02",
     "k8s-resource-limits-check": "2026-09-24",
+    "lambda-vs-fargate-cost-breakeven": "2026-10-02",
     "k8s-rollout-safety-check": "2026-09-11",
     "kdp-royalty-calculator": "2026-09-07",
     "kdp-royalty-report-analyzer": "2026-09-29",
