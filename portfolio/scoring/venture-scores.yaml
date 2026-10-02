@@ -25642,3 +25642,34 @@ ventures:
       Liability: arithmetic on pasted rows plus two stated behavioural assumptions the user sets,
       not a forecast, no warranty, nothing leaves the device. Ethics: helps a small seller see the
       cost of a pricing policy they would otherwise set by rule of thumb.
+  - slug: returns-policy-cost-analyzer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic order-row parser, a per-category cost model and a return-fee sweep with a minimax-regret pick over a
+      grid of stated behavioural assumptions; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in the
+      venture's own VENTURE.yaml comment. Small online sellers paste an orders-and-refunds export and get the
+      true cost of a return, the categories that lose money after returns, and the return-fee policy that
+      holds up if their guesses are wrong. Distribution 5 and defensibility 4: "cost of returns" and
+      "restocking fee" are recurring seller queries and r/shopify and r/ecommerce threads ask them, with
+      Shopify returns apps as incumbents; the wedge is no app install, no store access, and printing the
+      break-even instead of a verdict; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that prices returns and tests return fees over pasted orders.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted rows plus two stated behavioural assumptions the user sets,
+      not a forecast, no warranty, nothing leaves the device; the page tells sellers that returns-fee rules differ
+      by jurisdiction. Ethics: helps a small seller see the cost of a policy they would otherwise set by rule of thumb.

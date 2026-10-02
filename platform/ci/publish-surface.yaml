@@ -1995,3 +1995,6 @@ gitops:
 - workflow: slo-burn-rate-alerts-ci.yml
   classification: none
   publishes: []
+- workflow: returns-policy-cost-analyzer-ci.yml
+  classification: none
+  publishes: []

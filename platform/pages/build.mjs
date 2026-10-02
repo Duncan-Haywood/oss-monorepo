@@ -493,11 +493,13 @@ const CATEGORY_RULES = [
     // `shopify-inventory-reorder-planner`.
     // `bundle-discount-optimizer` joined 2026-09-30: it reads a Shopify, Etsy or Amazon seller's own order
     // export to price product bundles, the same reader as the fee tools here; the slug names no platform.
+    // `returns-policy-cost-analyzer` joined 2026-10-02 on its first commit: it reads a store's own orders-and-refunds
+    // export to price returns and test return fees, the same reader as `free-shipping-threshold-optimizer` here.
     // `free-shipping-threshold-optimizer` joined 2026-10-02 on its first commit: it reads a Shopify, WooCommerce or Etsy
     // seller's own order export to choose a free-shipping minimum, the same reader as `bundle-discount-optimizer` here.
     // `breakeven-roas-calculator` joined 2026-10-01 on its first commit: turns a DTC seller's per-order
     // margin into the break-even ROAS and max CPA an ad campaign needs; the same reader as the fee tools here.
-    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|free-shipping-threshold|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|auction-car-flip|liquidation-pallet|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace)/.test(slug),
+    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|free-shipping-threshold|returns-policy|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|auction-car-flip|liquidation-pallet|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace)/.test(slug),
   },
   {
     id: 'trades',
