@@ -2910,7 +2910,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `booking-request-chooser` graduated (browser + CLI booking-request chooser for rental hosts, exact DP over gap nights).
     # +1: `free-shipping-threshold-optimizer` graduated (browser + CLI free-shipping minimum sweep from an orders export).
     # +1: `returns-policy-cost-analyzer` graduated (browser + CLI returns-cost and return-fee analyzer).
-    total = 604  # `infra/OWNER_CHECKLIST.md`'s own "N of the 604 tools" wording.
+    total = 605  # `infra/OWNER_CHECKLIST.md`'s own "N of the 605 tools" wording.
     # +1: `ticket-resale-profit-calculator` graduated (browser + CLI ticket resale payout, break-even and sales-log audit).
     # +1: `catering-quote-calculator` graduated (browser + CLI per-guest catering quote, tier table and break-even guest count).
     # +1: `breakeven-roas-calculator` graduated (browser-local break-even ROAS, max CPA and LTV-adjusted ad economics calculator).
@@ -2918,6 +2918,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `lot-split-calculator` graduated (browser + CLI sell-the-lot-whole-or-split-it decision for resellers).
     # +1: `trade-show-roi-calculator` graduated (browser + CLI trade show ROI, break-even leads and budget-constrained show picker).
     # +1: `csa-share-pricing-calculator` graduated (browser + CLI CSA share price, wage price, break-even shares and price sweep).
+    # +1: `support-staffing-planner` graduated (browser + CLI Erlang C agents per interval and exact cheapest shift cover).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

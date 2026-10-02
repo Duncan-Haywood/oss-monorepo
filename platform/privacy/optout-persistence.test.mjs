@@ -1199,7 +1199,8 @@ const RELATIVE_SELF = relative(
 // +1: `lot-split-calculator` graduated.
 // +1: `trade-show-roi-calculator` graduated.
 // +1: `csa-share-pricing-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 583;
+// +1: `support-staffing-planner` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 584;
 
 let counter = 0;
 function fixture(source) {

@@ -1814,6 +1814,9 @@ workflows:
 - workflow: supabase-rls-check-ci.yml
   classification: none
   publishes: []
+- workflow: support-staffing-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: tattoo-piece-profit-calculator-ci.yml
   classification: none
   publishes: []

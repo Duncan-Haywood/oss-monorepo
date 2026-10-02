@@ -25944,6 +25944,35 @@ ventures:
       Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
       leaves the device. Ethics: helps small exhibitors earn more from their own show budget; the user decides
       and remains responsible for any contract signed with a show.
+  - slug: support-staffing-planner
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic CSV parser, Erlang C search and exact min-cost-flow shift cover; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct cost-down decision for small support teams with real search demand ("erlang c calculator",
+      "how many call center agents do I need") and spreadsheets or per-seat workforce-management SaaS as
+      the incumbent; the wedge is Erlang C requirement plus exact cheapest shifts and a priced service
+      target, free and client-side; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that turns contact volume into agents per interval and the cheapest shift plan.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
+      leaves the device. Ethics: helps small teams staff to a service target without overstaffing; the user
+      decides and remains responsible for working-time and break rules.
   - slug: csa-share-pricing-calculator
     scores:
       ai_leverage: 4
