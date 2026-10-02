@@ -941,6 +941,9 @@ workflows:
 - workflow: k8s-requests-rightsizer-ci.yml
   classification: none
   publishes: []
+- workflow: lambda-vs-fargate-cost-breakeven-ci.yml
+  classification: none
+  publishes: []
 - workflow: k8s-resource-limits-check-ci.yml
   classification: none
   publishes: []
