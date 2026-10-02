@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 620 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 621 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -33,6 +33,15 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Paste your confirmed bookings and pending requests and get the exact set of requests to accept for the highest income, counting turnover cost and the dead gap nights a short stay leaves behind. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Bookkeeping Client Fee Calculator — Price a Monthly Retainer</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bookkeeping-client-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/bookkeeping-client-fee-calculator</id>
+    <published>2026-10-02T00:00:00Z</published>
+    <updated>2026-10-02T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Price a monthly bookkeeping retainer from transactions, accounts, payroll, AR/AP and sales-tax filings: the minimum fee for your target hourly, a recommended fee, a one-time cleanup quote, a walk-away price, and a roster that ranks existing clients by effective hourly. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Card Grading Submission Picker — Which Cards to Send to PSA, BGS, CGC or SGC</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Paste your used-car inventory and get each unit&#39;s true carrying cost on the floorplan, the exact best day to wholesale it, which units to wholesale now ranked by earnings per $1,000 of line per day, and what waiting until it sells leaves behind. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>ADU Payback Calculator — is a backyard unit worth building?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/adu-payback-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/adu-payback-calculator</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">ADU payback calculator for homeowners and builders. Enter build cost, loan, rent and operating costs and see cash flow, yield on cost, payback, IRR, NPV and break-even rent. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>

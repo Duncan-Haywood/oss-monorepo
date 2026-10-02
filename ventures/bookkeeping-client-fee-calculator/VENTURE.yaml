@@ -1,0 +1,45 @@
+name: bookkeeping-client-fee-calculator
+description: 'Free, zero-network, zero-dependency browser tool and CLI for independent bookkeepers and fractional accountants: enter a prospective client''s monthly transactions, accounts, payroll runs, AR/AP volume, sales-tax filings, books cleanliness, software cost and your target hourly rate and get the minimum monthly fee, a recommended fee, a one-time cleanup quote, the effective hourly at a competitor''s quote and a walk-away price; paste existing clients with fee and hours and get them ranked by effective hourly with the raise each needs. Numbers are the ones the user supplies, not market rates or advice.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: raises what a bookkeeper earns per hour by pricing retainers from real workload and exposing underpaying clients.
+# Checked 2026-10-02: ventures/ has client-profitability-time-analyzer (per-client profit from tracked time), freelance-retainer-calculator
+# and freelance-retainer-vs-hourly-calculator (generic freelance retainers), sign-language-interpreter-rate-calculator and other
+# per-trade rate tools, and 1099-vendor-tracker (a bookkeeping task, not pricing); none prices a bookkeeping retainer from transactions,
+# accounts, payroll, AR/AP and sales-tax volume by cleanliness of books, nor a cleanup quote. Not in screened-out.md.
+#
+# First visitor: searches "how much to charge for bookkeeping services monthly", "bookkeeping pricing calculator", "bookkeeping
+# retainer pricing"; bookkeeper forums and groups. Volume not measured with an external tool. Bookkeepers price on gut feel or copy a
+# peer's rate card; nothing multiplies out their own minutes per task. A hosted version that reads time-tracker exports is the natural
+# paid upgrade.
+hypotheses:
+  - claim: A bookkeeper will enter a prospect's volumes, see the minimum and walk-away fee, and change what they quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A bookkeeper will paste their roster, see which clients are below target, and raise at least one fee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only typed or pasted values in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No bookkeeper reports changing a quote or raising a client's fee because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/bookkeeping-client-fee-calculator/
+  analytics: null

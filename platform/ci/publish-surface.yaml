@@ -260,6 +260,9 @@ workflows:
 - workflow: booking-request-chooser-ci.yml
   classification: none
   publishes: []
+- workflow: bookkeeping-client-fee-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: booth-rent-vs-commission-ci.yml
   classification: none
   publishes: []
