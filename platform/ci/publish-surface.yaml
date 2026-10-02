@@ -239,6 +239,9 @@ workflows:
 - workflow: bid-win-rate-optimizer-ci.yml
   classification: none
   publishes: []
+- workflow: bigquery-query-cost-advisor-ci.yml
+  classification: none
+  publishes: []
 - workflow: biohazard-cleanup-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -249,6 +252,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: bonus-depreciation-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: booking-request-chooser-ci.yml
   classification: none
   publishes: []
 - workflow: booth-rent-vs-commission-ci.yml
@@ -285,6 +291,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: price-increase-breakeven-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: client-concentration-risk-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: caa-record-check-ci.yml
@@ -398,6 +407,9 @@ workflows:
 - workflow: cloud-egress-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: cloudwatch-logs-cost-advisor-ci.yml
+  classification: none
+  publishes: []
 - workflow: cnc-machining-quote-calculator-ci.yml
   classification: none
   publishes: []
@@ -452,6 +464,9 @@ workflows:
 - workflow: countertop-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: course-launch-revenue-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: court-reporter-transcript-calculator-ci.yml
   classification: none
   publishes: []
@@ -486,6 +501,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: cut-list-optimizer-ci.yml
+  classification: none
+  publishes: []
+- workflow: databricks-cluster-cost-advisor-ci.yml
   classification: none
   publishes: []
 - workflow: deck-bid-calculator-ci.yml
@@ -581,27 +599,6 @@ workflows:
 - workflow: dynamodb-capacity-mode-advisor-ci.yml
   classification: none
   publishes: []
-- workflow: ebs-volume-cost-advisor-ci.yml
-  classification: none
-  publishes: []
-- workflow: nat-gateway-cost-advisor-ci.yml
-  classification: none
-  publishes: []
-- workflow: cloudwatch-logs-cost-advisor-ci.yml
-  classification: none
-  publishes: []
-- workflow: bigquery-query-cost-advisor-ci.yml
-  classification: none
-  publishes: []
-- workflow: snowflake-warehouse-cost-advisor-ci.yml
-  classification: none
-  publishes: []
-- workflow: rds-instance-cost-advisor-ci.yml
-  classification: none
-  publishes: []
-- workflow: databricks-cluster-cost-advisor-ci.yml
-  classification: none
-  publishes: []
 - workflow: eaa-wcag-triage-ci.yml
   classification: none
   publishes: []
@@ -609,6 +606,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: ebay-transaction-report-analyzer-ci.yml
+  classification: none
+  publishes: []
+- workflow: ebs-volume-cost-advisor-ci.yml
   classification: none
   publishes: []
 - workflow: economic-nexus-threshold-tracker-ci.yml
@@ -753,6 +753,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: freelance-platform-fee-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: freelance-rate-increase-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: freelance-retainer-calculator-ci.yml
@@ -950,9 +953,6 @@ workflows:
 - workflow: k8s-requests-rightsizer-ci.yml
   classification: none
   publishes: []
-- workflow: lambda-vs-fargate-cost-breakeven-ci.yml
-  classification: none
-  publishes: []
 - workflow: k8s-resource-limits-check-ci.yml
   classification: none
   publishes: []
@@ -972,6 +972,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: lambda-memory-rightsizer-ci.yml
+  classification: none
+  publishes: []
+- workflow: lambda-vs-fargate-cost-breakeven-ci.yml
   classification: none
   publishes: []
 - workflow: land-survey-bid-calculator-ci.yml
@@ -1110,6 +1113,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: music-lesson-break-even-ci.yml
+  classification: none
+  publishes: []
+- workflow: nat-gateway-cost-advisor-ci.yml
   classification: none
   publishes: []
 - workflow: newsletter-sponsorship-rate-calculator-ci.yml
@@ -1291,6 +1297,9 @@ workflows:
 - workflow: poshmark-sales-report-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: postgres-explain-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: pour-cost-calculator-ci.yml
   classification: none
   publishes: []
@@ -1298,12 +1307,6 @@ workflows:
   classification: none
   publishes: []
 - workflow: price-elasticity-estimator-ci.yml
-  classification: none
-  publishes: []
-- workflow: prometheus-cardinality-cost-ci.yml
-  classification: none
-  publishes: []
-- workflow: postgres-explain-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: print-atelier-ci.yml
@@ -1322,6 +1325,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: project-estimate-calibrator-ci.yml
+  classification: none
+  publishes: []
+- workflow: prometheus-cardinality-cost-ci.yml
   classification: none
   publishes: []
 - workflow: propane-delivery-route-margin-ci.yml
@@ -1377,6 +1383,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: rd-tax-credit-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: rds-instance-cost-advisor-ci.yml
   classification: none
   publishes: []
 - workflow: rds-instance-rightsizer-ci.yml
@@ -1488,6 +1497,8 @@ workflows:
   classification: none
   publishes: []
 - workflow: s3-storage-class-advisor-ci.yml
+  classification: none
+  publishes: []
 - workflow: s3-storage-class-savings-ci.yml
   classification: none
   publishes: []
@@ -1626,10 +1637,16 @@ workflows:
 - workflow: skylight-install-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: slo-burn-rate-alerts-ci.yml
+  classification: none
+  publishes: []
 - workflow: slopsquatting-check-ci.yml
   classification: none
   publishes: []
 - workflow: snow-removal-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: snowflake-warehouse-cost-advisor-ci.yml
   classification: none
   publishes: []
 - workflow: social-preview-check-ci.yml
@@ -1756,12 +1773,6 @@ workflows:
   classification: none
   publishes: []
 - workflow: tattoo-piece-profit-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: freelance-rate-increase-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: course-launch-revenue-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: tax-loss-harvesting-calculator-ci.yml
@@ -1995,9 +2006,6 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
-- workflow: slo-burn-rate-alerts-ci.yml
-  classification: none
-  publishes: []
 - workflow: returns-policy-cost-analyzer-ci.yml
   classification: none
   publishes: []

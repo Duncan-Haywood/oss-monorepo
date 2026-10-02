@@ -1187,11 +1187,12 @@ const RELATIVE_SELF = relative(
 // +1: `k8s-requests-rightsizer` graduated.
 // +1: `lambda-vs-fargate-cost-breakeven` graduated.
 // +1: `rds-instance-cost-advisor` graduated.
+// +1: `booking-request-chooser` graduated.
 // +1: `rds-instance-rightsizer` graduated.
 // +1: `free-shipping-threshold-optimizer` graduated.
-// +1: `price-increase-breakeven-calculator` graduated.
+// +1: `client-concentration-risk-analyzer` graduated.
 // +1: `returns-policy-cost-analyzer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 574;
+const SWITCHES_IN_THE_CATALOGUE = 576;
 
 let counter = 0;
 function fixture(source) {
