@@ -25886,6 +25886,35 @@ ventures:
       Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
       leaves the device. Ethics: helps small vendors earn more from their own season; the user decides
       and remains responsible for event terms and deadlines.
+  - slug: lot-split-calculator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic lot parser and exact per-line list-or-bulk optimisation; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for resellers and estate liquidators with real search demand ("sell
+      lot whole or piece by piece") and gut feel as the incumbent; the wedge is a per-line list-or-bulk
+      answer with the value of the reseller's own hours, free and client-side; volume not measured with
+      an external tool.
+      Scope: Free CLI and browser tool that decides whether to sell a bulk lot whole or split it.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
+      leaves the device. Ethics: helps small resellers earn more from lots they already own; the user decides
+      and remains responsible for the terms of the lot they buy or sell.
   - slug: trade-show-roi-calculator
     scores:
       ai_leverage: 4

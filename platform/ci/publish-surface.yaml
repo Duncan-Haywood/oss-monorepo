@@ -1040,6 +1040,9 @@ workflows:
 - workflow: ltl-freight-class-estimator-ci.yml
   classification: none
   publishes: []
+- workflow: lot-split-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: market-event-picker-ci.yml
   classification: none
   publishes: []
