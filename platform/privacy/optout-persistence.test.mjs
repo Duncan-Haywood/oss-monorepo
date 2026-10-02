@@ -1201,7 +1201,8 @@ const RELATIVE_SELF = relative(
 // +1: `csa-share-pricing-calculator` graduated.
 // +1: `support-staffing-planner` graduated.
 // +1: `consignment-markdown-planner` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 586;
+// +1: `mobile-tire-van-job-picker` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 587;
 // +1: `embroidery-shop-quote-calculator` graduated.
 
 let counter = 0;

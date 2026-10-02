@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 607 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 608 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -150,6 +150,15 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Paste the markets, fairs and festivals you could work and get the exact set that earns the most net profit after booth fees, travel, crew hours and cost of goods, with the reason for every event skipped. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Mobile Tire Van Job Picker — Which Calls to Run Today</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mobile-tire-van-job-picker/"/>
+    <id>tag:marisstella.dev,2026:tool/mobile-tire-van-job-picker</id>
+    <published>2026-10-02T00:00:00Z</published>
+    <updated>2026-10-02T00:00:00Z</updated>
+    <category term="Logistics, freight &amp; cloud cost"/>
+    <summary type="text">Paste the day&#39;s requested mobile tire and roadside jobs and get the most profitable set and order for one van, with time windows, drive cost and a price for every job it turns down. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>NAT Gateway Cost Advisor — S3 and DynamoDB Endpoints, Interface Endpoint Break-Even</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-01T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free crypto cost basis calculator. Paste your buys, sales and income as a CSV; it matches every sale to your lots under FIFO, LIFO, HIFO, LOFO or a tax-aware rule, compares the methods side by side and exports Form 8949 style rows. Runs in your browser; your history is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>DJ Gig Profit Calculator — profit per hour worked and price floor by package</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dj-gig-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/dj-gig-profit-calculator</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">DJ gig profit calculator for mobile DJs and event entertainers. Enter packages, event hours, setup time and gig costs to see profit per hour worked, the price that hits your target, and direct clients versus a lead marketplace versus an agency.</summary>
   </entry>
 </feed>
