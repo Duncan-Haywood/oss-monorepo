@@ -1931,6 +1931,9 @@ workflows:
 - workflow: usage-based-pricing-simulator-ci.yml
   classification: none
   publishes: []
+- workflow: used-car-lot-aging-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: van-westendorp-pricing-analyzer-ci.yml
   classification: none
   publishes: []

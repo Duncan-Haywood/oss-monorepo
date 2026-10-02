@@ -974,7 +974,6 @@ entries:
       warranty, borrowers waiting on closings and signing-service agreements come first.
       Ethics: helps independent notaries earn more from a day's offers.
   - venture: saas-renewal-planner
-  - venture: process-server-day-picker
     agent_spend_usd: null
     human_hours: 0
     outcomes:
@@ -989,6 +988,19 @@ entries:
         saas-annual-plan-discount-calculator are seller-side; none tracks notice windows across
         vendors. First visitor expected from "SaaS renewal calendar" and "auto-renewal notice
         period" searches. Nothing leaves the browser. Unverified with a real contract list.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a quote or advice, no warranty,
+      contract notice terms control and dates are time-sensitive. Ethics: helps businesses
+      spend less on software they already pay for.
+  - venture: process-server-day-picker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Graduated and built process-server-day-picker: a browser-local tool and
         zero-dependency CLI for independent process servers. Paste the day's assigned
         serves (fee, costs, minutes on site, the window the person can be reached,
@@ -1005,9 +1017,32 @@ entries:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Liability: arithmetic on user-supplied numbers, not a quote or advice, no warranty,
-      contract notice terms control and dates are time-sensitive. Ethics: helps businesses
-      spend less on software they already pay for.
       Liability: arithmetic on user-supplied numbers, orders attempts only, not a forecast or
       legal advice, no warranty, service rules, court deadlines and safety come first. Ethics:
       helps independent servers earn more from their hours.
+  - venture: used-car-lot-aging-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built used-car-lot-aging-planner: a browser-local tool and
+        zero-dependency CLI for independent used-car dealers with 1-60 floorplan-financed
+        units. Paste the inventory (days on lot, cost, floored amount, expected retail and
+        wholesale values and their drop per 30 days, expected days to retail, daily holding
+        cost) and it prints each unit's true carrying cost to date and per day (interest
+        after curtailments, own cash, holding), the exact best day to wholesale it
+        (backward induction over age, tested against evaluating every wholesale day),
+        which units to wholesale now ranked by earnings per $1,000 of line per day, and
+        what a wait-until-it-sells policy leaves behind. New niche:
+        auction-car-flip-calculator prices one auction buy, the markdown planners have no
+        floorplan or wholesale exit; none picks a wholesale day per unit on a dealer's lot.
+        First visitor expected from "when to wholesale a used car" searches. Nothing leaves
+        the browser. Unverified with a real dealer's lot.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty, the floorplan agreement comes first. Ethics: helps small independent
+      dealers earn more from units already on the lot.

@@ -33,35 +33,36 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 546859 bytes
+#   portfolio-front-tools-0: 145 files, 546926 bytes
 #   portfolio-front-tools-1: 92 files, 555023 bytes
-#   portfolio-front-tools-2: 144 files, 552985 bytes
-#   portfolio-front-tools-3: 132 files, 556774 bytes
-#   portfolio-front-tools-4: 136 files, 556574 bytes
-#   portfolio-front-tools-5: 126 files, 556368 bytes
-#   portfolio-front-tools-6: 122 files, 556306 bytes
-#   portfolio-front-tools-7: 137 files, 554901 bytes
-#   portfolio-front-tools-8: 131 files, 554677 bytes
-#   portfolio-front-tools-9: 120 files, 554872 bytes
-#   portfolio-front-tools-10: 130 files, 556837 bytes
-#   portfolio-front-tools-11: 138 files, 556228 bytes
-#   portfolio-front-tools-12: 126 files, 551845 bytes
-#   portfolio-front-tools-13: 123 files, 555152 bytes
-#   portfolio-front-tools-14: 116 files, 549668 bytes
-#   portfolio-front-tools-15: 116 files, 554739 bytes
-#   portfolio-front-tools-16: 120 files, 550252 bytes
-#   portfolio-front-tools-17: 123 files, 555286 bytes
-#   portfolio-front-tools-18: 135 files, 556952 bytes
-#   portfolio-front-tools-19: 121 files, 540256 bytes
-#   portfolio-front-tools-20: 128 files, 556452 bytes
-#   portfolio-front-tools-21: 121 files, 552981 bytes
-#   portfolio-front-tools-22: 128 files, 552857 bytes
-#   portfolio-front-tools-23: 95 files, 556318 bytes
-#   portfolio-front-tools-24: 119 files, 549647 bytes
-#   portfolio-front-tools-25: 120 files, 556846 bytes
-#   portfolio-front-tools-26: 123 files, 555725 bytes
-#   portfolio-front-tools-27: 121 files, 553815 bytes
-#   portfolio-front-tools-28: 112 files, 556687 bytes
+#   portfolio-front-tools-2: 144 files, 552981 bytes
+#   portfolio-front-tools-3: 132 files, 556766 bytes
+#   portfolio-front-tools-4: 136 files, 556569 bytes
+#   portfolio-front-tools-5: 126 files, 556385 bytes
+#   portfolio-front-tools-6: 122 files, 556387 bytes
+#   portfolio-front-tools-7: 137 files, 554917 bytes
+#   portfolio-front-tools-8: 131 files, 554722 bytes
+#   portfolio-front-tools-9: 120 files, 554890 bytes
+#   portfolio-front-tools-10: 130 files, 556877 bytes
+#   portfolio-front-tools-11: 138 files, 556269 bytes
+#   portfolio-front-tools-12: 126 files, 551829 bytes
+#   portfolio-front-tools-13: 123 files, 555090 bytes
+#   portfolio-front-tools-14: 116 files, 549665 bytes
+#   portfolio-front-tools-15: 116 files, 554735 bytes
+#   portfolio-front-tools-16: 120 files, 550295 bytes
+#   portfolio-front-tools-17: 123 files, 555335 bytes
+#   portfolio-front-tools-18: 135 files, 556956 bytes
+#   portfolio-front-tools-19: 121 files, 540258 bytes
+#   portfolio-front-tools-20: 128 files, 556489 bytes
+#   portfolio-front-tools-21: 121 files, 552968 bytes
+#   portfolio-front-tools-22: 128 files, 552825 bytes
+#   portfolio-front-tools-23: 95 files, 556266 bytes
+#   portfolio-front-tools-24: 119 files, 549634 bytes
+#   portfolio-front-tools-25: 119 files, 549248 bytes
+#   portfolio-front-tools-26: 121 files, 549338 bytes
+#   portfolio-front-tools-27: 121 files, 552288 bytes
+#   portfolio-front-tools-28: 69 files, 328459 bytes
+#   portfolio-front-tools-29: 51 files, 262867 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3452,12 +3453,12 @@ configMapGenerator:
       - subdomain-takeover-check__analyze.mjs.gz=subdomain-takeover-check__analyze.mjs.gz
       - subdomain-takeover-check__check.mjs.gz=subdomain-takeover-check__check.mjs.gz
       - subdomain-takeover-check__fingerprints.mjs.gz=subdomain-takeover-check__fingerprints.mjs.gz
-      - subdomain-takeover-check__index.html.gz=subdomain-takeover-check__index.html.gz
   - name: portfolio-front-tools-26
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - subdomain-takeover-check__index.html.gz=subdomain-takeover-check__index.html.gz
       - subdomain-takeover-check__lookup.mjs.gz=subdomain-takeover-check__lookup.mjs.gz
       - subdomain-takeover-check__probe.mjs.gz=subdomain-takeover-check__probe.mjs.gz
       - subdomain-takeover-check__usage.mjs.gz=subdomain-takeover-check__usage.mjs.gz
@@ -3578,14 +3579,14 @@ configMapGenerator:
       - tree-service-bid-calculator__vs-a-flat-per-inch-rate.html.gz=tree-service-bid-calculator__vs-a-flat-per-inch-rate.html.gz
       - tree-service-bid-calculator__vs-singleops.html.gz=tree-service-bid-calculator__vs-singleops.html.gz
       - trial-conversion-timing-analyzer__calc.mjs.gz=trial-conversion-timing-analyzer__calc.mjs.gz
-      - trial-conversion-timing-analyzer__index.html.gz=trial-conversion-timing-analyzer__index.html.gz
-      - trial-conversion-timing-analyzer__usage.mjs.gz=trial-conversion-timing-analyzer__usage.mjs.gz
-      - trump-account-calculator__calc.mjs.gz=trump-account-calculator__calc.mjs.gz
   - name: portfolio-front-tools-27
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - trial-conversion-timing-analyzer__index.html.gz=trial-conversion-timing-analyzer__index.html.gz
+      - trial-conversion-timing-analyzer__usage.mjs.gz=trial-conversion-timing-analyzer__usage.mjs.gz
+      - trump-account-calculator__calc.mjs.gz=trump-account-calculator__calc.mjs.gz
       - trump-account-calculator__how-is-a-trump-account-taxed-when-you-withdraw.html.gz=trump-account-calculator__how-is-a-trump-account-taxed-when-you-withdraw.html.gz
       - trump-account-calculator__index.html.gz=trump-account-calculator__index.html.gz
       - trump-account-calculator__usage.mjs.gz=trump-account-calculator__usage.mjs.gz
@@ -3621,6 +3622,11 @@ configMapGenerator:
       - usage-based-pricing-simulator__calc.mjs.gz=usage-based-pricing-simulator__calc.mjs.gz
       - usage-based-pricing-simulator__index.html.gz=usage-based-pricing-simulator__index.html.gz
       - usage-based-pricing-simulator__usage.mjs.gz=usage-based-pricing-simulator__usage.mjs.gz
+      - used-car-lot-aging-planner__cli.mjs.gz=used-car-lot-aging-planner__cli.mjs.gz
+      - used-car-lot-aging-planner__engine.mjs.gz=used-car-lot-aging-planner__engine.mjs.gz
+      - used-car-lot-aging-planner__index.html.gz=used-car-lot-aging-planner__index.html.gz
+      - used-car-lot-aging-planner__usage.mjs.gz=used-car-lot-aging-planner__usage.mjs.gz
+      - used-car-lot-aging-planner__when-should-a-used-car-dealer-wholesale-an-aged-unit.html.gz=used-car-lot-aging-planner__when-should-a-used-car-dealer-wholesale-an-aged-unit.html.gz
       - van-westendorp-pricing-analyzer__calc.mjs.gz=van-westendorp-pricing-analyzer__calc.mjs.gz
       - van-westendorp-pricing-analyzer__index.html.gz=van-westendorp-pricing-analyzer__index.html.gz
       - van-westendorp-pricing-analyzer__usage.mjs.gz=van-westendorp-pricing-analyzer__usage.mjs.gz
@@ -3699,6 +3705,11 @@ configMapGenerator:
       - walk-in-tub-bid-calculator__should-i-install-a-customer-supplied-walk-in-tub.html.gz=walk-in-tub-bid-calculator__should-i-install-a-customer-supplied-walk-in-tub.html.gz
       - walk-in-tub-bid-calculator__should-i-take-a-saturday-walk-in-tub-call.html.gz=walk-in-tub-bid-calculator__should-i-take-a-saturday-walk-in-tub-call.html.gz
       - walk-in-tub-bid-calculator__usage.mjs.gz=walk-in-tub-bid-calculator__usage.mjs.gz
+  - name: portfolio-front-tools-28
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - walk-in-tub-bid-calculator__vs-a-flat-installed-special.html.gz=walk-in-tub-bid-calculator__vs-a-flat-installed-special.html.gz
       - walk-in-tub-bid-calculator__vs-housecall-pro.html.gz=walk-in-tub-bid-calculator__vs-housecall-pro.html.gz
       - wash-and-fold-price-calculator__calculator.mjs.gz=wash-and-fold-price-calculator__calculator.mjs.gz
@@ -3707,11 +3718,6 @@ configMapGenerator:
       - wash-and-fold-price-calculator__share.mjs.gz=wash-and-fold-price-calculator__share.mjs.gz
       - wash-and-fold-price-calculator__usage.mjs.gz=wash-and-fold-price-calculator__usage.mjs.gz
       - wash-and-fold-price-calculator__vs-cents.html.gz=wash-and-fold-price-calculator__vs-cents.html.gz
-  - name: portfolio-front-tools-28
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - wash-and-fold-price-calculator__vs-doing-the-cost-math-yourself.html.gz=wash-and-fold-price-calculator__vs-doing-the-cost-math-yourself.html.gz
       - water-heater-bid-calculator__calc.mjs.gz=water-heater-bid-calculator__calc.mjs.gz
       - water-heater-bid-calculator__how-much-to-charge.html.gz=water-heater-bid-calculator__how-much-to-charge.html.gz
@@ -3773,6 +3779,11 @@ configMapGenerator:
       - where-to-sell-calculator__reverb-vs-ebay-for-gear.html.gz=where-to-sell-calculator__reverb-vs-ebay-for-gear.html.gz
       - where-to-sell-calculator__share.mjs.gz=where-to-sell-calculator__share.mjs.gz
       - where-to-sell-calculator__usage.mjs.gz=where-to-sell-calculator__usage.mjs.gz
+  - name: portfolio-front-tools-29
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - where-to-sell-calculator__vs-crosslist.html.gz=where-to-sell-calculator__vs-crosslist.html.gz
       - where-to-sell-calculator__vs-each-marketplaces-own-calculator.html.gz=where-to-sell-calculator__vs-each-marketplaces-own-calculator.html.gz
       - where-to-sell-calculator__vs-list-perfectly.html.gz=where-to-sell-calculator__vs-list-perfectly.html.gz
