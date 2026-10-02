@@ -56,7 +56,7 @@ test("the docs page's worked example matches the engine", async () => {
 
 test("index links to sibling resale tools", async () => {
   const idx = await read("index.html");
-  for (const s of ["liquidation-pallet-bid-calculator", "ticket-resale-profit-calculator", "estate-sale-net-proceeds-calculator"]) {
+  for (const s of ["liquidation-pallet-bid-calculator", "ticket-resale-profit-calculator", "estate-sale-net-proceeds-calculator", "card-grading-submission-picker"]) {
     assert.ok(idx.includes(`href="../${s}/"`), s);
   }
 });

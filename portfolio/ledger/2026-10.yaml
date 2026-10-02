@@ -1046,3 +1046,30 @@ entries:
       Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
       warranty, the floorplan agreement comes first. Ethics: helps small independent
       dealers earn more from units already on the lot.
+  - venture: card-grading-submission-picker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built card-grading-submission-picker: a browser-local tool and
+        zero-dependency CLI for sports and trading-card (Pokemon, baseball, basketball,
+        MTG) sellers and collectors deciding which cards to send to a grader and at which
+        fee tier versus selling raw. Paste cards with the user's own raw value, value at
+        each grade and grade chances plus an editable fee-tier table (labelled example
+        defaults); it returns expected net graded versus raw, the cheapest covering tier,
+        the exact closed-form break-even chance of a 10, downside and worst case, and the
+        exact best subset under a grading budget or cards-per-submission limit (dynamic
+        programming verified against every subset). New niche: ebay-fee-calculator,
+        marketplace-fee-compare and lot-split-calculator price a sale, a platform or a lot;
+        none weighs grading fee, shipping, wait and grade odds against selling raw. First
+        visitor expected from "is it worth grading this card" searches. Nothing leaves the
+        browser, no prices scraped. Unverified with a real seller's batch.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied estimates, stated prominently as not a price
+      guide or forecast, example fee tiers labelled as such, no warranty, not affiliated with
+      any grader. Ethics: helps small card sellers decide where grading money is worth
+      spending; no scraping, no authentication claims.
