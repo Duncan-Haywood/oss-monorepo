@@ -497,6 +497,9 @@ workflows:
 - workflow: crypto-cost-basis-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: csa-share-pricing-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: custom-farm-rate-calculator-ci.yml
   classification: none
   publishes: []
