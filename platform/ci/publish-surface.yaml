@@ -1364,6 +1364,9 @@ workflows:
 - workflow: rd-tax-credit-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: rds-instance-rightsizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: real-estate-agent-photo-app-ci.yml
   classification: none
   publishes: []

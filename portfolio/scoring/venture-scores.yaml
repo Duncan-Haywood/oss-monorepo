@@ -25498,3 +25498,31 @@ ventures:
       Liability: arithmetic on pasted text at editable list prices, recommendation from a snapshot and not
       a bill, usage must be sampled over a representative period, no warranty, nothing leaves the device.
       Ethics: helps engineers stop paying for compute reservations they do not use.
+  - slug: rds-instance-rightsizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.167
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic parser and arithmetic over pasted CloudWatch numbers; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the first-visitor channel is in the venture's own
+      VENTURE.yaml comment. Distribution 5 and defensibility 4: real search demand ("right size rds
+      instance", "rds graviton savings") with AWS Compute Optimizer and cloud cost platforms as
+      incumbents; the wedge is no account access, pasted metrics and a CI check; volume not measured
+      with an external tool. Scope: Free CLI and browser tool that right-sizes RDS and Aurora instance
+      classes from CloudWatch CPU, freeable memory and connection numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at editable approximate list prices, recommendation from
+      metrics and not a bill, metrics must be sampled over a representative period, no warranty, nothing
+      leaves the device. Ethics: helps engineers stop paying for database capacity they do not use.
