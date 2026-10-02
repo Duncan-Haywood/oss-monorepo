@@ -72,7 +72,11 @@ export function analyze(parsed, options = {}) {
   if (!rows.length) return { count: 0, findings: [], skipped: parsed.skipped ?? 0 };
   const findings = [];
   const add = (rule, severity, row, message) => findings.push({ rule, severity, row, message });
-  const usd = (n) => `$${n.toFixed(2)}`;
+  const usd = (n) => {
+    const format = (n) => `$${n.toFixed(2)}`;
+    const text = format(Math.abs(n));
+    return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const grand = rows.reduce((a, r) => a + r.credits * prices.credit, 0);
 
   const warehouses = rows.map((row) => {
