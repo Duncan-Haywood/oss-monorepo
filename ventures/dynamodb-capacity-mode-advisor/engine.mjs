@@ -125,7 +125,11 @@ export function analyze(parsed, options = {}) {
   const saving = currentCost - best[1];
   const findings = [];
   const add = (rule, severity, message) => findings.push({ rule, severity, message });
-  const usd = (n) => `$${n.toFixed(2)}`;
+  const usd = (n) => {
+    const format = (n) => `$${n.toFixed(2)}`;
+    const text = format(Math.abs(n));
+    return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const be = { read: breakEvenUtilization(prices.onDemandPerMillionRead, prices.perRcuHour), write: breakEvenUtilization(prices.onDemandPerMillionWrite, prices.perWcuHour) };
 
   if (best[0] !== (hasCurrent ? "" : "on-demand") && saving >= o.minMonthlySaving && saving / currentCost >= o.switchSavings) {

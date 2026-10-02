@@ -287,6 +287,9 @@ workflows:
 - workflow: bundle-discount-optimizer-ci.yml
   classification: none
   publishes: []
+- workflow: business-loan-offer-comparator-ci.yml
+  classification: none
+  publishes: []
 - workflow: caa-record-check-ci.yml
   classification: none
   publishes: []
@@ -411,6 +414,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: codeowners-shadow-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: coffee-roaster-margin-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: commercial-lease-effective-rent-calculator-ci.yml
@@ -570,6 +576,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: dotenv-exposure-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: driving-instructor-lesson-pricing-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: drone-mapping-job-calculator-ci.yml
@@ -774,6 +783,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: freight-accessorial-auditor-ci.yml
+  classification: none
+  publishes: []
+- workflow: freight-broker-load-margin-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: french-drain-bid-calculator-ci.yml
@@ -999,6 +1011,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: lead-response-time-analyzer-ci.yml
+  classification: none
+  publishes: []
+- workflow: league-schedule-generator-ci.yml
   classification: none
   publishes: []
 - workflow: license-compat-check-ci.yml
@@ -1475,6 +1490,9 @@ workflows:
 - workflow: retaining-wall-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: retirement-withdrawal-sequencer-ci.yml
+  classification: none
+  publishes: []
 - workflow: returns-policy-cost-analyzer-ci.yml
   classification: none
   publishes: []
@@ -1604,6 +1622,9 @@ workflows:
 - workflow: shift-cover-optimizer-ci.yml
   classification: none
   publishes: []
+- workflow: shift-roster-builder-ci.yml
+  classification: none
+  publishes: []
 - workflow: shipping-box-size-optimizer-ci.yml
   classification: none
   publishes: []
@@ -1718,6 +1739,9 @@ workflows:
 - workflow: startup-option-value-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: state-residency-day-counter-ci.yml
+  classification: none
+  publishes: []
 - workflow: stockx-seller-payout-calculator-ci.yml
   classification: none
   publishes: []
@@ -1812,6 +1836,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: tile-layout-planner-ci.yml
+  classification: none
+  publishes: []
+- workflow: time-off-request-planner-ci.yml
   classification: none
   publishes: []
 - workflow: tip-pool-compliance-calculator-ci.yml
