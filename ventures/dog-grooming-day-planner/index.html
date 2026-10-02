@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dog Grooming Day Planner — Which Dogs to Book for the Most Net</title>
+  <meta name="description" content="Quote a groom so it earns your target per table hour, then paste the requests on your list and get the exact set of dogs that earns the most in a day. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="What should you charge for that groom, and which dogs should you book?">
+  <meta property="og:description" content="Price a dog by table minutes and supplies, then pick the day's best bookings. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Dog Grooming Day Planner", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Quote a dog grooming job so it nets your target per table hour, then choose the exact set of grooming requests that earns the most in a day with fixed table minutes. Browser or zero-dependency Node CLI."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does it upload my client list?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page works on the text you paste, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call."}}, {"@type": "Question", "name": "How is the price worked out?", "acceptedAnswer": {"@type": "Answer", "text": "Table time is the groom minutes plus the turnover between dogs. The price is table hours times your target net per hour, plus the supplies that groom uses."}}, {"@type": "Question", "name": "Why would it skip a dog that is profitable on its own?", "acceptedAnswer": {"@type": "Answer", "text": "The day only has so many table minutes, and you may cap dogs or large dogs. The tool compares every allowed combination and keeps the one with the highest total net, and says what taking a skipped dog instead would cost."}}, {"@type": "Question", "name": "Is the plan guaranteed to be best?", "acceptedAnswer": {"@type": "Answer", "text": "It is the exact best answer for the minutes and prices you typed, checked against trying every combination in the tests. It cannot see temperament, a matted coat you have not seen or a client who cancels, so it is a decision aid, not a forecast."}}, {"@type": "Question", "name": "Who is it for?", "acceptedAnswer": {"@type": "Answer", "text": "Independent dog groomers, salon owners and mobile grooming vans deciding what to charge and which requests to take."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f5f2; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #1f4a3a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a3a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d3dbd5; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a3a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a6b4aa; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    input[type=number] { width: 6.5em; padding: 6px; border: 1px solid #a6b4aa; border-radius: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #25604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e2e9e4; color: #1f4a3a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e4eae6; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f6f9f7; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dbd5; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DOG GROOMING DAY PLANNER · RUNS IN YOUR BROWSER</p>
+    <h1>What should you charge for that groom, and which dogs should you book?</h1>
+    <p>A groom is priced by the breed list and filled first-come, but the table only has so many minutes. Enter <strong>how long a groom really takes and what it costs in supplies</strong> and get the price that earns your target per table hour. Then paste the requests on your list and see <strong>the exact set of dogs that earns the most in a day</strong>, which ones are under target, and what to quote them instead.</p>
+    <p class="note">For independent groomers, salons and mobile vans. Nothing is uploaded: the text box is analysed in this browser and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Quote one groom</h2>
+    <p>
+      <label for="q-minutes">Groom minutes</label><input type="number" id="q-minutes" value="80" min="0" step="5">
+      <label for="q-supplies">Supplies ($)</label><input type="number" id="q-supplies" value="6" min="0" step="1">
+      <label for="q-round">Round up to ($)</label><input type="number" id="q-round" value="1" min="1" step="1">
+      <button type="button" id="quote">Quote it</button>
+    </p>
+    <p id="quote-out" class="ok" aria-live="polite"></p>
+  </section>
+
+  <section class="card">
+    <h2>2. Paste the requests</h2>
+    <label for="ev-input">One row per dog: dog, size (small, medium, large, giant), groom minutes, price quoted, supplies, optional note</label>
+    <textarea id="ev-input" spellcheck="false" placeholder="Biscuit,medium,75,70,6,Doodle&#10;Tank,giant,120,120,12,Newfoundland"></textarea>
+    <p>
+      <label for="capacity">Table minutes in the day</label><input type="number" id="capacity" value="480" min="0" step="15">
+      <label for="turnover">Turnover between dogs (min)</label><input type="number" id="turnover" value="10" min="0" step="5">
+      <label for="target">Target net per table hour ($)</label><input type="number" id="target" value="45" min="0" step="1">
+      <label for="maxdogs">Most dogs (0 = no limit)</label><input type="number" id="maxdogs" value="0" min="0" step="1">
+      <label for="maxlarge">Most large and giant dogs (0 = no limit)</label><input type="number" id="maxlarge" value="2" min="0" step="1">
+      <label for="noshow">No-show rate (%)</label><input type="number" id="noshow" value="10" min="0" max="100" step="5">
+    </p>
+    <p>
+      <button type="button" id="analyze">Plan the day</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>3. The day</h2>
+    <p id="summary"></p>
+    <h3>Every request, by net per table hour</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>#</th><th>Dog</th><th>Size</th><th>Minutes</th><th>Price</th><th>Net</th><th>Per table hour</th><th>Price for your target</th><th></th></tr></thead>
+      <tbody id="rank-rows"></tbody>
+    </table></div>
+    <h3>Book</h3>
+    <div class="tablewrap"><table id="work-table" hidden>
+      <thead><tr><th>Dog</th><th>Size</th><th>Table minutes</th><th>Net</th><th>Per table hour</th></tr></thead>
+      <tbody id="work-rows"></tbody>
+    </table></div>
+    <h3>Skip</h3>
+    <div class="tablewrap"><table id="skip-table" hidden>
+      <thead><tr><th>Dog</th><th>Why</th></tr></thead>
+      <tbody id="skip-rows"></tbody>
+    </table></div>
+    <h3>This plan against the usual shortcuts</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Rule</th><th>Net for the day</th></tr></thead>
+      <tbody id="compare-rows"></tbody>
+    </table></div>
+    <ul id="findings"></ul>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI?</h2>
+    <p>Same logic, zero dependencies, one command — reads a file or stdin:</p>
+    <pre class="cmd">node cli.mjs plan requests.csv --capacity 480 --turnover 10 --target-hourly 45 --max-large 2 --json
+node cli.mjs price --minutes 80 --supplies 6 --target-hourly 45</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="how-much-to-charge-for-dog-grooming.html">How much to charge for dog grooming</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">The plan is exact for the numbers you type (search over every allowed combination, up to 40 requests). Temperament, a coat you have not seen, groomer-and-bather splits and cancellations are not modelled; enter the minutes a dog will really take.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does it upload my client list?</h3>
+    <p>No. The browser page works on the text you paste, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+    <h3>How is the price worked out?</h3>
+    <p>Table time is the groom minutes plus the turnover between dogs. The price is table hours times your target net per hour, plus the supplies that groom uses.</p>
+    <h3>Why would it skip a dog that is profitable on its own?</h3>
+    <p>The day only has so many table minutes, and you may cap dogs or large dogs. The tool compares every allowed combination and keeps the one with the highest total net, and says what taking a skipped dog instead would cost.</p>
+    <h3>Is the plan guaranteed to be best?</h3>
+    <p>It is the exact best answer for the minutes and prices you typed, checked against trying every combination in the tests. It cannot see temperament, a matted coat you have not seen or a client who cancels, so it is a decision aid, not a forecast.</p>
+    <h3>Who is it for?</h3>
+    <p>Independent dog groomers, salon owners and mobile grooming vans deciding what to charge and which requests to take.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, for the minutes, prices and supplies you type, and for any quote or booking you agree with a client. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It chooses between options using the numbers you supply; it is not a forecast of what a groom will take or earn.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>quote_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../dog-grooming-profit-calculator/">Dog Grooming Profit Calculator</a> (profit per hour by service after card fees and overhead), <a href="../pet-grooming-bid-calculator/">Pet Grooming Bid Calculator</a>, <a href="../dog-walking-route-pricing/">Dog Walking Route Pricing</a>, <a href="../dog-boarding-daycare-pricing/">Dog Boarding and Daycare Pricing</a>, <a href="../appointment-deposit-calculator/">Appointment Deposit Calculator</a> and <a href="../service-hourly-yield-analyzer/">Service Hourly Yield Analyzer</a>.</p>
+    <p class="support">Free and open source. If this earned you a better week at the table, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseRequests, plan, summarize, quotePrice, money, INPUT_NOTES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    $("#quote").addEventListener("click", () => {
+      const out = $("#quote-out");
+      try {
+        const q = quotePrice({ minutes: $("#q-minutes").value, supplies: $("#q-supplies").value, turnover: $("#turnover").value, targetHourly: $("#target").value, roundTo: $("#q-round").value });
+        out.className = "ok";
+        out.textContent = `Charge ${money(q.price)} (exact ${money(q.exact)}) for ${q.tableMinutes} table minutes: it nets ${money(q.netPerHour)} per table hour at your turnover and target below.`;
+        record("quote_run");
+      } catch (e) {
+        out.className = "error";
+        out.textContent = e.message;
+      }
+    });
+
+    function renderReport() {
+      const status = $("#status");
+      const text = $("#ev-input").value;
+      if (!text.trim()) {
+        status.innerHTML = `<span class="error">Paste some rows first (or load the worked example).</span>`;
+        return;
+      }
+      const parsed = parseRequests(text);
+      if (parsed.errors.length) {
+        status.innerHTML = `<span class="error">${parsed.errors.map(escapeHtml).join("<br>")}</span>`;
+        return;
+      }
+      let p;
+      try {
+        p = plan(parsed, { capacity: $("#capacity").value, turnover: $("#turnover").value, targetHourly: $("#target").value, maxDogs: $("#maxdogs").value, maxLarge: $("#maxlarge").value, noShow: $("#noshow").value });
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarize(p);
+      $("#summary").innerHTML = `<span class="${s.status === "gain" ? "gain" : "error"}">${escapeHtml(s.text)}</span>`;
+      $("#rank-rows").innerHTML = p.ranked.map((r) => `<tr><td>${r.rank}</td><td>${escapeHtml(r.name)}</td><td>${r.size}</td><td>${r.minutes}</td><td>${money(r.price)}</td><td>${money(r.net)}</td><td>${money(r.netPerHour)}</td><td>${money(r.priceForTarget)}</td><td>${r.booked ? "Book" : ""}</td></tr>`).join("");
+      $("#work-table").hidden = !p.chosen.length;
+      $("#work-rows").innerHTML = p.chosen.map((c) => `<tr><td>${escapeHtml(c.name)}</td><td>${c.size}</td><td>${c.tableMinutes}</td><td>${money(c.net)}</td><td>${money(c.netPerHour)}</td></tr>`).join("");
+      $("#skip-table").hidden = !p.skipped.length;
+      $("#skip-rows").innerHTML = p.skipped.map((d) => `<tr><td>${escapeHtml(d.name)}</td><td>${escapeHtml(d.reason)}</td></tr>`).join("");
+      const t = p.totals;
+      $("#compare-rows").innerHTML = [
+        ["Best set of dogs (this tool)", t.plan], ["Book in the order requests arrived", t.firstCome],
+        ["Highest price first", t.topPriceFirst], [`This plan if ${p.options.noShow}% of dogs do not show`, t.downsidePlan],
+      ].map(([l, v]) => `<tr><td>${escapeHtml(l)}</td><td>${money(v)}</td></tr>`).join("");
+      $("#findings").innerHTML = p.findings.map((f) => `<li>${escapeHtml(f.message)}</li>`).join("");
+      $("#report-card").hidden = false;
+      record("plan_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `dog,size,minutes,price,supplies,note
+Biscuit,medium,75,70,6,Doodle full groom
+Tank,giant,120,120,12,Newfoundland
+Pixie,small,40,55,3,Shih tzu bath and tidy
+Maple,large,105,95,9,Golden de-shed
+Rocco,medium,150,85,10,Matted cockapoo
+Bean,small,30,40,2,Maltese face and feet
+Duke,large,90,100,8,Lab bath and nails
+Ziggy,medium,60,75,5,Schnauzer
+Olive,small,35,35,2,Chihuahua bath
+Bruno,giant,150,140,14,Great Pyrenees`;
+
+    $("#load-example").addEventListener("click", () => {
+      $("#ev-input").value = EXAMPLE_SOURCE;
+      $("#capacity").value = 480; $("#turnover").value = 10; $("#target").value = 45; $("#maxdogs").value = 0; $("#maxlarge").value = 2; $("#noshow").value = 10;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      $("#ev-input").value = "";
+      $("#status").textContent = "";
+      $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>
