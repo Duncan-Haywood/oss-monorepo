@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'embroidery-shop-quote-calculator':
+    'the labor rate is the operator\'s hourly cost applied to the clock time of one job and overhead is a dollar figure per machine hour, not a percentage of direct cost; the target margin is a share of the quote, and there is no burden field -- the tool quotes a decorated piece from machine time rather than being handed a shop rate',
   'course-launch-revenue-calculator':
     'there is no labor rate or job pricing: the tool turns a course creator\'s own list, conversion rates, price and fees into launch profit; nothing is quoted to a customer',
   'freelance-rate-increase-calculator':
