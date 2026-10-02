@@ -1562,6 +1562,9 @@ workflows:
 - workflow: saas-cac-payback-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: saas-renewal-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: saas-seat-true-up-ci.yml
   classification: none
   publishes: []
