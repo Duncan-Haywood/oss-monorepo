@@ -440,6 +440,9 @@ workflows:
 - workflow: consent-change-record-ci.yml
   classification: none
   publishes: []
+- workflow: consignment-markdown-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: construction-evidence-log-ci.yml
   classification: none
   publishes: []
@@ -495,6 +498,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: crypto-cost-basis-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: csa-share-pricing-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: custom-farm-rate-calculator-ci.yml
@@ -1812,6 +1818,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: supabase-rls-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: support-staffing-planner-ci.yml
   classification: none
   publishes: []
 - workflow: tattoo-piece-profit-calculator-ci.yml

@@ -1,0 +1,13 @@
+item,qty_per_box,value_each,cost_each,minutes_each,weeks,note
+Salad mix (bag),1,6.00,0.90,12,20,
+Tomatoes (lb),2,4.50,0.70,9,10,peak summer
+Kale (bunch),1,3.50,0.45,6,18,
+Carrots (bunch),1,3.75,0.50,7.5,12,
+Zucchini (lb),2,2.75,0.30,4.5,8,glut
+Cucumbers,2,1.75,0.25,3,8,
+Potatoes (lb),2,2.50,0.35,3,10,
+Garlic (head),2,1.50,0.20,3,6,
+Peppers,3,1.60,0.35,6,9,
+Herbs (bunch),1,3.00,0.30,9,20,
+Winter squash,1,4.00,0.50,6,6,
+Radishes (bunch),1,3.00,0.20,9,5,spring
