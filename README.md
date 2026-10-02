@@ -151,3 +151,10 @@ valuable task without an account, payment, or a paid dependency. See
 [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) and
 [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) for the launch checklist, safety
 guardrails, and opportunity-selection criteria.
+
+## License
+
+MIT — see [`LICENSE`](LICENSE). Each venture under `ventures/` also carries its
+own copy, so one extracted on its own keeps the grant. Report vulnerabilities
+privately as described in [`SECURITY.md`](SECURITY.md). Making the repository
+public is tracked in [`infra/GOING_PUBLIC.md`](infra/GOING_PUBLIC.md).

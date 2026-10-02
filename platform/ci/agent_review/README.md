@@ -73,6 +73,11 @@ Copilot code review does **not** count toward required approvals.
 2. **`agent-pr-auto-merge.yml`** — after reviews or CI completes, squash-merges
    when `config.yaml`'s `required_approvals` (default **2**) allowed bot
    approvals exist and checks pass.
+
+**Pull requests from forks are never reviewed or merged by these bots**
+(`is_fork_pr` in `review.py`). The reviews are mechanical, which stands in for
+judgment only while every author has push access. A fork PR on a public
+repository needs a human.
 3. **Agent sessions** — before new work, run review pending PRs (see
    `.github/prompts/review-open-prs-first.md`).
 

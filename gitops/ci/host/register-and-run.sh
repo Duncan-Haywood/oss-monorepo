@@ -24,6 +24,8 @@
 #
 # WHAT THIS SCRIPT DOES, EVERY TIME IT STARTS
 #
+#   0. Confirm the repository is private, and hold (exit 0) if it cannot. This
+#      is the one API call made even when already registered.
 #   1. If already configured (a `.runner` file sits next to this script from a
 #      previous run), skip straight to step 3. Re-registering a runner that
 #      already has a valid registration would create a duplicate GitHub does
@@ -56,19 +58,45 @@ RUNNER_NAME="${RUNNER_NAME:-hetzner-$(hostname)}"
 
 log() { printf '[register-and-run] %s\n' "$*"; }
 
+# Same rule and same fail-closed test as gitops/ci/runner-entrypoint.sh: a
+# self-hosted runner must never serve a public repository, because a fork's
+# pull request picks its own `runs-on:` and could land on this box. Checked on
+# every start, registered or not -- unlike the cluster's ephemeral pods this
+# runner does not come back through registration before each job, so a
+# restart is the only point it can notice the repository was made public.
+repo_is_private() {
+  local response
+  response="$(curl -fsSL \
+    -H "Authorization: Bearer ${RUNNER_TOKEN}" \
+    -H "Accept: application/vnd.github+json" \
+    -H "X-GitHub-Api-Version: 2022-11-28" \
+    "https://api.github.com/repos/${GITHUB_REPOSITORY}")" || return 1
+  grep -q '"private"[[:space:]]*:[[:space:]]*true' <<<"$response" || return 1
+  ! grep -q '"private"[[:space:]]*:[[:space:]]*false' <<<"$response"
+}
+
 cd "$RUNNER_HOME"
 
-if [[ ! -f "$RUNNER_HOME/.runner" ]]; then
-  if [[ ! -x "$RUNNER_HOME/config.sh" ]]; then
-    log "no runner binaries in $RUNNER_HOME -- run install-github-runner-host.sh first."
-    exit 1
-  fi
+if [[ ! -f "$RUNNER_HOME/.runner" && ! -x "$RUNNER_HOME/config.sh" ]]; then
+  log "no runner binaries in $RUNNER_HOME -- run install-github-runner-host.sh first."
+  exit 1
+fi
 
-  if [[ -z "${RUNNER_TOKEN:-}" ]]; then
-    log "no RUNNER_TOKEN -- this box is not credentialed yet. Holding."
-    log "write it with: install-github-runner-host.sh --credentials"
-    exit 0
-  fi
+if [[ -z "${RUNNER_TOKEN:-}" ]]; then
+  log "no RUNNER_TOKEN -- this box is not credentialed yet. Holding."
+  log "write it with: install-github-runner-host.sh --credentials"
+  exit 0
+fi
+
+# Exit 0, like the no-token hold above: systemd retries after RestartSec rather
+# than crash-looping, and run.sh never starts while this holds.
+if ! repo_is_private; then
+  log "could not confirm ${GITHUB_REPOSITORY} is private -- not starting. Holding."
+  log "self-hosted runners must not serve a public repository; see infra/GOING_PUBLIC.md."
+  exit 0
+fi
+
+if [[ ! -f "$RUNNER_HOME/.runner" ]]; then
 
   # Same two-endpoint split as gitops/ci/runner-entrypoint.sh: a
   # registration-token is only accepted by config.sh, expires in an hour, and

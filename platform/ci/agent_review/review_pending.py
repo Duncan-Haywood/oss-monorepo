@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from review import (
     author_matches_skip,
     fetch_reviews,
+    is_fork_pr,
     list_open_prs,
     load_config,
     review_pull_request,
@@ -46,6 +47,9 @@ def main(argv: list[str] | None = None) -> int:
         author = (pr.get("user") or {}).get("login", "")
         if author_matches_skip(author, reviewer.author_skip):
             print(f"skip #{number}: authored by {author}")
+            continue
+        if is_fork_pr(pr):
+            print(f"skip #{number}: fork PR (human review only)")
             continue
         reviews = fetch_reviews(number)
         head_sha = (pr.get("head") or {}).get("sha")

@@ -373,6 +373,24 @@ def path_touches_ventures(files: list[str]) -> bool:
     return any(f.startswith("ventures/") for f in files)
 
 
+def is_fork_pr(pr: dict[str, Any]) -> bool:
+    """True unless the PR's head branch lives in the base repository itself.
+
+    The reviews above are mechanical (CI green, validators pass), which is a
+    fair stand-in for judgment only while every author already has push
+    access. On a public repository anyone can open a PR from a fork, and a
+    green fork PR would otherwise collect two bot approvals from session-start
+    `review_pending.py` runs and be squash-merged with nobody having read it.
+    So fork PRs are human-gated, like ventures/* merges. Fails closed: a head
+    repo GitHub no longer reports (deleted fork) counts as a fork.
+    """
+    head_repo = ((pr.get("head") or {}).get("repo") or {}).get("full_name")
+    base_repo = ((pr.get("base") or {}).get("repo") or {}).get("full_name")
+    if not head_repo or not base_repo:
+        return True
+    return head_repo.lower() != base_repo.lower()
+
+
 def evaluate_pr(pr_number: int) -> tuple[bool, list[str]]:
     """Run deterministic checks a reviewer App should enforce before APPROVE."""
     reasons: list[str] = []
@@ -465,6 +483,9 @@ def review_pull_request(pr_number: int, reviewer_key: str) -> str:
     if author_matches_skip(author, reviewer.author_skip):
         return f"skip: PR #{pr_number} authored by {author} (self-review)"
 
+    if is_fork_pr(pr):
+        return f"skip: PR #{pr_number} comes from a fork (human review only)"
+
     reviews = fetch_reviews(pr_number)
     head_sha = (pr.get("head") or {}).get("sha")
     if reviewer_already_approved(reviews, reviewer.github_login, head_sha):
@@ -487,6 +508,8 @@ def merge_eligible(pr_number: int) -> tuple[bool, list[str]]:
         return False, ["already merged"]
     if pr.get("state") != "open":
         return False, [f"state={pr.get('state')}"]
+    if is_fork_pr(pr):
+        return False, ["PR comes from a fork — human-gated; owner must merge"]
 
     # Gate on GitHub's own head-commit summary first: this blocks a merge while
     # any workflow is still queued or running, even before its check run has

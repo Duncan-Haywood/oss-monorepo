@@ -37,6 +37,7 @@ def runner(tmp_path: Path):
         'case "$url" in\n'
         '  *registration-token) printf \'{"token":"REG-TOKEN","expires_at":"2026-01-01T00:00:00Z"}\' ;;\n'
         '  *remove-token) printf \'{"token":"RM-TOKEN","expires_at":"2026-01-01T00:00:00Z"}\' ;;\n'
+        '  */repos/o/r) printf \'{"full_name":"o/r","private":true,"visibility":"private"}\' ;;\n'
         '  *) exit 22 ;;\n'
         "esac\n"
     )
@@ -161,7 +162,11 @@ def test_a_missing_registration_token_fails_without_echoing_the_response(runner)
     # This log is the one place a token could leak, so a failure must not print
     # the API response back.
     (runner["bin"] / "curl").write_text(
-        "#!/usr/bin/env bash\nprintf '{\"message\":\"Bad credentials\"}'\n"
+        "#!/usr/bin/env bash\n"
+        'case "${!#}" in\n'
+        '  */repos/o/r) printf \'{"private":true}\' ;;\n'
+        "  *) printf '{\"message\":\"Bad credentials\"}' ;;\n"
+        "esac\n"
     )
     (runner["bin"] / "curl").chmod(0o755)
     (runner["home"] / "run.sh").write_text("#!/usr/bin/env bash\nexit 0\n")
@@ -284,3 +289,40 @@ def test_the_job_exit_status_is_preserved(runner) -> None:
     )
 
     assert proc.returncode == 7, proc.stdout + proc.stderr
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        '{"full_name":"o/r","private":false,"visibility":"public"}',
+        # A public fork reports its public parent too; never trust a mixed body.
+        '{"private":true,"parent":{"private":false}}',
+        '{"message":"Not Found"}',
+    ],
+)
+def test_a_repository_not_confirmed_private_refuses_to_register(runner, body) -> None:
+    # On a public repository a fork PR picks its own `runs-on:`, so a stranger
+    # could land a job here. The runner must not register at all.
+    calls_log = runner["calls"]
+    (runner["bin"] / "curl").write_text(
+        "#!/usr/bin/env bash\n"
+        f'echo "curl ${{!#}}" >> "{calls_log}"\n'
+        'case "${!#}" in\n'
+        f"  */repos/o/r) printf '%s' '{body}' ;;\n"
+        '  *) printf \'{"token":"REG-TOKEN"}\' ;;\n'
+        "esac\n"
+    )
+    (runner["bin"] / "curl").chmod(0o755)
+    (runner["home"] / "run.sh").write_text("#!/usr/bin/env bash\nexit 0\n")
+    (runner["home"] / "run.sh").chmod(0o755)
+
+    proc = subprocess.run(
+        ["bash", str(ENTRYPOINT)], env=runner["env"](),
+        capture_output=True, text=True, timeout=60,
+    )
+
+    assert proc.returncode != 0
+    assert "could not confirm o/r is private" in proc.stderr
+    calls = _calls(runner["calls"])
+    assert not any("registration-token" in c for c in calls), calls
+    assert not any(c.startswith("config.sh") for c in calls), calls

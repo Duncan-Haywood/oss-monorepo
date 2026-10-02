@@ -380,7 +380,10 @@ codes as exit 42 and a rejected credential as exit 43.
    write**), then set the repository variable `CI_RUNNER` =
    `self-hosted`. Clearing that variable moves every workflow back to
    GitHub-hosted runners. Details and the security posture:
-   `gitops/ci/README.md`.
+   `gitops/ci/README.md`. **Private repository only.** If you make this
+   repository public ([`GOING_PUBLIC.md`](GOING_PUBLIC.md)), skip this item:
+   fork PRs could run on a self-hosted runner, the runners now refuse to
+   start, and public repositories get GitHub-hosted minutes free anyway.
 
 ## Publish `tools.marisstella.dev` (the whole product portfolio)
 

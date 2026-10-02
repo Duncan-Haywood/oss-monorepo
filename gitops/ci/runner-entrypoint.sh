@@ -76,6 +76,36 @@ fetch_token() {
   printf '%s' "${token}"
 }
 
+# A self-hosted runner must never serve a public repository. There, anyone can
+# open a pull request from a fork, and a `pull_request` workflow runs the
+# fork's own copy of the workflow file -- `runs-on:` included -- so a stranger
+# can ask for `self-hosted` by name and run their code on this node whatever
+# `vars.CI_RUNNER` says. GitHub's guidance is to use self-hosted runners only
+# with private repositories (infra/GOING_PUBLIC.md). This runner is ephemeral
+# and comes back through here before every job, so the check also stops a
+# runner that was already up when the repository was made public.
+#
+# Fails closed: registers only on a positive "private": true. A public fork's
+# parent is public too, so a `"private": false` anywhere in the body also
+# refuses rather than trusting whichever field grep met first.
+repo_is_private() {
+  local response
+  response="$(curl -fsSL \
+    -H "Authorization: Bearer ${RUNNER_TOKEN}" \
+    -H "Accept: application/vnd.github+json" \
+    -H "X-GitHub-Api-Version: 2022-11-28" \
+    "https://api.github.com/repos/${GITHUB_REPOSITORY}")" || return 1
+  grep -q '"private"[[:space:]]*:[[:space:]]*true' <<<"${response}" || return 1
+  ! grep -q '"private"[[:space:]]*:[[:space:]]*false' <<<"${response}"
+}
+
+if ! repo_is_private; then
+  echo "Refusing to register: could not confirm ${GITHUB_REPOSITORY} is private." >&2
+  echo "Self-hosted runners must not serve a public repository -- clear the CI_RUNNER" >&2
+  echo "variable and scale this Deployment to 0. See infra/GOING_PUBLIC.md." >&2
+  exit 1
+fi
+
 echo "Requesting a registration token for ${GITHUB_REPOSITORY}..."
 reg_token="$(fetch_token registration)"
 if [ -z "${reg_token}" ]; then

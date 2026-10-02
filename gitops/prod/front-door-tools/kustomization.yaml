@@ -44,7 +44,7 @@
 #   portfolio-front-tools-8: 130 files, 556854 bytes
 #   portfolio-front-tools-9: 121 files, 544747 bytes
 #   portfolio-front-tools-10: 131 files, 556224 bytes
-#   portfolio-front-tools-11: 133 files, 553314 bytes
+#   portfolio-front-tools-11: 132 files, 552668 bytes
 #   portfolio-front-tools-12: 130 files, 546697 bytes
 #   portfolio-front-tools-13: 118 files, 554440 bytes
 #   portfolio-front-tools-14: 120 files, 554466 bytes
@@ -1614,7 +1614,6 @@ configMapGenerator:
       - egress-window-bid-calculator__vs-a-flat-rate-egress-window-special.html.gz=egress-window-bid-calculator__vs-a-flat-rate-egress-window-special.html.gz
       - egress-window-bid-calculator__vs-jobber.html.gz=egress-window-bid-calculator__vs-jobber.html.gz
       - egress-window-bid-calculator__vs-jobnimbus.html.gz=egress-window-bid-calculator__vs-jobnimbus.html.gz
-      - einvoice-preflight__LICENSE.gz=einvoice-preflight__LICENSE.gz
       - einvoice-preflight__adjustment.mjs.gz=einvoice-preflight__adjustment.mjs.gz
       - einvoice-preflight__bic.mjs.gz=einvoice-preflight__bic.mjs.gz
       - einvoice-preflight__breakdown.mjs.gz=einvoice-preflight__breakdown.mjs.gz

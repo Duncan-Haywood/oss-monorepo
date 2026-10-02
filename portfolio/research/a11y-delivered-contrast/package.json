@@ -2,5 +2,5 @@
   "name": "a11y-delivered-contrast",
   "private": true,
   "description": "Scratch manifest for `npm install axe-core@4.13.0 --no-save` — see README.md. Not committed with a lockfile; nothing here is a runtime dependency of any venture.",
-  "license": "UNLICENSED"
+  "license": "MIT"
 }

@@ -7,6 +7,7 @@ from review import (
     author_matches_skip,
     checks_all_success,
     count_allowed_approvals,
+    is_fork_pr,
     load_config,
     mergeable_state_ok,
     path_touches_ventures,
@@ -183,6 +184,31 @@ class HumanGateTest(unittest.TestCase):
     def test_ventures_paths_are_human_gated(self):
         self.assertTrue(path_touches_ventures(["ventures/local-site-studio/app/page.tsx"]))
         self.assertFalse(path_touches_ventures(["platform/ci/agent_review/review.py"]))
+
+
+def _pr(head_repo, base_repo="Duncan-Haywood/fp-monorepo"):
+    return {
+        "head": {"repo": {"full_name": head_repo} if head_repo else None},
+        "base": {"repo": {"full_name": base_repo}},
+    }
+
+
+class ForkGateTest(unittest.TestCase):
+    # On a public repo anyone can open a PR from a fork; the mechanical
+    # reviews must never approve or merge one.
+    def test_same_repo_branch_is_not_a_fork(self):
+        self.assertFalse(is_fork_pr(_pr("Duncan-Haywood/fp-monorepo")))
+
+    def test_owner_case_differences_are_the_same_repo(self):
+        self.assertFalse(is_fork_pr(_pr("duncan-haywood/fp-monorepo")))
+
+    def test_fork_head_is_a_fork(self):
+        self.assertTrue(is_fork_pr(_pr("stranger/fp-monorepo")))
+
+    def test_deleted_fork_fails_closed(self):
+        # GitHub reports head.repo = null once the fork is deleted.
+        self.assertTrue(is_fork_pr(_pr(None)))
+        self.assertTrue(is_fork_pr({}))
 
 
 class MergeableStateTest(unittest.TestCase):

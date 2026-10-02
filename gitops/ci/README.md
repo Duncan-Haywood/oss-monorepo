@@ -240,10 +240,16 @@ begin with.
 
 ## Known limitations
 
-- `pull_request_target` workflows run with repository write access. On a
-  private repo the risk is bounded because only collaborators can open PRs, but
-  if this repository is ever made public, move those workflows back to
-  GitHub-hosted runners before flipping `CI_RUNNER`.
+- **Private repositories only.** On a public repository anyone can open a
+  pull request from a fork, and a `pull_request` workflow runs the fork's own
+  copy of the workflow file, `runs-on:` included. A stranger can therefore
+  request `self-hosted` by name, whatever `CI_RUNNER` says. Moving individual
+  workflows back to GitHub-hosted runners doesn't help. So both registration
+  paths (`runner-entrypoint.sh`, `host/register-and-run.sh`) refuse to start
+  unless the API confirms the repository is private, and
+  [`infra/GOING_PUBLIC.md`](../../infra/GOING_PUBLIC.md) says to remove every
+  runner before the visibility flip. A public repository also gets
+  GitHub-hosted minutes free, which removes the reason this stack exists.
 - The PAT expires. When it does, runner pods `CrashLoopBackOff` with
   `Could not read a registration token` and CI goes quiet — the same symptom as
   the outage this stack exists to end. Worth a calendar reminder.

@@ -303,18 +303,40 @@ def test_wrapper_refuses_if_binaries_are_missing(tmp_path):
     assert "run install-github-runner-host.sh first" in result.stdout
 
 
-def test_wrapper_execs_run_sh_once_already_registered(box):
+def _visibility_curl(tmp_path, body):
+    """A `curl` on PATH that answers the repository endpoint with `body` and
+    records every URL it was asked for. Anything else fails, like a dead API.
+    """
+    bin_dir = tmp_path / "curl-bin"
+    bin_dir.mkdir()
+    calls = tmp_path / "curl-calls.log"
+    (bin_dir / "curl").write_text(
+        "#!/usr/bin/env bash\n"
+        f'echo "${{!#}}" >> "{calls}"\n'
+        'case "${!#}" in\n'
+        f"  */repos/Duncan-Haywood/monorepo-projects) printf '%s' '{body}' ;;\n"
+        "  *) exit 22 ;;\n"
+        "esac\n"
+    )
+    (bin_dir / "curl").chmod(0o755)
+    return bin_dir, calls
+
+
+def test_wrapper_execs_run_sh_once_already_registered(box, tmp_path):
     """Once `.runner` exists, the wrapper must skip straight to `run.sh`
-    without touching the network or re-running config.sh.
+    without minting a registration token or re-running config.sh. The one
+    call it does make is the visibility check.
     """
     run(box)
     prefix = Path(box["RUNNER_HOST_PREFIX"])
     (prefix / ".runner").write_text('{"agentName": "hetzner-host"}\n')
+    bin_dir, calls = _visibility_curl(tmp_path, '{"private":true}')
     env = {
-        "PATH": os.environ["PATH"],
+        "PATH": f"{bin_dir}:{os.environ['PATH']}",
         "GITHUB_REPOSITORY": "Duncan-Haywood/monorepo-projects",
         "RUNNER_HOST_HOME": str(prefix),
         "RUNNER_HOST_WORK": str(prefix / "_work"),
+        "RUNNER_TOKEN": "pat-stub",
     }
     result = subprocess.run(
         ["bash", str(prefix / "register-and-run.sh")],
@@ -325,3 +347,37 @@ def test_wrapper_execs_run_sh_once_already_registered(box):
     )
     assert result.returncode == 0, result.stderr
     assert "fake run.sh" in result.stdout
+    called = calls.read_text().splitlines() if calls.exists() else []
+    assert not any("registration-token" in c for c in called)
+
+
+@pytest.mark.parametrize(
+    "body",
+    ['{"private":false,"visibility":"public"}', '{"message":"Not Found"}'],
+)
+def test_wrapper_holds_when_the_repository_is_not_confirmed_private(box, tmp_path, body):
+    """A fork PR on a public repository picks its own `runs-on:`, so this box
+    must not take jobs once the repository is public -- registered or not.
+    Holds with exit 0 (systemd retries) and never reaches run.sh.
+    """
+    run(box)
+    prefix = Path(box["RUNNER_HOST_PREFIX"])
+    (prefix / ".runner").write_text('{"agentName": "hetzner-host"}\n')
+    bin_dir, _ = _visibility_curl(tmp_path, body)
+    env = {
+        "PATH": f"{bin_dir}:{os.environ['PATH']}",
+        "GITHUB_REPOSITORY": "Duncan-Haywood/monorepo-projects",
+        "RUNNER_HOST_HOME": str(prefix),
+        "RUNNER_HOST_WORK": str(prefix / "_work"),
+        "RUNNER_TOKEN": "pat-stub",
+    }
+    result = subprocess.run(
+        ["bash", str(prefix / "register-and-run.sh")],
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert result.returncode == 0, result.stderr
+    assert "could not confirm" in result.stdout
+    assert "fake run.sh" not in result.stdout
