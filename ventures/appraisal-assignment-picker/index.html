@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Appraisal Assignment Picker — Which Requests to Accept</title>
+  <meta name="description" content="Paste the appraisal assignments you have been offered and get the set that earns the most before the due dates, the order to work them, and the fee each declined file would need. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Which appraisal assignments should an independent appraiser accept?">
+  <meta property="og:description" content="The best set of files to accept against your due dates and daily hours, the fee each declined file would need, and what first-come acceptance leaves behind. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Appraisal Assignment Picker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste the queue of requested assignments with fee, work hours, due day and direct cost and get the set an independent appraiser should accept to earn the most before the due dates, the order to work them, what each declined file would need to pay, and what first-come acceptance leaves behind. Browser or zero-dependency Node CLI."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does it upload my assignment list?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page works on the text you paste, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call."}}, {"@type": "Question", "name": "How is the best set found?", "acceptedAnswer": {"@type": "Answer", "text": "Work is divisible across days, so a set of assignments can be delivered on time exactly when, for every due day, the hours of the files due by then fit in the hours you have by then. The tool searches the assignments in due-date order, abandons a partial set the moment it misses a deadline, and keeps the highest total net. That is the exact best set for the numbers you give, and the tests compare it with trying every subset."}}, {"@type": "Question", "name": "Why would it turn down a file I would normally take?", "acceptedAnswer": {"@type": "Answer", "text": "Because hours before a deadline are the scarce thing. A good-paying file can take the hours two other files needed to hit the same due date. The tool says what the file would need to pay to earn its place, which is the number to counter-offer."}}, {"@type": "Question", "name": "Where do the hours and costs come from?", "acceptedAnswer": {"@type": "Answer", "text": "From your own records: the hours a typical file of that type takes you from drive to final report, and the out-of-pocket cost of each file. They are your estimates, so treat the plan as a decision aid, not a forecast."}}, {"@type": "Question", "name": "Who is it for?", "acceptedAnswer": {"@type": "Answer", "text": "Independent real estate appraisers, home and property inspectors, and other solo professionals paid a fee per file who choose which requests to accept against fixed due dates."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    input[type=number] { width: 6.5em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">APPRAISAL ASSIGNMENT PICKER · RUNS IN YOUR BROWSER</p>
+    <h1>Ten requests, one appraiser: which should you accept?</h1>
+    <p>Accepting requests as they arrive, or the biggest fee first, fills your calendar with the wrong files and leaves the good ones late. Paste the queue — <strong>fee, hours of work, the day each is due and what each costs you out of pocket</strong> — and get <strong>the exact set of files with the highest total net that you can still deliver on time</strong>, the order to work them, <strong>the fee each file it turns down would need to pay</strong>, and what first-come acceptance leaves behind.</p>
+    <p class="note">For independent real estate appraisers, home inspectors and other solo professionals paid per file. Nothing is uploaded: the text box is analysed in this browser and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste the queue</h2>
+    <label for="ev-input">One row per assignment: name, fee, hours of work, due day (1 = today), direct cost, optional note (up to 16 files)</label>
+    <textarea id="ev-input" spellcheck="false" placeholder="Refi - 1204 Elm St,425,4.5,3,25&#10;Rural 12 acres,1400,16,6,110"></textarea>
+    <p>
+      <label for="hpd">Work hours per business day</label><input type="number" id="hpd" value="6" min="0.5" max="24" step="0.5">
+      <label for="booked">Hours already booked</label><input type="number" id="booked" value="0" min="0" step="0.5">
+      <label for="bookeddue">Booked hours due by day</label><input type="number" id="bookeddue" value="1" min="1" step="1">
+    </p>
+    <p>
+      <button type="button" id="analyze">Pick the files</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. The plan</h2>
+    <p id="summary"></p>
+    <h3>Work in this order</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>#</th><th>File</th><th>Hours</th><th>Starts day</th><th>Finishes day</th><th>Due day</th><th>Hours to spare</th><th>Net</th></tr></thead>
+      <tbody id="route-rows"></tbody>
+    </table></div>
+    <h3>Files turned down</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>File</th><th>Why</th><th>Offered fee</th><th>Worth accepting at</th></tr></thead>
+      <tbody id="decline-rows"></tbody>
+    </table></div>
+    <h3>Against simple rules</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Rule</th><th>Files</th><th>Total net</th></tr></thead>
+      <tbody id="compare-rows"></tbody>
+    </table></div>
+    <ul id="findings"></ul>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI?</h2>
+    <p>Same logic, zero dependencies, one command — reads a file or stdin:</p>
+    <pre class="cmd">node cli.mjs plan assignments.csv --hours-per-day 6 --booked 4 --booked-due 2 --json
+cat assignments.csv | node cli.mjs plan - --hours-per-day 7</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="how-to-choose-which-appraisal-assignments-to-accept.html">How to choose which appraisal assignments to accept: capacity and due-date math</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">The plan is exact for the numbers you type (a search over every set of files, up to 16). One person and one stream of hours; work is treated as divisible across days, so a file that must be done in one sitting, an inspection that needs a specific day, a second appraiser, rush add-ons that change after acceptance, repeat-client value and the cost of declining a client are not modelled. Business days are counted by you; weekends and holidays are not.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does it upload my assignment list?</h3>
+    <p>No. The browser page works on the text you paste, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+    <h3>How is the best set found?</h3>
+    <p>Work is divisible across days, so a set of assignments can be delivered on time exactly when, for every due day, the hours of the files due by then fit in the hours you have by then. The tool searches the assignments in due-date order, abandons a partial set the moment it misses a deadline, and keeps the highest total net. That is the exact best set for the numbers you give, and the tests compare it with trying every subset.</p>
+    <h3>Why would it turn down a file I would normally take?</h3>
+    <p>Because hours before a deadline are the scarce thing. A good-paying file can take the hours two other files needed to hit the same due date. The tool says what the file would need to pay to earn its place, which is the number to counter-offer.</p>
+    <h3>Where do the hours and costs come from?</h3>
+    <p>From your own records: the hours a typical file of that type takes you from drive to final report, and the out-of-pocket cost of each file. They are your estimates, so treat the plan as a decision aid, not a forecast.</p>
+    <h3>Who is it for?</h3>
+    <p>Independent real estate appraisers, home and property inspectors, and other solo professionals paid a fee per file who choose which requests to accept against fixed due dates.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, valuation or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, for the accuracy of the fees, hours, costs and due dates you type, and for any engagement, panel or client agreement that governs which assignments you must take or decline. Appraisal and inspection work is regulated and professional-judgement-sensitive: the plan only chooses between files on the numbers you supply, it does not know licensing or competency rules, USPAP or other standards, conflict-of-interest or independence requirements, or whether you are qualified for a given property, and those come first; never accept an assignment you cannot complete competently and independently, and never let a fee or deadline influence an opinion of value. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It chooses between options using the numbers you supply; it is not a forecast of how long any file will take.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../home-inspection-fee-calculator/">Home Inspection Fee Calculator</a>, <a href="../freelance-project-picker/">Freelance Project Picker</a>, <a href="../land-survey-bid-calculator/">Land Survey Bid Calculator</a> and <a href="../booking-request-chooser/">Booking Request Chooser</a>.</p>
+    <p class="support">Free and open source. If this earned you a better month, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseJobs, plan, summarize, money, INPUT_NOTES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    function renderReport() {
+      const status = $("#status");
+      const text = $("#ev-input").value;
+      if (!text.trim()) {
+        status.innerHTML = `<span class="error">Paste some rows first (or load the worked example).</span>`;
+        return;
+      }
+      const parsed = parseJobs(text);
+      if (parsed.errors.length) {
+        status.innerHTML = `<span class="error">${parsed.errors.map(escapeHtml).join("<br>")}</span>`;
+        return;
+      }
+      if (!parsed.jobs.length) {
+        status.innerHTML = `<span class="error">No assignment rows found.</span>`;
+        return;
+      }
+      let p;
+      try {
+        p = plan(parsed, { hoursPerDay: $("#hpd").value, booked: $("#booked").value, bookedDue: $("#bookeddue").value });
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarize(p);
+      $("#summary").innerHTML = `<span class="${s.status === "gain" ? "gain" : s.status === "none" ? "error" : "ok"}">${escapeHtml(s.text)}</span>`;
+      $("#route-rows").innerHTML = p.schedule.map((x, i) => `<tr><td>${i + 1}</td><td>${escapeHtml(x.name)}</td><td>${x.hours}</td><td>${x.startDay}</td><td>${x.finishDay}</td><td>${x.due}</td><td>${Math.max(0, x.spare).toFixed(1)}</td><td>${x.booked ? "already booked" : money(p.jobs[x.index].fee - p.jobs[x.index].cost)}</td></tr>`).join("") || `<tr><td colspan="8">No file is worth accepting.</td></tr>`;
+      $("#decline-rows").innerHTML = p.declined.map((d) => `<tr><td>${escapeHtml(d.name)}</td><td>${escapeHtml(d.reason)}</td><td>${money(d.fee)}</td><td>${d.minFee === null ? "never fits" : money(d.minFee)}</td></tr>`).join("") || `<tr><td colspan="4">Every file fits.</td></tr>`;
+      $("#compare-rows").innerHTML = [["Best set (this tool)", p.accepted, p.net], ...p.baselines.map((b) => [b.label, b.jobs, b.net])]
+        .map(([l, n, v]) => `<tr><td>${escapeHtml(l)}</td><td>${n}</td><td>${money(v)}</td></tr>`).join("");
+      $("#findings").innerHTML = p.findings.filter((f) => f.rule === "spare" || f.rule === "overbooked").map((f) => `<li>${escapeHtml(f.message)}</li>`).join("");
+      $("#report-card").hidden = false;
+      record("plan_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `name,fee,hours,due_day,direct_cost,note
+Refi - 1204 Elm St (AMC panel),425,4.5,3,25,Standard single family
+Purchase - 88 Harbor Ct,650,6,4,40,Rush contract date
+Estate - 15 Orchard Ln,750,9,6,60,Needs retro date
+Rural 12 acres - Hollis Rd,1400,16,6,110,Far comps and well/septic
+Condo refi - Unit 4B,350,3.5,2,15,Easy comps
+FHA purchase - 301 Maple,575,6.5,5,35,Repairs list
+Divorce - 9 Linden Way,900,11,7,50,Court date
+Multi-family 4 units - 77 Mill St,1300,14,5,80,Income approach
+Drive-by refi - Birch Ct,275,3,3,12,Exterior only
+HELOC - 220 Spruce Ave,300,4,4,20,AMC low fee`;
+
+    $("#load-example").addEventListener("click", () => {
+      $("#ev-input").value = EXAMPLE_SOURCE;
+      $("#hpd").value = 6; $("#booked").value = 0; $("#bookeddue").value = 1;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      $("#ev-input").value = "";
+      $("#status").textContent = "";
+      $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

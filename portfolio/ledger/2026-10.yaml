@@ -1073,3 +1073,29 @@ entries:
       guide or forecast, example fee tiers labelled as such, no warranty, not affiliated with
       any grader. Ethics: helps small card sellers decide where grading money is worth
       spending; no scraping, no authentication claims.
+  - venture: appraisal-assignment-picker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built appraisal-assignment-picker: a browser-local tool and zero-dependency
+        CLI for independent real estate appraisers, home inspectors and other solo professionals
+        paid per file. Paste the assignments on offer (fee, hours, business day due, direct cost)
+        with daily hours and any hours already booked; it returns the exact set to accept for the
+        highest total net that can still be delivered on time (deadline-pruned search, verified
+        against every subset), the order to work them, the exact fee at which each declined file
+        would earn a place, and what first-come, biggest-fee and best-per-hour acceptance leave
+        behind. New niche: home-inspection-fee-calculator prices one inspection and
+        freelance-project-picker picks projects; none chooses per-file requests under due-date
+        capacity. First visitor expected from "appraisal assignment fee too low / how many
+        appraisals can I do" searches. Nothing leaves the browser. Unverified with a real
+        appraiser's queue.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied estimates, stated prominently as not valuation or
+      business advice, licensing, competency and independence rules named as coming first, no
+      warranty. Ethics: helps small independent practitioners decide which files are worth their
+      hours; the page says no fee or deadline should influence an opinion of value.

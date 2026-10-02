@@ -1,0 +1,46 @@
+name: appraisal-assignment-picker
+description: 'Free, zero-network, zero-dependency browser tool and CLI for independent real estate appraisers, home inspectors and other solo professionals paid per file: paste the assignments on offer (fee, hours of work, business day due, direct cost) with the hours you can give per day and any hours already booked, and get the exact set of files to accept for the highest total net that can still be delivered on time (depth-first search over due-date order with deadline pruning, verified against every subset), the order to work them, the fee at which each declined file would earn a place, and the dollars first-come, biggest-fee-first and best-per-hour acceptance leave behind. Numbers are the ones the user supplies, not a forecast.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: raises what an independent appraiser keeps from the files on offer.
+# Checked 2026-10-02: ventures/ has home-inspection-fee-calculator (price of one inspection), freelance-project-picker
+# (picks projects, no hard per-file due dates against a daily-hours capacity), booking-request-chooser (rental nights) and
+# land-survey-bid-calculator (a bid); none chooses which per-file assignments to accept under due-date capacity or prices
+# what a declined file would need to pay. No appraisal venture exists. Not in screened-out.md.
+#
+# First visitor: searches "appraisal assignment turn down", "how many appraisals can I do a week", "AMC fee too low
+# appraiser"; appraiser forums and Facebook groups. Volume not measured with an external tool. Management-company
+# panels send requests with a fee and a due date and the appraiser has minutes to accept; a hosted version reading an
+# assignment-inbox export is the natural paid upgrade. The tool chooses between files on the user's numbers only:
+# licensing, competency, independence and valuation standards are outside it and come first.
+hypotheses:
+  - claim: An independent appraiser or inspector will paste the requests on offer, see how much first-come acceptance leaves behind, and change which files they accept or what fee they counter with.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A solo professional will return whenever a new batch of requests arrives, so the page earns repeat visits.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No appraiser or inspector reports changing a file they accept or a fee they counter with because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/appraisal-assignment-picker/
+  analytics: null
