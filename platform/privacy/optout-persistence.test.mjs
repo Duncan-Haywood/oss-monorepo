@@ -1178,7 +1178,8 @@ const RELATIVE_SELF = relative(
 // +1: `dynamodb-capacity-mode-advisor` graduated.
 // +1: `s3-storage-class-savings` graduated.
 // +1: `ebs-volume-cost-advisor` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 561;
+// +1: `cloudwatch-logs-cost-advisor` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 562;
 
 let counter = 0;
 function fixture(source) {
