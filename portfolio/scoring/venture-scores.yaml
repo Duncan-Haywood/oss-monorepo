@@ -25442,3 +25442,30 @@ ventures:
       Liability: arithmetic on pasted text at editable list prices, slot-hours as supplied by the user (Editions stated as a floor)
       and stated so, no warranty, nothing leaves the device. Ethics: helps engineers avoid paying for
       BigQuery scan costs they do not need.
+  - slug: k8s-requests-rightsizer
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.167
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic parser and arithmetic over pasted kubectl output; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the first-visitor channel is in the venture's own
+      VENTURE.yaml comment. Distribution 5 and defensibility 4: real search demand ("kubernetes
+      resource requests too high") with free Goldilocks/VPA and cloud cost views as incumbents; the
+      wedge is no cluster access, pasted text and a CI check; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that right-sizes Kubernetes CPU and memory requests from kubectl top output.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at editable list prices, recommendation from a snapshot and not
+      a bill, usage must be sampled over a representative period, no warranty, nothing leaves the device.
+      Ethics: helps engineers stop paying for compute reservations they do not use.
