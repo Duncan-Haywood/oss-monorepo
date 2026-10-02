@@ -287,6 +287,9 @@ workflows:
 - workflow: price-increase-breakeven-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: client-concentration-risk-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: caa-record-check-ci.yml
   classification: none
   publishes: []
