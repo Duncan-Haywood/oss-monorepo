@@ -284,6 +284,9 @@ workflows:
 - workflow: free-shipping-threshold-optimizer-ci.yml
   classification: none
   publishes: []
+- workflow: price-increase-breakeven-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: caa-record-check-ci.yml
   classification: none
   publishes: []

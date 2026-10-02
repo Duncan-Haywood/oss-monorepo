@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How Much Volume Can You Lose After a Price Increase?</title>
+  <meta name="description" content="The break-even arithmetic of a price increase: why a fat-margin item cannot lose many customers, and how to test a raise on your own price list.">
+  <link rel="canonical" href="./price-increase-guide.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much volume can I lose after a price increase?", "acceptedAnswer": {"@type": "Answer", "text": "Divide the dollar raise by the new unit margin: with a unit margin of 40 on a price of 100, a 10% raise lets you lose 10 / 50 = 20% of units before profit falls; at a unit margin of 10 the same raise tolerates 10 / 20 = 50%. Thin-margin items can lose more units. "}}, {"@type": "Question", "name": "What elasticity should I assume?", "acceptedAnswer": {"@type": "Answer", "text": "Nobody knows without testing. Treat 1.0 as a neutral placeholder and read the tool's break-even elasticity for each item: if your customers are less sensitive than that number, the raise pays."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">Price Increase Break-Even Calculator</a> · guide</p>
+  <h1>How much volume can you lose after a price increase?</h1>
+  <p>Short answer: <strong>more than you think when your margin is thin, and less when it is fat</strong>. A raise earns extra on every unit you keep and loses the whole unit margin on every unit you lose, so the break-even is set by your margin, not by how nervous the raise feels.</p>
+
+  <h2>The arithmetic</h2>
+  <pre>break-even volume loss = (new price - old price) / (new price - unit cost)
+
+price 100, cost 60, raise 10%  ->  10 / 50  = 20% of units
+price 100, cost 90, raise 10%  ->  10 / 20  = 50% of units
+price 100, cost 95, raise  2%  ->   2 /  7  = 29% of units</pre>
+  <p>Read it as: the raise is paid for by the units you keep. When the raise is large next to the margin you already earn, each kept unit pays for many lost ones. When the margin is already fat, the same raise barely changes what a unit earns, so losing units hurts quickly. Fixed overhead stays out of it: it does not move when a customer walks away.</p>
+
+  <h2>Why the answer is a sensitivity, not a number</h2>
+  <p>Past sales show your margin exactly and say nothing about how customers will react. The calculator therefore reports, for every item, the <em>elasticity at which the raise stops paying</em>. If you believe your customers are less sensitive than that, raise; if not, leave it.</p>
+
+  <h2>Common questions</h2>
+  <h3>How much volume can I lose after a price increase?</h3>
+  <p>Divide the dollar raise by the new unit margin: with a unit margin of 40 on a price of 100, a 10% raise lets you lose 10 / 50 = 20% of units before profit falls; at a unit margin of 10 the same raise tolerates 10 / 20 = 50%. Thin-margin items can lose more units. </p>
+  <h3>What elasticity should I assume?</h3>
+  <p>Nobody knows without testing. Treat 1.0 as a neutral placeholder and read the tool's break-even elasticity for each item: if your customers are less sensitive than that number, the raise pays.</p>
+  <h2>Test it</h2>
+  <ol>
+    <li>Export items with price, unit cost and units sold.</li>
+    <li>Paste them into the <a href="./">calculator</a>, or run <code>node cli.mjs analyze items.csv --increase 8</code>.</li>
+    <li>Raise the items with the largest cushion first, and compare units sold for a few weeks before touching the rest.</li>
+  </ol>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is. Not financial, tax, legal or business advice; arithmetic on numbers you supply, not a forecast. Check contracts and rules that limit price changes.</p>
+  </footer>
+</body>
+</html>

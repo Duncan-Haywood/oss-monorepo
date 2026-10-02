@@ -25642,6 +25642,37 @@ ventures:
       Liability: arithmetic on pasted rows plus two stated behavioural assumptions the user sets,
       not a forecast, no warranty, nothing leaves the device. Ethics: helps a small seller see the
       cost of a pricing policy they would otherwise set by rule of thumb.
+  - slug: price-increase-breakeven-calculator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic item parser and closed-form break-even arithmetic with a bisection for the
+      portfolio elasticity; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in the
+      venture's own VENTURE.yaml comment. Small-business owners paste a price list and see, per
+      item, how much volume a raise can lose and the customer sensitivity at which it stops
+      paying. Distribution 5 and defensibility 4: "price increase break-even" is a recurring
+      query and r/smallbusiness threads ask it, with spreadsheets and generic margin calculators
+      as incumbents; the wedge is per-item output on a pasted price list; volume not measured
+      with an external tool.
+      Scope: Free CLI and browser tool that tests a price increase over a pasted price list.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted rows plus one stated behavioural assumption the user sets,
+      not a forecast, no warranty, nothing leaves the device. Ethics: helps a small business owner
+      see the cost of fear-driven under-pricing before deciding.
   - slug: returns-policy-cost-analyzer
     scores:
       ai_leverage: 4
