@@ -721,3 +721,28 @@ entries:
     gate_note: >-
       Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
       warranty. Ethics: helps small exhibitors earn more from their own show budget.
+  - venture: consignment-markdown-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built consignment-markdown-planner: a browser-local tool and
+        zero-dependency CLI for consignment, resale, thrift and vintage shops. Paste
+        the items on the floor (price, weekly sell chance at full price, shop share
+        of the sale, shelf cost per week) and it finds the exact best markdown
+        schedule for each over the discount levels the shop allows (dynamic
+        programming, tested against every non-decreasing schedule), flags items not
+        worth taking in with the price and shop share at which they would pay,
+        compares with a fixed 30/60-day rule and never marking down, and re-checks
+        at a slow-season sell rate. New niche: clearance-markdown-planner covers
+        retail clearance without a consignor split or shelf-slot cost; none plans
+        per-item markdowns under consignment terms or screens at intake. First
+        visitor expected from "consignment shop markdown schedule" searches.
+        Nothing leaves the browser. Unverified with a real shop's sell-through data.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty. Ethics: helps small resale shops earn more from stock they already hold.

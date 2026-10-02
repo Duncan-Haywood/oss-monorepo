@@ -25944,3 +25944,32 @@ ventures:
       Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
       leaves the device. Ethics: helps small exhibitors earn more from their own show budget; the user decides
       and remains responsible for any contract signed with a show.
+  - slug: consignment-markdown-planner
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic CSV parser and exact dynamic-programming markdown schedule; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for consignment and resale shops with real search demand ("consignment
+      shop markdown schedule") and consignment software with one fixed schedule as the incumbent; the
+      wedge is a per-item optimal schedule under a consignor split plus an intake screen, free and
+      client-side; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that plans per-item markdown schedules and intake declines for consignment shops.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing
+      leaves the device. Ethics: helps small resale shops earn more from stock they already hold; the shop
+      remains responsible for its consignment agreements.
