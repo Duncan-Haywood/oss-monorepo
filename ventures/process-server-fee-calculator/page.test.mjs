@@ -200,3 +200,7 @@ test('index links one hop to the medical-courier-route-margin sibling', () => {
     'index must link ../medical-courier-route-margin/ so a crawler reaches that tool in one hop',
   );
 });
+
+test('index links one hop to the process-server-day-picker sibling', () => {
+  assert.match(html, /href="\.\.\/process-server-day-picker\/"/);
+});

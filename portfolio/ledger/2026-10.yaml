@@ -974,6 +974,7 @@ entries:
       warranty, borrowers waiting on closings and signing-service agreements come first.
       Ethics: helps independent notaries earn more from a day's offers.
   - venture: saas-renewal-planner
+  - venture: process-server-day-picker
     agent_spend_usd: null
     human_hours: 0
     outcomes:
@@ -988,6 +989,17 @@ entries:
         saas-annual-plan-discount-calculator are seller-side; none tracks notice windows across
         vendors. First visitor expected from "SaaS renewal calendar" and "auto-renewal notice
         period" searches. Nothing leaves the browser. Unverified with a real contract list.
+        Graduated and built process-server-day-picker: a browser-local tool and
+        zero-dependency CLI for independent process servers. Paste the day's assigned
+        serves (fee, costs, minutes on site, the window the person can be reached,
+        location) and it finds the exact most profitable set and order of attempts
+        (dynamic programming over serve sets, tested against every ordering of every
+        subset), the exact break-even fee of each declined serve, and what first-assigned
+        and biggest-fee-first routing leave behind. New niche: process-server-fee-calculator
+        nets one job and route-stop-optimizer orders stops without fees; none chooses
+        which serves to take under reachable windows. First visitor expected from
+        "process server route planning" searches. Nothing leaves the browser. Unverified
+        with a real server's day.
     mrr_end: 0
     gates:
       liability_containment: pass
@@ -996,3 +1008,6 @@ entries:
       Liability: arithmetic on user-supplied numbers, not a quote or advice, no warranty,
       contract notice terms control and dates are time-sensitive. Ethics: helps businesses
       spend less on software they already pay for.
+      Liability: arithmetic on user-supplied numbers, orders attempts only, not a forecast or
+      legal advice, no warranty, service rules, court deadlines and safety come first. Ethics:
+      helps independent servers earn more from their hours.

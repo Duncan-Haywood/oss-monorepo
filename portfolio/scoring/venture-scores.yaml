@@ -26202,6 +26202,9 @@ ventures:
   - slug: saas-renewal-planner
     scores:
       ai_leverage: 3
+  - slug: process-server-day-picker
+    scores:
+      ai_leverage: 4
       autonomous_ops: 10
       time_to_revenue: 5
       gross_margin: 10
@@ -26228,3 +26231,21 @@ ventures:
       Liability: arithmetic on pasted text at user-supplied numbers, stated so, no warranty, nothing leaves the
       device; the page warns that contract notice terms control and dates are time-sensitive. Ethics: helps
       businesses spend less on software they already pay for; the user decides and remains responsible.
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic CSV parser and exact dynamic-programming route search; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for independent process servers with real search demand
+      ("process server route planning") and agency dispatch tools that do not say which serve to refuse
+      or what a far one must pay; the wedge is an exact best set and order under reachable windows plus the
+      break-even fee of every declined serve, free and client-side; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that picks the most profitable serves and their order for one process server.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
