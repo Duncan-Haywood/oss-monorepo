@@ -1098,3 +1098,30 @@ entries:
       Liability: arithmetic on user-supplied estimates, stated prominently as not a price
       guide or forecast, no warranty, resale legality and authenticity left to the user.
       Ethics: helps small resellers earn more from sourcing trips; no scraping.
+  - venture: owner-operator-load-chain-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built owner-operator-load-chain-planner: a browser-local tool and
+        zero-dependency CLI for owner-operators, hotshot and box-truck drivers who pick their
+        own loads. Paste a load-board shortlist (pickup, drop, rate, pickup window, delivery
+        deadline) with the user's own costs, start city and hours free; it returns the exact
+        best chain of loads and order (a Pareto-label dynamic programme over load subsets and
+        orders, with deadhead, waits for pickup windows and a simplified drive-then-rest rule
+        priced in, verified against every ordered subset), the exact walk-away rate per load
+        in the plan, the cost of forcing each left-out load, and the gap to two simple rules.
+        New niche: owner-operator-cpm-calculator costs a week and one rate, the broker margin
+        calculator is the broker side, route-stop-optimizer orders unpaid stops; none chooses
+        and sequences paid loads. First visitor expected from "how to string loads together
+        owner operator" and "reduce deadhead miles" searches. Nothing leaves the browser, no
+        load board read, no rates scraped. Unverified with a real driver's week.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied estimates, stated prominently as not a market
+      rate, route plan or hours-of-service tool, no warranty, load acceptance, safety and
+      driving-time rules left to the driver. Ethics: helps independent drivers earn more from
+      the same week; no scraping, no personal data.

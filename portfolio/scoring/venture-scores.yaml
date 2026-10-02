@@ -26341,3 +26341,32 @@ ventures:
       Liability: arithmetic on pasted text at user-supplied estimates, stated so and not a price guide or sales forecast,
       no warranty, the user checks authenticity and resale legality, nothing leaves the device. Ethics: helps small
       resellers decide where sourcing money and time are worth spending; the user decides and remains responsible.
+  - slug: owner-operator-load-chain-planner
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic CSV parser, exact label-setting dynamic programme with closed-form walk-away rates; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for independent truckers with real search demand ("how to string loads together owner operator",
+      "reduce deadhead miles") where the cost-per-mile calculators price one rate and nothing sequences paid loads across
+      windows and rest; the wedge is the exact best chain plus a walk-away rate per load, free and client-side; volume not
+      measured with an external tool.
+      Scope: Free CLI and browser tool that picks the loads to chain and the lowest rate each is worth from the user's own shortlist and costs.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at user-supplied estimates, stated so and not a market rate, route plan or hours-of-service
+      tool, no warranty, the driver checks load acceptance, safety and driving-time rules, nothing leaves the device. Ethics: helps
+      independent drivers decide which loads are worth running; the driver decides and remains responsible.
