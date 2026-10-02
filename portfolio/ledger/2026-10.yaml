@@ -1073,3 +1073,28 @@ entries:
       guide or forecast, example fee tiers labelled as such, no warranty, not affiliated with
       any grader. Ethics: helps small card sellers decide where grading money is worth
       spending; no scraping, no authentication claims.
+  - venture: thrift-haul-buy-picker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built thrift-haul-buy-picker: a browser-local tool and zero-dependency
+        CLI for eBay, Poshmark, Mercari, Etsy and Marketplace resellers buying at thrift
+        stores, estate sales, auctions and liquidation. Paste the ask, the user's own
+        resale estimate and sell chance per item; it returns expected profit after
+        marketplace fees, shipping, supplies, the user's time and the cost of tied-up
+        cash, the closed-form walk-away price and break-even sell chance per item, the
+        downside, and the exact best set under a cash, item-count or hands-on-hours cap
+        (branch and bound verified against every subset). New niche: the existing fee
+        calculators price a sale and marketplace-fee-compare/where-to-sell-calculator pick
+        a venue; none prices the buy side of a mixed cart. First visitor expected from
+        "how much to pay for thrift items to resell" searches. Nothing leaves the browser,
+        no prices scraped. Unverified with a real reseller's trip.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied estimates, stated prominently as not a price
+      guide or forecast, no warranty, resale legality and authenticity left to the user.
+      Ethics: helps small resellers earn more from sourcing trips; no scraping.
