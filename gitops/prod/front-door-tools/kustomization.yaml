@@ -33,37 +33,37 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547278 bytes
-#   portfolio-front-tools-1: 92 files, 555131 bytes
-#   portfolio-front-tools-2: 144 files, 553043 bytes
-#   portfolio-front-tools-3: 132 files, 556789 bytes
-#   portfolio-front-tools-4: 137 files, 556917 bytes
-#   portfolio-front-tools-5: 128 files, 554165 bytes
-#   portfolio-front-tools-6: 120 files, 554213 bytes
-#   portfolio-front-tools-7: 135 files, 556056 bytes
-#   portfolio-front-tools-8: 132 files, 554884 bytes
-#   portfolio-front-tools-9: 127 files, 556391 bytes
-#   portfolio-front-tools-10: 127 files, 552534 bytes
-#   portfolio-front-tools-11: 137 files, 548195 bytes
-#   portfolio-front-tools-12: 132 files, 553323 bytes
-#   portfolio-front-tools-13: 124 files, 551830 bytes
-#   portfolio-front-tools-14: 120 files, 556398 bytes
-#   portfolio-front-tools-15: 121 files, 557030 bytes
-#   portfolio-front-tools-16: 118 files, 552034 bytes
-#   portfolio-front-tools-17: 126 files, 555941 bytes
-#   portfolio-front-tools-18: 120 files, 555275 bytes
-#   portfolio-front-tools-19: 130 files, 552882 bytes
-#   portfolio-front-tools-20: 126 files, 556099 bytes
-#   portfolio-front-tools-21: 129 files, 549339 bytes
-#   portfolio-front-tools-22: 124 files, 553037 bytes
-#   portfolio-front-tools-23: 128 files, 551945 bytes
-#   portfolio-front-tools-24: 94 files, 554209 bytes
-#   portfolio-front-tools-25: 119 files, 548990 bytes
-#   portfolio-front-tools-26: 119 files, 549441 bytes
-#   portfolio-front-tools-27: 126 files, 555569 bytes
-#   portfolio-front-tools-28: 127 files, 554493 bytes
-#   portfolio-front-tools-29: 91 files, 442459 bytes
-#   portfolio-front-tools-30: 51 files, 262849 bytes
+#   portfolio-front-tools-0: 145 files, 547285 bytes
+#   portfolio-front-tools-1: 92 files, 555139 bytes
+#   portfolio-front-tools-2: 144 files, 553057 bytes
+#   portfolio-front-tools-3: 132 files, 556806 bytes
+#   portfolio-front-tools-4: 137 files, 556928 bytes
+#   portfolio-front-tools-5: 128 files, 554167 bytes
+#   portfolio-front-tools-6: 120 files, 554214 bytes
+#   portfolio-front-tools-7: 135 files, 556047 bytes
+#   portfolio-front-tools-8: 132 files, 554912 bytes
+#   portfolio-front-tools-9: 127 files, 556371 bytes
+#   portfolio-front-tools-10: 127 files, 552567 bytes
+#   portfolio-front-tools-11: 137 files, 548234 bytes
+#   portfolio-front-tools-12: 132 files, 553301 bytes
+#   portfolio-front-tools-13: 124 files, 551880 bytes
+#   portfolio-front-tools-14: 120 files, 556439 bytes
+#   portfolio-front-tools-15: 120 files, 556687 bytes
+#   portfolio-front-tools-16: 119 files, 552508 bytes
+#   portfolio-front-tools-17: 126 files, 556018 bytes
+#   portfolio-front-tools-18: 120 files, 555294 bytes
+#   portfolio-front-tools-19: 130 files, 552910 bytes
+#   portfolio-front-tools-20: 126 files, 556080 bytes
+#   portfolio-front-tools-21: 129 files, 549305 bytes
+#   portfolio-front-tools-22: 124 files, 553055 bytes
+#   portfolio-front-tools-23: 128 files, 551859 bytes
+#   portfolio-front-tools-24: 94 files, 554212 bytes
+#   portfolio-front-tools-25: 119 files, 548967 bytes
+#   portfolio-front-tools-26: 119 files, 549387 bytes
+#   portfolio-front-tools-27: 126 files, 555533 bytes
+#   portfolio-front-tools-28: 128 files, 553663 bytes
+#   portfolio-front-tools-29: 95 files, 461022 bytes
+#   portfolio-front-tools-30: 51 files, 262857 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2213,12 +2213,12 @@ configMapGenerator:
       - import-landed-cost-calculator__formal-vs-informal-entry.html.gz=import-landed-cost-calculator__formal-vs-informal-entry.html.gz
       - import-landed-cost-calculator__index.html.gz=import-landed-cost-calculator__index.html.gz
       - import-landed-cost-calculator__share.mjs.gz=import-landed-cost-calculator__share.mjs.gz
-      - import-landed-cost-calculator__usage.mjs.gz=import-landed-cost-calculator__usage.mjs.gz
   - name: portfolio-front-tools-16
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - import-landed-cost-calculator__usage.mjs.gz=import-landed-cost-calculator__usage.mjs.gz
       - import-landed-cost-calculator__vs-flexport.html.gz=import-landed-cost-calculator__vs-flexport.html.gz
       - import-landed-cost-calculator__vs-tracking-landed-cost-in-a-spreadsheet.html.gz=import-landed-cost-calculator__vs-tracking-landed-cost-in-a-spreadsheet.html.gz
       - incident-postmortem-timeline__classify.mjs.gz=incident-postmortem-timeline__classify.mjs.gz
@@ -3835,6 +3835,11 @@ configMapGenerator:
       - vendor-change-watch__usage.mjs.gz=vendor-change-watch__usage.mjs.gz
       - vendor-change-watch__vs-changedetection-io.html.gz=vendor-change-watch__vs-changedetection-io.html.gz
       - vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz=vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz
+      - vercel-bill-estimator__cli.mjs.gz=vercel-bill-estimator__cli.mjs.gz
+      - vercel-bill-estimator__engine.mjs.gz=vercel-bill-estimator__engine.mjs.gz
+      - vercel-bill-estimator__how-to-reduce-your-vercel-bill.html.gz=vercel-bill-estimator__how-to-reduce-your-vercel-bill.html.gz
+      - vercel-bill-estimator__index.html.gz=vercel-bill-estimator__index.html.gz
+      - vercel-bill-estimator__usage.mjs.gz=vercel-bill-estimator__usage.mjs.gz
       - veterinarian-associate-pay-calculator__calc.mjs.gz=veterinarian-associate-pay-calculator__calc.mjs.gz
       - veterinarian-associate-pay-calculator__index.html.gz=veterinarian-associate-pay-calculator__index.html.gz
       - veterinarian-associate-pay-calculator__usage.mjs.gz=veterinarian-associate-pay-calculator__usage.mjs.gz
@@ -3861,15 +3866,15 @@ configMapGenerator:
       - vscode-extension-drift-check__engine.mjs.gz=vscode-extension-drift-check__engine.mjs.gz
       - vscode-extension-drift-check__index.html.gz=vscode-extension-drift-check__index.html.gz
       - vscode-extension-drift-check__usage.mjs.gz=vscode-extension-drift-check__usage.mjs.gz
-      - vscode-extension-drift-check__vs-vscan.html.gz=vscode-extension-drift-check__vs-vscan.html.gz
-      - vscode-extension-drift-check__vs-vsix-audit.html.gz=vscode-extension-drift-check__vs-vsix-audit.html.gz
-      - vscode-extension-drift-check__why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html.gz=vscode-extension-drift-check__why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html.gz
-      - wage-garnishment-limit-calculator__calc.mjs.gz=wage-garnishment-limit-calculator__calc.mjs.gz
   - name: portfolio-front-tools-29
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vscode-extension-drift-check__vs-vscan.html.gz=vscode-extension-drift-check__vs-vscan.html.gz
+      - vscode-extension-drift-check__vs-vsix-audit.html.gz=vscode-extension-drift-check__vs-vsix-audit.html.gz
+      - vscode-extension-drift-check__why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html.gz=vscode-extension-drift-check__why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html.gz
+      - wage-garnishment-limit-calculator__calc.mjs.gz=wage-garnishment-limit-calculator__calc.mjs.gz
       - wage-garnishment-limit-calculator__index.html.gz=wage-garnishment-limit-calculator__index.html.gz
       - wage-garnishment-limit-calculator__usage.mjs.gz=wage-garnishment-limit-calculator__usage.mjs.gz
       - walk-in-shower-bid-calculator__calc.mjs.gz=walk-in-shower-bid-calculator__calc.mjs.gz
