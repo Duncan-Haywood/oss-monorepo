@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 671 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 672 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -269,6 +269,15 @@
     <summary type="text">Enter your monthly log volume (GB ingested) and see what Datadog Logs, Grafana Cloud Logs, Axiom, Better Stack and Papertrail charge, the 12-month spend under your growth rate, and the volume where the cheapest provider changes. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Merchant of Record Fee Calculator — Stripe vs Paddle vs Lemon Squeezy vs Polar</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/merchant-of-record-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/merchant-of-record-fee-calculator</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Enter your monthly software revenue and average sale price and see what Stripe, Stripe Tax, Paddle, Lemon Squeezy and Polar take, your net payout, 12-month totals, and the revenue where running Stripe yourself beats a merchant of record. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Mobile Bartender Event Quote — price a bar service job and check the ask</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mobile-bartender-event-quote/"/>
     <id>tag:marisstella.dev,2026:tool/mobile-bartender-event-quote</id>
@@ -357,14 +366,5 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a text message to see whether it is GSM-7 or UCS-2, how many segments it bills as, what it costs per month at your volume, and which curly quote or emoji to swap to cut the bill. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Snow Plow Contract Calculator — Per Push vs Seasonal</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/snow-plow-contract-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/snow-plow-contract-calculator</id>
-    <published>2026-10-03T00:00:00Z</published>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Compare per-push, per-inch, seasonal flat, capped flat and hybrid snow plow contracts across a low, normal and high snow year: expected season revenue, effective hourly, the storm count where each stops paying, the flat price that loses money in a high-snow year and a walk-away price, plus an audit of past seasons by contract model. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

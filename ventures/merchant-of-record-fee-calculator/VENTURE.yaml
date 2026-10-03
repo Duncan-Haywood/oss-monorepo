@@ -1,0 +1,47 @@
+name: merchant-of-record-fee-calculator
+description: 'Free, zero-network, zero-dependency browser tool + CLI that compares what Stripe, Stripe + Stripe Tax, Paddle, Lemon Squeezy and Polar take from a software seller''s monthly revenue (percentage, fixed per-sale fee, international surcharge, and the seller''s own sales-tax/VAT filing cost where the platform is not the merchant of record), shows net payout and 12-month totals under growth, and finds the monthly revenue where the cheapest option changes; has a --max-fee-pct CI gate. A deterministic calculator over the user''s inputs, not a quote and not tax advice.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype aimed at people who earn money from software: indie
+# founders, template and plugin sellers, course creators. Sibling of
+# gumroad-sales-fee-analyzer and patreon-fee-calculator, which each cover one
+# platform; nothing compares the processor-vs-merchant-of-record choice at the
+# seller's own revenue, average sale and international share.
+#
+# Where the first real visitor would come from: search phrases "paddle vs stripe
+# fees", "lemon squeezy vs stripe", "merchant of record vs stripe", "polar.sh vs
+# lemon squeezy", "do I need a merchant of record"; indie-hacker and r/SaaS threads
+# after a first VAT scare. The wedge is that the answer flips with revenue because
+# filing cost is fixed and platform fees are a percentage. A hosted fee-change
+# monitor is the natural paid path later.
+hypotheses:
+  - claim: An indie founder choosing a payment stack will search for a Stripe-vs-merchant-of-record comparison, enter revenue, average sale and international share, and use the crossover table to decide.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A founder already on a merchant of record will rerun the tool as revenue grows to see when switching to Stripe plus a tax service pays for the migration.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool calculates only from typed numbers in
+  # the visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository or write-up links to or forks cli.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/merchant-of-record-fee-calculator/
+  analytics: null
