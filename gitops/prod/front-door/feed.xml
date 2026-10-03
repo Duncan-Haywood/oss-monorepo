@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 656 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 657 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -242,6 +242,15 @@
     <summary type="text">Free SaaS efficiency calculator: burn multiple, magic number, Rule of 40 and runway from your quarterly numbers, with benchmark bands and what it takes to reach a 1.5 burn multiple. Runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>SMS Segment Cost Calculator — Count Segments, Find the Character That Costs You</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sms-segment-cost-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/sms-segment-cost-calculator</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste a text message to see whether it is GSM-7 or UCS-2, how many segments it bills as, what it costs per month at your volume, and which curly quote or emoji to swap to cut the bill. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Snow Plow Contract Calculator — Per Push vs Seasonal</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/snow-plow-contract-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/snow-plow-contract-calculator</id>
@@ -357,14 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Is it worth grading this card? Paste your cards with your own value at each grade and grade chances and get which to send to a grader, which fee tier, which to sell raw, the break-even chance of a 10 and the downside. Pokemon, baseball, basketball and MTG. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Catering Quote Calculator — Price Per Guest, Margin and Break-Even Headcount</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/catering-quote-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/catering-quote-calculator</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Paste a catering cost sheet and get the per-guest price that hits your margin, food and labor percentages, the deposit, a guest-count tier table and the break-even guest count. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

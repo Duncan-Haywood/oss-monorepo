@@ -1,0 +1,51 @@
+name: sms-segment-cost-calculator
+description: >-
+  Free browser tool for developers and ops teams who send transactional or
+  marketing texts: paste a message and see whether it is GSM-7 or UCS-2, how
+  many billable segments it is, the characters (curly quotes, long dashes,
+  emoji) that force UCS-2, the monthly cost at their volume and editable
+  per-segment price, and a plain-character rewrite that cuts the segment count.
+  Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-03 in a new-venture-first session. duplicate_check.py found
+# no SMS or messaging venture (ls ventures | grep sms/twilio/10dlc: empty);
+# nearest scores 0.23 (actions-minutes-estimator), a different product. Not in
+# screened-out.md.
+#
+# Distribution: "sms segment calculator", "why is my twilio sms 3 segments",
+# "gsm-7 vs ucs-2 character count" are recurring developer queries, answered
+# today by provider docs and a few ad-heavy single-purpose pages with no cost
+# model and no fix. First visitors: Stack Overflow / Twilio-community threads
+# about unexpected segment counts, r/webdev, and the guide page's FAQ. Search
+# volume was not measured with an external tool.
+#
+# Liability: counts follow the published GSM 03.38 / UCS-2 rules; prices are
+# labelled approximate and editable; consent/opt-out compliance is stated to
+# be the user's responsibility. Not telecom-compliance advice.
+#
+# Upgrade path later (not built): a CI check that fails a PR when a message
+# template in the repo is UCS-2 or over N segments.
+hypotheses:
+  - claim: A developer whose SMS bill or segment count surprised them will search for the cause, paste a template, and learn which character is responsible and what fixing it saves.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/sms-segment-cost-calculator/
+  analytics: null
