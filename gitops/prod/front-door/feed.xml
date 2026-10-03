@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 634 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 635 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -87,6 +87,15 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Compare booth rent, a commission split and an hourly job for a nail tech: take-home per hour worked (not per hour booked) after idle chair time, supplies, card fees, insurance, tips, retail commission and a self-employment tax estimate, plus break-even clients per week and an audit of past weeks. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Pool Service Route Calculator — Which Accounts Pay</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pool-service-route-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/pool-service-route-calculator</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Find what each pool account on your route really earns per hour after drive time, chemicals and callbacks: which accounts to reprice or drop, the price that clears your target, what dropping or adding a stop 15 minutes away does to the whole route, and a CSV audit. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Snow Plow Contract Calculator — Per Push vs Seasonal</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Paste the day&#39;s requested process-serving assignments and get the most profitable set and order for one server, with time windows, drive cost and a price for every job it turns down. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>RDS Instance Cost Advisor — Multi-AZ, io1 IOPS, Graviton and Idle Instances</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rds-instance-cost-advisor/"/>
-    <id>tag:marisstella.dev,2026:tool/rds-instance-cost-advisor</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your Amazon RDS instances (class, engine, Multi-AZ, storage, IOPS, CPU) and get what each costs, Multi-AZ you pay for outside production, io1 IOPS that gp3 covers, Graviton twins and idle instances, with the aws rds command to change each. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
