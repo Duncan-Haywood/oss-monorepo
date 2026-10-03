@@ -1324,3 +1324,28 @@ entries:
       not market rates, tax, legal or financial advice, no warranty, lease and employment terms
       left to the user, tax figures labelled rough set-asides. Ethics: helps small beauty
       professionals see what a chair really pays; no scraping.
+  - venture: grant-indirect-cost-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built grant-indirect-cost-calculator: a browser-local tool for grant
+        writers, nonprofits and sponsored-programs staff. Enter direct costs, equipment and
+        subawards; it returns modified total direct costs with the federal exclusions applied
+        (equipment at or over $10,000 a unit, tuition remission, participant support, rental,
+        patient care, each subaward above its first $50,000), indirect at 15% de minimis or a
+        chosen rate on MTDC or total direct costs, the effective rate on direct costs, rates
+        side by side, and the largest direct budget that fits under a funder's total award cap.
+        New niche: no tool in ventures/ computes MTDC or indirect cost recovery
+        (duplicate_check top score 0.15). First visitor expected from "MTDC calculator" and
+        "indirect cost calculator grant budget" searches. Nothing leaves the browser. Unverified
+        with a real grant writer; federal rules as of the 2024 2 CFR 200 revision, thresholds editable.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied amounts under a published federal definition,
+      stated prominently as not grant, accounting or legal advice, no warranty, funder rules
+      left to the user. Ethics: helps small organisations claim the indirect cost they are
+      allowed; no scraping.
