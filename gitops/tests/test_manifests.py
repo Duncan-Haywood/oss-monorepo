@@ -2931,7 +2931,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `lockfile-license-check` graduated (browser + CLI licence audit of an npm package-lock.json).
     # +1: `firewood-profit-calculator` graduated (browser firewood profit per cord and hour, price needed for a wage, delivery distance).
     # +1: `ci-test-shard-balancer` graduated (browser + CLI balanced CI test sharding from JUnit XML timings, with shard-count sweep and Actions matrix).
-    total = 644  # `infra/OWNER_CHECKLIST.md`'s own "N of the 644 tools" wording.
+    total = 645  # `infra/OWNER_CHECKLIST.md`'s own "N of the 645 tools" wording.
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).
     # +1: `ticket-resale-profit-calculator` graduated (browser + CLI ticket resale payout, break-even and sales-log audit).
