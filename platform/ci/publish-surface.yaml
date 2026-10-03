@@ -755,6 +755,9 @@ workflows:
 - workflow: fba-reimbursement-claim-finder-ci.yml
   classification: none
   publishes: []
+- workflow: feie-physical-presence-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: fence-bid-calculator-ci.yml
   classification: none
   publishes: []
