@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 646 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 647 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -188,6 +188,15 @@
     <summary type="text">Find what each pool account on your route really earns per hour after drive time, chemicals and callbacks: which accounts to reprice or drop, the price that clears your target, what dropping or adding a stop 15 minutes away does to the whole route, and a CSV audit. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Requirements Pin Check — Audit requirements.txt for Unpinned and Unhashed Dependencies</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/requirements-pin-check/"/>
+    <id>tag:marisstella.dev,2026:tool/requirements-pin-check</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your requirements.txt and see every unpinned version, missing hash, extra index URL and unpinned git dependency. Free pip requirements pin checker, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Snow Plow Contract Calculator — Per Push vs Seasonal</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/snow-plow-contract-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/snow-plow-contract-calculator</id>
@@ -357,14 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Paste your past orders and see what each free-shipping minimum would earn, how many buyers it must win back to pay for the shipping you give away, and the threshold that loses least if your assumptions are wrong. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Freelance Project Picker — Which Projects to Accept for the Most Income</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freelance-project-picker/"/>
-    <id>tag:marisstella.dev,2026:tool/freelance-project-picker</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Paste your weekly hours and the project offers on the table and get the exact set to accept for the highest income, with the fee each declined project would need to earn its place. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
