@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { readdirSync, readFileSync } from 'node:fs';
+import { parsePage, checkScriptSyntax } from '../../platform/webcheck/page-integrity.mjs';
 
 const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
 const guide = await readFile(new URL('./how-to-verify-webhook-signatures.html', import.meta.url), 'utf8');
@@ -71,4 +72,9 @@ test('index links one hop to sibling checks that exist', () => {
     assert.match(index, new RegExp(`href="\\.\\./${s}/"`));
     assert.ok(readdirSync(new URL(`../${s}/`, import.meta.url)).includes('index.html'));
   }
+});
+
+test('every inline script on the entry page parses, so the tool actually runs', () => {
+  const { scripts, scriptTags } = parsePage(index);
+  assert.deepEqual(checkScriptSyntax(scripts, scriptTags), []);
 });
