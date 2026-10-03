@@ -26660,3 +26660,32 @@ ventures:
       Liability: arithmetic on typed amounts under the published federal definition, stated so and not grant,
       accounting or legal advice, no warranty, funder rules come first, nothing leaves the device. Ethics: helps
       small organisations claim the indirect cost they are allowed; the user decides and remains responsible.
+  - slug: pool-service-route-calculator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic per-account hours, cost and hourly arithmetic with route-density what-ifs; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for pool route owners at price-letter time, with real search demand ("which pool service
+      customers to drop", "is my pool route profitable") where the closest tools price one account or are generic across route trades;
+      the wedge is chemicals and callbacks priced as unpaid trips, route-density effect of dropping or adding a stop, and a CSV audit,
+      free and client-side; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that audits a pool service route per account and models adding or dropping a stop from the user's own numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed prices, minutes and costs, stated so and not market rates, tax, legal or contract advice,
+      no warranty, service agreements and local rules come first, nothing leaves the device. Ethics: helps small pool route
+      owners price at what the route takes; the user decides and remains responsible.
