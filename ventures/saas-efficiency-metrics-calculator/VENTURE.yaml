@@ -1,0 +1,53 @@
+name: saas-efficiency-metrics-calculator
+description: >-
+  Free browser calculator for SaaS founders and finance leads that turns one
+  quarter of revenue, net burn and sales and marketing spend into burn
+  multiple (with benchmark bands), magic number, Rule of 40, runway, and the
+  burn cut or ARR growth needed to reach a 1.5 burn multiple. Entirely
+  client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-03 in a new-venture-first session. duplicate_check.py top
+# score 0.18 (saas-cac-payback-calculator, a different question). Neighbours
+# read by hand: cash-runway-planner (runway only), mrr-waterfall-calculator
+# (retention accounting), saas-cac-payback-calculator (unit economics) and
+# safe-dilution-calculator; none computes burn multiple, magic number or the
+# Rule of 40.
+#
+# Distribution: "burn multiple calculator", "SaaS magic number calculator" and
+# "rule of 40 calculator" are recurring founder, investor and FP&A queries;
+# first visitors would come from r/SaaS, Indie Hackers and startup-finance
+# newsletters that quote these three numbers. Search volume was not measured
+# with an external tool.
+#
+# Liability: arithmetic on the user's own inputs; benchmark bands are labelled
+# rules of thumb; never fundraising or investment advice.
+
+hypotheses:
+  - claim: >-
+      SaaS founders and finance leads will search for and return to a free,
+      no-signup calculator that shows burn multiple, magic number and Rule of
+      40 together, instead of building the three formulas in a spreadsheet each
+      quarter.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong metric from this tool's output despite the disclaimers, at which point the formula or its wording needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/saas-efficiency-metrics-calculator/
+  analytics: null

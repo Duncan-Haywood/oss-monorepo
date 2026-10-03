@@ -159,6 +159,7 @@
     "cut-list-optimizer": "2026-08-24",
     "databricks-cluster-cost-advisor": "2026-10-02",
     "datadog-bill-estimator": "2026-10-03",
+    "saas-efficiency-metrics-calculator": "2026-10-03",
     "deck-bid-calculator": "2026-08-26",
     "deck-staining-bid-calculator": "2026-08-26",
     "delivery-app-margin-calculator": "2026-08-26",
