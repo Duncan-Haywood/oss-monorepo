@@ -1548,3 +1548,26 @@ entries:
       market rates, tax, legal or contract advice, no warranty, service agreements and local rules
       left to the user. Ethics: helps small pool route owners price at what the route takes; no
       scraping.
+  - venture: git-bus-factor-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built git-bus-factor-check: a zero-dependency Python CLI (busfactor.py, runs git log
+        locally, --fail-on-orphaned for CI) and a browser page that takes a pasted git log and reports a
+        recency-weighted bus factor per folder, flagging orphaned folders (main contributor silent 90+ days)
+        and single-owner folders with a suggested pairing partner. Python and the in-browser port are
+        pinned to identical JSON by a parity test on a fixture and a synthetic history. New niche:
+        duplicate_check top score 0.30 (git-exposure-check, which probes a deployed host, not contributor
+        history); the dev-tool shape follows DIRECTION.md's ask to weigh a CLI/CI checker over a 143rd
+        trade calculator. First visitor expected from "bus factor calculator git" and "truck factor
+        github" searches and engineering-management threads where the answer today is a paid vendor.
+        Nothing leaves the device. Unverified with a real engineering lead; thresholds (180-day half-life,
+        90-day inactivity, 80% single-owner) are judgement calls and are flags, not verdicts about people.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: heuristic on commit metadata, barred as sole basis for people decisions, no warranty, nothing
+      leaves the device. Ethics: folder-and-backup framing, never a ranking of individuals; no scraping.

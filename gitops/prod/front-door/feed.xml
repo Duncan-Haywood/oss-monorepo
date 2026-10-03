@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 636 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 637 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -51,6 +51,15 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Price dog grooming by breed class and time: the effective hourly each class earns after matting and de-shedding extras, drive time, supplies and no-shows, the price needed for your target hourly, a walk-away price, and an audit of past appointments showing which classes underpay. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Git Bus Factor Check — Who Owns Each Folder, and Are They Still Here?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/git-bus-factor-check/"/>
+    <id>tag:marisstella.dev,2026:tool/git-bus-factor-check</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your git log and see the bus factor (truck factor) of every folder: who really owns it, whether they are still active, and who to pair with. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Grant Indirect Cost Calculator — MTDC and the Indirect You Can Charge</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="Logistics, freight &amp; cloud cost"/>
     <summary type="text">Paste a load-board shortlist with your own rates, pickup windows and costs and get the exact best chain of loads to run, which to leave, and the lowest rate each is worth, with deadhead, waiting and rest priced in. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Price Increase Break-Even Calculator — How Many Customers Can You Lose</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/price-increase-breakeven-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/price-increase-breakeven-calculator</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Paste your prices, unit costs and volumes, set a price increase, and see how many units you can lose before the raise stops paying, item by item. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
