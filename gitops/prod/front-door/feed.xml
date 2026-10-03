@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 666 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 667 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -278,6 +278,15 @@
     <summary type="text">Find what each pool account on your route really earns per hour after drive time, chemicals and callbacks: which accounts to reprice or drop, the price that clears your target, what dropping or adding a stop 15 minutes away does to the whole route, and a CSV audit. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Product Analytics Pricing Calculator — PostHog vs Mixpanel vs Plausible vs Fathom vs Umami</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/product-analytics-pricing-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/product-analytics-pricing-calculator</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Enter your monthly event volume and see what PostHog, Mixpanel, Plausible, Fathom and Umami Cloud charge, the 12-month spend under your growth rate, and the volume where the cheapest provider changes. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Requirements Pin Check — Audit requirements.txt for Unpinned and Unhashed Dependencies</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/requirements-pin-check/"/>
     <id>tag:marisstella.dev,2026:tool/requirements-pin-check</id>
@@ -357,14 +366,5 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="Logistics, freight &amp; cloud cost"/>
     <summary type="text">Price a tow job from your own costs: margin, break-even, ranked levers. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Upstash Redis Bill Estimator — Pay-As-You-Go vs Fixed Plan and the Levers That Cut Your Bill</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/upstash-redis-bill-estimator/"/>
-    <id>tag:marisstella.dev,2026:tool/upstash-redis-bill-estimator</id>
-    <published>2026-10-03T00:00:00Z</published>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Estimate a monthly Upstash Redis bill from your own usage (million commands, storage GB, bandwidth GB) at editable list prices, see where pay-as-you-go crosses over to a fixed plan, and see which changes cut it most, with a dollar saving for each. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
