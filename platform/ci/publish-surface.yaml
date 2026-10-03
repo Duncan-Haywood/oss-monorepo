@@ -1181,6 +1181,9 @@ workflows:
 - workflow: music-lesson-break-even-ci.yml
   classification: none
   publishes: []
+- workflow: nail-tech-booth-rent-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: nat-gateway-cost-advisor-ci.yml
   classification: none
   publishes: []

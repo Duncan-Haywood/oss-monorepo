@@ -1297,6 +1297,33 @@ entries:
       Liability: mechanical read-only heuristic line scan of the user's own code, labelled not a security
       audit, no warranty, a clean scan never described as safe, secret values never echoed. Ethics:
       defensive hygiene on the user's own source; no probing of anyone else's system, no scraping.
+  - venture: nail-tech-booth-rent-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built nail-tech-booth-rent-calculator: a browser-local tool and
+        zero-dependency CLI for nail techs and other independent beauty professionals choosing
+        between booth or chair rent, a commission split and an hourly job. Enter hours at the
+        salon, clients, ticket, chair minutes, unpaid admin hours, tips, retail, supplies and the
+        rent, split or wage on offer; it returns take-home per hour worked (not per hour booked)
+        with idle chair time, card fees, insurance and a self-employment tax estimate, the
+        break-even clients per week and the client count where booth rent overtakes the others. A
+        history mode audits past weeks from a CSV by arrangement. Differs from the existing
+        booth-rent-vs-commission (two paths on one client book, no employee option, no tax
+        estimate, no weekly audit); a stylist-framed salon-booth-rent-calculator was dropped as
+        too close to it. First visitor expected from "booth rent vs commission nail tech"
+        searches. Nothing leaves the browser, no market rates scraped. Unverified with a real
+        nail tech.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied prices, rents and tax rates, stated prominently as
+      not market rates, tax, legal or financial advice, no warranty, lease and employment terms
+      left to the user, tax figures labelled rough set-asides. Ethics: helps small beauty
+      professionals see what a chair really pays; no scraping.
   - venture: grant-indirect-cost-calculator
     agent_spend_usd: null
     human_hours: 0
