@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Scope Creep Change Order Calculator — price the extra requests</title>
+  <meta name="description" content="Price a client's extra requests on a fixed-price project as a change order, see what absorbing them would cost your hourly rate, and copy a client-ready message. Free, private, runs in your browser; CLI included.">
+  <meta property="og:title" content="Scope Creep Change Order Calculator — price the extra requests">
+  <meta property="og:description" content="Price a client's extra requests on a fixed-price project as a change order, see what absorbing them would cost your hourly rate, and copy a client-ready message. Free, private, runs in your browser; CLI included.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Scope Creep Change Order Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser, Node 18+", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Price extra client requests on a fixed-price project as a change order, and see what absorbing them would cost."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this upload my project details?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is computed in your browser from what you type. Nothing is sent anywhere. The CLI makes no network call."}}, {"@type": "Question", "name": "How is the change order price worked out?", "acceptedAnswer": {"@type": "Answer", "text": "The rate your original quote implies (quoted price divided by quoted hours), plus an optional premium for rush or re-planned work. Each extra request is its hours times that rate, after any free allowance you choose to absorb."}}, {"@type": "Question", "name": "What does it cost me if I just absorb the extra work?", "acceptedAnswer": {"@type": "Answer", "text": "The tool shows it: the extra hours at your implied rate, and how far your effective hourly rate falls once the same fixed price covers more hours."}}, {"@type": "Question", "name": "Is this a contract or legal advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It produces a plain-language price list you can paste into an email or change-order form. Check your contract for how changes must be approved."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SCOPE CREEP CHANGE ORDER CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>The client asked for "one more thing." Price it.</h1>
+    <p>Enter your fixed-price quote and the extra requests. Get a <strong>change order you can send</strong> at the rate your quote implies, plus what <strong>absorbing the work would cost you</strong> and how many days it adds.</p>
+    <p class="note">Nothing is uploaded. Figures are arithmetic on your own estimates, not a contract or a quote.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The original quote</h2>
+    <div class="row">
+      <div><label for="price">Quoted price</label><input type="number" id="price" min="0" step="any" value="6000"></div>
+      <div><label for="hours">Quoted hours</label><input type="number" id="hours" min="0" step="any" value="60"></div>
+      <div><label for="premium">Premium on extras (%)</label><input type="number" id="premium" min="0" step="any" value="0"></div>
+      <div><label for="buffer">Free allowance (% of quoted hours)</label><input type="number" id="buffer" min="0" step="any" value="0"></div>
+      <div><label for="perday">Working hours per day</label><input type="number" id="perday" min="1" step="any" value="6"></div>
+    </div>
+    <label for="reqs">2. Extra requests — one per line, "title | hours" (6, 6h or 1.5d)</label>
+    <textarea id="reqs" spellcheck="false" placeholder="Add SSO login | 6&#10;Dark mode | 4h&#10;Export to PDF | 1d"></textarea>
+    <div class="row">
+      <div><label for="client">Client name (optional)</label><input type="text" id="client"></div>
+      <div><label for="project">Project (optional)</label><input type="text" id="project"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Build change order</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>3. Result</h2>
+    <p id="summary"></p>
+    <table><thead><tr><th>Request</th><th>Hours</th><th>Billable</th><th>Amount</th></tr></thead><tbody id="rows"></tbody></table>
+    <p id="absorb"></p>
+    <h3>Client-ready text</h3>
+    <textarea id="out" readonly aria-label="Change order text"></textarea>
+    <p>
+      <button type="button" id="copy-md">Copy Markdown</button>
+      <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or a creep cap in CI?</h2>
+    <pre class="cmd">node cli.mjs --price 6000 --hours 60 --file requests.txt --premium 15 --client Acme
+node cli.mjs --price 6000 --hours 60 --file requests.txt --max-creep-pct 20   # exit 1 over the cap</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="how-to-price-a-change-order.html">how to price a change order on a fixed-price project</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this upload my project details?</h3>
+    <p>No. Everything is computed in your browser from what you type. Nothing is sent anywhere. The CLI makes no network call.</p>
+    <h3>How is the change order price worked out?</h3>
+    <p>The rate your original quote implies (quoted price divided by quoted hours), plus an optional premium for rush or re-planned work. Each extra request is its hours times that rate, after any free allowance you choose to absorb.</p>
+    <h3>What does it cost me if I just absorb the extra work?</h3>
+    <p>The tool shows it: the extra hours at your implied rate, and how far your effective hourly rate falls once the same fixed price covers more hours.</p>
+    <h3>Is this a contract or legal advice?</h3>
+    <p>No. It produces a plain-language price list you can paste into an email or change-order form. Check your contract for how changes must be approved.</p>
+    
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax or accounting advice and not a contract. Figures are arithmetic on the estimates you enter; they are not a quote and not a guarantee. Check your agreement for how scope changes must be approved.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you type is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>order_built</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this saved you an awkward conversation, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseRequests, calculate, toMarkdown, toCsv } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let csv = "";
+
+    function render() {
+      const { items, bad } = parseRequests($("#reqs").value);
+      if (!items.length) { $("#status").innerHTML = `<span class="error">No requests found. Write one per line as "title | hours"${bad.length ? ` (${bad.length} line(s) were not in that format)` : ""}.</span>`; return; }
+      const num = (id, d) => { const n = Number($(id).value); return Number.isFinite(n) && n >= 0 ? n : d; }
+      const opts = { basePrice: num("#price", 0), baseHours: num("#hours", 0), premiumPct: num("#premium", 0), bufferPct: num("#buffer", 0), hoursPerDay: Math.max(1, num("#perday", 6)) };
+      if (!(opts.basePrice > 0 && opts.baseHours > 0)) { $("#status").innerHTML = '<span class="error">Enter both the quoted price and the quoted hours.</span>'; return; }
+      $("#status").textContent = bad.length ? `${bad.length} line(s) skipped: not in the expected format.` : "";
+      const r = calculate(items, opts);
+      $("#summary").innerHTML = `<span class="ok">Change order: ${r.amount.toFixed(2)}</span> for ${r.billableHours} billable hours at ${r.changeRate}/h — revised price ${r.newPrice.toFixed(2)}. Creep is ${r.creepPct}% of the quoted hours and adds about ${r.daysAdded} working day(s).`;
+      $("#rows").innerHTML = r.lines.map((l) => `<tr><td>${escapeHtml(l.title)}</td><td>${l.hours}</td><td>${l.billableHours}</td><td>${l.amount.toFixed(2)}</td></tr>`).join("");
+      $("#absorb").innerHTML = `<span class="changed">If you absorb it instead:</span> ${r.absorbedCost.toFixed(2)} of unpaid work, and your effective rate falls from ${r.rate}/h to ${r.absorbedRate}/h (−${r.rateDropPct}%).`;
+      $("#out").value = toMarkdown(r, { client: $("#client").value.trim(), project: $("#project").value.trim() });
+      csv = toCsv(r);
+      $("#report-card").hidden = false;
+      record("order_built");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    $("#calc").addEventListener("click", render);
+
+    const EXAMPLE = [
+      "Add SSO login | 6",
+      "Dark mode | 4h",
+      "Export reports to PDF | 1d",
+      "Second round of logo variations | 3",
+    ].join("\n");
+    $("#load-example").addEventListener("click", () => { $("#reqs").value = EXAMPLE; render(); record("example_loaded"); });
+    $("#clear").addEventListener("click", () => { $("#reqs").value = ""; $("#status").textContent = ""; $("#report-card").hidden = true; });
+    $("#copy-md").addEventListener("click", () => navigator.clipboard?.writeText($("#out").value));
+    $("#dl-csv").addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+      a.download = "change-order.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
