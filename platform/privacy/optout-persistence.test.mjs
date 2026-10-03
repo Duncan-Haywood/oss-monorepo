@@ -1237,9 +1237,10 @@ const RELATIVE_SELF = relative(
 // +1: `webhook-signature-debugger` graduated.
 // +1: `hvac-repair-tier-price-calculator` graduated.
 // +1: `vercel-bill-estimator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 633;
-// +1: `embroidery-shop-quote-calculator` graduated.
+// +1: `supabase-bill-estimator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 634;
 // +1: `saas-efficiency-metrics-calculator` graduated.
+// +1: `embroidery-shop-quote-calculator` graduated.
 
 let counter = 0;
 function fixture(source) {
