@@ -2919,7 +2919,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `translation-job-picker` graduated (browser + CLI which-translation-jobs-to-accept picker).
     # +1: `tax-season-client-picker` graduated (browser + CLI late-season tax client picker).
     # +1: `interior-design-fee-calculator` graduated (browser + CLI interior design fee-model comparator with overrun scenarios and a past-project audit by fee model).
-    total = 625  # `infra/OWNER_CHECKLIST.md`'s own "N of the 625 tools" wording.
+    # +1: `dog-grooming-price-calculator` graduated (browser + CLI dog grooming price by breed class and time, with a past-appointment audit).
+    total = 626  # `infra/OWNER_CHECKLIST.md`'s own "N of the 626 tools" wording.
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).
     # +1: `ticket-resale-profit-calculator` graduated (browser + CLI ticket resale payout, break-even and sales-log audit).

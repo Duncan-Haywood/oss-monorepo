@@ -1297,3 +1297,27 @@ entries:
       Liability: mechanical read-only heuristic line scan of the user's own code, labelled not a security
       audit, no warranty, a clean scan never described as safe, secret values never echoed. Ethics:
       defensive hygiene on the user's own source; no probing of anyone else's system, no scraping.
+  - venture: dog-grooming-price-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built dog-grooming-price-calculator: a browser-local tool and
+        zero-dependency CLI for independent salon and mobile dog groomers. Enter breed
+        classes with a base price and plain-groom minutes, optional matting and de-shedding
+        extras, drive time, supplies and a no-show rate; it returns each class's effective
+        hourly, the price needed for the target hourly and a walk-away price. An audit mode
+        takes past appointments (breed class, price, minutes), groups them by class and shows
+        which classes underpay and the raise per dog. Overlap is partial with
+        dog-grooming-profit-calculator, dog-grooming-day-planner and pet-grooming-bid-calculator;
+        the wedge is the per-class audit with drive time and no-shows. First visitor expected
+        from "how much to charge for dog grooming" and "dog grooming price by breed" searches.
+        Nothing leaves the browser, no market rates scraped. Unverified with a real groomer.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied prices, minutes and percentages, stated prominently
+      as not market rates or advice, no warranty. Ethics: helps small groomers charge for the time
+      dogs really take; no scraping.

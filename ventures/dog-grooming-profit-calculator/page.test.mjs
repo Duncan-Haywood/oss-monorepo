@@ -110,3 +110,7 @@ test("related-tool links point at ventures that exist", () => {
 test("links to its sibling the massage therapist profit calculator", () => {
   assert.match(page("index.html"), /href="\.\.\/massage-therapist-profit-calculator\/"/);
 });
+
+test("links to its sibling the dog grooming price calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/dog-grooming-price-calculator\/"/);
+});
