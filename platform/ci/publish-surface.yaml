@@ -92,6 +92,9 @@ workflows:
 - workflow: docker-compose-security-check-ci.yml
   classification: none
   publishes: []
+- workflow: farmers-market-booth-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: git-bus-factor-check-ci.yml
   classification: none
   publishes: []
@@ -2106,6 +2109,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: youtube-revenue-rpm-analyzer-ci.yml
+  classification: none
+  publishes: []
+- workflow: cow-calf-breakeven-calculator-ci.yml
   classification: none
   publishes: []
 gitops:

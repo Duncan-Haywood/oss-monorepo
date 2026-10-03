@@ -1226,7 +1226,7 @@ const RELATIVE_SELF = relative(
 // +1: `app-subscription-proceeds-calculator` graduated.
 // +1: `k8s-pod-security-check` graduated.
 // +1: `terraform-plan-cost-estimate` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 616;
+const SWITCHES_IN_THE_CATALOGUE = 618;
 // +1: `embroidery-shop-quote-calculator` graduated.
 
 let counter = 0;
