@@ -1,0 +1,95 @@
+name: ci-test-shard-balancer
+description: 'Free, zero-network, zero-dependency CLI + browser tool that reads per-test timings from JUnit XML (pytest, Jest via jest-junit, Go, Maven/Gradle, RSpec) and splits a test suite into N evenly timed CI shards: LPT greedy, pairwise local search and an exact search for small suites. Shows slowest-shard time, projected wall-clock and billed minutes now vs. balanced, sweeps shard counts for a wall-clock target given the setup seconds you enter, flags any test or file longer than an even shard as an indivisible bottleneck, groups by file, class or test, emits pytest/Jest/Go/Maven/Gradle/RSpec shard commands and a GitHub Actions matrix, and --max-imbalance-pct exits 1 as a drift gate. A heuristic over the timings it is given; keeps no history and cannot adapt during a run. Not a test-splitting service.'
+stage: prototype
+
+owner: duncan
+
+# Browser + CLI archetype over a file the user already has. The shape is not
+# the novelty argument; the gap is: a slow CI shard is a common, searched
+# annoyance, the paid splitters (Knapsack Pro, Buildkite Test Engine, CircleCI
+# test splitting by timings) are sold inside a CI product or as a subscription
+# with an account and an upload of test names and timings, and the free
+# alternatives are per-framework plugins (pytest-split, jest --shard by hash,
+# etc.) that each solve one runner and none answer "how many shards".
+# A team with a JUnit report and no budget line has the data and no tool.
+#
+# Screened 2026-10-03. duplicate_check.py on "browser and CLI tool that splits
+# CI test suite into balanced shards from JUnit XML timings":
+#
+#    score  source             label
+#     0.30  venture            flaky-test-finder
+#     0.20  pipeline candidate agent-permission-harness
+#     0.16  venture            security-txt-check
+#
+# Nothing scored >= 0.45. The nearest real neighbour was read:
+# flaky-test-finder reads the same JUnit XML but classifies tests as flaky or
+# stable across runs; it does no scheduling, no cost model and no shard output.
+# Inbound link from its page added. screened-out.md has no test-sharding row.
+#
+# First-visitor source, stated as an expectation and not a measurement. No
+# visitor has been measured (usage.yaml carries live_url_visitors: null, which
+# is "never measured", not zero):
+#   - searches for "split tests across CI shards", "balance pytest shards",
+#     "jest shard uneven", "how many parallel jobs for CI tests" and
+#     "github actions matrix test splitting". how-to-split-tests-across-ci-shards.html
+#     is written for the how-to query and vs-knapsack-pro.html for the
+#     comparison query, and says plainly where the paid tool wins.
+#   - r/devops, r/ExperiencedDevs and the pytest / Jest / Go communities, where
+#     slow CI is a recurring thread. Subreddit sizes were not verified and none
+#     is claimed. Publishing under the portfolio's public name is owner-only, so
+#     this file records the venue and does not post.
+#   - the 'Related' hop from flaky-test-finder.
+#
+# Hint honesty. The emitted runner commands (pytest node ids, jest file lists,
+# go test -run, mvn -Dtest, gradle --tests, rspec files) and the per-runner
+# JUnit options on the guide page were written from general knowledge of those
+# tools on 2026-10-03 and were not executed against a live pipeline from this
+# repository. A flag that drifts would surface as a failing shard, not a wrong
+# price. The JUnit dialect detection is heuristic and covered by fixtures that
+# were written by hand from the formats as best known, not captured from real
+# runners.
+#
+# Scored against portfolio/pipeline/README.md's rubric, reasoned:
+#   ai_leverage 1 -- no model; parsing, partitioning, a lookup. A gate has to
+#     give the same answer on every run.
+#   autonomous_ops 9 -- static page and a single-file CLI.
+#   time_to_revenue 4 -- donation-only fleet-wide, developer audience.
+#   gross_margin 10 -- no network call in either surface.
+#   defensibility 2 -- partitioning is textbook; the edge is free and offline.
+#   distribution 5 -- a real, searched query plus venues of unverified size.
+#   liability_containment 8 -- the exposure is acting on a heuristic split or
+#     cost figure; every surface says heuristic, not a guarantee, not advice.
+#   ethical_robustness 9 -- free, no accuracy-gated tier, nothing adversarial.
+
+hypotheses:
+  - claim: A developer whose CI has one consistently slow shard will paste a JUnit report, see the slowest-shard time drop, and paste the emitted shard lists or matrix into their pipeline.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Someone will schedule cli.mjs split with --max-imbalance-pct against each main-branch run's JUnit XML as a cheap drift alarm for their shard config.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A fixed split from one recent report holds well enough, run to run, that the predicted slowest shard is close to the real one. Not verified against a real pipeline from this environment.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a real JUnit report from pytest, Jest, Go, Maven/Gradle or RSpec that the parser rejects or misreads and it is not fixed within 30 days.
+  - An emitted shard command is reported wrong for a common runner and is not corrected within 30 days -- a split that silently drops tests is worse than none.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ci-test-shard-balancer/
+  analytics: null

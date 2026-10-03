@@ -110,6 +110,7 @@
     "childcare-tuition-calculator": "2026-09-07",
     "chimney-sweep-bid-calculator": "2026-08-26",
     "chrome-extension-permission-check": "2026-09-09",
+    "ci-test-shard-balancer": "2026-10-03",
     "claude-code-hooks-security-check": "2026-09-25",
     "claude-code-settings-check": "2026-09-24",
     "claude-code-subagent-check": "2026-09-24",
