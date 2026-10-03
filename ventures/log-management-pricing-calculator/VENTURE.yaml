@@ -1,0 +1,45 @@
+name: log-management-pricing-calculator
+description: 'Free, zero-network, zero-dependency browser tool + CLI that prices hosted log-management services (Datadog Logs, Grafana Cloud Logs, Axiom, Better Stack, Papertrail) at a monthly GB-ingested volume from editable approximate list prices, projects 12 months of spend under a monthly growth rate, and finds the volumes where the cheapest provider changes; has a --budget CI gate. A deterministic calculator over the user''s inputs, not a quote and not a guarantee of spend.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, sibling of ci-minutes-pricing-calculator and
+# error-tracking-pricing-calculator. cloudwatch-logs-cost-advisor covers AWS CloudWatch
+# alone; nothing compares hosted log-management vendors at one GB volume.
+#
+# Where the first real visitor would come from: search phrases "datadog logs vs
+# grafana loki cost", "axiom vs datadog pricing", "cheapest log management", "log
+# ingestion cost per gb"; r/devops and Hacker News threads after a logging bill shock.
+# The reader is a lead dev or founder choosing or leaving a logging vendor. Vendor pages
+# are rate cards per vendor; none shows all of them at one volume with growth and the
+# crossover, which is the wedge. A hosted pricing-change monitor is the natural paid path later.
+hypotheses:
+  - claim: A founder choosing or leaving a logging vendor will search for a price comparison at their GB-per-month volume, enter volume and growth, and use the crossover table to decide.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will add the CLI to CI with --budget so growth that pushes logging spend over budget fails review instead of the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool calculates only from typed numbers in
+  # the visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/log-management-pricing-calculator/
+  analytics: null
