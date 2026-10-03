@@ -112,7 +112,7 @@
     <id>tag:marisstella.dev,2026:tool/incident-postmortem-timeline</id>
     <published>2026-10-03T00:00:00Z</published>
     <updated>2026-10-03T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste an incident log and get time to detect, acknowledge, mitigate and resolve plus a blameless postmortem draft in Markdown. Free incident timeline generator and MTTR calculator, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
