@@ -1238,7 +1238,8 @@ const RELATIVE_SELF = relative(
 // +1: `hvac-repair-tier-price-calculator` graduated.
 // +1: `vercel-bill-estimator` graduated.
 // +1: `supabase-bill-estimator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 636;
+// +1: `neon-bill-estimator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 637;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
 // +1: `embroidery-shop-quote-calculator` graduated.
