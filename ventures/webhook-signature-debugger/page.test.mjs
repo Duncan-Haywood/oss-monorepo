@@ -72,3 +72,9 @@ test('index links one hop to sibling checks that exist', () => {
     assert.ok(readdirSync(new URL(`../${s}/`, import.meta.url)).includes('index.html'));
   }
 });
+
+test('the inline module script parses (a dead script ships a page that does nothing)', async () => {
+  const { checkPageIntegrity } = await import('../../platform/webcheck/page-integrity.mjs');
+  assert.deepEqual(checkPageIntegrity(index), []);
+  assert.deepEqual(checkPageIntegrity(guide), []);
+});
