@@ -33,37 +33,37 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547257 bytes
-#   portfolio-front-tools-1: 92 files, 555132 bytes
-#   portfolio-front-tools-2: 144 files, 553064 bytes
-#   portfolio-front-tools-3: 132 files, 556803 bytes
+#   portfolio-front-tools-0: 145 files, 547245 bytes
+#   portfolio-front-tools-1: 92 files, 555134 bytes
+#   portfolio-front-tools-2: 144 files, 553058 bytes
+#   portfolio-front-tools-3: 132 files, 556796 bytes
 #   portfolio-front-tools-4: 137 files, 556753 bytes
 #   portfolio-front-tools-5: 128 files, 554223 bytes
-#   portfolio-front-tools-6: 121 files, 555672 bytes
-#   portfolio-front-tools-7: 135 files, 554636 bytes
+#   portfolio-front-tools-6: 121 files, 555675 bytes
+#   portfolio-front-tools-7: 135 files, 554645 bytes
 #   portfolio-front-tools-8: 132 files, 548994 bytes
-#   portfolio-front-tools-9: 125 files, 557029 bytes
-#   portfolio-front-tools-10: 130 files, 555435 bytes
-#   portfolio-front-tools-11: 138 files, 550937 bytes
-#   portfolio-front-tools-12: 134 files, 554736 bytes
-#   portfolio-front-tools-13: 125 files, 551527 bytes
-#   portfolio-front-tools-14: 122 files, 543200 bytes
-#   portfolio-front-tools-15: 119 files, 555179 bytes
-#   portfolio-front-tools-16: 118 files, 553088 bytes
-#   portfolio-front-tools-17: 122 files, 555801 bytes
-#   portfolio-front-tools-18: 124 files, 554123 bytes
+#   portfolio-front-tools-9: 125 files, 557034 bytes
+#   portfolio-front-tools-10: 130 files, 555500 bytes
+#   portfolio-front-tools-11: 138 files, 550938 bytes
+#   portfolio-front-tools-12: 134 files, 554763 bytes
+#   portfolio-front-tools-13: 125 files, 551574 bytes
+#   portfolio-front-tools-14: 122 files, 543335 bytes
+#   portfolio-front-tools-15: 119 files, 555153 bytes
+#   portfolio-front-tools-16: 118 files, 553057 bytes
+#   portfolio-front-tools-17: 122 files, 555818 bytes
+#   portfolio-front-tools-18: 124 files, 554004 bytes
 #   portfolio-front-tools-19: 134 files, 554150 bytes
-#   portfolio-front-tools-20: 124 files, 555806 bytes
-#   portfolio-front-tools-21: 127 files, 553183 bytes
-#   portfolio-front-tools-22: 127 files, 554041 bytes
-#   portfolio-front-tools-23: 126 files, 556285 bytes
-#   portfolio-front-tools-24: 104 files, 555739 bytes
-#   portfolio-front-tools-25: 115 files, 555948 bytes
-#   portfolio-front-tools-26: 120 files, 556303 bytes
-#   portfolio-front-tools-27: 129 files, 555336 bytes
-#   portfolio-front-tools-28: 128 files, 556273 bytes
-#   portfolio-front-tools-29: 117 files, 554405 bytes
-#   portfolio-front-tools-30: 60 files, 307352 bytes
+#   portfolio-front-tools-20: 124 files, 555840 bytes
+#   portfolio-front-tools-21: 127 files, 553274 bytes
+#   portfolio-front-tools-22: 127 files, 553954 bytes
+#   portfolio-front-tools-23: 128 files, 552019 bytes
+#   portfolio-front-tools-24: 104 files, 547811 bytes
+#   portfolio-front-tools-25: 114 files, 555898 bytes
+#   portfolio-front-tools-26: 118 files, 556419 bytes
+#   portfolio-front-tools-27: 131 files, 556705 bytes
+#   portfolio-front-tools-28: 124 files, 550310 bytes
+#   portfolio-front-tools-29: 119 files, 541073 bytes
+#   portfolio-front-tools-30: 66 files, 350895 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3239,6 +3239,11 @@ configMapGenerator:
       - sbom-diff-check__vs-cyclonedx-cli-diff.html.gz=sbom-diff-check__vs-cyclonedx-cli-diff.html.gz
       - sbom-diff-check__vs-diffing-the-raw-json-files.html.gz=sbom-diff-check__vs-diffing-the-raw-json-files.html.gz
       - sbom-diff-check__why-did-one-version-bump-show-up-as-dozens-of-changes.html.gz=sbom-diff-check__why-did-one-version-bump-show-up-as-dozens-of-changes.html.gz
+      - scope-creep-change-order-calculator__cli.mjs.gz=scope-creep-change-order-calculator__cli.mjs.gz
+      - scope-creep-change-order-calculator__engine.mjs.gz=scope-creep-change-order-calculator__engine.mjs.gz
+      - scope-creep-change-order-calculator__how-to-price-a-change-order.html.gz=scope-creep-change-order-calculator__how-to-price-a-change-order.html.gz
+      - scope-creep-change-order-calculator__index.html.gz=scope-creep-change-order-calculator__index.html.gz
+      - scope-creep-change-order-calculator__usage.mjs.gz=scope-creep-change-order-calculator__usage.mjs.gz
       - screened-porch-bid-calculator__calc.mjs.gz=screened-porch-bid-calculator__calc.mjs.gz
       - screened-porch-bid-calculator__how-much-to-charge-to-screen-a-porch.html.gz=screened-porch-bid-calculator__how-much-to-charge-to-screen-a-porch.html.gz
       - screened-porch-bid-calculator__index.html.gz=screened-porch-bid-calculator__index.html.gz
@@ -3259,14 +3264,14 @@ configMapGenerator:
       - section-83b-election-calculator__usage.mjs.gz=section-83b-election-calculator__usage.mjs.gz
       - security-camera-bid-calculator__calc.mjs.gz=security-camera-bid-calculator__calc.mjs.gz
       - security-camera-bid-calculator__how-much-to-charge.html.gz=security-camera-bid-calculator__how-much-to-charge.html.gz
-      - security-camera-bid-calculator__index.html.gz=security-camera-bid-calculator__index.html.gz
-      - security-camera-bid-calculator__share.mjs.gz=security-camera-bid-calculator__share.mjs.gz
-      - security-camera-bid-calculator__usage.mjs.gz=security-camera-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-24
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - security-camera-bid-calculator__index.html.gz=security-camera-bid-calculator__index.html.gz
+      - security-camera-bid-calculator__share.mjs.gz=security-camera-bid-calculator__share.mjs.gz
+      - security-camera-bid-calculator__usage.mjs.gz=security-camera-bid-calculator__usage.mjs.gz
       - security-camera-bid-calculator__vs-a-flat-per-camera-price.html.gz=security-camera-bid-calculator__vs-a-flat-per-camera-price.html.gz
       - security-camera-bid-calculator__vs-d-tools.html.gz=security-camera-bid-calculator__vs-d-tools.html.gz
       - security-camera-bid-calculator__vs-housecall-pro.html.gz=security-camera-bid-calculator__vs-housecall-pro.html.gz
@@ -3368,14 +3373,14 @@ configMapGenerator:
       - shopify-discount-leakage-analyzer__usage.mjs.gz=shopify-discount-leakage-analyzer__usage.mjs.gz
       - shopify-fee-calculator__basic-vs-grow.html.gz=shopify-fee-calculator__basic-vs-grow.html.gz
       - shopify-fee-calculator__calc.mjs.gz=shopify-fee-calculator__calc.mjs.gz
-      - shopify-fee-calculator__index.html.gz=shopify-fee-calculator__index.html.gz
-      - shopify-fee-calculator__refunds.html.gz=shopify-fee-calculator__refunds.html.gz
-      - shopify-fee-calculator__share.mjs.gz=shopify-fee-calculator__share.mjs.gz
   - name: portfolio-front-tools-25
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shopify-fee-calculator__index.html.gz=shopify-fee-calculator__index.html.gz
+      - shopify-fee-calculator__refunds.html.gz=shopify-fee-calculator__refunds.html.gz
+      - shopify-fee-calculator__share.mjs.gz=shopify-fee-calculator__share.mjs.gz
       - shopify-fee-calculator__shopify-pos-vs-online-fees.html.gz=shopify-fee-calculator__shopify-pos-vs-online-fees.html.gz
       - shopify-fee-calculator__should-i-add-a-shopify-upsell.html.gz=shopify-fee-calculator__should-i-add-a-shopify-upsell.html.gz
       - shopify-fee-calculator__should-i-buy-shopify-shipping-labels.html.gz=shopify-fee-calculator__should-i-buy-shopify-shipping-labels.html.gz
@@ -3487,15 +3492,15 @@ configMapGenerator:
       - social-security-claiming-age-calculator__index.html.gz=social-security-claiming-age-calculator__index.html.gz
       - social-security-claiming-age-calculator__usage.mjs.gz=social-security-claiming-age-calculator__usage.mjs.gz
       - sod-install-bid-calculator__calc.mjs.gz=sod-install-bid-calculator__calc.mjs.gz
-      - sod-install-bid-calculator__how-much-to-charge-to-install-sod.html.gz=sod-install-bid-calculator__how-much-to-charge-to-install-sod.html.gz
-      - sod-install-bid-calculator__index.html.gz=sod-install-bid-calculator__index.html.gz
-      - sod-install-bid-calculator__usage.mjs.gz=sod-install-bid-calculator__usage.mjs.gz
-      - sod-install-bid-calculator__vs-a-flat-per-square-foot-special.html.gz=sod-install-bid-calculator__vs-a-flat-per-square-foot-special.html.gz
   - name: portfolio-front-tools-26
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sod-install-bid-calculator__how-much-to-charge-to-install-sod.html.gz=sod-install-bid-calculator__how-much-to-charge-to-install-sod.html.gz
+      - sod-install-bid-calculator__index.html.gz=sod-install-bid-calculator__index.html.gz
+      - sod-install-bid-calculator__usage.mjs.gz=sod-install-bid-calculator__usage.mjs.gz
+      - sod-install-bid-calculator__vs-a-flat-per-square-foot-special.html.gz=sod-install-bid-calculator__vs-a-flat-per-square-foot-special.html.gz
       - sod-install-bid-calculator__vs-aspire.html.gz=sod-install-bid-calculator__vs-aspire.html.gz
       - soffit-fascia-bid-calculator__calc.mjs.gz=soffit-fascia-bid-calculator__calc.mjs.gz
       - soffit-fascia-bid-calculator__how-much-to-charge-for-soffit-and-fascia.html.gz=soffit-fascia-bid-calculator__how-much-to-charge-for-soffit-and-fascia.html.gz
@@ -3610,17 +3615,17 @@ configMapGenerator:
       - str-tax-loophole-calculator__usage.mjs.gz=str-tax-loophole-calculator__usage.mjs.gz
       - str-turnover-crew-planner__cli.mjs.gz=str-turnover-crew-planner__cli.mjs.gz
       - str-turnover-crew-planner__engine.mjs.gz=str-turnover-crew-planner__engine.mjs.gz
+  - name: portfolio-front-tools-27
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - str-turnover-crew-planner__index.html.gz=str-turnover-crew-planner__index.html.gz
       - str-turnover-crew-planner__is-a-second-cleaning-crew-worth-it.html.gz=str-turnover-crew-planner__is-a-second-cleaning-crew-worth-it.html.gz
       - str-turnover-crew-planner__usage.mjs.gz=str-turnover-crew-planner__usage.mjs.gz
       - stripe-churn-cohort-analyzer__calc.mjs.gz=stripe-churn-cohort-analyzer__calc.mjs.gz
       - stripe-churn-cohort-analyzer__index.html.gz=stripe-churn-cohort-analyzer__index.html.gz
       - stripe-churn-cohort-analyzer__usage.mjs.gz=stripe-churn-cohort-analyzer__usage.mjs.gz
-  - name: portfolio-front-tools-27
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - stripe-failed-payment-recovery-analyzer__calc.mjs.gz=stripe-failed-payment-recovery-analyzer__calc.mjs.gz
       - stripe-failed-payment-recovery-analyzer__index.html.gz=stripe-failed-payment-recovery-analyzer__index.html.gz
       - stripe-failed-payment-recovery-analyzer__usage.mjs.gz=stripe-failed-payment-recovery-analyzer__usage.mjs.gz
@@ -3746,15 +3751,15 @@ configMapGenerator:
       - tiktok-shop-settlement-analyzer__calc.mjs.gz=tiktok-shop-settlement-analyzer__calc.mjs.gz
       - tiktok-shop-settlement-analyzer__index.html.gz=tiktok-shop-settlement-analyzer__index.html.gz
       - tiktok-shop-settlement-analyzer__usage.mjs.gz=tiktok-shop-settlement-analyzer__usage.mjs.gz
-      - tile-layout-planner__calc.mjs.gz=tile-layout-planner__calc.mjs.gz
-      - tile-layout-planner__how-many-tiles-do-i-need.html.gz=tile-layout-planner__how-many-tiles-do-i-need.html.gz
-      - tile-layout-planner__index.html.gz=tile-layout-planner__index.html.gz
-      - tile-layout-planner__usage.mjs.gz=tile-layout-planner__usage.mjs.gz
   - name: portfolio-front-tools-28
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - tile-layout-planner__calc.mjs.gz=tile-layout-planner__calc.mjs.gz
+      - tile-layout-planner__how-many-tiles-do-i-need.html.gz=tile-layout-planner__how-many-tiles-do-i-need.html.gz
+      - tile-layout-planner__index.html.gz=tile-layout-planner__index.html.gz
+      - tile-layout-planner__usage.mjs.gz=tile-layout-planner__usage.mjs.gz
       - time-off-request-planner__calc.mjs.gz=time-off-request-planner__calc.mjs.gz
       - time-off-request-planner__how-to-approve-vacation-requests-fairly.html.gz=time-off-request-planner__how-to-approve-vacation-requests-fairly.html.gz
       - time-off-request-planner__index.html.gz=time-off-request-planner__index.html.gz
@@ -3875,6 +3880,11 @@ configMapGenerator:
       - vendor-change-watch__diff.mjs.gz=vendor-change-watch__diff.mjs.gz
       - vendor-change-watch__examples.mjs.gz=vendor-change-watch__examples.mjs.gz
       - vendor-change-watch__how-often-to-recheck-vendor-pages.html.gz=vendor-change-watch__how-often-to-recheck-vendor-pages.html.gz
+  - name: portfolio-front-tools-29
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - vendor-change-watch__index.html.gz=vendor-change-watch__index.html.gz
       - vendor-change-watch__store.mjs.gz=vendor-change-watch__store.mjs.gz
       - vendor-change-watch__usage.mjs.gz=vendor-change-watch__usage.mjs.gz
@@ -3883,11 +3893,6 @@ configMapGenerator:
       - vercel-bill-estimator__cli.mjs.gz=vercel-bill-estimator__cli.mjs.gz
       - vercel-bill-estimator__engine.mjs.gz=vercel-bill-estimator__engine.mjs.gz
       - vercel-bill-estimator__how-to-reduce-your-vercel-bill.html.gz=vercel-bill-estimator__how-to-reduce-your-vercel-bill.html.gz
-  - name: portfolio-front-tools-29
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - vercel-bill-estimator__index.html.gz=vercel-bill-estimator__index.html.gz
       - vercel-bill-estimator__usage.mjs.gz=vercel-bill-estimator__usage.mjs.gz
       - veterinarian-associate-pay-calculator__calc.mjs.gz=veterinarian-associate-pay-calculator__calc.mjs.gz
@@ -3999,17 +4004,17 @@ configMapGenerator:
       - whatnot-seller-payout__vs-whatnot-seller-dashboard.html.gz=whatnot-seller-payout__vs-whatnot-seller-dashboard.html.gz
       - wheelchair-ramp-bid-calculator__calc.mjs.gz=wheelchair-ramp-bid-calculator__calc.mjs.gz
       - wheelchair-ramp-bid-calculator__how-much-to-charge-to-build-a-wheelchair-ramp.html.gz=wheelchair-ramp-bid-calculator__how-much-to-charge-to-build-a-wheelchair-ramp.html.gz
+  - name: portfolio-front-tools-30
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - wheelchair-ramp-bid-calculator__index.html.gz=wheelchair-ramp-bid-calculator__index.html.gz
       - wheelchair-ramp-bid-calculator__share.mjs.gz=wheelchair-ramp-bid-calculator__share.mjs.gz
       - wheelchair-ramp-bid-calculator__usage.mjs.gz=wheelchair-ramp-bid-calculator__usage.mjs.gz
       - wheelchair-ramp-bid-calculator__vs-a-flat-rate-per-lineal-foot.html.gz=wheelchair-ramp-bid-calculator__vs-a-flat-rate-per-lineal-foot.html.gz
       - wheelchair-ramp-bid-calculator__vs-jobber.html.gz=wheelchair-ramp-bid-calculator__vs-jobber.html.gz
       - where-to-sell-calculator__calc.mjs.gz=where-to-sell-calculator__calc.mjs.gz
-  - name: portfolio-front-tools-30
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - where-to-sell-calculator__does-it-actually-sell-there.html.gz=where-to-sell-calculator__does-it-actually-sell-there.html.gz
       - where-to-sell-calculator__etsy-vs-ebay-fees.html.gz=where-to-sell-calculator__etsy-vs-ebay-fees.html.gz
       - where-to-sell-calculator__export.mjs.gz=where-to-sell-calculator__export.mjs.gz
