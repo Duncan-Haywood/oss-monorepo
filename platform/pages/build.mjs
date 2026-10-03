@@ -678,6 +678,9 @@ const CATEGORY_RULES = [
       // `farmers-market-booth-calculator` joined 2026-10-03 on its first commit: market vendors who sell food,
       // one hop from `food-truck-event-margin-calculator`.
       'farmers-market-booth-calculator',
+      // `backyard-egg-profit-calculator` joined 2026-10-03 on its first commit: egg sellers at the same farm stands
+      // and markets, one hop from `farmers-market-booth-calculator`.
+      'backyard-egg-profit-calculator',
       'commissary-kitchen-cost-split-calculator',
       // `restaurant-pos-menu-mix-analyzer` added 2026-09-29: the POS-export
       // sibling of `menu-engineering-calculator`, same owner reading the same
