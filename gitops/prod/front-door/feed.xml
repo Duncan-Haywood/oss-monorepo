@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 633 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 634 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -69,6 +69,15 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your JavaScript, Python, Go or Java code and find JWT verification misuse: jwt.decode where verify is needed, verify_signature False, alg none, unpinned algorithms, ignoreExpiration, hard-coded or weak secrets. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Kubernetes Pod Security Check — Find privileged, hostPath and Root Containers</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/k8s-pod-security-check/"/>
+    <id>tag:marisstella.dev,2026:tool/k8s-pod-security-check</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your Kubernetes YAML and find risky pod security settings: privileged: true, hostNetwork, hostPath docker.sock, SYS_ADMIN capabilities, running as root, missing securityContext, :latest images, literal secrets. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Nail Tech Booth Rent Calculator — Booth vs Commission vs Employee</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your Amazon RDS instances (class, engine, Multi-AZ, storage, IOPS, CPU) and get what each costs, Multi-AZ you pay for outside production, io1 IOPS that gp3 covers, Graviton twins and idle instances, with the aws rds command to change each. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>RDS Instance Rightsizer — Is Your RDS or Aurora Instance Too Big</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rds-instance-rightsizer/"/>
-    <id>tag:marisstella.dev,2026:tool/rds-instance-rightsizer</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste CloudWatch CPU, freeable memory and connection numbers (or describe-db-instances JSON) and see which RDS and Aurora instances are over- or under-provisioned, the next class in the same family, Graviton savings, Multi-AZ cost and the modify-db-instance command. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
