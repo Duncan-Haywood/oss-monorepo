@@ -1,0 +1,13 @@
+{"name":"demo","lockfileVersion":3,"packages":{
+"":{"name":"demo","version":"1.0.0"},
+"node_modules/left-pad":{"version":"1.3.0","license":"MIT"},
+"node_modules/dual":{"version":"2.0.0","license":"(MIT OR GPL-3.0-only)"},
+"node_modules/both":{"version":"1.0.0","license":"(MIT AND GPL-2.0)"},
+"node_modules/readline-lib":{"version":"4.1.0","license":"LGPL-3.0"},
+"node_modules/mystery":{"version":"0.1.0"},
+"node_modules/closed":{"version":"3.0.0","license":"UNLICENSED"},
+"node_modules/agpl-thing":{"version":"5.0.0","license":"AGPL-3.0-or-later"},
+"node_modules/jest-helper":{"version":"9.0.0","license":"Apache-2.0","dev":true},
+"node_modules/a/node_modules/nested":{"version":"1.0.0","license":"ISC"},
+"node_modules/linked":{"resolved":"../linked","link":true}
+}}

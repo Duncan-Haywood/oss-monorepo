@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 639 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 640 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -105,6 +105,15 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your Kubernetes YAML and find risky pod security settings: privileged: true, hostNetwork, hostPath docker.sock, SYS_ADMIN capabilities, running as root, missing securityContext, :latest images, literal secrets. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Lockfile License Check — npm Dependency Licence Audit for package-lock.json</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/lockfile-license-check/"/>
+    <id>tag:marisstella.dev,2026:tool/lockfile-license-check</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your package-lock.json and see every dependency licence: copyleft (GPL, AGPL), unlicensed and unknown packages flagged first. Free npm license checker, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Nail Tech Booth Rent Calculator — Booth vs Commission vs Employee</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Paste the day&#39;s offered loan signings and notary appointments and get the most profitable set and order for one mobile notary or signing agent, with appointment windows, drive cost and the fee every declined signing would need. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Mobile Tire Van Job Picker — Which Calls to Run Today</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mobile-tire-van-job-picker/"/>
-    <id>tag:marisstella.dev,2026:tool/mobile-tire-van-job-picker</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Logistics, freight &amp; cloud cost"/>
-    <summary type="text">Paste the day&#39;s requested mobile tire and roadside jobs and get the most profitable set and order for one van, with time windows, drive cost and a price for every job it turns down. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
