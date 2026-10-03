@@ -1228,9 +1228,11 @@ const RELATIVE_SELF = relative(
 // +1: `terraform-plan-cost-estimate` graduated.
 // +1: `aws-bill-change-explainer` graduated.
 // +1: `lockfile-license-check` graduated.
-// +1: `requirements-pin-check` graduated.
 // +1: `backyard-egg-profit-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 624;
+// +1: `ci-test-shard-balancer` graduated.
+// +1: `backyard-honey-profit-calculator` graduated.
+// +1: `requirements-pin-check` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 626;
 // +1: `embroidery-shop-quote-calculator` graduated.
 
 let counter = 0;

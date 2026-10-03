@@ -1651,3 +1651,31 @@ entries:
     gate_note: >-
       Liability: arithmetic and formatting on text the user supplies, labelled a starting point, no
       warranty, nothing leaves the device. Ethics: helps teams learn from incidents; free, no scraping.
+  - venture: ci-test-shard-balancer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built ci-test-shard-balancer: a browser-local tool and zero-dependency CLI (cli.mjs
+        over a shared engine.mjs) that reads per-test timings from JUnit XML (pytest, Jest via jest-junit,
+        Go, Maven/Gradle, RSpec) and splits the suite into N CI shards by measured duration: LPT greedy,
+        pairwise local search, and an exact search for small suites that says whether the answer is proven
+        optimal. Shows the current split next to the balanced one (slowest shard, wall-clock with a
+        setup-seconds input, billed minutes), sweeps shard counts to suggest the cheapest N for a wall-clock
+        target, flags any file or test longer than the ideal shard as an indivisible bottleneck, groups by
+        file, class or test, and emits pytest/Jest/Go/Maven/Gradle/RSpec shard commands plus a GitHub
+        Actions matrix. --max-imbalance-pct exits 1 for a pipeline gate. Ships vs-knapsack-pro.html (says
+        where the paid dynamic splitter wins) and a guide page. New gap: flaky-test-finder reads the same
+        JUnit XML to classify flakes; nothing in the tree balances shards (duplicate_check closest match
+        0.30, flaky-test-finder; not in screened-out). First visitor expected from "split tests across CI
+        shards", "balance pytest/jest shards" and "how many parallel CI jobs" searches; none measured. The
+        runner flags in the emitted commands were written from general knowledge and not run against a
+        live pipeline here, and the surfaces say so. Unverified with a real developer.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on reports the user supplies, labelled a heuristic whose predictions are not a
+      guarantee, not engineering or financial advice, no warranty, not affiliated with Knapsack Pro,
+      Buildkite or CircleCI, nothing leaves the device. Ethics: free, no accuracy-gated tier, no scraping.
