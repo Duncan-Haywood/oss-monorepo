@@ -26984,3 +26984,31 @@ ventures:
       Liability: arithmetic on reports the user supplies, labelled a heuristic and not a guarantee, not
       engineering or financial advice, no warranty, not affiliated with Knapsack Pro, Buildkite or
       CircleCI, nothing leaves the device. Ethics: free, no accuracy-gated tier, no scraping.
+  - slug: datadog-bill-estimator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.167
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic usage-to-bill calculator over typed or pasted numbers; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 5 and defensibility 4: a
+      developer CLI with real search demand ("reduce datadog costs", "datadog pricing
+      calculator") but crowded by vendor-side cost-management features and the vendor's own
+      rate card; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that estimates a monthly Datadog bill and ranks the levers that cut it.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed numbers, estimate labelled as the user's own inputs
+      times editable approximate list prices, no warranty, nothing leaves the device. Ethics:
+      helps engineers avoid surprise observability bills.
