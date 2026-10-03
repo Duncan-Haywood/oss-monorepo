@@ -1239,8 +1239,9 @@ const RELATIVE_SELF = relative(
 // +1: `vercel-bill-estimator` graduated.
 // +1: `supabase-bill-estimator` graduated.
 // +1: `neon-bill-estimator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 637;
+const SWITCHES_IN_THE_CATALOGUE = 638;
 // +1: `sms-segment-cost-calculator` graduated.
+// +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
 // +1: `embroidery-shop-quote-calculator` graduated.
 
