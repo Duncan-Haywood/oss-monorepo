@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GitHub Actions timeout-minutes: the default, the cost, and what to set</title>
+  <meta name="description" content="A GitHub Actions job with no timeout-minutes can run for 360 minutes before GitHub cancels it. Here is what that costs, how to pick a value, and how to check your own workflows.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="what-is-github-actions-timeout-minutes.html">
+  <meta property="og:title" content="GitHub Actions timeout-minutes: the default, the cost, and what to set">
+  <meta property="og:description" content="No timeout-minutes means a 360-minute ceiling. A hung job bills all of it on a private repository.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the default timeout for a GitHub Actions job?","acceptedAnswer":{"@type":"Answer","text":"A job on a GitHub-hosted runner is cancelled after 360 minutes (six hours) unless timeout-minutes sets a lower limit. A hung job therefore holds the runner, and on a private repository bills minutes, for up to six hours."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.02em; line-height: 1.12; color: #17324a; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .88rem; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .note { font-size: .9rem; color: #55606f; }
+    footer { margin-top: 28px; font-size: .82rem; color: #55606f; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Actions timeout-minutes Check</a></p>
+  <h1>GitHub Actions <code>timeout-minutes</code>: the default, the cost, and what to set</h1>
+  <p>Every job in a workflow can carry a <code>timeout-minutes</code> value. Leave it out and GitHub applies its default: the job is cancelled after <strong>360 minutes</strong>, six hours.</p>
+  <pre><code>jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - run: npm test</code></pre>
+  <h2>What is the default timeout for a GitHub Actions job?</h2>
+  <p>A job on a GitHub-hosted runner is cancelled after 360 minutes (six hours) unless timeout-minutes sets a lower limit. A hung job therefore holds the runner, and on a private repository bills minutes, for up to six hours.</p>
+  <h2>Why the default hurts</h2>
+  <p>Most CI jobs take minutes. When one hangs — a deadlocked test, a dependency download that stalls, a command waiting for input that never comes — nothing stops it until minute 360. The runner is held the whole time, and on a private repository every one of those minutes is metered against your plan. GitHub documents higher minute multipliers for Windows and macOS runners than for Linux, so the same hang costs more there; check GitHub's current billing page for the live numbers.</p>
+  <h2>A value of 360 is not a guard</h2>
+  <p>Writing <code>timeout-minutes: 360</code> restates the default. It looks like a limit and limits nothing, which is why the checker flags it separately.</p>
+  <h2>Choosing a value</h2>
+  <ul>
+    <li>Look at how long the job normally takes in your run history, then set the limit at a few times that. A test job that takes 4 minutes can carry 15.</li>
+    <li>Too tight a limit cancels healthy runs when the runner is slow, so leave headroom rather than aiming at the average.</li>
+    <li>Put it on the job, not on a step. A step-level <code>timeout-minutes</code> bounds that one step only.</li>
+    <li>A job that calls a reusable workflow (<code>uses:</code>) cannot take <code>timeout-minutes</code>; set it on the jobs inside the called workflow.</li>
+  </ul>
+  <h2>Check your own workflows</h2>
+  <p><a href="./">Paste your workflow YAML into Actions timeout-minutes Check</a> to find every job without a job-level limit across all your workflow files at once, or run the CLI in your own repository:</p>
+  <pre><code>python3 check.py --fail-on-risk</code></pre>
+  <p class="note">That exits with a nonzero status if any job has no timeout or restates the default — wire it into your own CI to block a new one before it merges.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. This is not a security audit or a cost audit, and a clean scan does not mean a workflow is safe or cheap — only that this one pattern was not found. Minute figures are upper bounds, not predictions.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
+    <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>
+  </footer>
+</body>
+</html>

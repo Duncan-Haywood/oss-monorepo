@@ -26490,3 +26490,30 @@ ventures:
       competence, due diligence, Circular 230 and engagement terms named as coming first, no warranty, nothing leaves
       the device. Ethics: helps small independent practitioners decide which engagements are worth their hours; the
       user decides and remains responsible.
+  - slug: actions-timeout-check
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 3
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic line scan of workflow YAML; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in the venture's
+      own VENTURE.yaml comment. Time to revenue 3 (a free dev tool, donations only), distribution 5 and
+      defensibility 3: searches for the timeout-minutes default and for jobs stuck for six hours land
+      on docs and forum threads with no checker attached, and the check is easy to copy. Volume not
+      measured with an external tool.
+      Scope: Free CLI and browser tool that flags Actions jobs with no timeout from the user's own workflow files.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: mechanical read-only scan, minute figures are labelled upper bounds, no warranty, nothing
+      leaves the device. Ethics: defensive CI hygiene on the user's own repository.
