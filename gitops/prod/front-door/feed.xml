@@ -44,6 +44,15 @@
     <summary type="text">Price dog grooming by breed class and time: the effective hourly each class earns after matting and de-shedding extras, drive time, supplies and no-shows, the price needed for your target hourly, a walk-away price, and an audit of past appointments showing which classes underpay. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Farmers Market Booth Calculator — Profit per Hour for Each Market</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/farmers-market-booth-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/farmers-market-booth-calculator</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free calculator for farmers market, craft fair and festival vendors: what each market really earns after booth fee, drive, product cost, waste and card fees, profit per hour against your target wage, break-even sales and which market to drop or reprice. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Git Bus Factor Check — Who Owns Each Folder, and Are They Still Here?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/git-bus-factor-check/"/>
     <id>tag:marisstella.dev,2026:tool/git-bus-factor-check</id>
@@ -357,14 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="Logistics, freight &amp; cloud cost"/>
     <summary type="text">Paste a load-board shortlist with your own rates, pickup windows and costs and get the exact best chain of loads to run, which to leave, and the lowest rate each is worth, with deadhead, waiting and rest priced in. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Price Increase Break-Even Calculator — How Many Customers Can You Lose</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/price-increase-breakeven-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/price-increase-breakeven-calculator</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Paste your prices, unit costs and volumes, set a price increase, and see how many units you can lose before the raise stops paying, item by item. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
