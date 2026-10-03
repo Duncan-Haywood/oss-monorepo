@@ -1229,9 +1229,12 @@ const RELATIVE_SELF = relative(
 // +1: `aws-bill-change-explainer` graduated.
 // +1: `lockfile-license-check` graduated.
 // +1: `backyard-egg-profit-calculator` graduated.
-// +1: `datadog-bill-estimator` graduated.
+// +1: `feie-physical-presence-calculator` graduated.
 // +1: `ci-test-shard-balancer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 625;
+// +1: `backyard-honey-profit-calculator` graduated.
+// +1: `requirements-pin-check` graduated.
+// +1: `datadog-bill-estimator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 628;
 // +1: `embroidery-shop-quote-calculator` graduated.
 
 let counter = 0;

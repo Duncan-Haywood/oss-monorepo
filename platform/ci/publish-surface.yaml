@@ -242,6 +242,9 @@ workflows:
 - workflow: backyard-egg-profit-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: backyard-honey-profit-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: bandcamp-sales-report-analyzer-ci.yml
   classification: none
   publishes: []
@@ -759,6 +762,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: fba-reimbursement-claim-finder-ci.yml
+  classification: none
+  publishes: []
+- workflow: feie-physical-presence-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: fence-bid-calculator-ci.yml
@@ -1552,6 +1558,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: required-checks-drift-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: requirements-pin-check-ci.yml
   classification: none
   publishes: []
 - workflow: restaurant-delivery-commission-analyzer-ci.yml

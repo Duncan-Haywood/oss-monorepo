@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 646 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 649 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -42,6 +42,15 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free calculator for backyard egg sellers: what a dozen eggs costs you, how many hours it takes, your profit per dozen and per hour, the price per dozen you need to earn a wage, and what feed cost and winter lay rate do to it. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Backyard Honey Profit Calculator — Cost per Pound, Profit per Hour and the Price You Need</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/backyard-honey-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/backyard-honey-profit-calculator</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free calculator for backyard beekeepers who sell honey: what a pound costs you, how many hours it takes, your profit per pound and per hour, the price per pound you need to earn a wage, and what a poor honey year and winter hive losses do to it. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>CI Test Shard Balancer: Split Tests Evenly From JUnit XML</title>
@@ -96,6 +105,15 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free calculator for farmers market, craft fair and festival vendors: what each market really earns after booth fee, drive, product cost, waste and card fees, profit per hour against your target wage, break-even sales and which market to drop or reprice. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>FEIE Physical Presence Test Calculator — 330 Days, Best 12-Month Window</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/feie-physical-presence-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/feie-physical-presence-calculator</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator for the Form 2555 physical presence test: enter your stays abroad and see your best 12-month window, how many of the 330 days you have, how many days you can still spend elsewhere, and the prorated foreign earned income exclusion. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Firewood Profit Calculator — Profit per Cord, per Hour and the Price You Need</title>
@@ -186,6 +204,15 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Find what each pool account on your route really earns per hour after drive time, chemicals and callbacks: which accounts to reprice or drop, the price that clears your target, what dropping or adding a stop 15 minutes away does to the whole route, and a CSV audit. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Requirements Pin Check — Audit requirements.txt for Unpinned and Unhashed Dependencies</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/requirements-pin-check/"/>
+    <id>tag:marisstella.dev,2026:tool/requirements-pin-check</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your requirements.txt and see every unpinned version, missing hash, extra index URL and unpinned git dependency. Free pip requirements pin checker, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Snow Plow Contract Calculator — Per Push vs Seasonal</title>
@@ -339,32 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your EBS volumes (type, size, provisioned and peak IOPS) and get the cheapest volume type that still covers the peak, the aws ec2 modify-volume command, gp2 burst risk and unattached volumes. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Embroidery Pricing Calculator for Small Shops: Quotes, Quantity Breaks and Margin</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/embroidery-shop-quote-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/embroidery-shop-quote-calculator</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Price an embroidery job from your own machine time and costs: per-piece price that hits your target margin, quantity breaks, stitch-count sensitivity, and whether a per-1000-stitches rule loses money. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Free Shipping Threshold Optimizer — What Minimum Earns You the Most</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/free-shipping-threshold-optimizer/"/>
-    <id>tag:marisstella.dev,2026:tool/free-shipping-threshold-optimizer</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Paste your past orders and see what each free-shipping minimum would earn, how many buyers it must win back to pay for the shipping you give away, and the threshold that loses least if your assumptions are wrong. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Freelance Project Picker — Which Projects to Accept for the Most Income</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freelance-project-picker/"/>
-    <id>tag:marisstella.dev,2026:tool/freelance-project-picker</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Paste your weekly hours and the project offers on the table and get the exact set to accept for the highest income, with the fee each declined project would need to earn its place. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
