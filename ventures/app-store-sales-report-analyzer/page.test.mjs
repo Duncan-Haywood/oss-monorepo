@@ -59,3 +59,7 @@ test("usage events named on the page are the ones the code records", () => {
     assert.match(html, new RegExp(`<code>${e}</code>`));
   }
 });
+
+test("links to the subscription proceeds calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/app-subscription-proceeds-calculator\/"/);
+});

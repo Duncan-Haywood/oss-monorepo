@@ -1222,7 +1222,8 @@ const RELATIVE_SELF = relative(
 // +1: `docker-compose-security-check` graduated.
 // +1: `dog-grooming-price-calculator` graduated.
 // +1: `thumbtack-lead-roi-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 611;
+// +1: `app-subscription-proceeds-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 612;
 // +1: `embroidery-shop-quote-calculator` graduated.
 
 let counter = 0;
