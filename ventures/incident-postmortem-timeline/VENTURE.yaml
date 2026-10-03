@@ -1,5 +1,5 @@
 name: incident-postmortem-timeline
-description: 'Free tool that turns a pasted, timestamped incident log into time-to-detect/acknowledge/mitigate/resolve, the longest silent gaps, and a blameless postmortem draft in Markdown -- in the browser (paste the log) or as a zero-dependency Node CLI with a --max-ttr gate, no upload, no network calls of its own.'
+description: 'Free tool that turns a pasted, timestamped incident timeline (log lines) into time-to-detect/acknowledge/mitigate/resolve, the longest silent gaps, and a blameless postmortem draft in Markdown -- in the browser (paste the log) or as a zero-dependency Node CLI with a --max-ttr gate, no upload, no network calls of its own.'
 stage: prototype
 
 owner: duncan
