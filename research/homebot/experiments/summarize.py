@@ -5,13 +5,14 @@
 from __future__ import annotations
 
 import csv
+import os
 import json
 from pathlib import Path
 
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
-RUNS = HERE / "runs"
+RUNS = Path(os.environ.get("RUNS_DIR", HERE / "runs"))
 
 
 def load_runs():
