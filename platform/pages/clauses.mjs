@@ -2541,6 +2541,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // (page.test.mjs) pins that, so this exemption cannot quietly stop being true.
   // Same reasoning as the other generic-method pages above.
   'plumber-flat-rate-price-calculator/vs-time-and-materials.html',
+  // Compares against quoting a single repair price -- the generic method most
+  // small shops start from, not a company or product this could be mistaken for.
+  // The page names no software, vendor or manufacturer, and its own test
+  // (page.test.mjs) pins that, so this exemption cannot quietly stop being true.
+  'hvac-repair-tier-price-calculator/vs-quoting-one-repair-price.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
