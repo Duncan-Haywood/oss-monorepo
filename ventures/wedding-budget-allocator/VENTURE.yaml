@@ -1,0 +1,49 @@
+name: wedding-budget-allocator
+description: >-
+  Free browser tool for engaged couples that splits a total wedding budget
+  across 14 categories using guest count, region, season and up to three
+  priorities, shows what each extra guest costs, and suggests the guest count
+  that makes a tight budget realistic. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-03 in a new-venture-first session. duplicate_check.py top
+# score 0.23 (catering-quote-calculator, the vendor side of per-guest pricing).
+# No sibling serves the couple's side: wedding-florist-proposal-calculator and
+# wedding-photographer-profit-calculator are vendor tools.
+#
+# Distribution: "wedding budget calculator" and "wedding budget breakdown by
+# guest count" are high-volume, evergreen consumer queries; most results are
+# fixed-percentage charts that ignore guest count. Volume was not measured with
+# an external tool. Lead-magnet shape: couples are also the audience for the
+# vendor-side tools in this catalogue.
+#
+# Liability: arithmetic on the user's own inputs with labelled ballpark
+# baselines; never financial advice.
+
+hypotheses:
+  - claim: >-
+      Engaged couples will search for and use a free, no-signup wedding budget
+      allocator that responds to guest count, region and priorities, and will
+      come back when the guest list or budget changes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong allocation from this tool's output despite the disclaimers, at which point the baselines or wording need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/wedding-budget-allocator/
+  analytics: null

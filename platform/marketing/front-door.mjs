@@ -2624,9 +2624,10 @@ ${group.tools
     // Emitted only when it has something to add — see `extraTokens`. Most
     // slugs are the title in kebab case and contribute nothing.
     const alt = extra ? ` data-alt="${escapeHtml(extra)}"` : '';
-    return `        <li class="card" data-cat="${escapeHtml(group.id)}"${alt}>
-          <h3><a href="${escapeHtml(tool.url)}">${escapeHtml(tool.title)}</a></h3>
-        </li>`;
+    // One line, unindented: this list is 656 cards and the whitespace around
+    // each was ~34 bytes -- 22 KB of the `portfolio-front-html` object that was
+    // sitting 512 bytes over the etcd test budget on 2026-10-03.
+    return `<li class="card" data-cat="${escapeHtml(group.id)}"${alt}><h3><a href="${escapeHtml(tool.url)}">${escapeHtml(tool.title)}</a></h3></li>`;
   })
   .join('\n')}
   </ul>`,
