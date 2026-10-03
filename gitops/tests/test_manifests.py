@@ -2927,7 +2927,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `dog-grooming-price-calculator` graduated (browser + CLI dog grooming price by breed class and time, with a past-appointment audit).
     # +1: `k8s-pod-security-check` graduated (browser + CLI risky pod and container security-settings scanner for Kubernetes manifests).
     # +1: `terraform-plan-cost-estimate` graduated (browser + CLI monthly AWS cost delta estimate for a Terraform plan, from an approximate bundled price table).
-    total = 639  # `infra/OWNER_CHECKLIST.md`'s own "N of the 639 tools" wording.
+    # +1: `firewood-profit-calculator` graduated (browser firewood profit per cord and hour, price needed for a wage, delivery distance).
+    total = 640  # `infra/OWNER_CHECKLIST.md`'s own "N of the 640 tools" wording.
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).
     # +1: `ticket-resale-profit-calculator` graduated (browser + CLI ticket resale payout, break-even and sales-log audit).
