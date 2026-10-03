@@ -441,6 +441,9 @@ const CATEGORY_RULES = [
     // question this section already answers for a resale seller. It sat in
     // the catch-all because its slug names a streaming platform, not a
     // storefront keyword this rule already recognised.
+    // `upwork-connects-roi-calculator` prices the same Upwork bidding decision
+    // from the other side (what a hire costs in Connects and writing time), so
+    // it sits beside `freelance-platform-fee-calculator`, not in the catch-all.
     // `freelance-platform-fee-calculator` is the same platform-cut shape one
     // further step removed again: Upwork and Fiverr take a percentage of a
     // freelancer's job price the same way a resale marketplace takes a
@@ -505,7 +508,7 @@ const CATEGORY_RULES = [
     // margin into the break-even ROAS and max CPA an ad campaign needs; the same reader as the fee tools here.
     // `used-car-lot-aging-planner` joined 2026-10-02 on its first commit: an independent dealer deciding when an
     // aged unit goes to auction is the same reseller as `auction-car-flip-calculator` here, and the two cross-link.
-    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|free-shipping-threshold|returns-policy|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|auction-car-flip|used-car-lot|liquidation-pallet|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace|ticket-resale|card-grading-submission|thrift-haul|price-increase-breakeven)/.test(slug),
+    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|free-shipping-threshold|returns-policy|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|auction-car-flip|used-car-lot|liquidation-pallet|stockx|twitch|freelance-platform-fee|upwork-connects|mercari|kickstarter|depop|facebook-marketplace|ticket-resale|card-grading-submission|thrift-haul|price-increase-breakeven)/.test(slug),
   },
   {
     id: 'trades',
