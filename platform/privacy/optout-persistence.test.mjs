@@ -1240,8 +1240,9 @@ const RELATIVE_SELF = relative(
 // +1: `supabase-bill-estimator` graduated.
 // +1: `neon-bill-estimator` graduated.
 // +1: `auth-mau-pricing-calculator` graduated.
+// +1: `email-api-pricing-calculator` graduated.
 // +1: `git-timesheet` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 640;
+const SWITCHES_IN_THE_CATALOGUE = 641;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
