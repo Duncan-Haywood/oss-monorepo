@@ -260,6 +260,15 @@
     <summary type="text">Free calculator for freelancers: what your Connects and proposal-writing time cost per hire, the win rate you need to break even, and the most Connects a proposal can spend before it loses money. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Vercel Bill Estimator — Estimate Your Monthly Bill and the Levers That Cut It</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/vercel-bill-estimator/"/>
+    <id>tag:marisstella.dev,2026:tool/vercel-bill-estimator</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Estimate a monthly Vercel Pro bill from your own usage (bandwidth, edge requests, functions, images, builds, seats) at editable list prices, and see which changes cut it most, with a dollar saving for each. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Webhook Signature Debugger — Why Your Stripe, GitHub or Shopify Signature Doesn&#39;t Match</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/webhook-signature-debugger/"/>
     <id>tag:marisstella.dev,2026:tool/webhook-signature-debugger</id>
@@ -357,14 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">List what goes in your CSA box and see what a member gets at retail, what the season pays you per hour, the price that pays your target wage, break-even shares and a price sweep. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Databricks Cluster Cost Advisor — Autotermination, Jobs Compute and DBU Cost</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/databricks-cluster-cost-advisor/"/>
-    <id>tag:marisstella.dev,2026:tool/databricks-cluster-cost-advisor</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your Databricks clusters (kind, DBUs used, autotermination) and get what each costs, scheduled work running on pricier all-purpose compute, clusters that never terminate and long autotermination tails, with the setting to change. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
