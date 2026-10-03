@@ -2933,7 +2933,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `feie-physical-presence-calculator` graduated (browser Form 2555 physical presence 330-day counter).
     # +1: `ci-test-shard-balancer` graduated (browser + CLI balanced CI test sharding from JUnit XML timings, with shard-count sweep and Actions matrix).
     # +1: `webhook-signature-debugger` graduated (browser + CLI webhook HMAC signature verification and mismatch diagnosis).
-    total = 650  # `infra/OWNER_CHECKLIST.md`'s own "N of the 650 tools" wording.
+    total = 651  # `infra/OWNER_CHECKLIST.md`'s own "N of the 651 tools" wording.
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).
     # +1: `ticket-resale-profit-calculator` graduated (browser + CLI ticket resale payout, break-even and sales-log audit).

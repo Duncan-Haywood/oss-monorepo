@@ -1704,3 +1704,30 @@ entries:
       Liability: computes HMACs on text the user supplies, framed as a debugging aid and not security advice,
       no warranty, secrets and payloads never leave the device and the page warns to use test or rotated
       secrets. Ethics: free, no accuracy-gated tier, no scraping.
+  - venture: plumber-flat-rate-price-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built plumber-flat-rate-price-calculator: a browser-local calculator for independent
+        plumbers and small plumbing shops. From wages and burden, truck, insurance, tools and overhead spread
+        over billable hours it derives a true cost per billable hour, then prices a job at a flat rate from
+        on-site and travel hours, a target margin and parts with marginal tiered markup, rounded up for a
+        price book. Reports the effective hourly rate, a minimum callout price, the hours at which the flat
+        price stops covering cost, and a flat-versus-time-and-materials table for jobs that run long or
+        short. Includes a price-book builder with CSV export (spreadsheet-formula-safe) and a share link
+        that carries only numeric inputs in the URL fragment. Ships a how-to-build guide, a generic-method
+        vs-time-and-materials page, FAQ JSON-LD, usage counting with opt-out, and a CI workflow. New gap:
+        duplicate_check closest match 0.25 (embroidery-shop-quote-calculator), below the 0.45 line; the
+        nearest trade tool, appliance-repair-quote-calculator, prices one quote and builds no price book.
+        First visitor expected from "plumbing flat rate pricing" and "how to build a flat rate price book"
+        searches; none measured. The starting numbers and markup tiers are invented examples, not market
+        rates, and nothing was tried with a working plumber.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on numbers the user types, labelled an estimator and not business, tax, legal,
+      licensing or plumbing-code advice, no warranty, not affiliated with any trade body or vendor, nothing
+      leaves the device. Ethics: free, no scraping, no invented testimonials or statistics.

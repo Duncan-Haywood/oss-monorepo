@@ -1235,7 +1235,7 @@ const RELATIVE_SELF = relative(
 // +1: `requirements-pin-check` graduated.
 // +1: `datadog-bill-estimator` graduated.
 // +1: `webhook-signature-debugger` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 629;
+const SWITCHES_IN_THE_CATALOGUE = 630;
 // +1: `embroidery-shop-quote-calculator` graduated.
 
 let counter = 0;
