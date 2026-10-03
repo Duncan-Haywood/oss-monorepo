@@ -2919,9 +2919,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `translation-job-picker` graduated (browser + CLI which-translation-jobs-to-accept picker).
     # +1: `tax-season-client-picker` graduated (browser + CLI late-season tax client picker).
     # +1: `interior-design-fee-calculator` graduated (browser + CLI interior design fee-model comparator with overrun scenarios and a past-project audit by fee model).
+    # +1: `snow-plow-contract-calculator` graduated (browser + CLI snow plow contract-model comparator across low/normal/high snow years with a past-season audit).
     # +1: `nail-tech-booth-rent-calculator` graduated (browser + CLI booth rent vs commission vs employee take-home per hour worked, with break-even clients and a past-week audit).
     # +1: `grant-indirect-cost-calculator` graduated (browser MTDC, indirect cost and award-cap fit calculator).
-    total = 627  # `infra/OWNER_CHECKLIST.md`'s own "N of the 627 tools" wording.
+    total = 628  # `infra/OWNER_CHECKLIST.md`'s own "N of the 628 tools" wording.
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).
     # +1: `ticket-resale-profit-calculator` graduated (browser + CLI ticket resale payout, break-even and sales-log audit).
