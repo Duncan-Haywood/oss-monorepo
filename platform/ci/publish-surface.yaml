@@ -2153,3 +2153,6 @@ gitops:
 - workflow: thumbtack-lead-roi-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: cow-calf-breakeven-calculator-ci.yml
+  classification: none
+  publishes: []

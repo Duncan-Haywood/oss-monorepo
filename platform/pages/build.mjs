@@ -556,6 +556,8 @@ const CATEGORY_RULES = [
     // job-costing this section's bid calculators do, just for field work
     // instead of a construction trade, and it landed in the catch-all only
     // because its slug ends in `-rate-calculator`, not `-bid-calculator`.
+    // `cow-calf-breakeven-calculator` is the herd-side sibling: a cattle producer's cost per cow
+    // against calf price, the same own-numbers job costing for a farm, so it sits beside it.
     // `auto-repair-effective-labor-rate` is the same reader as `shop-rate`
     // above, arriving from the other end of the year: `shop-rate` computes the
     // hour a shop must sell, this measures the hour it actually sold. Its slug
@@ -582,7 +584,7 @@ const CATEGORY_RULES = [
     // show which paid source books jobs; same reader as the bid calculators here, slug names no trade.
     // `snow-plow-contract-calculator` joined 2026-10-03: compares per-push, per-inch, seasonal and hybrid plow contracts across low/normal/high snow
     // years for a route of sites; slug names no `bid-calculator`, same reader as `snow-removal-bid-calculator` (also here, in trades-outdoor).
-    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tile-layout|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|lead-response-time)/.test(slug),
+    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tile-layout|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate|cow-calf-breakeven|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -3537,7 +3539,7 @@ const SUBCATEGORY_RULES = {
       // margin, the same job-costing shape as `job-margin` and
       // `shop-rate` for a licensed surveyor's boundary/ALTA retracement
       // work instead of a construction trade.
-      test: (slug) => /^(quote-margin|retainage|freelance-retainer|price-increase-breakeven|freelance-rate-increase|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|project-estimate-calibrator|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|lead-response-time|custom-farm-rate|land-survey|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability)/.test(slug),
+      test: (slug) => /^(quote-margin|retainage|freelance-retainer|price-increase-breakeven|freelance-rate-increase|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|project-estimate-calibrator|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|lead-response-time|custom-farm-rate|cow-calf-breakeven|land-survey|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability)/.test(slug),
     },
     {
       id: 'trades-cleaning',
