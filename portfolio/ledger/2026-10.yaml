@@ -1274,6 +1274,35 @@ entries:
       not market rates, tax, legal or licensing advice, no warranty, contract terms and local
       rules left to the user. Ethics: helps small designers charge for the time projects
       really take; no scraping.
+  - venture: snow-plow-contract-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built snow-plow-contract-calculator: a browser-local tool and
+        zero-dependency CLI for independent snow plowing and ice-management contractors.
+        List sites (hours per push, per-push, per-inch and seasonal flat prices, trigger
+        depth, salt) and the light, medium and heavy storms expected in a low, normal and
+        high snow year, plus truck and driver, fuel, blade, deadhead and salt costs and a
+        target hourly; it returns per-push, per-inch, seasonal flat, capped flat and hybrid
+        contracts' expected season revenue and effective hourly in each year, the storm count
+        where each stops paying, the seasonal flat price that clears target in a low year
+        against the price that loses money in a high year, and a walk-away price. An audit
+        mode groups past site-seasons by contract model and ranks them by net hourly. Adjacent
+        to snow-removal-bid-calculator, which prices one property's winter; this works across a
+        whole route and adds capped, hybrid, per-inch, year scenarios and the audit. Season
+        starts October; first visitor expected from "per push vs seasonal snow plow contract"
+        searches. Nothing leaves the browser, no market rates scraped. Unverified with a
+        real contractor.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied prices, storm counts, hours and costs, stated
+      prominently as not market rates, tax, legal, insurance or contract advice, no warranty,
+      contract terms and local rules left to the user. Ethics: helps small plow contractors
+      price winter work at what it takes; no scraping.
   - venture: jwt-verification-misuse-check
     agent_spend_usd: null
     human_hours: 0
@@ -1297,6 +1326,58 @@ entries:
       Liability: mechanical read-only heuristic line scan of the user's own code, labelled not a security
       audit, no warranty, a clean scan never described as safe, secret values never echoed. Ethics:
       defensive hygiene on the user's own source; no probing of anyone else's system, no scraping.
+  - venture: nail-tech-booth-rent-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built nail-tech-booth-rent-calculator: a browser-local tool and
+        zero-dependency CLI for nail techs and other independent beauty professionals choosing
+        between booth or chair rent, a commission split and an hourly job. Enter hours at the
+        salon, clients, ticket, chair minutes, unpaid admin hours, tips, retail, supplies and the
+        rent, split or wage on offer; it returns take-home per hour worked (not per hour booked)
+        with idle chair time, card fees, insurance and a self-employment tax estimate, the
+        break-even clients per week and the client count where booth rent overtakes the others. A
+        history mode audits past weeks from a CSV by arrangement. Differs from the existing
+        booth-rent-vs-commission (two paths on one client book, no employee option, no tax
+        estimate, no weekly audit); a stylist-framed salon-booth-rent-calculator was dropped as
+        too close to it. First visitor expected from "booth rent vs commission nail tech"
+        searches. Nothing leaves the browser, no market rates scraped. Unverified with a real
+        nail tech.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied prices, rents and tax rates, stated prominently as
+      not market rates, tax, legal or financial advice, no warranty, lease and employment terms
+      left to the user, tax figures labelled rough set-asides. Ethics: helps small beauty
+      professionals see what a chair really pays; no scraping.
+  - venture: grant-indirect-cost-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built grant-indirect-cost-calculator: a browser-local tool for grant
+        writers, nonprofits and sponsored-programs staff. Enter direct costs, equipment and
+        subawards; it returns modified total direct costs with the federal exclusions applied
+        (equipment at or over $10,000 a unit, tuition remission, participant support, rental,
+        patient care, each subaward above its first $50,000), indirect at 15% de minimis or a
+        chosen rate on MTDC or total direct costs, the effective rate on direct costs, rates
+        side by side, and the largest direct budget that fits under a funder's total award cap.
+        New niche: no tool in ventures/ computes MTDC or indirect cost recovery
+        (duplicate_check top score 0.15). First visitor expected from "MTDC calculator" and
+        "indirect cost calculator grant budget" searches. Nothing leaves the browser. Unverified
+        with a real grant writer; federal rules as of the 2024 2 CFR 200 revision, thresholds editable.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied amounts under a published federal definition,
+      stated prominently as not grant, accounting or legal advice, no warranty, funder rules
+      left to the user. Ethics: helps small organisations claim the indirect cost they are
+      allowed; no scraping.
   - venture: docker-compose-security-check
     agent_spend_usd: null
     human_hours: 0

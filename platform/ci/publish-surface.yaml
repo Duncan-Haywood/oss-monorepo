@@ -857,6 +857,9 @@ workflows:
 - workflow: grant-deadline-tracker-ci.yml
   classification: none
   publishes: []
+- workflow: grant-indirect-cost-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: grant-reporting-tracker-ci.yml
   classification: none
   publishes: []
@@ -1179,6 +1182,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: music-lesson-break-even-ci.yml
+  classification: none
+  publishes: []
+- workflow: nail-tech-booth-rent-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: nat-gateway-cost-advisor-ci.yml
@@ -1728,6 +1734,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: slopsquatting-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: snow-plow-contract-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: snow-removal-bid-calculator-ci.yml

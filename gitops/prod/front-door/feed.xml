@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 626 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 629 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -26,6 +26,15 @@
     <summary type="text">Paste your docker-compose.yml and find risky settings: privileged: true, docker.sock mounts, network_mode host, cap_add SYS_ADMIN, databases on 0.0.0.0, literal secrets, :latest images. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Grant Indirect Cost Calculator — MTDC and the Indirect You Can Charge</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/grant-indirect-cost-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/grant-indirect-cost-calculator</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free grant budget calculator: find your modified total direct costs (MTDC) with the $50,000 subaward and $10,000 equipment rules applied, the indirect cost you can charge at 15% de minimis or your negotiated rate, and how much direct budget fits under a funder&#39;s total award cap. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Interior Design Fee Calculator — Compare Fee Models</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/interior-design-fee-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/interior-design-fee-calculator</id>
@@ -42,6 +51,24 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your JavaScript, Python, Go or Java code and find JWT verification misuse: jwt.decode where verify is needed, verify_signature False, alg none, unpinned algorithms, ignoreExpiration, hard-coded or weak secrets. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Nail Tech Booth Rent Calculator — Booth vs Commission vs Employee</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/nail-tech-booth-rent-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/nail-tech-booth-rent-calculator</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Compare booth rent, a commission split and an hourly job for a nail tech: take-home per hour worked (not per hour booked) after idle chair time, supplies, card fees, insurance, tips, retail commission and a self-employment tax estimate, plus break-even clients per week and an audit of past weeks. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Snow Plow Contract Calculator — Per Push vs Seasonal</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/snow-plow-contract-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/snow-plow-contract-calculator</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Compare per-push, per-inch, seasonal flat, capped flat and hybrid snow plow contracts across a low, normal and high snow year: expected season revenue, effective hourly, the storm count where each stops paying, the flat price that loses money in a high-snow year and a walk-away price, plus an audit of past seasons by contract model. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Appraisal Assignment Picker — Which Requests to Accept</title>
@@ -339,32 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your Snowflake warehouses (size, credits used, AUTO_SUSPEND, resumes) and get what each costs, the AUTO_SUSPEND tail you are paying for, idle warehouses and a bounded right-sizing note, with the ALTER WAREHOUSE commands. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>STR Turnover Crew Planner — Which Cleans to Take, and Which Crew</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/str-turnover-crew-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/str-turnover-crew-planner</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Paste the day&#39;s vacation-rental turnovers and get the most profitable set of cleans, which of your one to three crews does each and in what order, with checkout and check-in windows, drive cost and the fee every turnover it declines would need. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Support Staffing Planner — Erlang C Agents and Cheapest Shifts</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/support-staffing-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/support-staffing-planner</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Paste contacts per half hour and get the agents each interval needs (Erlang C, shrinkage, occupancy cap) and the cheapest shifts that cover them, plus what each service target costs. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Tax Season Client Picker — Which Late Engagements to Accept</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tax-season-client-picker/"/>
-    <id>tag:marisstella.dev,2026:tool/tax-season-client-picker</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Paste the late-season client engagements you have been offered and get the set that earns the most before the filing and extension deadlines, the order to work them, and the fee each declined client would need. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

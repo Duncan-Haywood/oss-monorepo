@@ -26546,6 +26546,35 @@ ventures:
       Liability: arithmetic on typed hours, rates and budgets, stated so and not market rates, tax, legal or licensing advice,
       no warranty, contract terms and local rules come first, nothing leaves the device. Ethics: helps small designers
       charge for the time projects take; the user decides and remains responsible.
+  - slug: snow-plow-contract-calculator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic storm-count, hours and contract-price arithmetic and past-season grouping; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for plow contractors as the season starts, with real search demand ("per push vs seasonal snow plow
+      contract") where the closest tool in the tree prices one property's winter; the wedge is a whole route compared across a low,
+      normal and high snow year with a walk-away price, plus an audit of past seasons by contract model, free and client-side;
+      volume not measured with an external tool.
+      Scope: Free CLI and browser tool that compares snow plow contract models across low, normal and high snow years and audits past seasons from the user's own numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed prices, storm counts, hours and costs, stated so and not market rates, tax, legal, insurance or
+      contract advice, no warranty, contracts and local rules come first, nothing leaves the device. Ethics: helps small plow
+      contractors price winter work at what it takes; the user decides and remains responsible.
   - slug: jwt-verification-misuse-check
     scores:
       ai_leverage: 3
@@ -26573,6 +26602,64 @@ ventures:
     gate_note: >-
       Liability: mechanical read-only heuristic scan, labelled not a security audit, no warranty, nothing
       leaves the device. Ethics: defensive hygiene on the user's own source code.
+  - slug: nail-tech-booth-rent-calculator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic weekly arithmetic, client-count scans and past-week grouping; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for nail techs with real search demand ("booth rent vs commission", "nail tech commission split")
+      where the closest existing tool (booth-rent-vs-commission) compares two paths and has no employee option, tax estimate or
+      weekly audit; the wedge is take-home per hour worked with idle chair time counted, three arrangements and a CSV audit of past
+      weeks, free and client-side; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that compares booth rent, commission and employee take-home per hour worked and audits past weeks from the user's own numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed prices, rents and tax rates, stated so and not market rates, tax, legal or financial advice,
+      no warranty, lease and employment terms come first, nothing leaves the device. Ethics: helps small beauty professionals
+      see what a chair pays; the user decides and remains responsible.
+  - slug: grant-indirect-cost-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.167
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic MTDC and indirect-cost arithmetic; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct recover-more decision for grant writers and small nonprofits with real search demand ("MTDC calculator",
+      "indirect cost calculator grant budget") and no dedicated free tool in the tree; the wedge is the per-subaward
+      $50,000 rule, the equipment threshold and fitting a budget under a funder's total cap, free and client-side;
+      volume not measured with an external tool.
+      Scope: Free browser tool that computes MTDC, indirect cost and award-cap fit from the user's own budget.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed amounts under the published federal definition, stated so and not grant,
+      accounting or legal advice, no warranty, funder rules come first, nothing leaves the device. Ethics: helps
+      small organisations claim the indirect cost they are allowed; the user decides and remains responsible.
   - slug: docker-compose-security-check
     scores:
       ai_leverage: 3
