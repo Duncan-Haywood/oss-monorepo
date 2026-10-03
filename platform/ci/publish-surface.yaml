@@ -1790,6 +1790,9 @@ workflows:
 - workflow: slopsquatting-check-ci.yml
   classification: none
   publishes: []
+- workflow: sms-segment-cost-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: snow-plow-contract-calculator-ci.yml
   classification: none
   publishes: []
@@ -2100,6 +2103,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: water-softener-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: wedding-budget-allocator-ci.yml
   classification: none
   publishes: []
 - workflow: wedding-florist-proposal-calculator-ci.yml
