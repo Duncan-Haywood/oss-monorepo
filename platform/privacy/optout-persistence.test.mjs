@@ -1233,7 +1233,8 @@ const RELATIVE_SELF = relative(
 // +1: `ci-test-shard-balancer` graduated.
 // +1: `backyard-honey-profit-calculator` graduated.
 // +1: `requirements-pin-check` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 627;
+// +1: `webhook-signature-debugger` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 628;
 // +1: `embroidery-shop-quote-calculator` graduated.
 
 let counter = 0;
