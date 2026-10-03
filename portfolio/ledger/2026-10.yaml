@@ -1679,3 +1679,28 @@ entries:
       Liability: arithmetic on reports the user supplies, labelled a heuristic whose predictions are not a
       guarantee, not engineering or financial advice, no warranty, not affiliated with Knapsack Pro,
       Buildkite or CircleCI, nothing leaves the device. Ethics: free, no accuracy-gated tier, no scraping.
+  - venture: webhook-signature-debugger
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built webhook-signature-debugger: a browser-local tool (Web Crypto) and zero-dependency
+        CLI that verifies a webhook HMAC signature from pasted headers, raw body and secret for Stripe,
+        GitHub (sha256 and legacy sha1), Shopify, Slack and Standard Webhooks/Svix, detects the provider from
+        the headers, and when verification fails tries the usual causes (JSON re-serialised compact or
+        pretty, trailing newline, CRLF/LF, whitespace in the secret, whsec_ in the wrong form) and names the
+        one that matches. Notes stale timestamps against the 5-minute tolerance, emits a Node reference
+        verifier per provider, and the CLI --sign mode produces signed headers for local replay. Tests check
+        the engine against independent node:crypto computations and execute the published snippets. Ships a
+        guide page. New gap: duplicate_check closest match 0.21 (jwt-verification-misuse-check), not in
+        screened-out. First visitor expected from "stripe webhook signature verification failed" and
+        "x-hub-signature-256 mismatch" searches; none measured. Twilio URL-param signing and public-key
+        schemes (Discord Ed25519) are not covered. Unverified with a real developer.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: computes HMACs on text the user supplies, framed as a debugging aid and not security advice,
+      no warranty, secrets and payloads never leave the device and the page warns to use test or rotated
+      secrets. Ethics: free, no accuracy-gated tier, no scraping.

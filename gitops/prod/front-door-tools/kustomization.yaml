@@ -33,37 +33,37 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547230 bytes
-#   portfolio-front-tools-1: 92 files, 555145 bytes
-#   portfolio-front-tools-2: 144 files, 553071 bytes
-#   portfolio-front-tools-3: 132 files, 556816 bytes
-#   portfolio-front-tools-4: 137 files, 556936 bytes
-#   portfolio-front-tools-5: 128 files, 554177 bytes
-#   portfolio-front-tools-6: 120 files, 554290 bytes
-#   portfolio-front-tools-7: 135 files, 556063 bytes
-#   portfolio-front-tools-8: 132 files, 554944 bytes
-#   portfolio-front-tools-9: 127 files, 556333 bytes
-#   portfolio-front-tools-10: 127 files, 552548 bytes
-#   portfolio-front-tools-11: 137 files, 548165 bytes
-#   portfolio-front-tools-12: 132 files, 553298 bytes
-#   portfolio-front-tools-13: 124 files, 551927 bytes
-#   portfolio-front-tools-14: 120 files, 556435 bytes
-#   portfolio-front-tools-15: 123 files, 554206 bytes
+#   portfolio-front-tools-0: 145 files, 547162 bytes
+#   portfolio-front-tools-1: 92 files, 555069 bytes
+#   portfolio-front-tools-2: 144 files, 553013 bytes
+#   portfolio-front-tools-3: 132 files, 556746 bytes
+#   portfolio-front-tools-4: 137 files, 556907 bytes
+#   portfolio-front-tools-5: 128 files, 554152 bytes
+#   portfolio-front-tools-6: 120 files, 554240 bytes
+#   portfolio-front-tools-7: 135 files, 556015 bytes
+#   portfolio-front-tools-8: 132 files, 554847 bytes
+#   portfolio-front-tools-9: 127 files, 556317 bytes
+#   portfolio-front-tools-10: 127 files, 552517 bytes
+#   portfolio-front-tools-11: 137 files, 548174 bytes
+#   portfolio-front-tools-12: 132 files, 553291 bytes
+#   portfolio-front-tools-13: 124 files, 551828 bytes
+#   portfolio-front-tools-14: 120 files, 556399 bytes
+#   portfolio-front-tools-15: 123 files, 554151 bytes
 #   portfolio-front-tools-16: 117 files, 556661 bytes
-#   portfolio-front-tools-17: 126 files, 556256 bytes
-#   portfolio-front-tools-18: 118 files, 553558 bytes
-#   portfolio-front-tools-19: 131 files, 556008 bytes
-#   portfolio-front-tools-20: 125 files, 555361 bytes
-#   portfolio-front-tools-21: 136 files, 553976 bytes
-#   portfolio-front-tools-22: 119 files, 549692 bytes
-#   portfolio-front-tools-23: 127 files, 555583 bytes
-#   portfolio-front-tools-24: 94 files, 556958 bytes
-#   portfolio-front-tools-25: 121 files, 549803 bytes
-#   portfolio-front-tools-26: 121 files, 556907 bytes
-#   portfolio-front-tools-27: 126 files, 548777 bytes
-#   portfolio-front-tools-28: 124 files, 556924 bytes
-#   portfolio-front-tools-29: 75 files, 367436 bytes
-#   portfolio-front-tools-30: 51 files, 262815 bytes
+#   portfolio-front-tools-17: 126 files, 556360 bytes
+#   portfolio-front-tools-18: 118 files, 553469 bytes
+#   portfolio-front-tools-19: 131 files, 555966 bytes
+#   portfolio-front-tools-20: 125 files, 555324 bytes
+#   portfolio-front-tools-21: 136 files, 553943 bytes
+#   portfolio-front-tools-22: 119 files, 549729 bytes
+#   portfolio-front-tools-23: 127 files, 555525 bytes
+#   portfolio-front-tools-24: 94 files, 556906 bytes
+#   portfolio-front-tools-25: 121 files, 549768 bytes
+#   portfolio-front-tools-26: 121 files, 556892 bytes
+#   portfolio-front-tools-27: 126 files, 548616 bytes
+#   portfolio-front-tools-28: 124 files, 556934 bytes
+#   portfolio-front-tools-29: 80 files, 383163 bytes
+#   portfolio-front-tools-30: 51 files, 262866 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3900,6 +3900,11 @@ configMapGenerator:
       - water-softener-bid-calculator__usage.mjs.gz=water-softener-bid-calculator__usage.mjs.gz
       - water-softener-bid-calculator__vs-a-flat-rate-water-softener-special.html.gz=water-softener-bid-calculator__vs-a-flat-rate-water-softener-special.html.gz
       - water-softener-bid-calculator__vs-jobber.html.gz=water-softener-bid-calculator__vs-jobber.html.gz
+      - webhook-signature-debugger__cli.mjs.gz=webhook-signature-debugger__cli.mjs.gz
+      - webhook-signature-debugger__how-to-verify-webhook-signatures.html.gz=webhook-signature-debugger__how-to-verify-webhook-signatures.html.gz
+      - webhook-signature-debugger__index.html.gz=webhook-signature-debugger__index.html.gz
+      - webhook-signature-debugger__usage.mjs.gz=webhook-signature-debugger__usage.mjs.gz
+      - webhook-signature-debugger__webhook.mjs.gz=webhook-signature-debugger__webhook.mjs.gz
       - wedding-florist-proposal-calculator__calc.mjs.gz=wedding-florist-proposal-calculator__calc.mjs.gz
       - wedding-florist-proposal-calculator__how-many-wholesale-bunches-do-you-need-for-a-wedding.html.gz=wedding-florist-proposal-calculator__how-many-wholesale-bunches-do-you-need-for-a-wedding.html.gz
       - wedding-florist-proposal-calculator__index.html.gz=wedding-florist-proposal-calculator__index.html.gz
