@@ -19,14 +19,17 @@ printed geometry (a slicer-like shell model) and the bought parts. The servo is 
 saturating proportional loop in front of a brushed motor, which MJCF reproduces exactly: a
 force-limited position actuator plus back-EMF damping gives the datasheet torque-speed line.
 
-On this twin we run four checks:
+On this twin we run five checks:
 - *Engineering checks:* with 3:1 printed gears on the shoulders, every joint stays under half
   its peak torque with 200 g in the hand. A 135 g payload is held indefinitely at the full
   0.53 m reach. The tall kiwi base tips at 0.68 m/s² in its worst pose, which sets a 0.5 m/s²
   command ramp.
 - *A twin-gap study for RL:* reaching policies trained on the exact twin ignore servo-gain,
   friction and mass errors, but fail as soon as one 40 ms control step of action latency is
-  added (100 % to 10 % success). Domain randomisation restores 97–99 %. MOBILE_ABSTRACT
+  added (100 % to 10 % success). Domain randomisation restores 97–99 %.
+- *Mobile transfer:* a whole-body mobile reaching policy trained on a cheap planar base twin
+  transfers to a contact-rich roller-wheel twin. It reaches 100 % success on its nominal twin and
+  96 % under combined perturbations, with no tip-overs.
 - *Two twins of the base:* ideal planar joints versus omni wheels with passive rollers. They
   disagree by about 7.6 % of the distance driven, and the gap does not depend on the wheel
   servos' speed-loop gain.
@@ -91,11 +94,17 @@ this exactly as a `position` actuator with `forcerange` ±τ_s plus joint dampin
 of ratio n and efficiency η maps (τ_s, ω₀, b, k_p, armature) to (n η τ_s, ω₀/n, n² η b,
 n² η k_p, n² J).
 
-τ_s and ω₀ come from the 12 V datasheet: 30 kg·cm and 0.222 s/60°, giving b = 0.62 N·m·s/rad.
+τ_s and ω₀ come from the 12 V datasheet [feetechsts3215]: 30 kg·cm and 0.222 s/60°, giving
+b = 0.62 N·m·s/rad.
 That b matches the SO-101 model's 0.60. The loop gain (17.8 N·m/rad), armature (0.028 kg·m²)
 and friction (0.052 N·m) are taken from the SO-101 MuJoCo model. Those values were identified
 for Open Duck Mini on the *7.4 V* servo with BAM [openduckmini, duclusaud2025extended], so here
-they are priors.
+they are priors. Once hardware logs exist, a learned actuator model [hwangbo2019learning] or
+BAM's extended friction model would be the next refinement.
+
+**Driver.** The real-robot driver speaks the Feetech STS protocol directly. Register addresses
+and the sign-magnitude encoding follow the FTServo SDK [ftservosdk] and LeRobot's tables
+[cadene2024lerobot]. Policies send the same joint targets to the twin and to the servos.
 
 **Two base twins.**
 - *Planar:* x, y and yaw joints with velocity servos whose force limits are those of three
@@ -155,7 +164,9 @@ this to $625 (`hardware/BOM.md`).
 **E1. Which twin errors matter for a reaching policy?**
 
 *Setup.*
-- PPO with an MLP of 2x256 units, 8 environments, 1.5 M steps (about 12.5 min on 4 cores).
+- PPO [schulman2017proximal] from Stable-Baselines3 [raffin2021stable], an MLP of 2x256 units,
+  8 Gymnasium environments [towers2025gymnasium] in MuJoCo [todorov2012mujoco], 1.5 M steps
+  (about 12.5 min on 4 cores).
 - Action: joint-target increments at 25 Hz on 500 Hz physics.
 - Observation: joint angles (quantised to the encoder) and velocities, the previous action, and
   the target relative to the gripper.
@@ -163,8 +174,9 @@ this to $625 (`hardware/BOM.md`).
   (`homebot.envs.GAPS`).
 - *Randomised* training resamples per episode: servo gain, back-EMF damping, friction, armature,
   link masses, a payload, 0–2 steps of action latency, and encoder noise. This is dynamics
-  randomisation in the sense of [peng2018sim], who randomised the action timestep. Here we
-  delay actions explicitly, following the actuator-and-latency modelling of [tan2018sim].
+  randomisation in the sense of [peng2018sim], who randomised the action timestep, after the
+  visual randomisation of [tobin2017domain]. Here we delay actions explicitly, following the
+  actuator-and-latency modelling of [tan2018sim].
 
 *Result (one arm, 3 seeds each):*
 - **Nominal training.** The policy reaches 100 % (2 mm median error) on the nominal twin and
@@ -175,8 +187,8 @@ this to $625 (`hardware/BOM.md`).
   (74–93 %) at 120 ms, beyond the training range. It needs about 2.3x the samples to reach 90 %
   training success.
 - **Interpretation.** For a position-controlled hobby-servo arm, the twin's servo gain, friction
-  and mass errors are nearly irrelevant to a reaching policy, while bus latency decides whether
-  it works at all.
+  and mass errors are nearly irrelevant to a reaching policy within the ranges tested (gain
+  x0.5–2, friction x3, mass +25 %). Bus latency decides whether it works at all.
 
 *Two arms (randomised, 1 seed, 3 M steps).* 80 % on the nominal twin, where success means both
 hands within 3 cm. It falls to 65 % with servo gain x2 and 34 % at 120 ms latency, both outside
@@ -190,7 +202,25 @@ each) through the same kiwi wheel commands.
   comes from roller contact, not speed tracking.
 - The roller twin runs 8.5x slower.
 
-MOBILE_EXPERIMENTS
+**E3. Whole-body mobile reaching, and transfer to the roller twin.**
+
+*Setup.*
+- The policy commands the base twist, the lift and 7 arm joints.
+- Targets lie 0.22–1.45 m from the base centre and 0.29–1.09 m high (5–95 % ranges), in any
+  direction.
+- It is trained with randomisation on the planar twin (6 M steps, 62 min) and terminated when
+  the point-mass ZMP leaves the wheel triangle.
+
+*Result.*
+- **Planar twin:** 100 % success (6 mm) on the nominal twin, 99–100 % under every single
+  perturbation and 97 % under the combined one, with no tip-overs.
+- **Roller twin** (never seen in training, physically able to tip): 100 % nominal (5.5 mm) and
+  96 % combined, with no tip-overs.
+- Because the policy closes the loop on the observed target, the 6–8 % odometric gap between
+  the twins (E2) costs it almost nothing.
+- It tolerates 120 ms of latency better than the one-arm policy (100 % against 81 %). A likely
+  reason, untested, is that its 10 s episodes leave time to settle where the arm task's 4 s do
+  not.
 
 **E4. System identification.** We fitted the single-joint servo twin to 12 s of synthetic step
 responses (encoder quantisation and 2 mrad noise included) for 8 servos whose parameters were
@@ -223,13 +253,18 @@ is fixed with a regression test, and the mobile policy reported here was retrain
 A 22-DOF printable mobile manipulator is feasible on one $15 servo if the shoulders are geared
 3:1 and the base is limited to gentle accelerations. Generating the parts and the twin from one
 source keeps them consistent. The twin also identifies, before any hardware exists, which gaps
-to close first: RL_CONCLUSION Next comes building stage A, identifying the servos, and
-measuring base odometry against the two twins.
+to close first:
+- Bus latency, not servo gain, friction or mass, is what breaks a reaching policy.
+- The planar base twin is good enough to train closed-loop mobile policies, even though its
+  odometry is about 7 % off.
+
+Next comes building stage A, identifying the servos, and measuring base odometry against the
+two twins.
 
 ## References
 
 BibTeX in `refs.bib`. Cited keys: todorov2012mujoco, towers2025gymnasium, raffin2021stable,
 schulman2017proximal, tobin2017domain, peng2018sim, tan2018sim, hwangbo2019learning,
 duclusaud2025extended, zhao2023learning, fu2024mobile, kemp2022design, cadene2024lerobot,
-zakka2022menagerie, vukobratovic2004zero, siegwart2011introduction, openduckmini,
-wang2025xlerobot, soarm100, lekiwi, feetechsts3215, ftservosdk.
+vukobratovic2004zero, siegwart2011introduction, openduckmini, wang2025xlerobot, soarm100,
+lekiwi, feetechsts3215, ftservosdk.

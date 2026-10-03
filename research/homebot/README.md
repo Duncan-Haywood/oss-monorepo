@@ -224,7 +224,34 @@ steps (figure above), so this is an under-trained result rather than a ceiling.
 |---|
 | ![bimanual policy](paper/figures/filmstrip_BimanualReach.png) |
 
-MOBILE_RESULTS
+*Whole robot, driving to a target and reaching it.* Targets lie 0.22–1.45 m from the base
+centre and 0.29–1.09 m high (5–95 % ranges), in any direction. The policy commands the base
+twist, the lift and 7 arm joints (randomised twin, 1 seed, 6 M steps, 62 min):
+- **On the twin it trained on (planar base):**
+  - 100 % success, median 6 mm, on the nominal twin;
+  - 99–100 % under every single perturbation, including +25 % mass with 200 g in the hand
+    and 120 ms latency;
+  - 97 % (7 mm) under the combined perturbation.
+- **Tipping.** None of the 1,000 planar-twin or 200 roller-twin evaluation episodes ended in a
+  tip-over. On the planar twin that is the ZMP check; on the roller twin it is a physical tilt
+  above 10°.
+- **On the roller-wheel twin it never saw:** 100 % on the nominal roller twin (median 5.5 mm)
+  and 96 % under the combined perturbation.
+- **Why it transfers.** The policy closes the loop on the target position it observes, so the
+  6–8 % base drift between the two twins (below) costs it almost nothing.
+
+![mobile policy](paper/figures/filmstrip_MobileReach.png)
+
+**A bug the second twin caught.** The first mobile run reported 93 tip-overs in 100 episodes
+under +25 % mass on the planar twin, and none on the roller twin. The cause:
+- MuJoCo precomputes subtree masses and divides by them when it computes centres of mass.
+- Randomising `body_mass` without refreshing them scaled the computed centre of mass about the
+  world origin.
+- So the ZMP check flagged phantom tip-overs once the robot drove away from the origin.
+
+It is fixed, with a regression test that fails on the old code, and the policy above was
+retrained after the fix. Dynamics were never affected. Comparing two twins of different
+fidelity is what exposed it.
 
 **Base twin: planar or rollers?** (`experiments/base_fidelity.py`, 12 random 12 s drives of about
 1.8 m.) The fast twin moves the base on ideal planar joints, at 89x real time with the arms on
@@ -263,7 +290,10 @@ PYTHONPATH=src python -m homebot.cad.build                # rebuild STL/STEP/mas
 PYTHONPATH=src python -m homebot.analysis.bom             # rebuild hardware/BOM.md
 ```
 
-Versions in `requirements.txt` (Python 3.11, CPU only). Bringing up hardware is covered in
+The three randomised seed-0 policies ship in `experiments/runs/*_dr_s0/` (`policy.zip` with its
+observation normaliser), with every run's learning curve and evaluation. Run
+`experiments/filmstrip.py <run dir>` to watch one. Versions in `requirements.txt` (Python 3.11,
+CPU only). Bringing up hardware is covered in
 `experiments/hardware.py` (`set-id`, `calibrate`, `sysid-log`, `sysid-fit`) and `WIRING.md`.
 
 ## Builds on
