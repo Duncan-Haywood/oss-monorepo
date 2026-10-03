@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Choose a Product Analytics Tool by Event Volume</title>
+  <meta name="description" content="Why product-analytics bills jump at certain event volumes, why flat-quota tools look cheap, and what matters more than the per-event price.">
+  <link rel="canonical" href="./how-to-choose-a-product-analytics-tool.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why do product analytics prices differ so much at the same volume?", "acceptedAnswer": {"@type": "Answer", "text": "They bill different things. PostHog, Mixpanel and Umami count tracked events, so a single visit can be dozens of billable units once autocapture, clicks and custom events are on. Plausible and Fathom count pageviews, which is far fewer units but gives you less: no funnels, retention or session replay. Comparing the two at one number is only fair if you convert your volume first, for example by estimating how many events one visit fires."}}, {"@type": "Question", "name": "What matters more than the per-event price?", "acceptedAnswer": {"@type": "Answer", "text": "How many events your code actually fires, and which features you need. Turning off autocapture, sampling noisy events and dropping bot traffic often cuts an event bill by more than switching vendors. Then check data retention, session replay, feature flags and seats, which the calculator does not price."}}, {"@type": "Question", "name": "When should I switch analytics tools?", "acceptedAnswer": {"@type": "Answer", "text": "When the 12-month spend under your growth rate differs enough to pay for re-instrumenting, rebuilding dashboards and losing history. Run the calculator with your growth rate before deciding. Moving between event-based tools is mostly an SDK swap; moving from event-based to pageview-only means giving up product questions you may still need."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+</head>
+<body>
+  <p><a href="./">← Product Analytics Pricing Calculator</a></p>
+  <h1>How to choose a product analytics tool by event volume</h1>
+  <p>Put your monthly volume and growth rate into the <a href="./">calculator</a> to price PostHog, Mixpanel, Plausible, Fathom and Umami Cloud side by side. These are the questions to settle before you trust the answer.</p>
+  <h2>Why do product analytics prices differ so much at the same volume?</h2>
+  <p>They bill different things. PostHog, Mixpanel and Umami count tracked events, so a single visit can be dozens of billable units once autocapture, clicks and custom events are on. Plausible and Fathom count pageviews, which is far fewer units but gives you less: no funnels, retention or session replay. Comparing the two at one number is only fair if you convert your volume first, for example by estimating how many events one visit fires.</p>
+  <h2>What matters more than the per-event price?</h2>
+  <p>How many events your code actually fires, and which features you need. Turning off autocapture, sampling noisy events and dropping bot traffic often cuts an event bill by more than switching vendors. Then check data retention, session replay, feature flags and seats, which the calculator does not price.</p>
+  <h2>When should I switch analytics tools?</h2>
+  <p>When the 12-month spend under your growth rate differs enough to pay for re-instrumenting, rebuilding dashboards and losing history. Run the calculator with your growth rate before deciding. Moving between event-based tools is mostly an SDK swap; moving from event-based to pageview-only means giving up product questions you may still need.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial or engineering advice; verify prices at each vendor. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support is optional.</a></p>
+  </footer>
+</body>
+</html>
