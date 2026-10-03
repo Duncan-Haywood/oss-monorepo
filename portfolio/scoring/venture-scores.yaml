@@ -26573,3 +26573,32 @@ ventures:
     gate_note: >-
       Liability: mechanical read-only heuristic scan, labelled not a security audit, no warranty, nothing
       leaves the device. Ethics: defensive hygiene on the user's own source code.
+  - slug: nail-tech-booth-rent-calculator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic weekly arithmetic, client-count scans and past-week grouping; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for nail techs with real search demand ("booth rent vs commission", "nail tech commission split")
+      where the closest existing tool (booth-rent-vs-commission) compares two paths and has no employee option, tax estimate or
+      weekly audit; the wedge is take-home per hour worked with idle chair time counted, three arrangements and a CSV audit of past
+      weeks, free and client-side; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that compares booth rent, commission and employee take-home per hour worked and audits past weeks from the user's own numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed prices, rents and tax rates, stated so and not market rates, tax, legal or financial advice,
+      no warranty, lease and employment terms come first, nothing leaves the device. Ethics: helps small beauty professionals
+      see what a chair pays; the user decides and remains responsible.
