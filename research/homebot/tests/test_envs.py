@@ -67,3 +67,27 @@ def test_base_acceleration_is_ramped():
     a[-3] = 1.0
     env.step(a)
     assert env.base_cmd[0] == pytest.approx(env.robot.base.max_accel * env.dt)
+
+
+def test_mass_randomisation_keeps_com_consistent():
+    """Scaled masses must not corrupt subtree_com (MuJoCo caches subtree masses)."""
+    import mujoco
+
+    env = ENVS["MobileReach"](gap="heavy", seed=0)
+    env.reset(seed=1)
+    m, d = env.model, env.data
+    d.qpos[env.jnt["base_x"][0]] = 1.5  # far from the origin, where a stale scale shows most
+    mujoco.mj_forward(m, d)
+    base = m.body("base").id
+    ids = [i for i in range(m.nbody) if i == base or any(
+        p == base for p in _ancestors(m, i))]
+    M = sum(m.body_mass[i] for i in ids)
+    com = sum(m.body_mass[i] * d.xipos[i] for i in ids) / M
+    assert np.allclose(d.subtree_com[base], com, atol=1e-9)
+    assert m.body_subtreemass[base] == pytest.approx(M)
+
+
+def _ancestors(m, i):
+    while i:
+        i = m.body_parentid[i]
+        yield i

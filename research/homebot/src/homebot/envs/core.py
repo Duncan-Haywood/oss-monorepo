@@ -176,6 +176,13 @@ class HomebotEnv(gym.Env):
         for b in self.hand_bodies:
             m.body_mass[b] += payload
             m.body_inertia[b] += payload * 0.03 ** 2
+        # MuJoCo precomputes subtree masses at compile time and divides by them in
+        # mj_comPos, so after changing body_mass they must be refreshed or every
+        # subtree_com (and the tip-over check built on it) is scaled by the mass change.
+        sub = m.body_mass.copy()
+        for i in range(m.nbody - 1, 0, -1):
+            sub[m.body_parentid[i]] += sub[i]
+        m.body_subtreemass[:] = sub
 
     def _randomise(self):
         rng = self._np_random
