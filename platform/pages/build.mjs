@@ -1077,7 +1077,7 @@ const CATEGORY_RULES = [
     // `container-load-planner` joined 2026-10-01 on its first commit: it packs the
     // cartons and pallets into a container or truck, the same shipper as the box
     // optimizer above, and the two cross-link.
-    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club|mobile-tire-van|route-stop-optimizer|shipping-box-size|container-load-planner)/.test(
+    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club|tow-truck-rate|mobile-tire-van|route-stop-optimizer|shipping-box-size|container-load-planner)/.test(
       slug,
     ),
   },

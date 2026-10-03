@@ -1988,6 +1988,9 @@ workflows:
 - workflow: tow-motor-club-call-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: tow-truck-rate-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: trade-show-roi-calculator-ci.yml
   classification: none
   publishes: []
