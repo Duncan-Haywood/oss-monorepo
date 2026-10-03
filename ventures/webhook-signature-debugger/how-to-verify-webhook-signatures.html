@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Verify Webhook Signatures Correctly: Raw Body, HMAC and Replay Protection</title>
+  <meta name="description" content="How Stripe, GitHub, Shopify, Slack and Standard Webhooks sign requests, why verification fails when the body is parsed first, and a checklist for a correct HMAC verifier.">
+  <link rel="canonical" href="./how-to-verify-webhook-signatures.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How to verify webhook signatures correctly","about":"HMAC webhook signature verification","author":{"@type":"Organization","name":"Webhook Signature Debugger"}}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.12; color: #17324a; }
+    h2 { font-size: 1.15rem; color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    code { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Webhook Signature Debugger</a></p>
+  <h1>How to verify webhook signatures correctly</h1>
+  <p>A webhook endpoint is a public URL that accepts requests from anyone. The signature is the only thing that says a request came from the provider. Nearly every "signature verification failed" ticket is one of three things: the body was changed before hashing, the secret is not the one for this endpoint, or the timestamp check rejected an old request.</p>
+
+  <h2>What each provider signs</h2>
+  <table>
+    <tr><th>Provider</th><th>Header</th><th>Signed string</th><th>Encoding</th></tr>
+    <tr><td>Stripe</td><td><code>Stripe-Signature: t=…,v1=…</code></td><td><code>t + "." + body</code></td><td>hex, HMAC-SHA256</td></tr>
+    <tr><td>GitHub</td><td><code>X-Hub-Signature-256: sha256=…</code></td><td>body</td><td>hex</td></tr>
+    <tr><td>Shopify</td><td><code>X-Shopify-Hmac-Sha256</code></td><td>body</td><td>base64</td></tr>
+    <tr><td>Slack</td><td><code>X-Slack-Signature: v0=…</code></td><td><code>"v0:" + timestamp + ":" + body</code></td><td>hex</td></tr>
+    <tr><td>Standard Webhooks</td><td><code>webhook-signature: v1,…</code></td><td><code>id + "." + timestamp + "." + body</code></td><td>base64; key is the base64-decoded part of <code>whsec_…</code></td></tr>
+  </table>
+
+  <h2>Why the raw body matters</h2>
+  <p>An HMAC changes completely if one byte changes. If your framework parses the JSON and you hash <code>JSON.stringify(req.body)</code>, key order, whitespace and Unicode escapes may differ from what was sent. Read the unparsed bytes: <code>express.raw({ type: "application/json" })</code> on that route, <code>await request.text()</code> in Next.js route handlers and Workers, <code>request.get_data()</code> in Flask. Also check for middleware that trims or re-encodes the body.</p>
+
+  <h2>Checklist for a correct verifier</h2>
+  <ol>
+    <li>Hash the raw bytes, using the provider's signed-string recipe above.</li>
+    <li>Compare with a constant-time function (<code>crypto.timingSafeEqual</code>, <code>hmac.compare_digest</code>), not <code>==</code>.</li>
+    <li>Reject timestamps more than about five minutes from your clock, where the provider signs one.</li>
+    <li>Accept any one of several signatures when a secret is being rotated.</li>
+    <li>Use the secret for this exact endpoint and environment; store it outside source control.</li>
+    <li>Return 2xx quickly and process asynchronously; make handlers idempotent, since providers retry.</li>
+  </ol>
+
+  <h2>Using the debugger</h2>
+  <p>Paste headers, raw body and secret into <a href="./">the tool</a>. If the signature fails but a variation matches (compact versus pretty JSON, trailing newline, CRLF, whitespace in the secret), it says which, and that points at the layer in your stack that altered the bytes.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is. This is general information about a debugging technique, not security advice. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Run the check</a>.</p>
+  </footer>
+</body>
+</html>
