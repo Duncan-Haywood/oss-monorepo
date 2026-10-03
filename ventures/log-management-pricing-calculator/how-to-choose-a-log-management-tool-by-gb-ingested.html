@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Choose a Log Management Tool by GB Ingested</title>
+  <meta name="description" content="Why log bills jump with volume, why ingest, indexing and retention fees compare differently, and what to cut before switching vendor.">
+  <link rel="canonical" href="./how-to-choose-a-log-management-tool-by-gb-ingested.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why do log-management prices differ so much at the same volume?", "acceptedAnswer": {"@type": "Answer", "text": "Some vendors bill per GB ingested and charge separately for indexing and retention (Datadog), others sell a flat plan with a pool of included GB (Axiom, Papertrail), and the per-GB rate varies by more than an order of magnitude. At 100 GB a month the cheapest and most expensive list prices in the calculator differ by hundreds of dollars."}}, {"@type": "Question", "name": "What matters more than the per-GB price?", "acceptedAnswer": {"@type": "Answer", "text": "GB you do not send. Dropping debug logs in production, sampling noisy health checks, trimming verbose payloads and routing cold logs to cheap archive storage usually cut a logging bill more than switching vendor. Also check retention and search speed: a cheap tool that cannot answer a query during an incident costs more than it saves."}}, {"@type": "Question", "name": "When should I switch log-management vendors?", "acceptedAnswer": {"@type": "Answer", "text": "When the 12-month spend under your growth rate differs enough to pay for the migration, which means re-pointing shippers or agents, rebuilding dashboards and alerts and re-learning a query language. Run the calculator with your growth rate before deciding, and remember retention and indexing fees can change the real figure."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+</head>
+<body>
+  <p><a href="./">← Log Management Pricing Calculator</a></p>
+  <h1>How to choose a log management tool by GB ingested</h1>
+  <p>Put your GB of logs per month and growth rate into the <a href="./">calculator</a> to price Datadog Logs, Grafana Cloud Logs, Axiom, Better Stack and Papertrail side by side. These are the questions to settle before you trust the answer.</p>
+  <h2>Why do log-management prices differ so much at the same volume?</h2>
+  <p>Some vendors bill per GB ingested and charge separately for indexing and retention (Datadog), others sell a flat plan with a pool of included GB (Axiom, Papertrail), and the per-GB rate varies by more than an order of magnitude. At 100 GB a month the cheapest and most expensive list prices in the calculator differ by hundreds of dollars.</p>
+  <h2>What matters more than the per-GB price?</h2>
+  <p>GB you do not send. Dropping debug logs in production, sampling noisy health checks, trimming verbose payloads and routing cold logs to cheap archive storage usually cut a logging bill more than switching vendor. Also check retention and search speed: a cheap tool that cannot answer a query during an incident costs more than it saves.</p>
+  <h2>When should I switch log-management vendors?</h2>
+  <p>When the 12-month spend under your growth rate differs enough to pay for the migration, which means re-pointing shippers or agents, rebuilding dashboards and alerts and re-learning a query language. Run the calculator with your growth rate before deciding, and remember retention and indexing fees can change the real figure.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial or engineering advice; verify prices at each vendor. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support is optional.</a></p>
+  </footer>
+</body>
+</html>
