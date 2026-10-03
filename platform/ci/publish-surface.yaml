@@ -977,6 +977,9 @@ workflows:
 - workflow: hvac-maintenance-contract-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: hvac-repair-tier-price-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: ice-dam-removal-bid-calculator-ci.yml
   classification: none
   publishes: []

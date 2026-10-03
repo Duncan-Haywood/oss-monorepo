@@ -1731,3 +1731,32 @@ entries:
       Liability: arithmetic on numbers the user types, labelled an estimator and not business, tax, legal,
       licensing or plumbing-code advice, no warranty, not affiliated with any trade body or vendor, nothing
       leaves the device. Ethics: free, no scraping, no invented testimonials or statistics.
+  - venture: hvac-repair-tier-price-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built hvac-repair-tier-price-calculator: a browser-local calculator for independent
+        HVAC contractors and small shops. From wages and burden, van, insurance, tools and overhead spread
+        over billable hours it derives a true cost per billable hour, prices a diagnostic fee that is
+        credited against approved work, and prices one service call as Good (repair), Better (repair plus)
+        and Best (replace) with marginal tiered markup on parts and equipment, a callback reserve and
+        rounding up. Models the average call from the share of approvals choosing each option and the share
+        of calls that end at the diagnostic fee, against quoting only the cheap repair, with tables for a
+        rising Best share and a rising decline rate. Includes a price-book builder with CSV export
+        (spreadsheet-formula-safe) and a share link carrying only numeric inputs in the URL fragment. Ships
+        a how-to guide, a generic-method vs-quoting-one-repair-price page, FAQ JSON-LD, usage counting with
+        opt-out, and a CI workflow. New gap: duplicate_check closest match 0.17, below the 0.45 line; the
+        nearest tools, hvac-maintenance-contract-calculator (recurring plans) and
+        plumber-flat-rate-price-calculator (one flat price per job), model neither tiered options nor a
+        customer mix. First visitor expected from "HVAC good better best pricing" and "HVAC diagnostic fee"
+        searches; none measured. The starting numbers, markup tiers and customer mix are invented examples,
+        not market data, and nothing was tried with a working contractor.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on numbers the user types, labelled an estimator and not business, tax, legal,
+      licensing or mechanical-code advice, no warranty, not affiliated with any trade body, manufacturer or
+      vendor, nothing leaves the device. Ethics: free, no scraping, no invented testimonials or statistics.

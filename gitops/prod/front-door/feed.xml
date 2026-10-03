@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 651 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 652 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -141,6 +141,15 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free grant budget calculator: find your modified total direct costs (MTDC) with the $50,000 subaward and $10,000 equipment rules applied, the indirect cost you can charge at 15% de minimis or your negotiated rate, and how much direct budget fits under a funder&#39;s total award cap. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>HVAC Repair Price Calculator — Good, Better, Best Options and a Price Book</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hvac-repair-tier-price-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/hvac-repair-tier-price-calculator</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free calculator for independent HVAC contractors and small shops: your true cost per billable hour, a diagnostic fee, Good, Better and Best repair prices with tiered parts and equipment markup and a callback reserve, what an average call earns at your mix of choices, and a price-book builder you can export as CSV. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Incident Postmortem Timeline — MTTR Calculator and Postmortem Draft from Your Log</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">List what goes in your CSA box and see what a member gets at retail, what the season pays you per hour, the price that pays your target wage, break-even shares and a price sweep. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Databricks Cluster Cost Advisor — Autotermination, Jobs Compute and DBU Cost</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/databricks-cluster-cost-advisor/"/>
-    <id>tag:marisstella.dev,2026:tool/databricks-cluster-cost-advisor</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your Databricks clusters (kind, DBUs used, autotermination) and get what each costs, scheduled work running on pricier all-purpose compute, clusters that never terminate and long autotermination tails, with the setting to change. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
