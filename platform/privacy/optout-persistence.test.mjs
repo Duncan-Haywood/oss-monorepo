@@ -1243,7 +1243,8 @@ const RELATIVE_SELF = relative(
 // +1: `email-api-pricing-calculator` graduated.
 // +1: `git-timesheet` graduated.
 // +1: `cloudflare-bill-estimator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 642;
+// +1: `scope-creep-change-order-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 643;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
