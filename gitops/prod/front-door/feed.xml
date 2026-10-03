@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 622 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 623 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
-  <updated>2026-10-02T00:00:00Z</updated>
+  <updated>2026-10-03T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>GitHub Actions timeout-minutes Check — Find Jobs That Can Bill 6 Hours</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-timeout-check/"/>
+    <id>tag:marisstella.dev,2026:tool/actions-timeout-check</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your GitHub Actions workflow YAML and find every job with no timeout-minutes (or one set to the 360-minute default) — the jobs that can hang for six hours of billed runner time. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
   <entry>
     <title>Appraisal Assignment Picker — Which Requests to Accept</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/appraisal-assignment-picker/"/>
@@ -357,14 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Paste the trade shows and conferences you could exhibit at and get cost per lead, expected deals, ROI and break-even leads for each, plus the exact set of shows that earns the most under your yearly budget. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Translation Job Picker — Which Agency Offers to Accept</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/translation-job-picker/"/>
-    <id>tag:marisstella.dev,2026:tool/translation-job-picker</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Paste the translation jobs you have been offered and get the set that earns the most before the due dates, the order to work them, and the fee each declined file would need. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
