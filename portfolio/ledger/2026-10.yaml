@@ -1225,6 +1225,28 @@ entries:
       advice, preparer competence, due diligence, Circular 230 and engagement terms named as coming first,
       no warranty, no taxpayer identifiers requested. Ethics: helps small independent practitioners decide
       which engagements are worth their hours; the preparer decides and remains responsible.
+  - venture: actions-timeout-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built actions-timeout-check: a browser-local checker and zero-dependency
+        CLI (check.py, with a browser port kept in parity by test) that scans GitHub Actions
+        workflow YAML for jobs with no job-level timeout-minutes, or one set to the 360-minute
+        default, and prints each with an upper bound on billed minutes per hung run for its
+        runner and the fix. New gap: no existing actions-* checker reads timeout-minutes
+        (duplicate_check closest match 0.31). First visitor expected from "github actions
+        timeout-minutes default" and "job stuck 6 hours" searches, which today land on docs
+        and forum threads with no checker attached. Nothing leaves the browser, no network
+        calls. Unverified with a real maintainer.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: mechanical read-only scan, minute figures labelled upper bounds from GitHub's
+      default limit and documented multipliers, not a cost audit or bill prediction, no warranty.
+      Ethics: defensive CI hygiene on the user's own repository; no scraping.
   - venture: interior-design-fee-calculator
     agent_spend_usd: null
     human_hours: 0

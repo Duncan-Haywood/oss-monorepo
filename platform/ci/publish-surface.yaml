@@ -83,6 +83,9 @@ workflows:
 - workflow: actions-secrets-inherit-check-ci.yml
   classification: none
   publishes: []
+- workflow: actions-timeout-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: actions-self-hosted-exposure-check-ci.yml
   classification: none
   publishes: []
