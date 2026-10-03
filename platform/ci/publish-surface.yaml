@@ -959,6 +959,9 @@ workflows:
 - workflow: insurance-denial-appeal-builder-ci.yml
   classification: none
   publishes: []
+- workflow: interior-design-fee-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: interior-door-bid-calculator-ci.yml
   classification: none
   publishes: []
