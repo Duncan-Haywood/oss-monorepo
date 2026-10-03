@@ -58,7 +58,7 @@ cd research/homebot
 python -m venv .venv && . .venv/bin/activate
 pip install numpy scipy mujoco gymnasium pyserial pytest stable-baselines3
 pip install torch --index-url https://download.pytorch.org/whl/cpu
-PYTHONPATH=src python -m pytest tests -q                   # TESTS tests, ~10 s
+PYTHONPATH=src python -m pytest tests -q                   # 59 tests, ~10 s on an idle 4-core machine
 PYTHONPATH=src python experiments/view.py mobile           # interactive viewer (arm | torso | mobile)
 PYTHONPATH=src python experiments/train.py --env ArmReach --dr --steps 1500000   # ~13 min on 4 cores
 ```
@@ -158,7 +158,73 @@ the commanded lift height under load.
 
 ## Twin fidelity and RL results
 
-RL_RESULTS
+**Which twin errors matter for a learned policy?**
+
+Policies are trained with PPO (Stable-Baselines3, 25 Hz, 8 parallel environments on 4 CPU cores).
+They are then scored on 100 fixed episodes on the nominal twin and on nine perturbed twins, each
+standing in for a real robot that differs from the model in one way. Success means the gripper
+centre is within 3 cm of the target at the end of the episode.
+
+*Randomised* policies saw a twin resampled every episode:
+- servo gain x0.6–1.6;
+- back-EMF damping x0.75–1.3;
+- friction x0.4–2.5;
+- reflected inertia x0.6–1.6;
+- link masses x0.85–1.2;
+- 0–150 g in the hand;
+- 0–2 control steps (0–80 ms) of action latency;
+- 3 mrad encoder noise;
+- a 10 % unit-to-unit servo spread.
+
+The twin's own encoder quantisation is applied everywhere.
+
+![Success on perturbed twins](paper/figures/gaps_ArmReach.png)
+
+*One arm reaching a random point at the table: 3 seeds each, 1.5 M steps, about 12.5 min per
+run. Success rate is the mean over seeds (range); the second figure is the median final
+distance.*
+
+| Twin the policy is tested on | Trained on the nominal twin | Trained on a randomised twin |
+|---|---|---|
+| nominal | 100 % (99–100), 2 mm | 98 % (96–99), 8 mm |
+| servo gain x0.5 | 100 %, 2 mm | 98 %, 6 mm |
+| servo gain x2 | 100 %, 3 mm | 96 % (92–99), 10 mm |
+| friction x3 | 100 %, 2 mm | 97 % (94–99), 7 mm |
+| links +25 % and 200 g in the hand | 100 %, 2 mm | 98 %, 6 mm |
+| **40 ms action latency** | **10 % (5–14), 51 mm** | 99 %, 5 mm |
+| **80 ms action latency** | **4 %, 79 mm** | 97 %, 8 mm |
+| **120 ms action latency** (beyond the randomised range) | **2 %, 101 mm** | 81 % (74–93), 15 mm |
+| 10 mrad encoder noise | 99 %, 2 mm | 98 %, 8 mm |
+| combined (gain x0.6, friction x2, mass x1.15, +100 g, 80 ms, 5 mrad) | **3 %, 99 mm** | 98 %, 7 mm |
+
+- **Latency is what breaks a nominal policy.** Trained on the exact twin, it ignores halving or
+  doubling the servo gain, tripling friction, 25 % heavier links with 200 g in the hand, and
+  encoder noise. A single control step of action latency (40 ms) takes it from 100 % to 10 %.
+  We expect about one step of delay on the real bus, though it is not measured: a sync read of
+  20 servos at the default 0.5 ms return delay is about 12 ms before USB latency and inference
+  are added.
+- **Randomisation fixes this at a cost.**
+  - Success stays at 97–99 % up to 80 ms.
+  - At 120 ms, beyond anything it saw in training, it still reaches 81 %.
+  - The price is precision: the median final error rises from 2 mm to 8 mm.
+  - It also needs about 2.3x the samples to reach 90 % training success (0.59 M steps against
+    0.21–0.27 M).
+- **Measuring the real bus's latency is therefore the first sim-to-real job**, ahead of
+  friction or mass identification.
+
+![Learning curves](paper/figures/learning_curves.png)
+
+*Both arms, each reaching its own target (randomised twin, 1 seed, 3 M steps, 29 min):* 80 %
+success on the nominal twin (both hands within 3 cm; median worse hand 18 mm), and 81–90 %
+under most perturbations. It drops to 65 % with doubled servo gain and 34 % at 120 ms latency.
+Both of those lie outside its training ranges. The 14-joint policy is still improving at 3 M
+steps (figure above), so this is an under-trained result rather than a ceiling.
+
+| ![arm policy](paper/figures/filmstrip_ArmReach.png) |
+|---|
+| ![bimanual policy](paper/figures/filmstrip_BimanualReach.png) |
+
+MOBILE_RESULTS
 
 **Base twin: planar or rollers?** (`experiments/base_fidelity.py`, 12 random 12 s drives of about
 1.8 m.) The fast twin moves the base on ideal planar joints, at 89x real time with the arms on
@@ -187,7 +253,7 @@ inertia (0.028 kg·m², 28x the pendulum's) dominates, and one of 8 fits converg
 
 ```bash
 cd research/homebot
-PYTHONPATH=src python -m pytest tests -q                  # TESTS tests
+PYTHONPATH=src python -m pytest tests -q                  # 59 tests
 PYTHONPATH=src python experiments/analyze.py              # torque, payload, stability, BOM, sysid (~4 min)
 PYTHONPATH=src python experiments/base_fidelity.py        # planar vs roller base (~3 min)
 PYTHONPATH=src python experiments/scripted_pick.py        # gripper check (~1 min)
