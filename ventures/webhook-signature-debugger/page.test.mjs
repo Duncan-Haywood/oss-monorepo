@@ -72,3 +72,15 @@ test('index links one hop to sibling checks that exist', () => {
     assert.ok(readdirSync(new URL(`../${s}/`, import.meta.url)).includes('index.html'));
   }
 });
+
+test('the inline module script parses (a template literal missing its backticks shipped the page dead)', async () => {
+  const { writeFile, mkdtemp } = await import('node:fs/promises');
+  const { spawnSync } = await import('node:child_process');
+  const { tmpdir } = await import('node:os');
+  const m = index.match(/<script type="module">([\s\S]*?)<\/script>/);
+  assert.ok(m, 'inline module script present');
+  const dir = await mkdtemp(`${tmpdir()}/wsd-`);
+  await writeFile(`${dir}/m.mjs`, m[1]);
+  const r = spawnSync(process.execPath, ['--check', `${dir}/m.mjs`], { encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+});
