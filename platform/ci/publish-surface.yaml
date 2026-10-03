@@ -104,6 +104,9 @@ workflows:
 - workflow: terraform-plan-cost-estimate-ci.yml
   classification: none
   publishes: []
+- workflow: aws-bill-change-explainer-ci.yml
+  classification: none
+  publishes: []
 - workflow: actions-self-hosted-exposure-check-ci.yml
   classification: none
   publishes: []
@@ -2162,3 +2165,6 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
+- workflow: firewood-profit-calculator-ci.yml
+  classification: none
+  publishes: []
