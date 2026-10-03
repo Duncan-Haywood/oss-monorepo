@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dog Grooming Price Calculator — Price by Breed and Time</title>
+  <meta name="description" content="Price dog grooming by breed class and time: the effective hourly each class earns after matting and de-shedding extras, drive time, supplies and no-shows, the price needed for your target hourly, a walk-away price, and an audit of past appointments showing which classes underpay. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Which dog grooming classes underpay your hourly rate?">
+  <meta property="og:description" content="Price each breed class from its real minutes, drive time, supplies and no-shows, then audit past appointments to see which classes underpay. Your numbers, not market rates. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Dog Grooming Price Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Price dog grooming by breed class and time: the effective hourly each class earns after matting and de-shedding extras, drive time, supplies and no-shows, the price needed for your target hourly, a walk-away price, and an audit of past appointments showing which classes underpay. Free, runs in your browser, nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this a market rate or professional advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every price, minute and percentage is a number you typed. It does not look up what other groomers charge. It does the arithmetic on your own time so you can see what each breed class earns you per hour."}}, {"@type": "Question", "name": "Does it upload my appointments?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page works on the text you enter, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    select { padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    input[type=number] { width: 6.5em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DOG GROOMING PRICE CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>Which dog classes pay your hourly rate, and which ones underpay?</h1>
+    <p>For independent salon and mobile groomers. Enter each breed class with its base price and the minutes it really takes, plus matting and de-shedding extras, drive time, supplies and your no-show rate. See <strong>the effective hourly per class</strong>, <strong>the price needed to hit your target</strong> and <strong>a walk-away price</strong>. Paste past appointments and see <strong>which classes underpay</strong>.</p>
+    <p class="note"><strong>Your numbers, not market rates and not advice.</strong> This page knows no going rates and gives no business, tax or legal advice: every price, minute and percentage is a number you type. Nothing is uploaded: the inputs are used in this browser tab only.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your rate and costs</h2>
+    <p>
+      <label for="target">Target hourly rate ($)</label><input type="number" id="target" value="60" min="0" step="5">
+      <label for="walkaway">Walk-away floor (% of target)</label><input type="number" id="walkaway" value="75" min="0" step="5">
+      <label for="drive">Drive and setup minutes per appointment (mobile; 0 for a salon)</label><input type="number" id="drive" value="0" min="0" step="5">
+      <label for="noshow">No-show rate (%)</label><input type="number" id="noshow" value="5" min="0" max="95" step="1">
+      <label for="supplies">Default supplies per dog ($)</label><input type="number" id="supplies" value="6" min="0" step="1">
+    </p>
+    <h2>2. Your dog classes</h2>
+    <label for="classes-input">One row per breed class: class, base price, plain-groom minutes, then optional supplies, matting minutes, matting fee, de-shed minutes, de-shed fee. Up to 500 rows.</label>
+    <textarea id="classes-input" spellcheck="false">class,price,minutes,supplies,matting_minutes,matting_fee,deshed_minutes,deshed_fee
+Small smooth,55,45,4,20,15,10,10
+Small doodle,85,90,6,30,20,0,0
+Medium doodle,110,130,8,40,25,0,0
+Medium double coat,95,110,8,25,15,30,30
+Large double coat,130,140,12,30,20,40,40
+Giant,150,180,16,40,30,45,45
+</textarea>
+    <p>
+      <button type="button" id="compare-go">Price my classes</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear results</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="compare-card" hidden aria-live="polite">
+    <h2>Effective hourly by class</h2>
+    <p id="summary"></p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Class</th><th>Price</th><th>Minutes</th><th>Effective hourly</th><th>Price for target</th><th>Walk-away price</th></tr></thead>
+      <tbody id="class-rows"></tbody>
+    </table></div>
+    <p class="note">Indented rows add that class's matting and de-shedding minutes and surcharge. A no-show holds the slot, pays nothing and uses no supplies.</p>
+  </section>
+
+  <section class="card">
+    <h2>3. Audit your past appointments</h2>
+    <label for="history-input">One row per finished appointment: breed class, price paid, minutes on the table. Uses the target, drive time, no-show rate and supplies above. Up to 500 appointments.</label>
+    <textarea id="history-input" spellcheck="false" placeholder="Small smooth,55,45&#10;Giant,150,200"></textarea>
+    <p>
+      <button type="button" id="history-go">Audit appointments</button>
+      <button type="button" class="secondary" id="history-clear">Clear appointments</button>
+    </p>
+    <p class="note" id="history-status"></p>
+    <div id="history-card" hidden aria-live="polite">
+      <p id="history-summary"></p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>#</th><th>Breed class</th><th>Dogs</th><th>Avg price</th><th>Avg minutes</th><th>Effective hourly</th><th>Raise per dog</th></tr></thead>
+        <tbody id="history-rows"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI?</h2>
+    <p>Same logic, zero dependencies, one command:</p>
+    <pre class="cmd">node cli.mjs compare classes.csv --target 60 --drive 20
+node cli.mjs audit appointments.csv --target 60 --json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="how-to-price-dog-grooming-by-breed-and-time.html">How to price dog grooming by breed and time</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">The answer is exact for the numbers you type. It does not know going rates, your local market, or how a client will react to a price.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Is this a market rate or professional advice?</h3>
+    <p>No. Every price, minute and percentage is a number you typed. It does not look up what other groomers charge. It does the arithmetic on your own time so you can see what each breed class earns you per hour.</p>
+    <h3>Why does a big dog earn less per hour than a small one?</h3>
+    <p>Often the price rises more slowly than the minutes. A giant breed can take over three times the table time of a small smooth coat for under three times the price, and matting or de-shedding minutes are frequently covered by a surcharge that is too small. The calculator shows each class plain and with each extra.</p>
+    <h3>Does it upload my appointments?</h3>
+    <p>No. The browser page works on the text you enter, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+    <h3>How is the effective hourly calculated?</h3>
+    <p>(Price - supplies) x (1 - no-show rate) / ((minutes + drive minutes) / 60). The price for target solves that for the price. The walk-away price does the same at a floor rate, a percent of your target.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice, it is not a market rate or a price survey, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, for the accuracy of the numbers you enter and for what you charge your clients. To the maximum extent permitted by law the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Not affiliated with, endorsed by or sponsored by any grooming software, franchise or pet-industry association; no product names are used to imply otherwise.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>audit_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../dog-grooming-profit-calculator/">Dog Grooming Profit Calculator</a>, <a href="../dog-grooming-day-planner/">Dog Grooming Day Planner</a> and <a href="../pet-grooming-bid-calculator/">Pet Grooming Bid Calculator</a>.</p>
+    <p class="support">Free and open source. If this earned you a better price, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseClasses, compare, summarizeCompare, parseAppointments, audit, summarizeAudit, money, INPUT_NOTES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    const globalOptions = () => ({
+      targetHourly: $("#target").value, walkAwayPct: $("#walkaway").value, driveMinutes: $("#drive").value,
+      noShowPct: $("#noshow").value, suppliesPerDog: $("#supplies").value,
+    });
+
+    function renderCompare() {
+      const status = $("#status");
+      let c;
+      try {
+        const opts = globalOptions();
+        const parsed = parseClasses($("#classes-input").value, opts);
+        if (parsed.errors.length) { status.innerHTML = `<span class="error">${parsed.errors.map(escapeHtml).join("<br>")}</span>`; return; }
+        c = compare(parsed, opts);
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      if (!c.classes.length) { status.innerHTML = `<span class="error">Add at least one class row.</span>`; return; }
+      status.textContent = "";
+      const s = summarizeCompare(c);
+      $("#summary").innerHTML = `<span class="${s.status === "ok" ? "gain" : "error"}">${escapeHtml(s.text)}</span>`;
+      $("#class-rows").innerHTML = c.classes.map((r) => r.variants.map((v, i) => `<tr><td>${i ? "&nbsp;&nbsp;&nbsp;" + escapeHtml(v.label) : escapeHtml(r.name)}</td><td>${money(v.price)}</td><td>${v.minutes}</td><td class="${v.atTarget ? "gain" : "error"}">${money(v.effective)}</td><td>${money(v.neededPrice)}</td><td>${money(v.walkAway)}</td></tr>`).join("")).join("");
+      $("#compare-card").hidden = false;
+      record("compare_run");
+    }
+
+    function renderAudit() {
+      const status = $("#history-status");
+      const text = $("#history-input").value;
+      if (!text.trim()) {
+        status.innerHTML = `<span class="error">Paste some appointment rows first (or load the worked example).</span>`;
+        return;
+      }
+      const parsed = parseAppointments(text);
+      if (parsed.errors.length) {
+        status.innerHTML = `<span class="error">${parsed.errors.map(escapeHtml).join("<br>")}</span>`;
+        return;
+      }
+      if (!parsed.appointments.length) {
+        status.innerHTML = `<span class="error">No appointment rows found.</span>`;
+        return;
+      }
+      let a;
+      try {
+        a = audit(parsed, globalOptions());
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarizeAudit(a);
+      $("#history-summary").innerHTML = `<span class="${s.status === "ok" ? "gain" : "error"}">${escapeHtml(s.text)}</span>`;
+      $("#history-rows").innerHTML = a.classes.map((g, i) => `<tr><td>${i + 1}</td><td>${escapeHtml(g.name)}</td><td>${g.count}</td><td>${money(g.avgPrice)}</td><td>${g.avgMinutes.toFixed(0)}</td><td class="${g.atTarget ? "gain" : "error"}">${money(g.effective)}</td><td>${g.atTarget ? "at target" : money(g.raisePerDog)}</td></tr>`).join("");
+      $("#history-card").hidden = false;
+      record("audit_run");
+    }
+
+    $("#compare-go").addEventListener("click", renderCompare);
+    $("#history-go").addEventListener("click", renderAudit);
+
+    const CLASSES_EXAMPLE = `class,price,minutes,supplies,matting_minutes,matting_fee,deshed_minutes,deshed_fee
+Small smooth,55,45,4,20,15,10,10
+Small doodle,85,90,6,30,20,0,0
+Medium doodle,110,130,8,40,25,0,0
+Medium double coat,95,110,8,25,15,30,30
+Large double coat,130,140,12,30,20,40,40
+Giant,150,180,16,40,30,45,45
+`;
+    const HISTORY_EXAMPLE = `breed_class,price,minutes
+Small smooth,55,45
+Small smooth,60,50
+Small doodle,85,100
+Small doodle,90,110
+Medium doodle,110,140
+Medium doodle,105,135
+Medium double coat,95,120
+Medium double coat,100,125
+Large double coat,130,150
+Large double coat,125,160
+Giant,150,200
+Giant,160,210
+`;
+
+    $("#load-example").addEventListener("click", () => {
+      $("#target").value = 60; $("#walkaway").value = 75; $("#drive").value = 0; $("#noshow").value = 5; $("#supplies").value = 6;
+      $("#classes-input").value = CLASSES_EXAMPLE;
+      $("#history-input").value = HISTORY_EXAMPLE;
+      renderCompare();
+      renderAudit();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      $("#status").textContent = "";
+      $("#compare-card").hidden = true;
+    });
+    $("#history-clear").addEventListener("click", () => {
+      $("#history-input").value = "";
+      $("#history-status").textContent = "";
+      $("#history-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>
