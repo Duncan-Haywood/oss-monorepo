@@ -1,5 +1,5 @@
 name: scope-creep-change-order-calculator
-description: 'Free, zero-network, zero-dependency browser tool + CLI that prices a client's extra requests on a fixed-price project as a change order (rate implied by the quote, optional rush premium and free allowance), shows what absorbing the work would cost the effective hourly rate and the schedule slip, and outputs a client-ready Markdown/CSV message; has a --max-creep-pct / --max-absorbed gate. Arithmetic on the user's own estimates, not a contract.'
+description: 'Free, zero-network, zero-dependency browser tool + CLI that prices a client''s extra requests on a fixed-price project as a change order (rate implied by the quote, optional rush premium and free allowance), shows what absorbing the work would cost the effective hourly rate and the schedule slip, and outputs a client-ready Markdown/CSV message; has a --max-creep-pct / --max-absorbed gate. Arithmetic on the user''s own estimates, not a contract.'
 stage: prototype
 
 owner: duncan
