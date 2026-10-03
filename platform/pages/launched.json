@@ -300,6 +300,7 @@
     "job-margin-variance": "2026-08-26",
     "job-offer-total-comp-calculator": "2026-09-30",
     "junk-removal-bid-calculator": "2026-08-26",
+    "jwt-verification-misuse-check": "2026-10-03",
     "k8s-deprecated-api-check": "2026-09-17",
     "k8s-requests-rightsizer": "2026-10-02",
     "k8s-resource-limits-check": "2026-09-24",

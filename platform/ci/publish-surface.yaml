@@ -86,6 +86,9 @@ workflows:
 - workflow: actions-timeout-check-ci.yml
   classification: none
   publishes: []
+- workflow: jwt-verification-misuse-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: actions-self-hosted-exposure-check-ci.yml
   classification: none
   publishes: []

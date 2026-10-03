@@ -1,0 +1,50 @@
+name: jwt-verification-misuse-check
+description: 'Free, read-only heuristic scanner that reads your own JavaScript/TypeScript, Python, Go and Java source for JWT verification misuse -- jwt.decode where verify is needed, signature checks switched off, alg none, unpinned algorithms, ignored expiry, hard-coded or weak secrets, request-controlled keys -- printing each with file:line, the risk and the exact fix, browser or zero-dependency CLI, no upload, no network calls of its own.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as the other
+# zero-dependency *-check tools. duplicate_check.py's closest match was
+# env-example-drift-check at 0.13 (shared "source"/"secret" vocabulary, a
+# different finding). terraform-plan-secret-exposure-check mentions JWTs only as
+# one secret shape to spot in plan output; no existing venture reads
+# application source for token-verification mistakes. Not in screened-out.md.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# high -- a mechanical, read-only line scanner over the user's own code with no
+# advice-of-record, no exploit or probing of anyone else's system, no data
+# leaving the device, no scraping. Labelled a heuristic, not a security audit,
+# with no warranty, and a clean scan is never described as safe.
+#
+# First visitor channel: search for "jwt.decode vs jwt.verify", "jwt alg none
+# vulnerability" and "pyjwt verify_signature false" (docs, forum and blog
+# results with no checker attached), and developers reviewing auth code before
+# a release.
+hypotheses:
+  - claim: 'A developer reviewing auth code will paste a file here and find a jwt.decode, an unpinned verify or a literal secret they would otherwise have missed.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'A team will wire check.py --fail-on-risk into their own CI so a new verification shortcut does not merge.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.py or classify.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/jwt-verification-misuse-check/
+  analytics: null
