@@ -27100,3 +27100,33 @@ ventures:
       Liability: counts follow published encoding rules, prices labelled
       approximate and editable, compliance stated as the user's
       responsibility, no warranty. Ethics: free, nothing leaves the device.
+  - slug: tow-truck-rate-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every result is deterministic
+      arithmetic on the operator's own inputs, never an inference step.
+    basis: >-
+      Screened 2026-10-03 per portfolio/pipeline/README.md's scoring process;
+      write-up in this venture's own VENTURE.yaml comment. Nearest sibling
+      tow-motor-club-call-calculator answers a different question (accept or
+      decline a club dispatch). Distribution 6: "tow truck rate calculator" and
+      "how much to charge for a tow" are recurring operator queries; search
+      volume not measured with an external tool. Defensibility 2: cost-plus
+      arithmetic.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: output is arithmetic on the operator's own inputs, asserts no
+      rate, cap or rule, and tells the user to check local tow rate regulation;
+      no warranty. Ethics: free, no scraping, nothing leaves the device.

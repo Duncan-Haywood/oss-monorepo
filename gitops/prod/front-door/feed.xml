@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 657 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 658 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -287,6 +287,15 @@
     <summary type="text">Free calculator for home-service pros: what Thumbtack-style paid leads and your quoting time cost per job won, the close rate you need to break even, and the most you can pay for one lead before it loses money. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Tow Truck Rate Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tow-truck-rate-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/tow-truck-rate-calculator</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="Logistics, freight &amp; cloud cost"/>
+    <summary type="text">Price a tow job from your own costs: margin, break-even, ranked levers. Runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Upwork Connects ROI Calculator — What a Hire Really Costs You</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/upwork-connects-roi-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/upwork-connects-roi-calculator</id>
@@ -357,14 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Price a monthly bookkeeping retainer from transactions, accounts, payroll, AR/AP and sales-tax filings: the minimum fee for your target hourly, a recommended fee, a one-time cleanup quote, a walk-away price, and a roster that ranks existing clients by effective hourly. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Card Grading Submission Picker — Which Cards to Send to PSA, BGS, CGC or SGC</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/card-grading-submission-picker/"/>
-    <id>tag:marisstella.dev,2026:tool/card-grading-submission-picker</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Is it worth grading this card? Paste your cards with your own value at each grade and grade chances and get which to send to a grader, which fee tier, which to sell raw, the break-even chance of a 10 and the downside. Pokemon, baseball, basketball and MTG. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
