@@ -26546,3 +26546,32 @@ ventures:
       Liability: arithmetic on typed hours, rates and budgets, stated so and not market rates, tax, legal or licensing advice,
       no warranty, contract terms and local rules come first, nothing leaves the device. Ethics: helps small designers
       charge for the time projects take; the user decides and remains responsible.
+  - slug: snow-plow-contract-calculator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic storm-count, hours and contract-price arithmetic and past-season grouping; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for plow contractors as the season starts, with real search demand ("per push vs seasonal snow plow
+      contract") where the closest tool in the tree prices one property's winter; the wedge is a whole route compared across a low,
+      normal and high snow year with a walk-away price, plus an audit of past seasons by contract model, free and client-side;
+      volume not measured with an external tool.
+      Scope: Free CLI and browser tool that compares snow plow contract models across low, normal and high snow years and audits past seasons from the user's own numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed prices, storm counts, hours and costs, stated so and not market rates, tax, legal, insurance or
+      contract advice, no warranty, contracts and local rules come first, nothing leaves the device. Ethics: helps small plow
+      contractors price winter work at what it takes; the user decides and remains responsible.

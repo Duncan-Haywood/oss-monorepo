@@ -1274,3 +1274,32 @@ entries:
       not market rates, tax, legal or licensing advice, no warranty, contract terms and local
       rules left to the user. Ethics: helps small designers charge for the time projects
       really take; no scraping.
+  - venture: snow-plow-contract-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built snow-plow-contract-calculator: a browser-local tool and
+        zero-dependency CLI for independent snow plowing and ice-management contractors.
+        List sites (hours per push, per-push, per-inch and seasonal flat prices, trigger
+        depth, salt) and the light, medium and heavy storms expected in a low, normal and
+        high snow year, plus truck and driver, fuel, blade, deadhead and salt costs and a
+        target hourly; it returns per-push, per-inch, seasonal flat, capped flat and hybrid
+        contracts' expected season revenue and effective hourly in each year, the storm count
+        where each stops paying, the seasonal flat price that clears target in a low year
+        against the price that loses money in a high year, and a walk-away price. An audit
+        mode groups past site-seasons by contract model and ranks them by net hourly. Adjacent
+        to snow-removal-bid-calculator, which prices one property's winter; this works across a
+        whole route and adds capped, hybrid, per-inch, year scenarios and the audit. Season
+        starts October; first visitor expected from "per push vs seasonal snow plow contract"
+        searches. Nothing leaves the browser, no market rates scraped. Unverified with a
+        real contractor.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied prices, storm counts, hours and costs, stated
+      prominently as not market rates, tax, legal, insurance or contract advice, no warranty,
+      contract terms and local rules left to the user. Ethics: helps small plow contractors
+      price winter work at what it takes; no scraping.
