@@ -26919,3 +26919,36 @@ ventures:
       table date printed, unpriced resources listed rather than counted as zero, no warranty, not
       affiliated with HashiCorp, AWS or Infracost, nothing leaves the device. Ethics: free, no
       accuracy-gated tier, no scraping.
+  - slug: aws-bill-change-explainer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 9
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 2
+      distribution: 5
+    composite: 5.2
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Ranking, per-day scaling and a cause-checklist lookup, and a
+      CI-style gate has to give the same answer on every run. Defensibility 2 is the other sub-5
+      dimension; its basis is below.
+    basis: >-
+      Scored 2026-10-03 on graduation; screening and the first-visitor channel are in the venture's own
+      VENTURE.yaml comment. Defensibility 2: ranking two columns is easy to copy, and the console and paid
+      FinOps tools cover the same question, so the only edge is offline and zero-setup. Autonomous ops 9:
+      static page and one-file CLI; the checklist wording can go stale but carries no prices. Time to
+      revenue 4 (a free dev tool, donations only), distribution 5: "why did my AWS bill go up" is a real
+      query shape but subreddit sizes were not verified and no audience is owned. Volume not measured with
+      an external tool.
+      Scope: Free CLI and browser tool that explains a month-over-month AWS bill change from the user's own
+      Cost Explorer CSV export.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on an export the user supplies, labelled a checklist and not a diagnosis, not
+      billing or financial advice, no warranty, not affiliated with Amazon Web Services, nothing leaves the
+      device. Ethics: free, no accuracy-gated tier, no scraping.

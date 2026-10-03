@@ -1602,3 +1602,30 @@ entries:
       advice, table date printed, unpriced listed, no warranty, not affiliated with HashiCorp, AWS or
       Infracost, nothing leaves the device. Ethics: helps developers see what a change costs before
       applying; free, no scraping.
+  - venture: aws-bill-change-explainer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built aws-bill-change-explainer: a browser-local explainer and zero-dependency CLI
+        (cli.mjs over a shared engine.mjs) that reads the CSV downloaded from AWS Cost Explorer and ranks
+        every line by how much it moved between two periods, with its share of the rise. New and gone
+        lines are called out, a half-finished month is compared per day when day counts are given, tax,
+        support, commitment and credit lines are named as accounting rather than usage, and a checklist
+        of common causes (no prices) is listed for the services that rose. A cropped export is detected
+        against the file's own total row. --max-increase-usd and --max-increase-pct exit 1 for a monthly
+        script. Ships vs-cost-explorer.html, written to say where the console is the better answer.
+        New gap: the *-cost-advisor ventures take hand-typed usage for one service and
+        terraform-plan-cost-estimate prices a change before apply; none explains an invoice after the
+        fact (duplicate_check closest match 0.15; not in screened-out). First visitor expected from
+        "why did my AWS bill go up" searches and r/aws answers; none measured. The Cost Explorer CSV
+        format and the cause checklists were not checked against a live account from this environment
+        and the surfaces say so. Unverified with a real developer.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on an export the user supplies, labelled a checklist not a diagnosis, not
+      billing advice, no warranty, not affiliated with Amazon Web Services, nothing leaves the device.
+      Ethics: helps people understand their own bill; free, no scraping.
