@@ -1,0 +1,45 @@
+name: interior-design-fee-calculator
+description: 'Free, zero-network, zero-dependency browser tool and CLI for independent interior designers and small studios: enter a project''s design hours, site visits, procurement items, meetings, expected and stress scope overrun and your target hourly rate, plus your rate for each fee model (hourly, flat, percent of project cost, per square foot, product margin, flat plus margin), and get each model''s effective hourly, the overrun it can absorb before falling under target, the fee you need and a walk-away fee; paste past projects with fee model, fee and hours and see which fee model actually paid best. Numbers are the ones the user supplies, not market rates or advice.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: raises what a designer earns per hour by choosing the fee model that survives scope creep and exposing which past engagements underpaid.
+# Checked 2026-10-03: ventures/ has wedding-florist-proposal-calculator and photo-addon-pricing-calculator (other creative
+# trades), freelance-retainer-calculator and freelance-retainer-vs-hourly-calculator (generic freelance retainers) and
+# client-profitability-time-analyzer (after-the-fact client profit); none compares interior design fee structures on one project
+# with overrun priced in, nor audits past projects by fee model. Not in screened-out.md.
+#
+# First visitor: searches "interior design fee structure", "how much to charge for interior design", "flat fee vs hourly interior
+# designer", "percentage of project cost interior design"; designer forums and groups. Volume not measured with an external tool.
+# Designers choose a fee model on habit; nothing multiplies out their own procurement and meeting hours against each model. A
+# hosted version that reads time-tracker exports is the natural paid upgrade.
+hypotheses:
+  - claim: A designer will enter a project's hours, see what each fee model earns at their overrun, and change the structure they quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A designer will paste past projects, see which fee model underpaid, and change a rate or add a hybrid fee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only typed or pasted values in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No designer reports changing a quoted fee structure or rate because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/interior-design-fee-calculator/
+  analytics: null

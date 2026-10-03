@@ -26490,3 +26490,32 @@ ventures:
       competence, due diligence, Circular 230 and engagement terms named as coming first, no warranty, nothing leaves
       the device. Ethics: helps small independent practitioners decide which engagements are worth their hours; the
       user decides and remains responsible.
+  - slug: interior-design-fee-calculator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic hours-to-fee arithmetic, overrun scenarios and past-project grouping; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for designers with real search demand ("interior design fee structure", "flat fee vs hourly")
+      where the existing tools are generic freelance retainers or after-the-fact time analysis; the wedge is comparing every fee
+      model on one project with scope creep priced in, plus an audit of past projects by fee model, free and client-side;
+      volume not measured with an external tool.
+      Scope: Free CLI and browser tool that compares interior design fee models and audits past projects from the user's own hours.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed hours, rates and budgets, stated so and not market rates, tax, legal or licensing advice,
+      no warranty, contract terms and local rules come first, nothing leaves the device. Ethics: helps small designers
+      charge for the time projects take; the user decides and remains responsible.
