@@ -1494,6 +1494,60 @@ entries:
       Liability: arithmetic on typed values, stated as not financial advice, no warranty, not
       affiliated with Apple or Google, nothing leaves the device. Ethics: helps developers see what
       acquisition costs against what a subscriber returns; no scraping.
+  - venture: k8s-pod-security-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built k8s-pod-security-check: a browser-local checker and zero-dependency CLI
+        (check.py, with a browser port kept in parity by test) that line-scans a developer's own
+        Kubernetes Pod, Deployment, StatefulSet, DaemonSet, Job and CronJob manifests (multi-document,
+        CronJob nesting handled) for privileged containers, host namespaces, hostPath volumes such as
+        docker.sock, SYS_ADMIN/ALL capabilities, literal secrets in env, allowPrivilegeEscalation,
+        running as root, :latest images, hostPort, missing securityContext, writable root filesystem,
+        missing seccomp and service-account token automount, and prints each with its line, the
+        resource and container, the risk and the exact YAML fix. New gap: the existing k8s-* ventures
+        cover deprecated APIs, resource limits, rollout safety and rightsizing; none reads
+        securityContext (duplicate_check closest match 0.28; not in screened-out). First visitor
+        expected from "kubernetes privileged true", "allowPrivilegeEscalation false" and
+        "hostPath docker.sock kubernetes" searches. Nothing leaves the browser, no network calls.
+        Unverified with a real developer.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: mechanical read-only heuristic line scan of the user's own manifests, labelled not a
+      YAML parser, not a security audit and not a compliance claim, no warranty, a clean scan never
+      described as secure, secret values never echoed. Ethics: defensive hygiene on the user's own
+      configuration; no probing of anyone else's cluster, no scraping.
+  - venture: pool-service-route-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built pool-service-route-calculator: a browser-local tool and
+        zero-dependency CLI for independent pool service route owners. Enter each account's
+        monthly price, visit minutes, drive minutes into the stop, chemical cost per month and
+        callbacks per year, plus truck and helper cost and a target hourly; it returns every
+        account's true effective hourly with drive and callbacks priced in, the price that clears
+        the target, a keep, reprice or drop move, the route's hourly if each account were dropped,
+        a new-stop table by drive minutes (5 to 30) showing the price a stop must charge and what
+        it does to the route, and a CSV audit (browser download and CLI --csv). Adjacent to
+        pool-route-pricing (prices one account) and route-account-pruner (generic route CSV with a
+        cancellation response and no density or callbacks); this is pool-specific and adds
+        callbacks, route density and the CSV export. First visitor expected from "which pool
+        service customers to drop" and "pool route profitability" searches. Nothing leaves the
+        browser, no market rates scraped. Unverified with a real route owner.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied prices, minutes and costs, stated prominently as not
+      market rates, tax, legal or contract advice, no warranty, service agreements and local rules
+      left to the user. Ethics: helps small pool route owners price at what the route takes; no
+      scraping.
   - venture: git-bus-factor-check
     agent_spend_usd: null
     human_hours: 0

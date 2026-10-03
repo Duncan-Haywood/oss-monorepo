@@ -95,6 +95,9 @@ workflows:
 - workflow: git-bus-factor-check-ci.yml
   classification: none
   publishes: []
+- workflow: k8s-pod-security-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: actions-self-hosted-exposure-check-ci.yml
   classification: none
   publishes: []
@@ -1353,6 +1356,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: pool-route-pricing-ci.yml
+  classification: none
+  publishes: []
+- workflow: pool-service-route-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: popcorn-ceiling-bid-calculator-ci.yml
