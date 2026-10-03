@@ -1216,7 +1216,8 @@ const RELATIVE_SELF = relative(
 // +1: `tax-season-client-picker` graduated.
 // +1: `interior-design-fee-calculator` graduated.
 // +1: `snow-plow-contract-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 605;
+// +1: `nail-tech-booth-rent-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 606;
 // +1: `embroidery-shop-quote-calculator` graduated.
 
 let counter = 0;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 626 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 627 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -33,6 +33,15 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your JavaScript, Python, Go or Java code and find JWT verification misuse: jwt.decode where verify is needed, verify_signature False, alg none, unpinned algorithms, ignoreExpiration, hard-coded or weak secrets. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Nail Tech Booth Rent Calculator — Booth vs Commission vs Employee</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/nail-tech-booth-rent-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/nail-tech-booth-rent-calculator</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Compare booth rent, a commission split and an hourly job for a nail tech: take-home per hour worked (not per hour booked) after idle chair time, supplies, card fees, insurance, tips, retail commission and a self-employment tax estimate, plus break-even clients per week and an audit of past weeks. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Snow Plow Contract Calculator — Per Push vs Seasonal</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Paste contacts per half hour and get the agents each interval needs (Erlang C, shrinkage, occupancy cap) and the cheapest shifts that cover them, plus what each service target costs. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Tax Season Client Picker — Which Late Engagements to Accept</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tax-season-client-picker/"/>
-    <id>tag:marisstella.dev,2026:tool/tax-season-client-picker</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Paste the late-season client engagements you have been offered and get the set that earns the most before the filing and extension deadlines, the order to work them, and the fee each declined client would need. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
