@@ -31,7 +31,7 @@
     <id>tag:marisstella.dev,2026:tool/aws-bill-change-explainer</id>
     <published>2026-10-03T00:00:00Z</published>
     <updated>2026-10-03T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste the CSV from AWS Cost Explorer for two months and see which services explain the rise in your AWS bill, ranked, with partial-month normalisation and a checklist of common causes. Free, no signup, nothing uploaded.</summary>
   </entry>
   <entry>
