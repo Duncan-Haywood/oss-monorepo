@@ -1336,6 +1336,9 @@ const CATEGORY_RULES = [
       // per state checked against residency limits -- the same tax-obligation axis as
       // `quarterly-estimated-tax-calendar` above, which it links to.
       || slug === 'state-residency-day-counter'
+      // `feie-physical-presence-calculator` joined 2026-10-03 on its first commit: the federal 330-day
+      // count a US expat keeps, the same tax-obligation day-counting axis as `state-residency-day-counter`.
+      || slug === 'feie-physical-presence-calculator'
       // `cheap-meal-plan-optimizer` joined 2026-10-01 on its first commit: a household's food budget as a
       // minimum-cost linear program -- a personal money decision rather than an operator pricing food, so it
       // sits here and not under `food-service`, which is for people who sell food.
