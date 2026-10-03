@@ -38,31 +38,31 @@
 #   portfolio-front-tools-2: 144 files, 553084 bytes
 #   portfolio-front-tools-3: 132 files, 556816 bytes
 #   portfolio-front-tools-4: 137 files, 556883 bytes
-#   portfolio-front-tools-5: 128 files, 556784 bytes
-#   portfolio-front-tools-6: 120 files, 556330 bytes
-#   portfolio-front-tools-7: 137 files, 555871 bytes
-#   portfolio-front-tools-8: 130 files, 546588 bytes
-#   portfolio-front-tools-9: 120 files, 544223 bytes
-#   portfolio-front-tools-10: 131 files, 553463 bytes
-#   portfolio-front-tools-11: 131 files, 557046 bytes
-#   portfolio-front-tools-12: 133 files, 556810 bytes
-#   portfolio-front-tools-13: 120 files, 550973 bytes
-#   portfolio-front-tools-14: 118 files, 555577 bytes
-#   portfolio-front-tools-15: 120 files, 550371 bytes
-#   portfolio-front-tools-16: 118 files, 556008 bytes
-#   portfolio-front-tools-17: 126 files, 554771 bytes
+#   portfolio-front-tools-5: 128 files, 556758 bytes
+#   portfolio-front-tools-6: 120 files, 556327 bytes
+#   portfolio-front-tools-7: 137 files, 555868 bytes
+#   portfolio-front-tools-8: 130 files, 546563 bytes
+#   portfolio-front-tools-9: 120 files, 544187 bytes
+#   portfolio-front-tools-10: 131 files, 553535 bytes
+#   portfolio-front-tools-11: 130 files, 549236 bytes
+#   portfolio-front-tools-12: 133 files, 556696 bytes
+#   portfolio-front-tools-13: 120 files, 554862 bytes
+#   portfolio-front-tools-14: 118 files, 555808 bytes
+#   portfolio-front-tools-15: 121 files, 554265 bytes
+#   portfolio-front-tools-16: 118 files, 555925 bytes
+#   portfolio-front-tools-17: 126 files, 554800 bytes
 #   portfolio-front-tools-18: 126 files, 552232 bytes
 #   portfolio-front-tools-19: 125 files, 556568 bytes
-#   portfolio-front-tools-20: 126 files, 556222 bytes
+#   portfolio-front-tools-20: 126 files, 556299 bytes
 #   portfolio-front-tools-21: 133 files, 548381 bytes
-#   portfolio-front-tools-22: 121 files, 554681 bytes
+#   portfolio-front-tools-22: 121 files, 554573 bytes
 #   portfolio-front-tools-23: 110 files, 550614 bytes
-#   portfolio-front-tools-24: 105 files, 556765 bytes
-#   portfolio-front-tools-25: 118 files, 550998 bytes
-#   portfolio-front-tools-26: 128 files, 550155 bytes
-#   portfolio-front-tools-27: 123 files, 556794 bytes
-#   portfolio-front-tools-28: 116 files, 554117 bytes
-#   portfolio-front-tools-29: 60 files, 307415 bytes
+#   portfolio-front-tools-24: 105 files, 557055 bytes
+#   portfolio-front-tools-25: 118 files, 550976 bytes
+#   portfolio-front-tools-26: 128 files, 550129 bytes
+#   portfolio-front-tools-27: 123 files, 556901 bytes
+#   portfolio-front-tools-28: 116 files, 554116 bytes
+#   portfolio-front-tools-29: 60 files, 307398 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1686,12 +1686,12 @@ configMapGenerator:
       - entry-door-bid-calculator__vs-jobber.html.gz=entry-door-bid-calculator__vs-jobber.html.gz
       - env-example-drift-check__cli.mjs.gz=env-example-drift-check__cli.mjs.gz
       - env-example-drift-check__engine.mjs.gz=env-example-drift-check__engine.mjs.gz
-      - env-example-drift-check__index.html.gz=env-example-drift-check__index.html.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - env-example-drift-check__index.html.gz=env-example-drift-check__index.html.gz
       - env-example-drift-check__usage.mjs.gz=env-example-drift-check__usage.mjs.gz
       - env-example-drift-check__vs-dotenv-linter.html.gz=env-example-drift-check__vs-dotenv-linter.html.gz
       - env-example-drift-check__vs-grepping-the-codebase-by-hand.html.gz=env-example-drift-check__vs-grepping-the-codebase-by-hand.html.gz
@@ -1824,12 +1824,12 @@ configMapGenerator:
       - fix-and-flip-deal-analyzer__usage.mjs.gz=fix-and-flip-deal-analyzer__usage.mjs.gz
       - flaky-test-finder__check.py.gz=flaky-test-finder__check.py.gz
       - flaky-test-finder__classify.mjs.gz=flaky-test-finder__classify.mjs.gz
-      - flaky-test-finder__index.html.gz=flaky-test-finder__index.html.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - flaky-test-finder__index.html.gz=flaky-test-finder__index.html.gz
       - flaky-test-finder__usage.mjs.gz=flaky-test-finder__usage.mjs.gz
       - flaky-test-finder__vs-buildpulse.html.gz=flaky-test-finder__vs-buildpulse.html.gz
       - flaky-test-finder__vs-eyeballing-two-ci-logs-by-hand.html.gz=flaky-test-finder__vs-eyeballing-two-ci-logs-by-hand.html.gz
@@ -1949,12 +1949,12 @@ configMapGenerator:
       - garage-door-bid-calculator__share.mjs.gz=garage-door-bid-calculator__share.mjs.gz
       - garage-door-bid-calculator__usage.mjs.gz=garage-door-bid-calculator__usage.mjs.gz
       - garage-door-bid-calculator__vs-a-flat-189-broken-spring-special.html.gz=garage-door-bid-calculator__vs-a-flat-189-broken-spring-special.html.gz
-      - garage-door-bid-calculator__vs-housecall-pro.html.gz=garage-door-bid-calculator__vs-housecall-pro.html.gz
   - name: portfolio-front-tools-14
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - garage-door-bid-calculator__vs-housecall-pro.html.gz=garage-door-bid-calculator__vs-housecall-pro.html.gz
       - ghost-members-export-analyzer__calc.mjs.gz=ghost-members-export-analyzer__calc.mjs.gz
       - ghost-members-export-analyzer__index.html.gz=ghost-members-export-analyzer__index.html.gz
       - ghost-members-export-analyzer__usage.mjs.gz=ghost-members-export-analyzer__usage.mjs.gz
@@ -2072,12 +2072,12 @@ configMapGenerator:
       - home-elevator-bid-calculator__should-i-install-a-customer-supplied-home-elevator.html.gz=home-elevator-bid-calculator__should-i-install-a-customer-supplied-home-elevator.html.gz
       - home-elevator-bid-calculator__usage.mjs.gz=home-elevator-bid-calculator__usage.mjs.gz
       - home-elevator-bid-calculator__vs-a-flat-pneumatic-special.html.gz=home-elevator-bid-calculator__vs-a-flat-pneumatic-special.html.gz
-      - home-elevator-bid-calculator__vs-jobber.html.gz=home-elevator-bid-calculator__vs-jobber.html.gz
   - name: portfolio-front-tools-15
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - home-elevator-bid-calculator__vs-jobber.html.gz=home-elevator-bid-calculator__vs-jobber.html.gz
       - home-inspection-fee-calculator__calc.mjs.gz=home-inspection-fee-calculator__calc.mjs.gz
       - home-inspection-fee-calculator__how-to-price-a-home-inspection.html.gz=home-inspection-fee-calculator__how-to-price-a-home-inspection.html.gz
       - home-inspection-fee-calculator__index.html.gz=home-inspection-fee-calculator__index.html.gz
