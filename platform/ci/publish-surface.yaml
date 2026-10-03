@@ -1790,6 +1790,9 @@ workflows:
 - workflow: slopsquatting-check-ci.yml
   classification: none
   publishes: []
+- workflow: sms-segment-cost-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: snow-plow-contract-calculator-ci.yml
   classification: none
   publishes: []

@@ -27041,3 +27041,32 @@ ventures:
       Liability: output is arithmetic on the founder's own inputs, never
       fundraising or investment advice; bands are labelled rules of thumb; no
       warranty. Ethics: free, no scraping, nothing leaves the device.
+  - slug: sms-segment-cost-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every result is deterministic
+      text-encoding rules and arithmetic on the user's own inputs.
+    basis: >-
+      Screened 2026-10-03 per portfolio/pipeline/README.md's scoring process;
+      write-up in this venture's own VENTURE.yaml comment. No SMS venture
+      existed. Distribution 6: "sms segment calculator" and "why is my SMS
+      3 segments" are recurring developer queries answered by provider docs
+      with no cost model; search volume not measured with an external tool.
+      Defensibility 2: published encoding rules.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: counts follow published encoding rules, prices labelled
+      approximate and editable, compliance stated as the user's
+      responsibility, no warranty. Ethics: free, nothing leaves the device.
