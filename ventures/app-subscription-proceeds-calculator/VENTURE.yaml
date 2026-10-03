@@ -1,0 +1,41 @@
+name: app-subscription-proceeds-calculator
+description: 'Free, zero-network browser calculator for indie iOS and Android app developers: enter the subscription price, tax included, the store fee in year one and after, refunds, monthly churn and what you pay to acquire a subscriber, and get the net per charge, the value of a subscriber over the horizon, payback month, the most you can spend for a 12-month payback, scenarios for changed churn and fee tier, and what the same subscriber is worth through a web checkout. Arithmetic on the numbers the user types, not financial advice; not affiliated with Apple or Google.'
+stage: prototype
+
+owner: duncan
+
+# Calculator archetype, earn-more: app developers set prices and ad budgets without knowing net proceeds per subscriber or payback.
+# Checked 2026-10-03: duplicate_check.py scored the niche 0.50 at most against ventures/ (app-store-sales-report-analyzer, which reads a sales report rather than modelling a price and churn) and 0.29 for saas-cac-payback-calculator (no store fees, tax or fee step); not in screened-out.md.
+#
+# First visitor: searches "app store small business program calculator", "app subscription ltv calculator",
+# "apple 30 vs 15 percent subscription", "app store fee calculator"; r/iOSProgramming, r/SideProject and
+# r/indiehackers threads on subscription pricing and web checkout. Volume not measured with an external tool.
+# A hosted version that imports a store sales export and fits churn per cohort is the natural paid upgrade.
+hypotheses:
+  - claim: An indie developer will enter their own churn and acquisition cost, see the fee tier matter far less than retention, and change what they spend on ads or work on first.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Visitors arrive for the net-after-fees figure and the 12-month payback ceiling at least as often as for the plain lifetime value.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the page computes only typed values in the visitor's own browser; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No developer reports changing their spend or pricing because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/app-subscription-proceeds-calculator/
+  analytics: null
