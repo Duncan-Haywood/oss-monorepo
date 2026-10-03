@@ -675,6 +675,9 @@ const CATEGORY_RULES = [
       // `catering-quote-calculator` joined 2026-10-02 on its first commit: per-guest event pricing for the
       // operator who sells food, one hop from `food-truck-event-margin-calculator`.
       'catering-quote-calculator',
+      // `farmers-market-booth-calculator` joined 2026-10-03 on its first commit: market vendors who sell food,
+      // one hop from `food-truck-event-margin-calculator`.
+      'farmers-market-booth-calculator',
       'commissary-kitchen-cost-split-calculator',
       // `restaurant-pos-menu-mix-analyzer` added 2026-09-29: the POS-export
       // sibling of `menu-engineering-calculator`, same owner reading the same
