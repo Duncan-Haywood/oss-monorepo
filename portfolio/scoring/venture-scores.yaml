@@ -26660,3 +26660,31 @@ ventures:
       Liability: arithmetic on typed amounts under the published federal definition, stated so and not grant,
       accounting or legal advice, no warranty, funder rules come first, nothing leaves the device. Ethics: helps
       small organisations claim the indirect cost they are allowed; the user decides and remains responsible.
+  - slug: upwork-connects-roi-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic cost-per-hire and break-even arithmetic; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 5: freelancers argue about whether Connects pay off
+      in r/Upwork and r/freelance and search "upwork connects worth it"; no dedicated free tool in the tree prices
+      proposal time per hire; volume not measured with an external tool. Defensibility 3 and time to revenue 4:
+      a small arithmetic tool whose upgrade path is a proposal-history importer.
+      Scope: Free browser tool that computes cost per hire, break-even win rate and the Connects ceiling from the user's own numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed values, stated so and not financial or business advice, no warranty, platform
+      prices and rules are the user's to check, not affiliated with the platform, nothing leaves the device. Ethics: helps
+      freelancers see what bidding costs them; no scraping, no platform data used.

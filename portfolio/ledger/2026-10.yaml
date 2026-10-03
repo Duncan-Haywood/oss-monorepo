@@ -1378,3 +1378,26 @@ entries:
       stated prominently as not grant, accounting or legal advice, no warranty, funder rules
       left to the user. Ethics: helps small organisations claim the indirect cost they are
       allowed; no scraping.
+  - venture: upwork-connects-roi-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built upwork-connects-roi-calculator: a browser-local tool for freelancers who
+        bid on Upwork-style marketplaces. Enter proposals per month, Connects per proposal and price,
+        minutes per proposal, hourly value, win rate and typical contract; it returns cost per hire,
+        break-even win rate with and without writing time, the most Connects a proposal can spend
+        before it loses money, the month net after the service fee, and win-rate and Connects
+        scenarios. Finding the guide states: on default numbers writing time ($500) dwarfs Connects
+        ($72). New niche: duplicate_check top score 0.22 (upwork-earnings-fee-analyzer, which analyses
+        a statement, not proposal ROI). First visitor expected from "upwork connects worth it" searches
+        and r/Upwork / r/freelance threads. Nothing leaves the browser. Unverified with a real
+        freelancer; defaults are illustrative and every value is editable.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed values, stated as not financial advice, no warranty, not
+      affiliated with the platform, nothing leaves the device. Ethics: helps freelancers see what
+      bidding costs; no scraping.

@@ -1964,6 +1964,9 @@ workflows:
 - workflow: ubuntu-agent-server-ci.yml
   classification: none
   publishes: []
+- workflow: upwork-connects-roi-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: upwork-earnings-fee-analyzer-ci.yml
   classification: none
   publishes: []

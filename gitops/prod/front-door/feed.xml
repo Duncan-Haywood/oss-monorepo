@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 628 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 629 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -60,6 +60,15 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Compare per-push, per-inch, seasonal flat, capped flat and hybrid snow plow contracts across a low, normal and high snow year: expected season revenue, effective hourly, the storm count where each stops paying, the flat price that loses money in a high-snow year and a walk-away price, plus an audit of past seasons by contract model. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Upwork Connects ROI Calculator — What a Hire Really Costs You</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/upwork-connects-roi-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/upwork-connects-roi-calculator</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free calculator for freelancers: what your Connects and proposal-writing time cost per hire, the win rate you need to break even, and the most Connects a proposal can spend before it loses money. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Appraisal Assignment Picker — Which Requests to Accept</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your Snowflake warehouses (size, credits used, AUTO_SUSPEND, resumes) and get what each costs, the AUTO_SUSPEND tail you are paying for, idle warehouses and a bounded right-sizing note, with the ALTER WAREHOUSE commands. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>STR Turnover Crew Planner — Which Cleans to Take, and Which Crew</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/str-turnover-crew-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/str-turnover-crew-planner</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Paste the day&#39;s vacation-rental turnovers and get the most profitable set of cleans, which of your one to three crews does each and in what order, with checkout and check-in windows, drive cost and the fee every turnover it declines would need. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

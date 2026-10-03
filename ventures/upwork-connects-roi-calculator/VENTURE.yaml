@@ -1,0 +1,41 @@
+name: upwork-connects-roi-calculator
+description: 'Free, zero-network browser calculator for freelancers who bid on Upwork-style marketplaces: enter proposals per month, Connects per proposal and their price, minutes spent writing and what your time is worth, your win rate and the contract you usually win, and get cost per hire, the break-even win rate (with and without your time), the most Connects one proposal can spend before it loses money, the month net after the service fee, and scenarios for a changed win rate or Connects spend. Arithmetic on the numbers the user types, not financial advice; not affiliated with Upwork.'
+stage: prototype
+
+owner: duncan
+
+# Calculator archetype, earn-more: freelancers pay per proposal and rarely price their own writing time or know their break-even win rate.
+# Checked 2026-10-03: duplicate_check.py scored the niche 0.22 at most against ventures/ and the pipeline (upwork-earnings-fee-analyzer, bid-win-rate-optimizer); neither prices Connects or proposal time per hire; not in screened-out.md.
+#
+# First visitor: searches "upwork connects worth it", "upwork connects cost per hire", "is upwork worth it",
+# "upwork win rate"; r/Upwork and r/freelance threads that argue about whether Connects pay off. Volume not measured
+# with an external tool. A hosted version that imports a proposal history export and tracks win rate by job type is
+# the natural paid upgrade.
+hypotheses:
+  - claim: A freelancer will enter their own proposal volume and win rate, see that writing time dwarfs the Connects cost, and change how many proposals they send or how long they spend on each.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Visitors arrive for the break-even win rate and the Connects ceiling at least as often as for the plain cost per hire.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the page computes only typed values in the visitor's own browser; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No freelancer reports changing their proposal volume or effort because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/upwork-connects-roi-calculator/
+  analytics: null
