@@ -83,31 +83,10 @@ workflows:
 - workflow: actions-secrets-inherit-check-ci.yml
   classification: none
   publishes: []
-- workflow: actions-timeout-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: jwt-verification-misuse-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: docker-compose-security-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: farmers-market-booth-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: git-bus-factor-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: k8s-pod-security-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: terraform-plan-cost-estimate-ci.yml
-  classification: none
-  publishes: []
-- workflow: aws-bill-change-explainer-ci.yml
-  classification: none
-  publishes: []
 - workflow: actions-self-hosted-exposure-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: actions-timeout-check-ci.yml
   classification: none
   publishes: []
 - workflow: actions-transitive-pin-check-ci.yml
@@ -182,6 +161,9 @@ workflows:
 - workflow: app-store-screenshot-check-ci.yml
   classification: none
   publishes: []
+- workflow: app-subscription-proceeds-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: apparel-decoration-price-calculator-ci.yml
   classification: none
   publishes: []
@@ -239,6 +221,9 @@ workflows:
 - workflow: automatic-driveway-gate-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: aws-bill-change-explainer-ci.yml
+  classification: none
+  publishes: []
 - workflow: aws-commitment-breakeven-calculator-ci.yml
   classification: none
   publishes: []
@@ -252,6 +237,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: backup-verification-evidence-ci.yml
+  classification: none
+  publishes: []
+- workflow: backyard-egg-profit-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: bandcamp-sales-report-analyzer-ci.yml
@@ -512,6 +500,9 @@ workflows:
 - workflow: coverage-drop-check-ci.yml
   classification: none
   publishes: []
+- workflow: cow-calf-breakeven-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: cra-evidence-desk-ci.yml
   classification: none
   publishes: []
@@ -600,6 +591,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: docker-cache-order-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: docker-compose-security-check-ci.yml
   classification: none
   publishes: []
 - workflow: dog-boarding-daycare-pricing-ci.yml
@@ -752,6 +746,9 @@ workflows:
 - workflow: family-child-care-time-space-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: farmers-market-booth-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: fba-aged-inventory-fee-analyzer-ci.yml
   classification: none
   publishes: []
@@ -774,6 +771,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: fireplace-insert-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: firewood-profit-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: fiverr-earnings-fee-analyzer-ci.yml
@@ -861,6 +861,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: gig-driver-net-pay-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: git-bus-factor-check-ci.yml
   classification: none
   publishes: []
 - workflow: git-exposure-check-ci.yml
@@ -1019,7 +1022,13 @@ workflows:
 - workflow: junk-removal-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: jwt-verification-misuse-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: k8s-deprecated-api-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: k8s-pod-security-check-ci.yml
   classification: none
   publishes: []
 - workflow: k8s-requests-rightsizer-ci.yml
@@ -1916,10 +1925,16 @@ workflows:
 - workflow: terraform-plan-blast-radius-check-ci.yml
   classification: none
   publishes: []
+- workflow: terraform-plan-cost-estimate-ci.yml
+  classification: none
+  publishes: []
 - workflow: terraform-plan-secret-exposure-check-ci.yml
   classification: none
   publishes: []
 - workflow: thrift-haul-buy-picker-ci.yml
+  classification: none
+  publishes: []
+- workflow: thumbtack-lead-roi-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: ticket-resale-profit-calculator-ci.yml
@@ -1986,9 +2001,6 @@ workflows:
   classification: none
   publishes: []
 - workflow: ubuntu-agent-server-ci.yml
-  classification: none
-  publishes: []
-- workflow: app-subscription-proceeds-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: upwork-connects-roi-calculator-ci.yml
@@ -2105,16 +2117,10 @@ workflows:
 - workflow: workers-comp-premium-calculator-ci.yml
   classification: none
   publishes: []
-- workflow: thumbtack-lead-roi-calculator-ci.yml
-  classification: none
-  publishes: []
 - workflow: world-clock-widget-ci.yml
   classification: none
   publishes: []
 - workflow: youtube-revenue-rpm-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: cow-calf-breakeven-calculator-ci.yml
   classification: none
   publishes: []
 gitops:
@@ -2165,6 +2171,3 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
-- workflow: firewood-profit-calculator-ci.yml
-  classification: none
-  publishes: []

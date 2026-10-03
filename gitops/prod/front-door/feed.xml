@@ -35,6 +35,15 @@
     <summary type="text">Paste the CSV from AWS Cost Explorer for two months and see which services explain the rise in your AWS bill, ranked, with partial-month normalisation and a checklist of common causes. Free, no signup, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Backyard Egg Profit Calculator — Cost per Dozen, Profit per Hour and the Price You Need</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/backyard-egg-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/backyard-egg-profit-calculator</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free calculator for backyard egg sellers: what a dozen eggs costs you, how many hours it takes, your profit per dozen and per hour, the price per dozen you need to earn a wage, and what feed cost and winter lay rate do to it. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Cow-Calf Breakeven Calculator — Your Cost per Cow and Breakeven Calf Price</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cow-calf-breakeven-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/cow-calf-breakeven-calculator</id>
@@ -357,14 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Enter requests per month, duration, memory and concurrency and compare the monthly cost of AWS Lambda, Google Cloud Run, AWS Fargate and EC2, plus the request volume where always-on containers become cheaper. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Lot Split Calculator — Sell a Bulk Lot Whole or List It Item by Item?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/lot-split-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/lot-split-calculator</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Paste the items in a bulk lot and a whole-lot offer and see whether listing item by item earns more after fees, shipping and your time, which lines to list and which to sell on in bulk. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
