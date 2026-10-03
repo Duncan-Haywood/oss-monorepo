@@ -56,3 +56,8 @@ test("the guide's worked numbers match the engine", async () => {
   const idx = await read("index.html");
   for (const s of [a.profit, a.perHour, c.profit, c.perHour, a.breakEven, c.breakEven, c.targetSales].map(money)) assert.ok(idx.includes(s), s);
 });
+
+// Seasonal sellers who price by feel read the same page: one hop keeps the firewood calculator crawlable.
+test("index links one hop to the firewood-profit-calculator sibling", async () => {
+  assert.match(await read("index.html"), /href="\.\.\/firewood-profit-calculator\/"/);
+});

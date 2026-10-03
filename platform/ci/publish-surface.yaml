@@ -2162,3 +2162,6 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
+- workflow: firewood-profit-calculator-ci.yml
+  classification: none
+  publishes: []
