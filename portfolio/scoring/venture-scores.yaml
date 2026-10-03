@@ -26800,6 +26800,34 @@ ventures:
       Liability: arithmetic on typed values, stated so and not financial or business advice, no warranty, platform
       prices and rules are the user's to check, not affiliated with the platform, nothing leaves the device. Ethics: helps
       freelancers see what bidding costs them; no scraping, no platform data used.
+  - slug: k8s-pod-security-check
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 3
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic line scan of manifest files; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in the venture's
+      own VENTURE.yaml comment. Time to revenue 3 (a free dev tool, donations only), distribution 5 and
+      defensibility 3: searches for kubernetes privileged, allowPrivilegeEscalation and hostPath
+      docker.sock land on docs and blog posts with no checker attached, and the check is easy to copy.
+      Volume not measured with an external tool.
+      Scope: Free CLI and browser tool that flags risky pod and container security settings in the
+      user's own Kubernetes manifests.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: mechanical read-only heuristic scan, labelled not a security audit or compliance claim,
+      no warranty, nothing leaves the device. Ethics: defensive hygiene on the user's own manifests.
   - slug: pool-service-route-calculator
     scores:
       ai_leverage: 4
