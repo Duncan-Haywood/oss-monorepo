@@ -1629,3 +1629,25 @@ entries:
       Liability: arithmetic on an export the user supplies, labelled a checklist not a diagnosis, not
       billing advice, no warranty, not affiliated with Amazon Web Services, nothing leaves the device.
       Ethics: helps people understand their own bill; free, no scraping.
+  - venture: incident-postmortem-timeline
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built incident-postmortem-timeline: a browser-local tool and zero-dependency CLI
+        (postmortem.mjs over a shared classify.mjs) that reads a pasted timestamped incident log, infers
+        or reads tagged phases, and reports time to detect, acknowledge, mitigate and resolve, the longest
+        silent gaps, and a blameless postmortem draft in Markdown. Handles time-only lines across
+        midnight, offsets, and reports skipped lines instead of dropping them. --max-ttr exits 1 for a
+        script. Ships a how-to guide, FAQ JSON-LD, usage counting with opt-out, and one inbound link from
+        slo-burn-rate-alerts. New gap: duplicate_check closest match 0.19; the paid category is incident
+        platforms (incident.io, FireHydrant, Rootly), free alternatives are blank templates with no
+        maths. First visitor expected from "postmortem template" and "calculate MTTR" searches and r/sre
+        threads; none measured. Phase inference is keyword based and was not tried on real chat exports.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and formatting on text the user supplies, labelled a starting point, no
+      warranty, nothing leaves the device. Ethics: helps teams learn from incidents; free, no scraping.
