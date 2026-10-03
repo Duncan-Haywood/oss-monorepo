@@ -89,6 +89,9 @@ workflows:
 - workflow: jwt-verification-misuse-check-ci.yml
   classification: none
   publishes: []
+- workflow: docker-compose-security-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: actions-self-hosted-exposure-check-ci.yml
   classification: none
   publishes: []
@@ -588,6 +591,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: dog-grooming-day-planner-ci.yml
+  classification: none
+  publishes: []
+- workflow: dog-grooming-price-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: dog-grooming-profit-calculator-ci.yml
@@ -1967,6 +1973,12 @@ workflows:
 - workflow: ubuntu-agent-server-ci.yml
   classification: none
   publishes: []
+- workflow: app-subscription-proceeds-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: upwork-connects-roi-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: upwork-earnings-fee-analyzer-ci.yml
   classification: none
   publishes: []
@@ -2132,3 +2144,6 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
+- workflow: thumbtack-lead-roi-calculator-ci.yml
+  classification: none
+  publishes: []

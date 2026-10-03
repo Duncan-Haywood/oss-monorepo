@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Price Dog Grooming by Breed and Time</title>
+  <meta name="description" content="How to price dog grooming by breed class and time: count real minutes, add matting, de-shedding, drive time, supplies and no-shows, and find the price that earns your target hourly. With a worked example and an audit of past appointments.">
+  <link rel="canonical" href="./how-to-price-dog-grooming-by-breed-and-time.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I price dog grooming by breed and time?", "acceptedAnswer": {"@type": "Answer", "text": "Start from the minutes a class really takes you, add drive time if you are mobile, subtract supplies, allow for no-shows and divide by hours. On the worked example, a giant breed at $150.00 for 180 minutes earns $42.43 an hour against a $60.00 target and needs $205.47."}}, {"@type": "Question", "name": "Why does a doodle or double coat often underpay?", "acceptedAnswer": {"@type": "Answer", "text": "Because the price is set by size while the time is set by coat. Medium doodles in the worked example earn $44.72 an hour plain and $42.58 when matted, because the $25.00 matting surcharge does not cover 40 extra minutes."}}, {"@type": "Question", "name": "How do I find which breed classes underpay?", "acceptedAnswer": {"@type": "Answer", "text": "Group past appointments by breed class and divide revenue less supplies by the hours the slots held. On the worked twelve appointments, five of six classes earned under $60.00 an hour; giant breeds earned $41.43 and needed $66.79 more per dog."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    .note { font-size: .86rem; color: #55606f; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">Dog Grooming Price Calculator</a> · guide</p>
+  <h1>How to price dog grooming by breed and time</h1>
+  <p>Short answer: <strong>price the table time, not the breed name</strong>. Take the minutes a class really takes, add drive time if you are mobile, take off supplies, allow for the appointments that never pay, and divide by hours. The <a href="./">calculator</a> does it for each class and audits your past appointments.</p>
+  <p class="note"><strong>Everything below is arithmetic on invented numbers.</strong> The prices, minutes and rates are illustrative, not market rates, not a price survey and not advice. Replace them with your own tracked numbers.</p>
+
+  <h2>The arithmetic</h2>
+  <ol>
+    <li>Slot hours = (plain minutes + extra minutes + drive minutes) / 60. A no-show still holds the slot.</li>
+    <li>Effective hourly = (price - supplies) x (1 - no-show rate) / slot hours.</li>
+    <li>The price for a target solves that for price: target x slot hours / (1 - no-show rate) + supplies.</li>
+    <li>The <strong>walk-away price</strong> is the same sum at a floor rate, a share of your target.</li>
+    <li>Matting and de-shedding add minutes and a surcharge; the extra is only fair if the surcharge covers the minutes at your rate.</li>
+  </ol>
+
+  <h2>A worked example</h2>
+  <p>A $60.00 target, 5 percent no-shows, no drive time and six classes (see <code>fixtures/classes.csv</code>).</p>
+  <ul>
+    <li>Giant: $150.00 for 180 minutes with $16.00 of supplies earns <strong>$42.43</strong> an hour; it needs <strong>$205.47</strong> for target and $158.11 is its walk-away.</li>
+    <li>Medium doodle: $110.00 for 130 minutes earns <strong>$44.72</strong> plain and <strong>$42.58</strong> matted, because a $25.00 surcharge does not pay 40 extra minutes.</li>
+    <li>Medium double coat: <strong>$45.08</strong> plain and <strong>$47.64</strong> with a $30.00 de-shed.</li>
+    <li>Small smooth: $55.00 for 45 minutes earns <strong>$64.60</strong>, the only class over target.</li>
+    <li>A mobile groomer adding 20 minutes of drive time drops the giant to <strong>$38.19</strong> an hour with the same price.</li>
+  </ul>
+
+  <h2>A worked audit</h2>
+  <p>Twelve finished appointments, $1,265.00 for 27.11 slot hours: blended <strong>$44.01</strong> an hour against $60.00.</p>
+  <ul>
+    <li>Five of six classes underpay; the shortfall to target is <strong>$436.32</strong>.</li>
+    <li>Giant breeds earned <strong>$41.43</strong> an hour and need <strong>$66.79</strong> more per dog (an average $221.79).</li>
+    <li>Small smooth earned $61.80 and needs nothing.</li>
+  </ul>
+
+  <h2>What to feed it</h2>
+  <ol>
+    <li>Minutes you tracked on the table, not the minutes you quoted.</li>
+    <li>Your real no-show rate and drive time.</li>
+    <li>A target hourly rate, which only you can set.</li>
+  </ol>
+  <p>Your costs, local rules and what clients will accept come first. This is arithmetic, not a view on what a client should pay.</p>
+
+  <h2>Questions</h2>
+  <h3>How do I price dog grooming by breed and time?</h3>
+  <p>Start from the minutes a class really takes you, add drive time if you are mobile, subtract supplies, allow for no-shows and divide by hours. On the worked example, a giant breed at $150.00 for 180 minutes earns $42.43 an hour against a $60.00 target and needs $205.47.</p>
+  <h3>Why does a doodle or double coat often underpay?</h3>
+  <p>Because the price is set by size while the time is set by coat. Medium doodles in the worked example earn $44.72 an hour plain and $42.58 when matted, because the $25.00 matting surcharge does not cover 40 extra minutes.</p>
+  <h3>How do I find which breed classes underpay?</h3>
+  <p>Group past appointments by breed class and divide revenue less supplies by the hours the slots held. On the worked twelve appointments, five of six classes earned under $60.00 an hour; giant breeds earned $41.43 and needed $66.79 more per dog.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not financial, tax or legal advice, and it is not a market rate or price survey. You are responsible for verifying its output, for the numbers you enter and for what you charge your clients. To the maximum extent permitted by law the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

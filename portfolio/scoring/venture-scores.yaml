@@ -26660,6 +26660,146 @@ ventures:
       Liability: arithmetic on typed amounts under the published federal definition, stated so and not grant,
       accounting or legal advice, no warranty, funder rules come first, nothing leaves the device. Ethics: helps
       small organisations claim the indirect cost they are allowed; the user decides and remains responsible.
+  - slug: docker-compose-security-check
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 3
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic line scan of a configuration file; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in the venture's
+      own VENTURE.yaml comment. Time to revenue 3 (a free dev tool, donations only), distribution 5 and
+      defensibility 3: searches for docker compose privileged, docker.sock mounts and exposed database
+      ports land on docs and blog posts with no checker attached, and the check is easy to copy.
+      Volume not measured with an external tool.
+      Scope: Free CLI and browser tool that flags risky settings in the user's own docker-compose.yml.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: mechanical read-only heuristic scan, labelled not a security audit, no warranty, nothing
+      leaves the device. Ethics: defensive hygiene on the user's own configuration file.
+  - slug: dog-grooming-price-calculator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 6.167
+    rater_b: null
+    floor: 3
+    floor_dimension: defensibility
+    floor_note: >-
+      Partial overlap with three existing grooming tools in this repo; the per-class audit with drive time and no-shows is the only wedge.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5 and distribution 5: a direct
+      earn-more decision for groomers with real search demand ("how much to charge for dog grooming");
+      defensibility 3 because three sibling grooming tools exist; the wedge is auditing past appointments
+      by breed class against a target hourly with drive time and no-shows, free and client-side;
+      volume not measured with an external tool.
+      Scope: Free CLI and browser tool that prices dog grooming classes and audits past appointments from the user's own numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed prices, minutes and percentages, stated so and not market rates or advice,
+      no warranty, nothing leaves the device. Ethics: helps small groomers charge for the time dogs take;
+      the user decides and remains responsible.
+  - slug: upwork-connects-roi-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic cost-per-hire and break-even arithmetic; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 5: freelancers argue about whether Connects pay off
+      in r/Upwork and r/freelance and search "upwork connects worth it"; no dedicated free tool in the tree prices
+      proposal time per hire; volume not measured with an external tool. Defensibility 3 and time to revenue 4:
+      a small arithmetic tool whose upgrade path is a proposal-history importer.
+      Scope: Free browser tool that computes cost per hire, break-even win rate and the Connects ceiling from the user's own numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed values, stated so and not financial or business advice, no warranty, platform
+      prices and rules are the user's to check, not affiliated with the platform, nothing leaves the device. Ethics: helps
+      freelancers see what bidding costs them; no scraping, no platform data used.
+  - slug: thumbtack-lead-roi-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic cost-per-job and break-even arithmetic; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 5: home-service pros argue about whether paid leads pay off
+      in trade subreddits and search "is thumbtack worth it"; no dedicated free tool in the tree prices
+      lead fees plus quoting time per job; volume not measured with an external tool. Defensibility 3 and time to revenue 4:
+      a small arithmetic tool whose upgrade path is a lead-history importer.
+      Scope: Free browser tool that computes cost per job won, break-even close rate and the lead price ceiling from the user's own numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed values, stated so and not financial or business advice, no warranty, platform
+      prices and rules are the user's to check, not affiliated with the platform, nothing leaves the device. Ethics: helps
+      contractors see what paid leads cost them; no scraping, no platform data used.
+  - slug: app-subscription-proceeds-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic net-proceeds and lifetime-value arithmetic; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 5: indie developers argue about the 30 vs 15 percent
+      tiers and web checkout in r/iOSProgramming and r/indiehackers and search "app store small business program
+      calculator"; volume not measured with an external tool. Defensibility 3 and time to revenue 4:
+      a small arithmetic tool whose upgrade path is a store-export importer that fits churn per cohort.
+      Scope: Free browser tool that computes net per charge, subscriber value, payback and the web-checkout difference from the user's own numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed values, stated so and not financial or business advice, no warranty, platform
+      prices and rules are the user's to check, not affiliated with the platform, nothing leaves the device. Ethics: helps
+      freelancers see what bidding costs them; no scraping, no platform data used.
   - slug: pool-service-route-calculator
     scores:
       ai_leverage: 4

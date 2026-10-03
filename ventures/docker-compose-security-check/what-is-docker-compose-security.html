@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>docker-compose security: privileged, docker.sock, exposed ports and how to fix each</title>
+  <meta name="description" content="Which docker-compose.yml settings are risky and why: privileged, the Docker socket, host networking, cap_add SYS_ADMIN, databases on 0.0.0.0, literal secrets and unpinned images, with the exact fix for each.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="what-is-docker-compose-security.html">
+  <meta property="og:title" content="docker-compose security: privileged, docker.sock, exposed ports and how to fix each">
+  <meta property="og:description" content="The thirteen compose settings a line scan can find, why each matters, and the fix.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is privileged: true ever needed in docker compose?","acceptedAnswer":{"@type":"Answer","text":"Rarely. It disables most of the isolation Docker provides, so a compromised container can load kernel modules, read host devices and escape to the host. Almost every real need is narrower: map one device with devices:, or add one capability such as NET_ADMIN with cap_add, and keep privileged off."}},{"@type":"Question","name":"Is mounting docker.sock into a container safe?","acceptedAnswer":{"@type":"Answer","text":"No. The Docker API is root on the host: a container that can reach it can start another container with the host filesystem mounted. A :ro suffix does not restrict the API. If a dashboard or CI agent needs it, use a socket proxy that exposes only the read-only endpoints required."}},{"@type":"Question","name":"How do I stop a published database port being reachable from the internet?","acceptedAnswer":{"@type":"Answer","text":"Bind it to loopback in ports: with \"127.0.0.1:5432:5432\", or remove ports: entirely, since other services on the same Compose network reach it by service name. Remember Docker writes its own firewall rules, so a host firewall such as ufw does not block a port you published on 0.0.0.0."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.02em; line-height: 1.12; color: #17324a; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .88rem; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .note { font-size: .9rem; color: #55606f; }
+    footer { margin-top: 28px; font-size: .82rem; color: #55606f; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Docker Compose Security Check</a></p>
+  <h1>docker-compose security: <code>privileged</code>, <code>docker.sock</code>, exposed ports and how to fix each</h1>
+  <p>A Compose file decides how much of the host each container can touch. Most compose-related incidents are not clever exploits. They are one line that removed a boundary, such as a database published on every interface or a credential committed in plain text.</p>
+  <pre><code># hands the host to the container
+services:
+  web:
+    privileged: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+# narrow, loopback-only, pinned
+services:
+  db:
+    image: postgres:16
+    ports: ["127.0.0.1:5432:5432"]
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password</code></pre>
+
+  <h2>The thirteen patterns a line scan can find</h2>
+  <ul>
+    <li><strong>compose-privileged</strong> — <code>privileged: true</code>. Fix: delete it; grant one device or capability instead.</li>
+    <li><strong>compose-docker-socket</strong> — <code>/var/run/docker.sock</code> mounted. Root on the host, even with <code>:ro</code>. Fix: remove it or use a socket proxy.</li>
+    <li><strong>compose-host-network</strong> — <code>network_mode: host</code>. Fix: publish only the ports you need.</li>
+    <li><strong>compose-dangerous-capability</strong> — <code>cap_add: [ALL]</code> or <code>SYS_ADMIN</code>. Fix: <code>cap_drop: [ALL]</code> and add back one narrow capability.</li>
+    <li><strong>compose-exposed-database-port</strong> — 5432, 3306, 6379, 27017 or 9200 published without a loopback address. Fix: <code>"127.0.0.1:5432:5432"</code> or no <code>ports:</code>.</li>
+    <li><strong>compose-literal-secret</strong> — a PASSWORD, SECRET, TOKEN or API_KEY set to a literal in <code>environment:</code>. Fix: <code>.env</code> outside version control or Docker secrets, then rotate. The tool never prints the value.</li>
+    <li><strong>compose-sensitive-host-mount</strong> — host path <code>/</code>, <code>/etc</code>, <code>/root</code>, <code>/boot</code>, <code>/proc</code> or <code>/sys</code> mounted. Fix: mount one directory, read-only when possible.</li>
+    <li><strong>compose-security-opt-unconfined</strong> — <code>seccomp:unconfined</code>, <code>apparmor:unconfined</code> or <code>label:disable</code>. Fix: delete it so Docker's default profiles apply.</li>
+    <li><strong>compose-host-namespace</strong> — <code>pid: host</code> or <code>ipc: host</code>. Fix: use the private default.</li>
+    <li><strong>compose-runs-as-root</strong> — <code>user: root</code>, <code>0</code> or <code>0:0</code>. Fix: <code>user: "1000:1000"</code>. Medium.</li>
+    <li><strong>compose-image-latest</strong> — an image with no tag or <code>:latest</code>. Fix: pin a version or digest. Medium.</li>
+    <li><strong>compose-no-restart</strong> — no restart policy. Fix: <code>restart: unless-stopped</code>. Low.</li>
+    <li><strong>compose-no-healthcheck</strong> — no healthcheck. Fix: add one so dependents can wait on <code>service_healthy</code>. Low.</li>
+  </ul>
+
+  <h2>Is privileged: true ever needed in docker compose?</h2>
+  <p>Rarely. It disables most of the isolation Docker provides, so a compromised container can load kernel modules, read host devices and escape to the host. Almost every real need is narrower: map one device with devices:, or add one capability such as NET_ADMIN with cap_add, and keep privileged off.</p>
+
+  <h2>Is mounting docker.sock into a container safe?</h2>
+  <p>No. The Docker API is root on the host: a container that can reach it can start another container with the host filesystem mounted. A :ro suffix does not restrict the API. If a dashboard or CI agent needs it, use a socket proxy that exposes only the read-only endpoints required.</p>
+
+  <h2>How do I stop a published database port being reachable from the internet?</h2>
+  <p>Bind it to loopback in ports: with "127.0.0.1:5432:5432", or remove ports: entirely, since other services on the same Compose network reach it by service name. Remember Docker writes its own firewall rules, so a host firewall such as ufw does not block a port you published on 0.0.0.0.</p>
+
+  <h2>Check your own compose file</h2>
+  <p><a href="./">Paste your compose file into Docker Compose Security Check</a> to see every finding with its line, risk and fix, or run the CLI in your own repository:</p>
+  <pre><code>python3 check.py --fail-on-risk</code></pre>
+  <p class="note">That exits with a nonzero status on any medium or high finding, so you can wire it into your own CI. Expect some findings to be deliberate (a monitoring agent may truly need the socket); review each one.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. This is a heuristic line scan and not a security audit; a clean scan does not mean your containers are isolated, only that these patterns were not found. Have a qualified person review anything that protects valuable data.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
+    <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>
+  </footer>
+</body>
+</html>
