@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 653 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 654 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -242,6 +242,15 @@
     <summary type="text">Compare per-push, per-inch, seasonal flat, capped flat and hybrid snow plow contracts across a low, normal and high snow year: expected season revenue, effective hourly, the storm count where each stops paying, the flat price that loses money in a high-snow year and a walk-away price, plus an audit of past seasons by contract model. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Supabase Bill Estimator — Estimate Your Monthly Bill and the Levers That Cut It</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/supabase-bill-estimator/"/>
+    <id>tag:marisstella.dev,2026:tool/supabase-bill-estimator</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Estimate a monthly Supabase Pro bill from your own usage (compute, database disk, egress, storage, monthly active users, Edge Functions, Realtime) at editable list prices, and see which changes cut it most, with a dollar saving for each. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Terraform Plan Cost Estimate — Free Infracost Alternative, Offline</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/terraform-plan-cost-estimate/"/>
     <id>tag:marisstella.dev,2026:tool/terraform-plan-cost-estimate</id>
@@ -357,14 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your CloudWatch log groups (stored GB, retention, GB ingested per month) and get what each costs, the retention policy to set, dead groups and Infrequent Access candidates. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Consignment Markdown Planner — When to Mark Down and What to Decline</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/consignment-markdown-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/consignment-markdown-planner</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Paste the items in your consignment or resale shop and get the exact best markdown schedule for each, which items to decline at intake, and how much a fixed 30/60-day rule leaves on the table. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

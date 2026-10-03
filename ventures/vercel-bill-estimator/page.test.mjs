@@ -41,3 +41,9 @@ test("the page's worked example demonstrates the headline lever (dogfooding)", a
   assert.ok(levers.length >= 5);
   assert.ok(levers.some((l) => l.id === "cache-functions"));
 });
+
+test("index links one hop to the supabase-bill-estimator sibling", async () => {
+  const idx = await read("index.html");
+  assert.match(idx, /href="\.\.\/supabase-bill-estimator\/"/);
+  assert.match(idx, /supabase bill estimator/i);
+});
