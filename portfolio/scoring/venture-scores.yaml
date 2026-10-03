@@ -26800,31 +26800,60 @@ ventures:
       Liability: arithmetic on typed values, stated so and not financial or business advice, no warranty, platform
       prices and rules are the user's to check, not affiliated with the platform, nothing leaves the device. Ethics: helps
       freelancers see what bidding costs them; no scraping, no platform data used.
-  - slug: cow-calf-breakeven-calculator
+  - slug: k8s-pod-security-check
     scores:
       ai_leverage: 3
       autonomous_ops: 10
-      time_to_revenue: 4
+      time_to_revenue: 3
       gross_margin: 10
       defensibility: 3
       distribution: 5
-    composite: 5.833
+    composite: 5.667
     rater_b: null
     floor: 3
     floor_dimension: ai_leverage
     floor_note: >-
-      Deterministic cost and breakeven arithmetic; contains no model and calls no paid API.
+      Deterministic line scan of manifest files; contains no model and calls no paid API.
     basis: >-
-      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
-      the venture's own VENTURE.yaml comment. Distribution 5: producers search "cost to keep a cow per year"
-      and "breakeven calf price" and extension budget worksheets are widely used; volume not measured with an
-      external tool. Defensibility 3 and time to revenue 4: a small arithmetic tool whose upgrade path is a herd-record
-      importer that tracks cost per cow over years.
-      Scope: Free browser tool that computes cost per cow, margin and breakeven price from the user's own numbers.
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in the venture's
+      own VENTURE.yaml comment. Time to revenue 3 (a free dev tool, donations only), distribution 5 and
+      defensibility 3: searches for kubernetes privileged, allowPrivilegeEscalation and hostPath
+      docker.sock land on docs and blog posts with no checker attached, and the check is easy to copy.
+      Volume not measured with an external tool.
+      Scope: Free CLI and browser tool that flags risky pod and container security settings in the
+      user's own Kubernetes manifests.
     gates:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Liability: arithmetic on typed values, stated so and not financial or veterinary advice, no warranty, prices and
-      costs are the user's to check, nothing leaves the device. Ethics: helps producers see their own breakeven;
-      no scraping, no market data used.
+      Liability: mechanical read-only heuristic scan, labelled not a security audit or compliance claim,
+      no warranty, nothing leaves the device. Ethics: defensive hygiene on the user's own manifests.
+  - slug: pool-service-route-calculator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic per-account hours, cost and hourly arithmetic with route-density what-ifs; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for pool route owners at price-letter time, with real search demand ("which pool service
+      customers to drop", "is my pool route profitable") where the closest tools price one account or are generic across route trades;
+      the wedge is chemicals and callbacks priced as unpaid trips, route-density effect of dropping or adding a stop, and a CSV audit,
+      free and client-side; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that audits a pool service route per account and models adding or dropping a stop from the user's own numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed prices, minutes and costs, stated so and not market rates, tax, legal or contract advice,
+      no warranty, service agreements and local rules come first, nothing leaves the device. Ethics: helps small pool route
+      owners price at what the route takes; the user decides and remains responsible.

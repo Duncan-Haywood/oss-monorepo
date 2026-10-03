@@ -1216,6 +1216,7 @@ const RELATIVE_SELF = relative(
 // +1: `tax-season-client-picker` graduated.
 // +1: `interior-design-fee-calculator` graduated.
 // +1: `snow-plow-contract-calculator` graduated.
+// +1: `pool-service-route-calculator` graduated.
 // +1: `nail-tech-booth-rent-calculator` graduated.
 // +1: `grant-indirect-cost-calculator` graduated.
 // +1: `upwork-connects-roi-calculator` graduated.
@@ -1223,8 +1224,8 @@ const RELATIVE_SELF = relative(
 // +1: `dog-grooming-price-calculator` graduated.
 // +1: `thumbtack-lead-roi-calculator` graduated.
 // +1: `app-subscription-proceeds-calculator` graduated.
-// +1: `cow-calf-breakeven-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 613;
+// +1: `k8s-pod-security-check` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 615;
 // +1: `embroidery-shop-quote-calculator` graduated.
 
 let counter = 0;
