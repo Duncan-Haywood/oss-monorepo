@@ -26744,6 +26744,34 @@ ventures:
       Liability: arithmetic on typed values, stated so and not financial or business advice, no warranty, platform
       prices and rules are the user's to check, not affiliated with the platform, nothing leaves the device. Ethics: helps
       freelancers see what bidding costs them; no scraping, no platform data used.
+  - slug: thumbtack-lead-roi-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic cost-per-job and break-even arithmetic; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 5: home-service pros argue about whether paid leads pay off
+      in trade subreddits and search "is thumbtack worth it"; no dedicated free tool in the tree prices
+      lead fees plus quoting time per job; volume not measured with an external tool. Defensibility 3 and time to revenue 4:
+      a small arithmetic tool whose upgrade path is a lead-history importer.
+      Scope: Free browser tool that computes cost per job won, break-even close rate and the lead price ceiling from the user's own numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed values, stated so and not financial or business advice, no warranty, platform
+      prices and rules are the user's to check, not affiliated with the platform, nothing leaves the device. Ethics: helps
+      contractors see what paid leads cost them; no scraping, no platform data used.
   - slug: app-subscription-proceeds-calculator
     scores:
       ai_leverage: 3
