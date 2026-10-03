@@ -545,6 +545,9 @@ workflows:
 - workflow: databricks-cluster-cost-advisor-ci.yml
   classification: none
   publishes: []
+- workflow: datadog-bill-estimator-ci.yml
+  classification: none
+  publishes: []
 - workflow: deck-bid-calculator-ci.yml
   classification: none
   publishes: []

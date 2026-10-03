@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 649 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 650 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -69,6 +69,15 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free calculator for cattle producers: what a cow costs you a year, what her calf brings in, your breakeven calf price per hundredweight, and how hay price, weaning weight and calves weaned move it. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Datadog Bill Estimator — Estimate Your Monthly Bill and the Levers That Cut It</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/datadog-bill-estimator/"/>
+    <id>tag:marisstella.dev,2026:tool/datadog-bill-estimator</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Estimate a monthly Datadog bill from your own usage (hosts, containers, custom metrics, logs, APM, synthetics) at editable list prices, and see which changes cut it most, with a dollar saving for each. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Docker Compose Security Check — Find privileged, docker.sock and Exposed Ports</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Quote a groom so it earns your target per table hour, then paste the requests on your list and get the exact set of dogs that earns the most in a day. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>EBS Volume Cost Advisor — gp2 to gp3, io1 Over-Provisioning and Unattached Volumes</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ebs-volume-cost-advisor/"/>
-    <id>tag:marisstella.dev,2026:tool/ebs-volume-cost-advisor</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your EBS volumes (type, size, provisioned and peak IOPS) and get the cheapest volume type that still covers the peak, the aws ec2 modify-volume command, gp2 burst risk and unattached volumes. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
