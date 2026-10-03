@@ -1249,7 +1249,7 @@ const RELATIVE_SELF = relative(
 // +1: `scope-creep-change-order-calculator` graduated.
 // +1: `ci-minutes-pricing-calculator` graduated.
 // +1: `log-management-pricing-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 648;
+const SWITCHES_IN_THE_CATALOGUE = 649;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.

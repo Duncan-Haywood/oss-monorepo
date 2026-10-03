@@ -688,6 +688,9 @@ const CATEGORY_RULES = [
       // `backyard-honey-profit-calculator` joined 2026-10-03 on its first commit: hobby sellers at the same farm stands
       // and markets, one hop from `backyard-egg-profit-calculator`.
       'backyard-honey-profit-calculator',
+      // `mobile-bartender-event-quote` joined 2026-10-03 on its first commit: per-event bar service pricing,
+      // one hop from `pour-cost-calculator` and `catering-quote-calculator`.
+      'mobile-bartender-event-quote',
       'commissary-kitchen-cost-split-calculator',
       // `restaurant-pos-menu-mix-analyzer` added 2026-09-29: the POS-export
       // sibling of `menu-engineering-calculator`, same owner reading the same
