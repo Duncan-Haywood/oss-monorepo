@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="rspec" tests="5" skipped="0" failures="0" errors="0" time="33.0" timestamp="2026-10-03T09:00:00+00:00" hostname="ci">
+  <properties/>
+  <testcase classname="spec.models.user_spec" name="User validates email" file="./spec/models/user_spec.rb" time="1.5"></testcase>
+  <testcase classname="spec.models.user_spec" name="User hashes password" file="./spec/models/user_spec.rb" time="9.5"></testcase>
+  <testcase classname="spec.requests.orders_spec" name="Orders POST creates" file="./spec/requests/orders_spec.rb" time="17.0"></testcase>
+  <testcase classname="spec.requests.orders_spec" name="Orders GET lists" file="./spec/requests/orders_spec.rb" time="3.0"></testcase>
+  <testcase classname="spec.lib.money_spec" name="Money rounds" file="./spec/lib/money_spec.rb" time="2.0"></testcase>
+</testsuite>
