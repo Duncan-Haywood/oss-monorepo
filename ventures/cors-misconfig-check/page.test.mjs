@@ -135,3 +135,9 @@ test('the bundled worked example is valid input for buildReport and produces fin
   assert.ok(report.findings.some((f) => f.id === 'reflects-arbitrary-origin'));
   assert.ok(report.findings.some((f) => f.severity === 'danger'));
 });
+
+// Inbound hop for jwt-verification-misuse-check, which would otherwise be a
+// crawlable orphan (`platform/pages/siblings.mjs` fails on one).
+test('index links one hop to the jwt-verification-misuse-check sibling', () => {
+  assert.match(html, /href="\.\.\/jwt-verification-misuse-check\/"/);
+});
