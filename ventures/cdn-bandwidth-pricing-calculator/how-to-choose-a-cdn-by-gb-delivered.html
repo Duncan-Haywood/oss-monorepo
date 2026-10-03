@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Choose a CDN by GB Delivered</title>
+  <meta name="description" content="Why CDN bills jump with bandwidth, why regional tiers and flat fees compare differently, and what to cut before switching vendor.">
+  <link rel="canonical" href="./how-to-choose-a-cdn-by-gb-delivered.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why do CDN prices differ so much at the same bandwidth?", "acceptedAnswer": {"@type": "Answer", "text": "Some CDNs bill pure per-GB with a regional price table (Fastly, CloudFront, Google Cloud CDN), some undercut hard on the per-GB rate with a small monthly minimum (Bunny, KeyCDN), while Cloudflare sells flat plans under fair-use terms and is not priced per GB here. At 10 TB a month the cheapest and most expensive list prices in the calculator differ by roughly $1,100 a month."}}, {"@type": "Question", "name": "What matters more than the per-GB price?", "acceptedAnswer": {"@type": "Answer", "text": "Cache hit rate and where your visitors are. Long cache lifetimes, fingerprinted assets, compressed images and video and modern formats cut delivered GB more than switching vendor, and regions such as Asia, South America and Australia can cost several times the North America rate on pay-as-you-go CDNs."}}, {"@type": "Question", "name": "When should I switch CDN vendors?", "acceptedAnswer": {"@type": "Answer", "text": "When the 12-month spend under your growth rate differs enough to pay for the migration: DNS and certificate changes, cache-rule and header parity, purge and signed-URL integration, and a staged rollout. Run the calculator with your growth rate and your regional mix before deciding."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+</head>
+<body>
+  <p><a href="./">← CDN Bandwidth Pricing Calculator</a></p>
+  <h1>How to choose a CDN by GB delivered</h1>
+  <p>Put your GB delivered per month and growth rate into the <a href="./">calculator</a> to price Amazon CloudFront, Google Cloud CDN, Fastly, Bunny CDN and KeyCDN side by side. These are the questions to settle before you trust the answer.</p>
+  <h2>Why do CDN prices differ so much at the same bandwidth?</h2>
+  <p>Some CDNs bill pure per-GB with a regional price table (Fastly, CloudFront, Google Cloud CDN), some undercut hard on the per-GB rate with a small monthly minimum (Bunny, KeyCDN), while Cloudflare sells flat plans under fair-use terms and is not priced per GB here. At 10 TB a month the cheapest and most expensive list prices in the calculator differ by roughly $1,100 a month.</p>
+  <h2>What matters more than the per-GB price?</h2>
+  <p>Cache hit rate and where your visitors are. Long cache lifetimes, fingerprinted assets, compressed images and video and modern formats cut delivered GB more than switching vendor, and regions such as Asia, South America and Australia can cost several times the North America rate on pay-as-you-go CDNs.</p>
+  <h2>When should I switch CDN vendors?</h2>
+  <p>When the 12-month spend under your growth rate differs enough to pay for the migration: DNS and certificate changes, cache-rule and header parity, purge and signed-URL integration, and a staged rollout. Run the calculator with your growth rate and your regional mix before deciding.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial or engineering advice; verify prices at each vendor. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support is optional.</a></p>
+  </footer>
+</body>
+</html>
