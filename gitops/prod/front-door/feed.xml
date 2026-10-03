@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 669 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 670 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -260,6 +260,15 @@
     <summary type="text">Enter your monthly log volume (GB ingested) and see what Datadog Logs, Grafana Cloud Logs, Axiom, Better Stack and Papertrail charge, the 12-month spend under your growth rate, and the volume where the cheapest provider changes. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Merchant of Record Fee Calculator — Stripe vs Paddle vs Lemon Squeezy vs Polar</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/merchant-of-record-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/merchant-of-record-fee-calculator</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Enter your monthly software revenue and average sale price and see what Stripe, Stripe Tax, Paddle, Lemon Squeezy and Polar take, your net payout, 12-month totals, and the revenue where running Stripe yourself beats a merchant of record. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Nail Tech Booth Rent Calculator — Booth vs Commission vs Employee</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/nail-tech-booth-rent-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/nail-tech-booth-rent-calculator</id>
@@ -357,14 +366,5 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Estimate a monthly Supabase Pro bill from your own usage (compute, database disk, egress, storage, monthly active users, Edge Functions, Realtime) at editable list prices, and see which changes cut it most, with a dollar saving for each. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Terraform Plan Cost Estimate — Free Infracost Alternative, Offline</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/terraform-plan-cost-estimate/"/>
-    <id>tag:marisstella.dev,2026:tool/terraform-plan-cost-estimate</id>
-    <published>2026-10-03T00:00:00Z</published>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste a Terraform plan (terraform show -json) and get an approximate monthly AWS cost delta before you apply: top cost drivers, an honest list of what it could not price, and a budget threshold for CI. Free, no signup, runs entirely in your browser. An offline alternative to Infracost for the common AWS resources.</summary>
   </entry>
 </feed>
