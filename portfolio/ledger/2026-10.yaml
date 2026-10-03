@@ -1450,3 +1450,27 @@ entries:
       Liability: arithmetic on typed values, stated as not financial advice, no warranty, not
       affiliated with the platform, nothing leaves the device. Ethics: helps freelancers see what
       bidding costs; no scraping.
+  - venture: app-subscription-proceeds-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built app-subscription-proceeds-calculator: a browser-local tool for indie iOS and Android
+        developers. Enter price, tax included, store fee in year one and after, refunds, monthly
+        churn and cost to acquire a subscriber; it returns net per charge, subscriber value over
+        the horizon, payback month, the most to spend for a 12-month payback, churn and fee-tier
+        scenarios, and the same subscriber through a web checkout. The guide's finding on default
+        numbers: moving from a 30 to a 15 percent fee adds $11.49 per subscriber while halving
+        churn adds $58.13. New niche: duplicate_check top score 0.50 (app-store-sales-report-analyzer,
+        which reads a sales report, not a price and churn model). First visitor expected from "app
+        store small business program calculator" searches and r/iOSProgramming / r/indiehackers
+        threads. Nothing leaves the browser. Unverified with a real developer; defaults are
+        illustrative and every value is editable.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed values, stated as not financial advice, no warranty, not
+      affiliated with Apple or Google, nothing leaves the device. Ethics: helps developers see what
+      acquisition costs against what a subscriber returns; no scraping.

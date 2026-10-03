@@ -33,36 +33,36 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547076 bytes
-#   portfolio-front-tools-1: 92 files, 555069 bytes
-#   portfolio-front-tools-2: 144 files, 553079 bytes
-#   portfolio-front-tools-3: 132 files, 556776 bytes
-#   portfolio-front-tools-4: 137 files, 556837 bytes
-#   portfolio-front-tools-5: 128 files, 556788 bytes
-#   portfolio-front-tools-6: 120 files, 556268 bytes
-#   portfolio-front-tools-7: 137 files, 555843 bytes
-#   portfolio-front-tools-8: 130 files, 546580 bytes
-#   portfolio-front-tools-9: 120 files, 544148 bytes
-#   portfolio-front-tools-10: 130 files, 553906 bytes
-#   portfolio-front-tools-11: 134 files, 556399 bytes
-#   portfolio-front-tools-12: 132 files, 549847 bytes
-#   portfolio-front-tools-13: 118 files, 551655 bytes
-#   portfolio-front-tools-14: 121 files, 553684 bytes
-#   portfolio-front-tools-15: 119 files, 555616 bytes
-#   portfolio-front-tools-16: 117 files, 543457 bytes
-#   portfolio-front-tools-17: 122 files, 556303 bytes
-#   portfolio-front-tools-18: 126 files, 549521 bytes
-#   portfolio-front-tools-19: 125 files, 556743 bytes
-#   portfolio-front-tools-20: 125 files, 551546 bytes
-#   portfolio-front-tools-21: 137 files, 556560 bytes
-#   portfolio-front-tools-22: 119 files, 556883 bytes
-#   portfolio-front-tools-23: 114 files, 550400 bytes
-#   portfolio-front-tools-24: 102 files, 552932 bytes
-#   portfolio-front-tools-25: 115 files, 550435 bytes
-#   portfolio-front-tools-26: 130 files, 553723 bytes
-#   portfolio-front-tools-27: 124 files, 556878 bytes
-#   portfolio-front-tools-28: 120 files, 554179 bytes
-#   portfolio-front-tools-29: 68 files, 359012 bytes
+#   portfolio-front-tools-0: 145 files, 547095 bytes
+#   portfolio-front-tools-1: 92 files, 555132 bytes
+#   portfolio-front-tools-2: 144 files, 553044 bytes
+#   portfolio-front-tools-3: 132 files, 556782 bytes
+#   portfolio-front-tools-4: 137 files, 556843 bytes
+#   portfolio-front-tools-5: 128 files, 554094 bytes
+#   portfolio-front-tools-6: 120 files, 555505 bytes
+#   portfolio-front-tools-7: 136 files, 554669 bytes
+#   portfolio-front-tools-8: 133 files, 549492 bytes
+#   portfolio-front-tools-9: 121 files, 555438 bytes
+#   portfolio-front-tools-10: 131 files, 556996 bytes
+#   portfolio-front-tools-11: 134 files, 556483 bytes
+#   portfolio-front-tools-12: 132 files, 549743 bytes
+#   portfolio-front-tools-13: 118 files, 551783 bytes
+#   portfolio-front-tools-14: 121 files, 553646 bytes
+#   portfolio-front-tools-15: 119 files, 555742 bytes
+#   portfolio-front-tools-16: 117 files, 543446 bytes
+#   portfolio-front-tools-17: 122 files, 556348 bytes
+#   portfolio-front-tools-18: 126 files, 549557 bytes
+#   portfolio-front-tools-19: 125 files, 556691 bytes
+#   portfolio-front-tools-20: 125 files, 551635 bytes
+#   portfolio-front-tools-21: 137 files, 556491 bytes
+#   portfolio-front-tools-22: 119 files, 556920 bytes
+#   portfolio-front-tools-23: 114 files, 550509 bytes
+#   portfolio-front-tools-24: 102 files, 553007 bytes
+#   portfolio-front-tools-25: 115 files, 550460 bytes
+#   portfolio-front-tools-26: 130 files, 554020 bytes
+#   portfolio-front-tools-27: 124 files, 556738 bytes
+#   portfolio-front-tools-28: 120 files, 554114 bytes
+#   portfolio-front-tools-29: 68 files, 359084 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -814,6 +814,10 @@ configMapGenerator:
       - app-store-screenshot-check__usage.mjs.gz=app-store-screenshot-check__usage.mjs.gz
       - app-store-screenshot-check__vs-manual-checking.html.gz=app-store-screenshot-check__vs-manual-checking.html.gz
       - app-store-screenshot-check__why-store-uploads-get-rejected.html.gz=app-store-screenshot-check__why-store-uploads-get-rejected.html.gz
+      - app-subscription-proceeds-calculator__app-store-30-vs-15-percent-subscription-value.html.gz=app-subscription-proceeds-calculator__app-store-30-vs-15-percent-subscription-value.html.gz
+      - app-subscription-proceeds-calculator__engine.mjs.gz=app-subscription-proceeds-calculator__engine.mjs.gz
+      - app-subscription-proceeds-calculator__index.html.gz=app-subscription-proceeds-calculator__index.html.gz
+      - app-subscription-proceeds-calculator__usage.mjs.gz=app-subscription-proceeds-calculator__usage.mjs.gz
       - apparel-decoration-price-calculator__calculator.mjs.gz=apparel-decoration-price-calculator__calculator.mjs.gz
       - apparel-decoration-price-calculator__index.html.gz=apparel-decoration-price-calculator__index.html.gz
       - apparel-decoration-price-calculator__should-i-charge-extra-for-a-second-print-location.html.gz=apparel-decoration-price-calculator__should-i-charge-extra-for-a-second-print-location.html.gz
@@ -884,15 +888,15 @@ configMapGenerator:
       - ats-resume-checker__checker.mjs.gz=ats-resume-checker__checker.mjs.gz
       - ats-resume-checker__index.html.gz=ats-resume-checker__index.html.gz
       - ats-resume-checker__usage.mjs.gz=ats-resume-checker__usage.mjs.gz
-      - ats-resume-checker__vs-checking-it-by-eye.html.gz=ats-resume-checker__vs-checking-it-by-eye.html.gz
-      - ats-resume-checker__vs-jobscan.html.gz=ats-resume-checker__vs-jobscan.html.gz
-      - ats-resume-checker__what-is-the-ats-copy-paste-test.html.gz=ats-resume-checker__what-is-the-ats-copy-paste-test.html.gz
-      - attic-insulation-bid-calculator__calc.mjs.gz=attic-insulation-bid-calculator__calc.mjs.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - ats-resume-checker__vs-checking-it-by-eye.html.gz=ats-resume-checker__vs-checking-it-by-eye.html.gz
+      - ats-resume-checker__vs-jobscan.html.gz=ats-resume-checker__vs-jobscan.html.gz
+      - ats-resume-checker__what-is-the-ats-copy-paste-test.html.gz=ats-resume-checker__what-is-the-ats-copy-paste-test.html.gz
+      - attic-insulation-bid-calculator__calc.mjs.gz=attic-insulation-bid-calculator__calc.mjs.gz
       - attic-insulation-bid-calculator__how-much-to-charge.html.gz=attic-insulation-bid-calculator__how-much-to-charge.html.gz
       - attic-insulation-bid-calculator__index.html.gz=attic-insulation-bid-calculator__index.html.gz
       - attic-insulation-bid-calculator__share.mjs.gz=attic-insulation-bid-calculator__share.mjs.gz
@@ -1009,15 +1013,15 @@ configMapGenerator:
       - booking-request-chooser__which-booking-request-to-accept.html.gz=booking-request-chooser__which-booking-request-to-accept.html.gz
       - bookkeeping-client-fee-calculator__cli.mjs.gz=bookkeeping-client-fee-calculator__cli.mjs.gz
       - bookkeeping-client-fee-calculator__engine.mjs.gz=bookkeeping-client-fee-calculator__engine.mjs.gz
-      - bookkeeping-client-fee-calculator__how-to-price-bookkeeping-services-monthly-retainer.html.gz=bookkeeping-client-fee-calculator__how-to-price-bookkeeping-services-monthly-retainer.html.gz
-      - bookkeeping-client-fee-calculator__index.html.gz=bookkeeping-client-fee-calculator__index.html.gz
-      - bookkeeping-client-fee-calculator__usage.mjs.gz=bookkeeping-client-fee-calculator__usage.mjs.gz
-      - bounce-house-rental-calculator__calc.mjs.gz=bounce-house-rental-calculator__calc.mjs.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - bookkeeping-client-fee-calculator__how-to-price-bookkeeping-services-monthly-retainer.html.gz=bookkeeping-client-fee-calculator__how-to-price-bookkeeping-services-monthly-retainer.html.gz
+      - bookkeeping-client-fee-calculator__index.html.gz=bookkeeping-client-fee-calculator__index.html.gz
+      - bookkeeping-client-fee-calculator__usage.mjs.gz=bookkeeping-client-fee-calculator__usage.mjs.gz
+      - bounce-house-rental-calculator__calc.mjs.gz=bounce-house-rental-calculator__calc.mjs.gz
       - bounce-house-rental-calculator__how-much-to-charge-for-a-bounce-house-rental.html.gz=bounce-house-rental-calculator__how-much-to-charge-for-a-bounce-house-rental.html.gz
       - bounce-house-rental-calculator__index.html.gz=bounce-house-rental-calculator__index.html.gz
       - bounce-house-rental-calculator__share.mjs.gz=bounce-house-rental-calculator__share.mjs.gz
@@ -1150,16 +1154,16 @@ configMapGenerator:
       - cat-adjuster-fee-calculator__vs-the-headline-per-claim-rate.html.gz=cat-adjuster-fee-calculator__vs-the-headline-per-claim-rate.html.gz
       - catering-quote-calculator__catering-pricing-guide.html.gz=catering-quote-calculator__catering-pricing-guide.html.gz
       - catering-quote-calculator__cli.mjs.gz=catering-quote-calculator__cli.mjs.gz
-      - catering-quote-calculator__engine.mjs.gz=catering-quote-calculator__engine.mjs.gz
-      - catering-quote-calculator__index.html.gz=catering-quote-calculator__index.html.gz
-      - catering-quote-calculator__usage.mjs.gz=catering-quote-calculator__usage.mjs.gz
-      - certified-payroll-calculator__calc.mjs.gz=certified-payroll-calculator__calc.mjs.gz
-      - certified-payroll-calculator__does-overtime-include-fringe-benefits-on-certified-payroll.html.gz=certified-payroll-calculator__does-overtime-include-fringe-benefits-on-certified-payroll.html.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - catering-quote-calculator__engine.mjs.gz=catering-quote-calculator__engine.mjs.gz
+      - catering-quote-calculator__index.html.gz=catering-quote-calculator__index.html.gz
+      - catering-quote-calculator__usage.mjs.gz=catering-quote-calculator__usage.mjs.gz
+      - certified-payroll-calculator__calc.mjs.gz=certified-payroll-calculator__calc.mjs.gz
+      - certified-payroll-calculator__does-overtime-include-fringe-benefits-on-certified-payroll.html.gz=certified-payroll-calculator__does-overtime-include-fringe-benefits-on-certified-payroll.html.gz
       - certified-payroll-calculator__index.html.gz=certified-payroll-calculator__index.html.gz
       - certified-payroll-calculator__share.mjs.gz=certified-payroll-calculator__share.mjs.gz
       - certified-payroll-calculator__usage.mjs.gz=certified-payroll-calculator__usage.mjs.gz
@@ -1288,13 +1292,13 @@ configMapGenerator:
       - consignment-markdown-planner__how-should-a-consignment-shop-mark-down.html.gz=consignment-markdown-planner__how-should-a-consignment-shop-mark-down.html.gz
       - consignment-markdown-planner__index.html.gz=consignment-markdown-planner__index.html.gz
       - consignment-markdown-planner__usage.mjs.gz=consignment-markdown-planner__usage.mjs.gz
-      - container-load-planner__calc.mjs.gz=container-load-planner__calc.mjs.gz
-      - container-load-planner__how-to-plan-a-container-load.html.gz=container-load-planner__how-to-plan-a-container-load.html.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - container-load-planner__calc.mjs.gz=container-load-planner__calc.mjs.gz
+      - container-load-planner__how-to-plan-a-container-load.html.gz=container-load-planner__how-to-plan-a-container-load.html.gz
       - container-load-planner__index.html.gz=container-load-planner__index.html.gz
       - container-load-planner__usage.mjs.gz=container-load-planner__usage.mjs.gz
       - contractor-wip-schedule__calc.mjs.gz=contractor-wip-schedule__calc.mjs.gz
@@ -1414,12 +1418,12 @@ configMapGenerator:
       - databricks-cluster-cost-advisor__index.html.gz=databricks-cluster-cost-advisor__index.html.gz
       - databricks-cluster-cost-advisor__usage.mjs.gz=databricks-cluster-cost-advisor__usage.mjs.gz
       - deck-bid-calculator__calc.mjs.gz=deck-bid-calculator__calc.mjs.gz
-      - deck-bid-calculator__how-much-to-charge.html.gz=deck-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - deck-bid-calculator__how-much-to-charge.html.gz=deck-bid-calculator__how-much-to-charge.html.gz
       - deck-bid-calculator__index.html.gz=deck-bid-calculator__index.html.gz
       - deck-bid-calculator__share.mjs.gz=deck-bid-calculator__share.mjs.gz
       - deck-bid-calculator__usage.mjs.gz=deck-bid-calculator__usage.mjs.gz
