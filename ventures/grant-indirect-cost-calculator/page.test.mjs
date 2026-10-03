@@ -55,3 +55,7 @@ test("the guide's worked numbers match the engine", async () => {
   const page = await read("index.html");
   assert.ok(page.includes('$("#tuition").value = 18000; $("#equipment").value = "12500\\n4200"; $("#subawards").value = "80000\\n30000"; $("#awardcap").value = 350000;'));
 });
+
+test("index links to the grant deadline tracker", async () => {
+  assert.ok((await read("index.html")).includes('href="../grant-deadline-tracker/"'));
+});
