@@ -124,8 +124,8 @@ node cli.mjs --provider github --snippet                                # refere
     async function run() {
       const r = await verify({ provider: $("#provider").value || null, headers: $("#headers").value, body: $("#body").value, secret: $("#secret").value });
       $("#verdict").className = "verdict" + (r.ok ? "" : " risk");
-      $("#verdict").textContent = r.provider ? ${LABELS[r.provider]}: ${r.ok ? "signature verified" : "signature does not verify"} : "Provider not recognised";
-      $("#findings").innerHTML = r.findings.map((f) => <div class="finding ${f.severity}"><span class="pill ${f.severity}">${f.severity}</span> ${escapeHtml(f.message)}</div>).join("");
+      $("#verdict").textContent = r.provider ? `${LABELS[r.provider]}: ${r.ok ? "signature verified" : "signature does not verify"}` : "Provider not recognised";
+      $("#findings").innerHTML = r.findings.map((f) => `<div class="finding ${f.severity}"><span class="pill ${f.severity}">${f.severity}</span> ${escapeHtml(f.message)}</div>`).join("");
       $("#snippet").textContent = r.provider ? snippet(r.provider) : "";
       $("#report-card").hidden = false;
       $("#status").textContent = "";
