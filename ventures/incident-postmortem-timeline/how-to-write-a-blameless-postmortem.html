@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Write a Blameless Postmortem from an Incident Timeline (MTTR, TTD, TTR)</title>
+  <meta name="description" content="A practical guide to building an incident timeline, measuring time to detect, acknowledge, mitigate and resolve, and writing a blameless postmortem.">
+  <link rel="canonical" href="./how-to-write-a-blameless-postmortem.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How to write a blameless postmortem from a timeline","about":"Incident timelines and response metrics","author":{"@type":"Organization","name":"Incident Postmortem Timeline"}}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.12; color: #17324a; }
+    h2 { font-size: 1.15rem; color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    code { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Incident Postmortem Timeline</a></p>
+  <h1>How to write a blameless postmortem from a timeline</h1>
+  <p>The hard part of a postmortem is rarely the analysis. It is rebuilding what happened, in order, from a chat scroll and three dashboards while memory is still fresh. Do that first, and the discussion can be about the system instead of who remembers what.</p>
+
+  <h2>The four numbers</h2>
+  <ul>
+    <li><strong>Time to detect</strong> — start of impact to the first alert or customer report. A large number here points at monitoring, not at responders.</li>
+    <li><strong>Time to acknowledge</strong> — detection to a person taking ownership. Points at paging and on-call routing.</li>
+    <li><strong>Time to mitigate</strong> — start to the first rollback, failover or workaround that reduced impact. Usually the number users feel.</li>
+    <li><strong>Time to resolve</strong> — start to the all-clear. Averaged over many incidents this is MTTR.</li>
+  </ul>
+
+  <h2>Steps</h2>
+  <ol>
+    <li>Copy timestamped lines from chat, the pager and your deploy log into one list. Include the boring ones: who joined, what was checked.</li>
+    <li>Tag the lines that define the phases (<code>start:</code>, <code>detected:</code>, <code>acknowledged:</code>, <code>mitigated:</code>, <code>resolved:</code>) if wording alone is ambiguous.</li>
+    <li>Look at the silent gaps first. Thirty minutes with nothing logged usually hides a question: what was being tried, or what was nobody able to see?</li>
+    <li>Write impact in terms of users and time, not blame. Name roles and systems rather than individuals.</li>
+    <li>Ask why until you reach a missing guard, alert or runbook step. Each becomes an action item with one owner and a date.</li>
+    <li>For repeated incidents, add <code>node postmortem.mjs incident.txt --max-ttr 60m</code> to a script to track resolution against a target.</li>
+  </ol>
+
+  <h2>What this does not tell you</h2>
+  <p>It measures only what was written down, and it guesses phases from wording. The draft leaves root cause, impact and action items to your team. It is a starting point and not professional advice.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Build a timeline</a>.</p>
+  </footer>
+</body>
+</html>

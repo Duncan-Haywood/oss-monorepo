@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 643 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 644 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -105,6 +105,15 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free grant budget calculator: find your modified total direct costs (MTDC) with the $50,000 subaward and $10,000 equipment rules applied, the indirect cost you can charge at 15% de minimis or your negotiated rate, and how much direct budget fits under a funder&#39;s total award cap. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Incident Postmortem Timeline — MTTR Calculator and Postmortem Draft from Your Log</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/incident-postmortem-timeline/"/>
+    <id>tag:marisstella.dev,2026:tool/incident-postmortem-timeline</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Paste an incident log and get time to detect, acknowledge, mitigate and resolve plus a blameless postmortem draft in Markdown. Free incident timeline generator and MTTR calculator, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Interior Design Fee Calculator — Compare Fee Models</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste kubectl top output, kubectl get pods JSON or a simple CSV and see which containers request far more CPU and memory than they use, a recommended request with headroom, the monthly saving, out-of-memory risk and YAML patches. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Lambda vs Fargate Cost Break-Even — When Containers Beat Pay-Per-Request</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/lambda-vs-fargate-cost-breakeven/"/>
-    <id>tag:marisstella.dev,2026:tool/lambda-vs-fargate-cost-breakeven</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Enter requests per month, duration, memory and concurrency and compare the monthly cost of AWS Lambda, Google Cloud Run, AWS Fargate and EC2, plus the request volume where always-on containers become cheaper. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
