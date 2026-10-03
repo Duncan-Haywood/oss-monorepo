@@ -1247,3 +1247,30 @@ entries:
       Liability: mechanical read-only scan, minute figures labelled upper bounds from GitHub's
       default limit and documented multipliers, not a cost audit or bill prediction, no warranty.
       Ethics: defensive CI hygiene on the user's own repository; no scraping.
+  - venture: interior-design-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built interior-design-fee-calculator: a browser-local tool and
+        zero-dependency CLI for independent interior designers and small studios. Enter a
+        project's design hours, site visits, procurement items, meetings, expected and stress
+        overrun, target hourly and your rate for each fee model (hourly, flat, percent of
+        project cost, per square foot, product margin, flat plus margin); it returns each
+        model's effective hourly, the overrun it can absorb before falling under target, the
+        fee needed for the target and a walk-away fee. A history mode groups past projects by
+        fee model and ranks them by effective hourly. New niche: no tool in ventures/ compares
+        designer fee structures with scope creep priced in; the freelance retainer tools are
+        generic and client-profitability-time-analyzer works after the fact. First visitor
+        expected from "interior design fee structure" and "flat fee vs hourly interior
+        designer" searches. Nothing leaves the browser, no market rates scraped. Unverified
+        with a real designer.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied hours, rates and budgets, stated prominently as
+      not market rates, tax, legal or licensing advice, no warranty, contract terms and local
+      rules left to the user. Ethics: helps small designers charge for the time projects
+      really take; no scraping.

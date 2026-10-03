@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Interior Design Fee Calculator — Compare Fee Models</title>
+  <meta name="description" content="Compare hourly, flat, percent-of-cost, per-square-foot, product-margin and hybrid interior design fees on one project: the effective hourly each earns at your expected overrun, the break-even overrun, the fee you need for your target hourly, a walk-away fee, and an audit of past projects by fee model. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Which interior design fee model actually pays you the most per hour?">
+  <meta property="og:description" content="Hourly vs flat vs percent of cost vs per square foot vs product margin on one project, with scope creep priced in, plus an audit of your past projects. Your numbers, not market rates. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Interior Design Fee Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare hourly, flat, percent-of-cost, per-square-foot, product-margin and hybrid interior design fees on one project: the effective hourly each earns at your expected overrun, the break-even overrun, the fee you need for your target hourly, a walk-away fee, and an audit of past projects by fee model. Free, runs in your browser, nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this a market rate or professional advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every hour, rate, percentage and budget in the answer is a number you typed. It does not look up what other designers charge and gives no legal, tax or licensing advice. It does the arithmetic on your own time so you can see what each fee model would earn you."}}, {"@type": "Question", "name": "Which interior design fee model is best?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on your hours and how much the project overruns. Hourly protects you from scope creep because the client pays for the extra time; a flat fee, percent of cost, per square foot or product margin all keep the fee fixed while your hours grow. The calculator shows each model's effective hourly at your expected overrun and at a stress overrun, and how much overrun each can absorb before dropping below your target."}}, {"@type": "Question", "name": "Does it upload my projects?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page works on the numbers and text you enter, in your own browser, and never sends them anywhere. The CLI reads a local file or stdin and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    select { padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    input[type=number] { width: 6.5em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">INTERIOR DESIGN FEE CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>Which fee model actually pays you the most per hour on this design project?</h1>
+    <p>Enter a project's design hours, site visits, procurement items and meetings, then your rate for each fee model. See <strong>the effective hourly each model earns once scope creep is priced in</strong>, <strong>how much overrun each can absorb before dropping under your target</strong>, <strong>the fee you need</strong> and <strong>a walk-away fee</strong>. Paste past projects and see <strong>which fee model really paid you best</strong>.</p>
+    <p class="note"><strong>Your numbers, not market rates and not advice.</strong> This page knows no going rates and gives no legal, tax or licensing advice: every hour, rate and budget is a number you type. Nothing is uploaded: the inputs are used in this browser tab only.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your time on the project</h2>
+    <p>
+      <label for="design">Design hours (concepts, plans, revisions)</label><input type="number" id="design" value="40" min="0" step="1">
+      <label for="visits">Site visits</label><input type="number" id="visits" value="4" min="0" step="1">
+      <label for="visithours">Hours per visit</label><input type="number" id="visithours" value="2.5" min="0" step="0.5">
+      <label for="items">Items to source, order and track</label><input type="number" id="items" value="60" min="0" step="1">
+      <label for="itemmin">Minutes per item</label><input type="number" id="itemmin" value="25" min="0" step="1">
+      <label for="meetings">Client meetings and calls</label><input type="number" id="meetings" value="6" min="0" step="1">
+      <label for="meetinghours">Hours per meeting</label><input type="number" id="meetinghours" value="1" min="0" step="0.25">
+    </p>
+    <p>
+      <label for="overrun">Expected overrun on those hours (%)</label><input type="number" id="overrun" value="25" min="0" step="5">
+      <label for="stress">Stress overrun, the bad case (%)</label><input type="number" id="stress" value="50" min="0" step="5">
+      <label for="target">Target hourly rate ($)</label><input type="number" id="target" value="100" min="0" step="5">
+      <label for="walkaway">Walk-away floor (% of target)</label><input type="number" id="walkaway" value="75" min="0" step="5">
+    </p>
+    <h2>2. The project and your rate for each fee model</h2>
+    <p class="note">Clear a rate box to leave that model out.</p>
+    <p>
+      <label for="cost">Client's total project cost ($)</label><input type="number" id="cost" value="40000" min="0" step="1000">
+      <label for="spend">Product bought through you ($)</label><input type="number" id="spend" value="30000" min="0" step="1000">
+      <label for="sqft">Square feet</label><input type="number" id="sqft" value="1500" min="0" step="50">
+    </p>
+    <p>
+      <label for="hourly">Hourly rate ($)</label><input type="number" id="hourly" value="125" min="0" step="5">
+      <label for="writeoff">Hourly write-off (%)</label><input type="number" id="writeoff" value="10" min="0" step="1">
+      <label for="flat">Flat fee ($)</label><input type="number" id="flat" value="8500" min="0" step="100">
+      <label for="percent">Percent of project cost (%)</label><input type="number" id="percent" value="20" min="0" step="1">
+      <label for="persqft">Per square foot ($)</label><input type="number" id="persqft" value="6" min="0" step="0.5">
+      <label for="margin">Net product margin (%)</label><input type="number" id="margin" value="25" min="0" step="1">
+      <label for="hybridflat">Hybrid: flat design fee ($)</label><input type="number" id="hybridflat" value="3500" min="0" step="100">
+      <label for="hybridmargin">Hybrid: product margin (%)</label><input type="number" id="hybridmargin" value="18" min="0" step="1">
+    </p>
+    <p>
+      <button type="button" id="compare-go">Compare fee models</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear results</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="compare-card" hidden aria-live="polite">
+    <h2>The comparison</h2>
+    <p id="summary"></p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Fee model</th><th>Bills</th><th>Effective hourly</th><th>At stress overrun</th><th>Overrun it can absorb</th></tr></thead>
+      <tbody id="model-rows"></tbody>
+    </table></div>
+    <h3>Effective hourly as the project overruns</h3>
+    <div class="tablewrap"><table>
+      <thead id="scenario-head"></thead>
+      <tbody id="scenario-rows"></tbody>
+    </table></div>
+    <h3>Where the hours go</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Work</th><th>Baseline hours</th></tr></thead>
+      <tbody id="parts-rows"></tbody>
+    </table></div>
+    <p class="note">Hours are your own estimates multiplied out; real projects vary. A fee here is a starting point for your contract, not a promise.</p>
+  </section>
+
+  <section class="card">
+    <h2>3. Audit your past projects by fee model</h2>
+    <label for="history-input">One row per finished project: name, fee model (any label), total fee earned, hours you actually spent. Up to 300 projects.</label>
+    <textarea id="history-input" spellcheck="false" placeholder="Lakeview living room,flat,6500,88&#10;Harbor condo,sqft,7200,70"></textarea>
+    <p>
+      <button type="button" id="history-go">Audit projects</button>
+      <button type="button" class="secondary" id="history-clear">Clear projects</button>
+    </p>
+    <p class="note" id="history-status"></p>
+    <div id="history-card" hidden aria-live="polite">
+      <p id="history-summary"></p>
+      <h3>By fee model</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Model</th><th>Projects</th><th>Fee</th><th>Hours</th><th>Effective hourly</th></tr></thead>
+        <tbody id="bymodel-rows"></tbody>
+      </table></div>
+      <h3>Projects, worst first</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>#</th><th>Project</th><th>Model</th><th>Fee</th><th>Hours</th><th>Effective hourly</th><th>Short of target</th></tr></thead>
+        <tbody id="history-rows"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI?</h2>
+    <p>Same logic, zero dependencies, one command:</p>
+    <pre class="cmd">node cli.mjs compare --design-hours 50 --project-cost 60000 --overrun 40 --target 110
+node cli.mjs history projects.csv --target 110 --json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="how-to-choose-an-interior-design-fee-structure.html">How to choose an interior design fee structure</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">The answer is exact for the numbers you type. It does not know going rates, your local market, your contract terms, or how a client will actually behave.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Is this a market rate or professional advice?</h3>
+    <p>No. Every hour, rate, percentage and budget in the answer is a number you typed. It does not look up what other designers charge and gives no legal, tax or licensing advice. It does the arithmetic on your own time so you can see what each fee model would earn you.</p>
+    <h3>Which interior design fee model is best?</h3>
+    <p>It depends on your hours and how much the project overruns. Hourly protects you from scope creep because the client pays for the extra time; a flat fee, percent of cost, per square foot or product margin all keep the fee fixed while your hours grow. The calculator shows each model's effective hourly at your expected overrun and at a stress overrun, and how much overrun each can absorb before dropping below your target.</p>
+    <h3>Does it upload my projects?</h3>
+    <p>No. The browser page works on the numbers and text you enter, in your own browser, and never sends them anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+    <h3>How is the effective hourly calculated?</h3>
+    <p>Baseline hours are design hours + site visits x hours each + items x minutes each + meetings x hours each. Expected hours add your overrun percent. Effective hourly = what the model bills / expected hours. Hourly bills your rate x hours less the write-off, so overrun does not lower it.</p>
+    <h3>What is the walk-away fee?</h3>
+    <p>Expected hours x a floor rate (a percent of your target, 75 percent by default). Below it the project costs you more than it is worth to you, so you decline or re-scope rather than discount.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or investment advice, it is not a market rate or a fee survey, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, for the accuracy of the numbers you enter, for your contract terms and for any licensing rules that apply to you. To the maximum extent permitted by law the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Not affiliated with, endorsed by or sponsored by any design association, furniture vendor or design software company; no product names are used to imply otherwise.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>history_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../wedding-florist-proposal-calculator/">Wedding Florist Proposal Calculator</a>, <a href="../photo-addon-pricing-calculator/">Photo Add-on Pricing Calculator</a>, <a href="../freelance-retainer-calculator/">Freelance Retainer Calculator</a> and <a href="../client-profitability-time-analyzer/">Client Profitability Time Analyzer</a>.</p>
+    <p class="support">Free and open source. If this earned you a better fee, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compare, summarizeCompare, parseProjects, history, summarizeHistory, money, INPUT_NOTES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    const compareOptions = () => ({
+      designHours: $("#design").value, siteVisits: $("#visits").value, visitHours: $("#visithours").value,
+      procurementItems: $("#items").value, minutesPerItem: $("#itemmin").value, meetings: $("#meetings").value,
+      meetingHours: $("#meetinghours").value, overrunPct: $("#overrun").value, stressOverrunPct: $("#stress").value,
+      targetHourly: $("#target").value, walkAwayPct: $("#walkaway").value, projectCost: $("#cost").value,
+      productSpend: $("#spend").value, sqft: $("#sqft").value, writeOffPct: $("#writeoff").value,
+      hourlyRate: $("#hourly").value, flatFee: $("#flat").value, percentRate: $("#percent").value,
+      sqftRate: $("#persqft").value, marginPct: $("#margin").value, hybridFlat: $("#hybridflat").value,
+      hybridMarginPct: $("#hybridmargin").value,
+    });
+
+    const absorb = (m) => (m.breakEvenOverrunPct === null ? "n/a (billed hourly)" : m.breakEvenOverrunPct < 0 ? "below target at baseline" : `${m.breakEvenOverrunPct.toFixed(1)}%`);
+
+    function renderCompare() {
+      const status = $("#status");
+      let c;
+      try {
+        c = compare(compareOptions());
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarizeCompare(c);
+      $("#summary").innerHTML = `<span class="${s.status === "ok" ? "gain" : "error"}">${escapeHtml(s.text)}</span>`;
+      $("#model-rows").innerHTML = c.models.map((m) => `<tr><td>${escapeHtml(m.label)}<br><span class="note">${escapeHtml(m.basis)}</span></td><td>${money(m.fee)}</td><td class="${m.meetsTarget ? "gain" : "error"}">${money(m.effective)}</td><td>${money(m.stressEffective)}</td><td>${escapeHtml(absorb(m))}</td></tr>`).join("");
+      const scen = c.models[0] ? c.models[0].byOverrun : [];
+      $("#scenario-head").innerHTML = `<tr><th>Fee model</th>${scen.map((x) => `<th>${x.overrunPct}% over (${x.hours.toFixed(0)} h)</th>`).join("")}</tr>`;
+      $("#scenario-rows").innerHTML = c.models.map((m) => `<tr><td>${escapeHtml(m.label)}</td>${m.byOverrun.map((x) => `<td>${money(x.effective)}</td>`).join("")}</tr>`).join("");
+      $("#parts-rows").innerHTML = Object.entries(c.parts).map(([k, v]) => `<tr><td>${k}</td><td>${v.toFixed(1)}</td></tr>`).join("");
+      $("#compare-card").hidden = false;
+      record("compare_run");
+    }
+
+    function renderHistory() {
+      const status = $("#history-status");
+      const text = $("#history-input").value;
+      if (!text.trim()) {
+        status.innerHTML = `<span class="error">Paste some project rows first (or load the worked example).</span>`;
+        return;
+      }
+      const parsed = parseProjects(text);
+      if (parsed.errors.length) {
+        status.innerHTML = `<span class="error">${parsed.errors.map(escapeHtml).join("<br>")}</span>`;
+        return;
+      }
+      if (!parsed.projects.length) {
+        status.innerHTML = `<span class="error">No project rows found.</span>`;
+        return;
+      }
+      let h;
+      try {
+        h = history(parsed, { targetHourly: $("#target").value });
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarizeHistory(h);
+      $("#history-summary").innerHTML = `<span class="${s.status === "ok" ? "gain" : "error"}">${escapeHtml(s.text)}</span>`;
+      $("#bymodel-rows").innerHTML = h.byModel.map((g) => `<tr><td>${escapeHtml(g.model)}</td><td>${g.count}</td><td>${money(g.fee)}</td><td>${g.hours}</td><td>${money(g.effective)}</td></tr>`).join("");
+      $("#history-rows").innerHTML = h.projects.map((p, i) => `<tr><td>${i + 1}</td><td>${escapeHtml(p.name)}</td><td>${escapeHtml(p.model)}</td><td>${money(p.fee)}</td><td>${p.hours}</td><td>${money(p.effective)}</td><td>${p.atTarget ? "at target" : money(p.shortfall)}</td></tr>`).join("");
+      $("#history-card").hidden = false;
+      record("history_run");
+    }
+
+    $("#compare-go").addEventListener("click", renderCompare);
+    $("#history-go").addEventListener("click", renderHistory);
+
+    const HISTORY_EXAMPLE = `project,model,fee,hours
+Lakeview living room,flat,6500,88
+Maple Street full home,percent,14000,170
+Harbor condo,sqft,7200,70
+Oak Hill kitchen refresh,hourly,5400,48
+Pine primary suite,margin,3100,52
+Willow nursery,flat,3800,41
+Cedar office,hybrid,7800,66
+Birch whole-floor,percent,9000,120
+`;
+
+    $("#load-example").addEventListener("click", () => {
+      $("#design").value = 40; $("#visits").value = 4; $("#visithours").value = 2.5; $("#items").value = 60;
+      $("#itemmin").value = 25; $("#meetings").value = 6; $("#meetinghours").value = 1; $("#overrun").value = 25;
+      $("#stress").value = 50; $("#target").value = 100; $("#walkaway").value = 75; $("#cost").value = 40000;
+      $("#spend").value = 30000; $("#sqft").value = 1500; $("#hourly").value = 125; $("#writeoff").value = 10;
+      $("#flat").value = 8500; $("#percent").value = 20; $("#persqft").value = 6; $("#margin").value = 25;
+      $("#hybridflat").value = 3500; $("#hybridmargin").value = 18;
+      $("#history-input").value = HISTORY_EXAMPLE;
+      renderCompare();
+      renderHistory();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      $("#status").textContent = "";
+      $("#compare-card").hidden = true;
+    });
+    $("#history-clear").addEventListener("click", () => {
+      $("#history-input").value = "";
+      $("#history-status").textContent = "";
+      $("#history-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>
