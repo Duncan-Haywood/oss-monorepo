@@ -854,6 +854,9 @@ workflows:
 - workflow: grant-deadline-tracker-ci.yml
   classification: none
   publishes: []
+- workflow: grant-indirect-cost-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: grant-reporting-tracker-ci.yml
   classification: none
   publishes: []

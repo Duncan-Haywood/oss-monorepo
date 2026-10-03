@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 625 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 626 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your GitHub Actions workflow YAML and find every job with no timeout-minutes (or one set to the 360-minute default) — the jobs that can hang for six hours of billed runner time. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Grant Indirect Cost Calculator — MTDC and the Indirect You Can Charge</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/grant-indirect-cost-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/grant-indirect-cost-calculator</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free grant budget calculator: find your modified total direct costs (MTDC) with the $50,000 subaward and $10,000 equipment rules applied, the indirect cost you can charge at 15% de minimis or your negotiated rate, and how much direct budget fits under a funder&#39;s total award cap. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Interior Design Fee Calculator — Compare Fee Models</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Paste the late-season client engagements you have been offered and get the set that earns the most before the filing and extension deadlines, the order to work them, and the fee each declined client would need. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Thrift Haul Buy Picker — What to Buy and the Most to Pay for Resale</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/thrift-haul-buy-picker/"/>
-    <id>tag:marisstella.dev,2026:tool/thrift-haul-buy-picker</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Paste what you found at a thrift store, estate sale or liquidation with your own resale estimates and get which items to buy, the most to pay for each, the sell chance each needs to break even and the exact best set under a cash, item or hours cap. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

@@ -26573,3 +26573,32 @@ ventures:
     gate_note: >-
       Liability: mechanical read-only heuristic scan, labelled not a security audit, no warranty, nothing
       leaves the device. Ethics: defensive hygiene on the user's own source code.
+  - slug: grant-indirect-cost-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.167
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic MTDC and indirect-cost arithmetic; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct recover-more decision for grant writers and small nonprofits with real search demand ("MTDC calculator",
+      "indirect cost calculator grant budget") and no dedicated free tool in the tree; the wedge is the per-subaward
+      $50,000 rule, the equipment threshold and fitting a budget under a funder's total cap, free and client-side;
+      volume not measured with an external tool.
+      Scope: Free browser tool that computes MTDC, indirect cost and award-cap fit from the user's own budget.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed amounts under the published federal definition, stated so and not grant,
+      accounting or legal advice, no warranty, funder rules come first, nothing leaves the device. Ethics: helps
+      small organisations claim the indirect cost they are allowed; the user decides and remains responsible.
