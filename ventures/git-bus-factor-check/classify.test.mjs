@@ -5,7 +5,7 @@ import { execFileSync } from 'node:child_process';
 import { parseLog, analyze, cleanPath, summaryLine, STATUSES } from './classify.mjs';
 
 const here = (p) => new URL(p, import.meta.url);
-const fixture = readFileSync(here('./fixture.log'), 'utf8');
+const fixture = readFileSync(here('./fixture.txt'), 'utf8');
 
 test('rename notations resolve to the new path', () => {
   assert.equal(cleanPath('api/{old => new}/users.py'), 'api/new/users.py');

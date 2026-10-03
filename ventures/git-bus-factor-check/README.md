@@ -53,7 +53,7 @@ node --test classify.test.mjs page.test.mjs
 ```
 
 `classify.mjs` is the browser port; `classify.test.mjs` runs both
-implementations over `fixture.log` and a synthetic history and requires
+implementations over `fixture.txt` and a synthetic history and requires
 identical JSON.
 
 MIT licensed. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.

@@ -8,7 +8,7 @@ import unittest
 import busfactor as bf
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-FIXTURE = open(os.path.join(HERE, "fixture.log"), encoding="utf-8").read()
+FIXTURE = open(os.path.join(HERE, "fixture.txt"), encoding="utf-8").read()
 
 
 class Parse(unittest.TestCase):

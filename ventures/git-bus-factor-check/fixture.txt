@@ -1,0 +1,24 @@
+@@|Ana Ruiz|ana@example.com|1700000000
+40	10	api/users.py
+30	0	api/auth.py
+@@|Ana Ruiz|ana@example.com|1700100000
+20	5	api/users.py
+@@|Ana Ruiz|ana@example.com|1700200000
+10	2	api/auth.py
+@@|Ben Okoye|ben@example.com|1730000000
+60	20	web/app.js
+12	3	api/{old => new}/users.py
+@@|Ben Okoye|ben@example.com|1735000000
+30	4	web/app.js
+5	5	README.md
+@@|Ben Okoye|ben@example.com|1738000000
+40	40	web/app.js
+-	-	web/logo.png
+@@|dependabot[bot]|49699333+dependabot[bot]@users.noreply.github.com|1739000000
+900	900	web/package-lock.json
+@@|Cy Lund|cy@example.com|1738500000
+25	5	web/app.js
+@@|Cy Lund|cy@example.com|1738600000
+18	2	web/app.js
+@@|Cy Lund|cy@example.com|1739500000
+44	6	infra/main.tf
