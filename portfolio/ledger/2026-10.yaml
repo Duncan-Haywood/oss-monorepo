@@ -1450,3 +1450,23 @@ entries:
       Liability: arithmetic on typed values, stated as not financial advice, no warranty, not
       affiliated with the platform, nothing leaves the device. Ethics: helps freelancers see what
       bidding costs; no scraping.
+  - venture: thumbtack-lead-roi-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built thumbtack-lead-roi-calculator: a browser-local tool for home-service pros who
+        buy paid leads on Thumbtack-style marketplaces. Enter leads per month, price per lead, credits for bad
+        leads, quoting minutes, hourly value, close rate, job value and job cost share; it returns cost per job
+        won, break-even close rate with and without quoting time, the most one lead can cost before it loses
+        money, the month net, and close-rate and lead-price scenarios, plus a guide with a worked month. New
+        niche: no thumbtack/angi/lead-cost venture existed; nearest siblings price a job, not the lead. First
+        visitor expected from "is thumbtack worth it" searches and trade subreddits. Nothing leaves the browser.
+        Unverified with a real contractor; defaults are illustrative and every value is editable.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed values, stated as not financial advice, no warranty, not affiliated with the
+      platform, nothing leaves the device. Ethics: helps contractors see what paid leads cost; no scraping.
