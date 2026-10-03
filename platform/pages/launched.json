@@ -123,6 +123,7 @@
     "client-rebooking-predictor": "2026-09-30",
     "cloud-bucket-exposure-check": "2026-09-24",
     "cloud-egress-calculator": "2026-08-26",
+    "cloudflare-bill-estimator": "2026-10-03",
     "cloudwatch-logs-cost-advisor": "2026-10-02",
     "cnc-machining-quote-calculator": "2026-09-17",
     "codeowners-shadow-check": "2026-09-11",

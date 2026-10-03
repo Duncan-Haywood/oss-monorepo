@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 662 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 663 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -69,6 +69,15 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste JUnit XML from pytest, Jest, Go, Maven/Gradle or RSpec and get an even split into N CI shards, the slowest-shard time, billed-minute savings, the best shard count, and ready-to-paste shard commands. Free, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Cloudflare Bill Estimator — Estimate Your Monthly Postgres Bill and the Levers That Cut It</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cloudflare-bill-estimator/"/>
+    <id>tag:marisstella.dev,2026:tool/cloudflare-bill-estimator</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Estimate a monthly Cloudflare developer-platform bill from your own usage (Workers requests and CPU time, KV reads and writes, R2 storage and operations) at editable list prices, and see which changes cut it most, with a dollar saving for each. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Cow-Calf Breakeven Calculator — Your Cost per Cow and Breakeven Calf Price</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Webhook signature verification failed? Paste the headers, raw body and secret to verify the HMAC for Stripe, GitHub, Shopify, Slack and Svix, and see exactly why it does not match. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Wedding Budget Calculator and Allocator by Guest Count — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/wedding-budget-allocator/"/>
-    <id>tag:marisstella.dev,2026:tool/wedding-budget-allocator</id>
-    <published>2026-10-03T00:00:00Z</published>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free wedding budget calculator: split your total budget across venue, food, photography and more using guest count, region and season, with your top priorities protected and a guest-count suggestion when the budget is tight. Runs in your browser.</summary>
   </entry>
 </feed>
