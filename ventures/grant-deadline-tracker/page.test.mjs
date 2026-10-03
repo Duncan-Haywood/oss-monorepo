@@ -206,3 +206,7 @@ test("the entry page's FAQ derivation is not suppressed by its own explanatory c
   });
   assert.match(built, /"@type":"FAQPage"/, "the derived schema must actually be injected, not suppressed by the comment");
 });
+
+test("the page links the grant indirect cost calculator", () => {
+  assert.ok(html.includes('href="../grant-indirect-cost-calculator/"'));
+});
