@@ -1,0 +1,114 @@
+name: terraform-plan-cost-estimate
+description: 'Free, zero-network, zero-dependency CLI + browser tool that reads a Terraform structured plan (terraform show -json) and estimates the monthly AWS cost delta of the apply -- create, update, replace and delete -- for the common resources (EC2 with its volumes, EBS, RDS and Aurora instances, NAT gateway, ALB/NLB, Elastic IP, EKS control plane and node groups, ElastiCache, provisioned DynamoDB, CloudWatch alarms and dashboards) from a bundled, dated, approximate us-east-1 on-demand price table with a rough region multiplier. Names usage-based resources (S3, Lambda, on-demand DynamoDB, log groups) without guessing a number, lists every resource it could not price instead of counting it as zero, shows the top cost drivers, and exits 1 over --max-delta so it can gate CI between plan and apply. An estimate, not a quote, and not a live-pricing or multi-cloud Infracost replacement.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype over a file the user already has. portfolio/pipeline/
+# README.md says picking this shape is necessary but not sufficient novelty
+# evidence, so the argument is the gap, not the shape: people search for a way
+# to see what a Terraform plan will cost *before* apply, the incumbent
+# (Infracost) is a full product that wants installing, an API key and, for the
+# team features, an account, and nothing in this portfolio reads a plan for
+# cost.
+#
+# Screened 2026-10-03. duplicate_check.py on this description:
+#
+#    score  source   label
+#     0.37  venture  terraform-plan-secret-exposure-check
+#     0.35  venture  terraform-plan-blast-radius-check
+#     0.33  venture  rds-instance-rightsizer
+#     0.20  venture  prometheus-cardinality-cost
+#     0.20  venture  lambda-vs-fargate-cost-breakeven
+#     0.20  venture  nat-gateway-cost-advisor
+#
+# Nothing scored >= 0.45. The top hits were read rather than waved past:
+#   - terraform-plan-secret-exposure-check and -blast-radius-check read the
+#     same input file and answer unrelated questions (what the plan prints,
+#     what the apply destroys). This one asks what the apply costs. No code is
+#     shared; the page links the blast-radius sibling, which links back.
+#   - rds-instance-rightsizer, nat-gateway-cost-advisor, ebs-volume-cost-advisor
+#     and the other *-cost-advisor ventures take hand-typed usage for ONE
+#     service and recommend a cheaper configuration. This one reads the plan you
+#     already have, across services, and reports the delta of a change. They
+#     answer "is this configured right", this answers "what will this PR add".
+#     Where the same price appears in both (NAT gateway $0.045/hr, gp3
+#     $0.08/GB-month) the figures agree.
+# screened-out.md has no Terraform cost row.
+#
+# First-visitor source, stated as an expectation and not a measurement. No
+# visitor has been measured (usage.yaml carries live_url_visitors: null, which
+# is "never measured", not zero), and nobody outside the repository has
+# seen this tool:
+#   - searches for "infracost alternative", "terraform plan cost estimate",
+#     "estimate terraform cost before apply" and "terraform cost without
+#     infracost". vs-infracost.html is written for exactly that query and says
+#     plainly where Infracost is the better answer (more clouds, live prices,
+#     usage files, PR integrations), because a comparison that oversells ranks
+#     briefly and is then ignored.
+#   - r/Terraform and r/devops, where "what will this cost" and "how do I put a
+#     cost check in CI" are recurring question shapes. Those are venues where
+#     the right move is to answer the question and link the tool when it helps,
+#     not to post an announcement; subreddit sizes were not verified this
+#     session and none is claimed. Publishing under the portfolio's public name
+#     is owner-only, so this file records the venue and does not post.
+#   - the 'Related' hop from terraform-plan-blast-radius-check, which reads the
+#     same file and is the nearest audience already in the catalogue.
+#
+# Price table honesty. The bundled prices are rounded us-east-1 on-demand list
+# prices as best known on 2026-10-03. They were NOT fetched live and NOT checked
+# line by line against AWS's price list from this environment (outbound HTTPS to
+# arbitrary hosts is proxied and there is no pricing API call in the product by
+# design). Every report prints the table date. The first thing to do with a real
+# user's plan is compare the total with the AWS Pricing Calculator.
+#
+# Scored against portfolio/pipeline/README.md's rubric, reasoned rather than
+# copied from the siblings:
+#   ai_leverage 1 -- no model; pricing is table lookup and arithmetic.
+#   autonomous_ops 8 -- a static page and a single-file CLI, but unlike the
+#     siblings the price table goes stale: AWS changes prices, and a person has
+#     to re-date it. Scored below 10 for that reason.
+#   time_to_revenue 4 -- donation-only fleet-wide, and the audience is price
+#     sensitive about tooling by definition.
+#   gross_margin 10 -- no network call in either surface.
+#   defensibility 2 -- the lookup is easy to copy and the incumbent is open
+#     source. The only defence is that this is offline and zero-setup.
+#   distribution 5 -- a real, searched comparison query plus two venues of
+#     unverified size; no owned audience.
+#   liability_containment 7 -- the exposure is over-reliance on a rough figure
+#     for a spend decision, which is why every surface says estimate-not-quote,
+#     prints the table date and lists what it did not price.
+#   ethical_robustness 9 -- free, no accuracy-gated tier, nothing adversarial.
+
+hypotheses:
+  - claim: A developer who searches for an Infracost alternative, or who wants a cost number without installing anything or creating an account, will paste a plan and use the answer.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform engineer will wire cli.mjs --max-delta into CI between plan and apply as a cheap guard against an accidental large resource.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The bundled price table is within roughly 10 percent of the AWS price list for the covered resources in us-east-1. Unverified against the live price list; checked only for internal consistency and against two sibling ventures' NAT and EBS prices.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports an estimate off by more than 25 percent for a covered resource on current AWS prices and the table is not corrected within 30 days -- a cost figure people cannot trust is worse than none.
+  - The price table is more than 12 months old without being re-dated or the venture being retired.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/terraform-plan-cost-estimate/
+  analytics: null

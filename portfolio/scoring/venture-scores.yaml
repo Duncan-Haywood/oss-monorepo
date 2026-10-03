@@ -26885,3 +26885,37 @@ ventures:
       Liability: arithmetic on commit metadata the user already holds, labelled a heuristic and barred as the sole
       basis for decisions about people, no warranty, nothing leaves the device. Ethics: framed on folders and
       backups rather than ranking individuals; no scraping.
+  - slug: terraform-plan-cost-estimate
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 8
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 2
+      distribution: 5
+    composite: 5.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Pricing is table lookup and arithmetic over the
+      resource attributes a plan carries, and a CI budget gate has to give the same answer on
+      every run. Defensibility 2 is the other sub-5 dimension; its basis is below.
+    basis: >-
+      Scored 2026-10-03 on graduation; screening and the first-visitor channel are in the
+      venture's own VENTURE.yaml comment. Defensibility 2: the lookup is easy to copy and the
+      incumbent (Infracost) is open source, so the only edge is offline and zero-setup. Autonomous ops 8
+      rather than 10 because the bundled price table goes stale and a person has to re-date it.
+      Time to revenue 4 (a free dev tool, donations only), distribution 5: "infracost alternative"
+      and "terraform plan cost estimate" are real query shapes, but subreddit sizes were not
+      verified and no audience is owned. Volume not measured with an external tool.
+      Scope: Free CLI and browser tool that estimates the monthly AWS cost delta of the user's own
+      Terraform plan from an approximate bundled price table.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on a plan file the user supplies, labelled an estimate and not a quote,
+      table date printed, unpriced resources listed rather than counted as zero, no warranty, not
+      affiliated with HashiCorp, AWS or Infracost, nothing leaves the device. Ethics: free, no
+      accuracy-gated tier, no scraping.
