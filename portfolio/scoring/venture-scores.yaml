@@ -26857,3 +26857,31 @@ ventures:
       Liability: arithmetic on typed prices, minutes and costs, stated so and not market rates, tax, legal or contract advice,
       no warranty, service agreements and local rules come first, nothing leaves the device. Ethics: helps small pool route
       owners price at what the route takes; the user decides and remains responsible.
+  - slug: git-bus-factor-check
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 3
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over commit metadata; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in the venture's
+      own VENTURE.yaml comment. Time to revenue 3 (a free dev tool, donations only), distribution 5 and
+      defensibility 3: "bus factor calculator" and "truck factor github" searches land on vendor pages
+      and research papers with no pasteable free tool, and the method is easy to copy. Volume not
+      measured with an external tool.
+      Scope: Free CLI and browser tool that computes a per-folder bus factor from the user's own git log.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on commit metadata the user already holds, labelled a heuristic and barred as the sole
+      basis for decisions about people, no warranty, nothing leaves the device. Ethics: framed on folders and
+      backups rather than ranking individuals; no scraping.

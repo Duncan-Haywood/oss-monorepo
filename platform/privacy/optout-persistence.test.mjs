@@ -1225,7 +1225,7 @@ const RELATIVE_SELF = relative(
 // +1: `thumbtack-lead-roi-calculator` graduated.
 // +1: `app-subscription-proceeds-calculator` graduated.
 // +1: `k8s-pod-security-check` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 614;
+const SWITCHES_IN_THE_CATALOGUE = 615;
 // +1: `embroidery-shop-quote-calculator` graduated.
 
 let counter = 0;
