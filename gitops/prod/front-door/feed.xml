@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 660 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 661 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -69,6 +69,15 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste JUnit XML from pytest, Jest, Go, Maven/Gradle or RSpec and get an even split into N CI shards, the slowest-shard time, billed-minute savings, the best shard count, and ready-to-paste shard commands. Free, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Cloudflare Bill Estimator — Estimate Your Monthly Postgres Bill and the Levers That Cut It</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cloudflare-bill-estimator/"/>
+    <id>tag:marisstella.dev,2026:tool/cloudflare-bill-estimator</id>
+    <published>2026-10-03T00:00:00Z</published>
+    <updated>2026-10-03T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Estimate a monthly Cloudflare developer-platform bill from your own usage (Workers requests and CPU time, KV reads and writes, R2 storage and operations) at editable list prices, and see which changes cut it most, with a dollar saving for each. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Cow-Calf Breakeven Calculator — Your Cost per Cow and Breakeven Calf Price</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-02T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Paste the appraisal assignments you have been offered and get the set that earns the most before the due dates, the order to work them, and the fee each declined file would need. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>BigQuery Query Cost Advisor — On-Demand vs Editions and Query Guardrails</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bigquery-query-cost-advisor/"/>
-    <id>tag:marisstella.dev,2026:tool/bigquery-query-cost-advisor</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your BigQuery query groups (runs per month, GB billed, slot-hours) and see on-demand vs Editions cost, the expensive queries to cap with maximum_bytes_billed, and repeat large scans. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

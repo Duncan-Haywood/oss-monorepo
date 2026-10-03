@@ -1,0 +1,49 @@
+name: cloudflare-bill-estimator
+description: 'Free, zero-network, zero-dependency browser tool + CLI that estimates a monthly Cloudflare Workers, KV and R2 bill from the user''s own dashboard usage numbers (Worker requests and CPU time, KV reads and writes, R2 storage and Class A/B operations) at editable approximate list prices, allowances and the Workers Paid minimum, and ranks the changes that cut it most (edge caching, CPU trimming, KV read caching, redundant KV writes, R2 lifecycle, R2 write batching, CDN in front of R2) with a dollar saving each; accepts a product,usage CSV and a --budget CI gate. A deterministic calculator over the user''s inputs, not a bill reader and not a guarantee of spend.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, sibling of neon-bill-estimator, vercel-bill-estimator,
+# supabase-bill-estimator and datadog-bill-estimator, not a trade-bid calculator.
+# No existing venture prices Workers/KV/R2 or ranks their savings levers
+# (ls ventures | grep -i cloudflare is empty).
+#
+# Where the first real visitor would come from: the search phrases "cloudflare
+# workers pricing calculator", "cloudflare kv writes cost", "r2 class a
+# operations cost", "reduce cloudflare workers bill"; r/CloudFlare,
+# r/webdev and Hacker News threads about a KV write loop or an R2 list call
+# quietly running up the invoice. The reader is a solo founder or lead dev on
+# Workers Paid whose KV or R2 operations line surprised them. The pricing page
+# is a rate card and the dashboard shows usage after the fact; this takes the
+# usage numbers, ranks what to change first and fits a CI budget gate -- that is
+# the wedge. A hosted usage-trend monitor is the natural paid upgrade path later.
+hypotheses:
+  - claim: A developer whose Cloudflare invoice just jumped will search for how to cut it, enter their usage, and learn which lever saves the most dollars.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will add the CLI to CI with --budget so a usage change that pushes the estimate over budget fails review instead of the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool calculates only from typed numbers in
+  # the visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/cloudflare-bill-estimator/
+  analytics: null
