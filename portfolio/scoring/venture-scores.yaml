@@ -26952,3 +26952,35 @@ ventures:
       Liability: arithmetic on an export the user supplies, labelled a checklist and not a diagnosis, not
       billing or financial advice, no warranty, not affiliated with Amazon Web Services, nothing leaves the
       device. Ethics: free, no accuracy-gated tier, no scraping.
+  - slug: ci-test-shard-balancer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 9
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 2
+      distribution: 5
+    composite: 5.2
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Parsing, partitioning and a lookup of runner flags, and a CI gate
+      has to give the same answer on every run. Defensibility 2 is the other sub-5 dimension; its basis is
+      below.
+    basis: >-
+      Scored 2026-10-03 on graduation; screening and the first-visitor channel are in the venture's own
+      VENTURE.yaml comment. Defensibility 2: number partitioning is textbook and the paid splitters cover
+      the same job with live history, so the edge is free, offline and account-free. Autonomous ops 9: static
+      page and one-file CLI; the emitted runner flags can go stale in wording. Time to revenue 4 (a free dev
+      tool, donations only), distribution 5: "split tests across CI shards" is a real query shape but
+      volume was not measured with an external tool and no audience is owned.
+      Scope: Free CLI and browser tool that splits a test suite into balanced CI shards from the user's own
+      JUnit XML timings.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on reports the user supplies, labelled a heuristic and not a guarantee, not
+      engineering or financial advice, no warranty, not affiliated with Knapsack Pro, Buildkite or
+      CircleCI, nothing leaves the device. Ethics: free, no accuracy-gated tier, no scraping.
