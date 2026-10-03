@@ -1571,3 +1571,34 @@ entries:
     gate_note: >-
       Liability: heuristic on commit metadata, barred as sole basis for people decisions, no warranty, nothing
       leaves the device. Ethics: folder-and-backup framing, never a ranking of individuals; no scraping.
+  - venture: terraform-plan-cost-estimate
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built terraform-plan-cost-estimate: a browser-local estimator and
+        zero-dependency CLI (cli.mjs over a shared engine.mjs) that reads a Terraform structured plan
+        (terraform show -json) and estimates the monthly AWS cost delta of create, update, replace and
+        delete for EC2 with its volumes, EBS, RDS and Aurora instances, NAT gateway, ALB/NLB, Elastic
+        IP, EKS control plane and node groups, ElastiCache, provisioned DynamoDB and CloudWatch alarms
+        and dashboards, from a bundled, dated, approximate us-east-1 on-demand table with a rough
+        region multiplier. Usage-based resources (S3, Lambda, on-demand DynamoDB, log groups) are named
+        and never guessed, resources it cannot price are listed instead of counted as zero, top cost
+        drivers are shown, and --max-delta exits 1 over a threshold for CI. Ships vs-infracost.html,
+        written to say where Infracost is the better answer (more clouds, live prices, usage files, PR
+        integrations). New gap: the terraform-plan-* ventures check secrets and blast radius and the
+        *-cost-advisor ventures take hand-typed usage for one service; none prices a plan
+        (duplicate_check closest match 0.37, read and distinguished in VENTURE.yaml; not in
+        screened-out). First visitor expected from "infracost alternative" and "terraform plan cost
+        estimate" searches and r/Terraform and r/devops answers; none measured. The price table was
+        not fetched live or verified line by line against AWS's price list, and says so on every
+        surface. Unverified with a real developer.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own plan, labelled an estimate and not a quote or billing
+      advice, table date printed, unpriced listed, no warranty, not affiliated with HashiCorp, AWS or
+      Infracost, nothing leaves the device. Ethics: helps developers see what a change costs before
+      applying; free, no scraping.

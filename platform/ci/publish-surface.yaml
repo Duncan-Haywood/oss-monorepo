@@ -101,6 +101,9 @@ workflows:
 - workflow: k8s-pod-security-check-ci.yml
   classification: none
   publishes: []
+- workflow: terraform-plan-cost-estimate-ci.yml
+  classification: none
+  publishes: []
 - workflow: actions-self-hosted-exposure-check-ci.yml
   classification: none
   publishes: []
@@ -2099,10 +2102,16 @@ workflows:
 - workflow: workers-comp-premium-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: thumbtack-lead-roi-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: world-clock-widget-ci.yml
   classification: none
   publishes: []
 - workflow: youtube-revenue-rpm-analyzer-ci.yml
+  classification: none
+  publishes: []
+- workflow: cow-calf-breakeven-calculator-ci.yml
   classification: none
   publishes: []
 gitops:
@@ -2153,9 +2162,3 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
-- workflow: thumbtack-lead-roi-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: cow-calf-breakeven-calculator-ci.yml
-  classification: none
-  publishes: []
