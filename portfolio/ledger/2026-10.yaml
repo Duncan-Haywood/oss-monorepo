@@ -1494,3 +1494,27 @@ entries:
       Liability: arithmetic on typed values, stated as not financial advice, no warranty, not
       affiliated with Apple or Google, nothing leaves the device. Ethics: helps developers see what
       acquisition costs against what a subscriber returns; no scraping.
+  - venture: cow-calf-breakeven-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built cow-calf-breakeven-calculator: a browser-local tool for cattle producers.
+        Enter hay, supplement, pasture, health, bull, labor, other costs, replacement rate and
+        cull value, calves weaned, weaning weight and calf price; it returns cost per cow, margin per
+        cow and per herd, the breakeven calf price per cwt, the weaning weight and weaning rate that
+        would break even, and calf-price, hay-price and weaning-rate scenarios. The guide's finding on
+        default numbers: hay is 33.7 percent of an $830 cow, each $10 a ton costs $20 a cow, and a dry
+        year (hay $220, calves $200, 82 percent weaned) turns a $380 margin into an $88 loss. New niche:
+        no cattle or livestock venture exists under ventures/; custom-farm-rate-calculator prices
+        field work for others. First visitor expected from "cost to keep a cow per year" and "breakeven
+        calf price" searches. Nothing leaves the browser. Unverified with a real producer; defaults are
+        illustrative and every value is editable.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed values, stated as not financial or veterinary advice, no warranty,
+      not affiliated with any association or market, nothing leaves the device. Ethics: helps producers
+      see what a cow costs against what her calf sells for; no scraping.
