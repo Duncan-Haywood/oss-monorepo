@@ -91,3 +91,9 @@ test("index's own worked example demonstrates real drift (dogfooding)", async ()
   assert.equal(status, "missing", "the worked example should demonstrate at least one missing variable");
   assert.ok(report.missing.some((m) => m.name === "AWS_REGION"));
 });
+
+// Inbound hop for git-bus-factor-check, which would otherwise be a crawlable orphan.
+test('index links one hop to the git-bus-factor-check sibling', async () => {
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(index, /href="\.\.\/git-bus-factor-check\/"/);
+});

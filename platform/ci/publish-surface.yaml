@@ -92,6 +92,9 @@ workflows:
 - workflow: docker-compose-security-check-ci.yml
   classification: none
   publishes: []
+- workflow: git-bus-factor-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: actions-self-hosted-exposure-check-ci.yml
   classification: none
   publishes: []
