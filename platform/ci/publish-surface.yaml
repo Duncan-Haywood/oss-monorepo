@@ -2102,6 +2102,9 @@ workflows:
 - workflow: water-softener-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: wedding-budget-allocator-ci.yml
+  classification: none
+  publishes: []
 - workflow: wedding-florist-proposal-calculator-ci.yml
   classification: none
   publishes: []
