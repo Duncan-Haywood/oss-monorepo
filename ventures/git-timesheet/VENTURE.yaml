@@ -1,0 +1,45 @@
+name: git-timesheet
+description: 'Free, zero-network, zero-dependency browser tool + CLI that turns git log into estimated billable hours per day (commit-session grouping with idle gap and lead time, per contributor), a client-ready Markdown/CSV/JSON work summary and an invoice figure at an hourly rate; has a --max-hours / --max-amount CI gate. An estimate from commit timestamps, not a time record.'
+stage: prototype
+
+owner: duncan
+
+# CLI + browser archetype. duplicate_check scored the niche below the bar
+# (closest: git-bus-factor-check, a different question). Not another trade bid calculator.
+#
+# Where the first real visitor would come from: search phrases "git log to timesheet",
+# "estimate hours from git commits", "invoice from git history", "git-hours alternative";
+# r/freelance, r/webdev, r/ExperiencedDevs and Hacker News threads on billing clients
+# from commit history. The reader is a freelance developer or small agency that must
+# justify hours to a client. git-hours (npm) is CLI-only, unmaintained, and produces no
+# client-facing summary; the wedge is the readable report plus a no-install browser path.
+# Paid path later: a hosted weekly report emailed to clients from a connected repo.
+hypotheses:
+  - claim: A freelance developer will search for how to estimate hours from commits, paste a log, and send the generated summary to a client.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: An agency lead will schedule the CLI with --max-hours so a retainer overrun is flagged before the invoice, not after.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: parsing and arithmetic run in the visitor's browser or
+  # on their machine; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI or cron within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/git-timesheet/
+  analytics: null
