@@ -26660,3 +26660,30 @@ ventures:
       Liability: arithmetic on typed amounts under the published federal definition, stated so and not grant,
       accounting or legal advice, no warranty, funder rules come first, nothing leaves the device. Ethics: helps
       small organisations claim the indirect cost they are allowed; the user decides and remains responsible.
+  - slug: docker-compose-security-check
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 3
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic line scan of a configuration file; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in the venture's
+      own VENTURE.yaml comment. Time to revenue 3 (a free dev tool, donations only), distribution 5 and
+      defensibility 3: searches for docker compose privileged, docker.sock mounts and exposed database
+      ports land on docs and blog posts with no checker attached, and the check is easy to copy.
+      Volume not measured with an external tool.
+      Scope: Free CLI and browser tool that flags risky settings in the user's own docker-compose.yml.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: mechanical read-only heuristic scan, labelled not a security audit, no warranty, nothing
+      leaves the device. Ethics: defensive hygiene on the user's own configuration file.

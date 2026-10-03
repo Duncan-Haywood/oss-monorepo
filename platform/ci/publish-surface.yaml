@@ -89,6 +89,9 @@ workflows:
 - workflow: jwt-verification-misuse-check-ci.yml
   classification: none
   publishes: []
+- workflow: docker-compose-security-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: actions-self-hosted-exposure-check-ci.yml
   classification: none
   publishes: []
