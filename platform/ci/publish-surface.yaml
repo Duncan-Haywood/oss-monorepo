@@ -1589,6 +1589,9 @@ workflows:
 - workflow: quote-follow-up-timing-ci.yml
   classification: none
   publishes: []
+- workflow: quickbooks-import-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: quote-margin-check-ci.yml
   classification: none
   publishes: []
