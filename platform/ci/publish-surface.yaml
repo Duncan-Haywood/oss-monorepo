@@ -2258,6 +2258,9 @@ workflows:
 - workflow: window-tinting-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: woocommerce-product-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: wordpress-plugin-review-check-ci.yml
   classification: none
   publishes: []
