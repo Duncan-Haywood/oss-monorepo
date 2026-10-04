@@ -95,6 +95,9 @@ workflows:
 - workflow: actions-transitive-pin-check-ci.yml
   classification: none
   publishes: []
+- workflow: activecampaign-import-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: ad-incrementality-test-analyzer-ci.yml
   classification: none
   publishes: []
@@ -147,6 +150,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: amazon-fba-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: amazon-inventory-loader-check-ci.yml
   classification: none
   publishes: []
 - workflow: amazon-ppc-search-term-analyzer-ci.yml
@@ -692,6 +698,9 @@ workflows:
 - workflow: ebay-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: ebay-file-exchange-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: ebay-transaction-report-analyzer-ci.yml
   classification: none
   publishes: []
@@ -1037,6 +1046,9 @@ workflows:
 - workflow: hsa-contribution-limit-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: hubspot-contacts-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: hvac-maintenance-contract-calculator-ci.yml
   classification: none
   publishes: []
@@ -1131,6 +1143,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: kitchen-tile-backsplash-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: klaviyo-profile-csv-check-ci.yml
   classification: none
   publishes: []
 - workflow: lambda-memory-rightsizer-ci.yml
@@ -1460,6 +1475,9 @@ workflows:
 - workflow: pinned-actions-check-ci.yml
   classification: none
   publishes: []
+- workflow: pipedrive-import-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: plantation-shutter-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -1761,6 +1779,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: sales-seasonality-forecaster-ci.yml
+  classification: none
+  publishes: []
+- workflow: salesforce-lead-import-csv-check-ci.yml
   classification: none
   publishes: []
 - workflow: salt-cap-calculator-ci.yml
@@ -2072,6 +2093,9 @@ workflows:
 - workflow: tax-season-client-picker-ci.yml
   classification: none
   publishes: []
+- workflow: teachers-pay-teachers-earnings-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: tender-bid-readiness-ci.yml
   classification: none
   publishes: []
@@ -2231,21 +2255,6 @@ workflows:
 - workflow: w2-efw2-file-validator-ci.yml
   classification: none
   publishes: []
-- workflow: hubspot-contacts-csv-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: pipedrive-import-csv-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: zoho-crm-import-csv-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: activecampaign-import-csv-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: klaviyo-profile-csv-check-ci.yml
-  classification: none
-  publishes: []
 - workflow: wage-garnishment-limit-calculator-ci.yml
   classification: none
   publishes: []
@@ -2328,6 +2337,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: youtube-revenue-rpm-analyzer-ci.yml
+  classification: none
+  publishes: []
+- workflow: zoho-crm-import-csv-check-ci.yml
   classification: none
   publishes: []
 gitops:
