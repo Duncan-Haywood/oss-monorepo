@@ -1248,10 +1248,10 @@ const CATEGORY_RULES = [
       || slug === 'activecampaign-import-csv-check'
       // `klaviyo-profile-csv-check` joined 2026-10-04: the Klaviyo (email/SMS marketing profiles) member of the same import pre-flight family.
       || slug === 'klaviyo-profile-csv-check'
+      // `google-ads-editor-csv-check` joined 2026-10-04: the Google Ads Editor (campaigns, keywords, responsive search ads) member of the same import pre-flight family.
+      || slug === 'google-ads-editor-csv-check'
       // `mailchimp-audience-csv-check` joined 2026-10-04: the Mailchimp (email audience contacts) member of the same import pre-flight family.
       || slug === 'mailchimp-audience-csv-check'
-      // `google-ads-editor-csv-check` joined 2026-10-04: the Google Ads Editor import pre-flight, same line-numbered findings; it landed uncategorised and filled the catch-all.
-      || slug === 'google-ads-editor-csv-check'
       // `gbp-bulk-location-check` joined 2026-10-04: a Google Business Profile bulk-location spreadsheet pre-flight, the same line-numbered findings and explicit not-checked list as the import pre-flights above, filed beside them for the same reason.
       || slug === 'gbp-bulk-location-check',
   },

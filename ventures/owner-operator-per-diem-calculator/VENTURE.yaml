@@ -1,0 +1,51 @@
+name: owner-operator-per-diem-calculator
+description: >-
+  Free browser calculator for self-employed owner-operator truck drivers: enter full days and
+  travel days away from home, the M&IE per diem rate, apply the 80 percent DOT hours-of-service
+  limit, compare the per diem deduction against actual meal receipts, and see the larger figure
+  with an estimated self-employment tax and income tax saving. Nothing is uploaded; rates and
+  rules must be verified against the current GSA and IRS notices.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Owner-operators searching "owner operator per diem deduction" want one number for the year, per diem versus receipts, and will use a calculator that shows it with the tax effect rather than read an IRS publication.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing the self-employment tax saving (15.3 percent of 92.35 percent, wage-base aware) next to the income tax saving makes the per diem worth keeping records for, more than the deduction alone.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified owner-operators use the calculator twice within 90 days.
+  - Operators report the rate and rule defaults are out of date faster than a free page can be kept current.
+links:
+  production: null
+  analytics: null
+
+# Screened 2026-10-04. Duplicate check: nearest siblings are owner-operator-cpm-calculator (0.24,
+# costs a week of running, mentions the per-diem election only as an input to a tax reserve) and
+# ifta-quarterly-fuel-tax-calculator (fuel tax filing). Neither computes the per diem deduction.
+#
+# First visitor: self-employed and lease-purchase OTR drivers searching "owner operator per diem",
+# "can an owner operator deduct per diem", "trucker per diem 80 percent". Volume not measured with
+# an external tool. Users have money and a real problem: the deduction is large for a driver who is
+# away most of the year, and the tax saving is the number they want.
+#
+# Rules are stated as read from memory and flagged for verification: the transportation-industry
+# M&IE rates ($80 CONUS, $86 OCONUS defaults), 75 percent on travel days, the 80 percent DOT
+# hours-of-service limit, the Social Security wage base, and whether W-2 company drivers can deduct
+# anything (stated only as "verify; rules changed under 2025 legislation"). Not tax advice.
+#
+# Path to revenue (payment rails stay off): lead magnet for the owner-operator audience, cross-linked
+# to owner-operator-cpm-calculator and ifta-quarterly-fuel-tax-calculator. Nothing paid is built.
+#
+# Liability: arithmetic on the user's own inputs, no warranty, independent of the IRS, GSA and DOT.
