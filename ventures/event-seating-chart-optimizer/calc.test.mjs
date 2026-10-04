@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseGuests, parseRules, validateSpec, optimize, verifyPlan, weightMatrix, planScore,
-  baselinePlan, sampleSpec, planCsv, resolveTableCount, capacityPerTable, WEIGHTS,
+  baselinePlan, sampleSpec, planCsv, reseat, parsePlanCsv, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, WEIGHTS,
 } from "./calc.mjs";
 
 function specFrom(guestText, ruleText, extra = {}) {
@@ -160,4 +160,63 @@ test("CSV has one row per guest and quotes commas", () => {
   const csv = planCsv(spec, optimize(spec)).split("\n");
   assert.equal(csv.length, 3);
   assert.ok(csv.some((l) => l.includes('"Lee, Ann"')));
+});
+
+function changedSpec() {
+  const gt = SAMPLE_GUESTS.split("\n").filter((l) => !/Cousin Ben|Hannah Cole/.test(l)).concat(["New One", "New Two | Brandt family"]).join("\n");
+  const rt = SAMPLE_RULES.split("\n").filter((l) => !/Cousin Ben|Hannah Cole/.test(l)).concat(["New One !! Uncle Ray"]).join("\n");
+  const { guests } = parseGuests(gt);
+  return { ...sampleSpec(), guests, rules: parseRules(rt, guests).rules };
+}
+
+test("parsePlanCsv round-trips planCsv, quotes included, and rejects junk rows", () => {
+  const spec = sampleSpec();
+  const csv = planCsv(spec, optimize(spec));
+  const { prev, errors } = parsePlanCsv(csv);
+  assert.deepEqual(errors, []);
+  assert.equal(prev.size, spec.guests.length);
+  assert.equal(parsePlanCsv('Table,Guest,Party\n2,"Smith, Jo",\n').prev.get("smith, jo"), 1);
+  assert.ok(parsePlanCsv("x,y").errors.length);
+  assert.ok(parsePlanCsv("").errors.length);
+});
+
+test("reseat keeps returning guests put, seats new ones legally, and moves far fewer than a fresh run", () => {
+  const spec = sampleSpec();
+  const { prev } = parsePlanCsv(planCsv(spec, optimize(spec)));
+  const s2 = changedSpec();
+  const fresh = optimize(s2);
+  let freshMoves = 0;
+  s2.guests.forEach((g, i) => { const o = prev.get(g.name.toLowerCase()); if (o !== undefined && fresh.table[i] !== o) freshMoves++; });
+  const res = reseat(s2, prev, "medium");
+  assert.deepEqual(res.errors, []);
+  assert.deepEqual(verifyPlan(s2, res), []);
+  assert.equal(res.retained, 22);
+  assert.deepEqual(res.added.sort(), ["New One", "New Two"]);
+  assert.deepEqual(res.dropped.sort(), ["cousin ben", "hannah cole"]);
+  assert.ok(res.moved.length < freshMoves, `${res.moved.length} vs fresh ${freshMoves}`);
+  assert.equal(res.neverBroken.length, 0);
+  assert.equal(res.kept + res.moved.length, res.retained);
+});
+
+test("reseat still moves a guest when a never-together rule demands it", () => {
+  const spec = sampleSpec();
+  const { prev } = parsePlanCsv(planCsv(spec, optimize(spec)));
+  const rayTable = prev.get("uncle ray");
+  const other = spec.guests.find((g) => prev.get(g.name.toLowerCase()) === rayTable && g.name !== "Uncle Ray" && !spec.rules.some((r) => r.kind === "pin" && spec.guests[r.a].name === g.name));
+  const { guests } = parseGuests(SAMPLE_GUESTS);
+  const rules = parseRules(SAMPLE_RULES + `\nUncle Ray !! ${other.name}`, guests).rules;
+  const res = reseat({ ...spec, guests, rules }, prev, "high");
+  assert.equal(res.neverBroken.length, 0);
+  assert.ok(res.moved.length >= 1);
+  assert.deepEqual(verifyPlan({ ...spec, guests, rules }, res), []);
+});
+
+test("reseat is deterministic and honours pins", () => {
+  const spec = sampleSpec();
+  const { prev } = parsePlanCsv(planCsv(spec, optimize(spec)));
+  const s2 = changedSpec();
+  assert.deepEqual(reseat(s2, prev).table, reseat(s2, prev).table);
+  const res = reseat(s2, prev);
+  assert.ok(res.tables[0].guests.includes("Maya Okafor"));
+  assert.ok(res.tables[0].guests.includes("Priest Anselm"));
 });
