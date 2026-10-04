@@ -27204,3 +27204,36 @@ ventures:
       asserts no network calls), account numbers are masked in output, and the
       repair step never edits an entry so it cannot redirect a payment. Ethics:
       free, informational, nothing leaves the device.
+  - slug: form-5500-late-filing-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every output is date arithmetic and
+      editable constants applied to the user's own plan dates.
+    basis: >-
+      Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Plan sponsors who miss
+      July 31 find provider blog posts and agency pages but no free page that puts
+      the due date, the extension, the DFVC cost and the IRS and DOL ceilings
+      together. Distribution 6: "Form 5500 late filing penalty", "DFVC program cost"
+      and "when is Form 5500 due" are recurring queries, strongly seasonal; volume
+      not measured with an external tool. Defensibility 3: the rules are public and
+      re-implementable, the edge is the multi-year case, the ceilings-not-predictions
+      framing and the local-only stance.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on dates and editable figures; penalty amounts are shown
+      as statutory ceilings and labelled from memory, not predictions; no tax, legal
+      or retirement-plan advice, no warranty, independent-of-the-IRS-and-DOL clause.
+      Ethics: free, informational, nothing leaves the device.

@@ -1327,6 +1327,10 @@ const CATEGORY_RULES = [
       // exports from payroll or AP before the bank sees it -- the same back-office money-movement job as
       // `payroll-tax-deposit-penalty-calculator` and `duplicate-payment-audit`.
       || slug === 'nacha-file-validator'
+      // `form-5500-late-filing-calculator` joined 2026-10-04 on its first commit: a retirement-plan sponsor's overdue
+      // annual return priced against two agencies' penalties -- the same downstream tax-authority obligation as
+      // `quarterly-estimated-tax-calendar` above, not `solo-earner` (nothing is priced before a sale).
+      || slug === 'form-5500-late-filing-calculator'
       // `client-concentration-risk-analyzer` joined 2026-10-02 on its first commit: it reads the same invoice
       // export as `invoice-payment-terms-calculator` here and asks how much revenue one client carries.
       || slug === 'client-concentration-risk-analyzer'
