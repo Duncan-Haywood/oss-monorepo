@@ -1,0 +1,78 @@
+name: shopify-product-csv-check
+description: >-
+  Free browser tool that checks a Shopify product import CSV before it is uploaded: header
+  typos, blank and mismatched Handles, split products, repeated variants, price formats,
+  barcode check digits, image URLs, inventory columns, Excel scientific-notation SKUs,
+  semicolon-separated files and unbalanced body HTML, each with its line number, plus a
+  safe-fixes pass that cleans the mechanical faults and never edits a title, description,
+  SKU, barcode, quantity or image address. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. duplicate_check.py: top score 0.19
+# (nothing near the 0.45 bar); no Shopify CSV tool exists in ventures/. Merchants and agencies
+# import products by CSV when migrating from another platform, loading a supplier feed or
+# bulk-editing prices, and the import either fails with a terse error email or succeeds and
+# silently creates duplicates, splits a product, or drops a column. Existing answers are
+# Shopify's own import errors, paid bulk-edit apps, and generic CSV linters that know nothing
+# about Handle grouping or option combinations; nothing is a free page that explains each
+# fault with its line and fixes the mechanical ones.
+#
+# First visitor: merchants searching the literal error text ("Shopify CSV import failed",
+# "variant already exists", "Shopify import unterminated quote", "Excel scientific notation
+# barcode Shopify"), r/shopify and the Shopify Community import threads, and agencies doing
+# migrations. Volume not measured with an external tool.
+#
+# What makes it more than a CSV linter: it understands the product-file model (first row
+# carries the product, later rows are variants or images, grouped by Handle), so the
+# findings are the ones Shopify users actually hit; it recovers from the Excel round trip
+# (scientific notation, semicolons, decimal commas, currency symbols); and the repair step
+# is deliberately narrow and lists every change.
+#
+# Privacy is the liability boundary: catalogues can be commercially sensitive, so the file
+# never leaves the browser (a test asserts no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet for the Shopify merchant and agency
+# audience. A paid version, if usage appears, is bulk checks across store exports and saved
+# rule sets behind an env-var switch; not built.
+#
+# Liability: arithmetic and format checks on the user's own file, rules stated as read from
+# memory, no warranty, independent-of-Shopify clause, trademark used nominatively.
+#
+# Unverified: every column name and allowed value is from memory of Shopify's public product
+# CSV template and import help; the 250-tag and 255-character limits, the three-option limit
+# and the 100-variant note; whether lowercase/uppercase variants of TRUE/FALSE and status
+# values are rejected rather than tolerated. The first user report of a file that passes here
+# and fails in Shopify, or the reverse, is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A merchant whose Shopify product import failed will paste the CSV into a no-login page,
+      because the alternative is reading Shopify's error email and scanning rows by hand.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the line and cause, and getting a cleaned file, leads the same person to check
+      the next supplier feed before importing, which is the reason to return.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted file structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports Shopify rejecting a file this tool passed, or this tool failing a file Shopify accepted, at which point the rules need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/shopify-product-csv-check/
+  analytics: null

@@ -33,38 +33,38 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547275 bytes
-#   portfolio-front-tools-1: 92 files, 555145 bytes
-#   portfolio-front-tools-2: 144 files, 553165 bytes
-#   portfolio-front-tools-3: 132 files, 556827 bytes
-#   portfolio-front-tools-4: 137 files, 557027 bytes
-#   portfolio-front-tools-5: 129 files, 553278 bytes
-#   portfolio-front-tools-6: 124 files, 556499 bytes
-#   portfolio-front-tools-7: 136 files, 549855 bytes
-#   portfolio-front-tools-8: 134 files, 556943 bytes
-#   portfolio-front-tools-9: 128 files, 554638 bytes
-#   portfolio-front-tools-10: 125 files, 555106 bytes
-#   portfolio-front-tools-11: 130 files, 552268 bytes
-#   portfolio-front-tools-12: 141 files, 555841 bytes
-#   portfolio-front-tools-13: 122 files, 552475 bytes
-#   portfolio-front-tools-14: 123 files, 556746 bytes
-#   portfolio-front-tools-15: 122 files, 555808 bytes
-#   portfolio-front-tools-16: 121 files, 556116 bytes
-#   portfolio-front-tools-17: 118 files, 555769 bytes
-#   portfolio-front-tools-18: 130 files, 555577 bytes
-#   portfolio-front-tools-19: 129 files, 554194 bytes
+#   portfolio-front-tools-0: 145 files, 547264 bytes
+#   portfolio-front-tools-1: 92 files, 555150 bytes
+#   portfolio-front-tools-2: 144 files, 553157 bytes
+#   portfolio-front-tools-3: 132 files, 556823 bytes
+#   portfolio-front-tools-4: 137 files, 557024 bytes
+#   portfolio-front-tools-5: 129 files, 553301 bytes
+#   portfolio-front-tools-6: 124 files, 556514 bytes
+#   portfolio-front-tools-7: 136 files, 549892 bytes
+#   portfolio-front-tools-8: 134 files, 556992 bytes
+#   portfolio-front-tools-9: 128 files, 554610 bytes
+#   portfolio-front-tools-10: 125 files, 555082 bytes
+#   portfolio-front-tools-11: 130 files, 552332 bytes
+#   portfolio-front-tools-12: 141 files, 555845 bytes
+#   portfolio-front-tools-13: 122 files, 552451 bytes
+#   portfolio-front-tools-14: 123 files, 556782 bytes
+#   portfolio-front-tools-15: 122 files, 555812 bytes
+#   portfolio-front-tools-16: 121 files, 556114 bytes
+#   portfolio-front-tools-17: 118 files, 555591 bytes
+#   portfolio-front-tools-18: 130 files, 555515 bytes
+#   portfolio-front-tools-19: 129 files, 554195 bytes
 #   portfolio-front-tools-20: 130 files, 553843 bytes
-#   portfolio-front-tools-21: 124 files, 556789 bytes
-#   portfolio-front-tools-22: 137 files, 554109 bytes
-#   portfolio-front-tools-23: 120 files, 556428 bytes
-#   portfolio-front-tools-24: 127 files, 553876 bytes
-#   portfolio-front-tools-25: 91 files, 549393 bytes
-#   portfolio-front-tools-26: 124 files, 554654 bytes
-#   portfolio-front-tools-27: 121 files, 552428 bytes
-#   portfolio-front-tools-28: 125 files, 554248 bytes
-#   portfolio-front-tools-29: 134 files, 556241 bytes
-#   portfolio-front-tools-30: 115 files, 553495 bytes
-#   portfolio-front-tools-31: 54 files, 269992 bytes
+#   portfolio-front-tools-21: 124 files, 556777 bytes
+#   portfolio-front-tools-22: 137 files, 554088 bytes
+#   portfolio-front-tools-23: 120 files, 556494 bytes
+#   portfolio-front-tools-24: 127 files, 553875 bytes
+#   portfolio-front-tools-25: 91 files, 549368 bytes
+#   portfolio-front-tools-26: 121 files, 555359 bytes
+#   portfolio-front-tools-27: 121 files, 551887 bytes
+#   portfolio-front-tools-28: 126 files, 553133 bytes
+#   portfolio-front-tools-29: 135 files, 552226 bytes
+#   portfolio-front-tools-30: 117 files, 554781 bytes
+#   portfolio-front-tools-31: 56 files, 293317 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3520,6 +3520,9 @@ configMapGenerator:
       - shopify-permission-drift__index.html.gz=shopify-permission-drift__index.html.gz
       - shopify-permission-drift__usage.mjs.gz=shopify-permission-drift__usage.mjs.gz
       - shopify-permission-drift__vs-miniorange.html.gz=shopify-permission-drift__vs-miniorange.html.gz
+      - shopify-product-csv-check__calc.mjs.gz=shopify-product-csv-check__calc.mjs.gz
+      - shopify-product-csv-check__index.html.gz=shopify-product-csv-check__index.html.gz
+      - shopify-product-csv-check__usage.mjs.gz=shopify-product-csv-check__usage.mjs.gz
       - siding-bid-calculator__calc.mjs.gz=siding-bid-calculator__calc.mjs.gz
       - siding-bid-calculator__how-much-to-charge.html.gz=siding-bid-calculator__how-much-to-charge.html.gz
       - siding-bid-calculator__index.html.gz=siding-bid-calculator__index.html.gz
@@ -3626,17 +3629,17 @@ configMapGenerator:
       - source-map-leak-check__index.html.gz=source-map-leak-check__index.html.gz
       - source-map-leak-check__probe.mjs.gz=source-map-leak-check__probe.mjs.gz
       - source-map-leak-check__usage.mjs.gz=source-map-leak-check__usage.mjs.gz
+  - name: portfolio-front-tools-27
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - source-map-leak-check__vs-checking-devtools-by-hand.html.gz=source-map-leak-check__vs-checking-devtools-by-hand.html.gz
       - speech-to-text-pricing-calculator__cli.mjs.gz=speech-to-text-pricing-calculator__cli.mjs.gz
       - speech-to-text-pricing-calculator__engine.mjs.gz=speech-to-text-pricing-calculator__engine.mjs.gz
       - speech-to-text-pricing-calculator__how-to-choose-a-speech-to-text-api.html.gz=speech-to-text-pricing-calculator__how-to-choose-a-speech-to-text-api.html.gz
       - speech-to-text-pricing-calculator__index.html.gz=speech-to-text-pricing-calculator__index.html.gz
       - speech-to-text-pricing-calculator__usage.mjs.gz=speech-to-text-pricing-calculator__usage.mjs.gz
-  - name: portfolio-front-tools-27
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - spray-foam-bid-calculator__calc.mjs.gz=spray-foam-bid-calculator__calc.mjs.gz
       - spray-foam-bid-calculator__how-much-to-charge-for-spray-foam-insulation.html.gz=spray-foam-bid-calculator__how-much-to-charge-for-spray-foam-insulation.html.gz
       - spray-foam-bid-calculator__index.html.gz=spray-foam-bid-calculator__index.html.gz
@@ -3752,17 +3755,17 @@ configMapGenerator:
       - subdomain-takeover-check__analyze.mjs.gz=subdomain-takeover-check__analyze.mjs.gz
       - subdomain-takeover-check__check.mjs.gz=subdomain-takeover-check__check.mjs.gz
       - subdomain-takeover-check__fingerprints.mjs.gz=subdomain-takeover-check__fingerprints.mjs.gz
+  - name: portfolio-front-tools-28
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - subdomain-takeover-check__index.html.gz=subdomain-takeover-check__index.html.gz
       - subdomain-takeover-check__lookup.mjs.gz=subdomain-takeover-check__lookup.mjs.gz
       - subdomain-takeover-check__probe.mjs.gz=subdomain-takeover-check__probe.mjs.gz
       - subdomain-takeover-check__usage.mjs.gz=subdomain-takeover-check__usage.mjs.gz
       - subdomain-takeover-check__vs-checking-dig-by-hand.html.gz=subdomain-takeover-check__vs-checking-dig-by-hand.html.gz
       - subdomain-takeover-check__why-cnames-end-up-dangling.html.gz=subdomain-takeover-check__why-cnames-end-up-dangling.html.gz
-  - name: portfolio-front-tools-28
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - subpath-robots-check__analyze.mjs.gz=subpath-robots-check__analyze.mjs.gz
       - subpath-robots-check__cli.mjs.gz=subpath-robots-check__cli.mjs.gz
       - subpath-robots-check__index.html.gz=subpath-robots-check__index.html.gz
@@ -3883,16 +3886,16 @@ configMapGenerator:
       - toilet-replacement-bid-calculator__should-i-take-a-saturday-toilet-call.html.gz=toilet-replacement-bid-calculator__should-i-take-a-saturday-toilet-call.html.gz
       - toilet-replacement-bid-calculator__usage.mjs.gz=toilet-replacement-bid-calculator__usage.mjs.gz
       - toilet-replacement-bid-calculator__vs-a-flat-installed-price.html.gz=toilet-replacement-bid-calculator__vs-a-flat-installed-price.html.gz
-      - toilet-replacement-bid-calculator__vs-servicetitan.html.gz=toilet-replacement-bid-calculator__vs-servicetitan.html.gz
-      - tow-motor-club-call-calculator__calc.mjs.gz=tow-motor-club-call-calculator__calc.mjs.gz
-      - tow-motor-club-call-calculator__index.html.gz=tow-motor-club-call-calculator__index.html.gz
-      - tow-motor-club-call-calculator__usage.mjs.gz=tow-motor-club-call-calculator__usage.mjs.gz
-      - tow-truck-rate-calculator__calc.mjs.gz=tow-truck-rate-calculator__calc.mjs.gz
   - name: portfolio-front-tools-29
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - toilet-replacement-bid-calculator__vs-servicetitan.html.gz=toilet-replacement-bid-calculator__vs-servicetitan.html.gz
+      - tow-motor-club-call-calculator__calc.mjs.gz=tow-motor-club-call-calculator__calc.mjs.gz
+      - tow-motor-club-call-calculator__index.html.gz=tow-motor-club-call-calculator__index.html.gz
+      - tow-motor-club-call-calculator__usage.mjs.gz=tow-motor-club-call-calculator__usage.mjs.gz
+      - tow-truck-rate-calculator__calc.mjs.gz=tow-truck-rate-calculator__calc.mjs.gz
       - tow-truck-rate-calculator__index.html.gz=tow-truck-rate-calculator__index.html.gz
       - tow-truck-rate-calculator__usage.mjs.gz=tow-truck-rate-calculator__usage.mjs.gz
       - trade-show-roi-calculator__cli.mjs.gz=trade-show-roi-calculator__cli.mjs.gz
@@ -4023,15 +4026,15 @@ configMapGenerator:
       - video-hosting-pricing-calculator__usage.mjs.gz=video-hosting-pricing-calculator__usage.mjs.gz
       - vinyl-liner-bid-calculator__calc.mjs.gz=vinyl-liner-bid-calculator__calc.mjs.gz
       - vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz=vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz
-      - vinyl-liner-bid-calculator__index.html.gz=vinyl-liner-bid-calculator__index.html.gz
-      - vinyl-liner-bid-calculator__share.mjs.gz=vinyl-liner-bid-calculator__share.mjs.gz
-      - vinyl-liner-bid-calculator__usage.mjs.gz=vinyl-liner-bid-calculator__usage.mjs.gz
-      - vinyl-liner-bid-calculator__vs-a-flat-2999-special.html.gz=vinyl-liner-bid-calculator__vs-a-flat-2999-special.html.gz
   - name: portfolio-front-tools-30
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vinyl-liner-bid-calculator__index.html.gz=vinyl-liner-bid-calculator__index.html.gz
+      - vinyl-liner-bid-calculator__share.mjs.gz=vinyl-liner-bid-calculator__share.mjs.gz
+      - vinyl-liner-bid-calculator__usage.mjs.gz=vinyl-liner-bid-calculator__usage.mjs.gz
+      - vinyl-liner-bid-calculator__vs-a-flat-2999-special.html.gz=vinyl-liner-bid-calculator__vs-a-flat-2999-special.html.gz
       - vinyl-liner-bid-calculator__vs-jobber.html.gz=vinyl-liner-bid-calculator__vs-jobber.html.gz
       - voiceover-project-rate-calculator__calc.mjs.gz=voiceover-project-rate-calculator__calc.mjs.gz
       - voiceover-project-rate-calculator__how-much-should-i-charge-for-a-voice-over-project.html.gz=voiceover-project-rate-calculator__how-much-should-i-charge-for-a-voice-over-project.html.gz
@@ -4145,13 +4148,13 @@ configMapGenerator:
       - where-to-sell-calculator__etsy-vs-ebay-fees.html.gz=where-to-sell-calculator__etsy-vs-ebay-fees.html.gz
       - where-to-sell-calculator__export.mjs.gz=where-to-sell-calculator__export.mjs.gz
       - where-to-sell-calculator__handoff.mjs.gz=where-to-sell-calculator__handoff.mjs.gz
-      - where-to-sell-calculator__index.html.gz=where-to-sell-calculator__index.html.gz
-      - where-to-sell-calculator__returns-change-the-ranking.html.gz=where-to-sell-calculator__returns-change-the-ranking.html.gz
   - name: portfolio-front-tools-31
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - where-to-sell-calculator__index.html.gz=where-to-sell-calculator__index.html.gz
+      - where-to-sell-calculator__returns-change-the-ranking.html.gz=where-to-sell-calculator__returns-change-the-ranking.html.gz
       - where-to-sell-calculator__reverb-vs-ebay-for-gear.html.gz=where-to-sell-calculator__reverb-vs-ebay-for-gear.html.gz
       - where-to-sell-calculator__share.mjs.gz=where-to-sell-calculator__share.mjs.gz
       - where-to-sell-calculator__usage.mjs.gz=where-to-sell-calculator__usage.mjs.gz
