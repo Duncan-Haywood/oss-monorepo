@@ -2951,6 +2951,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `xero-contacts-csv-check` graduated (browser Xero contacts import checker: duplicate names, emails, Excel damage, payment terms, safe fixes, splitter).
     # +1: `hubspot-contacts-csv-check` graduated (browser HubSpot contacts/companies import checker: duplicate and invalid emails, Excel damage, date formats, lifecycle stage and lead status values, formatting-only safe fixes).
     # +1: `shopify-customer-csv-check` graduated (browser Shopify customer import checker: emails, E.164 phones, Excel zip and phone damage, country and province codes, consent values, tags, safe fixes).
+    # +1: `teachers-pay-teachers-earnings-analyzer` graduated (browser TPT sales CSV analyzer: observed fee incl. flat per-sale fee, per-resource take-home, repeat buyers, break-even price).
     total = 713  # `infra/OWNER_CHECKLIST.md`'s own "N of the 713 tools" wording.
     total = 713  # `infra/OWNER_CHECKLIST.md`'s own "N of the 713 tools" wording.
     # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
