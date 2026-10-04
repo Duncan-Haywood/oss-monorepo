@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 711 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 712 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -112,6 +112,14 @@
     <summary type="text">Free Form 5500 late filing calculator for 401(k) and retirement-plan sponsors: the due date with weekend rollover and the Form 5558 extension, days late, and the DOL DFVC programme cost beside IRS and DOL penalty exposure. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>HubSpot Contacts CSV Check — Find Import Errors Before You Upload</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hubspot-contacts-csv-check/"/>
+    <id>tag:marisstella.dev,2026:tool/hubspot-contacts-csv-check</id>
+    <updated>2026-10-04T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free HubSpot contacts and companies CSV checker: finds duplicate and invalid emails, Excel-damaged phone numbers and ZIP codes, date format problems, bad lifecycle stage and lead status values and headings HubSpot will not match, with line numbers, and applies formatting-only safe fixes. Runs in your browser; the file is never uploaded.</summary>
+  </entry>
+  <entry>
     <title>IRS IRIS 1099 CSV Check — Find Upload Errors Before You File</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/irs-iris-1099-csv-check/"/>
     <id>tag:marisstella.dev,2026:tool/irs-iris-1099-csv-check</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free SEPA XML checker for pain.001 credit transfer and pain.008 direct debit files: recomputes NbOfTxs and CtrlSum, checks IBAN and BIC, EUR, TARGET2 execution dates, field lengths and the SEPA character set, and repairs the totals. Runs in your browser; the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>SEPA pain.002 Status Reader</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sepa-pain002-status-reader/"/>
-    <id>tag:marisstella.dev,2026:tool/sepa-pain002-status-reader</id>
-    <updated>2026-10-04T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free SEPA pain.002 reader: which payments your bank rejected, what each code (AC04, AM04, MD01) means, what to fix. In your browser.</summary>
   </entry>
 </feed>

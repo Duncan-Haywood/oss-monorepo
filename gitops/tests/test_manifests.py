@@ -2949,9 +2949,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `xero-invoice-csv-check` graduated (browser Xero sales invoice CSV checker: per-invoice agreement, date order, Excel damage, safe fixes, 500-line splitter).
     # +1: `quickbooks-chart-of-accounts-csv-check` graduated (browser QuickBooks Online chart of accounts import checker: account types, detail types, duplicates, sub-account order, balances and dates).
     # +1: `xero-contacts-csv-check` graduated (browser Xero contacts import checker: duplicate names, emails, Excel damage, payment terms, safe fixes, splitter).
+    # +1: `hubspot-contacts-csv-check` graduated (browser HubSpot contacts/companies import checker: duplicate and invalid emails, Excel damage, date formats, lifecycle stage and lead status values, formatting-only safe fixes).
     # +1: `shopify-customer-csv-check` graduated (browser Shopify customer import checker: emails, E.164 phones, Excel zip and phone damage, country and province codes, consent values, tags, safe fixes).
-    total = 711  # `infra/OWNER_CHECKLIST.md`'s own "N of the 711 tools" wording.
-    total = 711  # `infra/OWNER_CHECKLIST.md`'s own "N of the 711 tools" wording.
+    total = 712  # `infra/OWNER_CHECKLIST.md`'s own "N of the 712 tools" wording.
+    total = 712  # `infra/OWNER_CHECKLIST.md`'s own "N of the 712 tools" wording.
     # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).

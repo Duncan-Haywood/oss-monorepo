@@ -2231,6 +2231,9 @@ workflows:
 - workflow: w2-efw2-file-validator-ci.yml
   classification: none
   publishes: []
+- workflow: hubspot-contacts-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: wage-garnishment-limit-calculator-ci.yml
   classification: none
   publishes: []
