@@ -62,3 +62,17 @@ test("related-tool links point at ventures that exist", async () => {
     assert.ok(existsSync(new URL(`../${m[1]}/VENTURE.yaml`, import.meta.url)), m[1]);
   }
 });
+
+test("the 835 guide links to the tool, carries the disclaimers and names no patient data", () => {
+  const guide = page("how-to-read-an-835-era-file.html");
+  assert.match(guide, /href="\.\/"/);
+  assert.match(guide, /No warranty/);
+  assert.match(guide, /not legal, tax, billing, coding, compliance, or financial advice/);
+  assert.match(guide, /not a HIPAA compliance assessment/);
+  assert.match(guide, /No affiliation with, endorsement by, or sponsorship from any named company/);
+  assert.match(guide, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(guide, /<script type="application\/ld\+json">/);
+  assert.doesNotMatch(guide, /fetch\(|<script[^>]+src=/);
+  assert.match(page("index.html"), /href="\.\/how-to-read-an-835-era-file\.html"/);
+  assert.match(page("sitemap.xml"), /how-to-read-an-835-era-file\.html/);
+});
