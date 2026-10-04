@@ -69,3 +69,8 @@ test("usage events named on the page are the ones the code records", () => {
 test("hours are never guessed: the page says so and per-hour output needs user input", () => {
   assert.match(page("index.html"), /the tool does not guess it/);
 });
+
+test("page links the Teachers Pay Teachers earnings analyzer sibling", () => {
+  const html = page("index.html");
+  assert.match(html, /href="\.\.\/teachers-pay-teachers-earnings-analyzer\/"/);
+});
