@@ -1,0 +1,42 @@
+name: llm-output-regression-diff
+description: 'Free, zero-network, zero-dependency browser tool + CLI that compares saved LLM outputs from before and after a model swap or prompt edit, per case id, and flags broken JSON, lost keys, new refusals, truncation, lost numbers and lost formatting; has a --max-regressions CI gate. Deterministic text checks, not a quality judge.'
+stage: prototype
+
+owner: duncan
+
+# CLI/library archetype (not another trade bid calculator) for developers shipping LLM features.
+# Offline sibling of hosted prompt-eval products (Promptfoo, Braintrust, LangSmith evals): those need
+# API keys and an account; this runs over outputs you already saved and exits non-zero in CI.
+#
+# Where the first real visitor would come from: search phrases "regression test prompts",
+# "llm output diff", "compare model outputs before and after", "prompt regression testing ci",
+# "migrate from gpt-4 to claude prompts break"; r/LocalLLaMA, r/LLMDevs and Hacker News threads after a
+# model deprecation notice. A hosted history/dashboard with scheduled re-runs is the natural paid path.
+hypotheses:
+  - claim: A developer facing a model deprecation or upgrade will search for a way to compare old and new outputs per case, paste two JSONL files, and use the flagged cases to decide whether to ship.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team with an LLM feature in production will add the CLI to CI as a gate on prompt and model changes because it needs no API key and no account.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: it compares local text; no network call anywhere.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository or write-up links to or forks cli.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/llm-output-regression-diff/
+  analytics: null
