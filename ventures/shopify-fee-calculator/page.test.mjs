@@ -132,3 +132,8 @@ test("the result panel is announced to screen readers when it updates", () => {
 test("index links to the marketplace fee comparison", () => {
   assert.match(index, /href="\.\.\/marketplace-fee-compare\/"/);
 });
+
+// Links to the product CSV checker so it has an inbound link from a sibling.
+test("index links to the Shopify product CSV check", () => {
+  assert.match(index, /href="\.\.\/shopify-product-csv-check\/"/);
+});
