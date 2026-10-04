@@ -2198,6 +2198,9 @@ workflows:
 - workflow: w2-efw2-file-validator-ci.yml
   classification: none
   publishes: []
+- workflow: 1099-vendor-csv-checker-ci.yml
+  classification: none
+  publishes: []
 - workflow: wage-garnishment-limit-calculator-ci.yml
   classification: none
   publishes: []
