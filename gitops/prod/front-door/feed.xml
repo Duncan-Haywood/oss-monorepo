@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 680 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 681 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Enter your record count and monthly searches and see what Algolia, Meilisearch Cloud, Typesense Cloud, Elastic Cloud and a self-hosted box cost, the 12-month spend under your growth rate, and the query volume where the cheapest option changes. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Speech-to-Text Pricing Calculator — Whisper API vs Deepgram vs AssemblyAI vs Google vs AWS vs self-hosted</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/speech-to-text-pricing-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/speech-to-text-pricing-calculator</id>
+    <published>2026-10-04T00:00:00Z</published>
+    <updated>2026-10-04T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Enter how many audio hours you transcribe a month and whether you need real-time streaming or speaker labels, and see what the OpenAI Whisper API, Deepgram, AssemblyAI, Google, AWS, Azure and a self-hosted GPU charge, the 12-month spend as volume grows, and the hours where the cheapest option changes. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>GPU Training Pricing Calculator — H100, A100, L40S, RTX 4090 on RunPod, Lambda, AWS, Vast.ai and more</title>
@@ -357,14 +366,5 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Compare booth rent, a commission split and an hourly job for a nail tech: take-home per hour worked (not per hour booked) after idle chair time, supplies, card fees, insurance, tips, retail commission and a self-employment tax estimate, plus break-even clients per week and an audit of past weeks. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Neon Bill Estimator — Estimate Your Monthly Postgres Bill and the Levers That Cut It</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/neon-bill-estimator/"/>
-    <id>tag:marisstella.dev,2026:tool/neon-bill-estimator</id>
-    <published>2026-10-03T00:00:00Z</published>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Estimate a monthly Neon serverless Postgres bill from your own usage (compute CU-hours, storage, restore history, branches, data transfer) at editable list prices, and see which changes cut it most, with a dollar saving for each. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

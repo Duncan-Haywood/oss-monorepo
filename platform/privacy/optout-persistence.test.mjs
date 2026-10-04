@@ -1257,8 +1257,9 @@ const RELATIVE_SELF = relative(
 // +1: `video-hosting-pricing-calculator` graduated.
 // +1: `uptime-monitoring-pricing-calculator` graduated.
 // +1: `search-api-pricing-calculator` graduated.
+// +1: `speech-to-text-pricing-calculator` graduated.
 // +1: `training-gpu-pricing-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 659;
+const SWITCHES_IN_THE_CATALOGUE = 660;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
