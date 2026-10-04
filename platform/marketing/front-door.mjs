@@ -467,6 +467,9 @@ export function renderFrontDoorFeed({ mirrored = [], launched = {} } = {}) {
   const entries = dated.slice(0, FEED_MAX_ENTRIES);
   const updated = feedUpdatedAt(dated, launched);
 
+  // `<published>` is not emitted: it was byte-for-byte the same date as the required `<updated>` (a tool has one launch date
+  // and no edit history here), 60 bytes x 30 entries in the `portfolio-front-html` ConfigMap that was 200 bytes over the etcd test
+  // budget on 2026-10-04 with one more venture merged. Atom requires `<updated>` and makes `<published>` optional.
   const entryXml = (tool) => {
     const date = `${launched[tool.slug]}T00:00:00Z`;
     const summary = String(tool.description ?? '').replace(/\s+/g, ' ').trim();
@@ -474,7 +477,6 @@ export function renderFrontDoorFeed({ mirrored = [], launched = {} } = {}) {
     <title>${escapeHtml(tool.title)}</title>
     <link rel="alternate" type="text/html" href="${escapeHtml(`${FRONT_DOOR_URL.replace(/\/$/, '')}${tool.url}`)}"/>
     <id>${escapeHtml(feedEntryId(tool.slug))}</id>
-    <published>${date}</published>
     <updated>${date}</updated>
     <category term="${escapeHtml(categoryFor(tool.slug).title)}"/>${
       summary ? `\n    <summary type="text">${escapeHtml(summary)}</summary>` : ''

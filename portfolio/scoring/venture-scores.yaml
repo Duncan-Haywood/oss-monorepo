@@ -27378,6 +27378,7 @@ ventures:
       never edits an IBAN or amount so it cannot redirect or resize a payment.
       Ethics: free, informational, nothing leaves the device.
   - slug: sepa-pain002-status-reader
+  - slug: eu-vat-oss-calculator
     scores:
       ai_leverage: 1
       autonomous_ops: 10
@@ -27401,6 +27402,21 @@ ventures:
       queries; volume not measured with an external tool, and it pairs with the pain.001
       validator. Defensibility 3: the code lists are public, the edge is the per-payment
       reading, the rejected totals and the resend list.
+      No model in the product, deliberately. Every figure is deterministic exact-decimal
+      arithmetic on the user's own sales file against a rate table with an as-of date.
+    basis: >-
+      Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Small sellers of digital goods,
+      e-commerce products and services to EU consumers, including non-EU sellers on the
+      non-Union OSS, must charge destination-country VAT above EUR 10,000 of cross-border
+      consumer sales and file a quarterly OSS return; existing answers are paid VAT suites
+      that connect to the shop, accountant guides with rate tables and no arithmetic, and
+      per-country rate lookups. Distribution 6: "EU VAT OSS calculator", "do I need OSS" and
+      "distance selling threshold" are recurring queries; volume not measured with an
+      external tool. Defensibility 3: the rules are public and re-implementable, the edge
+      is the threshold date from the user's own file, the per-country-per-rate table, the
+      reconciling gross reverse-calculation and the local-only stance. The rate table is from
+      memory and flagged as such, which caps how much the figures can be trusted today.
     gates:
       liability_containment: pass
       ethical_robustness: pass
@@ -27444,3 +27460,7 @@ ventures:
       clause, chargeback exposure disclaimed. The file never leaves the browser (a test
       asserts no network calls) and the repair step rewrites counts only. Ethics: free,
       informational, nothing leaves the device.
+      Liability: arithmetic on the user's own file, not tax advice, no warranty, independent
+      of the European Commission and every tax authority, rates shown with an as-of date and a
+      verify-before-filing instruction, no payment code. The file never leaves the browser (a
+      test asserts no network calls). Ethics: free, informational, nothing leaves the device.
