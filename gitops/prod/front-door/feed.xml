@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 691 free, browser-only tools served directly from marisstella.dev — the newest 30 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 692 free, browser-only tools served directly from marisstella.dev — the newest 30 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -33,6 +33,15 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Enter your COBRA premium and a marketplace quote and see the total cost of each over the months you need coverage, at five levels of medical care, with the break-even point and your election and special-enrollment deadlines. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>EDI X12 Order Checker — Validate 850, 810, 856 and 997 Files Before You Send</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/edi-x12-order-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/edi-x12-order-checker</id>
+    <published>2026-10-04T00:00:00Z</published>
+    <updated>2026-10-04T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free EDI X12 file checker and reader for suppliers: finds wrong SE/GE/IEA counts and control numbers, UPC and SSCC check-digit errors, invoice totals that do not match the lines and broken ship-notice hierarchies, and translates 997 rejections. Runs in your browser; the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>835 ERA Underpayment Finder — Check Payer Payments Against Your Contract</title>
@@ -267,14 +276,5 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your docker-compose.yml and find risky settings: privileged: true, docker.sock mounts, network_mode host, cap_add SYS_ADMIN, databases on 0.0.0.0, literal secrets, :latest images. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Dog Grooming Price Calculator — Price by Breed and Time</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dog-grooming-price-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/dog-grooming-price-calculator</id>
-    <published>2026-10-03T00:00:00Z</published>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Price dog grooming by breed class and time: the effective hourly each class earns after matting and de-shedding extras, drive time, supplies and no-shows, the price needed for your target hourly, a walk-away price, and an audit of past appointments showing which classes underpay. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

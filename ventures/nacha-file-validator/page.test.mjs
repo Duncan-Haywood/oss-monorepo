@@ -66,3 +66,7 @@ test("related-tool links point at ventures that exist", async () => {
 test("the footer links the SEPA sibling for euro payment files", () => {
   assert.match(page("index.html"), /href="\.\.\/sepa-pain001-validator\/"/);
 });
+
+test("links the EDI X12 order checker, the order-and-invoice side of the same supplier workflow", () => {
+  assert.match(page("index.html"), /href="\.\.\/edi-x12-order-checker\/"/);
+});

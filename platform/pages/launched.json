@@ -204,6 +204,7 @@
     "ebay-transaction-report-analyzer": "2026-09-29",
     "ebs-volume-cost-advisor": "2026-10-02",
     "economic-nexus-threshold-tracker": "2026-09-24",
+    "edi-x12-order-checker": "2026-10-04",
     "egress-window-bid-calculator": "2026-08-25",
     "einvoice-preflight": "2026-08-24",
     "eitc-calculator": "2026-09-25",
