@@ -1272,7 +1272,8 @@ const RELATIVE_SELF = relative(
 // +1: `sepa-pain001-validator` graduated.
 // +1: `eu-vat-oss-calculator` graduated.
 // +1: `edi-x12-order-checker` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 675;
+// +1: `irs-iris-1099-csv-check` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 676;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
