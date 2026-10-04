@@ -43,5 +43,5 @@ test("the page's worked example runs through the engine (dogfooding)", async () 
 
 test("index links one hop to the sibling estimators", async () => {
   const idx = await read("index.html");
-  for (const slug of ["supabase-bill-estimator", "vercel-bill-estimator", "neon-bill-estimator", "auth-mau-pricing-calculator", "sms-segment-cost-calculator", "error-tracking-pricing-calculator", "ci-minutes-pricing-calculator", "product-analytics-pricing-calculator", "cloudwatch-logs-cost-advisor"]) assert.match(idx, new RegExp(`href="\\.\\./${slug}/"`));
+  for (const slug of ["supabase-bill-estimator", "vercel-bill-estimator", "neon-bill-estimator", "auth-mau-pricing-calculator", "sms-segment-cost-calculator", "error-tracking-pricing-calculator", "ci-minutes-pricing-calculator", "product-analytics-pricing-calculator", "feature-flag-pricing-calculator", "cloudwatch-logs-cost-advisor"]) assert.match(idx, new RegExp(`href="\\.\\./${slug}/"`));
 });
