@@ -1286,10 +1286,11 @@ const RELATIVE_SELF = relative(
 // +1: `zoho-crm-import-csv-check` graduated.
 // +1: `activecampaign-import-csv-check` graduated.
 // +1: `klaviyo-profile-csv-check` graduated.
+// +1: `mailchimp-audience-csv-check` graduated.
 // +1: `shopify-customer-csv-check` graduated.
 // +1: `teachers-pay-teachers-earnings-analyzer` graduated.
 // +1: `amazon-inventory-loader-check` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 699;
+const SWITCHES_IN_THE_CATALOGUE = 700;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.

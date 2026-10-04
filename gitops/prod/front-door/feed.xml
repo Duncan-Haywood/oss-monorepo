@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 720 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 721 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -160,11 +160,11 @@
     <summary type="text">Free Klaviyo profile import CSV checker: finds invalid and duplicate emails, phone numbers that are not E.164, rows with no identifier, zips and phones Excel damaged, bad latitude, longitude and timezone values, mixed date formats and near-miss column names, with line numbers, and applies formatting-only safe fixes. Runs in your browser; the file is never uploaded.</summary>
   </entry>
   <entry>
-    <title>NACHA File Validator — Check an ACH File Before You Send It to the Bank</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/nacha-file-validator/"/>
-    <id>tag:marisstella.dev,2026:tool/nacha-file-validator</id>
+    <title>Mailchimp Audience CSV Check — Find Import Errors Before You Import</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mailchimp-audience-csv-check/"/>
+    <id>tag:marisstella.dev,2026:tool/mailchimp-audience-csv-check</id>
     <updated>2026-10-04T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free ACH file checker for payroll and vendor-payment files: finds bad record lengths, routing-number check digits, wrong entry hash and control totals, missing block padding and weekend effective dates, and rebuilds the control records. Runs in your browser; the file is never uploaded.</summary>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free Mailchimp audience import CSV checker: finds invalid and duplicate emails, rows with no email, unquoted commas in Tags, birthdays with a year or mixed DD/MM and MM/DD, mixed date formats, phones Excel damaged and near-miss column names, with line numbers, and applies formatting-only safe fixes. Runs in your browser; the file is never uploaded.</summary>
   </entry>
 </feed>
