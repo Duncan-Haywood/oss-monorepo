@@ -1251,12 +1251,15 @@ const RELATIVE_SELF = relative(
 // +1: `log-management-pricing-calculator` graduated.
 // +1: `cdn-bandwidth-pricing-calculator` graduated.
 // +1: `merchant-of-record-fee-calculator` graduated.
+// +1: `app-store-commission-calculator` graduated.
+// +1: `llm-output-regression-diff` graduated.
 // +1: `object-storage-pricing-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 652;
+const SWITCHES_IN_THE_CATALOGUE = 655;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
 // +1: `embroidery-shop-quote-calculator` graduated.
+// +1: `feature-flag-pricing-calculator` graduated.
 
 let counter = 0;
 function fixture(source) {

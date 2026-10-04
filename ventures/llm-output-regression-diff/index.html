@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LLM Output Regression Diff — check a model or prompt change before you ship it</title>
+  <meta name="description" content="Paste your saved LLM outputs from before and after a model swap or prompt edit and see which cases broke: invalid JSON, lost keys, new refusals, truncation, lost numbers. Free, runs in your browser, no API key, nothing is uploaded.">
+  <meta property="og:title" content="Did the new model break your prompts?">
+  <meta property="og:description" content="Diff baseline and candidate LLM outputs per case and gate CI on regressions. No API calls, no account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "LLM Output Regression Diff", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare saved LLM outputs before and after a model swap or prompt change and catch broken JSON, new refusals, truncation, lost numbers and format changes. Browser tool or zero-dependency Node CLI with a CI gate."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this call any model or API?", "acceptedAnswer": {"@type": "Answer", "text": "No. It compares two files of outputs you already saved. It makes no network call, needs no API key and never sees your prompts unless you put them in the output text."}}, {"@type": "Question", "name": "What does it actually check?", "acceptedAnswer": {"@type": "Answer", "text": "Per case id: empty or missing output, JSON that stopped parsing or lost keys or changed a value's type, new refusal or apology wording, unclosed code fences, large length changes, numbers that disappeared, lost lists, headings or code blocks, truncation, and low word overlap. Errors are likely to break a consumer; warnings deserve a human look."}}, {"@type": "Question", "name": "Is this a quality score for a model?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a tripwire for changes, not a judge of which output is better. A flagged case can be an improvement and a clean case can still be worse; read the flagged ones and keep your own evaluation for quality."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page works in your browser and sends nothing. The CLI reads local files only."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">LLM OUTPUT REGRESSION DIFF · RUNS IN YOUR BROWSER</p>
+    <h1>Did the new model or prompt break your outputs?</h1>
+    <p>Paste your <strong>saved outputs from before</strong> and <strong>after</strong> a model swap or prompt edit (one JSON object per line with an <code>id</code> and an <code>output</code>). Get a per-case list of what broke: <strong>invalid JSON, lost keys, new refusals, truncation, lost numbers, lost formatting</strong>.</p>
+    <p class="note">Nothing is uploaded and no model is called. It compares text you already have. It is a tripwire for changes, not a judge of quality.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your outputs</h2>
+    <div class="grid">
+      <div><label for="base">Baseline (before) — JSONL or JSON array</label><textarea id="base" spellcheck="false" placeholder='{"id":"case-1","output":"..."}'></textarea></div>
+      <div><label for="cand">Candidate (after) — JSONL or JSON array</label><textarea id="cand" spellcheck="false" placeholder='{"id":"case-1","output":"..."}'></textarea></div>
+      <div><label for="ratio">Flag length changes beyond <span class="note">(x)</span></label><input type="number" id="ratio" min="1" step="any" value="2"></div>
+      <div><label for="sim">Flag word overlap below <span class="note">(0–1)</span></label><input type="number" id="sim" min="0" max="1" step="any" value="0.2"></div>
+      <div><label for="maxreg">Allowed regressed cases <span class="note">(CI gate)</span></label><input type="number" id="maxreg" min="0" step="1" value="0"></div>
+    </div>
+    <p>
+      <button type="button" id="run">Compare</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What changed</h2>
+    <p id="summary"></p>
+    <table><thead><tr><th>Case</th><th>Status</th><th>Findings</th></tr></thead><tbody id="rows"></tbody></table>
+    <p class="note" id="extra"></p>
+  </section>
+
+  <section class="card">
+    <h2>Gate it in CI</h2>
+    <pre class="cmd">node cli.mjs diff baseline.jsonl candidate.jsonl
+node cli.mjs diff baseline.jsonl candidate.jsonl --max-regressions 2 --fail-on warn
+node cli.mjs diff baseline.jsonl candidate.jsonl --json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. Exit 1 when regressions exceed the limit. More: <a href="how-to-regression-test-prompts-when-switching-llm-models.html">How to regression-test prompts when switching LLM models</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this call any model or API?</h3>
+    <p>No. It compares two files of outputs you already saved. It makes no network call, needs no API key and never sees your prompts unless you put them in the output text.</p>
+    <h3>What does it actually check?</h3>
+    <p>Per case id: empty or missing output, JSON that stopped parsing or lost keys or changed a value's type, new refusal or apology wording, unclosed code fences, large length changes, numbers that disappeared, lost lists, headings or code blocks, truncation, and low word overlap. Errors are likely to break a consumer; warnings deserve a human look.</p>
+    <h3>Is this a quality score for a model?</h3>
+    <p>No. It is a tripwire for changes, not a judge of which output is better. A flagged case can be an improvement and a clean case can still be worse; read the flagged ones and keep your own evaluation for quality.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The page works in your browser and sends nothing. The CLI reads local files only.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not professional advice. It applies simple deterministic text checks and cannot tell whether an output is correct, safe or better; a clean result is not a guarantee that a model or prompt change is safe to ship. <strong>You are responsible for reviewing and verifying its output</strong> before relying on it. Product and model names belong to their owners; this project is not affiliated with any of them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks on the same repo: <a href="../llm-api-pricing-calculator/">LLM API Pricing Calculator</a>, <a href="../llm-usage-log-analyzer/">LLM Usage Log Analyzer</a>, <a href="../llm-call-cost-scan/">LLM Call Cost Scan</a>, <a href="../ai-coding-plan-cost-calculator/">AI Coding Plan Cost Calculator</a>.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { diff, verdict } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+    function render() {
+      const b = $("#base").value, c = $("#cand").value;
+      if (!b.trim() || !c.trim()) { $("#status").innerHTML = `<span class="error">Paste both files first (or load the worked example).</span>`; return; }
+      const r = diff(b, c, { maxLengthRatio: Math.max(1, Number($("#ratio").value) || 2), minSimilarity: Math.min(1, Math.max(0, Number($("#sim").value) || 0)) });
+      if (r.inputErrors.length) { $("#status").innerHTML = `<span class="error">${r.inputErrors.map(escapeHtml).join("<br>")}</span>`; return; }
+      if (!r.cases.length) { $("#status").innerHTML = `<span class="error">The baseline has no records.</span>`; return; }
+      $("#status").textContent = "";
+      const v = verdict(r, { maxRegressions: Math.max(0, Number($("#maxreg").value) || 0) });
+      $("#summary").innerHTML = `<span class="${v.fail ? "changed" : "ok"}">${escapeHtml(v.text)}</span>`;
+      $("#rows").innerHTML = r.cases.map((x) => {
+        const err = x.findings.some((f) => f.severity === "error");
+        const pill = err ? `<span class="pill error">regressed</span>` : x.findings.length ? `<span class="pill warn">warning</span>` : "clean";
+        return `<tr><td>${escapeHtml(x.id)}</td><td>${pill}</td><td>${x.findings.map((f) => `<strong>${escapeHtml(f.rule)}</strong>: ${escapeHtml(f.detail)}`).join("<br>") || "—"}</td></tr>`;
+      }).join("");
+      $("#extra").textContent = r.extraIds.length ? `In candidate only (ignored): ${r.extraIds.join(", ")}` : "";
+      $("#report-card").hidden = false;
+      record("compare_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    $("#run").addEventListener("click", render);
+
+    const EXAMPLE_BASE = [
+      { id: "extract-invoice", output: '{"vendor":"Acme","total":1240.5,"currency":"USD"}' },
+      { id: "summarize-ticket", output: "- Customer cannot log in\n- Reset email never arrived\n- Affects 3 users since Monday." },
+      { id: "refund-policy", output: "Refunds are available within 30 days of purchase for annual plans." },
+      { id: "write-sql", output: "```sql\nSELECT id FROM users WHERE active = 1;\n```" },
+    ];
+    const EXAMPLE_CAND = [
+      { id: "extract-invoice", output: 'Sure! Here is the data: {"vendor":"Acme","total":"1240.5"}' },
+      { id: "summarize-ticket", output: "The customer has some trouble with login." },
+      { id: "refund-policy", output: "I'm sorry, but I can't help with that." },
+      { id: "write-sql", output: "```sql\nSELECT id FROM users WHERE active = 1;\n```" },
+    ];
+    const toJsonl = (a) => a.map((x) => JSON.stringify(x)).join("\n");
+    $("#load-example").addEventListener("click", () => {
+      $("#base").value = toJsonl(EXAMPLE_BASE);
+      $("#cand").value = toJsonl(EXAMPLE_CAND);
+      render();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      $("#base").value = ""; $("#cand").value = ""; $("#status").textContent = ""; $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>
