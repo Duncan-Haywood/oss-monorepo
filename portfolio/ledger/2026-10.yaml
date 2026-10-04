@@ -1984,6 +1984,7 @@ entries:
       banking or compliance advice, no warranty, payment-data note. Ethics: free,
       nothing leaves the device, no scraping.
   - venture: sepa-pain002-status-reader
+  - venture: eu-vat-oss-calculator
     agent_spend_usd: null
     human_hours: 0
     outcomes:
@@ -2004,6 +2005,26 @@ entries:
         the page, README and VENTURE.yaml. Registered score row, launch date, CI workflow
         and category rule; also repaired a malformed publish-surface row for
         sepa-payment-file-validator-ci.yml that had lost its classification.
+        Graduated and built eu-vat-oss-calculator for small EU-bound digital and
+        e-commerce sellers (Etsy, Shopify, indie SaaS, app and course sellers, and non-EU
+        sellers on the non-Union OSS): a browser-local tool that runs the EUR 10,000
+        distance-sales threshold over a pasted sales CSV in date order (previous year from
+        the file or a box, headroom, the row and date of crossing, opt-in and non-EU
+        modes), then builds the quarterly OSS return per destination country and VAT rate
+        in exact BigInt/integer arithmetic with VAT rounded once per country and rate, gross
+        reverse-calculation that reconciles to the cent, refunds and credit notes, B2B
+        sales with a VAT ID, domestic sales shown as not part of OSS, manual FX rates, and
+        findings by row number (unknown countries, EL/GR, Northern Ireland, Monaco and
+        non-EU territories, rate ambiguity, duplicates). Flexible header detection incl.
+        Shopify/Etsy/German names, a CSV export of the return, and a records note (10
+        years, two non-conflicting location evidence). 80 tests pass and the page was run
+        in headless Chromium. New gap: duplicate_check closest match 0.25, below the 0.45
+        line. First visitor expected from "EU VAT OSS calculator" and "do I need OSS"
+        searches; none measured. Every reduced rate and every e-book rate in the table, four
+        recently changed standard rates, the threshold reading and the special-territory
+        notes are from memory with no network and no filed return to compare, stated on the
+        page, README and VENTURE.yaml. Registered score row, launch date, CI workflow,
+        category rule, and a sibling link from einvoice-preflight.
     mrr_end: 0
     gates:
       liability_containment: pass
@@ -2066,3 +2087,7 @@ entries:
     gate_note: >-
       Liability: format conversion of the user's own file, no accounting or banking advice, no
       warranty, financial-data note. Ethics: free, nothing leaves the device, no scraping.
+      Liability: arithmetic on the user's own file, not tax advice, no warranty, not
+      affiliated with the European Commission or any tax authority, rates carry an as-of date
+      and a verify-before-filing instruction, no payment code. Ethics: free, nothing leaves
+      the device, no scraping.

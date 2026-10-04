@@ -1327,6 +1327,9 @@ const CATEGORY_RULES = [
       // exports from payroll or AP before the bank sees it -- the same back-office money-movement job as
       // `payroll-tax-deposit-penalty-calculator` and `duplicate-payment-audit`.
       || slug === 'nacha-file-validator'
+      // `w2-efw2-file-validator` joined 2026-10-04 on its first commit: it checks the W-2 wage file a payroll
+      // preparer exports before it goes to SSA -- the same back-office payroll job as the deposit-penalty calculator.
+      || slug === 'w2-efw2-file-validator'
       // `form-5500-late-filing-calculator` joined 2026-10-04 on its first commit: a retirement-plan sponsor's overdue
       // annual return priced against two agencies' penalties -- the same downstream tax-authority obligation as
       // `quarterly-estimated-tax-calendar` above, not `solo-earner` (nothing is priced before a sale).
@@ -1352,6 +1355,9 @@ const CATEGORY_RULES = [
       // `bank-csv-to-qbo-converter` joined 2026-10-04 on its first commit: the CSV-in, accounting-file-out partner of the statement
       // readers -- a bookkeeper's bank CSV turned into QBO/OFX/QIF with the date and sign assumptions stated.
       || slug === 'bank-csv-to-qbo-converter'
+      // `eu-vat-oss-calculator` joined 2026-10-04 on its first commit: a small seller's EU cross-border VAT return from a sales export, the
+      // same back-office compliance-arithmetic job as the SEPA and e-invoice tools here.
+      || slug === 'eu-vat-oss-calculator'
       // `client-concentration-risk-analyzer` joined 2026-10-02 on its first commit: it reads the same invoice
       // export as `invoice-payment-terms-calculator` here and asks how much revenue one client carries.
       || slug === 'client-concentration-risk-analyzer'

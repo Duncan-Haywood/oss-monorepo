@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 693 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 695 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -11,7 +11,6 @@
     <title>BAI2 Statement Reader — Read and Check a Bank BAI2 File in Your Browser</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bai2-statement-reader/"/>
     <id>tag:marisstella.dev,2026:tool/bai2-statement-reader</id>
-    <published>2026-10-04T00:00:00Z</published>
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free BAI2 file viewer and checker: turns a bank&#39;s BAI2 statement into accounts, balances and a transaction list you can download as CSV, and checks the 49, 98 and 99 control totals and record counts. Runs in your browser; the file is never uploaded.</summary>
@@ -20,7 +19,6 @@
     <title>Bank CSV to QBO Converter — Free CSV to QBO, OFX and QIF for QuickBooks</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bank-csv-to-qbo-converter/"/>
     <id>tag:marisstella.dev,2026:tool/bank-csv-to-qbo-converter</id>
-    <published>2026-10-04T00:00:00Z</published>
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free bank CSV to QBO, OFX and QIF converter for QuickBooks and Quicken: handles debit/credit columns, US and European dates and decimals, catches bad rows and duplicates, and runs in your browser; the file is never uploaded.</summary>
@@ -29,7 +27,6 @@
     <title>Business Vehicle Depreciation Calculator — Section 179 vs bonus vs MACRS, heavy SUV and truck</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/business-vehicle-depreciation-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/business-vehicle-depreciation-calculator</id>
-    <published>2026-10-04T00:00:00Z</published>
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Enter the vehicle price, class and business-use percentage and see the first-year deduction and tax saved under regular MACRS, 100% bonus depreciation and Section 179, with the car luxury-auto caps and the 6,000 lb SUV cap applied, plus standard mileage. Free, runs in your browser, nothing is uploaded.</summary>
@@ -38,7 +35,6 @@
     <title>COBRA vs Marketplace Calculator — which costs less after a job loss</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cobra-vs-marketplace-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/cobra-vs-marketplace-calculator</id>
-    <published>2026-10-04T00:00:00Z</published>
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Enter your COBRA premium and a marketplace quote and see the total cost of each over the months you need coverage, at five levels of medical care, with the break-even point and your election and special-enrollment deadlines. Free, runs in your browser, nothing is uploaded.</summary>
@@ -47,7 +43,6 @@
     <title>EDI X12 Order Checker — Validate 850, 810, 856 and 997 Files Before You Send</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/edi-x12-order-checker/"/>
     <id>tag:marisstella.dev,2026:tool/edi-x12-order-checker</id>
-    <published>2026-10-04T00:00:00Z</published>
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free EDI X12 file checker and reader for suppliers: finds wrong SE/GE/IEA counts and control numbers, UPC and SSCC check-digit errors, invoice totals that do not match the lines and broken ship-notice hierarchies, and translates 997 rejections. Runs in your browser; the file is never uploaded.</summary>
@@ -56,7 +51,6 @@
     <title>835 ERA Underpayment Finder — Check Payer Payments Against Your Contract</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/era-835-underpayment-finder/"/>
     <id>tag:marisstella.dev,2026:tool/era-835-underpayment-finder</id>
-    <published>2026-10-04T00:00:00Z</published>
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free tool for medical and dental practices: drop in an X12 835 remittance file and see which service lines paid below your contract rates, which claims were denied and why, and what the payer took back. Runs in your browser; the file is never uploaded.</summary>
@@ -65,16 +59,22 @@
     <title>EU Bank Statement Reader — Open camt.053 and MT940 Files and Convert to CSV</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-bank-statement-reader/"/>
     <id>tag:marisstella.dev,2026:tool/eu-bank-statement-reader</id>
-    <published>2026-10-04T00:00:00Z</published>
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free camt.053 and MT940 bank statement reader: see balances and entries as a table, check that opening balance plus entries equals the closing balance, catch duplicates and gaps, and download a CSV. Runs in your browser; the file is never uploaded.</summary>
   </entry>
   <entry>
+    <title>EU VAT OSS Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-vat-oss-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/eu-vat-oss-calculator</id>
+    <updated>2026-10-04T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free EU VAT OSS calculator: EUR 10,000 threshold check and the quarterly OSS return by country and rate from a sales CSV.</summary>
+  </entry>
+  <entry>
     <title>Form 5500 Late Filing Calculator — DFVC Cost vs IRS and DOL Penalties</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/form-5500-late-filing-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/form-5500-late-filing-calculator</id>
-    <published>2026-10-04T00:00:00Z</published>
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free Form 5500 late filing calculator for 401(k) and retirement-plan sponsors: the due date with weekend rollover and the Form 5558 extension, days late, and the DOL DFVC programme cost beside IRS and DOL penalty exposure. Runs in your browser; nothing is uploaded.</summary>
@@ -83,7 +83,6 @@
     <title>NACHA File Validator — Check an ACH File Before You Send It to the Bank</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/nacha-file-validator/"/>
     <id>tag:marisstella.dev,2026:tool/nacha-file-validator</id>
-    <published>2026-10-04T00:00:00Z</published>
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free ACH file checker for payroll and vendor-payment files: finds bad record lengths, routing-number check digits, wrong entry hash and control totals, missing block padding and weekend effective dates, and rebuilds the control records. Runs in your browser; the file is never uploaded.</summary>
@@ -92,7 +91,6 @@
     <title>Search API Pricing Calculator — Algolia vs Meilisearch vs Typesense vs Elastic vs Self-Hosted</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/search-api-pricing-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/search-api-pricing-calculator</id>
-    <published>2026-10-04T00:00:00Z</published>
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Enter your record count and monthly searches and see what Algolia, Meilisearch Cloud, Typesense Cloud, Elastic Cloud and a self-hosted box cost, the 12-month spend under your growth rate, and the query volume where the cheapest option changes. Free, runs in your browser, nothing is uploaded.</summary>
@@ -101,7 +99,6 @@
     <title>SEPA pain.001 Validator — Check a SEPA XML Payment File Before You Upload It</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sepa-pain001-validator/"/>
     <id>tag:marisstella.dev,2026:tool/sepa-pain001-validator</id>
-    <published>2026-10-04T00:00:00Z</published>
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free SEPA XML checker for pain.001 credit transfer and pain.008 direct debit files: recomputes NbOfTxs and CtrlSum, checks IBAN and BIC, EUR, TARGET2 execution dates, field lengths and the SEPA character set, and repairs the totals. Runs in your browser; the file is never uploaded.</summary>
@@ -110,7 +107,6 @@
     <title>SEPA pain.002 Status Reader</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sepa-pain002-status-reader/"/>
     <id>tag:marisstella.dev,2026:tool/sepa-pain002-status-reader</id>
-    <published>2026-10-04T00:00:00Z</published>
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free SEPA pain.002 reader: which payments your bank rejected, what each code (AC04, AM04, MD01) means, what to fix. In your browser.</summary>
@@ -119,7 +115,6 @@
     <title>SEPA Payment File Validator — Check a pain.001 XML File Before You Send It to the Bank</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sepa-payment-file-validator/"/>
     <id>tag:marisstella.dev,2026:tool/sepa-payment-file-validator</id>
-    <published>2026-10-04T00:00:00Z</published>
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free SEPA credit transfer file checker for pain.001 XML: finds invalid IBANs, wrong NbOfTxs and CtrlSum, bad execution dates, characters the bank will reject and malformed XML, and rebuilds the control sums. Runs in your browser; the file is never uploaded.</summary>
@@ -128,7 +123,6 @@
     <title>Speech-to-Text Pricing Calculator — Whisper API vs Deepgram vs AssemblyAI vs Google vs AWS vs self-hosted</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/speech-to-text-pricing-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/speech-to-text-pricing-calculator</id>
-    <published>2026-10-04T00:00:00Z</published>
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Enter how many audio hours you transcribe a month and whether you need real-time streaming or speaker labels, and see what the OpenAI Whisper API, Deepgram, AssemblyAI, Google, AWS, Azure and a self-hosted GPU charge, the 12-month spend as volume grows, and the hours where the cheapest option changes. Free, runs in your browser, nothing is uploaded.</summary>
@@ -137,7 +131,6 @@
     <title>GPU Training Pricing Calculator — H100, A100, L40S, RTX 4090 on RunPod, Lambda, AWS, Vast.ai and more</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/training-gpu-pricing-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/training-gpu-pricing-calculator</id>
-    <published>2026-10-04T00:00:00Z</published>
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Enter the GPU, the busy GPU-hours per month and how much of the time it is really busy, and see what RunPod, Lambda, Vast.ai, CoreWeave, AWS, Google Cloud and Modal charge, the 12-month spend, and how many hours a month it takes before buying the card beats renting. Free, runs in your browser, nothing is uploaded.</summary>
@@ -146,7 +139,6 @@
     <title>Uptime Monitoring Pricing Calculator — UptimeRobot vs Better Stack vs Hyperping vs Pingdom vs self-hosted</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uptime-monitoring-pricing-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/uptime-monitoring-pricing-calculator</id>
-    <published>2026-10-04T00:00:00Z</published>
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Enter how many monitors you need, how often they must be checked and whether you want a public status page, and see what UptimeRobot, Better Stack, Hyperping, Pingdom and self-hosted Uptime Kuma charge, the 12-month spend as you add monitors, and the monitor count where the cheapest option changes. Free, runs in your browser, nothing is uploaded.</summary>
@@ -155,36 +147,24 @@
     <title>Video Hosting Pricing Calculator — Cloudflare Stream vs Mux vs Bunny vs api.video vs DIY AWS</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/video-hosting-pricing-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/video-hosting-pricing-calculator</id>
-    <published>2026-10-04T00:00:00Z</published>
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Enter the minutes of video you store, the minutes viewers watch per month and your monthly uploads, and see what Cloudflare Stream, Mux, Bunny Stream, api.video and a DIY AWS pipeline charge, the 12-month spend under your growth rate, and the viewing level where the cheapest platform changes. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>W-2 EFW2 File Validator — Check a Wage File Before You Upload It to SSA</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/w2-efw2-file-validator/"/>
+    <id>tag:marisstella.dev,2026:tool/w2-efw2-file-validator</id>
+    <updated>2026-10-04T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free EFW2 checker for W-2 electronic wage files: finds records that are not 512 characters, invalid SSNs, RT totals that no longer match the wage lines, wrong RF counts and Social Security wage-base errors, and rebuilds the totals. Runs in your browser; the file is never uploaded.</summary>
+  </entry>
+  <entry>
     <title>GitHub Actions timeout-minutes Check — Find Jobs That Can Bill 6 Hours</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-timeout-check/"/>
     <id>tag:marisstella.dev,2026:tool/actions-timeout-check</id>
-    <published>2026-10-03T00:00:00Z</published>
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your GitHub Actions workflow YAML and find every job with no timeout-minutes (or one set to the 360-minute default) — the jobs that can hang for six hours of billed runner time. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>App Store Commission Calculator — Apple 15%/30% vs Google Play vs Web Checkout</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/app-store-commission-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/app-store-commission-calculator</id>
-    <published>2026-10-03T00:00:00Z</published>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Enter your monthly app revenue and average in-app price and see what Apple (30% or 15%), Google Play and web checkout via Stripe or Paddle take, your net payout, 12-month totals, and the revenue where selling on the web beats the store cut. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>App Subscription Proceeds Calculator — What You Keep and What a Subscriber Is Worth</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/app-subscription-proceeds-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/app-subscription-proceeds-calculator</id>
-    <published>2026-10-03T00:00:00Z</published>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free calculator for indie app developers: what a subscription charge really leaves after store fees, tax and refunds, what a subscriber is worth at your churn, how long payback takes, and what a web checkout would change. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
