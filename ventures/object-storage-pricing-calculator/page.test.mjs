@@ -43,5 +43,5 @@ test("the page's worked example runs through the engine (dogfooding)", async () 
 
 test("index links one hop to the sibling estimators", async () => {
   const idx = await read("index.html");
-  for (const slug of ["cdn-bandwidth-pricing-calculator", "cloud-egress-calculator", "s3-storage-class-advisor", "ebs-volume-cost-advisor", "vector-db-cost-calculator", "log-management-pricing-calculator"]) assert.match(idx, new RegExp(`href="\\.\\./${slug}/"`));
+  for (const slug of ["cdn-bandwidth-pricing-calculator", "cloud-egress-calculator", "s3-storage-class-advisor", "ebs-volume-cost-advisor", "vector-db-cost-calculator", "log-management-pricing-calculator", "search-api-pricing-calculator"]) assert.match(idx, new RegExp(`href="\\.\\./${slug}/"`));
 });
