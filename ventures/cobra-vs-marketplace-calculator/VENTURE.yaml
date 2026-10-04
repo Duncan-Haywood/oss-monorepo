@@ -1,0 +1,46 @@
+name: cobra-vs-marketplace-calculator
+description: 'Free, zero-network, zero-dependency browser tool + CLI for someone who just lost job-based health coverage: total cost of COBRA versus an ACA marketplace plan over the months they need coverage, at five levels of medical care, with the break-even point, the deductible and out-of-pocket already paid this plan year carried over on COBRA, and the COBRA election, first-premium and marketplace special-enrollment deadlines. A deterministic calculator over typed numbers, not insurance or legal advice.'
+stage: prototype
+
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. No COBRA venture existed (grep of ventures/);
+# aca-subsidy-cliff-calculator answers the marketplace credit side only and insurance-denial-appeal-builder
+# is post-claim. Existing answers are broker and insurer explainer pages that list "factors to consider"
+# and a few HR-software vendors; none lets a person put in their own two quotes and see the total at
+# different levels of care. The non-obvious fact the tool is built around: COBRA keeps the plan year's
+# accumulators (deductible met, out-of-pocket spent), a new plan resets them, so late-year or mid-treatment
+# COBRA can beat a far cheaper marketplace premium. The marketplace premium is typed in net of credit, so
+# the tool holds no subsidy table that goes stale.
+# First visitor: people laid off, searching "cobra vs marketplace", "should I take cobra after layoff",
+# "cobra election deadline", plus HR and recruiters sharing it in severance packets. Search volume not
+# measured with an external tool. Hosted paid path later: severance-packet widget for HR teams.
+hypotheses:
+  - claim: A person who has just lost job coverage will enter their COBRA notice premium and a marketplace quote and use the totals-by-level-of-care table to decide, rather than picking on monthly premium alone.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: HR staff, outplacement firms or career coaches will link the deadline guide in severance packets.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool calculates only from typed numbers in
+  # the visitor's own browser and the CLI reads only local arguments; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No evidence within 90 days that anyone shared the link or reported using it.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/cobra-vs-marketplace-calculator/
+  analytics: null
