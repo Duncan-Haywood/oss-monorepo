@@ -1,0 +1,40 @@
+name: hubspot-contacts-csv-check
+description: >-
+  Free browser tool that checks a HubSpot contacts import CSV before it is imported: rows with no
+  email or Record ID, repeated emails, several addresses in one cell, "Name <address>" and mailto:
+  forms, mistyped and disposable domains, Excel-damaged phone numbers and ZIP codes, Lifecycle
+  Stage, Lead Status and marketing-status values HubSpot does not use by default, and date columns
+  that mix month-first and day-first, each with its line number, plus a safe-fixes pass that cleans
+  email formatting, rewrites a date column only when it has one possible reading, and drops exact
+  duplicate rows, and never edits a name, company, phone, address, title, owner or custom
+  property. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. Siblings cover store catalogues (Shopify,
+# WooCommerce, BigCommerce, Square, Squarespace, Wix, Etsy), accounting lists (Xero, QuickBooks) and
+# a generic email-platform audience file; none reads a CRM contacts import, where the cost of a bad
+# file is not a rejected row but duplicate or mis-staged contacts that sales then works for months.
+# HubSpot is the most-used SMB CRM, and every CRM migration, event-list upload and list-vendor
+# purchase ends in a contacts CSV.
+#
+# First visitor: marketing-ops people, founders and RevOps freelancers searching the literal
+# symptoms ("HubSpot import duplicates", "HubSpot import error lifecycle stage", "HubSpot CSV date
+# format", "HubSpot import phone number scientific notation"). Volume not measured externally.
+#
+# What makes it more than a CSV linter: the findings that matter are about matching (no email or
+# Record ID means every re-import creates new contacts) and mis-reading (a date column mixing orders
+# lands half its values on the wrong day), not about formatting. The repair step is deliberately
+# narrow and lists every change.
+#
+# Privacy is the liability boundary and the selling point: contact lists are personal data, so the
+# file never leaves the browser (a test asserts no network calls). Rules are stated as read from
+# memory, with an explicit not-checked list, including consent.
+#
+# Path to revenue (payment rails stay off): lead magnet toward RevOps and marketing-ops freelancers
+# and agencies, cross-linked to the sibling checkers. A paid version, if usage appears, is
+# bulk/multi-file checks and saved rule sets for a portal's custom stages behind an env-var switch;
+# not built.
+#
+# Liability: format checks on the user's own file, no warranty, independent-of-HubSpot clause,
+# not advice on email or privacy law, trademark used nominatively.
