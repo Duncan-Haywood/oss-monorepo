@@ -33,37 +33,37 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547269 bytes
-#   portfolio-front-tools-1: 92 files, 555152 bytes
-#   portfolio-front-tools-2: 144 files, 553168 bytes
-#   portfolio-front-tools-3: 132 files, 556803 bytes
-#   portfolio-front-tools-4: 137 files, 556824 bytes
-#   portfolio-front-tools-5: 129 files, 553352 bytes
-#   portfolio-front-tools-6: 123 files, 549979 bytes
-#   portfolio-front-tools-7: 135 files, 556364 bytes
-#   portfolio-front-tools-8: 134 files, 556035 bytes
-#   portfolio-front-tools-9: 125 files, 540772 bytes
-#   portfolio-front-tools-10: 125 files, 551246 bytes
-#   portfolio-front-tools-11: 129 files, 555469 bytes
-#   portfolio-front-tools-12: 143 files, 549457 bytes
-#   portfolio-front-tools-13: 124 files, 554496 bytes
-#   portfolio-front-tools-14: 130 files, 554896 bytes
-#   portfolio-front-tools-15: 118 files, 557024 bytes
-#   portfolio-front-tools-16: 119 files, 556146 bytes
-#   portfolio-front-tools-17: 120 files, 554971 bytes
-#   portfolio-front-tools-18: 132 files, 555040 bytes
-#   portfolio-front-tools-19: 134 files, 550023 bytes
-#   portfolio-front-tools-20: 125 files, 552230 bytes
-#   portfolio-front-tools-21: 126 files, 555372 bytes
-#   portfolio-front-tools-22: 136 files, 551567 bytes
-#   portfolio-front-tools-23: 121 files, 556470 bytes
-#   portfolio-front-tools-24: 118 files, 556401 bytes
-#   portfolio-front-tools-25: 102 files, 553397 bytes
-#   portfolio-front-tools-26: 117 files, 555705 bytes
-#   portfolio-front-tools-27: 131 files, 554181 bytes
-#   portfolio-front-tools-28: 125 files, 555643 bytes
-#   portfolio-front-tools-29: 124 files, 555855 bytes
-#   portfolio-front-tools-30: 104 files, 509167 bytes
+#   portfolio-front-tools-0: 145 files, 547279 bytes
+#   portfolio-front-tools-1: 92 files, 555156 bytes
+#   portfolio-front-tools-2: 144 files, 553165 bytes
+#   portfolio-front-tools-3: 132 files, 556813 bytes
+#   portfolio-front-tools-4: 137 files, 556827 bytes
+#   portfolio-front-tools-5: 129 files, 553359 bytes
+#   portfolio-front-tools-6: 123 files, 549981 bytes
+#   portfolio-front-tools-7: 135 files, 556433 bytes
+#   portfolio-front-tools-8: 134 files, 556017 bytes
+#   portfolio-front-tools-9: 125 files, 540780 bytes
+#   portfolio-front-tools-10: 125 files, 551227 bytes
+#   portfolio-front-tools-11: 129 files, 555443 bytes
+#   portfolio-front-tools-12: 143 files, 549481 bytes
+#   portfolio-front-tools-13: 124 files, 554504 bytes
+#   portfolio-front-tools-14: 130 files, 554949 bytes
+#   portfolio-front-tools-15: 118 files, 556918 bytes
+#   portfolio-front-tools-16: 119 files, 556149 bytes
+#   portfolio-front-tools-17: 120 files, 554811 bytes
+#   portfolio-front-tools-18: 132 files, 555138 bytes
+#   portfolio-front-tools-19: 134 files, 550070 bytes
+#   portfolio-front-tools-20: 125 files, 552332 bytes
+#   portfolio-front-tools-21: 126 files, 555389 bytes
+#   portfolio-front-tools-22: 136 files, 551602 bytes
+#   portfolio-front-tools-23: 121 files, 556491 bytes
+#   portfolio-front-tools-24: 118 files, 556488 bytes
+#   portfolio-front-tools-25: 102 files, 553117 bytes
+#   portfolio-front-tools-26: 117 files, 555701 bytes
+#   portfolio-front-tools-27: 131 files, 554224 bytes
+#   portfolio-front-tools-28: 125 files, 555703 bytes
+#   portfolio-front-tools-29: 127 files, 553806 bytes
+#   portfolio-front-tools-30: 111 files, 540799 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3904,6 +3904,11 @@ configMapGenerator:
     files:
       - upstash-redis-bill-estimator__index.html.gz=upstash-redis-bill-estimator__index.html.gz
       - upstash-redis-bill-estimator__usage.mjs.gz=upstash-redis-bill-estimator__usage.mjs.gz
+      - uptime-monitoring-pricing-calculator__cli.mjs.gz=uptime-monitoring-pricing-calculator__cli.mjs.gz
+      - uptime-monitoring-pricing-calculator__engine.mjs.gz=uptime-monitoring-pricing-calculator__engine.mjs.gz
+      - uptime-monitoring-pricing-calculator__how-to-choose-an-uptime-monitoring-plan.html.gz=uptime-monitoring-pricing-calculator__how-to-choose-an-uptime-monitoring-plan.html.gz
+      - uptime-monitoring-pricing-calculator__index.html.gz=uptime-monitoring-pricing-calculator__index.html.gz
+      - uptime-monitoring-pricing-calculator__usage.mjs.gz=uptime-monitoring-pricing-calculator__usage.mjs.gz
       - upwork-connects-roi-calculator__engine.mjs.gz=upwork-connects-roi-calculator__engine.mjs.gz
       - upwork-connects-roi-calculator__index.html.gz=upwork-connects-roi-calculator__index.html.gz
       - upwork-connects-roi-calculator__usage.mjs.gz=upwork-connects-roi-calculator__usage.mjs.gz
@@ -3958,6 +3963,11 @@ configMapGenerator:
       - veterinarian-associate-pay-calculator__calc.mjs.gz=veterinarian-associate-pay-calculator__calc.mjs.gz
       - veterinarian-associate-pay-calculator__index.html.gz=veterinarian-associate-pay-calculator__index.html.gz
       - veterinarian-associate-pay-calculator__usage.mjs.gz=veterinarian-associate-pay-calculator__usage.mjs.gz
+      - video-hosting-pricing-calculator__cli.mjs.gz=video-hosting-pricing-calculator__cli.mjs.gz
+      - video-hosting-pricing-calculator__engine.mjs.gz=video-hosting-pricing-calculator__engine.mjs.gz
+      - video-hosting-pricing-calculator__how-to-choose-video-hosting-by-minutes-watched.html.gz=video-hosting-pricing-calculator__how-to-choose-video-hosting-by-minutes-watched.html.gz
+      - video-hosting-pricing-calculator__index.html.gz=video-hosting-pricing-calculator__index.html.gz
+      - video-hosting-pricing-calculator__usage.mjs.gz=video-hosting-pricing-calculator__usage.mjs.gz
       - vinyl-liner-bid-calculator__calc.mjs.gz=vinyl-liner-bid-calculator__calc.mjs.gz
       - vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz=vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz
       - vinyl-liner-bid-calculator__index.html.gz=vinyl-liner-bid-calculator__index.html.gz
@@ -4019,6 +4029,11 @@ configMapGenerator:
       - water-heater-bid-calculator__vs-a-flat-rate-water-heater-special.html.gz=water-heater-bid-calculator__vs-a-flat-rate-water-heater-special.html.gz
       - water-heater-bid-calculator__vs-servicetitan.html.gz=water-heater-bid-calculator__vs-servicetitan.html.gz
       - water-softener-bid-calculator__calc.mjs.gz=water-softener-bid-calculator__calc.mjs.gz
+  - name: portfolio-front-tools-30
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - water-softener-bid-calculator__how-much-to-charge-to-install-a-water-softener.html.gz=water-softener-bid-calculator__how-much-to-charge-to-install-a-water-softener.html.gz
       - water-softener-bid-calculator__index.html.gz=water-softener-bid-calculator__index.html.gz
       - water-softener-bid-calculator__share.mjs.gz=water-softener-bid-calculator__share.mjs.gz
@@ -4026,11 +4041,6 @@ configMapGenerator:
       - water-softener-bid-calculator__vs-a-flat-rate-water-softener-special.html.gz=water-softener-bid-calculator__vs-a-flat-rate-water-softener-special.html.gz
       - water-softener-bid-calculator__vs-jobber.html.gz=water-softener-bid-calculator__vs-jobber.html.gz
       - webhook-signature-debugger__cli.mjs.gz=webhook-signature-debugger__cli.mjs.gz
-  - name: portfolio-front-tools-30
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - webhook-signature-debugger__how-to-verify-webhook-signatures.html.gz=webhook-signature-debugger__how-to-verify-webhook-signatures.html.gz
       - webhook-signature-debugger__index.html.gz=webhook-signature-debugger__index.html.gz
       - webhook-signature-debugger__usage.mjs.gz=webhook-signature-debugger__usage.mjs.gz
