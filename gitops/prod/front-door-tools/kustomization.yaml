@@ -33,38 +33,38 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547351 bytes
-#   portfolio-front-tools-1: 92 files, 555183 bytes
-#   portfolio-front-tools-2: 144 files, 553150 bytes
-#   portfolio-front-tools-3: 128 files, 549035 bytes
-#   portfolio-front-tools-4: 139 files, 553921 bytes
-#   portfolio-front-tools-5: 128 files, 556263 bytes
-#   portfolio-front-tools-6: 121 files, 556348 bytes
-#   portfolio-front-tools-7: 137 files, 555295 bytes
-#   portfolio-front-tools-8: 132 files, 555125 bytes
-#   portfolio-front-tools-9: 135 files, 555448 bytes
-#   portfolio-front-tools-10: 123 files, 555402 bytes
-#   portfolio-front-tools-11: 130 files, 555782 bytes
-#   portfolio-front-tools-12: 135 files, 555998 bytes
-#   portfolio-front-tools-13: 129 files, 557030 bytes
-#   portfolio-front-tools-14: 119 files, 556200 bytes
-#   portfolio-front-tools-15: 121 files, 542290 bytes
-#   portfolio-front-tools-16: 120 files, 548390 bytes
-#   portfolio-front-tools-17: 118 files, 556305 bytes
-#   portfolio-front-tools-18: 128 files, 549855 bytes
-#   portfolio-front-tools-19: 122 files, 551258 bytes
-#   portfolio-front-tools-20: 132 files, 550379 bytes
-#   portfolio-front-tools-21: 124 files, 548596 bytes
-#   portfolio-front-tools-22: 133 files, 555756 bytes
-#   portfolio-front-tools-23: 123 files, 554421 bytes
-#   portfolio-front-tools-24: 133 files, 555156 bytes
-#   portfolio-front-tools-25: 93 files, 552831 bytes
-#   portfolio-front-tools-26: 116 files, 552604 bytes
-#   portfolio-front-tools-27: 118 files, 550150 bytes
-#   portfolio-front-tools-28: 132 files, 555099 bytes
-#   portfolio-front-tools-29: 126 files, 554299 bytes
-#   portfolio-front-tools-30: 123 files, 548726 bytes
-#   portfolio-front-tools-31: 92 files, 481307 bytes
+#   portfolio-front-tools-0: 145 files, 547341 bytes
+#   portfolio-front-tools-1: 92 files, 555181 bytes
+#   portfolio-front-tools-2: 144 files, 553145 bytes
+#   portfolio-front-tools-3: 128 files, 549034 bytes
+#   portfolio-front-tools-4: 139 files, 553920 bytes
+#   portfolio-front-tools-5: 128 files, 556333 bytes
+#   portfolio-front-tools-6: 121 files, 556389 bytes
+#   portfolio-front-tools-7: 137 files, 555218 bytes
+#   portfolio-front-tools-8: 132 files, 555165 bytes
+#   portfolio-front-tools-9: 135 files, 555485 bytes
+#   portfolio-front-tools-10: 123 files, 555497 bytes
+#   portfolio-front-tools-11: 130 files, 555756 bytes
+#   portfolio-front-tools-12: 135 files, 555995 bytes
+#   portfolio-front-tools-13: 129 files, 557037 bytes
+#   portfolio-front-tools-14: 119 files, 556249 bytes
+#   portfolio-front-tools-15: 121 files, 542291 bytes
+#   portfolio-front-tools-16: 120 files, 548391 bytes
+#   portfolio-front-tools-17: 118 files, 556166 bytes
+#   portfolio-front-tools-18: 128 files, 549832 bytes
+#   portfolio-front-tools-19: 122 files, 551314 bytes
+#   portfolio-front-tools-20: 132 files, 550375 bytes
+#   portfolio-front-tools-21: 124 files, 548598 bytes
+#   portfolio-front-tools-22: 133 files, 555898 bytes
+#   portfolio-front-tools-23: 123 files, 554498 bytes
+#   portfolio-front-tools-24: 133 files, 555163 bytes
+#   portfolio-front-tools-25: 93 files, 552730 bytes
+#   portfolio-front-tools-26: 116 files, 552826 bytes
+#   portfolio-front-tools-27: 117 files, 553628 bytes
+#   portfolio-front-tools-28: 129 files, 556680 bytes
+#   portfolio-front-tools-29: 127 files, 550597 bytes
+#   portfolio-front-tools-30: 124 files, 556789 bytes
+#   portfolio-front-tools-31: 100 files, 507702 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3673,6 +3673,12 @@ configMapGenerator:
       - sql-migration-lock-check__vs-reading-the-migration-by-hand.html.gz=sql-migration-lock-check__vs-reading-the-migration-by-hand.html.gz
       - sql-migration-lock-check__vs-squawk.html.gz=sql-migration-lock-check__vs-squawk.html.gz
       - sql-migration-lock-check__why-your-migration-locked-the-table.html.gz=sql-migration-lock-check__why-your-migration-locked-the-table.html.gz
+      - square-catalog-csv-check__calc.mjs.gz=square-catalog-csv-check__calc.mjs.gz
+      - square-catalog-csv-check__index.html.gz=square-catalog-csv-check__index.html.gz
+      - square-catalog-csv-check__usage.mjs.gz=square-catalog-csv-check__usage.mjs.gz
+      - squarespace-product-csv-check__calc.mjs.gz=squarespace-product-csv-check__calc.mjs.gz
+      - squarespace-product-csv-check__index.html.gz=squarespace-product-csv-check__index.html.gz
+      - squarespace-product-csv-check__usage.mjs.gz=squarespace-product-csv-check__usage.mjs.gz
       - sri-check__index.html.gz=sri-check__index.html.gz
       - sri-check__sri.mjs.gz=sri-check__sri.mjs.gz
       - sri-check__usage.mjs.gz=sri-check__usage.mjs.gz
@@ -3733,6 +3739,11 @@ configMapGenerator:
       - str-nightly-rate-optimizer__index.html.gz=str-nightly-rate-optimizer__index.html.gz
       - str-nightly-rate-optimizer__usage.mjs.gz=str-nightly-rate-optimizer__usage.mjs.gz
       - str-occupancy-tax-calculator__calc.mjs.gz=str-occupancy-tax-calculator__calc.mjs.gz
+  - name: portfolio-front-tools-28
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - str-occupancy-tax-calculator__how-much-occupancy-tax-will-i-have-to-self-file-this-year.html.gz=str-occupancy-tax-calculator__how-much-occupancy-tax-will-i-have-to-self-file-this-year.html.gz
       - str-occupancy-tax-calculator__how-to-find-your-platforms-collection-agreements.html.gz=str-occupancy-tax-calculator__how-to-find-your-platforms-collection-agreements.html.gz
       - str-occupancy-tax-calculator__index.html.gz=str-occupancy-tax-calculator__index.html.gz
@@ -3740,11 +3751,6 @@ configMapGenerator:
       - str-occupancy-tax-calculator__usage.mjs.gz=str-occupancy-tax-calculator__usage.mjs.gz
       - str-occupancy-tax-calculator__vs-tracking-it-in-a-spreadsheet.html.gz=str-occupancy-tax-calculator__vs-tracking-it-in-a-spreadsheet.html.gz
       - str-tax-loophole-calculator__calc.mjs.gz=str-tax-loophole-calculator__calc.mjs.gz
-  - name: portfolio-front-tools-28
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - str-tax-loophole-calculator__index.html.gz=str-tax-loophole-calculator__index.html.gz
       - str-tax-loophole-calculator__usage.mjs.gz=str-tax-loophole-calculator__usage.mjs.gz
       - str-turnover-crew-planner__cli.mjs.gz=str-turnover-crew-planner__cli.mjs.gz
@@ -3867,6 +3873,11 @@ configMapGenerator:
       - thrift-haul-buy-picker__engine.mjs.gz=thrift-haul-buy-picker__engine.mjs.gz
       - thrift-haul-buy-picker__how-much-to-pay-at-a-thrift-store-to-resell.html.gz=thrift-haul-buy-picker__how-much-to-pay-at-a-thrift-store-to-resell.html.gz
       - thrift-haul-buy-picker__index.html.gz=thrift-haul-buy-picker__index.html.gz
+  - name: portfolio-front-tools-29
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - thrift-haul-buy-picker__usage.mjs.gz=thrift-haul-buy-picker__usage.mjs.gz
       - thumbtack-lead-roi-calculator__are-thumbtack-leads-worth-it.html.gz=thumbtack-lead-roi-calculator__are-thumbtack-leads-worth-it.html.gz
       - thumbtack-lead-roi-calculator__engine.mjs.gz=thumbtack-lead-roi-calculator__engine.mjs.gz
@@ -3877,11 +3888,6 @@ configMapGenerator:
       - ticket-resale-profit-calculator__index.html.gz=ticket-resale-profit-calculator__index.html.gz
       - ticket-resale-profit-calculator__ticket-resale-guide.html.gz=ticket-resale-profit-calculator__ticket-resale-guide.html.gz
       - ticket-resale-profit-calculator__usage.mjs.gz=ticket-resale-profit-calculator__usage.mjs.gz
-  - name: portfolio-front-tools-29
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - tiktok-shop-settlement-analyzer__calc.mjs.gz=tiktok-shop-settlement-analyzer__calc.mjs.gz
       - tiktok-shop-settlement-analyzer__index.html.gz=tiktok-shop-settlement-analyzer__index.html.gz
       - tiktok-shop-settlement-analyzer__usage.mjs.gz=tiktok-shop-settlement-analyzer__usage.mjs.gz
@@ -3999,6 +4005,11 @@ configMapGenerator:
       - used-car-lot-aging-planner__usage.mjs.gz=used-car-lot-aging-planner__usage.mjs.gz
       - used-car-lot-aging-planner__when-should-a-used-car-dealer-wholesale-an-aged-unit.html.gz=used-car-lot-aging-planner__when-should-a-used-car-dealer-wholesale-an-aged-unit.html.gz
       - van-westendorp-pricing-analyzer__calc.mjs.gz=van-westendorp-pricing-analyzer__calc.mjs.gz
+  - name: portfolio-front-tools-30
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - van-westendorp-pricing-analyzer__index.html.gz=van-westendorp-pricing-analyzer__index.html.gz
       - van-westendorp-pricing-analyzer__usage.mjs.gz=van-westendorp-pricing-analyzer__usage.mjs.gz
       - vector-db-cost-calculator__calc.mjs.gz=vector-db-cost-calculator__calc.mjs.gz
@@ -4008,11 +4019,6 @@ configMapGenerator:
       - vector-db-cost-calculator__vs-pinecone.html.gz=vector-db-cost-calculator__vs-pinecone.html.gz
       - vector-db-cost-calculator__vs-qdrant.html.gz=vector-db-cost-calculator__vs-qdrant.html.gz
       - vector-db-cost-calculator__what-is-vector-index-overhead.html.gz=vector-db-cost-calculator__what-is-vector-index-overhead.html.gz
-  - name: portfolio-front-tools-30
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - vehicle-wrap-bid-calculator__calc.mjs.gz=vehicle-wrap-bid-calculator__calc.mjs.gz
       - vehicle-wrap-bid-calculator__how-much-to-charge-for-a-vehicle-wrap.html.gz=vehicle-wrap-bid-calculator__how-much-to-charge-for-a-vehicle-wrap.html.gz
       - vehicle-wrap-bid-calculator__index.html.gz=vehicle-wrap-bid-calculator__index.html.gz
@@ -4128,6 +4134,11 @@ configMapGenerator:
       - wedding-florist-proposal-calculator__calc.mjs.gz=wedding-florist-proposal-calculator__calc.mjs.gz
       - wedding-florist-proposal-calculator__how-many-wholesale-bunches-do-you-need-for-a-wedding.html.gz=wedding-florist-proposal-calculator__how-many-wholesale-bunches-do-you-need-for-a-wedding.html.gz
       - wedding-florist-proposal-calculator__index.html.gz=wedding-florist-proposal-calculator__index.html.gz
+  - name: portfolio-front-tools-31
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - wedding-florist-proposal-calculator__share.mjs.gz=wedding-florist-proposal-calculator__share.mjs.gz
       - wedding-florist-proposal-calculator__usage.mjs.gz=wedding-florist-proposal-calculator__usage.mjs.gz
       - wedding-florist-proposal-calculator__vs-a-recipe-markup-spreadsheet.html.gz=wedding-florist-proposal-calculator__vs-a-recipe-markup-spreadsheet.html.gz
@@ -4136,11 +4147,6 @@ configMapGenerator:
       - wedding-photographer-profit-calculator__usage.mjs.gz=wedding-photographer-profit-calculator__usage.mjs.gz
       - well-pump-bid-calculator__calc.mjs.gz=well-pump-bid-calculator__calc.mjs.gz
       - well-pump-bid-calculator__how-much-to-charge-to-replace-a-well-pump.html.gz=well-pump-bid-calculator__how-much-to-charge-to-replace-a-well-pump.html.gz
-  - name: portfolio-front-tools-31
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - well-pump-bid-calculator__index.html.gz=well-pump-bid-calculator__index.html.gz
       - well-pump-bid-calculator__share.mjs.gz=well-pump-bid-calculator__share.mjs.gz
       - well-pump-bid-calculator__usage.mjs.gz=well-pump-bid-calculator__usage.mjs.gz
