@@ -3081,7 +3081,7 @@ def test_portfolio_front_configmaps_keep_their_content_hash() -> None:
             merged = dict(entry)
             merged["options"] = {**shared, **entry.get("options", {})}
             by_name[entry["name"]] = merged
-    for name in ("portfolio-front-html", "portfolio-front-nginx", *_mirror_shard_names()):
+    for name in ("portfolio-front-html", "portfolio-front-html-index", "portfolio-front-nginx", *_mirror_shard_names()):
         options = by_name[name].get("options", {})
         assert not options.get("disableNameSuffixHash"), (
             f"{name} is mounted by a Deployment; without the hash a content "

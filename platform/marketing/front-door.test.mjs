@@ -2018,11 +2018,17 @@ test('the generated front-door set stays under the ConfigMap object ceiling', as
     path.join(path.dirname(path.dirname(OUTPUT_FILE)), 'kustomization.yaml'),
     'utf8',
   );
-  const block = kustomization.match(
-    /\n {2}- name: portfolio-front-html\n([\s\S]*?)(?=\n {2}- name: |\n[a-zA-Z])/,
-  );
-  assert.ok(block, 'could not find the portfolio-front-html ConfigMap in the kustomization');
-  const names = [...block[1].matchAll(/^ {6}- [^=\n]+=front-door\/(\S+)$/gm)].map((m) => m[1]);
+  // Two generators since 2026-10-04: the page and its fixed files, and the
+  // `-index` half that grows with the catalogue. Both mount at one path, so the
+  // ceiling is per object, and each is checked below against the full 1 MiB.
+  const blocks = ['portfolio-front-html', 'portfolio-front-html-index'].map((name) => {
+    const b = kustomization.match(
+      new RegExp(`\\n {2}- name: ${name}\\n([\\s\\S]*?)(?=\\n {2}- name: |\\n[a-zA-Z])`),
+    );
+    assert.ok(b, `could not find the ${name} ConfigMap in the kustomization`);
+    return [...b[1].matchAll(/^ {6}- [^=\n]+=front-door\/(\S+)$/gm)].map((m) => m[1]);
+  });
+  const names = blocks.flat();
   assert.ok(names.length >= 16, `only ${names.length} keys parsed out of the ConfigMap block`);
 
   // Binary keys are counted base64'd, which is how kustomize stores them; text
@@ -2038,15 +2044,17 @@ test('the generated front-door set stays under the ConfigMap object ceiling', as
   // `UnicodeDecodeError` rather than trusting a filename pattern) and this
   // test did not.
   const BINARY = /\.(png|ico|woff2?|gz)$/;
-  let total = 0;
-  for (const name of names) {
-    const bytes = (await fs.readFile(path.join(path.dirname(OUTPUT_FILE), name))).byteLength;
-    total += BINARY.test(name) ? Math.ceil(bytes / 3) * 4 : bytes;
+  for (const group of blocks) {
+    let total = 0;
+    for (const name of group) {
+      const bytes = (await fs.readFile(path.join(path.dirname(OUTPUT_FILE), name))).byteLength;
+      total += BINARY.test(name) ? Math.ceil(bytes / 3) * 4 : bytes;
+    }
+    assert.ok(
+      total < 1024 * 1024,
+      `a front-door ConfigMap would be ${total} bytes, over the 1 MiB ceiling`,
+    );
   }
-  assert.ok(
-    total < 1024 * 1024,
-    `the front-door ConfigMap would be ${total} bytes, over the 1 MiB ceiling`,
-  );
 });
 
 test('the About page is mounted by the kustomization and served by nginx', async () => {
