@@ -2240,6 +2240,9 @@ workflows:
 - workflow: zoho-crm-import-csv-check-ci.yml
   classification: none
   publishes: []
+- workflow: activecampaign-import-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: klaviyo-profile-csv-check-ci.yml
   classification: none
   publishes: []
