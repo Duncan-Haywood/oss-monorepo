@@ -1151,6 +1151,9 @@ workflows:
 - workflow: klaviyo-profile-csv-check-ci.yml
   classification: none
   publishes: []
+- workflow: mailchimp-audience-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: lambda-memory-rightsizer-ci.yml
   classification: none
   publishes: []
