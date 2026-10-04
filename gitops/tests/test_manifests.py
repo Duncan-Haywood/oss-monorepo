@@ -87,7 +87,10 @@ def test_no_live_secrets_in_git() -> None:
     ):
         if not path.is_file():
             continue
-        if path.suffix in {".png", ".jpg"}:
+        # Compressed bytes decoded as text can contain "ghp_" by chance (it fired
+        # on a regenerated front-door .gz, 2026-10-04); the plain sources the .gz
+        # files are built from are scanned as ordinary files.
+        if path.suffix in {".png", ".jpg", ".gz"}:
             continue
         if "tests" in path.parts:
             continue
