@@ -2935,7 +2935,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `webhook-signature-debugger` graduated (browser + CLI webhook HMAC signature verification and mismatch diagnosis).
     # +1: `hvac-repair-tier-price-calculator` graduated (browser HVAC Good/Better/Best repair pricing, diagnostic fee and average-call model).
     # +1: `training-gpu-pricing-calculator` graduated (browser + CLI GPU cloud pricing with idle time and rent-versus-buy breakeven).
-    total = 679  # `infra/OWNER_CHECKLIST.md`'s own "N of the 679 tools" wording.
+    total = 680  # `infra/OWNER_CHECKLIST.md`'s own "N of the 680 tools" wording.
     # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).
