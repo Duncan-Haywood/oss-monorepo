@@ -1237,7 +1237,9 @@ const CATEGORY_RULES = [
       || slug === 'boi-reporting-exemption-checker'
       // `hubspot-contacts-csv-check` joined 2026-10-04: a list preflight that reports what it found with line numbers and an explicit not-checked list, and
       // `backoffice` is already over its gzipped offline bundle bound, so it cannot take another page.
-      || slug === 'hubspot-contacts-csv-check',
+      || slug === 'hubspot-contacts-csv-check'
+      // `salesforce-lead-import-csv-check` joined 2026-10-04: the Salesforce half of the CRM import pre-flight above, filed beside it for the same bundle-bound reason.
+      || slug === 'salesforce-lead-import-csv-check',
   },
   {
     id: 'backoffice',
