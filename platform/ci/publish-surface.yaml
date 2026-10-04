@@ -1940,6 +1940,9 @@ workflows:
 - workflow: sql-migration-lock-check-ci.yml
   classification: none
   publishes: []
+- workflow: square-catalog-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: squarespace-product-csv-check-ci.yml
   classification: none
   publishes: []
