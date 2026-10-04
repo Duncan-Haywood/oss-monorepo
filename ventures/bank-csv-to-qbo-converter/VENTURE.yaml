@@ -1,0 +1,72 @@
+name: bank-csv-to-qbo-converter
+description: >-
+  Free browser tool that converts a bank or credit card CSV into a QBO, OFX or QIF file for
+  QuickBooks, Quicken and other accounting tools. It finds the columns, works out US versus
+  day-first dates from the whole column, handles single-amount and debit/credit layouts and decimal
+  commas, gives each transaction a stable ID so a re-import is recognised, and names every row it
+  cannot read plus duplicates, future dates and running-balance breaks. The file is read locally and
+  never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session, as the CSV-in/accounting-file-out
+# counterpart to eu-bank-statement-reader and bai2-statement-reader (which read bank formats).
+#
+# Who: bookkeepers, small-business owners and freelancers whose bank only exports CSV, or exports
+# one QuickBooks will not accept, and who need the transactions in QuickBooks Online/Desktop,
+# Quicken, Xero or Wave. Existing answers are paid desktop converters (roughly $50-$150 per
+# licence or a monthly plan), subscription web converters that take the file onto their servers,
+# and spreadsheet gymnastics. QuickBooks Online's own CSV import has fixed column rules and fails
+# on date formats and debit/credit layouts.
+#
+# First visitor: people searching "csv to qbo", "convert csv to ofx", "bank csv won't import into
+# quickbooks", "csv to qif". Volume not measured with an external tool.
+#
+# What makes it more than a converter: it tells you what it assumed (date order, signs, decimal
+# mark) instead of guessing silently; rows it cannot read are named rather than dropped; the
+# running-balance check catches a missing or duplicated row before the books do; IDs are stable so
+# a repeat import is a no-op.
+#
+# Path to revenue (payment rails stay off): lead magnet for bookkeeping audiences. A paid version,
+# if usage appears, is batch conversion of many files, saved bank profiles (column mapping per
+# bank), a command-line and an API for bookkeeping firms behind an env-var switch; not built.
+#
+# Liability: format conversion of the user's own file, no accounting or banking advice, no
+# warranty, independent-of-Intuit-and-banks clause, financial data note.
+#
+# Unverified: the OFX 1.0.2 element order, the QuickBooks need for INTU.BID, and the 32-character
+# NAME limit are from memory of the public spec and common practice; no live QuickBooks import was
+# available. The first user report of a file QuickBooks or Quicken rejects is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A bookkeeper whose bank only exports CSV will paste it into a no-login page to get a QBO or
+      OFX file, because the alternative is a paid converter or one that takes bank data onto its
+      server.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Being told exactly which rows were skipped and which date order was assumed brings the same
+      person back for the next month's file.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted file structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a file that QuickBooks or Quicken rejects, at which point the output layout needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/bank-csv-to-qbo-converter/
+  analytics: null

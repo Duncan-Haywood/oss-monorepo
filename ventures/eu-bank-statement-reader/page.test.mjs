@@ -67,3 +67,7 @@ test("every FAQ question in the structured data is also visible on the page", ()
   assert.ok(names.length >= 6);
   for (const n of names) assert.ok(html.includes(`<h3>${n}</h3>`), n);
 });
+
+test("footer links to the bank CSV to QBO converter", () => {
+  assert.match(page("index.html"), /href="\.\.\/bank-csv-to-qbo-converter\/"/);
+});
