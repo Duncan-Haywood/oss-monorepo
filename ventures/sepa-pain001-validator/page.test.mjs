@@ -78,3 +78,7 @@ test("the FAQ in the structured data matches the visible questions", () => {
   assert.ok(faq.mainEntity.length >= 6);
   for (const q of faq.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
 });
+
+test("the footer links the pain.002 status reader for the bank's answer", () => {
+  assert.match(page("index.html"), /href="\.\.\/sepa-pain002-status-reader\/"/);
+});

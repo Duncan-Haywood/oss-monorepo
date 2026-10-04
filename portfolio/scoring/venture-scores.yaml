@@ -27377,4 +27377,36 @@ ventures:
       asserts no network calls), IBANs are masked in output, and the repair step
       never edits an IBAN or amount so it cannot redirect or resize a payment.
       Ethics: free, informational, nothing leaves the device.
+  - slug: sepa-pain002-status-reader
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every line is a lookup and arithmetic on the
+      user's own status report.
+    basis: >-
+      Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process; full write-up
+      in this venture's own VENTURE.yaml comment. Bookkeepers and ERP integrators who upload
+      SEPA files get a pain.002 whose rejections are raw XML and ISO codes; existing answers
+      are the bank's own portal, developer libraries and paid reconciliation suites.
+      Distribution 6: "pain.002 rejected" and "what does AM04 mean SEPA" are recurring
+      queries; volume not measured with an external tool, and it pairs with the pain.001
+      validator. Defensibility 3: the code lists are public, the edge is the per-payment
+      reading, the rejected totals and the resend list.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: reads the user's own file with model and omissions stated; no banking
+      advice, no warranty, independent-of-the-EPC-and-banks clause and a payment-data note.
+      The file never leaves the browser (a test asserts no network calls) and IBANs are
+      masked. Ethics: free, informational, nothing leaves the device.
 
