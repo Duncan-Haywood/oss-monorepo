@@ -2939,8 +2939,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `hvac-repair-tier-price-calculator` graduated (browser HVAC Good/Better/Best repair pricing, diagnostic fee and average-call model).
     # +1: `training-gpu-pricing-calculator` graduated (browser + CLI GPU cloud pricing with idle time and rent-versus-buy breakeven).
     # +1: `era-835-underpayment-finder` graduated (browser 835 remittance parser: payments below contract rates, denials, takebacks).
+    # +1: `nacha-file-validator` graduated (browser ACH/NACHA file validator: record layout, check digits, control totals, control-record rebuild).
     # +1: `cobra-vs-marketplace-calculator` graduated (browser + CLI COBRA vs marketplace total cost, break-even and election deadlines).
-    total = 684  # `infra/OWNER_CHECKLIST.md`'s own "N of the 684 tools" wording.
+    total = 685  # `infra/OWNER_CHECKLIST.md`'s own "N of the 685 tools" wording.
     # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).
