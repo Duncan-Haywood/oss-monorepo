@@ -1349,6 +1349,9 @@ const CATEGORY_RULES = [
       // `edi-x12-order-checker` joined 2026-10-04 on its first commit: a supplier's EDI purchase order, invoice and ship
       // notice checked before they go to a retailer -- the same back-office document-preflight job as the payment-file checkers.
       || slug === 'edi-x12-order-checker'
+      // `eu-vat-oss-calculator` joined 2026-10-04 on its first commit: a small seller's EU cross-border VAT return from a sales export, the
+      // same back-office compliance-arithmetic job as the SEPA and e-invoice tools here.
+      || slug === 'eu-vat-oss-calculator'
       // `client-concentration-risk-analyzer` joined 2026-10-02 on its first commit: it reads the same invoice
       // export as `invoice-payment-terms-calculator` here and asks how much revenue one client carries.
       || slug === 'client-concentration-risk-analyzer'

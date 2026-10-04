@@ -84,3 +84,7 @@ test("sitemap does not point at README.md and lists every shipped html page", ()
 test("links to the FIFO pick evidence tool", () => {
   assert.match(page, /href="\.\.\/fifo-pick-evidence\/"/, "the sibling-tool link is missing");
 });
+
+test("links to the EU VAT OSS calculator", () => {
+  assert.match(page, /href="\.\.\/eu-vat-oss-calculator\/"/, "the OSS sibling-tool link is missing");
+});
