@@ -44,5 +44,5 @@ test("the page's worked example runs through the engine (dogfooding)", async () 
 
 test("index links one hop to the sibling money tools", async () => {
   const idx = await read("index.html");
-  for (const slug of ["gumroad-sales-fee-analyzer", "patreon-fee-calculator", "saas-annual-plan-discount-calculator", "usage-based-pricing-simulator", "stripe-failed-payment-recovery-analyzer", "stripe-churn-cohort-analyzer"]) assert.match(idx, new RegExp(`href="\\.\\./${slug}/"`));
+  for (const slug of ["app-store-commission-calculator", "gumroad-sales-fee-analyzer", "patreon-fee-calculator", "saas-annual-plan-discount-calculator", "usage-based-pricing-simulator", "stripe-failed-payment-recovery-analyzer", "stripe-churn-cohort-analyzer"]) assert.match(idx, new RegExp(`href="\\.\\./${slug}/"`));
 });

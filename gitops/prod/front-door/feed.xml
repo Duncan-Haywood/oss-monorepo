@@ -22,7 +22,7 @@
     <id>tag:marisstella.dev,2026:tool/app-store-commission-calculator</id>
     <published>2026-10-03T00:00:00Z</published>
     <updated>2026-10-03T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Enter your monthly app revenue and average in-app price and see what Apple (30% or 15%), Google Play and web checkout via Stripe or Paddle take, your net payout, 12-month totals, and the revenue where selling on the web beats the store cut. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
