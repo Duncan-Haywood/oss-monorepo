@@ -1282,7 +1282,8 @@ const RELATIVE_SELF = relative(
 // +1: `etsy-listing-csv-check` graduated.
 // +1: `wix-product-csv-check` graduated.
 // +1: `hubspot-contacts-csv-check` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 690;
+// +1: `shopify-customer-csv-check` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 691;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
