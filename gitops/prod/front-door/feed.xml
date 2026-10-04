@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 719 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 720 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -70,6 +70,14 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Enter your COBRA premium and a marketplace quote and see the total cost of each over the months you need coverage, at five levels of medical care, with the break-even point and your election and special-enrollment deadlines. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>eBay File Exchange Check — Find Bulk Listing CSV Errors Before You Upload</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ebay-file-exchange-check/"/>
+    <id>tag:marisstella.dev,2026:tool/ebay-file-exchange-check</id>
+    <updated>2026-10-04T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free eBay File Exchange and bulk listing CSV checker: finds semicolon or UTF-16 files, titles over 80 characters, UPCs that lost a leading zero, bad UPC and EAN check digits, scientific-notation ItemIDs and SKUs, bad prices, quantities, durations and picture URLs, and active content in descriptions, with line numbers and safe fixes. Runs in your browser; the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>EDI X12 Order Checker — Validate 850, 810, 856 and 997 Files Before You Send</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free ACH file checker for payroll and vendor-payment files: finds bad record lengths, routing-number check digits, wrong entry hash and control totals, missing block padding and weekend effective dates, and rebuilds the control records. Runs in your browser; the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Pipedrive Import CSV Check — Find Deal and Contact Errors Before You Upload</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pipedrive-import-csv-check/"/>
-    <id>tag:marisstella.dev,2026:tool/pipedrive-import-csv-check</id>
-    <updated>2026-10-04T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free Pipedrive deals, people and organizations CSV checker: finds deals with a bad status, value or currency, missing names and titles, invalid and duplicate emails, Excel-damaged phone numbers, date format problems and probabilities written as fractions, with line numbers, and applies formatting-only safe fixes. Runs in your browser; the file is never uploaded.</summary>
   </entry>
 </feed>
