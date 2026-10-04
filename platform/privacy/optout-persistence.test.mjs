@@ -1259,7 +1259,8 @@ const RELATIVE_SELF = relative(
 // +1: `search-api-pricing-calculator` graduated.
 // +1: `speech-to-text-pricing-calculator` graduated.
 // +1: `training-gpu-pricing-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 660;
+// +1: `era-835-underpayment-finder` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 661;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
