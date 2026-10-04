@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 698 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 699 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -136,6 +136,14 @@
     <summary type="text">Free Shopify product CSV checker: finds blank handles, split products, duplicate variants, bad prices, wrong barcode check digits, broken image URLs, Excel-damaged SKUs and semicolon files, with line numbers, and applies safe fixes. Runs in your browser; the file is never uploaded.</summary>
   </entry>
   <entry>
+    <title>Shopify to WooCommerce Product CSV Converter — Free, In Your Browser</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/shopify-to-woocommerce-converter/"/>
+    <id>tag:marisstella.dev,2026:tool/shopify-to-woocommerce-converter</id>
+    <updated>2026-10-04T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free Shopify to WooCommerce product CSV converter: variants become variable products with variations, Compare At Price becomes Regular and Sale price, inventory, weight, images and tags are mapped, and anything not carried across is listed. Runs in your browser; the file is never uploaded.</summary>
+  </entry>
+  <entry>
     <title>Speech-to-Text Pricing Calculator — Whisper API vs Deepgram vs AssemblyAI vs Google vs AWS vs self-hosted</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/speech-to-text-pricing-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/speech-to-text-pricing-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Enter how many monitors you need, how often they must be checked and whether you want a public status page, and see what UptimeRobot, Better Stack, Hyperping, Pingdom and self-hosted Uptime Kuma charge, the 12-month spend as you add monitors, and the monitor count where the cheapest option changes. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Video Hosting Pricing Calculator — Cloudflare Stream vs Mux vs Bunny vs api.video vs DIY AWS</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/video-hosting-pricing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/video-hosting-pricing-calculator</id>
-    <updated>2026-10-04T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Enter the minutes of video you store, the minutes viewers watch per month and your monthly uploads, and see what Cloudflare Stream, Mux, Bunny Stream, api.video and a DIY AWS pipeline charge, the 12-month spend under your growth rate, and the viewing level where the cheapest platform changes. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
