@@ -109,7 +109,8 @@ node cli.mjs scan src --prices my-prices.json              # your negotiated or 
     <p>No. The browser page scans the text you paste in your own browser and never sends it anywhere. The CLI reads only local files and makes no network call.</p>
   </section>
 
-  <footer>
+    <p class="note">Switching models or editing a prompt rather than costing it? <a href="../llm-output-regression-diff/">Diff saved outputs before and after to catch broken JSON, new refusals and truncation</a>.</p>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, security or engineering advice. It pattern-matches source text and multiplies numbers you supply by list prices that may be out of date; it is not a guarantee of what any provider will charge, and it can miss or misread calls. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Vendor and model names are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>scan_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
