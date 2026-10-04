@@ -1239,7 +1239,9 @@ const CATEGORY_RULES = [
       // `backoffice` is already over its gzipped offline bundle bound, so it cannot take another page.
       || slug === 'hubspot-contacts-csv-check'
       // `salesforce-lead-import-csv-check` joined 2026-10-04: the Salesforce half of the CRM import pre-flight above, filed beside it for the same bundle-bound reason.
-      || slug === 'salesforce-lead-import-csv-check',
+      || slug === 'salesforce-lead-import-csv-check'
+      // `pipedrive-import-csv-check` joined 2026-10-04: the Pipedrive (deals, people, organizations) half of the same CRM import pre-flight.
+      || slug === 'pipedrive-import-csv-check',
   },
   {
     id: 'backoffice',
