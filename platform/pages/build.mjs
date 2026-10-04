@@ -513,7 +513,7 @@ const CATEGORY_RULES = [
     // margin into the break-even ROAS and max CPA an ad campaign needs; the same reader as the fee tools here.
     // `used-car-lot-aging-planner` joined 2026-10-02 on its first commit: an independent dealer deciding when an
     // aged unit goes to auction is the same reseller as `auction-car-flip-calculator` here, and the two cross-link.
-    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|free-shipping-threshold|returns-policy|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-product-csv|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|auction-car-flip|used-car-lot|liquidation-pallet|stockx|twitch|freelance-platform-fee|upwork-connects|app-subscription|thumbtack-lead|mercari|kickstarter|depop|facebook-marketplace|ticket-resale|card-grading-submission|thrift-haul|price-increase-breakeven)/.test(slug),
+    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|free-shipping-threshold|returns-policy|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-product-csv|woocommerce-product-csv|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|auction-car-flip|used-car-lot|liquidation-pallet|stockx|twitch|freelance-platform-fee|upwork-connects|app-subscription|thumbtack-lead|mercari|kickstarter|depop|facebook-marketplace|ticket-resale|card-grading-submission|thrift-haul|price-increase-breakeven)/.test(slug),
   },
   {
     id: 'trades',
@@ -1333,6 +1333,9 @@ const CATEGORY_RULES = [
       // `irs-iris-1099-csv-check` joined 2026-10-04 on its first commit: it checks the 1099-NEC/MISC bulk file a bookkeeper
       // uploads to IRIS -- the same back-office information-return job as `w2-efw2-file-validator` just above.
       || slug === 'irs-iris-1099-csv-check'
+      // `1099-vendor-csv-checker` joined 2026-10-04 on its first commit: the January pre-flight on the vendor list before 1099-NEC
+      // filing -- the same back-office tax-form job as the W-2 file validator and the 1099 vendor tracker.
+      || slug === '1099-vendor-csv-checker'
       // `form-5500-late-filing-calculator` joined 2026-10-04 on its first commit: a retirement-plan sponsor's overdue
       // annual return priced against two agencies' penalties -- the same downstream tax-authority obligation as
       // `quarterly-estimated-tax-calendar` above, not `solo-earner` (nothing is priced before a sale).

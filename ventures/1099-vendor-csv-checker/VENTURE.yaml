@@ -1,0 +1,65 @@
+name: 1099-vendor-csv-checker
+description: >-
+  Free browser tool that checks a vendor payments CSV before 1099-NEC filing: adds each
+  vendor's payments, tests the total against the $2,000 (payments after 2025) or $600
+  threshold, and lists missing or malformed TINs, blank addresses, bad state codes, ZIPs that
+  lost a leading zero, duplicate vendors, one name with two TINs, probable corporations and
+  card payments that belong on a 1099-K, then exports the vendors who need a form. The file
+  is read locally and never uploaded; TINs are masked in the report.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04. duplicate_check.py: top score 0.18, nothing near the 0.45 bar.
+# 1099-vendor-tracker keeps a running list through the year; this is the January pre-flight
+# on the exported list. Small businesses and bookkeepers file 1099-NECs by Jan 31 and the
+# 2026 change from $600 to $2,000 means last year's habits over-file; a bad TIN draws a
+# CP2100 notice and 24% backup withholding. Existing answers are the filing services
+# (Track1099, Tax1099, Accrual) which sell filing, and the accounting packages' own 1099
+# reports, which only see what is entered correctly; no free page audits an exported CSV.
+#
+# First visitor: small-business owners and bookkeepers searching "1099-NEC threshold 2026",
+# "1099 $2,000 threshold", "1099 missing TIN backup withholding", "1099 vendor list
+# checklist". Volume not measured with an external tool. Seasonal: December-January peak.
+#
+# Path to revenue (payment rails stay off): lead magnet for the 1099 tracker and for
+# bookkeepers; a paid version, if usage appears, is multi-client batches and IRIS-ready
+# CSV export behind an env-var switch; not built.
+#
+# Liability: arithmetic on the user's own file, model and omissions stated on the page, no
+# tax advice, no warranty, independent-of-IRS clause, taxpayer-data note.
+#
+# Unverified: the IRS IRIS bulk CSV column layout is not implemented (the export is a plain
+# vendor list); the $2,000 threshold and 24% rate are from memory of public guidance and
+# should be checked against the current Instructions for Forms 1099-MISC and 1099-NEC.
+
+hypotheses:
+  - claim: >-
+      A small-business owner or bookkeeper with a vendor export in January will paste it
+      into a no-login page to learn who crosses the threshold and whose TIN is missing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the faults per row and getting a clean vendor list leads the same person to
+      run next year's list before filing, which is the reason to return.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted file structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports the threshold, TIN rules or card exclusion disagreeing with current IRS instructions, at which point the rules need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/1099-vendor-csv-checker/
+  analytics: null

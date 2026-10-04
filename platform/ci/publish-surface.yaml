@@ -2201,6 +2201,9 @@ workflows:
 - workflow: w2-efw2-file-validator-ci.yml
   classification: none
   publishes: []
+- workflow: 1099-vendor-csv-checker-ci.yml
+  classification: none
+  publishes: []
 - workflow: wage-garnishment-limit-calculator-ci.yml
   classification: none
   publishes: []
@@ -2259,6 +2262,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: window-tinting-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: woocommerce-product-csv-check-ci.yml
   classification: none
   publishes: []
 - workflow: wordpress-plugin-review-check-ci.yml
