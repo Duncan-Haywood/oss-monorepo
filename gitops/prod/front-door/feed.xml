@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 716 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 717 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -14,6 +14,14 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free 1099-NEC pre-flight check: paste your vendor payments CSV and see who crosses the $600 or $2,000 threshold, missing or invalid TINs, blank addresses, bad state codes, duplicate vendors and card payments to leave out. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>ActiveCampaign Import CSV Check — Find Contact, Account and Deal Errors Before You Upload</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/activecampaign-import-csv-check/"/>
+    <id>tag:marisstella.dev,2026:tool/activecampaign-import-csv-check</id>
+    <updated>2026-10-04T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free ActiveCampaign contacts, accounts and deals CSV checker: finds contacts with no or invalid email, duplicate emails, tags separated by semicolons, deals with a Value like $12,000 or a Status that is not Open, Won or Lost, Excel-damaged phone numbers and date format problems, with line numbers, and applies formatting-only safe fixes. Runs in your browser; the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>BAI2 Statement Reader — Read and Check a Bank BAI2 File in Your Browser</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free QuickBooks Online import CSV checker for customers, vendors and products and services: finds blank and duplicate names, colons, bad opening balances and dates, emails, ZIP and tax ID damage, with line numbers, applies safe fixes and splits files over the row limit. Runs in your browser; the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Salesforce Lead Import CSV Check — Find Errors Before You Import</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/salesforce-lead-import-csv-check/"/>
-    <id>tag:marisstella.dev,2026:tool/salesforce-lead-import-csv-check</id>
-    <updated>2026-10-04T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free Salesforce lead import CSV checker: finds rows with no LastName or Company, invalid or duplicate emails, status, rating and salutation values the default picklists do not have, revenue and employee counts that are not numbers, over-long fields, Excel-damaged phones and IDs, and mixed date orders, with line numbers, and applies safe fixes. Runs in your browser; the file is never uploaded.</summary>
   </entry>
 </feed>

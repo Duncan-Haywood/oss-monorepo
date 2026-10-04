@@ -2954,8 +2954,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `zoho-crm-import-csv-check` graduated (browser Zoho CRM leads/contacts/accounts/deals import checker: required fields, Stage and Lead Status picklists, amount and currency, probability, duplicates, Excel damage, date formats, safe fixes).
     # +1: `shopify-customer-csv-check` graduated (browser Shopify customer import checker: emails, E.164 phones, Excel zip and phone damage, country and province codes, consent values, tags, safe fixes).
     # +1: `teachers-pay-teachers-earnings-analyzer` graduated (browser TPT sales CSV analyzer: observed fee incl. flat per-sale fee, per-resource take-home, repeat buyers, break-even price).
-    total = 716  # `infra/OWNER_CHECKLIST.md`'s own "N of the 716 tools" wording.
-    total = 716  # `infra/OWNER_CHECKLIST.md`'s own "N of the 716 tools" wording.
+    total = 717  # `infra/OWNER_CHECKLIST.md`'s own "N of the 717 tools" wording.
+    total = 717  # `infra/OWNER_CHECKLIST.md`'s own "N of the 717 tools" wording.
     # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).

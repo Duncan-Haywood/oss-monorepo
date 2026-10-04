@@ -19,6 +19,7 @@
     "actions-self-hosted-exposure-check": "2026-09-07",
     "actions-timeout-check": "2026-10-03",
     "actions-transitive-pin-check": "2026-09-17",
+    "activecampaign-import-csv-check": "2026-10-04",
     "ad-incrementality-test-analyzer": "2026-09-30",
     "ad-spend-saturation-optimizer": "2026-09-30",
     "ada-title-ii-evidence": "2026-09-07",

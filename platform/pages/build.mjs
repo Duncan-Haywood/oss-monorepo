@@ -1243,7 +1243,9 @@ const CATEGORY_RULES = [
       // `pipedrive-import-csv-check` joined 2026-10-04: the Pipedrive (deals, people, organizations) half of the same CRM import pre-flight.
       || slug === 'pipedrive-import-csv-check'
       // `zoho-crm-import-csv-check` joined 2026-10-04: the Zoho CRM (leads, contacts, accounts, deals) half of the same CRM import pre-flight.
-      || slug === 'zoho-crm-import-csv-check',
+      || slug === 'zoho-crm-import-csv-check'
+      // `activecampaign-import-csv-check` joined 2026-10-04: the ActiveCampaign (contacts, accounts, deals) half of the same import pre-flight.
+      || slug === 'activecampaign-import-csv-check',
   },
   {
     id: 'backoffice',
