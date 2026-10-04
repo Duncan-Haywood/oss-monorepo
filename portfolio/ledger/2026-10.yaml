@@ -1892,3 +1892,31 @@ entries:
       Liability: arithmetic and layout checks on the user's own file, model and
       omissions stated, no banking or accounting advice, no warranty, payment-data
       note. Ethics: free, nothing leaves the device, no scraping.
+  - venture: form-5500-late-filing-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built form-5500-late-filing-calculator, a calculator archetype
+        for small-business retirement-plan sponsors who missed or may miss the Form
+        5500 deadline: a browser-local tool that finds the due date (last day of the
+        seventh month after plan year end, Form 5558 extension to the 15th of the
+        tenth month, weekend and federal-holiday rollover), days late across one or
+        several unfiled plan years, and sets the DOL DFVC programme cost (per-day
+        amount with per-report and per-plan caps for small and large plans) beside
+        IRS ($250 a day, $150,000 per return) and DOL (inflation-adjusted statutory
+        maximum per day) exposure, shown as ceilings and not predictions, with the
+        one-participant-plan exemption and the EFAST2 filing steps. Every penalty
+        figure is an editable constant labelled as from memory and to be verified. A
+        guide page, when-is-form-5500-due.html, carries the due-date table and FAQ.
+        40 tests pass; no network calls. First visitor expected from "Form 5500 late
+        filing penalty" and "DFVC program cost" searches; none measured. Registered
+        score row, launch date, CI workflow and category rule.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on dates and editable figures, ceilings not predictions,
+      no tax, legal or retirement-plan advice, no warranty, independent-of-the-IRS-
+      and-DOL clause. Ethics: free, nothing leaves the device, no scraping.
