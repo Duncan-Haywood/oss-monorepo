@@ -1334,6 +1334,9 @@ const CATEGORY_RULES = [
       // `bai2-statement-reader` joined 2026-10-04 on its first commit: it reads and checks the bank statement file a
       // bookkeeper downloads for reconciliation -- the same back-office money-movement job as `nacha-file-validator`.
       || slug === 'bai2-statement-reader'
+      // `eu-bank-statement-reader` joined 2026-10-04 on its first commit: the camt.053/MT940 counterpart of
+      // `bai2-statement-reader` -- the statement file a bookkeeper downloads for reconciliation.
+      || slug === 'eu-bank-statement-reader'
       // `sepa-payment-file-validator` joined 2026-10-04 on its first commit: the euro-area twin of `nacha-file-validator`,
       // checking the pain.001 file a bookkeeper exports from AP or payroll before the bank sees it.
       || slug === 'sepa-payment-file-validator'
