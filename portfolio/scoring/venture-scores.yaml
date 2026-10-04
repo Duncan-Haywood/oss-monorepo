@@ -27377,7 +27377,40 @@ ventures:
       asserts no network calls), IBANs are masked in output, and the repair step
       never edits an IBAN or amount so it cannot redirect or resize a payment.
       Ethics: free, informational, nothing leaves the device.
-  - slug: w2-efw2-file-validator
+  - slug: sepa-pain002-status-reader
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every line is a lookup and arithmetic on the
+      user's own status report.
+    basis: >-
+      Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process; full write-up
+      in this venture's own VENTURE.yaml comment. Bookkeepers and ERP integrators who upload
+      SEPA files get a pain.002 whose rejections are raw XML and ISO codes; existing answers
+      are the bank's own portal, developer libraries and paid reconciliation suites.
+      Distribution 6: "pain.002 rejected" and "what does AM04 mean SEPA" are recurring
+      queries; volume not measured with an external tool, and it pairs with the pain.001
+      validator. Defensibility 3: the code lists are public, the edge is the per-payment
+      reading, the rejected totals and the resend list.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: reads the user's own file with model and omissions stated; no banking
+      advice, no warranty, independent-of-the-EPC-and-banks clause and a payment-data note.
+      The file never leaves the browser (a test asserts no network calls) and IBANs are
+      masked. Ethics: free, informational, nothing leaves the device.
+
+  - slug: edi-x12-order-checker
     scores:
       ai_leverage: 1
       autonomous_ops: 10
@@ -27391,23 +27424,23 @@ ventures:
     floor_dimension: ai_leverage
     floor_note: >-
       No model in the product, deliberately. Every finding is deterministic
-      arithmetic and layout checks on the user's own EFW2 file.
+      arithmetic and layout checks on the user's own X12 file.
     basis: >-
       Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process; full
-      write-up in this venture's own VENTURE.yaml comment. Payroll preparers edit
-      EFW2 wage files by hand and learn about a fault from a terse SSA rejection;
-      existing answers are SSA's own desktop checker, validators locked inside
-      payroll software and paid services. Distribution 6: "EFW2 file rejected" and
-      "W-2 electronic file validator" are recurring seasonal queries; volume not
-      measured with an external tool. Defensibility 3: the rule set is public and
-      re-implementable, the edge is the line-level explanations, the total rebuild
-      and the local-only stance.
+      write-up in this venture's own VENTURE.yaml comment. Small suppliers to large
+      retailers are told to "do EDI" and meet rejections as terse 997 codes or chargebacks;
+      existing answers are per-document paid EDI networks, post-upload partner portals and
+      developer libraries. Distribution 6: "997 error codes", "SE01 segment count" and "EDI
+      856 SSCC" are recurring queries; volume not measured with an external tool.
+      Defensibility 3: the formats are public and re-implementable, the edge is the plain
+      language 997 translation, the check-digit and total checks and the local-only stance.
+      Time to revenue 5: the follow-on is partner rule packs for named retailers, not built.
     gates:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Liability: arithmetic on the user's own file with model and omissions stated;
-      no payroll or tax advice, no warranty, independent-of-SSA-and-IRS clause and a
-      wage-data note. The file never leaves the browser (a test asserts no network
-      calls), SSNs are masked in output, and the repair step never edits a wage line.
-      Ethics: free, informational, nothing leaves the device.
+      Liability: arithmetic and layout checks on the user's own file with model and
+      omissions stated; no trade or compliance advice, no warranty, independent-of-retailers
+      clause, chargeback exposure disclaimed. The file never leaves the browser (a test
+      asserts no network calls) and the repair step rewrites counts only. Ethics: free,
+      informational, nothing leaves the device.

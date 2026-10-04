@@ -275,7 +275,12 @@ export const SITEMAP_OUTPUT_FILE = path.join(
 );
 
 /** Where `--write` puts the apex's own Atom feed. See `renderFrontDoorFeed`. */
-export const FEED_OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', FEED_FILE);
+// Stored gzipped since 2026-10-04: `feed.xml` was the largest uncompressed key left in
+// `portfolio-front-html` after `index.html` and grows with every tool, and the object was
+// within a venture's width of the etcd budget. The suffix is spelled out rather than taken
+// from `COMPRESSED_SUFFIX` for the reason `CATALOG_OUTPUT_FILE` gives. The URL is still
+// `/feed.xml`; see the block in `front-door/default.conf`.
+export const FEED_OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', `${FEED_FILE}.gz`);
 
 /**
  * `robots.txt` for the apex, and why it allows everything.
@@ -2954,8 +2959,17 @@ if (isMain) {
     // Same reason once more: the page declares this feed in `<link
     // rel="alternate">` and links it from the footer, so a run that wrote the
     // page without it would ship a document advertising a path nothing serves.
-    await fs.writeFile(FEED_OUTPUT_FILE, feed);
-    console.log(`wrote ${path.relative(REPO_ROOT, FEED_OUTPUT_FILE)} (${feed.length} bytes)`);
+    const storedFeed = compress(feed);
+    await fs.writeFile(FEED_OUTPUT_FILE, storedFeed);
+    console.log(
+      `wrote ${path.relative(REPO_ROOT, FEED_OUTPUT_FILE)} (${storedFeed.length} bytes, ${feed.length} uncompressed)`,
+    );
+    // A plain `feed.xml` left beside its `.gz` would be a frozen copy nothing serves.
+    const stalePlainFeed = path.join(path.dirname(FEED_OUTPUT_FILE), FEED_FILE);
+    if (await fs.stat(stalePlainFeed).then(() => true, () => false)) {
+      await fs.rm(stalePlainFeed);
+      console.log(`removed ${FEED_FILE} (superseded by ${path.basename(FEED_OUTPUT_FILE)})`);
+    }
     // And once more: `llms.txt` lists the same mirrored tools the page and the
     // feed do, so a run that wrote one without the others would publish three
     // documents disagreeing about what this host serves. Gzipped, unlike the

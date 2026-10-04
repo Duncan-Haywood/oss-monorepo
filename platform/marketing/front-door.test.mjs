@@ -1267,9 +1267,9 @@ test('the committed feed matches what this generator produces', async () => {
   // file from git, so a stale commit ships stale bytes to real subscribers.
   const { feed } = await buildFrontDoor();
   assert.equal(
-    await fs.readFile(FEED_OUTPUT_FILE, 'utf8'),
+    zlib.gunzipSync(await fs.readFile(FEED_OUTPUT_FILE)).toString('utf8'),
     feed,
-    'gitops/prod/front-door/feed.xml is stale — run: node platform/marketing/regen.mjs',
+    'gitops/prod/front-door/feed.xml.gz is stale — run: node platform/marketing/regen.mjs',
   );
 });
 
@@ -1281,7 +1281,7 @@ test('every committed feed entry links to a page the mirror actually holds', asy
   const { buildMirror } = await import('./front-door-tools.mjs');
   const { files } = await buildMirror();
   const keys = new Set(files.map((f) => f.key));
-  const xml = await fs.readFile(FEED_OUTPUT_FILE, 'utf8');
+  const xml = zlib.gunzipSync(await fs.readFile(FEED_OUTPUT_FILE)).toString('utf8');
   const slugs = [...xml.matchAll(/href="https:\/\/marisstella\.dev\/tools\/([a-z0-9-]+)\/"/g)].map(
     (m) => m[1],
   );
@@ -1330,7 +1330,9 @@ test('nginx answers /feed.xml with the feed, typed as Atom', async () => {
   // dispatch on it before parsing, and nginx's stock mime.types maps `.xml` to
   // `application/xml`, so this is load-bearing rather than belt-and-braces.
   assert.match(block[0], /default_type application\/atom\+xml;/);
-  assert.match(block[0], new RegExp(`try_files /${escapeForRegExp(FEED_FILE)} =404;`));
+  assert.match(block[0], /gzip_static always;/);
+  assert.match(block[0], /gunzip on;/);
+  assert.doesNotMatch(block[0], /^\s*try_files/m);
   // Never noindex: this is the apex's own document and the thing we most want
   // an aggregator or AI crawler to read.
   assert.ok(!/X-Robots-Tag/.test(block[0]), '/feed.xml must stay crawlable');
@@ -1367,7 +1369,7 @@ test('the feed rides in the ConfigMap that mounts at the document root', async (
     path.join(path.dirname(OUTPUT_FILE), '..', 'kustomization.yaml'),
     'utf8',
   );
-  assert.match(kustomization, new RegExp(`- ${escapeForRegExp(FEED_FILE)}=front-door/${escapeForRegExp(FEED_FILE)}`));
+  assert.match(kustomization, new RegExp(`- ${escapeForRegExp(FEED_FILE)}\\.gz=front-door/${escapeForRegExp(FEED_FILE)}\\.gz`));
 });
 
 test('llms.txt lists every mirrored tool at a URL this host serves', () => {

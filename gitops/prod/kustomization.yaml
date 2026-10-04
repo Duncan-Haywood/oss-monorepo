@@ -106,9 +106,14 @@ configMapGenerator:
       # three above for riding in this ConfigMap: the page declares it at
       # `/feed.xml` in `<link rel="alternate">` and links it from the footer,
       # so it has to sit at the document root, and two ConfigMaps cannot mount
-      # at one `mountPath`. Text, so it lands in `data`. A few kilobytes
-      # against a 1 MiB object ceiling.
-      - feed.xml=front-door/feed.xml
+      # at one `mountPath`.
+      #
+      # **Stored gzipped since 2026-10-04**, same reason and mechanism as
+      # `sitemap.xml.gz` above and `catalog.json.gz` below: ~24 KB of XML that grows
+      # with every tool, taking `portfolio-front-html` to its etcd budget. `/feed.xml`
+      # is unchanged; `location = /feed.xml` in `front-door/default.conf` serves it
+      # with `gzip_static always; gunzip on;`, never `try_files`.
+      - feed.xml.gz=front-door/feed.xml.gz
       # `llms.txt`, the AI-discovery counterpart to the feed.
       #
       # **Stored gzipped since 2026-09-24**, same reason and same mechanism as

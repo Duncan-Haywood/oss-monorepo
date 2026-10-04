@@ -1983,33 +1983,60 @@ entries:
       Liability: arithmetic on the user's own file, model and omissions stated, no
       banking or compliance advice, no warranty, payment-data note. Ethics: free,
       nothing leaves the device, no scraping.
-  - venture: w2-efw2-file-validator
+  - venture: sepa-pain002-status-reader
     agent_spend_usd: null
     human_hours: 0
     outcomes:
       - >-
-        Graduated and built w2-efw2-file-validator, a data-file archetype for payroll
-        preparers, bookkeepers and small employers who file W-2s with SSA by wage
-        file: a browser-local tool that checks every 512-character EFW2 record
-        (length and characters, RA/RE/RW/RT/RF order, RA resubmission fields, RE tax
-        year and EIN, RW SSN validity, names and the seven money boxes, Social
-        Security wage base per tax year 2019-2026, 6.2% and Medicare 1.45%/0.9% rate
-        sanity, RT count and sums against the RW lines, RF count, one tax year per
-        file), each finding with its line number. A repair step rebuilds only RT and
-        RF and lists what changed; it never edits an RW line. SSNs are masked in the
-        report and the findings CSV; the file never leaves the browser (a test
-        asserts no network calls). 35 tests pass. New gap: duplicate_check closest
-        match 0.11, below the 0.45 line. First visitor expected from "EFW2 file
-        rejected" and "W-2 electronic file validator" searches (January peak); none
-        measured. Field positions beyond the well-known ones, the EIN prefix list
-        and the 2026 wage base are from memory of public sources and no SSA validator
-        was available, stated on the page, README and VENTURE.yaml. Registered score
-        row, launch date, CI workflow and category rule.
+        Graduated and built sepa-pain002-status-reader, the receiving end of
+        sepa-pain001-validator, for bookkeepers, treasurers and ERP integrators whose
+        bank answers a SEPA upload with a pain.002 status report: a browser-local reader
+        that shows file, block and per-payment status, explains about forty ISO rejection
+        reason codes (AC04, AM04, MD01, AM10 ...) with a kind of fix and an action, shows
+        unknown codes as unknown, groups rejected payments by reason and by kind of fix
+        with exact-decimal totals (a lower bound when the bank does not repeat amounts),
+        checks counts against the original file and each block, and exports the rejected
+        payments as a CSV. IBANs are masked, the file never leaves the browser (a test
+        asserts no network calls), a DTD is refused, nothing is edited or sent. 21 calc
+        tests and 10 page tests pass. New gap: duplicate_check closest other match 0.43
+        (pain.001 validator, a different message), below the 0.45 line. The code table is
+        from memory of public sources and no bank documentation was available, stated on
+        the page, README and VENTURE.yaml. Registered score row, launch date, CI workflow
+        and category rule; also repaired a malformed publish-surface row for
+        sepa-payment-file-validator-ci.yml that had lost its classification.
     mrr_end: 0
     gates:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Liability: arithmetic on the user's own file, model and omissions stated, no
-      payroll or tax advice, no warranty, wage-data note. Ethics: free, nothing
-      leaves the device, no scraping.
+      Liability: reads the user's own file, model and omissions stated, no banking advice,
+      no warranty, payment-data note. Ethics: free, nothing leaves the device, no scraping.
+
+  - venture: edi-x12-order-checker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built edi-x12-order-checker for small suppliers selling to large
+        retailers over EDI: a browser-local tool that checks the ISA/GS/ST envelope
+        (control numbers, IEA/GE/SE counts, fixed-width ISA fields), reads 850 purchase
+        orders, 810 invoices, 856 ship notices and 997 acknowledgements as tables, tests
+        UPC/EAN/GTIN and SSCC check digits, compares the 810 total with quantity times price
+        plus charges, allowances and tax, checks 856 hierarchy and carton uniqueness, and
+        translates 997/999 rejection codes into plain words, each finding with its segment
+        number. Lines export as CSV; a repair step rewrites SE01, GE01, IEA01 and CTT01 only
+        and never an item, quantity, price or total. The file never leaves the browser (a test
+        asserts no network calls). 44 tests pass. duplicate_check closest match 0.20, below the
+        0.45 line. Layouts and code lists are from memory of the public 004010 format and no
+        retailer guide or real file was available, stated on the page, README and VENTURE.yaml.
+        This session first built a BAI2 statement tool and dropped it unmerged when a parallel
+        session shipped bai2-statement-reader (#6310) minutes earlier; the check against open PRs
+        and the tree came back clean at the start and the collision landed in the gap.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and layout checks on the user's own file, model and omissions
+      stated, no trade or compliance advice, no warranty, business-data note. Ethics: free,
+      nothing leaves the device, no scraping.
