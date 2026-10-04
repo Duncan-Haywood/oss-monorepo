@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Video Hosting Pricing Calculator — Cloudflare Stream vs Mux vs Bunny vs api.video vs DIY AWS</title>
+  <meta name="description" content="Enter the minutes of video you store, the minutes viewers watch per month and your monthly uploads, and see what Cloudflare Stream, Mux, Bunny Stream, api.video and a DIY AWS pipeline charge, the 12-month spend under your growth rate, and the viewing level where the cheapest platform changes. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="What will video hosting cost for your minutes stored and watched, and who is cheapest?">
+  <meta property="og:description" content="Type your minutes stored, minutes watched per month and growth rate, get every video-hosting platform priced side by side and the viewing level where the cheapest one changes. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Video Hosting Pricing Calculator", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare what Cloudflare Stream, Mux, Bunny Stream, api.video and a DIY AWS pipeline charge for the minutes of video you store, deliver and upload each month, with 12-month growth and the viewing level where the cheapest platform changes. Runs in the browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this read my video account?", "acceptedAnswer": {"@type": "Answer", "text": "No. It uses only the minute volumes you type and rate cards you can edit. It cannot see your library, resolutions, viewers or invoice. Treat every figure as a way to compare options, never as what you will be charged."}}, {"@type": "Question", "name": "Where do the prices come from?", "acceptedAnswer": {"@type": "Answer", "text": "They are approximate public list prices as best known in 2025 for on-demand 720p-1080p video, shown with an as-of line, and every number is editable. Bunny and the DIY AWS pipeline bill by GB, so they are converted at roughly 2.5 Mbps. Platforms change packaging often, so check each pricing page before deciding."}}, {"@type": "Question", "name": "What is not included?", "acceptedAnswer": {"@type": "Answer", "text": "Live streaming, DRM, captions and AI features, 4K ladders, minimum commitments, enterprise discounts, other regions and each platform's fair-use terms. Per-GB platforms cost more per minute at high bitrates and less at low ones, so check the conversion against your own encodes."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page calculates in your browser and sends nothing. The CLI reads local files and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">VIDEO HOSTING PRICING CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>What will video hosting cost for your minutes stored and watched, and who is cheapest?</h1>
+    <p>Enter the <strong>minutes of video you store</strong>, the <strong>minutes viewers watch per month</strong>, your <strong>monthly uploads</strong> and your growth rate. Get <strong>Cloudflare Stream, Mux, Bunny Stream, api.video and a DIY AWS pipeline</strong> priced side by side, the 12-month spend, and the <strong>viewing level where the cheapest platform changes</strong> — before you build a course site or creator tool on one and find out when the invoice arrives.</p>
+    <p class="note">Nothing is uploaded. Calculated in this browser from numbers you enter and approximate list prices you can edit. It cannot see your library or your invoice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your video</h2>
+    <div class="grid">
+      <div><label for="stored">Minutes of video stored today</label><input type="number" id="stored" min="0" value="0"></div>
+      <div><label for="egress">Minutes watched per month today</label><input type="number" id="egress" min="0" value="0"></div>
+      <div><label for="uploaded">Minutes newly uploaded per month</label><input type="number" id="uploaded" min="0" value="0"></div>
+      <div><label for="growth">Growth in all volumes per month <span class="note">(%)</span></label><input type="number" id="growth" min="0" step="any" value="0"></div>
+      <div><label for="budget">Monthly budget in USD (optional)</label><input type="number" id="budget" min="0" placeholder="e.g. 300"></div>
+      <div><label for="provider">Budget applies to</label><select id="provider"><option value="">the cheapest platform</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Compare</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. Comparison</h2>
+    <p id="summary"></p>
+    <table><thead><tr><th>Platform</th><th>Per month</th><th>Per year</th><th>12-month spend with growth</th></tr></thead><tbody id="rows"></tbody></table>
+    <h3>Where the cheapest platform changes</h3>
+    <table><thead><tr><th>Minutes watched per month (at your stored and uploaded size)</th><th>Cheapest</th></tr></thead><tbody id="segs"></tbody></table>
+    <p class="note">Rows with several platforms are ties. Minutes watched are what viewers stream; encoding is free on every platform here except the DIY pipeline. Resolution ladders, live, DRM and captions are not priced, and per-GB platforms are converted at roughly 2.5 Mbps.</p>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Rate cards (editable)</h2>
+    <p class="note" id="prices-note"></p>
+    <table><thead><tr><th>Platform</th><th>Base fee (USD/mo)</th><th>Storage per min-mo</th><th>Storage included (min)</th><th>Delivery per min watched</th><th>Delivery included (min)</th><th>Encoding per min uploaded</th></tr></thead><tbody id="prices-rows"></tbody></table>
+    <p class="note">Press Compare after changing a value.</p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want a budget gate in CI?</h2>
+    <pre class="cmd">node cli.mjs compare --stored-min 20000 --watched-min 500000 --uploaded-min 500 --growth 5
+node cli.mjs compare --stored-min 20000 --watched-min 500000 --provider mux --budget 300   # exit 1 over budget
+node cli.mjs crossover --stored-min 20000
+node cli.mjs compare --stored-min 20000 --watched-min 500000 --prices prices.json --json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="how-to-choose-video-hosting-by-minutes-watched.html">how to choose video hosting by minutes watched</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this read my video account?</h3>
+    <p>No. It uses only the minute volumes you type and rate cards you can edit. It cannot see your library, resolutions, viewers or invoice. Treat every figure as a way to compare options, never as what you will be charged.</p>
+    <h3>Where do the prices come from?</h3>
+    <p>They are approximate public list prices as best known in 2025 for on-demand 720p-1080p video, shown with an as-of line, and every number is editable. Bunny and the DIY AWS pipeline bill by GB, so they are converted at roughly 2.5 Mbps. Platforms change packaging often, so check each pricing page before deciding.</p>
+    <h3>What is not included?</h3>
+    <p>Live streaming, DRM, captions and AI features, 4K ladders, minimum commitments, enterprise discounts, other regions and each platform's fair-use terms. Per-GB platforms cost more per minute at high bitrates and less at low ones, so check the conversion against your own encodes.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The page calculates in your browser and sends nothing. The CLI reads local files and makes no network call.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or engineering advice. It multiplies typed minute volumes by list prices that may be out of date and ignores live streaming, DRM, resolution ladders, minimum commitments, regions, contracts and fair-use limits; it is not a quote and not a guarantee of what any vendor will charge. Not affiliated with any platform named.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks on the same repo: <a href="../cdn-bandwidth-pricing-calculator/">CDN Bandwidth Pricing Calculator</a>, <a href="../object-storage-pricing-calculator/">Object Storage Pricing Calculator</a>, <a href="../cloud-egress-calculator/">Cloud Egress Calculator</a>, <a href="../email-api-pricing-calculator/">Email API Pricing Calculator</a>, <a href="../log-management-pricing-calculator/">Log Management Pricing Calculator</a>, <a href="../vector-db-cost-calculator/">Vector DB Cost Calculator</a>.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { DEFAULT_PROVIDERS, PRICES_AS_OF, compare, project, cheapestSegments, summarize, fmt } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const providers = {};
+    for (const [k, p] of Object.entries(DEFAULT_PROVIDERS)) providers[k] = { ...p };
+    $("#prices-note").textContent = "Defaults: " + PRICES_AS_OF + ".";
+    const FIELDS = ["baseUsd", "storagePerMin", "includedStorageMin", "deliveryPerMin", "includedDeliveryMin", "encodePerMin"];
+    $("#prices-rows").innerHTML = Object.entries(providers).map(([k, p]) => `<tr><td><a href="${escapeHtml(p.url)}" rel="noopener">${escapeHtml(p.label)}</a></td>` + FIELDS.map((f) => `<td><input type="number" min="0" step="any" aria-label="${escapeHtml(p.label)} ${f}" data-f="${f}" data-k="${k}" value="${p[f]}"></td>`).join("") + `</tr>`).join("");
+    $("#provider").innerHTML += Object.entries(providers).map(([k, p]) => `<option value="${k}">${escapeHtml(p.label)}</option>`).join("");
+
+    function readRates() {
+      for (const el of document.querySelectorAll("[data-f]")) providers[el.dataset.k][el.dataset.f] = Math.max(0, Number(el.value) || 0);
+    }
+
+    function render() {
+      readRates();
+      const stored = Math.max(0, Number($("#stored").value) || 0);
+      const egress = Math.max(0, Number($("#egress").value) || 0);
+      if (!stored && !egress) { $("#status").innerHTML = `<span class="error">Enter your minutes stored and minutes watched per month first (or load the worked example).</span>`; return; }
+      $("#status").textContent = "";
+      const uploaded = Math.max(0, Number($("#uploaded").value) || 0);
+      const growth = Math.max(0, Number($("#growth").value) || 0);
+      const rows = compare(stored, egress, uploaded, providers);
+      const proj = project(stored, egress, uploaded, growth, 12, providers);
+      const total = Object.fromEntries(proj.totals.map((t) => [t.key, t.total]));
+      const b = $("#budget").value === "" ? null : Math.max(0, Number($("#budget").value) || 0);
+      const s = summarize(rows, { budget: b, provider: $("#provider").value || null });
+      $("#summary").innerHTML = `<span class="${s.overBudget ? "changed" : "ok"}">${escapeHtml(s.text)}</span>`;
+      $("#rows").innerHTML = rows.map((r) => `<tr><td>${escapeHtml(r.label)}</td><td>${fmt(r.monthly)}</td><td>${fmt(r.annual)}</td><td>${fmt(total[r.key])}</td></tr>`).join("");
+      $("#segs").innerHTML = cheapestSegments(stored, uploaded, providers).map((g) => `<tr><td>${g.from.toLocaleString("en-US")} – ${g.to.toLocaleString("en-US")}</td><td>${escapeHtml(g.label)}</td></tr>`).join("");
+      $("#estimate").textContent = `${PRICES_AS_OF}. Stored grows from ${stored.toLocaleString("en-US")} to ${proj.endStored.toLocaleString("en-US")} minutes and viewing from ${egress.toLocaleString("en-US")} to ${proj.endDelivered.toLocaleString("en-US")} minutes a month over 12 months. Your numbers and editable prices; not a quote.`;
+      $("#report-card").hidden = false;
+      record("compare_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    $("#calc").addEventListener("click", render);
+
+    const EXAMPLE = { stored: 20000, egress: 500000, growth: 5 };
+    $("#load-example").addEventListener("click", () => {
+      $("#stored").value = EXAMPLE.stored;
+      $("#egress").value = EXAMPLE.egress;
+      $("#growth").value = EXAMPLE.growth;
+      $("#uploaded").value = 500;
+      render();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      $("#stored").value = 0; $("#egress").value = 0; $("#uploaded").value = 0; $("#growth").value = 0; $("#status").textContent = ""; $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>
