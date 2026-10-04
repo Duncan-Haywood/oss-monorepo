@@ -27169,3 +27169,38 @@ ventures:
       ID is kept by the parser, so the portfolio holds no practice or patient
       data. Ethics: helps a practice collect what its contract already says it is
       owed; purely informational.
+  - slug: nacha-file-validator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every finding is deterministic
+      arithmetic and layout checks on the user's own ACH file.
+    basis: >-
+      Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Bookkeepers and payroll
+      admins edit ACH files by hand and learn about a fault from a terse bank
+      rejection; existing answers are post-upload bank validators, developer
+      libraries and paid desktop editors. Distribution 6: "ACH file rejected",
+      "NACHA entry hash" and "ACH file validator" are recurring queries; volume
+      not measured with an external tool. Defensibility 3: the rule set is public
+      and re-implementable, the edge is the line-level explanations, the
+      control-record rebuild and the local-only stance.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own file with model and omissions stated;
+      no banking or compliance advice, no warranty, independent-of-Nacha-and-banks
+      clause and a payment-data note. The file never leaves the browser (a test
+      asserts no network calls), account numbers are masked in output, and the
+      repair step never edits an entry so it cannot redirect a payment. Ethics:
+      free, informational, nothing leaves the device.

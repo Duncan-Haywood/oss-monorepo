@@ -1,0 +1,79 @@
+name: nacha-file-validator
+description: >-
+  Free browser tool that checks an ACH (NACHA) payment file before it goes to the bank:
+  record lengths, routing-number check digits, entry hash, batch and file control totals,
+  block padding, service class against the entries, trace numbers, addenda links and
+  effective dates on weekends and bank holidays, each with its line number, plus a rebuild
+  of the control records after a hand edit. The file is read locally and never uploaded;
+  account numbers are masked in the report.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. duplicate_check.py: top score 0.20,
+# nothing near the 0.45 bar. Small employers, bookkeepers, property managers and
+# accounting-software integrators produce ACH files from payroll or AP exports and
+# edit them by hand when a payee changes. The bank's upload either accepts the file or
+# returns a terse rejection. Existing answers are bank-portal validators that only
+# run after upload, developer libraries (Python/Ruby/JS NACHA writers) that need code,
+# and paid desktop file-editor utilities; nothing is a free page that explains each
+# fault with its line and fixes the control totals.
+#
+# First visitor: bookkeepers and payroll admins searching "ACH file rejected", "NACHA
+# file format error", "how to calculate NACHA entry hash", "ACH file validator". Volume
+# not measured with an external tool.
+#
+# What makes it more than a format check: every finding names the line, the likely cause
+# and the fix; the routing check digit error says which digit would pass without changing
+# anything; totals are recomputed by transaction code so a hand-edited amount shows as a
+# control mismatch; weekend and Federal Reserve holiday effective dates give the next
+# settlement day; and the repair step rebuilds only control records and padding, never an
+# entry, so it cannot redirect a payment.
+#
+# Privacy is the liability boundary: ACH files carry routing and account numbers, so the
+# file never leaves the browser (a test asserts no network calls), account numbers are
+# masked in output, and the page says it is not a security assessment.
+#
+# Path to revenue (payment rails stay off): lead magnet for payroll and AP automation
+# audiences. A paid version, if usage appears, is bulk validation and a saved rule-set per
+# bank (CCD+ and CTX addenda rules, per-bank limits) behind an env-var switch; not built.
+#
+# Liability: arithmetic on the user's own file, model and omissions stated on the page, no
+# banking or compliance advice, no warranty, independent-of-Nacha-and-banks clause, payment
+# data note.
+#
+# Unverified: the field positions, the 3-7-1 check digit, the transaction-code sets, the
+# Federal Reserve holiday observance rule and the WEB/TEL payment-type rule are from memory
+# of the public file format; no bank validator was available. The first user report of a
+# file that passes here and is rejected by a bank, or the reverse, is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A bookkeeper or payroll admin whose bank rejected an ACH file will paste it into a
+      no-login page, because the alternative is a rejection code and a support call.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the exact line and cause, and getting a corrected file, leads the same person
+      to validate the next file before uploading, which is the reason to return.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted file structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a bank rejecting a file this tool passed, or this tool failing a file a bank accepted, at which point the rules need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/nacha-file-validator/
+  analytics: null
