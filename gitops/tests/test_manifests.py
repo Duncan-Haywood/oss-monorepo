@@ -2947,8 +2947,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `irs-iris-1099-csv-check` graduated (browser IRS IRIS 1099-NEC/MISC bulk CSV checker: TIN formats, thresholds, duplicates, totals, safe fixes).
     # +1: `edi-x12-order-checker` graduated (browser X12 EDI 850/810/856/997 checker: envelope counts, UPC/SSCC check digits, invoice totals, 997 translation).
     # +1: `xero-invoice-csv-check` graduated (browser Xero sales invoice CSV checker: per-invoice agreement, date order, Excel damage, safe fixes, 500-line splitter).
-    total = 704  # `infra/OWNER_CHECKLIST.md`'s own "N of the 704 tools" wording.
-    total = 704  # `infra/OWNER_CHECKLIST.md`'s own "N of the 704 tools" wording.
+    total = 705  # `infra/OWNER_CHECKLIST.md`'s own "N of the 705 tools" wording.
+    total = 705  # `infra/OWNER_CHECKLIST.md`'s own "N of the 705 tools" wording.
     # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).

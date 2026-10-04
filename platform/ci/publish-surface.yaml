@@ -719,6 +719,9 @@ workflows:
 - workflow: email-auth-check-ci.yml
   classification: none
   publishes: []
+- workflow: email-list-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: embroidery-shop-quote-calculator-ci.yml
   classification: none
   publishes: []
