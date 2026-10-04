@@ -303,6 +303,8 @@ spec:
                   name: portfolio-front-tools-30
               - configMap:
                   name: portfolio-front-tools-31
+              - configMap:
+                  name: portfolio-front-tools-32
         - name: conf
           configMap:
             name: portfolio-front-nginx
