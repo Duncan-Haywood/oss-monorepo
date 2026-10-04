@@ -44,8 +44,12 @@ const REPO_ROOT = path.resolve(HERE, '..', '..');
  * How many entries the feed carries. A reader that has been away for a month
  * should see everything they missed; one that has never subscribed does not
  * need 184 entries of history in a document every poll re-downloads.
+ *
+ * 40 -> 30 on 2026-10-04: `portfolio-front-html` was within 134 bytes of its
+ * etcd budget and the feed is its one key that is not gzipped; ten fewer
+ * entries buys ~4 KB without touching the nginx serving path.
  */
-export const FEED_MAX_ENTRIES = 40;
+export const FEED_MAX_ENTRIES = 30;
 
 /** `{ slug: 'YYYY-MM-DD' }`, or `{}` when the file has not been generated. */
 export async function loadLaunchDates(file = LAUNCHED_FILE) {
