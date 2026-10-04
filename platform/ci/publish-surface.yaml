@@ -245,6 +245,9 @@ workflows:
 - workflow: backyard-honey-profit-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: bai2-statement-reader-ci.yml
+  classification: none
+  publishes: []
 - workflow: bandcamp-sales-report-analyzer-ci.yml
   classification: none
   publishes: []

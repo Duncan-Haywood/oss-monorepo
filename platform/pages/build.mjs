@@ -1331,6 +1331,9 @@ const CATEGORY_RULES = [
       // annual return priced against two agencies' penalties -- the same downstream tax-authority obligation as
       // `quarterly-estimated-tax-calendar` above, not `solo-earner` (nothing is priced before a sale).
       || slug === 'form-5500-late-filing-calculator'
+      // `bai2-statement-reader` joined 2026-10-04 on its first commit: it reads and checks the bank statement file a
+      // bookkeeper downloads for reconciliation -- the same back-office money-movement job as `nacha-file-validator`.
+      || slug === 'bai2-statement-reader'
       // `sepa-payment-file-validator` joined 2026-10-04 on its first commit: the euro-area twin of `nacha-file-validator`,
       // checking the pain.001 file a bookkeeper exports from AP or payroll before the bank sees it.
       || slug === 'sepa-payment-file-validator'

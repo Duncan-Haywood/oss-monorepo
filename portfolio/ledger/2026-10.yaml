@@ -1860,6 +1860,38 @@ entries:
       Liability: arithmetic on the user's own file, model and omissions stated, no
       banking or compliance advice, no warranty, payment-data note. Ethics: free,
       nothing leaves the device, no scraping.
+  - venture: bai2-statement-reader
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built bai2-statement-reader, a data-file archetype for
+        bookkeepers, treasury and AR teams who receive BAI2 bank statement files:
+        a browser-local tool that turns the file into accounts, opening and closing
+        balances and a transaction table (type, amount, bank and customer reference,
+        text, 88 continuations joined), downloadable as CSV, and checks the 49
+        account, 98 group and 99 file control totals and record counts, closing
+        slashes, whole-cent amounts, dates, duplicate bank references and the
+        opening-plus-activity-equals-closing roll-forward, each with its line number.
+        The 49 total is accepted under any of four sums because banks differ, and
+        the report says which one the file follows. A repair step rebuilds only the
+        49, 98 and 99 trailers. Account numbers are masked in the report and both
+        CSVs; the file never leaves the browser (a test asserts no network calls).
+        29 tests pass; the page ran in Chromium with the clean and the broken
+        example. Closest existing tools are the sibling NACHA and SEPA validators
+        (other formats). First visitor expected from "BAI2 file viewer", "BAI2 to
+        CSV" and "BAI2 file format" searches; none measured. Layout, type codes and
+        the control-total conventions are from memory of the public format and no
+        bank validator was available, stated on the page, README and VENTURE.yaml.
+        Registered score row, launch date, CI workflow and category rule.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and layout checks on the user's own file, model and
+      omissions stated, no banking or accounting advice, no warranty, payment-data
+      note. Ethics: free, nothing leaves the device, no scraping.
   - venture: form-5500-late-filing-calculator
     agent_spend_usd: null
     human_hours: 0
