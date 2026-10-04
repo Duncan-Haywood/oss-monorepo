@@ -12,6 +12,10 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `calc.mjs` - parsing, the pair-weight matrix, simulated annealing with a
   softened never-together penalty, a hill-climbing polish, the report, and an
   independent `verifyPlan` check.
+- `reseat` / `parsePlanCsv` in `calc.mjs` - late RSVPs and drop-outs: paste last time's
+  CSV and re-seat; each returning guest is tied to an anchor at their old table, so
+  only moves worth their cost happen (stickiness low/medium/high). Pins and
+  never-together rules still win.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-to-make-a-wedding-seating-chart.html` - guide whose worked example is
   recomputed by the test suite.

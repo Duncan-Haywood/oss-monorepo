@@ -370,3 +370,77 @@ export function sampleSpec() {
   const { rules } = parseRules(SAMPLE_RULES, guests);
   return { guests, rules, seatsPerTable: 8, tableCount: 3, balance: true, seed: 1 };
 }
+
+export const STAY = { low: 1.5, medium: 4, high: 12 };
+
+/** Read a plan exported by planCsv (Table,Guest,Party) into Map(lowercased name -> table index). */
+export function parsePlanCsv(text) {
+  const prev = new Map();
+  const errors = [];
+  const rows = [];
+  for (const raw of String(text || "").split(/\r?\n/)) {
+    if (!raw.trim()) continue;
+    const cells = [];
+    let cur = "", q = false;
+    for (let i = 0; i < raw.length; i++) {
+      const c = raw[i];
+      if (q) { if (c === '"' && raw[i + 1] === '"') { cur += '"'; i++; } else if (c === '"') q = false; else cur += c; }
+      else if (c === '"') q = true;
+      else if (c === ",") { cells.push(cur); cur = ""; }
+      else cur += c;
+    }
+    cells.push(cur);
+    rows.push(cells);
+  }
+  rows.forEach((cells, i) => {
+    if (i === 0 && /^table$/i.test(cells[0].trim())) return;
+    const t = Number(cells[0].trim());
+    const name = (cells[1] || "").trim().replace(/\s+/g, " ");
+    if (!Number.isInteger(t) || t < 1 || !name) { errors.push(`Previous plan row ${i + 1} is not "table number, guest name".`); return; }
+    prev.set(name.toLowerCase(), t - 1);
+  });
+  if (!prev.size && !errors.length) errors.push("The previous plan is empty.");
+  return { prev, errors };
+}
+
+/**
+ * Re-seat after the list changed (late RSVPs, drop-outs) moving as few guests
+ * as possible. Each retained guest is tied to an anchor sitting at their old
+ * table, so leaving costs `stay` points; anchors are removed from the result.
+ */
+export function reseat(spec, prev, stickiness = "medium") {
+  const stay = typeof stickiness === "number" ? stickiness : STAY[stickiness] ?? STAY.medium;
+  const errors = validateSpec(spec);
+  if (errors.length) return { errors };
+  const n = spec.guests.length;
+  const T = resolveTableCount(spec);
+  const anchorIdx = Array.from({ length: T }, (_, t) => n + t);
+  const guests = [...spec.guests, ...anchorIdx.map((_, t) => ({ name: `\u0000anchor${t}`, party: "" }))];
+  const rules = [...spec.rules];
+  const pinned = new Set(spec.rules.filter((r) => r.kind === "pin").map((r) => r.a));
+  anchorIdx.forEach((a, t) => rules.push({ kind: "pin", a, table: t }));
+  const oldTable = new Array(n).fill(-1);
+  spec.guests.forEach((g, i) => {
+    const t = prev.get(g.name.toLowerCase());
+    if (t === undefined || t >= T) return;
+    oldTable[i] = t;
+    if (!pinned.has(i)) rules.push({ kind: "stay", a: i, b: anchorIdx[t], weight: stay });
+  });
+  const ext = { ...spec, guests, rules, seatsPerTable: spec.seatsPerTable + 1, tableCount: T };
+  const raw = optimize(ext);
+  if (raw.errors?.length) return { errors: raw.errors };
+  const table = raw.table.slice(0, n);
+  const W = weightMatrix(spec);
+  const baseline = baselinePlan(spec);
+  const res = describe(spec, W, table, baseline);
+  const moved = [];
+  let kept = 0, retained = 0;
+  spec.guests.forEach((g, i) => {
+    if (oldTable[i] === -1) return;
+    retained++;
+    if (table[i] === oldTable[i]) kept++; else moved.push({ name: g.name, from: oldTable[i] + 1, to: table[i] + 1 });
+  });
+  const added = spec.guests.filter((_, i) => oldTable[i] === -1).map((g) => g.name);
+  const dropped = [...prev.keys()].filter((k) => !spec.guests.some((g) => g.name.toLowerCase() === k));
+  return { ...res, moved, kept, retained, added, dropped, stickiness: stay };
+}
