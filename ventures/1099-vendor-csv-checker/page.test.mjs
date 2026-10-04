@@ -65,3 +65,7 @@ test("related-tool links point at ventures that exist", () => {
   assert.ok(links.length >= 3);
   for (const m of links) assert.ok(existsSync(new URL(`../${m[1]}/VENTURE.yaml`, import.meta.url)), m[1]);
 });
+
+test("links to the Xero invoice CSV check, its sibling pre-flight tool", () => {
+  assert.match(page("index.html"), /href="\.\.\/xero-invoice-csv-check\/"/);
+});

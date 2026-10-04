@@ -1361,6 +1361,9 @@ const CATEGORY_RULES = [
       // `bank-csv-to-qbo-converter` joined 2026-10-04 on its first commit: the CSV-in, accounting-file-out partner of the statement
       // readers -- a bookkeeper's bank CSV turned into QBO/OFX/QIF with the date and sign assumptions stated.
       || slug === 'bank-csv-to-qbo-converter'
+      // `xero-invoice-csv-check` joined 2026-10-04 on its first commit: a bookkeeper's sales invoice import file checked before Xero
+      // sees it, the same CSV-preflight job as the bank converter next to it.
+      || slug === 'xero-invoice-csv-check'
       // `eu-vat-oss-calculator` joined 2026-10-04 on its first commit: a small seller's EU cross-border VAT return from a sales export, the
       // same back-office compliance-arithmetic job as the SEPA and e-invoice tools here.
       || slug === 'eu-vat-oss-calculator'
