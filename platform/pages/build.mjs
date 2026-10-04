@@ -1249,7 +1249,9 @@ const CATEGORY_RULES = [
       // `klaviyo-profile-csv-check` joined 2026-10-04: the Klaviyo (email/SMS marketing profiles) member of the same import pre-flight family.
       || slug === 'klaviyo-profile-csv-check'
       // `mailchimp-audience-csv-check` joined 2026-10-04: the Mailchimp (email audience contacts) member of the same import pre-flight family.
-      || slug === 'mailchimp-audience-csv-check',
+      || slug === 'mailchimp-audience-csv-check'
+      // `shopify-inventory-csv-check` joined 2026-10-04: the Shopify (inventory quantities) member of the same import pre-flight family.
+      || slug === 'shopify-inventory-csv-check',
   },
   {
     id: 'backoffice',

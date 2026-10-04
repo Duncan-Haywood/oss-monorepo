@@ -1154,6 +1154,9 @@ workflows:
 - workflow: mailchimp-audience-csv-check-ci.yml
   classification: none
   publishes: []
+- workflow: shopify-inventory-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: lambda-memory-rightsizer-ci.yml
   classification: none
   publishes: []

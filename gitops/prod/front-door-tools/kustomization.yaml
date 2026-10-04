@@ -33,39 +33,39 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547340 bytes
-#   portfolio-front-tools-1: 92 files, 555167 bytes
-#   portfolio-front-tools-2: 144 files, 553495 bytes
-#   portfolio-front-tools-3: 128 files, 549072 bytes
-#   portfolio-front-tools-4: 136 files, 553947 bytes
-#   portfolio-front-tools-5: 128 files, 555371 bytes
-#   portfolio-front-tools-6: 122 files, 553823 bytes
-#   portfolio-front-tools-7: 135 files, 554169 bytes
-#   portfolio-front-tools-8: 132 files, 549396 bytes
-#   portfolio-front-tools-9: 133 files, 556863 bytes
-#   portfolio-front-tools-10: 122 files, 550573 bytes
-#   portfolio-front-tools-11: 131 files, 554283 bytes
-#   portfolio-front-tools-12: 131 files, 553847 bytes
-#   portfolio-front-tools-13: 128 files, 555800 bytes
-#   portfolio-front-tools-14: 121 files, 553103 bytes
-#   portfolio-front-tools-15: 124 files, 553263 bytes
-#   portfolio-front-tools-16: 121 files, 556848 bytes
-#   portfolio-front-tools-17: 115 files, 556410 bytes
-#   portfolio-front-tools-18: 127 files, 553757 bytes
-#   portfolio-front-tools-19: 125 files, 553524 bytes
-#   portfolio-front-tools-20: 133 files, 556795 bytes
-#   portfolio-front-tools-21: 120 files, 555879 bytes
-#   portfolio-front-tools-22: 130 files, 554378 bytes
-#   portfolio-front-tools-23: 126 files, 554801 bytes
-#   portfolio-front-tools-24: 128 files, 553051 bytes
-#   portfolio-front-tools-25: 110 files, 552475 bytes
-#   portfolio-front-tools-26: 96 files, 550775 bytes
-#   portfolio-front-tools-27: 120 files, 547093 bytes
-#   portfolio-front-tools-28: 120 files, 549452 bytes
-#   portfolio-front-tools-29: 129 files, 552714 bytes
-#   portfolio-front-tools-30: 131 files, 553800 bytes
-#   portfolio-front-tools-31: 111 files, 554077 bytes
-#   portfolio-front-tools-32: 54 files, 288334 bytes
+#   portfolio-front-tools-0: 145 files, 547356 bytes
+#   portfolio-front-tools-1: 92 files, 555170 bytes
+#   portfolio-front-tools-2: 144 files, 553508 bytes
+#   portfolio-front-tools-3: 128 files, 549085 bytes
+#   portfolio-front-tools-4: 136 files, 553959 bytes
+#   portfolio-front-tools-5: 128 files, 555363 bytes
+#   portfolio-front-tools-6: 122 files, 553863 bytes
+#   portfolio-front-tools-7: 135 files, 554106 bytes
+#   portfolio-front-tools-8: 132 files, 549400 bytes
+#   portfolio-front-tools-9: 133 files, 556851 bytes
+#   portfolio-front-tools-10: 122 files, 550607 bytes
+#   portfolio-front-tools-11: 131 files, 554286 bytes
+#   portfolio-front-tools-12: 131 files, 553966 bytes
+#   portfolio-front-tools-13: 128 files, 555886 bytes
+#   portfolio-front-tools-14: 121 files, 553082 bytes
+#   portfolio-front-tools-15: 124 files, 553265 bytes
+#   portfolio-front-tools-16: 121 files, 556855 bytes
+#   portfolio-front-tools-17: 115 files, 556437 bytes
+#   portfolio-front-tools-18: 127 files, 553863 bytes
+#   portfolio-front-tools-19: 125 files, 553527 bytes
+#   portfolio-front-tools-20: 133 files, 556799 bytes
+#   portfolio-front-tools-21: 120 files, 555891 bytes
+#   portfolio-front-tools-22: 130 files, 554341 bytes
+#   portfolio-front-tools-23: 126 files, 554809 bytes
+#   portfolio-front-tools-24: 128 files, 553101 bytes
+#   portfolio-front-tools-25: 110 files, 552481 bytes
+#   portfolio-front-tools-26: 95 files, 548295 bytes
+#   portfolio-front-tools-27: 122 files, 557051 bytes
+#   portfolio-front-tools-28: 121 files, 554513 bytes
+#   portfolio-front-tools-29: 130 files, 555618 bytes
+#   portfolio-front-tools-30: 131 files, 553794 bytes
+#   portfolio-front-tools-31: 111 files, 553987 bytes
+#   portfolio-front-tools-32: 54 files, 288260 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3560,6 +3560,9 @@ configMapGenerator:
       - shopify-fee-calculator__vs-doing-it-in-a-spreadsheet.html.gz=shopify-fee-calculator__vs-doing-it-in-a-spreadsheet.html.gz
       - shopify-fee-calculator__which-shopify-promo-costs-less.html.gz=shopify-fee-calculator__which-shopify-promo-costs-less.html.gz
       - shopify-fee-calculator__why-paypal-costs-more.html.gz=shopify-fee-calculator__why-paypal-costs-more.html.gz
+      - shopify-inventory-csv-check__calc.mjs.gz=shopify-inventory-csv-check__calc.mjs.gz
+      - shopify-inventory-csv-check__index.html.gz=shopify-inventory-csv-check__index.html.gz
+      - shopify-inventory-csv-check__usage.mjs.gz=shopify-inventory-csv-check__usage.mjs.gz
       - shopify-inventory-reorder-planner__calc.mjs.gz=shopify-inventory-reorder-planner__calc.mjs.gz
       - shopify-inventory-reorder-planner__index.html.gz=shopify-inventory-reorder-planner__index.html.gz
       - shopify-inventory-reorder-planner__usage.mjs.gz=shopify-inventory-reorder-planner__usage.mjs.gz
@@ -3597,15 +3600,15 @@ configMapGenerator:
       - sitemap-lastmod-freshness-check__check.mjs.gz=sitemap-lastmod-freshness-check__check.mjs.gz
       - sitemap-lastmod-freshness-check__engine.mjs.gz=sitemap-lastmod-freshness-check__engine.mjs.gz
       - sitemap-lastmod-freshness-check__fetch-url.mjs.gz=sitemap-lastmod-freshness-check__fetch-url.mjs.gz
-      - sitemap-lastmod-freshness-check__index.html.gz=sitemap-lastmod-freshness-check__index.html.gz
-      - sitemap-lastmod-freshness-check__usage.mjs.gz=sitemap-lastmod-freshness-check__usage.mjs.gz
-      - sitemap-lastmod-freshness-check__vs-xml-sitemaps-validator.html.gz=sitemap-lastmod-freshness-check__vs-xml-sitemaps-validator.html.gz
-      - sitemap-lastmod-freshness-check__why-sitemap-lastmod-matters.html.gz=sitemap-lastmod-freshness-check__why-sitemap-lastmod-matters.html.gz
   - name: portfolio-front-tools-27
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sitemap-lastmod-freshness-check__index.html.gz=sitemap-lastmod-freshness-check__index.html.gz
+      - sitemap-lastmod-freshness-check__usage.mjs.gz=sitemap-lastmod-freshness-check__usage.mjs.gz
+      - sitemap-lastmod-freshness-check__vs-xml-sitemaps-validator.html.gz=sitemap-lastmod-freshness-check__vs-xml-sitemaps-validator.html.gz
+      - sitemap-lastmod-freshness-check__why-sitemap-lastmod-matters.html.gz=sitemap-lastmod-freshness-check__why-sitemap-lastmod-matters.html.gz
       - skill-manifest-check__calc.mjs.gz=skill-manifest-check__calc.mjs.gz
       - skill-manifest-check__how-to-write-a-description-that-triggers.html.gz=skill-manifest-check__how-to-write-a-description-that-triggers.html.gz
       - skill-manifest-check__index.html.gz=skill-manifest-check__index.html.gz
@@ -3724,13 +3727,13 @@ configMapGenerator:
       - sri-check__usage.mjs.gz=sri-check__usage.mjs.gz
       - sri-check__vs-checking-tags-by-hand.html.gz=sri-check__vs-checking-tags-by-hand.html.gz
       - sri-check__vs-srihash.html.gz=sri-check__vs-srihash.html.gz
-      - sri-check__why-does-sri-need-the-crossorigin-attribute.html.gz=sri-check__why-does-sri-need-the-crossorigin-attribute.html.gz
-      - staffing-markup-calculator__calc.mjs.gz=staffing-markup-calculator__calc.mjs.gz
   - name: portfolio-front-tools-28
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sri-check__why-does-sri-need-the-crossorigin-attribute.html.gz=sri-check__why-does-sri-need-the-crossorigin-attribute.html.gz
+      - staffing-markup-calculator__calc.mjs.gz=staffing-markup-calculator__calc.mjs.gz
       - staffing-markup-calculator__index.html.gz=staffing-markup-calculator__index.html.gz
       - staffing-markup-calculator__markup-vs-margin.html.gz=staffing-markup-calculator__markup-vs-margin.html.gz
       - staffing-markup-calculator__usage.mjs.gz=staffing-markup-calculator__usage.mjs.gz
@@ -3850,12 +3853,12 @@ configMapGenerator:
       - sump-pump-bid-calculator__vs-a-flat-pump-swap-special.html.gz=sump-pump-bid-calculator__vs-a-flat-pump-swap-special.html.gz
       - sump-pump-bid-calculator__vs-servicetitan.html.gz=sump-pump-bid-calculator__vs-servicetitan.html.gz
       - sunroom-bid-calculator__calc.mjs.gz=sunroom-bid-calculator__calc.mjs.gz
-      - sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz=sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz
   - name: portfolio-front-tools-29
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz=sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz
       - sunroom-bid-calculator__index.html.gz=sunroom-bid-calculator__index.html.gz
       - sunroom-bid-calculator__usage.mjs.gz=sunroom-bid-calculator__usage.mjs.gz
       - sunroom-bid-calculator__vs-a-flat-180-per-square-foot-special.html.gz=sunroom-bid-calculator__vs-a-flat-180-per-square-foot-special.html.gz
