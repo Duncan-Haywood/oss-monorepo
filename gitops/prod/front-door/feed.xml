@@ -310,7 +310,7 @@
     <id>tag:marisstella.dev,2026:tool/object-storage-pricing-calculator</id>
     <published>2026-10-03T00:00:00Z</published>
     <updated>2026-10-03T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Enter the GB you store and the GB you serve per month and see what Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, DigitalOcean Spaces and Hetzner charge, the 12-month spend under your growth rate, and the egress level where the cheapest provider changes. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
