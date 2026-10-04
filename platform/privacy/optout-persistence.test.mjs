@@ -1292,9 +1292,10 @@ const RELATIVE_SELF = relative(
 // +1: `shopify-inventory-csv-check` graduated.
 // +1: `teachers-pay-teachers-earnings-analyzer` graduated.
 // +1: `amazon-inventory-loader-check` graduated.
+// +1: `gbp-bulk-location-check` graduated.
 // +1: `google-ads-editor-csv-check` graduated.
 // +1: `owner-operator-per-diem-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 704;
+const SWITCHES_IN_THE_CATALOGUE = 705;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.

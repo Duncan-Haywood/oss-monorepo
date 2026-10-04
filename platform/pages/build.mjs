@@ -1253,7 +1253,9 @@ const CATEGORY_RULES = [
       // `mailchimp-audience-csv-check` joined 2026-10-04: the Mailchimp (email audience contacts) member of the same import pre-flight family.
       || slug === 'mailchimp-audience-csv-check'
       // `payroll-hours-csv-check` joined 2026-10-04: the payroll hours sheet member of the same file pre-flight family.
-      || slug === 'payroll-hours-csv-check',
+      || slug === 'payroll-hours-csv-check'
+      // `gbp-bulk-location-check` joined 2026-10-04: a Google Business Profile bulk-location spreadsheet pre-flight, the same line-numbered findings and explicit not-checked list as the import pre-flights above, filed beside them for the same reason.
+      || slug === 'gbp-bulk-location-check',
   },
   {
     id: 'backoffice',

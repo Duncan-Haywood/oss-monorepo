@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Google Business Profile Bulk Upload Checker — Find Spreadsheet Errors Before You Upload</title>
+  <meta name="description" content="Free Google Business Profile bulk-location spreadsheet checker: finds semicolon or UTF-16 files, missing columns, duplicate store codes, ZIPs that lost a leading zero, bad phone numbers, non-https websites, hours not in 24-hour HH:MM, bad dates, country and state codes, latitude and longitude errors, keyword-stuffed names and duplicate addresses, with line numbers and safe fixes. Runs in your browser; the file is never uploaded.">
+  <meta property="og:title" content="GBP Bulk Location Check — free, private, in your browser">
+  <meta property="og:description" content="Catch what breaks a Google Business Profile bulk upload, with the line number, before you upload. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "GBP Bulk Location Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks a Google Business Profile bulk-location CSV or TSV for delimiter and encoding, template columns, store codes, business names, phone numbers, websites, hours, opening dates, country, state and postal codes, coordinates, Excel damage, duplicate addresses and labels before it is uploaded, and applies safe fixes. Runs entirely in your browser; the file is never uploaded.", "featureList": "Google Business Profile bulk upload validator, store code duplicate finder, Excel leading zero ZIP fixer, business hours format checker, phone number E.164 checker, CSV delimiter converter"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why did Google reject my Business Profile bulk upload?", "acceptedAnswer": {"@type": "Answer", "text": "The usual causes are a file saved with semicolons or as UTF-16, a missing template column or a renamed header, duplicate or blank store codes, a country written as a name or as UK instead of the ISO code GB, a US ZIP that lost its leading zero in Excel, phone numbers with the wrong number of digits for the country, hours written as 9am-5pm instead of 24-hour HH:MM, an opening date that is not year-month-day, a business name over 100 characters or stuffed with keywords, and more than ten labels. This tool tests each of them and names the line."}}, {"@type": "Question", "name": "Why did Excel change my ZIP codes and phone numbers?", "acceptedAnswer": {"@type": "Answer", "text": "Excel treats digit strings as numbers. A ZIP like 02110 becomes 2110, a long store code becomes 1.2346E+09, and a phone number stored as a number can gain a trailing .0. Format those columns as Text before pasting. This tool flags each, and restores a US ZIP's leading zero only when the row's state confirms it, for example 2110 in MA becomes 02110 but 2110 in TX is left for you to check."}}, {"@type": "Question", "name": "What format do Business Profile opening hours use?", "acceptedAnswer": {"@type": "Answer", "text": "From memory of Google's bulk-upload help, each day takes 24-hour HH:MM-HH:MM, for example 09:00-17:00; a split day lists shifts separated by commas, 09:00-12:00, 13:00-17:00; a closed day is x or closed; and a round-the-clock day is 24 hours. This tool reports 12-hour times, impossible times, overlapping shifts and non-standard dashes, and Apply safe fixes tidies the separators."}}, {"@type": "Question", "name": "What does Apply safe fixes change?", "acceptedAnswer": {"@type": "Answer", "text": "Only things with one reasonable reading: semicolon or pipe delimiters to commas, stray spaces, a trailing .0 on a store code, phone or ZIP, a ZIP's leading zero when the state's ZIP range confirms it, and dash or word separators in hours. It never edits a business name's words, an address, a category or the digits of a phone number."}}, {"@type": "Question", "name": "Is it safe to put my locations into a web page?", "acceptedAnswer": {"@type": "Answer", "text": "The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls."}}, {"@type": "Question", "name": "What does this not check?", "acceptedAnswer": {"@type": "Answer", "text": "Whether Google will accept the file today, whether a primary category is a current Google category name, whether an address exists or geocodes, whether a profile already exists on Google, verification status, and Google's policies on names, which can suspend a profile even when the file is valid. A clean result is not a promise of success: upload a few rows first."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2f5d8a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1d3f66; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1d3f66; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1d3f6610; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f5d8a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf4; color: #1d3f66; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1d3f66; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">GBP BULK LOCATION CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why did Google reject my bulk location spreadsheet?</h1>
+    <p>Paste or drop your <strong>Google Business Profile bulk-location CSV or TSV</strong> and get every problem <strong>with its line number</strong> before you upload: <strong>duplicate or damaged store codes</strong>, US <strong>ZIPs that lost their leading zero</strong>, phones that are not E.164 or the wrong length for the country, <strong>hours like 9am-5pm</strong> instead of 09:00-17:00, <code>UK</code> instead of <code>GB</code>, websites without https, opening dates in the wrong format, swapped latitude and longitude, <strong>names in capitals or stuffed with keywords</strong>, and two store codes at one address. Then <strong>apply the safe fixes</strong> and download a cleaned file.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Google LLC. Column names, limits and formats are read from memory of Google's public bulk-upload help pages; no Google upload was available when this was built.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your location file</h2>
+    <p class="note">The bulk-upload template saved as CSV or tab-separated text, or a sheet exported from your location-management system.</p>
+    <label for="file">Choose a file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values,text/plain">
+    <label for="paste">…or paste the text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Store code,Business name,Address line 1,Locality,Administrative area,Country/Region,Postal code,Primary phone,..."></textarea>
+    <p>
+      <button type="button" id="validate">Check file</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Check file.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Locations</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">Store code</th><th scope="col">Business name</th><th scope="col">Locality</th></tr></thead><tbody id="products"></tbody></table></div>
+    <div id="fix-box" hidden>
+      <h3>Safe fixes</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <p><button type="button" id="download-fixed">Download cleaned file</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Comma- or tab-separated, UTF-8.</strong> The bulk upload reads CSV or tab-separated text. A semicolon file (European Excel) or Excel's UTF-16 "Unicode Text" is read wrongly.</li>
+      <li><strong>Columns:</strong> Store code, Business name, Address lines 1 to 5, Sub-locality, Locality, Administrative area, Country/Region, Postal code, Primary phone, Additional phones, Website, Primary category, Additional categories, Sunday to Saturday hours, Special hours, From the business, Opening date, Labels, photo columns, Latitude and Longitude. Missing store code, name, address line 1, country or primary category is an error.</li>
+      <li><strong>Store code</strong> is unique per row, at most 64 characters, letters, digits, hyphens, underscores and periods. Scientific notation and trailing .0 are Excel damage.</li>
+      <li><strong>Business name</strong> is at most 100 characters. All capitals, a web address, a phone number, "best", "cheap", "near me" and lists of services or towns are flagged as a heuristic, because stuffed names are a common cause of suspension.</li>
+      <li><strong>Country/Region</strong> is a two-letter ISO code (GB, not UK). US <strong>states</strong> are two-letter abbreviations. <strong>Postal codes</strong> are checked for the shape of about twenty countries.</li>
+      <li><strong>Phones</strong> are E.164 (+16175550142) or a number plausible for the row's country: ten digits for the US and Canada, 11 starting 0 for the UK.</li>
+      <li><strong>Website</strong> starts with https://. <strong>Hours</strong> are 24-hour HH:MM-HH:MM, shifts separated by commas, closed as x, round-the-clock as 24 hours. <strong>Opening date</strong> is YYYY-MM-DD.</li>
+      <li><strong>Labels</strong> are at most ten per location and 50 characters each. "From the business" is at most 750 characters with no links.</li>
+      <li><strong>Latitude and Longitude</strong> are decimal degrees in range, both or neither.</li>
+      <li><strong>Duplicate addresses</strong> under different store codes are flagged.</li>
+      <li><strong>Safe fixes</strong> change only the delimiter, stray spaces, a trailing .0, hours separators, and a US ZIP whose leading zero the row's state confirms. They never edit a name's words, an address, a category or a phone number's digits.</li>
+      <li><strong>Not checked:</strong> that Google will accept the file today, whether a category name is current, whether an address exists, whether a profile already exists, verification, and Google's name and content policies. Upload two or three rows first.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why did Google reject my Business Profile bulk upload?</h3>
+    <p>The usual causes are a file saved with semicolons or as UTF-16, a missing template column or a renamed header, duplicate or blank store codes, a country written as a name or as UK instead of the ISO code GB, a US ZIP that lost its leading zero in Excel, phone numbers with the wrong number of digits for the country, hours written as 9am-5pm instead of 24-hour HH:MM, an opening date that is not year-month-day, a business name over 100 characters or stuffed with keywords, and more than ten labels. This tool tests each of them and names the line.</p>
+    <h3>Why did Excel change my ZIP codes and phone numbers?</h3>
+    <p>Excel treats digit strings as numbers. A ZIP like 02110 becomes 2110, a long store code becomes 1.2346E+09, and a phone number stored as a number can gain a trailing .0. Format those columns as Text before pasting. This tool flags each, and restores a US ZIP's leading zero only when the row's state confirms it, for example 2110 in MA becomes 02110 but 2110 in TX is left for you to check.</p>
+    <h3>What format do Business Profile opening hours use?</h3>
+    <p>From memory of Google's bulk-upload help, each day takes 24-hour HH:MM-HH:MM, for example 09:00-17:00; a split day lists shifts separated by commas, 09:00-12:00, 13:00-17:00; a closed day is x or closed; and a round-the-clock day is 24 hours. This tool reports 12-hour times, impossible times, overlapping shifts and non-standard dashes, and Apply safe fixes tidies the separators.</p>
+    <h3>What does Apply safe fixes change?</h3>
+    <p>Only things with one reasonable reading: semicolon or pipe delimiters to commas, stray spaces, a trailing .0 on a store code, phone or ZIP, a ZIP's leading zero when the state's ZIP range confirms it, and dash or word separators in hours. It never edits a business name's words, an address, a category or the digits of a phone number.</p>
+    <h3>Is it safe to put my locations into a web page?</h3>
+    <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls.</p>
+    <h3>What does this not check?</h3>
+    <p>Whether Google will accept the file today, whether a primary category is a current Google category name, whether an address exists or geocodes, whether a profile already exists on Google, verification status, and Google's policies on names, which can suspend a profile even when the file is valid. A clean result is not a promise of success: upload a few rows first.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace Google's own upload checks. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including by uploading a small sample first, and a clean result is not a promise that Google will accept the file or that any profile will be approved or stay live.</p>
+    <p><strong>Not affiliated with Google.</strong> This tool is independent and is not sponsored, endorsed or connected to Google LLC or any listing-management vendor. Google and Google Business Profile are trademarks of their owner, used here only to say which file format the tool reads. The column list, limits and formats are read from memory of public sources and may be out of date or miss a variant; check them against Google's current documentation.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../email-list-csv-check/">email list CSV check</a>, the <a href="../hubspot-contacts-csv-check/">HubSpot contacts CSV check</a>, the <a href="../salesforce-lead-import-csv-check/">Salesforce lead import CSV check</a>, the <a href="../klaviyo-profile-csv-check/">Klaviyo profile CSV check</a> and the <a href="../google-ads-editor-csv-check/">Google Ads Editor CSV check</a> do the same job for those files, which share the phone, delimiter and Excel-damage problems.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, sampleFile, sampleBrokenFile, findingsCsv, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, fixedText = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const r = validate(text);
+      lastResult = r;
+      const s = r.summary;
+      const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${s.locations} location${s.locations === 1 ? "" : "s"}, ${s.columns} columns`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      $("#products").innerHTML = s.groups.slice(0, 500).map((g) => `<tr><td>${g.line}</td><td>${esc(g.handle)}</td><td>${esc(g.title)}</td><td>${esc(g.variants)}</td></tr>`).join("") || `<tr><td colspan="4">No locations found.</td></tr>`;
+      const fix = repair(text);
+      fixedText = fix.text;
+      $("#fix-box").hidden = false;
+      $("#download-fixed").hidden = !fix.text || !fix.changes.length;
+      $("#fix-note").textContent = fix.error ? fix.error : fix.changes.length
+        ? `${fix.changes.length} safe change${fix.changes.length === 1 ? "" : "s"} available. Names, addresses, phone digits and categories are left exactly as they are.`
+        : "Nothing here has a single safe fix; the findings above need your decision.";
+      $("#fix-list").innerHTML = fix.changes.slice(0, 200).map((c) => `<li>${esc(c)}</li>`).join("") + (fix.changes.length > 200 ? `<li>…and ${fix.changes.length - 200} more.</li>` : "");
+      report.hidden = false;
+      status.textContent = errs ? `Found ${errs} error(s) in ${s.rows} row(s).` : `No errors in ${s.rows} row(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: a made-up plumbing company's three locations, not real businesses."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: the same kind of file after a European-Excel round trip, with typical faults."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; lastResult = null; fixedText = null; status.textContent = "Choose a file or paste the text, then click Check file."; });
+    $("#download-fixed").addEventListener("click", () => { if (fixedText) { record("fixes_applied"); download("gbp-locations-cleaned.csv", fixedText, "text/csv"); } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("gbp-locations-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
