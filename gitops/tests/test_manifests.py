@@ -2955,8 +2955,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `klaviyo-profile-csv-check` graduated (browser Klaviyo profile import checker: identifiers, E.164 phones, Excel damage, near-miss headers, lat/long/timezone, mixed dates, safe fixes).
     # +1: `shopify-customer-csv-check` graduated (browser Shopify customer import checker: emails, E.164 phones, Excel zip and phone damage, country and province codes, consent values, tags, safe fixes).
     # +1: `teachers-pay-teachers-earnings-analyzer` graduated (browser TPT sales CSV analyzer: observed fee incl. flat per-sale fee, per-resource take-home, repeat buyers, break-even price).
-    total = 720  # `infra/OWNER_CHECKLIST.md`'s own "N of the 720 tools" wording.
-    total = 720  # `infra/OWNER_CHECKLIST.md`'s own "N of the 720 tools" wording.
+    # +1: `gbp-bulk-location-check` graduated (browser Google Business Profile bulk-location sheet checker: store codes, ZIP and phone Excel damage, hours, ISO country and state codes, coordinates, safe fixes).
+    total = 721  # `infra/OWNER_CHECKLIST.md`'s own "N of the 721 tools" wording.
+    total = 721  # `infra/OWNER_CHECKLIST.md`'s own "N of the 721 tools" wording.
     # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).

@@ -935,6 +935,9 @@ workflows:
 - workflow: garmin-world-traveler-watchface-ci.yml
   classification: none
   publishes: []
+- workflow: gbp-bulk-location-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: ghost-members-export-analyzer-ci.yml
   classification: none
   publishes: []
