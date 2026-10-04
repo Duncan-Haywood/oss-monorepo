@@ -1853,6 +1853,9 @@ workflows:
 - workflow: shopify-permission-drift-ci.yml
   classification: none
   publishes: []
+- workflow: shopify-product-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: sibling-links-ci.yml
   classification: none
   publishes: []
