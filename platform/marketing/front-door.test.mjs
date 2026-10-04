@@ -1267,9 +1267,9 @@ test('the committed feed matches what this generator produces', async () => {
   // file from git, so a stale commit ships stale bytes to real subscribers.
   const { feed } = await buildFrontDoor();
   assert.equal(
-    zlib.gunzipSync(await fs.readFile(FEED_OUTPUT_FILE)).toString('utf8'),
+    await fs.readFile(FEED_OUTPUT_FILE, 'utf8'),
     feed,
-    'gitops/prod/front-door/feed.xml.gz is stale — run: node platform/marketing/regen.mjs',
+    'gitops/prod/front-door/feed.xml is stale — run: node platform/marketing/regen.mjs',
   );
 });
 
@@ -1281,7 +1281,7 @@ test('every committed feed entry links to a page the mirror actually holds', asy
   const { buildMirror } = await import('./front-door-tools.mjs');
   const { files } = await buildMirror();
   const keys = new Set(files.map((f) => f.key));
-  const xml = zlib.gunzipSync(await fs.readFile(FEED_OUTPUT_FILE)).toString('utf8');
+  const xml = await fs.readFile(FEED_OUTPUT_FILE, 'utf8');
   const slugs = [...xml.matchAll(/href="https:\/\/marisstella\.dev\/tools\/([a-z0-9-]+)\/"/g)].map(
     (m) => m[1],
   );
@@ -1330,9 +1330,7 @@ test('nginx answers /feed.xml with the feed, typed as Atom', async () => {
   // dispatch on it before parsing, and nginx's stock mime.types maps `.xml` to
   // `application/xml`, so this is load-bearing rather than belt-and-braces.
   assert.match(block[0], /default_type application\/atom\+xml;/);
-  assert.match(block[0], /gzip_static always;/);
-  assert.match(block[0], /gunzip on;/);
-  assert.doesNotMatch(block[0], /^\s*try_files/m);
+  assert.match(block[0], new RegExp(`try_files /${escapeForRegExp(FEED_FILE)} =404;`));
   // Never noindex: this is the apex's own document and the thing we most want
   // an aggregator or AI crawler to read.
   assert.ok(!/X-Robots-Tag/.test(block[0]), '/feed.xml must stay crawlable');
@@ -1369,7 +1367,7 @@ test('the feed rides in the ConfigMap that mounts at the document root', async (
     path.join(path.dirname(OUTPUT_FILE), '..', 'kustomization.yaml'),
     'utf8',
   );
-  assert.match(kustomization, new RegExp(`- ${escapeForRegExp(FEED_FILE)}\\.gz=front-door/${escapeForRegExp(FEED_FILE)}\\.gz`));
+  assert.match(kustomization, new RegExp(`- ${escapeForRegExp(FEED_FILE)}=front-door/${escapeForRegExp(FEED_FILE)}`));
 });
 
 test('llms.txt lists every mirrored tool at a URL this host serves', () => {
@@ -2020,11 +2018,17 @@ test('the generated front-door set stays under the ConfigMap object ceiling', as
     path.join(path.dirname(path.dirname(OUTPUT_FILE)), 'kustomization.yaml'),
     'utf8',
   );
-  const block = kustomization.match(
-    /\n {2}- name: portfolio-front-html\n([\s\S]*?)(?=\n {2}- name: |\n[a-zA-Z])/,
-  );
-  assert.ok(block, 'could not find the portfolio-front-html ConfigMap in the kustomization');
-  const names = [...block[1].matchAll(/^ {6}- [^=\n]+=front-door\/(\S+)$/gm)].map((m) => m[1]);
+  // Two generators since 2026-10-04: the page and its fixed files, and the
+  // `-index` half that grows with the catalogue. Both mount at one path, so the
+  // ceiling is per object, and each is checked below against the full 1 MiB.
+  const blocks = ['portfolio-front-html', 'portfolio-front-html-index'].map((name) => {
+    const b = kustomization.match(
+      new RegExp(`\\n {2}- name: ${name}\\n([\\s\\S]*?)(?=\\n {2}- name: |\\n[a-zA-Z])`),
+    );
+    assert.ok(b, `could not find the ${name} ConfigMap in the kustomization`);
+    return [...b[1].matchAll(/^ {6}- [^=\n]+=front-door\/(\S+)$/gm)].map((m) => m[1]);
+  });
+  const names = blocks.flat();
   assert.ok(names.length >= 16, `only ${names.length} keys parsed out of the ConfigMap block`);
 
   // Binary keys are counted base64'd, which is how kustomize stores them; text
@@ -2040,15 +2044,17 @@ test('the generated front-door set stays under the ConfigMap object ceiling', as
   // `UnicodeDecodeError` rather than trusting a filename pattern) and this
   // test did not.
   const BINARY = /\.(png|ico|woff2?|gz)$/;
-  let total = 0;
-  for (const name of names) {
-    const bytes = (await fs.readFile(path.join(path.dirname(OUTPUT_FILE), name))).byteLength;
-    total += BINARY.test(name) ? Math.ceil(bytes / 3) * 4 : bytes;
+  for (const group of blocks) {
+    let total = 0;
+    for (const name of group) {
+      const bytes = (await fs.readFile(path.join(path.dirname(OUTPUT_FILE), name))).byteLength;
+      total += BINARY.test(name) ? Math.ceil(bytes / 3) * 4 : bytes;
+    }
+    assert.ok(
+      total < 1024 * 1024,
+      `a front-door ConfigMap would be ${total} bytes, over the 1 MiB ceiling`,
+    );
   }
-  assert.ok(
-    total < 1024 * 1024,
-    `the front-door ConfigMap would be ${total} bytes, over the 1 MiB ceiling`,
-  );
 });
 
 test('the About page is mounted by the kustomization and served by nginx', async () => {

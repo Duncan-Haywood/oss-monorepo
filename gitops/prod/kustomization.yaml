@@ -82,80 +82,13 @@ configMapGenerator:
       # one `mountPath`. Text, so it lands in `data`. Under a kilobyte against
       # a 1 MiB object ceiling.
       - robots.txt=front-door/robots.txt
-      # The sitemap `robots.txt` above points at.
-      #
-      # **Stored gzipped since 2026-09-23**, same reason and same mechanism as
-      # `catalog.json.gz` below: it is almost pure repeated
-      # `<url><loc>…</loc></url>` structure, one entry per published page, so
-      # it is both the fastest-growing key in this ConfigMap and the one that
-      # compresses hardest — gzip -9 took it from 137,891 bytes to 14,679, about
-      # a ninth, before the 4/3 base64 expansion `binaryData` imposes. It was
-      # the key that took the object over the 943,718-byte budget in
-      # `gitops/tests/test_manifests.py` that day (944,243 bytes, over by 525).
-      # See `sitemapStoredKey` in `platform/marketing/front-door.mjs`.
-      #
-      # A `.gz` key is not valid UTF-8, so kustomize files it under
-      # `binaryData` as base64. The URL is unchanged: nginx still answers
-      # `/sitemap.xml`, via `gzip_static always; gunzip on;` and *no*
-      # `try_files`, for the identical reason `catalog.json`'s entry below
-      # gives — `try_files` stats the uncompressed name and there is no
-      # longer a plain sibling on disk. The `location = /sitemap.xml` block in
-      # `front-door/default.conf` carries the long version of that trap.
-      - sitemap.xml.gz=front-door/sitemap.xml.gz
       # The apex's own Atom feed over the mirrored tools. Same reason as the
       # three above for riding in this ConfigMap: the page declares it at
       # `/feed.xml` in `<link rel="alternate">` and links it from the footer,
       # so it has to sit at the document root, and two ConfigMaps cannot mount
-      # at one `mountPath`.
-      #
-      # **Stored gzipped since 2026-10-04**, same reason and mechanism as
-      # `sitemap.xml.gz` above and `catalog.json.gz` below: ~24 KB of XML that grows
-      # with every tool, taking `portfolio-front-html` to its etcd budget. `/feed.xml`
-      # is unchanged; `location = /feed.xml` in `front-door/default.conf` serves it
-      # with `gzip_static always; gunzip on;`, never `try_files`.
-      - feed.xml.gz=front-door/feed.xml.gz
-      # `llms.txt`, the AI-discovery counterpart to the feed.
-      #
-      # **Stored gzipped since 2026-09-24**, same reason and same mechanism as
-      # `sitemap.xml.gz` above and `catalog.json.gz` below: it is one of the
-      # keys that grows with the catalogue, and it was the key that took the
-      # object over the 943,718-byte budget in
-      # `gitops/tests/test_manifests.py` that day (945,297 bytes, over by
-      # 1,579 — measured with `main` itself already 109 bytes over budget
-      # before this session's venture existed). See `llmsStoredKey` in
-      # `platform/marketing/front-door.mjs`.
-      #
-      # A `.gz` key is not valid UTF-8, so kustomize files it under
-      # `binaryData` as base64. The URL is unchanged: nginx still answers
-      # `/llms.txt`, via `gzip_static always; gunzip on;` and *no*
-      # `try_files`, for the identical reason `sitemap.xml`'s entry above
-      # gives — `try_files` stats the uncompressed name and there is no
-      # longer a plain sibling on disk. The `location = /llms.txt` block in
-      # `front-door/default.conf` carries the long version of that trap.
-      - llms.txt.gz=front-door/llms.txt.gz
-      # `catalog.json`, the structured counterpart to `llms.txt` — the same
-      # tools as JSON for a client that filters rather than reads. Same reason
-      # again for riding here, with one extra: `llms.txt` above links it, so
-      # shipping that file without this one would publish a document pointing
-      # at a path the catch-all answers with the front page.
-      #
-      # **Stored gzipped since 2026-09-12.** It was the largest key in this
-      # ConfigMap and the fastest-growing one — 148,099 bytes plain for 269
-      # tools, gaining ~550 with every venture — and on that day it took the
-      # built object to 943,974 bytes against the 943,718-byte budget in
-      # `gitops/tests/test_manifests.py`. Over that budget is not a degraded
-      # document, it is the whole `prod` Application: the hashed ConfigMap name
-      # `portfolio-front.yaml` mounts never gets created, new pods sit in
-      # ContainerCreating, and Argo reports Degraded.
-      #
-      # A `.gz` key is not valid UTF-8, so kustomize files it under
-      # `binaryData` as base64 — the 4/3 expansion the ceiling tests already
-      # model. The URL is unchanged: nginx still answers `/catalog.json`, via
-      # `gzip_static always; gunzip on;` and *no* `try_files`, because
-      # `try_files` stats the uncompressed name and there is no longer a plain
-      # sibling on disk. The `location = /catalog.json` block in
-      # `front-door/default.conf` carries the long version of that trap.
-      - catalog.json.gz=front-door/catalog.json.gz
+      # at one `mountPath`. Text, so it lands in `data`. A few kilobytes
+      # against a 1 MiB object ceiling.
+      - feed.xml=front-door/feed.xml
       # The embed runtime and its stylesheet, generated from
       # `platform/pages/embed.mjs` by `front-door.mjs --write`. Same reason
       # again for riding here: every mirrored entry page links them absolutely
@@ -238,6 +171,82 @@ configMapGenerator:
       # a `try_files` — the `location = /catalog.json` block's comment in
       # `front-door/default.conf` carries the long version of why.
       - about.html.gz=front-door/about.html.gz
+  # Second half of the front door's document root, split out of
+  # `portfolio-front-html` on 2026-10-04. That object was 48 bytes under the
+  # 943,718-byte etcd budget in `gitops/tests/test_manifests.py`, so every new
+  # venture (~690 bytes of card, catalog and llms.txt entries) failed it until
+  # someone trimmed text elsewhere. The keys that grow with the catalogue --
+  # sitemap, llms.txt, catalog.json, the comparison index and every `vs__` page
+  # -- live here instead; `portfolio-front.yaml` mounts both as one projected
+  # volume at the same path, so no URL changes. Two ConfigMaps cannot mount at
+  # one `mountPath`, but one projected volume can merge them.
+  - name: portfolio-front-html-index
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
+      # The sitemap `robots.txt` above points at.
+      #
+      # **Stored gzipped since 2026-09-23**, same reason and same mechanism as
+      # `catalog.json.gz` below: it is almost pure repeated
+      # `<url><loc>…</loc></url>` structure, one entry per published page, so
+      # it is both the fastest-growing key in this ConfigMap and the one that
+      # compresses hardest — gzip -9 took it from 137,891 bytes to 14,679, about
+      # a ninth, before the 4/3 base64 expansion `binaryData` imposes. It was
+      # the key that took the object over the 943,718-byte budget in
+      # `gitops/tests/test_manifests.py` that day (944,243 bytes, over by 525).
+      # See `sitemapStoredKey` in `platform/marketing/front-door.mjs`.
+      #
+      # A `.gz` key is not valid UTF-8, so kustomize files it under
+      # `binaryData` as base64. The URL is unchanged: nginx still answers
+      # `/sitemap.xml`, via `gzip_static always; gunzip on;` and *no*
+      # `try_files`, for the identical reason `catalog.json`'s entry below
+      # gives — `try_files` stats the uncompressed name and there is no
+      # longer a plain sibling on disk. The `location = /sitemap.xml` block in
+      # `front-door/default.conf` carries the long version of that trap.
+      - sitemap.xml.gz=front-door/sitemap.xml.gz
+      # `llms.txt`, the AI-discovery counterpart to the feed.
+      #
+      # **Stored gzipped since 2026-09-24**, same reason and same mechanism as
+      # `sitemap.xml.gz` above and `catalog.json.gz` below: it is one of the
+      # keys that grows with the catalogue, and it was the key that took the
+      # object over the 943,718-byte budget in
+      # `gitops/tests/test_manifests.py` that day (945,297 bytes, over by
+      # 1,579 — measured with `main` itself already 109 bytes over budget
+      # before this session's venture existed). See `llmsStoredKey` in
+      # `platform/marketing/front-door.mjs`.
+      #
+      # A `.gz` key is not valid UTF-8, so kustomize files it under
+      # `binaryData` as base64. The URL is unchanged: nginx still answers
+      # `/llms.txt`, via `gzip_static always; gunzip on;` and *no*
+      # `try_files`, for the identical reason `sitemap.xml`'s entry above
+      # gives — `try_files` stats the uncompressed name and there is no
+      # longer a plain sibling on disk. The `location = /llms.txt` block in
+      # `front-door/default.conf` carries the long version of that trap.
+      - llms.txt.gz=front-door/llms.txt.gz
+      # `catalog.json`, the structured counterpart to `llms.txt` — the same
+      # tools as JSON for a client that filters rather than reads. Same reason
+      # again for riding here, with one extra: `llms.txt` above links it, so
+      # shipping that file without this one would publish a document pointing
+      # at a path the catch-all answers with the front page.
+      #
+      # **Stored gzipped since 2026-09-12.** It was the largest key in this
+      # ConfigMap and the fastest-growing one — 148,099 bytes plain for 269
+      # tools, gaining ~550 with every venture — and on that day it took the
+      # built object to 943,974 bytes against the 943,718-byte budget in
+      # `gitops/tests/test_manifests.py`. Over that budget is not a degraded
+      # document, it is the whole `prod` Application: the hashed ConfigMap name
+      # `portfolio-front.yaml` mounts never gets created, new pods sit in
+      # ContainerCreating, and Argo reports Degraded.
+      #
+      # A `.gz` key is not valid UTF-8, so kustomize files it under
+      # `binaryData` as base64 — the 4/3 expansion the ceiling tests already
+      # model. The URL is unchanged: nginx still answers `/catalog.json`, via
+      # `gzip_static always; gunzip on;` and *no* `try_files`, because
+      # `try_files` stats the uncompressed name and there is no longer a plain
+      # sibling on disk. The `location = /catalog.json` block in
+      # `front-door/default.conf` carries the long version of that trap.
+      - catalog.json.gz=front-door/catalog.json.gz
       # The comparison index, served from the document root by the
       # `^/compare/?$` block in `front-door/default.conf`. Same ConfigMap for
       # the same reason as everything above it.
