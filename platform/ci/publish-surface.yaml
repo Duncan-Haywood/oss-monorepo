@@ -1586,6 +1586,9 @@ workflows:
 - workflow: quick-pick-survey-ci.yml
   classification: none
   publishes: []
+- workflow: quickbooks-chart-of-accounts-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: quote-follow-up-timing-ci.yml
   classification: none
   publishes: []
