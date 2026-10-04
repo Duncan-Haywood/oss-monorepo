@@ -1277,7 +1277,8 @@ const RELATIVE_SELF = relative(
 // +1: `xero-invoice-csv-check` graduated.
 // +1: `bigcommerce-product-csv-check` graduated.
 // +1: `square-catalog-csv-check` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 684;
+// +1: `etsy-listing-csv-check` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 685;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
