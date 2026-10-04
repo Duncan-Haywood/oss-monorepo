@@ -953,6 +953,9 @@ workflows:
 - workflow: git-timesheet-ci.yml
   classification: none
   publishes: []
+- workflow: google-ads-editor-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: google-ads-wasted-spend-analyzer-ci.yml
   classification: none
   publishes: []

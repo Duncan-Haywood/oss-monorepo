@@ -2956,8 +2956,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `mailchimp-audience-csv-check` graduated (browser Mailchimp audience import checker: no-email rows, duplicate emails, unquoted Tags commas, birthday format, Excel phone damage, mixed dates, safe fixes).
     # +1: `shopify-customer-csv-check` graduated (browser Shopify customer import checker: emails, E.164 phones, Excel zip and phone damage, country and province codes, consent values, tags, safe fixes).
     # +1: `teachers-pay-teachers-earnings-analyzer` graduated (browser TPT sales CSV analyzer: observed fee incl. flat per-sale fee, per-resource take-home, repeat buyers, break-even price).
-    total = 721  # `infra/OWNER_CHECKLIST.md`'s own "N of the 721 tools" wording.
-    total = 721  # `infra/OWNER_CHECKLIST.md`'s own "N of the 721 tools" wording.
+    # +1: `google-ads-editor-csv-check` graduated (browser Google Ads Editor import checker: headline/description limits, RSA counts, keyword symbols and match types, URLs, budgets, safe fixes).
+    total = 722  # `infra/OWNER_CHECKLIST.md`'s own "N of the 722 tools" wording.
     # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).
