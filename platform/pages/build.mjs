@@ -1248,6 +1248,8 @@ const CATEGORY_RULES = [
       || slug === 'activecampaign-import-csv-check'
       // `klaviyo-profile-csv-check` joined 2026-10-04: the Klaviyo (email/SMS marketing profiles) member of the same import pre-flight family.
       || slug === 'klaviyo-profile-csv-check'
+      // `google-ads-editor-csv-check` joined 2026-10-04: the Google Ads Editor (campaigns, keywords, responsive search ads) member of the same import pre-flight family.
+      || slug === 'google-ads-editor-csv-check'
       // `mailchimp-audience-csv-check` joined 2026-10-04: the Mailchimp (email audience contacts) member of the same import pre-flight family.
       || slug === 'mailchimp-audience-csv-check'
       // `shopify-inventory-csv-check` joined 2026-10-04: the Shopify (inventory quantities) member of the same import pre-flight family.
