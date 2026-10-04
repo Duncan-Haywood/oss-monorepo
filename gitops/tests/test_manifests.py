@@ -2944,9 +2944,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `sepa-pain001-validator` graduated (browser SEPA pain.001/pain.008 XML validator: control sums, IBAN, dates, character set, totals repair).
     # +1: `eu-vat-oss-calculator` graduated (browser EU VAT OSS calculator: EUR 10,000 threshold date and the quarterly return per country and rate from a sales CSV).
     # +1: `form-5500-late-filing-calculator` graduated (browser Form 5500 due date, days late, DFVC cost against IRS and DOL penalty exposure).
+    # +1: `irs-iris-1099-csv-check` graduated (browser IRS IRIS 1099-NEC/MISC bulk CSV checker: TIN formats, thresholds, duplicates, totals, safe fixes).
     # +1: `edi-x12-order-checker` graduated (browser X12 EDI 850/810/856/997 checker: envelope counts, UPC/SSCC check digits, invoice totals, 997 translation).
-    total = 699  # `infra/OWNER_CHECKLIST.md`'s own "N of the 699 tools" wording.
-    total = 699  # `infra/OWNER_CHECKLIST.md`'s own "N of the 699 tools" wording.
+    total = 700  # `infra/OWNER_CHECKLIST.md`'s own "N of the 700 tools" wording.
+    total = 700  # `infra/OWNER_CHECKLIST.md`'s own "N of the 700 tools" wording.
     # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).

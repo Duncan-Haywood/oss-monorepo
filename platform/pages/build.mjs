@@ -1330,6 +1330,9 @@ const CATEGORY_RULES = [
       // `w2-efw2-file-validator` joined 2026-10-04 on its first commit: it checks the W-2 wage file a payroll
       // preparer exports before it goes to SSA -- the same back-office payroll job as the deposit-penalty calculator.
       || slug === 'w2-efw2-file-validator'
+      // `irs-iris-1099-csv-check` joined 2026-10-04 on its first commit: it checks the 1099-NEC/MISC bulk file a bookkeeper
+      // uploads to IRIS -- the same back-office information-return job as `w2-efw2-file-validator` just above.
+      || slug === 'irs-iris-1099-csv-check'
       // `1099-vendor-csv-checker` joined 2026-10-04 on its first commit: the January pre-flight on the vendor list before 1099-NEC
       // filing -- the same back-office tax-form job as the W-2 file validator and the 1099 vendor tracker.
       || slug === '1099-vendor-csv-checker'
