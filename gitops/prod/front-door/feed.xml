@@ -116,7 +116,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hubspot-contacts-csv-check/"/>
     <id>tag:marisstella.dev,2026:tool/hubspot-contacts-csv-check</id>
     <updated>2026-10-04T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
+    <category term="More free tools"/>
     <summary type="text">Free HubSpot contacts CSV checker: finds email problems, rows that HubSpot would merge on a shared email, invalid lifecycle stages, mixed date formats, numbers with currency symbols and Excel damage to phone numbers, with line numbers, and applies safe fixes. Runs in your browser; the file is never uploaded.</summary>
   </entry>
   <entry>

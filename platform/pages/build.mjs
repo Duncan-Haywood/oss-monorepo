@@ -1374,9 +1374,6 @@ const CATEGORY_RULES = [
       // `email-list-csv-check` joined 2026-10-04 on its first commit: a contact list checked before it is imported into an email
       // platform, the same CSV-preflight job as the Xero and bank converters next to it.
       || slug === 'email-list-csv-check'
-      // `hubspot-contacts-csv-check` joined 2026-10-04 on its first commit: a contact list checked before it is imported into a CRM, the
-      // same CSV-preflight job as the email list checker next to it.
-      || slug === 'hubspot-contacts-csv-check'
       // `eu-vat-oss-calculator` joined 2026-10-04 on its first commit: a small seller's EU cross-border VAT return from a sales export, the
       // same back-office compliance-arithmetic job as the SEPA and e-invoice tools here.
       || slug === 'eu-vat-oss-calculator'
