@@ -1,0 +1,34 @@
+name: shopify-customer-csv-check
+description: >-
+  Free browser tool that checks a Shopify customer import CSV before it is imported: invalid and
+  duplicate emails (capitals ignored), rows with neither email nor phone, phone numbers that are
+  not E.164, zips and phones Excel damaged (stripped leading zeros, scientific notation), country
+  and province codes, Accepts Email/SMS Marketing and Tax Exempt values, tags over 255 characters
+  or 250 in number, and semicolon-separated files, each with its line number, plus a safe-fixes
+  pass that cleans formatting only and never edits a name, address, note, tag or the meaning of a
+  consent value. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. The portfolio already checks Shopify's
+# product file (shopify-product-csv-check) and Xero/QuickBooks contacts, but nothing reads
+# Shopify's customer import, the file every store owner and migration freelancer builds when moving
+# a customer list in from another platform, a mailing tool or a spreadsheet.
+#
+# First visitor: store owners and Shopify freelancers searching literal symptoms ("Shopify
+# customer import CSV error", "Shopify customer import skipped rows", "Shopify import zip code
+# leading zero", "Shopify customer CSV phone number format"). Volume not measured with an
+# external tool.
+#
+# Privacy is the liability boundary: a customer list is personal data, so the file never leaves
+# the browser (a test asserts no network calls). Consent is the second boundary: the tool checks
+# the format of Accepts Email/SMS Marketing values, says on the page that a yes must come from a
+# real opt-in, never creates or upgrades consent, and its safe fixes leave ambiguous values alone
+# (a test pins that "Y" and "1" are not turned into yes).
+#
+# Path to revenue (payment rails stay off): lead magnet for the Shopify store owner and migration
+# freelancer audience, cross-linked to the sibling checkers. A paid version, if usage appears, is
+# bulk checks across exports behind an env-var switch; not built.
+#
+# Liability: format checks on the user's own file, no warranty, not legal advice on messaging law,
+# independent-of-Shopify clause, trademark used nominatively.
