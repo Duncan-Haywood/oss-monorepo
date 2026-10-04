@@ -245,6 +245,9 @@ workflows:
 - workflow: backyard-honey-profit-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: bai2-statement-reader-ci.yml
+  classification: none
+  publishes: []
 - workflow: bandcamp-sales-report-analyzer-ci.yml
   classification: none
   publishes: []
@@ -816,6 +819,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: forge-surface-reachability-ci.yml
+  classification: none
+  publishes: []
+- workflow: form-5500-late-filing-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: foundation-repair-bid-calculator-ci.yml
