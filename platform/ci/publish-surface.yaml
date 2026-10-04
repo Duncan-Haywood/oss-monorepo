@@ -692,6 +692,9 @@ workflows:
 - workflow: economic-nexus-threshold-tracker-ci.yml
   classification: none
   publishes: []
+- workflow: edi-x12-order-checker-ci.yml
+  classification: none
+  publishes: []
 - workflow: egress-window-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -1788,6 +1791,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: sepa-pain001-validator-ci.yml
+  classification: none
+  publishes: []
+- workflow: sepa-pain002-status-reader-ci.yml
   classification: none
   publishes: []
 - workflow: sepa-payment-file-validator-ci.yml
