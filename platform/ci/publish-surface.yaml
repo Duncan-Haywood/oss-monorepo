@@ -737,6 +737,9 @@ workflows:
 - workflow: etsy-statement-profit-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: eu-bank-statement-reader-ci.yml
+  classification: none
+  publishes: []
 - workflow: ev-charger-bid-calculator-ci.yml
   classification: none
   publishes: []

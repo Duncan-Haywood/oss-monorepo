@@ -2942,8 +2942,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `nacha-file-validator` graduated (browser ACH/NACHA file validator: record layout, check digits, control totals, control-record rebuild).
     # +1: `cobra-vs-marketplace-calculator` graduated (browser + CLI COBRA vs marketplace total cost, break-even and election deadlines).
     # +1: `form-5500-late-filing-calculator` graduated (browser Form 5500 due date, days late, DFVC cost against IRS and DOL penalty exposure).
-    total = 688  # `infra/OWNER_CHECKLIST.md`'s own "N of the 688 tools" wording.
-    total = 688  # `infra/OWNER_CHECKLIST.md`'s own "N of the 688 tools" wording.
+    total = 689  # `infra/OWNER_CHECKLIST.md`'s own "N of the 689 tools" wording.
+    total = 689  # `infra/OWNER_CHECKLIST.md`'s own "N of the 689 tools" wording.
     # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).
