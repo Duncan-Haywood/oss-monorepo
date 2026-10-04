@@ -1073,6 +1073,9 @@ workflows:
 - workflow: irrigation-winterization-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: irs-iris-1099-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: iso-exercise-amt-calculator-ci.yml
   classification: none
   publishes: []
@@ -1854,6 +1857,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: shopify-product-csv-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: shopify-to-woocommerce-converter-ci.yml
   classification: none
   publishes: []
 - workflow: sibling-links-ci.yml

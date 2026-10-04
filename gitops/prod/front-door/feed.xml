@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 699 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 701 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -88,6 +88,14 @@
     <summary type="text">Free Form 5500 late filing calculator for 401(k) and retirement-plan sponsors: the due date with weekend rollover and the Form 5558 extension, days late, and the DOL DFVC programme cost beside IRS and DOL penalty exposure. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>IRS IRIS 1099 CSV Check — Find Upload Errors Before You File</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/irs-iris-1099-csv-check/"/>
+    <id>tag:marisstella.dev,2026:tool/irs-iris-1099-csv-check</id>
+    <updated>2026-10-04T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free IRIS 1099-NEC and 1099-MISC CSV checker: finds bad TINs, invalid SSNs, state and ZIP errors, money formats, below-threshold amounts and duplicate recipients with line numbers, and applies safe fixes. Runs in your browser; the file is never uploaded.</summary>
+  </entry>
+  <entry>
     <title>NACHA File Validator — Check an ACH File Before You Send It to the Bank</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/nacha-file-validator/"/>
     <id>tag:marisstella.dev,2026:tool/nacha-file-validator</id>
@@ -136,6 +144,14 @@
     <summary type="text">Free Shopify product CSV checker: finds blank handles, split products, duplicate variants, bad prices, wrong barcode check digits, broken image URLs, Excel-damaged SKUs and semicolon files, with line numbers, and applies safe fixes. Runs in your browser; the file is never uploaded.</summary>
   </entry>
   <entry>
+    <title>Shopify to WooCommerce Product CSV Converter — Free, In Your Browser</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/shopify-to-woocommerce-converter/"/>
+    <id>tag:marisstella.dev,2026:tool/shopify-to-woocommerce-converter</id>
+    <updated>2026-10-04T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free Shopify to WooCommerce product CSV converter: variants become variable products with variations, Compare At Price becomes Regular and Sale price, inventory, weight, images and tags are mapped, and anything not carried across is listed. Runs in your browser; the file is never uploaded.</summary>
+  </entry>
+  <entry>
     <title>Speech-to-Text Pricing Calculator — Whisper API vs Deepgram vs AssemblyAI vs Google vs AWS vs self-hosted</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/speech-to-text-pricing-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/speech-to-text-pricing-calculator</id>
@@ -150,21 +166,5 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Enter the GPU, the busy GPU-hours per month and how much of the time it is really busy, and see what RunPod, Lambda, Vast.ai, CoreWeave, AWS, Google Cloud and Modal charge, the 12-month spend, and how many hours a month it takes before buying the card beats renting. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Uptime Monitoring Pricing Calculator — UptimeRobot vs Better Stack vs Hyperping vs Pingdom vs self-hosted</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uptime-monitoring-pricing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/uptime-monitoring-pricing-calculator</id>
-    <updated>2026-10-04T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Enter how many monitors you need, how often they must be checked and whether you want a public status page, and see what UptimeRobot, Better Stack, Hyperping, Pingdom and self-hosted Uptime Kuma charge, the 12-month spend as you add monitors, and the monitor count where the cheapest option changes. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Video Hosting Pricing Calculator — Cloudflare Stream vs Mux vs Bunny vs api.video vs DIY AWS</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/video-hosting-pricing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/video-hosting-pricing-calculator</id>
-    <updated>2026-10-04T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Enter the minutes of video you store, the minutes viewers watch per month and your monthly uploads, and see what Cloudflare Stream, Mux, Bunny Stream, api.video and a DIY AWS pipeline charge, the 12-month spend under your growth rate, and the viewing level where the cheapest platform changes. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
