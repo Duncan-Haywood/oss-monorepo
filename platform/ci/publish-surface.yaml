@@ -2297,6 +2297,9 @@ workflows:
 - workflow: world-clock-widget-ci.yml
   classification: none
   publishes: []
+- workflow: xero-contacts-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: xero-invoice-csv-check-ci.yml
   classification: none
   publishes: []
