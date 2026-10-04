@@ -33,38 +33,38 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547353 bytes
-#   portfolio-front-tools-1: 92 files, 555149 bytes
-#   portfolio-front-tools-2: 144 files, 553161 bytes
-#   portfolio-front-tools-3: 128 files, 549010 bytes
-#   portfolio-front-tools-4: 139 files, 553987 bytes
-#   portfolio-front-tools-5: 128 files, 556385 bytes
-#   portfolio-front-tools-6: 123 files, 555137 bytes
-#   portfolio-front-tools-7: 136 files, 554963 bytes
-#   portfolio-front-tools-8: 133 files, 556833 bytes
-#   portfolio-front-tools-9: 132 files, 544960 bytes
-#   portfolio-front-tools-10: 124 files, 556687 bytes
-#   portfolio-front-tools-11: 130 files, 555464 bytes
-#   portfolio-front-tools-12: 137 files, 553141 bytes
-#   portfolio-front-tools-13: 125 files, 556399 bytes
-#   portfolio-front-tools-14: 120 files, 556326 bytes
-#   portfolio-front-tools-15: 124 files, 555284 bytes
-#   portfolio-front-tools-16: 122 files, 549743 bytes
-#   portfolio-front-tools-17: 118 files, 554573 bytes
-#   portfolio-front-tools-18: 129 files, 554674 bytes
-#   portfolio-front-tools-19: 127 files, 556959 bytes
-#   portfolio-front-tools-20: 131 files, 556963 bytes
-#   portfolio-front-tools-21: 124 files, 556451 bytes
-#   portfolio-front-tools-22: 138 files, 554658 bytes
-#   portfolio-front-tools-23: 119 files, 553047 bytes
-#   portfolio-front-tools-24: 131 files, 557026 bytes
-#   portfolio-front-tools-25: 90 files, 556100 bytes
-#   portfolio-front-tools-26: 118 files, 554089 bytes
-#   portfolio-front-tools-27: 121 files, 543565 bytes
-#   portfolio-front-tools-28: 128 files, 550615 bytes
-#   portfolio-front-tools-29: 131 files, 554890 bytes
-#   portfolio-front-tools-30: 120 files, 544463 bytes
-#   portfolio-front-tools-31: 69 files, 371471 bytes
+#   portfolio-front-tools-0: 145 files, 547362 bytes
+#   portfolio-front-tools-1: 92 files, 555155 bytes
+#   portfolio-front-tools-2: 144 files, 553170 bytes
+#   portfolio-front-tools-3: 128 files, 549015 bytes
+#   portfolio-front-tools-4: 139 files, 553988 bytes
+#   portfolio-front-tools-5: 128 files, 556386 bytes
+#   portfolio-front-tools-6: 123 files, 555146 bytes
+#   portfolio-front-tools-7: 136 files, 554971 bytes
+#   portfolio-front-tools-8: 133 files, 556839 bytes
+#   portfolio-front-tools-9: 132 files, 544921 bytes
+#   portfolio-front-tools-10: 124 files, 556648 bytes
+#   portfolio-front-tools-11: 130 files, 555488 bytes
+#   portfolio-front-tools-12: 137 files, 553162 bytes
+#   portfolio-front-tools-13: 125 files, 556405 bytes
+#   portfolio-front-tools-14: 120 files, 556342 bytes
+#   portfolio-front-tools-15: 124 files, 555341 bytes
+#   portfolio-front-tools-16: 122 files, 549674 bytes
+#   portfolio-front-tools-17: 118 files, 554592 bytes
+#   portfolio-front-tools-18: 129 files, 554608 bytes
+#   portfolio-front-tools-19: 127 files, 557042 bytes
+#   portfolio-front-tools-20: 131 files, 556999 bytes
+#   portfolio-front-tools-21: 124 files, 556422 bytes
+#   portfolio-front-tools-22: 138 files, 554654 bytes
+#   portfolio-front-tools-23: 119 files, 553112 bytes
+#   portfolio-front-tools-24: 130 files, 552291 bytes
+#   portfolio-front-tools-25: 88 files, 550969 bytes
+#   portfolio-front-tools-26: 118 files, 556143 bytes
+#   portfolio-front-tools-27: 124 files, 551364 bytes
+#   portfolio-front-tools-28: 128 files, 550592 bytes
+#   portfolio-front-tools-29: 131 files, 554978 bytes
+#   portfolio-front-tools-30: 120 files, 544513 bytes
+#   portfolio-front-tools-31: 72 files, 392600 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3405,12 +3405,12 @@ configMapGenerator:
       - self-storage-rate-increase-calculator__how-much-can-i-raise-storage-rent.html.gz=self-storage-rate-increase-calculator__how-much-can-i-raise-storage-rent.html.gz
       - self-storage-rate-increase-calculator__index.html.gz=self-storage-rate-increase-calculator__index.html.gz
       - self-storage-rate-increase-calculator__usage.mjs.gz=self-storage-rate-increase-calculator__usage.mjs.gz
-      - self-storage-rate-increase-calculator__vs-pricing-a-move-out-at-the-tenants-rent.html.gz=self-storage-rate-increase-calculator__vs-pricing-a-move-out-at-the-tenants-rent.html.gz
   - name: portfolio-front-tools-25
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - self-storage-rate-increase-calculator__vs-pricing-a-move-out-at-the-tenants-rent.html.gz=self-storage-rate-increase-calculator__vs-pricing-a-move-out-at-the-tenants-rent.html.gz
       - self-storage-rate-increase-calculator__vs-sitelink.html.gz=self-storage-rate-increase-calculator__vs-sitelink.html.gz
       - senior-deduction-calculator__calc.mjs.gz=senior-deduction-calculator__calc.mjs.gz
       - senior-deduction-calculator__index.html.gz=senior-deduction-calculator__index.html.gz
@@ -3498,14 +3498,14 @@ configMapGenerator:
       - shopify-fee-calculator__should-i-recover-abandoned-checkouts-on-shopify.html.gz=shopify-fee-calculator__should-i-recover-abandoned-checkouts-on-shopify.html.gz
       - shopify-fee-calculator__should-i-sell-gift-cards-on-shopify.html.gz=shopify-fee-calculator__should-i-sell-gift-cards-on-shopify.html.gz
       - shopify-fee-calculator__should-i-take-bank-transfer-on-shopify.html.gz=shopify-fee-calculator__should-i-take-bank-transfer-on-shopify.html.gz
-      - shopify-fee-calculator__should-i-take-shopify-capital.html.gz=shopify-fee-calculator__should-i-take-shopify-capital.html.gz
-      - shopify-fee-calculator__to-where-to-sell.mjs.gz=shopify-fee-calculator__to-where-to-sell.mjs.gz
-      - shopify-fee-calculator__usage.mjs.gz=shopify-fee-calculator__usage.mjs.gz
   - name: portfolio-front-tools-26
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shopify-fee-calculator__should-i-take-shopify-capital.html.gz=shopify-fee-calculator__should-i-take-shopify-capital.html.gz
+      - shopify-fee-calculator__to-where-to-sell.mjs.gz=shopify-fee-calculator__to-where-to-sell.mjs.gz
+      - shopify-fee-calculator__usage.mjs.gz=shopify-fee-calculator__usage.mjs.gz
       - shopify-fee-calculator__vs-a-flat-card-fee-guess.html.gz=shopify-fee-calculator__vs-a-flat-card-fee-guess.html.gz
       - shopify-fee-calculator__vs-beprofit.html.gz=shopify-fee-calculator__vs-beprofit.html.gz
       - shopify-fee-calculator__vs-doing-it-in-a-spreadsheet.html.gz=shopify-fee-calculator__vs-doing-it-in-a-spreadsheet.html.gz
@@ -3621,14 +3621,14 @@ configMapGenerator:
       - solar-pv-bid-calculator__calc.mjs.gz=solar-pv-bid-calculator__calc.mjs.gz
       - solar-pv-bid-calculator__how-much-to-charge-to-install-solar-panels.html.gz=solar-pv-bid-calculator__how-much-to-charge-to-install-solar-panels.html.gz
       - solar-pv-bid-calculator__index.html.gz=solar-pv-bid-calculator__index.html.gz
-      - solar-pv-bid-calculator__share.mjs.gz=solar-pv-bid-calculator__share.mjs.gz
-      - solar-pv-bid-calculator__usage.mjs.gz=solar-pv-bid-calculator__usage.mjs.gz
-      - solar-pv-bid-calculator__vs-a-flat-price-per-watt.html.gz=solar-pv-bid-calculator__vs-a-flat-price-per-watt.html.gz
   - name: portfolio-front-tools-27
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - solar-pv-bid-calculator__share.mjs.gz=solar-pv-bid-calculator__share.mjs.gz
+      - solar-pv-bid-calculator__usage.mjs.gz=solar-pv-bid-calculator__usage.mjs.gz
+      - solar-pv-bid-calculator__vs-a-flat-price-per-watt.html.gz=solar-pv-bid-calculator__vs-a-flat-price-per-watt.html.gz
       - solar-pv-bid-calculator__vs-aurora-solar.html.gz=solar-pv-bid-calculator__vs-aurora-solar.html.gz
       - solo-401k-contribution-calculator__calc.mjs.gz=solo-401k-contribution-calculator__calc.mjs.gz
       - solo-401k-contribution-calculator__index.html.gz=solo-401k-contribution-calculator__index.html.gz
@@ -4215,6 +4215,9 @@ configMapGenerator:
       - world-clock-widget__usage.mjs.gz=world-clock-widget__usage.mjs.gz
       - world-clock-widget__vs-your-phones-clock-app.html.gz=world-clock-widget__vs-your-phones-clock-app.html.gz
       - world-clock-widget__why-is-indias-time-zone-utc-5-30.html.gz=world-clock-widget__why-is-indias-time-zone-utc-5-30.html.gz
+      - xero-invoice-csv-check__calc.mjs.gz=xero-invoice-csv-check__calc.mjs.gz
+      - xero-invoice-csv-check__index.html.gz=xero-invoice-csv-check__index.html.gz
+      - xero-invoice-csv-check__usage.mjs.gz=xero-invoice-csv-check__usage.mjs.gz
       - youtube-revenue-rpm-analyzer__calc.mjs.gz=youtube-revenue-rpm-analyzer__calc.mjs.gz
       - youtube-revenue-rpm-analyzer__index.html.gz=youtube-revenue-rpm-analyzer__index.html.gz
       - youtube-revenue-rpm-analyzer__usage.mjs.gz=youtube-revenue-rpm-analyzer__usage.mjs.gz
