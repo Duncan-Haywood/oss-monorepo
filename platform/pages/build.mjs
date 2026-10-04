@@ -1247,7 +1247,9 @@ const CATEGORY_RULES = [
       // `activecampaign-import-csv-check` joined 2026-10-04: the ActiveCampaign (contacts, accounts, deals) half of the same import pre-flight.
       || slug === 'activecampaign-import-csv-check'
       // `klaviyo-profile-csv-check` joined 2026-10-04: the Klaviyo (email/SMS marketing profiles) member of the same import pre-flight family.
-      || slug === 'klaviyo-profile-csv-check',
+      || slug === 'klaviyo-profile-csv-check'
+      // `mailchimp-audience-csv-check` joined 2026-10-04: the Mailchimp (email audience contacts) member of the same import pre-flight family.
+      || slug === 'mailchimp-audience-csv-check',
   },
   {
     id: 'backoffice',
