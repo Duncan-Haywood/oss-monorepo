@@ -2237,6 +2237,9 @@ workflows:
 - workflow: pipedrive-import-csv-check-ci.yml
   classification: none
   publishes: []
+- workflow: zoho-crm-import-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: wage-garnishment-limit-calculator-ci.yml
   classification: none
   publishes: []
