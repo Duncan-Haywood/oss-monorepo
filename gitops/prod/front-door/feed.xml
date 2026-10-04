@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 702 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 703 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -62,6 +62,14 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free EDI X12 file checker and reader for suppliers: finds wrong SE/GE/IEA counts and control numbers, UPC and SSCC check-digit errors, invoice totals that do not match the lines and broken ship-notice hierarchies, and translates 997 rejections. Runs in your browser; the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Email List CSV Check — Clean a Contact List Before You Import</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/email-list-csv-check/"/>
+    <id>tag:marisstella.dev,2026:tool/email-list-csv-check</id>
+    <updated>2026-10-04T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free email list CSV checker for Mailchimp, HubSpot, Klaviyo, Brevo and Constant Contact imports: finds invalid and duplicate emails, domain typos like gmial.com, role and disposable addresses, Excel damage and wrong column names, with line numbers, and downloads a safe-fixes copy plus a rejected-rows file. Runs in your browser; the list is never uploaded.</summary>
   </entry>
   <entry>
     <title>835 ERA Underpayment Finder — Check Payer Payments Against Your Contract</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free Shopify to WooCommerce product CSV converter: variants become variable products with variations, Compare At Price becomes Regular and Sale price, inventory, weight, images and tags are mapped, and anything not carried across is listed. Runs in your browser; the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Speech-to-Text Pricing Calculator — Whisper API vs Deepgram vs AssemblyAI vs Google vs AWS vs self-hosted</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/speech-to-text-pricing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/speech-to-text-pricing-calculator</id>
-    <updated>2026-10-04T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Enter how many audio hours you transcribe a month and whether you need real-time streaming or speaker labels, and see what the OpenAI Whisper API, Deepgram, AssemblyAI, Google, AWS, Azure and a self-hosted GPU charge, the 12-month spend as volume grows, and the hours where the cheapest option changes. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

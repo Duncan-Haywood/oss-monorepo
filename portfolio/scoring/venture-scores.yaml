@@ -27532,3 +27532,35 @@ ventures:
       Liability: format checks on the user's own file, no accounting advice, no warranty,
       independent-of-Xero clause, rules stated as read from memory. The file never leaves the
       browser (a test asserts no network calls). Ethics: free, nothing leaves the device.
+
+  - slug: email-list-csv-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Checking a contact list is deterministic parsing and
+      string comparison on the user's own CSV.
+    basis: >-
+      Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process; full write-up in
+      this venture's own VENTURE.yaml comment. Small-list owners importing contacts into an email
+      platform; existing answers are paid verifiers that upload the list, each platform's terse
+      import error and generic CSV linters. Distribution 7: "mailchimp import skipped rows",
+      "check email list before import" and "remove duplicate emails csv" are high-intent
+      queries; volume not measured with an external tool. Defensibility 3: the heading names and
+      typo lists are public, the edge is the per-platform headings, alias duplicates and the
+      rejected-rows file. Time to revenue 5: the follow-on is bulk checks across lists, not built.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: format checks on the user's own file, no deliverability or consent claim, no legal
+      advice, no warranty, independent-of-vendor clause. The file never leaves the browser (a test
+      asserts no network calls). Ethics: free, nothing leaves the device.

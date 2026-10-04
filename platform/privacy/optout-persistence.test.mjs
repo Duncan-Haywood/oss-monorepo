@@ -1276,7 +1276,8 @@ const RELATIVE_SELF = relative(
 // +1: `irs-iris-1099-csv-check` graduated.
 // +1: `xero-invoice-csv-check` graduated.
 // +1: `bigcommerce-product-csv-check` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 681;
+// +1: `email-list-csv-check` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 682;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
