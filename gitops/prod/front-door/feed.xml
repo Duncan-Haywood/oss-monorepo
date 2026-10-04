@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 684 free, browser-only tools served directly from marisstella.dev — the newest 30 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 685 free, browser-only tools served directly from marisstella.dev — the newest 30 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Enter the vehicle price, class and business-use percentage and see the first-year deduction and tax saved under regular MACRS, 100% bonus depreciation and Section 179, with the car luxury-auto caps and the 6,000 lb SUV cap applied, plus standard mileage. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>COBRA vs Marketplace Calculator — which costs less after a job loss</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cobra-vs-marketplace-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/cobra-vs-marketplace-calculator</id>
+    <published>2026-10-04T00:00:00Z</published>
+    <updated>2026-10-04T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Enter your COBRA premium and a marketplace quote and see the total cost of each over the months you need coverage, at five levels of medical care, with the break-even point and your election and special-enrollment deadlines. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>835 ERA Underpayment Finder — Check Payer Payments Against Your Contract</title>
@@ -267,14 +276,5 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free calculator for firewood sellers: what a cord costs you, how many hours it takes, your profit per cord and per hour, the price per cord and face cord you need to earn a wage, and what delivery distance does to it. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Git Bus Factor Check — Who Owns Each Folder, and Are They Still Here?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/git-bus-factor-check/"/>
-    <id>tag:marisstella.dev,2026:tool/git-bus-factor-check</id>
-    <published>2026-10-03T00:00:00Z</published>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your git log and see the bus factor (truck factor) of every folder: who really owns it, whether they are still active, and who to pair with. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>
