@@ -1943,6 +1943,9 @@ workflows:
 - workflow: square-catalog-csv-check-ci.yml
   classification: none
   publishes: []
+- workflow: squarespace-product-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: sri-check-ci.yml
   classification: none
   publishes: []
