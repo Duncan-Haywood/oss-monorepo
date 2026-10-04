@@ -1252,8 +1252,8 @@ const CATEGORY_RULES = [
       || slug === 'google-ads-editor-csv-check'
       // `mailchimp-audience-csv-check` joined 2026-10-04: the Mailchimp (email audience contacts) member of the same import pre-flight family.
       || slug === 'mailchimp-audience-csv-check'
-      // `shopify-inventory-csv-check` joined 2026-10-04: the Shopify (inventory quantities) member of the same import pre-flight family.
-      || slug === 'shopify-inventory-csv-check',
+      // `payroll-hours-csv-check` joined 2026-10-04: the payroll hours sheet member of the same file pre-flight family.
+      || slug === 'payroll-hours-csv-check',
   },
   {
     id: 'backoffice',
