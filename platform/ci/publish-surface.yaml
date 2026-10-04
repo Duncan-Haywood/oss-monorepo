@@ -248,6 +248,9 @@ workflows:
 - workflow: bai2-statement-reader-ci.yml
   classification: none
   publishes: []
+- workflow: bank-csv-to-qbo-converter-ci.yml
+  classification: none
+  publishes: []
 - workflow: bandcamp-sales-report-analyzer-ci.yml
   classification: none
   publishes: []
