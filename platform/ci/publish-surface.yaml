@@ -2243,6 +2243,9 @@ workflows:
 - workflow: activecampaign-import-csv-check-ci.yml
   classification: none
   publishes: []
+- workflow: klaviyo-profile-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: wage-garnishment-limit-calculator-ci.yml
   classification: none
   publishes: []

@@ -1245,7 +1245,9 @@ const CATEGORY_RULES = [
       // `zoho-crm-import-csv-check` joined 2026-10-04: the Zoho CRM (leads, contacts, accounts, deals) half of the same CRM import pre-flight.
       || slug === 'zoho-crm-import-csv-check'
       // `activecampaign-import-csv-check` joined 2026-10-04: the ActiveCampaign (contacts, accounts, deals) half of the same import pre-flight.
-      || slug === 'activecampaign-import-csv-check',
+      || slug === 'activecampaign-import-csv-check'
+      // `klaviyo-profile-csv-check` joined 2026-10-04: the Klaviyo (email/SMS marketing profiles) member of the same import pre-flight family.
+      || slug === 'klaviyo-profile-csv-check',
   },
   {
     id: 'backoffice',
