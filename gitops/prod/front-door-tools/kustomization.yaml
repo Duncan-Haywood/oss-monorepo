@@ -33,38 +33,38 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547248 bytes
+#   portfolio-front-tools-0: 145 files, 547246 bytes
 #   portfolio-front-tools-1: 92 files, 555141 bytes
-#   portfolio-front-tools-2: 144 files, 553135 bytes
-#   portfolio-front-tools-3: 132 files, 556823 bytes
-#   portfolio-front-tools-4: 137 files, 556976 bytes
-#   portfolio-front-tools-5: 129 files, 553303 bytes
-#   portfolio-front-tools-6: 124 files, 556410 bytes
-#   portfolio-front-tools-7: 136 files, 549813 bytes
-#   portfolio-front-tools-8: 134 files, 556948 bytes
-#   portfolio-front-tools-9: 128 files, 554516 bytes
-#   portfolio-front-tools-10: 125 files, 555006 bytes
-#   portfolio-front-tools-11: 131 files, 551898 bytes
-#   portfolio-front-tools-12: 140 files, 550056 bytes
-#   portfolio-front-tools-13: 126 files, 554610 bytes
-#   portfolio-front-tools-14: 126 files, 550842 bytes
-#   portfolio-front-tools-15: 117 files, 556869 bytes
-#   portfolio-front-tools-16: 121 files, 550222 bytes
-#   portfolio-front-tools-17: 116 files, 554155 bytes
-#   portfolio-front-tools-18: 133 files, 554510 bytes
-#   portfolio-front-tools-19: 128 files, 553514 bytes
-#   portfolio-front-tools-20: 128 files, 553921 bytes
-#   portfolio-front-tools-21: 125 files, 556978 bytes
-#   portfolio-front-tools-22: 138 files, 556067 bytes
-#   portfolio-front-tools-23: 120 files, 556571 bytes
-#   portfolio-front-tools-24: 126 files, 553848 bytes
-#   portfolio-front-tools-25: 92 files, 554986 bytes
-#   portfolio-front-tools-26: 125 files, 556109 bytes
-#   portfolio-front-tools-27: 122 files, 554396 bytes
-#   portfolio-front-tools-28: 130 files, 554563 bytes
-#   portfolio-front-tools-29: 131 files, 552907 bytes
-#   portfolio-front-tools-30: 100 files, 481101 bytes
-#   portfolio-front-tools-31: 51 files, 262946 bytes
+#   portfolio-front-tools-2: 144 files, 553142 bytes
+#   portfolio-front-tools-3: 132 files, 556820 bytes
+#   portfolio-front-tools-4: 137 files, 556975 bytes
+#   portfolio-front-tools-5: 129 files, 553302 bytes
+#   portfolio-front-tools-6: 124 files, 556414 bytes
+#   portfolio-front-tools-7: 136 files, 549812 bytes
+#   portfolio-front-tools-8: 134 files, 556949 bytes
+#   portfolio-front-tools-9: 128 files, 554615 bytes
+#   portfolio-front-tools-10: 125 files, 555047 bytes
+#   portfolio-front-tools-11: 131 files, 551925 bytes
+#   portfolio-front-tools-12: 140 files, 550008 bytes
+#   portfolio-front-tools-13: 126 files, 554605 bytes
+#   portfolio-front-tools-14: 126 files, 550846 bytes
+#   portfolio-front-tools-15: 117 files, 556842 bytes
+#   portfolio-front-tools-16: 121 files, 550208 bytes
+#   portfolio-front-tools-17: 116 files, 554159 bytes
+#   portfolio-front-tools-18: 133 files, 554562 bytes
+#   portfolio-front-tools-19: 128 files, 553481 bytes
+#   portfolio-front-tools-20: 128 files, 554036 bytes
+#   portfolio-front-tools-21: 125 files, 556963 bytes
+#   portfolio-front-tools-22: 138 files, 556007 bytes
+#   portfolio-front-tools-23: 120 files, 556457 bytes
+#   portfolio-front-tools-24: 126 files, 554008 bytes
+#   portfolio-front-tools-25: 92 files, 554993 bytes
+#   portfolio-front-tools-26: 125 files, 556139 bytes
+#   portfolio-front-tools-27: 122 files, 554391 bytes
+#   portfolio-front-tools-28: 130 files, 554566 bytes
+#   portfolio-front-tools-29: 131 files, 552949 bytes
+#   portfolio-front-tools-30: 103 files, 497078 bytes
+#   portfolio-front-tools-31: 51 files, 262990 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -4043,6 +4043,9 @@ configMapGenerator:
       - vscode-extension-drift-check__vs-vscan.html.gz=vscode-extension-drift-check__vs-vscan.html.gz
       - vscode-extension-drift-check__vs-vsix-audit.html.gz=vscode-extension-drift-check__vs-vsix-audit.html.gz
       - vscode-extension-drift-check__why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html.gz=vscode-extension-drift-check__why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html.gz
+      - w2-efw2-file-validator__calc.mjs.gz=w2-efw2-file-validator__calc.mjs.gz
+      - w2-efw2-file-validator__index.html.gz=w2-efw2-file-validator__index.html.gz
+      - w2-efw2-file-validator__usage.mjs.gz=w2-efw2-file-validator__usage.mjs.gz
       - wage-garnishment-limit-calculator__calc.mjs.gz=wage-garnishment-limit-calculator__calc.mjs.gz
       - wage-garnishment-limit-calculator__index.html.gz=wage-garnishment-limit-calculator__index.html.gz
       - wage-garnishment-limit-calculator__usage.mjs.gz=wage-garnishment-limit-calculator__usage.mjs.gz

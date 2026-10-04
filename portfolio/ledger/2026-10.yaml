@@ -1983,4 +1983,33 @@ entries:
       Liability: arithmetic on the user's own file, model and omissions stated, no
       banking or compliance advice, no warranty, payment-data note. Ethics: free,
       nothing leaves the device, no scraping.
-
+  - venture: w2-efw2-file-validator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built w2-efw2-file-validator, a data-file archetype for payroll
+        preparers, bookkeepers and small employers who file W-2s with SSA by wage
+        file: a browser-local tool that checks every 512-character EFW2 record
+        (length and characters, RA/RE/RW/RT/RF order, RA resubmission fields, RE tax
+        year and EIN, RW SSN validity, names and the seven money boxes, Social
+        Security wage base per tax year 2019-2026, 6.2% and Medicare 1.45%/0.9% rate
+        sanity, RT count and sums against the RW lines, RF count, one tax year per
+        file), each finding with its line number. A repair step rebuilds only RT and
+        RF and lists what changed; it never edits an RW line. SSNs are masked in the
+        report and the findings CSV; the file never leaves the browser (a test
+        asserts no network calls). 35 tests pass. New gap: duplicate_check closest
+        match 0.11, below the 0.45 line. First visitor expected from "EFW2 file
+        rejected" and "W-2 electronic file validator" searches (January peak); none
+        measured. Field positions beyond the well-known ones, the EIN prefix list
+        and the 2026 wage base are from memory of public sources and no SSA validator
+        was available, stated on the page, README and VENTURE.yaml. Registered score
+        row, launch date, CI workflow and category rule.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own file, model and omissions stated, no
+      payroll or tax advice, no warranty, wage-data note. Ethics: free, nothing
+      leaves the device, no scraping.
