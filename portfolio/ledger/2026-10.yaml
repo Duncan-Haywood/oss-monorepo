@@ -1829,3 +1829,34 @@ entries:
       Liability: arithmetic on the user's own file, model and omissions stated, no
       banking or compliance advice, no warranty, payment-data note. Ethics: free,
       nothing leaves the device, no scraping.
+  - venture: sepa-payment-file-validator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built sepa-payment-file-validator, the euro-area sibling of
+        nacha-file-validator, for bookkeepers and finance admins who upload SEPA
+        pain.001 XML to online banking: a browser-local tool that checks XML
+        well-formedness, group header and payment block fields, IBAN mod-97 with
+        country length and the check digits that would pass, NbOfTxs and CtrlSum
+        at both levels in integer cents, execution dates on weekends and TARGET2
+        closing days with the next banking day, euro amount format, the SEPA
+        character set and field lengths, repeated references and possible
+        duplicate payments, each finding with its line number. A repair step
+        rewrites only NbOfTxs and CtrlSum; it never edits a payment. IBANs are
+        masked in the report and CSV; the file never leaves the browser (a test
+        asserts no network calls). 34 tests pass. New gap: duplicate_check closest
+        match 0.24, below the 0.45 line. First visitor expected from "SEPA XML
+        rejected" and "pain.001 validator" searches; none measured. Element layout,
+        character set, IBAN lengths and TARGET2 days are from memory of public
+        documents and no bank validator was available, stated on the page, README
+        and VENTURE.yaml. Registered score row, launch date, CI workflow and
+        category rule.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own file, model and omissions stated, no
+      banking or compliance advice, no warranty, payment-data note. Ethics: free,
+      nothing leaves the device, no scraping.

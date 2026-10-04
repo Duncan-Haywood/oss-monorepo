@@ -1327,6 +1327,9 @@ const CATEGORY_RULES = [
       // exports from payroll or AP before the bank sees it -- the same back-office money-movement job as
       // `payroll-tax-deposit-penalty-calculator` and `duplicate-payment-audit`.
       || slug === 'nacha-file-validator'
+      // `sepa-payment-file-validator` joined 2026-10-04 on its first commit: the euro-area twin of `nacha-file-validator`,
+      // checking the pain.001 file a bookkeeper exports from AP or payroll before the bank sees it.
+      || slug === 'sepa-payment-file-validator'
       // `client-concentration-risk-analyzer` joined 2026-10-02 on its first commit: it reads the same invoice
       // export as `invoice-payment-terms-calculator` here and asks how much revenue one client carries.
       || slug === 'client-concentration-risk-analyzer'
