@@ -1267,7 +1267,9 @@ const RELATIVE_SELF = relative(
 // +1: `sepa-pain001-validator` graduated.
 // +1: `form-5500-late-filing-calculator` graduated.
 // +1: `bai2-statement-reader` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 668;
+// +1: `eu-bank-statement-reader` graduated.
+// +1: `sepa-pain001-validator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 669;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
