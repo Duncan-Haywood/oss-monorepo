@@ -1,0 +1,39 @@
+name: zoho-crm-import-csv-check
+description: >-
+  Free browser tool that checks a Zoho CRM import CSV of leads, contacts, accounts or deals before
+  it is uploaded: leads with no Last Name or Company, deals with no Deal Name, Stage or Closing
+  Date, amounts with currency symbols or thousands separators, probabilities written as fractions
+  or over 100, invalid and duplicate emails, duplicate deals and accounts, phone numbers and ZIP
+  codes Excel damaged, date formats the import will misread, headings that do not match field
+  names, semicolon-delimited files and over-limit files, each with its line number, plus a
+  formatting-only safe-fixes pass that lists every change. The file is read locally and never
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. The portfolio has HubSpot, Salesforce (leads),
+# Pipedrive, Xero, QuickBooks and email-list import checkers; none covers Zoho CRM, the low-cost CRM
+# many small businesses and agencies start on (and move to or from). Zoho's import is a mapping
+# wizard over a spreadsheet with mandatory fields per module (Last Name and Company for leads,
+# Account Name for accounts, Deal Name / Stage / Closing Date for deals), so the faults are the ones
+# a spreadsheet round trip produces plus a mandatory-field set of its own.
+#
+# First visitor: people searching the literal problems ("Zoho CRM import leads CSV error", "Zoho CRM
+# import mandatory field", "Zoho CRM import date format") and Zoho Community threads, r/zoho. Volume
+# not measured.
+#
+# Privacy is the liability boundary: a customer and deal list names people, emails, phones and
+# amounts, so the file never leaves the browser (a test asserts no network calls).
+#
+# Rules are read from memory of Zoho CRM's public import help and are UNVERIFIED against an account,
+# with an explicit not-checked list shown on the page and returned with every result: custom
+# fields, picklist options, layouts, owner matching, existing records and duplicate-handling
+# settings, enabled currencies, the date format chosen at import, deliverability.
+#
+# Path to revenue (payment rails stay off): lead magnet for the CRM-migration and sales-ops
+# audience, sibling to the HubSpot, Salesforce, Pipedrive, Xero, QuickBooks and email-list
+# checkers. A paid version, if usage appears, is bulk checks across client files with saved rules
+# behind an env-var switch; not built.
+#
+# Liability: format checks on the user's own file, rules stated as read from memory and unverified,
+# no warranty, independent-of-Zoho clause, trademark used nominatively.
