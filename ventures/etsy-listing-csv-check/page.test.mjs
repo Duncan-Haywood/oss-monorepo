@@ -63,3 +63,7 @@ test("every column the page lists as checked is a column the code knows", async 
     assert.ok(html.includes(c), c);
   }
 });
+
+test("footer links the Amazon inventory loader check", () => {
+  assert.match(page("index.html"), /href="\.\.\/amazon-inventory-loader-check\/"/);
+});
