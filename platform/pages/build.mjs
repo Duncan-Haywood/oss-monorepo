@@ -1331,6 +1331,9 @@ const CATEGORY_RULES = [
       // annual return priced against two agencies' penalties -- the same downstream tax-authority obligation as
       // `quarterly-estimated-tax-calendar` above, not `solo-earner` (nothing is priced before a sale).
       || slug === 'form-5500-late-filing-calculator'
+      // `sepa-payment-file-validator` joined 2026-10-04 on its first commit: the euro-area twin of `nacha-file-validator`,
+      // checking the pain.001 file a bookkeeper exports from AP or payroll before the bank sees it.
+      || slug === 'sepa-payment-file-validator'
       // `client-concentration-risk-analyzer` joined 2026-10-02 on its first commit: it reads the same invoice
       // export as `invoice-payment-terms-calculator` here and asks how much revenue one client carries.
       || slug === 'client-concentration-risk-analyzer'
