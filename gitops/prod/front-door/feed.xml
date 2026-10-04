@@ -140,7 +140,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/google-ads-editor-csv-check/"/>
     <id>tag:marisstella.dev,2026:tool/google-ads-editor-csv-check</id>
     <updated>2026-10-04T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free Google Ads Editor CSV checker: finds headlines over 30 characters, descriptions over 90, responsive search ads with too few headlines, exclamation marks, duplicate headlines and keywords, bad keyword symbols and match types, Final URLs without https, and budgets or bids with currency symbols, with line numbers and safe fixes. Runs in your browser; the file is never uploaded.</summary>
   </entry>
   <entry>
