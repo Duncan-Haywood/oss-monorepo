@@ -62,3 +62,7 @@ test("related-tool links point at ventures that exist", async () => {
     assert.ok(existsSync(new URL(`../${m[1]}/VENTURE.yaml`, import.meta.url)), m[1]);
   }
 });
+
+test("the footer links the SEPA sibling for euro payment files", () => {
+  assert.match(page("index.html"), /href="\.\.\/sepa-pain001-validator\/"/);
+});

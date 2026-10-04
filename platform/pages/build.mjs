@@ -1340,6 +1340,9 @@ const CATEGORY_RULES = [
       // `sepa-payment-file-validator` joined 2026-10-04 on its first commit: the euro-area twin of `nacha-file-validator`,
       // checking the pain.001 file a bookkeeper exports from AP or payroll before the bank sees it.
       || slug === 'sepa-payment-file-validator'
+      // `sepa-pain001-validator` joined 2026-10-04 on its first commit: the euro-area twin of `nacha-file-validator` -- the SEPA payment
+      // file a bookkeeper exports from accounting or payroll, checked before the bank sees it.
+      || slug === 'sepa-pain001-validator'
       // `client-concentration-risk-analyzer` joined 2026-10-02 on its first commit: it reads the same invoice
       // export as `invoice-payment-terms-calculator` here and asks how much revenue one client carries.
       || slug === 'client-concentration-risk-analyzer'
