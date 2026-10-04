@@ -269,6 +269,9 @@ workflows:
 - workflow: bid-win-rate-optimizer-ci.yml
   classification: none
   publishes: []
+- workflow: bigcommerce-product-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: bigquery-query-cost-advisor-ci.yml
   classification: none
   publishes: []
