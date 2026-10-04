@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Choose an Uptime Monitoring Plan</title>
+  <meta name="description" content="Why the cheapest uptime monitor changes as you add monitors, which check interval you need, and when self-hosting Uptime Kuma beats UptimeRobot, Better Stack, Hyperping or Pingdom.">
+  <link rel="canonical" href="./how-to-choose-an-uptime-monitoring-plan.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does the cheapest uptime monitor change as I add monitors?", "acceptedAnswer": {"@type": "Answer", "text": "Plans are tiers, not per-unit prices. UptimeRobot's free plan covers 50 monitors at five-minute checks, but 60-second checks need a paid tier, and past 100 monitors you jump to the next one. Better Stack adds a per-monitor fee after its included monitors, while Pingdom steps through fixed 10, 50, 100 and 500-check plans. The cheapest provider at 10 monitors is rarely the cheapest at 120, which is what the crossover table shows."}}, {"@type": "Question", "name": "Which check interval do I actually need?", "acceptedAnswer": {"@type": "Answer", "text": "Match it to how long an outage may go unnoticed. A five-minute check can miss a four-minute outage entirely and delays the alert by up to five minutes; 60 seconds is the usual paid default and 30 seconds or faster costs the most. If your SLA promises 99.9 percent monthly (about 43 minutes of downtime), a 3 or 5 minute interval is usually fine; for payment or login flows pay for 60 seconds or less."}}, {"@type": "Question", "name": "Should I self-host Uptime Kuma?", "acceptedAnswer": {"@type": "Answer", "text": "It is free software and a small VPS runs hundreds of monitors, so it is cheapest on paper. The catches: the monitor must not live on the infrastructure it watches, you maintain and patch it, and you need a second independent way to alert you when the monitor itself dies. Many teams self-host for volume and keep one hosted monitor watching the self-hosted one."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+</head>
+<body>
+  <p><a href="./">← Uptime Monitoring Pricing Calculator</a></p>
+  <h1>How to choose an uptime monitoring plan</h1>
+  <p>Put your monitor count, check interval and status-page need into the <a href="./">calculator</a> to price UptimeRobot, Better Stack, Hyperping, Pingdom and self-hosted Uptime Kuma side by side. These are the questions to settle before you trust the answer.</p>
+  <h2>Why does the cheapest uptime monitor change as I add monitors?</h2>
+  <p>Plans are tiers, not per-unit prices. UptimeRobot's free plan covers 50 monitors at five-minute checks, but 60-second checks need a paid tier, and past 100 monitors you jump to the next one. Better Stack adds a per-monitor fee after its included monitors, while Pingdom steps through fixed 10, 50, 100 and 500-check plans. The cheapest provider at 10 monitors is rarely the cheapest at 120, which is what the crossover table shows.</p>
+  <h2>Which check interval do I actually need?</h2>
+  <p>Match it to how long an outage may go unnoticed. A five-minute check can miss a four-minute outage entirely and delays the alert by up to five minutes; 60 seconds is the usual paid default and 30 seconds or faster costs the most. If your SLA promises 99.9 percent monthly (about 43 minutes of downtime), a 3 or 5 minute interval is usually fine; for payment or login flows pay for 60 seconds or less.</p>
+  <h2>Should I self-host Uptime Kuma?</h2>
+  <p>It is free software and a small VPS runs hundreds of monitors, so it is cheapest on paper. The catches: the monitor must not live on the infrastructure it watches, you maintain and patch it, and you need a second independent way to alert you when the monitor itself dies. Many teams self-host for volume and keep one hosted monitor watching the self-hosted one.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial or engineering advice; verify prices at each vendor. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support is optional.</a></p>
+  </footer>
+</body>
+</html>
