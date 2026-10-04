@@ -33,37 +33,38 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547279 bytes
-#   portfolio-front-tools-1: 92 files, 555156 bytes
-#   portfolio-front-tools-2: 144 files, 553165 bytes
-#   portfolio-front-tools-3: 132 files, 556813 bytes
-#   portfolio-front-tools-4: 137 files, 556827 bytes
-#   portfolio-front-tools-5: 129 files, 553359 bytes
-#   portfolio-front-tools-6: 123 files, 549981 bytes
-#   portfolio-front-tools-7: 135 files, 556393 bytes
-#   portfolio-front-tools-8: 134 files, 556017 bytes
-#   portfolio-front-tools-9: 125 files, 540780 bytes
-#   portfolio-front-tools-10: 125 files, 551227 bytes
-#   portfolio-front-tools-11: 129 files, 555443 bytes
-#   portfolio-front-tools-12: 143 files, 549481 bytes
-#   portfolio-front-tools-13: 124 files, 554495 bytes
-#   portfolio-front-tools-14: 130 files, 554949 bytes
-#   portfolio-front-tools-15: 118 files, 556918 bytes
-#   portfolio-front-tools-16: 119 files, 556149 bytes
-#   portfolio-front-tools-17: 120 files, 554811 bytes
-#   portfolio-front-tools-18: 132 files, 555138 bytes
-#   portfolio-front-tools-19: 134 files, 550070 bytes
-#   portfolio-front-tools-20: 125 files, 552332 bytes
-#   portfolio-front-tools-21: 126 files, 555389 bytes
-#   portfolio-front-tools-22: 136 files, 551602 bytes
-#   portfolio-front-tools-23: 121 files, 556491 bytes
-#   portfolio-front-tools-24: 118 files, 556488 bytes
-#   portfolio-front-tools-25: 102 files, 553118 bytes
-#   portfolio-front-tools-26: 119 files, 553683 bytes
-#   portfolio-front-tools-27: 130 files, 554825 bytes
-#   portfolio-front-tools-28: 124 files, 555985 bytes
-#   portfolio-front-tools-29: 127 files, 553828 bytes
-#   portfolio-front-tools-30: 111 files, 540799 bytes
+#   portfolio-front-tools-0: 145 files, 547241 bytes
+#   portfolio-front-tools-1: 92 files, 555129 bytes
+#   portfolio-front-tools-2: 144 files, 553128 bytes
+#   portfolio-front-tools-3: 132 files, 556791 bytes
+#   portfolio-front-tools-4: 137 files, 556809 bytes
+#   portfolio-front-tools-5: 129 files, 553332 bytes
+#   portfolio-front-tools-6: 123 files, 549937 bytes
+#   portfolio-front-tools-7: 135 files, 556359 bytes
+#   portfolio-front-tools-8: 134 files, 555966 bytes
+#   portfolio-front-tools-9: 125 files, 540812 bytes
+#   portfolio-front-tools-10: 125 files, 551212 bytes
+#   portfolio-front-tools-11: 129 files, 555380 bytes
+#   portfolio-front-tools-12: 143 files, 549457 bytes
+#   portfolio-front-tools-13: 124 files, 554454 bytes
+#   portfolio-front-tools-14: 130 files, 554898 bytes
+#   portfolio-front-tools-15: 118 files, 556953 bytes
+#   portfolio-front-tools-16: 119 files, 556126 bytes
+#   portfolio-front-tools-17: 120 files, 554783 bytes
+#   portfolio-front-tools-18: 132 files, 555094 bytes
+#   portfolio-front-tools-19: 134 files, 550044 bytes
+#   portfolio-front-tools-20: 125 files, 552373 bytes
+#   portfolio-front-tools-21: 126 files, 555379 bytes
+#   portfolio-front-tools-22: 136 files, 551670 bytes
+#   portfolio-front-tools-23: 121 files, 556402 bytes
+#   portfolio-front-tools-24: 118 files, 556480 bytes
+#   portfolio-front-tools-25: 102 files, 553179 bytes
+#   portfolio-front-tools-26: 119 files, 553710 bytes
+#   portfolio-front-tools-27: 130 files, 554934 bytes
+#   portfolio-front-tools-28: 122 files, 549475 bytes
+#   portfolio-front-tools-29: 128 files, 545617 bytes
+#   portfolio-front-tools-30: 66 files, 308874 bytes
+#   portfolio-front-tools-31: 51 files, 262861 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3847,6 +3848,11 @@ configMapGenerator:
       - trade-show-roi-calculator__index.html.gz=trade-show-roi-calculator__index.html.gz
       - trade-show-roi-calculator__is-a-trade-show-booth-worth-it.html.gz=trade-show-roi-calculator__is-a-trade-show-booth-worth-it.html.gz
       - trade-show-roi-calculator__usage.mjs.gz=trade-show-roi-calculator__usage.mjs.gz
+      - training-gpu-pricing-calculator__cli.mjs.gz=training-gpu-pricing-calculator__cli.mjs.gz
+      - training-gpu-pricing-calculator__engine.mjs.gz=training-gpu-pricing-calculator__engine.mjs.gz
+      - training-gpu-pricing-calculator__index.html.gz=training-gpu-pricing-calculator__index.html.gz
+      - training-gpu-pricing-calculator__should-i-rent-or-buy-a-gpu.html.gz=training-gpu-pricing-calculator__should-i-rent-or-buy-a-gpu.html.gz
+      - training-gpu-pricing-calculator__usage.mjs.gz=training-gpu-pricing-calculator__usage.mjs.gz
       - translation-job-picker__cli.mjs.gz=translation-job-picker__cli.mjs.gz
       - translation-job-picker__engine.mjs.gz=translation-job-picker__engine.mjs.gz
       - translation-job-picker__how-to-choose-which-translation-jobs-to-accept.html.gz=translation-job-picker__how-to-choose-which-translation-jobs-to-accept.html.gz
@@ -3890,6 +3896,11 @@ configMapGenerator:
       - tutor-package-pricing-calculator__vs-a-spreadsheet.html.gz=tutor-package-pricing-calculator__vs-a-spreadsheet.html.gz
       - twitch-payout-calculator__calc.mjs.gz=twitch-payout-calculator__calc.mjs.gz
       - twitch-payout-calculator__does-a-mobile-subscription-pay-me-less.html.gz=twitch-payout-calculator__does-a-mobile-subscription-pay-me-less.html.gz
+  - name: portfolio-front-tools-29
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - twitch-payout-calculator__index.html.gz=twitch-payout-calculator__index.html.gz
       - twitch-payout-calculator__share.mjs.gz=twitch-payout-calculator__share.mjs.gz
       - twitch-payout-calculator__usage.mjs.gz=twitch-payout-calculator__usage.mjs.gz
@@ -3897,11 +3908,6 @@ configMapGenerator:
       - upstash-redis-bill-estimator__cli.mjs.gz=upstash-redis-bill-estimator__cli.mjs.gz
       - upstash-redis-bill-estimator__engine.mjs.gz=upstash-redis-bill-estimator__engine.mjs.gz
       - upstash-redis-bill-estimator__how-to-reduce-your-upstash-redis-bill.html.gz=upstash-redis-bill-estimator__how-to-reduce-your-upstash-redis-bill.html.gz
-  - name: portfolio-front-tools-29
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - upstash-redis-bill-estimator__index.html.gz=upstash-redis-bill-estimator__index.html.gz
       - upstash-redis-bill-estimator__usage.mjs.gz=upstash-redis-bill-estimator__usage.mjs.gz
       - uptime-monitoring-pricing-calculator__cli.mjs.gz=uptime-monitoring-pricing-calculator__cli.mjs.gz
@@ -4023,17 +4029,17 @@ configMapGenerator:
       - wash-and-fold-price-calculator__vs-doing-the-cost-math-yourself.html.gz=wash-and-fold-price-calculator__vs-doing-the-cost-math-yourself.html.gz
       - water-heater-bid-calculator__calc.mjs.gz=water-heater-bid-calculator__calc.mjs.gz
       - water-heater-bid-calculator__how-much-to-charge.html.gz=water-heater-bid-calculator__how-much-to-charge.html.gz
+  - name: portfolio-front-tools-30
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - water-heater-bid-calculator__index.html.gz=water-heater-bid-calculator__index.html.gz
       - water-heater-bid-calculator__share.mjs.gz=water-heater-bid-calculator__share.mjs.gz
       - water-heater-bid-calculator__usage.mjs.gz=water-heater-bid-calculator__usage.mjs.gz
       - water-heater-bid-calculator__vs-a-flat-rate-water-heater-special.html.gz=water-heater-bid-calculator__vs-a-flat-rate-water-heater-special.html.gz
       - water-heater-bid-calculator__vs-servicetitan.html.gz=water-heater-bid-calculator__vs-servicetitan.html.gz
       - water-softener-bid-calculator__calc.mjs.gz=water-softener-bid-calculator__calc.mjs.gz
-  - name: portfolio-front-tools-30
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - water-softener-bid-calculator__how-much-to-charge-to-install-a-water-softener.html.gz=water-softener-bid-calculator__how-much-to-charge-to-install-a-water-softener.html.gz
       - water-softener-bid-calculator__index.html.gz=water-softener-bid-calculator__index.html.gz
       - water-softener-bid-calculator__share.mjs.gz=water-softener-bid-calculator__share.mjs.gz
@@ -4094,6 +4100,11 @@ configMapGenerator:
       - where-to-sell-calculator__reverb-vs-ebay-for-gear.html.gz=where-to-sell-calculator__reverb-vs-ebay-for-gear.html.gz
       - where-to-sell-calculator__share.mjs.gz=where-to-sell-calculator__share.mjs.gz
       - where-to-sell-calculator__usage.mjs.gz=where-to-sell-calculator__usage.mjs.gz
+  - name: portfolio-front-tools-31
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - where-to-sell-calculator__vs-crosslist.html.gz=where-to-sell-calculator__vs-crosslist.html.gz
       - where-to-sell-calculator__vs-each-marketplaces-own-calculator.html.gz=where-to-sell-calculator__vs-each-marketplaces-own-calculator.html.gz
       - where-to-sell-calculator__vs-list-perfectly.html.gz=where-to-sell-calculator__vs-list-perfectly.html.gz
