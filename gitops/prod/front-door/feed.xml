@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 693 free, browser-only tools served directly from marisstella.dev — the newest 30 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 694 free, browser-only tools served directly from marisstella.dev — the newest 30 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -144,6 +144,14 @@
     <summary type="text">Enter the minutes of video you store, the minutes viewers watch per month and your monthly uploads, and see what Cloudflare Stream, Mux, Bunny Stream, api.video and a DIY AWS pipeline charge, the 12-month spend under your growth rate, and the viewing level where the cheapest platform changes. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>W-2 EFW2 File Validator — Check a Wage File Before You Upload It to SSA</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/w2-efw2-file-validator/"/>
+    <id>tag:marisstella.dev,2026:tool/w2-efw2-file-validator</id>
+    <updated>2026-10-04T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free EFW2 checker for W-2 electronic wage files: finds records that are not 512 characters, invalid SSNs, RT totals that no longer match the wage lines, wrong RF counts and Social Security wage-base errors, and rebuilds the totals. Runs in your browser; the file is never uploaded.</summary>
+  </entry>
+  <entry>
     <title>GitHub Actions timeout-minutes Check — Find Jobs That Can Bill 6 Hours</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-timeout-check/"/>
     <id>tag:marisstella.dev,2026:tool/actions-timeout-check</id>
@@ -238,13 +246,5 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free calculator for cattle producers: what a cow costs you a year, what her calf brings in, your breakeven calf price per hundredweight, and how hay price, weaning weight and calves weaned move it. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Datadog Bill Estimator — Estimate Your Monthly Bill and the Levers That Cut It</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/datadog-bill-estimator/"/>
-    <id>tag:marisstella.dev,2026:tool/datadog-bill-estimator</id>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Estimate a monthly Datadog bill from your own usage (hosts, containers, custom metrics, logs, APM, synthetics) at editable list prices, and see which changes cut it most, with a dollar saving for each. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
