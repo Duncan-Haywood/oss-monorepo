@@ -1,0 +1,40 @@
+name: zoho-crm-import-csv-check
+description: >-
+  Free browser tool that checks a Zoho CRM import CSV of Leads, Contacts, Accounts or Deals before
+  it is uploaded: a missing Last Name, Company, Account Name, Deal Name, Stage, Closing Date or
+  Amount, amounts with currency symbols or thousands separators, invalid and duplicate emails,
+  duplicate deals and accounts, phone numbers Excel damaged (scientific notation), date formats the
+  import will misread, Lead Source and Lead Status spelled more than one way, headings that do not
+  match field names, semicolon-delimited files and over-limit files, each with its line number, plus
+  a formatting-only safe-fixes pass that lists every change. The file is read locally and never
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session, as the Zoho half of the CRM import pre-flight
+# family. The portfolio has HubSpot, Salesforce (leads), Pipedrive, Xero, QuickBooks and email-list
+# import checkers; none covers Zoho CRM, the CRM small businesses and agencies pick for its price
+# and the wider Zoho suite. Zoho's import is a wizard over a CSV, and the faults are the ones a
+# spreadsheet round trip produces plus a required-field set of its own: Last Name on Leads and
+# Contacts, Company on Leads, and four required fields on Deals (Deal Name, Stage, Closing Date,
+# Amount), plus picklist-like free text (Lead Source, Lead Status, Stage) that drifts in spelling.
+#
+# First visitor: people searching the literal problems ("Zoho CRM import CSV error", "Zoho CRM import
+# leads required field", "Zoho CRM import date format", "Zoho CRM import deals") and Zoho Community
+# threads, r/zoho. Volume not measured.
+#
+# Privacy is the liability boundary: a lead and deal list names people, emails, phones and amounts,
+# so the file never leaves the browser (a test asserts no network calls).
+#
+# Rules are read from memory of Zoho CRM's public import help, with an explicit not-checked list
+# shown on the page and returned with every result: custom fields, picklist options, pipeline fit of
+# a Stage, owner matching, existing records and lookups, the date format and mapping chosen in the
+# wizard, deliverability. File-size and row limits are stated cautiously and flagged to verify.
+#
+# Path to revenue (payment rails stay off): lead magnet for the CRM-migration and sales-ops
+# audience, sibling to the HubSpot, Salesforce, Pipedrive, Xero, QuickBooks and email-list checkers.
+# A paid version, if usage appears, is bulk checks across client files with saved rules behind an
+# env-var switch; not built.
+#
+# Liability: format checks on the user's own file, rules stated as read from memory, no warranty,
+# independent-of-Zoho clause, trademark used nominatively.
