@@ -33,38 +33,38 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547365 bytes
-#   portfolio-front-tools-1: 92 files, 555156 bytes
-#   portfolio-front-tools-2: 144 files, 553165 bytes
-#   portfolio-front-tools-3: 128 files, 549008 bytes
-#   portfolio-front-tools-4: 139 files, 553984 bytes
-#   portfolio-front-tools-5: 128 files, 556371 bytes
-#   portfolio-front-tools-6: 123 files, 555140 bytes
-#   portfolio-front-tools-7: 136 files, 554935 bytes
-#   portfolio-front-tools-8: 133 files, 556799 bytes
-#   portfolio-front-tools-9: 132 files, 545007 bytes
-#   portfolio-front-tools-10: 124 files, 556764 bytes
-#   portfolio-front-tools-11: 130 files, 555467 bytes
-#   portfolio-front-tools-12: 137 files, 553134 bytes
-#   portfolio-front-tools-13: 125 files, 556524 bytes
-#   portfolio-front-tools-14: 120 files, 556355 bytes
-#   portfolio-front-tools-15: 124 files, 555291 bytes
-#   portfolio-front-tools-16: 122 files, 549753 bytes
-#   portfolio-front-tools-17: 118 files, 554453 bytes
-#   portfolio-front-tools-18: 129 files, 554629 bytes
-#   portfolio-front-tools-19: 127 files, 556949 bytes
-#   portfolio-front-tools-20: 131 files, 556965 bytes
-#   portfolio-front-tools-21: 124 files, 556496 bytes
-#   portfolio-front-tools-22: 138 files, 554641 bytes
-#   portfolio-front-tools-23: 119 files, 553003 bytes
-#   portfolio-front-tools-24: 131 files, 557022 bytes
-#   portfolio-front-tools-25: 90 files, 556071 bytes
-#   portfolio-front-tools-26: 118 files, 554061 bytes
-#   portfolio-front-tools-27: 121 files, 543505 bytes
-#   portfolio-front-tools-28: 128 files, 550568 bytes
-#   portfolio-front-tools-29: 131 files, 554882 bytes
-#   portfolio-front-tools-30: 120 files, 544667 bytes
-#   portfolio-front-tools-31: 66 files, 350807 bytes
+#   portfolio-front-tools-0: 145 files, 547353 bytes
+#   portfolio-front-tools-1: 92 files, 555149 bytes
+#   portfolio-front-tools-2: 144 files, 553161 bytes
+#   portfolio-front-tools-3: 128 files, 549010 bytes
+#   portfolio-front-tools-4: 139 files, 553987 bytes
+#   portfolio-front-tools-5: 128 files, 556385 bytes
+#   portfolio-front-tools-6: 123 files, 555137 bytes
+#   portfolio-front-tools-7: 136 files, 554963 bytes
+#   portfolio-front-tools-8: 133 files, 556833 bytes
+#   portfolio-front-tools-9: 132 files, 544960 bytes
+#   portfolio-front-tools-10: 124 files, 556687 bytes
+#   portfolio-front-tools-11: 130 files, 555464 bytes
+#   portfolio-front-tools-12: 137 files, 553141 bytes
+#   portfolio-front-tools-13: 125 files, 556399 bytes
+#   portfolio-front-tools-14: 120 files, 556326 bytes
+#   portfolio-front-tools-15: 124 files, 555284 bytes
+#   portfolio-front-tools-16: 122 files, 549743 bytes
+#   portfolio-front-tools-17: 118 files, 554573 bytes
+#   portfolio-front-tools-18: 129 files, 554674 bytes
+#   portfolio-front-tools-19: 127 files, 556959 bytes
+#   portfolio-front-tools-20: 131 files, 556963 bytes
+#   portfolio-front-tools-21: 124 files, 556451 bytes
+#   portfolio-front-tools-22: 138 files, 554658 bytes
+#   portfolio-front-tools-23: 119 files, 553047 bytes
+#   portfolio-front-tools-24: 131 files, 557026 bytes
+#   portfolio-front-tools-25: 90 files, 556100 bytes
+#   portfolio-front-tools-26: 118 files, 554089 bytes
+#   portfolio-front-tools-27: 121 files, 543565 bytes
+#   portfolio-front-tools-28: 128 files, 550615 bytes
+#   portfolio-front-tools-29: 131 files, 554890 bytes
+#   portfolio-front-tools-30: 120 files, 544463 bytes
+#   portfolio-front-tools-31: 69 files, 371471 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -4197,6 +4197,9 @@ configMapGenerator:
       - window-tinting-bid-calculator__index.html.gz=window-tinting-bid-calculator__index.html.gz
       - window-tinting-bid-calculator__usage.mjs.gz=window-tinting-bid-calculator__usage.mjs.gz
       - window-tinting-bid-calculator__vs-a-flat-per-vehicle-size-price.html.gz=window-tinting-bid-calculator__vs-a-flat-per-vehicle-size-price.html.gz
+      - woocommerce-product-csv-check__calc.mjs.gz=woocommerce-product-csv-check__calc.mjs.gz
+      - woocommerce-product-csv-check__index.html.gz=woocommerce-product-csv-check__index.html.gz
+      - woocommerce-product-csv-check__usage.mjs.gz=woocommerce-product-csv-check__usage.mjs.gz
       - wordpress-plugin-review-check__check.mjs.gz=wordpress-plugin-review-check__check.mjs.gz
       - wordpress-plugin-review-check__index.html.gz=wordpress-plugin-review-check__index.html.gz
       - wordpress-plugin-review-check__scan.mjs.gz=wordpress-plugin-review-check__scan.mjs.gz
