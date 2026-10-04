@@ -1721,6 +1721,7 @@ workflows:
 - workflow: senior-deduction-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: sepa-payment-file-validator-ci.yml
 - workflow: sepa-pain001-validator-ci.yml
   classification: none
   publishes: []

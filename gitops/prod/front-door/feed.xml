@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 686 free, browser-only tools served directly from marisstella.dev — the newest 30 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 687 free, browser-only tools served directly from marisstella.dev — the newest 30 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -60,6 +60,15 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free SEPA XML checker for pain.001 credit transfer and pain.008 direct debit files: recomputes NbOfTxs and CtrlSum, checks IBAN and BIC, EUR, TARGET2 execution dates, field lengths and the SEPA character set, and repairs the totals. Runs in your browser; the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>SEPA Payment File Validator — Check a pain.001 XML File Before You Send It to the Bank</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sepa-payment-file-validator/"/>
+    <id>tag:marisstella.dev,2026:tool/sepa-payment-file-validator</id>
+    <published>2026-10-04T00:00:00Z</published>
+    <updated>2026-10-04T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free SEPA credit transfer file checker for pain.001 XML: finds invalid IBANs, wrong NbOfTxs and CtrlSum, bad execution dates, characters the bank will reject and malformed XML, and rebuilds the control sums. Runs in your browser; the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Speech-to-Text Pricing Calculator — Whisper API vs Deepgram vs AssemblyAI vs Google vs AWS vs self-hosted</title>
@@ -267,14 +276,5 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Enter your monthly flag-evaluation volume (thousands of requests) and see what PostHog, Flagsmith and ConfigCat charge, the 12-month spend under your growth rate, and the volume where the cheapest provider changes. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>FEIE Physical Presence Test Calculator — 330 Days, Best 12-Month Window</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/feie-physical-presence-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/feie-physical-presence-calculator</id>
-    <published>2026-10-03T00:00:00Z</published>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator for the Form 2555 physical presence test: enter your stays abroad and see your best 12-month window, how many of the 330 days you have, how many days you can still spend elsewhere, and the prorated foreign earned income exclusion. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
