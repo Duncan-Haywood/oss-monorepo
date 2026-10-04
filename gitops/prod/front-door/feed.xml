@@ -98,13 +98,13 @@
     <summary type="text">Free SEPA XML checker for pain.001 credit transfer and pain.008 direct debit files: recomputes NbOfTxs and CtrlSum, checks IBAN and BIC, EUR, TARGET2 execution dates, field lengths and the SEPA character set, and repairs the totals. Runs in your browser; the file is never uploaded.</summary>
   </entry>
   <entry>
-    <title>SEPA pain.002 Status Reader — Why Did My Bank Reject These Payments?</title>
+    <title>SEPA pain.002 Status Reader</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sepa-pain002-status-reader/"/>
     <id>tag:marisstella.dev,2026:tool/sepa-pain002-status-reader</id>
     <published>2026-10-04T00:00:00Z</published>
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free SEPA pain.002 reader: paste the status report your bank returned and see which payments were accepted or rejected, what each reason code (AC04, AM04, MD01, AM10) means and what to do, the rejected total, and a list to fix. Runs in your browser; the file is never uploaded.</summary>
+    <summary type="text">Free SEPA pain.002 reader: which payments your bank rejected, what each code (AC04, AM04, MD01) means, what to fix. In your browser.</summary>
   </entry>
   <entry>
     <title>SEPA Payment File Validator — Check a pain.001 XML File Before You Send It to the Bank</title>
