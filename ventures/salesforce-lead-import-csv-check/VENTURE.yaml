@@ -1,0 +1,40 @@
+name: salesforce-lead-import-csv-check
+description: >-
+  Free browser tool that checks a Salesforce lead import CSV before it goes into the Data Import
+  Wizard or Data Loader: rows with no LastName or Company, invalid, multiple, mistyped, disposable
+  and repeated emails, Status, Rating and Salutation values the default picklists do not have,
+  AnnualRevenue and NumberOfEmployees that are not plain numbers, over-long fields, Excel-damaged
+  phone numbers and owner IDs, and date columns that mix month-first and day-first, each with its
+  line number, plus a safe-fixes pass that cleans email formatting and picklist capitals, rewrites
+  a date column only when it has one possible reading, and drops exact duplicate rows, and never
+  edits a name, company, phone, address, title, owner, ID or custom field. The file is read locally
+  and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session, after the HubSpot contacts checker (#6335)
+# landed first and this session's own HubSpot draft was closed as a duplicate. Salesforce is the
+# other half of the CRM-import question and is not covered: its Lead import has hard required
+# fields (LastName, Company), picklists that Data Loader enforces, numeric fields that reject
+# "$1.2M" and "11-50", and a record limit on the Data Import Wizard, so the failure mode is a
+# rejected or half-loaded file rather than HubSpot's silent merge.
+#
+# First visitor: Salesforce admins, sales-ops people and consultants searching the literal symptoms
+# ("Salesforce lead import error", "Data Loader required field missing LastName", "Salesforce
+# import duplicates", "Data Import Wizard date format"). Volume not measured with an external tool.
+#
+# What makes it more than a CSV linter: it knows which fields are required and which values the
+# default picklists accept, and says plainly that the org's own picklists, validation rules and
+# duplicate rules are the part it cannot see. The repair step is deliberately narrow and lists every
+# change.
+#
+# Privacy is the liability boundary and the selling point: lead lists are personal data, so the
+# file never leaves the browser (a test asserts no network calls). Rules are stated as read from
+# memory, with an explicit not-checked list.
+#
+# Path to revenue (payment rails stay off): lead magnet toward Salesforce admins and consultancies,
+# cross-linked to the sibling checkers. A paid version, if usage appears, is a saved profile of an
+# org's picklists and required fields (paste from Setup) behind an env-var switch; not built.
+#
+# Liability: format checks on the user's own file, no warranty, independent-of-Salesforce clause,
+# not advice on email or privacy law, trademark used nominatively.
