@@ -1251,7 +1251,9 @@ const CATEGORY_RULES = [
       // `google-ads-editor-csv-check` joined 2026-10-04: the Google Ads Editor (campaigns, keywords, responsive search ads) member of the same import pre-flight family.
       || slug === 'google-ads-editor-csv-check'
       // `mailchimp-audience-csv-check` joined 2026-10-04: the Mailchimp (email audience contacts) member of the same import pre-flight family.
-      || slug === 'mailchimp-audience-csv-check',
+      || slug === 'mailchimp-audience-csv-check'
+      // `payroll-hours-csv-check` joined 2026-10-04: the payroll hours sheet member of the same file pre-flight family.
+      || slug === 'payroll-hours-csv-check',
   },
   {
     id: 'backoffice',
