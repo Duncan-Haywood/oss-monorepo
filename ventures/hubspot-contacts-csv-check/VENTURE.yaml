@@ -1,0 +1,38 @@
+name: hubspot-contacts-csv-check
+description: >-
+  Free browser tool that checks a HubSpot contacts import CSV before it is uploaded: headings mapped
+  to HubSpot's default contact properties, a missing email column, emails holding two addresses or
+  a domain typo, rows that share an email and so would be merged, Lifecycle Stage and Lead Status
+  values HubSpot does not use, date columns that mix day-first and month-first, revenue written with
+  currency symbols and phone numbers Excel turned into scientific notation, each with its line
+  number, plus a safe-fixes pass that never edits a name, company, phone, postcode, date or stage.
+  The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. The portfolio checks the contact files of
+# Xero and QuickBooks and the mailing-list file, but not the CRM import most small teams do first:
+# HubSpot's free CRM is where a spreadsheet of leads goes. HubSpot's wizard accepts almost anything,
+# so the failure is not a rejected file but a quiet one: rows merged on a shared email, a lifecycle
+# stage left blank, dates read the wrong way round, and a database that has to be cleaned up inside
+# the CRM afterwards.
+#
+# First visitor: marketers, sales-ops and freelancers searching the literal symptoms ("HubSpot import
+# contacts duplicates", "HubSpot import lifecycle stage not importing", "HubSpot import date format
+# wrong", "CSV phone number E+ HubSpot"), plus HubSpot Community threads and r/hubspot. Volume not
+# measured with an external tool.
+#
+# What makes it more than a CSV linter: it models how HubSpot identifies a contact (email), which
+# rows will therefore be merged, and the dropdown and date rules the wizard enforces, and it refuses
+# to repair what cannot be recovered or what has more than one reading.
+#
+# Privacy is the liability boundary: a contact list is personal data, so the file never leaves the
+# browser (a test asserts no network calls). The page says whether a person may be contacted is the
+# user's responsibility.
+#
+# Path to revenue (payment rails stay off): lead magnet for the CRM-consultant and RevOps-freelancer
+# audience, cross-linked to the sibling checkers. A paid version, if usage appears, is bulk checks
+# across client files with saved rules behind an env-var switch; not built.
+#
+# Liability: format checks on the user's own file, rules stated as read from memory, no warranty,
+# independent-of-HubSpot clause, trademark used nominatively.

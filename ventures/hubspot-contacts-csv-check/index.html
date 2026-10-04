@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>HubSpot Contacts CSV Check — Find Import Errors Before You Upload</title>
+  <meta name="description" content="Free HubSpot contacts CSV checker: finds email problems, rows that HubSpot would merge on a shared email, invalid lifecycle stages, mixed date formats, numbers with currency symbols and Excel damage to phone numbers, with line numbers, and applies safe fixes. Runs in your browser; the file is never uploaded.">
+  <meta property="og:title" content="HubSpot Contacts CSV Check — free, private, in your browser">
+  <meta property="og:description" content="Catch what breaks or duplicates a HubSpot contacts import, with the line number, before you upload. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "HubSpot Contacts CSV Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks a HubSpot contacts import CSV for email problems, contacts that would be merged on a shared email, invalid lifecycle stages, mixed or ambiguous date formats, numbers with currency symbols and Excel damage to phone and postal code columns before it is imported, and applies safe fixes. Runs entirely in your browser; the file is never uploaded.", "featureList": "HubSpot contacts CSV validator, duplicate email finder, lifecycle stage checker, date format checker, scientific notation phone number finder, email typo finder, semicolon CSV fix"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why did my HubSpot contacts import fail or create duplicates?", "acceptedAnswer": {"@type": "Answer", "text": "The usual causes are an email column holding two addresses or a note, the same email on several rows (HubSpot merges them into one contact), a Lifecycle Stage that is not one of HubSpot's stages, dates that mix day-first and month-first, numbers written with currency symbols, and an Excel save that turned phone numbers into scientific notation. A file with no email column at all is imported as brand new contacts every time. This tool tests each of these and names the line."}}, {"@type": "Question", "name": "How do I check a HubSpot contacts CSV before importing it?", "acceptedAnswer": {"@type": "Answer", "text": "Paste the file or drop it onto this page. It maps your headings to HubSpot's default contact properties, then lists every problem with its line number as errors, warnings and notes. Nothing is uploaded."}}, {"@type": "Question", "name": "Does HubSpot de-duplicate contacts on import?", "acceptedAnswer": {"@type": "Answer", "text": "HubSpot uses the email address to match a row to an existing contact, so rows that share an email become one contact and later rows overwrite earlier values for the same property. Rows with no email cannot be matched and are created as new contacts each time. This tool lists every shared email with its line numbers and can download them as a review file."}}, {"@type": "Question", "name": "Which Lifecycle Stage values does HubSpot accept?", "acceptedAnswer": {"@type": "Answer", "text": "Subscriber, Lead, Marketing Qualified Lead, Sales Qualified Lead, Opportunity, Customer, Evangelist and Other, or the internal names such as marketingqualifiedlead. A value such as Hot lead is not a stage and is left blank or blocks the mapping. The tool flags it and never rewrites it, because it cannot know which stage you meant."}}, {"@type": "Question", "name": "Why are my dates wrong after a HubSpot import?", "acceptedAnswer": {"@type": "Answer", "text": "The import wizard reads a date column in one format. A column that has 14/03/2026 on one row and 03/14/2026 on another cannot be read consistently, and a column where every date has a day and month of 12 or under is ambiguous: 03/04/2026 is 3 April or 4 March depending on the source system. The tool detects both cases."}}, {"@type": "Question", "name": "Why did my phone numbers turn into 4.41175E+11?", "acceptedAnswer": {"@type": "Answer", "text": "Excel stored a long number in a cell formatted as General or Number and shortened it. The lost digits cannot be recovered from the file, so the tool flags the cell as an error and leaves it alone. Re-export from the source with the column set to Text."}}, {"@type": "Question", "name": "What does Apply safe fixes change?", "acceptedAnswer": {"@type": "Answer", "text": "Only things with one reasonable reading: the separator, stray spaces in any cell, a mailto: prefix on an email, upper-case letters in an email address, a currency symbol or thousands comma in Annual Revenue or Number of Employees, and exact duplicate rows. It never edits the letters of a name, a company, a phone number, a postal code, a date or a lifecycle stage."}}, {"@type": "Question", "name": "Is it safe to put my contact list into a web page?", "acceptedAnswer": {"@type": "Answer", "text": "The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. Your own policies, and any consent your contacts gave, still decide what you may open and import."}}, {"@type": "Question", "name": "What does this not check?", "acceptedAnswer": {"@type": "Answer", "text": "Whether HubSpot will accept the file today, whether a contact already exists in your account, whether your custom properties and dropdown values exist, whether your contacts agreed to receive marketing email, and anything HubSpot changes in its importer. A clean result is not a promise of success: import a handful of contacts first."}}]}</script>
+      <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">HUBSPOT CONTACTS CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will my HubSpot contacts import work, or create a mess?</h1>
+    <p>Paste or drop your <strong>contacts CSV</strong> and get every problem <strong>with its line number</strong> before you import: <strong>an email cell holding two addresses</strong>, <strong>rows that HubSpot will silently merge</strong> because they share an email, a <strong>Lifecycle Stage</strong> that is not a stage, dates that mix <code>14/03/2026</code> with <code>03/14/2026</code>, revenue written as <code>$1,200,000</code>, and phone numbers Excel turned into <code>4.41175E+11</code>. Then download a cleaned copy.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of HubSpot. Property names and rules are read from memory of HubSpot's public import help pages and default contact properties; no HubSpot import was available when this was built.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your contacts CSV</h2>
+    <p class="note">A list from a spreadsheet, another CRM, a mailing-list tool or an event badge scan, saved as CSV, before you start HubSpot's import wizard.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.txt,text/csv,text/plain">
+    <label for="paste">…or paste the CSV text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="First Name,Last Name,Email,Phone Number,..."></textarea>
+    <p>
+      <button type="button" id="validate">Check file</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Check file.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Contacts</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Company</th><th scope="col">Lifecycle stage</th></tr></thead><tbody id="contacts"></tbody></table></div>
+    <div id="fix-box" hidden>
+      <h3>Safe fixes</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <p><button type="button" id="download-fixed">Download cleaned CSV</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button> <button type="button" class="secondary" id="dupes">Download rows that share an email</button></p>
+    </div>
+    <div id="split-box" hidden>
+      <h3>Shared emails</h3>
+      <ul id="split-list"></ul>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Headings are free text:</strong> HubSpot's wizard lets you map any column to a property, so an unrecognised heading is a note, not an error. The tool shows which headings it recognises as default properties (First Name, Email, Phone Number, Lifecycle Stage, Create Date and so on) and which you will map by hand.</li>
+      <li><strong>Email is the identity:</strong> rows that share an email become one contact and later rows overwrite earlier values. Rows with no email cannot be matched, so importing the same file twice creates the contacts twice. The tool finds both.</li>
+      <li><strong>Dropdown values:</strong> Lifecycle Stage must be one of HubSpot's eight stages, by label or internal name. Lead Status is checked against the default values and only warns, because accounts can add their own.</li>
+      <li><strong>Dates:</strong> a date column must be one format. Day-first and month-first mixed in one column is an error; a column where every date is ambiguous is a note to choose the format in the wizard.</li>
+      <li><strong>Numbers:</strong> Annual Revenue and Number of Employees take plain digits, with no currency symbol, separators or suffix.</li>
+      <li><strong>Excel damage:</strong> phone numbers in scientific notation are unrecoverable and flagged; postal codes and phones that lost a leading zero are flagged but never rewritten, because the tool cannot know the original.</li>
+      <li><strong>Safe fixes</strong> change only the separator, stray spaces, a mailto: prefix, upper-case in emails, a currency symbol or thousands comma in the two number properties, and exact duplicate rows. It never edits the letters of a name, a company, a phone number, a postal code, a date or a lifecycle stage.</li>
+      <li><strong>Not checked:</strong> that HubSpot will accept the file today, that a contact already exists in your account, that your custom properties and dropdown values exist, whether the people agreed to be emailed, and anything HubSpot changes in its importer. Import a handful first.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why did my HubSpot contacts import fail or create duplicates?</h3>
+    <p>The usual causes are an email column holding two addresses or a note, the same email on several rows (HubSpot merges them into one contact), a Lifecycle Stage that is not one of HubSpot's stages, dates that mix day-first and month-first, numbers written with currency symbols, and an Excel save that turned phone numbers into scientific notation. A file with no email column at all is imported as brand new contacts every time. This tool tests each of these and names the line.</p>
+    <h3>How do I check a HubSpot contacts CSV before importing it?</h3>
+    <p>Paste the file or drop it onto this page. It maps your headings to HubSpot's default contact properties, then lists every problem with its line number as errors, warnings and notes. Nothing is uploaded.</p>
+    <h3>Does HubSpot de-duplicate contacts on import?</h3>
+    <p>HubSpot uses the email address to match a row to an existing contact, so rows that share an email become one contact and later rows overwrite earlier values for the same property. Rows with no email cannot be matched and are created as new contacts each time. This tool lists every shared email with its line numbers and can download them as a review file.</p>
+    <h3>Which Lifecycle Stage values does HubSpot accept?</h3>
+    <p>Subscriber, Lead, Marketing Qualified Lead, Sales Qualified Lead, Opportunity, Customer, Evangelist and Other, or the internal names such as marketingqualifiedlead. A value such as Hot lead is not a stage and is left blank or blocks the mapping. The tool flags it and never rewrites it, because it cannot know which stage you meant.</p>
+    <h3>Why are my dates wrong after a HubSpot import?</h3>
+    <p>The import wizard reads a date column in one format. A column that has 14/03/2026 on one row and 03/14/2026 on another cannot be read consistently, and a column where every date has a day and month of 12 or under is ambiguous: 03/04/2026 is 3 April or 4 March depending on the source system. The tool detects both cases.</p>
+    <h3>Why did my phone numbers turn into 4.41175E+11?</h3>
+    <p>Excel stored a long number in a cell formatted as General or Number and shortened it. The lost digits cannot be recovered from the file, so the tool flags the cell as an error and leaves it alone. Re-export from the source with the column set to Text.</p>
+    <h3>What does Apply safe fixes change?</h3>
+    <p>Only things with one reasonable reading: the separator, stray spaces in any cell, a mailto: prefix on an email, upper-case letters in an email address, a currency symbol or thousands comma in Annual Revenue or Number of Employees, and exact duplicate rows. It never edits the letters of a name, a company, a phone number, a postal code, a date or a lifecycle stage.</p>
+    <h3>Is it safe to put my contact list into a web page?</h3>
+    <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. Your own policies, and any consent your contacts gave, still decide what you may open and import.</p>
+    <h3>What does this not check?</h3>
+    <p>Whether HubSpot will accept the file today, whether a contact already exists in your account, whether your custom properties and dropdown values exist, whether your contacts agreed to receive marketing email, and anything HubSpot changes in its importer. A clean result is not a promise of success: import a handful of contacts first.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace HubSpot's own import checks. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including before anything is imported into your CRM or emailed. Whether you may contact the people in a list, and on what basis, is your responsibility under the privacy and marketing laws that apply to you.</p>
+    <p><strong>Not affiliated with HubSpot.</strong> This tool is independent and is not sponsored, endorsed or connected to HubSpot, Inc. or any CRM, email or marketplace vendor. HubSpot is a trademark of its owner, used here only to say which file format the tool reads. The property list and rules are read from memory of public sources and may be out of date or miss a variant; check them against HubSpot's current import help pages.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>, <code>duplicates_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../email-list-csv-check/">email list CSV check</a> cleans a mailing list before it goes into an email platform, the <a href="../quickbooks-import-csv-check/">QuickBooks import CSV check</a> covers QuickBooks Online customer and vendor files, and the <a href="../xero-contacts-csv-check/">Xero contacts CSV check</a> does the same for Xero.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, duplicatesCsv, sampleFile, sampleBrokenFile, findingsCsv, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, fixedText = null, lastText = "";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      lastText = text;
+      const r = validate(text);
+      lastResult = r;
+      const s = r.summary;
+      const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${s.contacts} contact${s.contacts === 1 ? "" : "s"}, ${s.withEmail} with an email, ${s.columns} columns, ${s.mapped.length} mapped to HubSpot properties`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      $("#contacts").innerHTML = s.list.slice(0, 500).map((c) => `<tr><td>${c.line}</td><td>${esc(c.name)}</td><td>${esc(c.email)}</td><td>${esc(c.company)}</td><td>${esc(c.stage)}</td></tr>`).join("") || `<tr><td colspan="5">No contacts found.</td></tr>`;
+      const fix = repair(text);
+      fixedText = fix.text;
+      $("#fix-box").hidden = false;
+            $("#download-fixed").hidden = !fix.text || !fix.changes.length;
+      $("#fix-note").textContent = fix.error ? fix.error : fix.changes.length
+        ? `${fix.changes.length} safe change${fix.changes.length === 1 ? "" : "s"} available. Names, companies, phone numbers, postal codes, dates and lifecycle stages are left exactly as they are.`
+        : "Nothing here has a single safe fix; the findings above need your decision.";
+      $("#fix-list").innerHTML = fix.changes.slice(0, 200).map((c) => `<li>${esc(c)}</li>`).join("") + (fix.changes.length > 200 ? `<li>…and ${fix.changes.length - 200} more.</li>` : "");
+      report.hidden = false;
+      status.textContent = errs ? `Found ${errs} error(s) in ${s.contacts} contact(s).` : `No errors in ${s.contacts} contact(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: three made-up contacts, not real people."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: a list after a spreadsheet round trip, with typical faults."; }
+    });
+    $("#dupes").addEventListener("click", () => {
+      const csv = duplicatesCsv(fixedText || lastText);
+      $("#split-box").hidden = false;
+      if (!csv) { $("#split-list").innerHTML = "<li>No two rows share an email address.</li>"; return; }
+      record("duplicates_downloaded");
+      download("hubspot-shared-email-rows.csv", csv, "text/csv");
+      $("#split-list").innerHTML = "<li>Downloaded the rows that share an email, grouped, with their line numbers.</li>";
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; lastResult = null; fixedText = null; lastText = ""; status.textContent = "Choose a file or paste the text, then click Check file."; });
+    $("#download-fixed").addEventListener("click", () => { if (fixedText) { record("fixes_applied"); download("hubspot-contacts-cleaned.csv", fixedText, "text/csv"); } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("hubspot-contacts-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
