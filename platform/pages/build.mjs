@@ -1355,6 +1355,9 @@ const CATEGORY_RULES = [
       // `edi-x12-order-checker` joined 2026-10-04 on its first commit: a supplier's EDI purchase order, invoice and ship
       // notice checked before they go to a retailer -- the same back-office document-preflight job as the payment-file checkers.
       || slug === 'edi-x12-order-checker'
+      // `bank-csv-to-qbo-converter` joined 2026-10-04 on its first commit: the CSV-in, accounting-file-out partner of the statement
+      // readers -- a bookkeeper's bank CSV turned into QBO/OFX/QIF with the date and sign assumptions stated.
+      || slug === 'bank-csv-to-qbo-converter'
       // `eu-vat-oss-calculator` joined 2026-10-04 on its first commit: a small seller's EU cross-border VAT return from a sales export, the
       // same back-office compliance-arithmetic job as the SEPA and e-invoice tools here.
       || slug === 'eu-vat-oss-calculator'

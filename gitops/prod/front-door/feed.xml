@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 695 free, browser-only tools served directly from marisstella.dev — the newest 30 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 696 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -22,6 +22,14 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free BAI2 file viewer and checker: turns a bank&#39;s BAI2 statement into accounts, balances and a transaction list you can download as CSV, and checks the 49, 98 and 99 control totals and record counts. Runs in your browser; the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Bank CSV to QBO Converter — Free CSV to QBO, OFX and QIF for QuickBooks</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bank-csv-to-qbo-converter/"/>
+    <id>tag:marisstella.dev,2026:tool/bank-csv-to-qbo-converter</id>
+    <updated>2026-10-04T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free bank CSV to QBO, OFX and QIF converter for QuickBooks and Quicken: handles debit/credit columns, US and European dates and decimals, catches bad rows and duplicates, and runs in your browser; the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Business Vehicle Depreciation Calculator — Section 179 vs bonus vs MACRS, heavy SUV and truck</title>
@@ -158,93 +166,5 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free EFW2 checker for W-2 electronic wage files: finds records that are not 512 characters, invalid SSNs, RT totals that no longer match the wage lines, wrong RF counts and Social Security wage-base errors, and rebuilds the totals. Runs in your browser; the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>GitHub Actions timeout-minutes Check — Find Jobs That Can Bill 6 Hours</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-timeout-check/"/>
-    <id>tag:marisstella.dev,2026:tool/actions-timeout-check</id>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your GitHub Actions workflow YAML and find every job with no timeout-minutes (or one set to the 360-minute default) — the jobs that can hang for six hours of billed runner time. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>App Store Commission Calculator — Apple 15%/30% vs Google Play vs Web Checkout</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/app-store-commission-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/app-store-commission-calculator</id>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Enter your monthly app revenue and average in-app price and see what Apple (30% or 15%), Google Play and web checkout via Stripe or Paddle take, your net payout, 12-month totals, and the revenue where selling on the web beats the store cut. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>App Subscription Proceeds Calculator — What You Keep and What a Subscriber Is Worth</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/app-subscription-proceeds-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/app-subscription-proceeds-calculator</id>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free calculator for indie app developers: what a subscription charge really leaves after store fees, tax and refunds, what a subscriber is worth at your churn, how long payback takes, and what a web checkout would change. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Auth MAU Pricing Calculator — Clerk vs Auth0 vs Cognito vs Firebase vs Supabase vs WorkOS</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/auth-mau-pricing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/auth-mau-pricing-calculator</id>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Enter your monthly active users and see what Clerk, Auth0, AWS Cognito, Firebase, Supabase Auth and WorkOS charge, the 12-month spend under your growth rate, and the user count where the cheapest provider changes. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Why Did My AWS Bill Go Up? Free Cost Explorer CSV Explainer</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/aws-bill-change-explainer/"/>
-    <id>tag:marisstella.dev,2026:tool/aws-bill-change-explainer</id>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste the CSV from AWS Cost Explorer for two months and see which services explain the rise in your AWS bill, ranked, with partial-month normalisation and a checklist of common causes. Free, no signup, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Backyard Egg Profit Calculator — Cost per Dozen, Profit per Hour and the Price You Need</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/backyard-egg-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/backyard-egg-profit-calculator</id>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free calculator for backyard egg sellers: what a dozen eggs costs you, how many hours it takes, your profit per dozen and per hour, the price per dozen you need to earn a wage, and what feed cost and winter lay rate do to it. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Backyard Honey Profit Calculator — Cost per Pound, Profit per Hour and the Price You Need</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/backyard-honey-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/backyard-honey-profit-calculator</id>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free calculator for backyard beekeepers who sell honey: what a pound costs you, how many hours it takes, your profit per pound and per hour, the price per pound you need to earn a wage, and what a poor honey year and winter hive losses do to it. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>CDN Bandwidth Pricing Calculator — CloudFront vs Google Cloud vs Fastly vs Bunny vs KeyCDN</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cdn-bandwidth-pricing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/cdn-bandwidth-pricing-calculator</id>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Enter your monthly CDN bandwidth (GB delivered) and see what Amazon CloudFront, Google Cloud CDN, Fastly, Bunny CDN and KeyCDN charge, the 12-month spend under your growth rate, and the volume where the cheapest provider changes. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>CI Minutes Pricing Calculator — GitHub Actions vs CircleCI vs GitLab vs Bitbucket vs Buildkite</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ci-minutes-pricing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/ci-minutes-pricing-calculator</id>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Enter your monthly build-minute volume and see what GitHub Actions, CircleCI, GitLab, Bitbucket Pipelines and Buildkite charge, the 12-month spend under your growth rate, and the volume where the cheapest provider changes. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>CI Test Shard Balancer: Split Tests Evenly From JUnit XML</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ci-test-shard-balancer/"/>
-    <id>tag:marisstella.dev,2026:tool/ci-test-shard-balancer</id>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste JUnit XML from pytest, Jest, Go, Maven/Gradle or RSpec and get an even split into N CI shards, the slowest-shard time, billed-minute savings, the best shard count, and ready-to-paste shard commands. Free, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Cloudflare Bill Estimator — Estimate Your Monthly Postgres Bill and the Levers That Cut It</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cloudflare-bill-estimator/"/>
-    <id>tag:marisstella.dev,2026:tool/cloudflare-bill-estimator</id>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Estimate a monthly Cloudflare developer-platform bill from your own usage (Workers requests and CPU time, KV reads and writes, R2 storage and operations) at editable list prices, and see which changes cut it most, with a dollar saving for each. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
