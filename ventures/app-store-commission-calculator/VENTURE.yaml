@@ -1,0 +1,47 @@
+name: app-store-commission-calculator
+description: 'Free, zero-network, zero-dependency browser tool + CLI that compares what Apple''s 30% and 15% tiers, Google Play''s 15% and 30% tiers, and web checkout via Stripe, Stripe + Stripe Tax and Paddle take from a mobile app developer''s monthly revenue (percentage, fixed per-sale fee, international surcharge, and the developer''s own sales-tax/VAT filing cost where they are the seller), shows net payout and 12-month totals under growth, and finds the monthly revenue where the cheapest option changes; has a --max-fee-pct CI gate. A deterministic calculator over the user''s inputs, not a quote and not tax advice.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype aimed at indie iOS and Android developers. Sibling of
+# app-store-sales-report-analyzer and google-play-earnings-report-analyzer, which
+# read a developer's own reports after the fact; nothing prices the store cut
+# against web checkout (Stripe, Paddle) at the developer's own revenue, average
+# price and international share before the decision is made.
+#
+# Where the first real visitor would come from: search phrases "app store 30%
+# vs stripe", "apple small business program 15% calculator", "web checkout vs in
+# app purchase fees", "google play fee calculator"; indie-hacker and r/iOSProgramming
+# threads whenever store link-out rules change. The wedge is that the answer flips
+# with revenue and price because filing cost is fixed and store fees are a
+# percentage. A hosted fee-rule change monitor is the natural paid path later.
+hypotheses:
+  - claim: An indie app developer weighing web checkout will search for an App Store vs Stripe fee comparison, enter revenue, average price and international share, and use the crossover table to decide.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A developer already on the 15% store tier will rerun the tool as revenue grows to see when moving purchases to the web pays for the engineering and tax-filing work.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool calculates only from typed numbers in
+  # the visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository or write-up links to or forks cli.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/app-store-commission-calculator/
+  analytics: null
