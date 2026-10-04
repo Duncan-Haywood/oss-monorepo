@@ -2234,6 +2234,9 @@ workflows:
 - workflow: hubspot-contacts-csv-check-ci.yml
   classification: none
   publishes: []
+- workflow: pipedrive-import-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: wage-garnishment-limit-calculator-ci.yml
   classification: none
   publishes: []

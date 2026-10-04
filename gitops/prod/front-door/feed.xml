@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 714 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 715 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -136,6 +136,14 @@
     <summary type="text">Free ACH file checker for payroll and vendor-payment files: finds bad record lengths, routing-number check digits, wrong entry hash and control totals, missing block padding and weekend effective dates, and rebuilds the control records. Runs in your browser; the file is never uploaded.</summary>
   </entry>
   <entry>
+    <title>Pipedrive Import CSV Check — Find Deal and Contact Errors Before You Upload</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pipedrive-import-csv-check/"/>
+    <id>tag:marisstella.dev,2026:tool/pipedrive-import-csv-check</id>
+    <updated>2026-10-04T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free Pipedrive deals, people and organizations CSV checker: finds deals with a bad status, value or currency, missing names and titles, invalid and duplicate emails, Excel-damaged phone numbers, date format problems and probabilities written as fractions, with line numbers, and applies formatting-only safe fixes. Runs in your browser; the file is never uploaded.</summary>
+  </entry>
+  <entry>
     <title>QuickBooks Chart of Accounts CSV Check — Find Errors Before You Import</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/quickbooks-chart-of-accounts-csv-check/"/>
     <id>tag:marisstella.dev,2026:tool/quickbooks-chart-of-accounts-csv-check</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free Salesforce lead import CSV checker: finds rows with no LastName or Company, invalid or duplicate emails, status, rating and salutation values the default picklists do not have, revenue and employee counts that are not numbers, over-long fields, Excel-damaged phones and IDs, and mixed date orders, with line numbers, and applies safe fixes. Runs in your browser; the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Search API Pricing Calculator — Algolia vs Meilisearch vs Typesense vs Elastic vs Self-Hosted</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/search-api-pricing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/search-api-pricing-calculator</id>
-    <updated>2026-10-04T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Enter your record count and monthly searches and see what Algolia, Meilisearch Cloud, Typesense Cloud, Elastic Cloud and a self-hosted box cost, the 12-month spend under your growth rate, and the query volume where the cheapest option changes. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
