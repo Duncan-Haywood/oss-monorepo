@@ -11,6 +11,9 @@ workflows:
 - workflow: 1099-k-threshold-checker-ci.yml
   classification: none
   publishes: []
+- workflow: 1099-vendor-csv-checker-ci.yml
+  classification: none
+  publishes: []
 - workflow: 1099-vendor-tracker-ci.yml
   classification: none
   publishes: []
@@ -254,10 +257,10 @@ workflows:
 - workflow: bai2-statement-reader-ci.yml
   classification: none
   publishes: []
-- workflow: bank-csv-to-qbo-converter-ci.yml
+- workflow: bandcamp-sales-report-analyzer-ci.yml
   classification: none
   publishes: []
-- workflow: bandcamp-sales-report-analyzer-ci.yml
+- workflow: bank-csv-to-qbo-converter-ci.yml
   classification: none
   publishes: []
 - workflow: basement-finishing-bid-calculator-ci.yml
@@ -768,6 +771,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: estimated-tax-penalty-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: etsy-listing-csv-check-ci.yml
   classification: none
   publishes: []
 - workflow: etsy-profit-calculator-ci.yml
@@ -1589,10 +1595,10 @@ workflows:
 - workflow: quickbooks-chart-of-accounts-csv-check-ci.yml
   classification: none
   publishes: []
-- workflow: quote-follow-up-timing-ci.yml
+- workflow: quickbooks-import-csv-check-ci.yml
   classification: none
   publishes: []
-- workflow: quickbooks-import-csv-check-ci.yml
+- workflow: quote-follow-up-timing-ci.yml
   classification: none
   publishes: []
 - workflow: quote-margin-check-ci.yml
@@ -1848,6 +1854,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: shopify-a11y-evidence-ci.yml
+  classification: none
+  publishes: []
+- workflow: shopify-customer-csv-check-ci.yml
   classification: none
   publishes: []
 - workflow: shopify-discount-leakage-analyzer-ci.yml
@@ -2222,9 +2231,6 @@ workflows:
 - workflow: w2-efw2-file-validator-ci.yml
   classification: none
   publishes: []
-- workflow: 1099-vendor-csv-checker-ci.yml
-  classification: none
-  publishes: []
 - workflow: wage-garnishment-limit-calculator-ci.yml
   classification: none
   publishes: []
@@ -2283,6 +2289,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: window-tinting-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: wix-product-csv-check-ci.yml
   classification: none
   publishes: []
 - workflow: woocommerce-product-csv-check-ci.yml
