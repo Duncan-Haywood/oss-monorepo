@@ -1760,3 +1760,38 @@ entries:
       Liability: arithmetic on numbers the user types, labelled an estimator and not business, tax, legal,
       licensing or mechanical-code advice, no warranty, not affiliated with any trade body, manufacturer or
       vendor, nothing leaves the device. Ethics: free, no scraping, no invented testimonials or statistics.
+  - venture: era-835-underpayment-finder
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built era-835-underpayment-finder, a data-file archetype
+        for small medical, dental and therapy practices: a browser-local tool
+        that parses an X12 835 remittance (separators from the ISA header, one or
+        many payments, BPR/TRN/N1/CLP/CAS/SVC/AMT/DTM/PLB) and finds service lines
+        paid below the practice's own contract fee schedule (code and modifier
+        times units, tolerance adjustable, only lines with no adjustment beyond
+        CO-45, patient responsibility or sequestration are tested), or, with no
+        schedule, below the same payer's usual per-unit amount. Also lists denials
+        with plain-language reasons and a usual next step, provider-level takebacks
+        outside any claim, payer totals, and balance checks on claim, line and
+        deposit. Appeal worksheet CSV is spreadsheet-formula-safe. Patient names
+        are never read into memory; file never leaves the browser (a test asserts
+        no network calls); PHI and independent-of-payer clauses on the page. Ran
+        the page in Chromium: example and file-upload paths work with zero external
+        requests. New gap: duplicate_check closest match 0.14, below the 0.45 line;
+        the nearest tool, dental-ppo-writeoff-calculator, reconciles typed totals
+        and never reads the 835. First visitor expected from "835 era underpayment"
+        and "how to read an 835" searches and billing-community threads; none
+        measured. Segment positions, the PLB sign convention and reason-code text
+        are from memory and no real remittance was available, stated on the page,
+        README and VENTURE.yaml. Registered score row, launch date, CI workflow and
+        category rule.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own file and rates, model and omissions
+      stated, no billing, legal or compliance advice, no warranty, PHI note. Ethics:
+      free, nothing leaves the device, no scraping.

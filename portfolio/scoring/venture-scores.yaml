@@ -27130,3 +27130,42 @@ ventures:
       Liability: output is arithmetic on the operator's own inputs, asserts no
       rate, cap or rule, and tells the user to check local tow rate regulation;
       no warranty. Ethics: free, no scraping, nothing leaves the device.
+  - slug: era-835-underpayment-finder
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on segments of the user's own remittance file and the contract
+      rates they type.
+    basis: >-
+      Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Small practices receive
+      835 remittances that their practice-management system posts and writes off
+      without comparing any line to the signed fee schedule; the existing answers
+      are enterprise revenue-cycle platforms, some on contingency, and
+      spreadsheets. Distribution 6: "835 era underpayment", "how to read an 835
+      file" and billing-community threads are recurring queries; volume not
+      measured with an external tool. Defensibility 4: the parser, the
+      clean-line rule and the balance checks are real work a spreadsheet does not
+      replicate, and the local-only stance is the differentiator against vendors
+      that want the file on their servers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own file and rates with model and
+      omissions stated; no billing, legal or compliance advice, no warranty,
+      independent-of-payer clause and an explicit PHI note. The file never leaves
+      the browser (a test asserts no network calls) and no patient name or member
+      ID is kept by the parser, so the portfolio holds no practice or patient
+      data. Ethics: helps a practice collect what its contract already says it is
+      owed; purely informational.

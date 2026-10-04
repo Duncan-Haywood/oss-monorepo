@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 682 free, browser-only tools served directly from marisstella.dev — the newest 30 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 683 free, browser-only tools served directly from marisstella.dev — the newest 30 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Enter the vehicle price, class and business-use percentage and see the first-year deduction and tax saved under regular MACRS, 100% bonus depreciation and Section 179, with the car luxury-auto caps and the 6,000 lb SUV cap applied, plus standard mileage. Free, runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>835 ERA Underpayment Finder — Check Payer Payments Against Your Contract</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/era-835-underpayment-finder/"/>
+    <id>tag:marisstella.dev,2026:tool/era-835-underpayment-finder</id>
+    <published>2026-10-04T00:00:00Z</published>
+    <updated>2026-10-04T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free tool for medical and dental practices: drop in an X12 835 remittance file and see which service lines paid below your contract rates, which claims were denied and why, and what the payer took back. Runs in your browser; the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Search API Pricing Calculator — Algolia vs Meilisearch vs Typesense vs Elastic vs Self-Hosted</title>
@@ -267,14 +276,5 @@
     <updated>2026-10-03T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your git log and get estimated hours per day, a client-ready work summary in Markdown or CSV, and an invoice figure at your hourly rate. Free, private, runs in your browser; CLI included.</summary>
-  </entry>
-  <entry>
-    <title>Grant Indirect Cost Calculator — MTDC and the Indirect You Can Charge</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/grant-indirect-cost-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/grant-indirect-cost-calculator</id>
-    <published>2026-10-03T00:00:00Z</published>
-    <updated>2026-10-03T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free grant budget calculator: find your modified total direct costs (MTDC) with the $50,000 subaward and $10,000 equipment rules applied, the indirect cost you can charge at 15% de minimis or your negotiated rate, and how much direct budget fits under a funder&#39;s total award cap. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
