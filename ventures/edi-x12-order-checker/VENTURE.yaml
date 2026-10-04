@@ -1,0 +1,73 @@
+name: edi-x12-order-checker
+description: >-
+  Free browser tool that checks X12 EDI files before they go to a retailer: ISA/GS/ST control
+  numbers and SE/GE/IEA counts, 850 and 810 lines, UPC/EAN/GTIN and SSCC check digits, invoice
+  total against its lines, 856 ship-notice hierarchy, and plain-language translation of 997
+  rejections, each with its segment number. Reads the documents as tables, exports the lines as
+  CSV and rebuilds the segment counts after a hand edit. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session, after an almost identical BAI2 tool shipped
+# from a parallel session (bai2-statement-reader, #6310) while this session's own copy was being
+# built; this session dropped its copy rather than merge a duplicate and moved to a niche nobody
+# had touched. duplicate_check.py: top score 0.20 (einvoice-preflight), nothing near the 0.45 bar.
+#
+# Small manufacturers, distributors and food brands become suppliers to Walmart, Target, Home
+# Depot, grocery chains and Amazon Vendor, and are told to "do EDI". Their ERP or an EDI provider
+# produces 850/810/856 files; a hand edit, a spreadsheet export or a script change breaks them,
+# and the retailer answers with a 997 of error codes or a chargeback. Existing answers are paid
+# EDI networks and VANs (which charge per document), partner portals that validate only after
+# upload, and developer libraries. Nothing found is a free page that explains the fault, translates
+# the 997, and checks UPC and SSCC numbers.
+#
+# First visitor: people searching "997 error codes", "SE01 segment count mismatch", "EDI 856
+# SSCC check digit", "EDI 810 total does not match". Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: the file never leaves the browser (a test asserts no network
+# calls). Repair rewrites counts only, never an item, quantity, price or total.
+#
+# Path to revenue (payment rails stay off): lead magnet for the people who then need EDI mapping.
+# A paid version, if usage appears, is a per-partner rule pack (required segments, qualifier lists
+# for named retailers) and batch checking behind an env-var switch; not built.
+#
+# Liability: arithmetic and layout checks on the user's own file, model and omissions stated,
+# no trade/compliance advice, no warranty, independent-of-retailers clause, business-data note,
+# chargeback exposure disclaimed.
+#
+# Unverified: segment layouts, 997 code lists, GS1 check digit handling and the TDS cents
+# convention are from memory of the public format; no retailer guide or real file was available.
+# The first user report of a file this tool passes and a partner rejects, or the reverse, is the
+# priority fix.
+
+hypotheses:
+  - claim: >-
+      A supplier whose retailer rejected an EDI file will paste it into a no-login page, because
+      the alternative is a 997 of codes and a support ticket to their EDI provider.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the exact segment and cause, and getting a corrected file, leads the same person to
+      check the next file before sending, which is the reason to return.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted file structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a retailer rejecting a file this tool passed, or this tool failing a file a retailer accepted, at which point the rules need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/edi-x12-order-checker/
+  analytics: null
