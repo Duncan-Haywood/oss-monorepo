@@ -1369,6 +1369,8 @@ const CATEGORY_RULES = [
       || slug === 'quickbooks-import-csv-check'
       // `quickbooks-chart-of-accounts-csv-check` joined 2026-10-04 on its first commit: the chart-of-accounts half of the QuickBooks list checker next to it.
       || slug === 'quickbooks-chart-of-accounts-csv-check'
+      // `xero-contacts-csv-check` joined 2026-10-04 on its first commit: the contacts half of the Xero import checker next to it.
+      || slug === 'xero-contacts-csv-check'
       // `email-list-csv-check` joined 2026-10-04 on its first commit: a contact list checked before it is imported into an email
       // platform, the same CSV-preflight job as the Xero and bank converters next to it.
       || slug === 'email-list-csv-check'
