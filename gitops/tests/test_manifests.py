@@ -2934,7 +2934,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `ci-test-shard-balancer` graduated (browser + CLI balanced CI test sharding from JUnit XML timings, with shard-count sweep and Actions matrix).
     # +1: `webhook-signature-debugger` graduated (browser + CLI webhook HMAC signature verification and mismatch diagnosis).
     # +1: `hvac-repair-tier-price-calculator` graduated (browser HVAC Good/Better/Best repair pricing, diagnostic fee and average-call model).
-    total = 675  # `infra/OWNER_CHECKLIST.md`'s own "N of the 675 tools" wording.
+    total = 676  # `infra/OWNER_CHECKLIST.md`'s own "N of the 676 tools" wording.
     # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).

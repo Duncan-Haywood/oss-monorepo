@@ -1253,7 +1253,8 @@ const RELATIVE_SELF = relative(
 // +1: `merchant-of-record-fee-calculator` graduated.
 // +1: `app-store-commission-calculator` graduated.
 // +1: `llm-output-regression-diff` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 654;
+// +1: `object-storage-pricing-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 655;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
