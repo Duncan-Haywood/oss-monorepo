@@ -1343,6 +1343,9 @@ const CATEGORY_RULES = [
       // `sepa-pain001-validator` joined 2026-10-04 on its first commit: the euro-area twin of `nacha-file-validator` -- the SEPA payment
       // file a bookkeeper exports from accounting or payroll, checked before the bank sees it.
       || slug === 'sepa-pain001-validator'
+      // `sepa-pain002-status-reader` joined 2026-10-04 on its first commit: the receiving end of `sepa-pain001-validator` -- the bank's
+      // status report on an uploaded SEPA file, read per payment with each rejection code explained.
+      || slug === 'sepa-pain002-status-reader'
       // `edi-x12-order-checker` joined 2026-10-04 on its first commit: a supplier's EDI purchase order, invoice and ship
       // notice checked before they go to a retailer -- the same back-office document-preflight job as the payment-file checkers.
       || slug === 'edi-x12-order-checker'
