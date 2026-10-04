@@ -1264,7 +1264,8 @@ const RELATIVE_SELF = relative(
 // +1: `nacha-file-validator` graduated.
 // +1: `sepa-payment-file-validator` graduated.
 // +1: `cobra-vs-marketplace-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 665;
+// +1: `bai2-statement-reader` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 666;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
