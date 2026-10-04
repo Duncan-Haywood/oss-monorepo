@@ -1286,7 +1286,8 @@ const RELATIVE_SELF = relative(
 // +1: `zoho-crm-import-csv-check` graduated.
 // +1: `shopify-customer-csv-check` graduated.
 // +1: `teachers-pay-teachers-earnings-analyzer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 695;
+// +1: `amazon-inventory-loader-check` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 696;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
