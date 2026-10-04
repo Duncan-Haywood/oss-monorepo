@@ -33,37 +33,37 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547269 bytes
-#   portfolio-front-tools-1: 92 files, 555147 bytes
-#   portfolio-front-tools-2: 144 files, 553159 bytes
-#   portfolio-front-tools-3: 132 files, 556803 bytes
-#   portfolio-front-tools-4: 137 files, 556793 bytes
+#   portfolio-front-tools-0: 145 files, 547276 bytes
+#   portfolio-front-tools-1: 92 files, 555145 bytes
+#   portfolio-front-tools-2: 144 files, 553163 bytes
+#   portfolio-front-tools-3: 132 files, 556802 bytes
+#   portfolio-front-tools-4: 137 files, 556820 bytes
 #   portfolio-front-tools-5: 129 files, 553374 bytes
-#   portfolio-front-tools-6: 123 files, 549935 bytes
-#   portfolio-front-tools-7: 135 files, 556224 bytes
-#   portfolio-front-tools-8: 134 files, 555897 bytes
-#   portfolio-front-tools-9: 125 files, 540811 bytes
-#   portfolio-front-tools-10: 125 files, 551218 bytes
-#   portfolio-front-tools-11: 129 files, 555555 bytes
-#   portfolio-front-tools-12: 143 files, 549409 bytes
-#   portfolio-front-tools-13: 123 files, 556285 bytes
-#   portfolio-front-tools-14: 128 files, 552838 bytes
-#   portfolio-front-tools-15: 118 files, 554477 bytes
-#   portfolio-front-tools-16: 118 files, 552158 bytes
-#   portfolio-front-tools-17: 121 files, 553636 bytes
-#   portfolio-front-tools-18: 129 files, 552245 bytes
-#   portfolio-front-tools-19: 134 files, 556378 bytes
-#   portfolio-front-tools-20: 125 files, 551962 bytes
-#   portfolio-front-tools-21: 127 files, 556077 bytes
-#   portfolio-front-tools-22: 133 files, 555516 bytes
-#   portfolio-front-tools-23: 127 files, 553738 bytes
-#   portfolio-front-tools-24: 111 files, 549767 bytes
-#   portfolio-front-tools-25: 105 files, 553287 bytes
+#   portfolio-front-tools-6: 123 files, 549960 bytes
+#   portfolio-front-tools-7: 135 files, 556217 bytes
+#   portfolio-front-tools-8: 134 files, 555933 bytes
+#   portfolio-front-tools-9: 125 files, 540838 bytes
+#   portfolio-front-tools-10: 125 files, 551199 bytes
+#   portfolio-front-tools-11: 129 files, 555507 bytes
+#   portfolio-front-tools-12: 143 files, 549399 bytes
+#   portfolio-front-tools-13: 124 files, 554476 bytes
+#   portfolio-front-tools-14: 130 files, 554874 bytes
+#   portfolio-front-tools-15: 118 files, 556948 bytes
+#   portfolio-front-tools-16: 119 files, 556207 bytes
+#   portfolio-front-tools-17: 120 files, 554818 bytes
+#   portfolio-front-tools-18: 130 files, 552697 bytes
+#   portfolio-front-tools-19: 133 files, 552893 bytes
+#   portfolio-front-tools-20: 125 files, 556079 bytes
+#   portfolio-front-tools-21: 127 files, 556704 bytes
+#   portfolio-front-tools-22: 133 files, 549349 bytes
+#   portfolio-front-tools-23: 125 files, 554242 bytes
+#   portfolio-front-tools-24: 114 files, 556137 bytes
+#   portfolio-front-tools-25: 106 files, 556967 bytes
 #   portfolio-front-tools-26: 117 files, 554993 bytes
-#   portfolio-front-tools-27: 128 files, 551927 bytes
-#   portfolio-front-tools-28: 124 files, 550446 bytes
-#   portfolio-front-tools-29: 123 files, 548992 bytes
-#   portfolio-front-tools-30: 95 files, 474771 bytes
+#   portfolio-front-tools-27: 128 files, 552023 bytes
+#   portfolio-front-tools-28: 124 files, 550571 bytes
+#   portfolio-front-tools-29: 123 files, 548949 bytes
+#   portfolio-front-tools-30: 95 files, 474791 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1879,6 +1879,11 @@ configMapGenerator:
       - fba-reimbursement-claim-finder__calc.mjs.gz=fba-reimbursement-claim-finder__calc.mjs.gz
       - fba-reimbursement-claim-finder__index.html.gz=fba-reimbursement-claim-finder__index.html.gz
       - fba-reimbursement-claim-finder__usage.mjs.gz=fba-reimbursement-claim-finder__usage.mjs.gz
+      - feature-flag-pricing-calculator__cli.mjs.gz=feature-flag-pricing-calculator__cli.mjs.gz
+      - feature-flag-pricing-calculator__engine.mjs.gz=feature-flag-pricing-calculator__engine.mjs.gz
+      - feature-flag-pricing-calculator__how-to-choose-a-feature-flag-service-by-requests.html.gz=feature-flag-pricing-calculator__how-to-choose-a-feature-flag-service-by-requests.html.gz
+      - feature-flag-pricing-calculator__index.html.gz=feature-flag-pricing-calculator__index.html.gz
+      - feature-flag-pricing-calculator__usage.mjs.gz=feature-flag-pricing-calculator__usage.mjs.gz
       - feie-physical-presence-calculator__engine.mjs.gz=feie-physical-presence-calculator__engine.mjs.gz
       - feie-physical-presence-calculator__index.html.gz=feie-physical-presence-calculator__index.html.gz
       - feie-physical-presence-calculator__physical-presence-test-330-days-how-to-count.html.gz=feie-physical-presence-calculator__physical-presence-test-330-days-how-to-count.html.gz
@@ -1963,15 +1968,15 @@ configMapGenerator:
       - foundation-repair-bid-calculator__index.html.gz=foundation-repair-bid-calculator__index.html.gz
       - foundation-repair-bid-calculator__share.mjs.gz=foundation-repair-bid-calculator__share.mjs.gz
       - foundation-repair-bid-calculator__usage.mjs.gz=foundation-repair-bid-calculator__usage.mjs.gz
-      - foundation-repair-bid-calculator__vs-a-flat-price-per-pier.html.gz=foundation-repair-bid-calculator__vs-a-flat-price-per-pier.html.gz
-      - foundation-repair-bid-calculator__vs-jobber.html.gz=foundation-repair-bid-calculator__vs-jobber.html.gz
-      - free-shipping-threshold-optimizer__cli.mjs.gz=free-shipping-threshold-optimizer__cli.mjs.gz
-      - free-shipping-threshold-optimizer__engine.mjs.gz=free-shipping-threshold-optimizer__engine.mjs.gz
   - name: portfolio-front-tools-14
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - foundation-repair-bid-calculator__vs-a-flat-price-per-pier.html.gz=foundation-repair-bid-calculator__vs-a-flat-price-per-pier.html.gz
+      - foundation-repair-bid-calculator__vs-jobber.html.gz=foundation-repair-bid-calculator__vs-jobber.html.gz
+      - free-shipping-threshold-optimizer__cli.mjs.gz=free-shipping-threshold-optimizer__cli.mjs.gz
+      - free-shipping-threshold-optimizer__engine.mjs.gz=free-shipping-threshold-optimizer__engine.mjs.gz
       - free-shipping-threshold-optimizer__free-shipping-threshold-guide.html.gz=free-shipping-threshold-optimizer__free-shipping-threshold-guide.html.gz
       - free-shipping-threshold-optimizer__index.html.gz=free-shipping-threshold-optimizer__index.html.gz
       - free-shipping-threshold-optimizer__usage.mjs.gz=free-shipping-threshold-optimizer__usage.mjs.gz
@@ -2098,13 +2103,13 @@ configMapGenerator:
       - gravel-driveway-bid-calculator__index.html.gz=gravel-driveway-bid-calculator__index.html.gz
       - gravel-driveway-bid-calculator__usage.mjs.gz=gravel-driveway-bid-calculator__usage.mjs.gz
       - gravel-driveway-bid-calculator__vs-a-flat-4-per-square-foot-special.html.gz=gravel-driveway-bid-calculator__vs-a-flat-4-per-square-foot-special.html.gz
-      - gravel-driveway-bid-calculator__vs-jobber.html.gz=gravel-driveway-bid-calculator__vs-jobber.html.gz
-      - gumroad-sales-fee-analyzer__calc.mjs.gz=gumroad-sales-fee-analyzer__calc.mjs.gz
   - name: portfolio-front-tools-15
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - gravel-driveway-bid-calculator__vs-jobber.html.gz=gravel-driveway-bid-calculator__vs-jobber.html.gz
+      - gumroad-sales-fee-analyzer__calc.mjs.gz=gumroad-sales-fee-analyzer__calc.mjs.gz
       - gumroad-sales-fee-analyzer__index.html.gz=gumroad-sales-fee-analyzer__index.html.gz
       - gumroad-sales-fee-analyzer__usage.mjs.gz=gumroad-sales-fee-analyzer__usage.mjs.gz
       - gutter-cleaning-bid-calculator__calc.mjs.gz=gutter-cleaning-bid-calculator__calc.mjs.gz
@@ -2221,13 +2226,13 @@ configMapGenerator:
       - hreflang-reciprocity-check__check.mjs.gz=hreflang-reciprocity-check__check.mjs.gz
       - hreflang-reciprocity-check__engine.mjs.gz=hreflang-reciprocity-check__engine.mjs.gz
       - hreflang-reciprocity-check__fetch-page.mjs.gz=hreflang-reciprocity-check__fetch-page.mjs.gz
-      - hreflang-reciprocity-check__index.html.gz=hreflang-reciprocity-check__index.html.gz
-      - hreflang-reciprocity-check__usage.mjs.gz=hreflang-reciprocity-check__usage.mjs.gz
   - name: portfolio-front-tools-16
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - hreflang-reciprocity-check__index.html.gz=hreflang-reciprocity-check__index.html.gz
+      - hreflang-reciprocity-check__usage.mjs.gz=hreflang-reciprocity-check__usage.mjs.gz
       - hreflang-reciprocity-check__vs-checking-hreflang-tags-by-hand.html.gz=hreflang-reciprocity-check__vs-checking-hreflang-tags-by-hand.html.gz
       - hreflang-reciprocity-check__vs-merkle-hreflang-tool.html.gz=hreflang-reciprocity-check__vs-merkle-hreflang-tool.html.gz
       - hreflang-reciprocity-check__why-hreflang-must-be-reciprocal.html.gz=hreflang-reciprocity-check__why-hreflang-must-be-reciprocal.html.gz
@@ -2345,12 +2350,12 @@ configMapGenerator:
       - junk-removal-bid-calculator__vs-housecall-pro.html.gz=junk-removal-bid-calculator__vs-housecall-pro.html.gz
       - junk-removal-bid-calculator__vs-jobber.html.gz=junk-removal-bid-calculator__vs-jobber.html.gz
       - junk-removal-bid-calculator__vs-workiz.html.gz=junk-removal-bid-calculator__vs-workiz.html.gz
-      - jwt-verification-misuse-check__check.py.gz=jwt-verification-misuse-check__check.py.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - jwt-verification-misuse-check__check.py.gz=jwt-verification-misuse-check__check.py.gz
       - jwt-verification-misuse-check__classify.mjs.gz=jwt-verification-misuse-check__classify.mjs.gz
       - jwt-verification-misuse-check__index.html.gz=jwt-verification-misuse-check__index.html.gz
       - jwt-verification-misuse-check__usage.mjs.gz=jwt-verification-misuse-check__usage.mjs.gz
@@ -2470,13 +2475,13 @@ configMapGenerator:
       - llm-api-pricing-calculator__index.html.gz=llm-api-pricing-calculator__index.html.gz
       - llm-api-pricing-calculator__usage.mjs.gz=llm-api-pricing-calculator__usage.mjs.gz
       - llm-api-pricing-calculator__vs-a-blended-per-token-rate.html.gz=llm-api-pricing-calculator__vs-a-blended-per-token-rate.html.gz
-      - llm-api-pricing-calculator__why-prompt-caching-changes-the-math.html.gz=llm-api-pricing-calculator__why-prompt-caching-changes-the-math.html.gz
-      - llm-call-cost-scan__cli.mjs.gz=llm-call-cost-scan__cli.mjs.gz
   - name: portfolio-front-tools-18
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - llm-api-pricing-calculator__why-prompt-caching-changes-the-math.html.gz=llm-api-pricing-calculator__why-prompt-caching-changes-the-math.html.gz
+      - llm-call-cost-scan__cli.mjs.gz=llm-call-cost-scan__cli.mjs.gz
       - llm-call-cost-scan__engine.mjs.gz=llm-call-cost-scan__engine.mjs.gz
       - llm-call-cost-scan__index.html.gz=llm-call-cost-scan__index.html.gz
       - llm-call-cost-scan__usage.mjs.gz=llm-call-cost-scan__usage.mjs.gz
@@ -2605,12 +2610,12 @@ configMapGenerator:
       - mileage-deduction-method-calculator__calc.mjs.gz=mileage-deduction-method-calculator__calc.mjs.gz
       - mileage-deduction-method-calculator__index.html.gz=mileage-deduction-method-calculator__index.html.gz
       - mileage-deduction-method-calculator__usage.mjs.gz=mileage-deduction-method-calculator__usage.mjs.gz
-      - mileage-log__calc.mjs.gz=mileage-log__calc.mjs.gz
   - name: portfolio-front-tools-19
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - mileage-log__calc.mjs.gz=mileage-log__calc.mjs.gz
       - mileage-log__index.html.gz=mileage-log__index.html.gz
       - mileage-log__usage.mjs.gz=mileage-log__usage.mjs.gz
       - mini-split-bid-calculator__calc.mjs.gz=mini-split-bid-calculator__calc.mjs.gz
@@ -2743,13 +2748,13 @@ configMapGenerator:
       - openapi-breaking-change-check__openapi_diff.py.gz=openapi-breaking-change-check__openapi_diff.py.gz
       - openapi-breaking-change-check__usage.mjs.gz=openapi-breaking-change-check__usage.mjs.gz
       - openapi-breaking-change-check__vs-manually-reading-the-spec-diff.html.gz=openapi-breaking-change-check__vs-manually-reading-the-spec-diff.html.gz
-      - openapi-breaking-change-check__vs-oasdiff.html.gz=openapi-breaking-change-check__vs-oasdiff.html.gz
-      - openapi-breaking-change-check__why-does-adding-an-enum-count-as-breaking.html.gz=openapi-breaking-change-check__why-does-adding-an-enum-count-as-breaking.html.gz
   - name: portfolio-front-tools-20
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - openapi-breaking-change-check__vs-oasdiff.html.gz=openapi-breaking-change-check__vs-oasdiff.html.gz
+      - openapi-breaking-change-check__why-does-adding-an-enum-count-as-breaking.html.gz=openapi-breaking-change-check__why-does-adding-an-enum-count-as-breaking.html.gz
       - osha-trir-dart-calculator__calc.mjs.gz=osha-trir-dart-calculator__calc.mjs.gz
       - osha-trir-dart-calculator__how-to-calculate-trir.html.gz=osha-trir-dart-calculator__how-to-calculate-trir.html.gz
       - osha-trir-dart-calculator__index.html.gz=osha-trir-dart-calculator__index.html.gz
@@ -2873,13 +2878,13 @@ configMapGenerator:
       - physician-wrvu-contract-calculator__index.html.gz=physician-wrvu-contract-calculator__index.html.gz
       - physician-wrvu-contract-calculator__usage.mjs.gz=physician-wrvu-contract-calculator__usage.mjs.gz
       - pinned-actions-check__check.py.gz=pinned-actions-check__check.py.gz
-      - pinned-actions-check__classify.mjs.gz=pinned-actions-check__classify.mjs.gz
-      - pinned-actions-check__how-to-pin-a-github-action-to-a-commit-sha.html.gz=pinned-actions-check__how-to-pin-a-github-action-to-a-commit-sha.html.gz
   - name: portfolio-front-tools-21
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - pinned-actions-check__classify.mjs.gz=pinned-actions-check__classify.mjs.gz
+      - pinned-actions-check__how-to-pin-a-github-action-to-a-commit-sha.html.gz=pinned-actions-check__how-to-pin-a-github-action-to-a-commit-sha.html.gz
       - pinned-actions-check__index.html.gz=pinned-actions-check__index.html.gz
       - pinned-actions-check__usage.mjs.gz=pinned-actions-check__usage.mjs.gz
       - pinned-actions-check__vs-openssf-scorecard.html.gz=pinned-actions-check__vs-openssf-scorecard.html.gz
@@ -3005,13 +3010,13 @@ configMapGenerator:
       - product-analytics-pricing-calculator__usage.mjs.gz=product-analytics-pricing-calculator__usage.mjs.gz
       - production-mix-optimizer__calc.mjs.gz=production-mix-optimizer__calc.mjs.gz
       - production-mix-optimizer__index.html.gz=production-mix-optimizer__index.html.gz
-      - production-mix-optimizer__usage.mjs.gz=production-mix-optimizer__usage.mjs.gz
-      - production-mix-optimizer__why-your-best-margin-product-may-not-be-your-best-product.html.gz=production-mix-optimizer__why-your-best-margin-product-may-not-be-your-best-product.html.gz
   - name: portfolio-front-tools-22
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - production-mix-optimizer__usage.mjs.gz=production-mix-optimizer__usage.mjs.gz
+      - production-mix-optimizer__why-your-best-margin-product-may-not-be-your-best-product.html.gz=production-mix-optimizer__why-your-best-margin-product-may-not-be-your-best-product.html.gz
       - project-estimate-calibrator__calc.mjs.gz=project-estimate-calibrator__calc.mjs.gz
       - project-estimate-calibrator__index.html.gz=project-estimate-calibrator__index.html.gz
       - project-estimate-calibrator__usage.mjs.gz=project-estimate-calibrator__usage.mjs.gz
@@ -3143,13 +3148,13 @@ configMapGenerator:
       - rental-fleet-size-optimizer__index.html.gz=rental-fleet-size-optimizer__index.html.gz
       - rental-fleet-size-optimizer__usage.mjs.gz=rental-fleet-size-optimizer__usage.mjs.gz
       - rental-property-schedule-e-categorizer__calc.mjs.gz=rental-property-schedule-e-categorizer__calc.mjs.gz
-      - rental-property-schedule-e-categorizer__index.html.gz=rental-property-schedule-e-categorizer__index.html.gz
-      - rental-property-schedule-e-categorizer__usage.mjs.gz=rental-property-schedule-e-categorizer__usage.mjs.gz
   - name: portfolio-front-tools-23
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - rental-property-schedule-e-categorizer__index.html.gz=rental-property-schedule-e-categorizer__index.html.gz
+      - rental-property-schedule-e-categorizer__usage.mjs.gz=rental-property-schedule-e-categorizer__usage.mjs.gz
       - rental-rent-optimizer__calc.mjs.gz=rental-rent-optimizer__calc.mjs.gz
       - rental-rent-optimizer__index.html.gz=rental-rent-optimizer__index.html.gz
       - rental-rent-optimizer__usage.mjs.gz=rental-rent-optimizer__usage.mjs.gz
@@ -3273,15 +3278,15 @@ configMapGenerator:
       - sbom-diff-check__usage.mjs.gz=sbom-diff-check__usage.mjs.gz
       - sbom-diff-check__vs-cyclonedx-cli-diff.html.gz=sbom-diff-check__vs-cyclonedx-cli-diff.html.gz
       - sbom-diff-check__vs-diffing-the-raw-json-files.html.gz=sbom-diff-check__vs-diffing-the-raw-json-files.html.gz
-      - sbom-diff-check__why-did-one-version-bump-show-up-as-dozens-of-changes.html.gz=sbom-diff-check__why-did-one-version-bump-show-up-as-dozens-of-changes.html.gz
-      - scope-creep-change-order-calculator__cli.mjs.gz=scope-creep-change-order-calculator__cli.mjs.gz
-      - scope-creep-change-order-calculator__engine.mjs.gz=scope-creep-change-order-calculator__engine.mjs.gz
-      - scope-creep-change-order-calculator__how-to-price-a-change-order.html.gz=scope-creep-change-order-calculator__how-to-price-a-change-order.html.gz
   - name: portfolio-front-tools-24
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sbom-diff-check__why-did-one-version-bump-show-up-as-dozens-of-changes.html.gz=sbom-diff-check__why-did-one-version-bump-show-up-as-dozens-of-changes.html.gz
+      - scope-creep-change-order-calculator__cli.mjs.gz=scope-creep-change-order-calculator__cli.mjs.gz
+      - scope-creep-change-order-calculator__engine.mjs.gz=scope-creep-change-order-calculator__engine.mjs.gz
+      - scope-creep-change-order-calculator__how-to-price-a-change-order.html.gz=scope-creep-change-order-calculator__how-to-price-a-change-order.html.gz
       - scope-creep-change-order-calculator__index.html.gz=scope-creep-change-order-calculator__index.html.gz
       - scope-creep-change-order-calculator__usage.mjs.gz=scope-creep-change-order-calculator__usage.mjs.gz
       - screened-porch-bid-calculator__calc.mjs.gz=screened-porch-bid-calculator__calc.mjs.gz
@@ -3392,12 +3397,12 @@ configMapGenerator:
       - shift-roster-builder__index.html.gz=shift-roster-builder__index.html.gz
       - shift-roster-builder__usage.mjs.gz=shift-roster-builder__usage.mjs.gz
       - shipping-box-size-optimizer__calc.mjs.gz=shipping-box-size-optimizer__calc.mjs.gz
-      - shipping-box-size-optimizer__how-many-box-sizes-to-stock.html.gz=shipping-box-size-optimizer__how-many-box-sizes-to-stock.html.gz
   - name: portfolio-front-tools-25
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shipping-box-size-optimizer__how-many-box-sizes-to-stock.html.gz=shipping-box-size-optimizer__how-many-box-sizes-to-stock.html.gz
       - shipping-box-size-optimizer__index.html.gz=shipping-box-size-optimizer__index.html.gz
       - shipping-box-size-optimizer__usage.mjs.gz=shipping-box-size-optimizer__usage.mjs.gz
       - shop-rate-calculator__calc.mjs.gz=shop-rate-calculator__calc.mjs.gz
