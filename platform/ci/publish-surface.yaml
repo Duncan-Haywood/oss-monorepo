@@ -671,6 +671,9 @@ workflows:
 - workflow: economic-nexus-threshold-tracker-ci.yml
   classification: none
   publishes: []
+- workflow: edi-x12-order-checker-ci.yml
+  classification: none
+  publishes: []
 - workflow: egress-window-bid-calculator-ci.yml
   classification: none
   publishes: []
