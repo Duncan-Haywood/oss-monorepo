@@ -27204,3 +27204,40 @@ ventures:
       asserts no network calls), account numbers are masked in output, and the
       repair step never edits an entry so it cannot redirect a payment. Ethics:
       free, informational, nothing leaves the device.
+  - slug: sepa-pain001-validator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every finding is deterministic
+      arithmetic, calendar and layout checks on the user's own SEPA file.
+    basis: >-
+      Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Bookkeepers, club
+      treasurers and ERP integrators in the euro area export pain.001 or pain.008
+      files and learn about a fault from a terse bank rejection; existing answers
+      are post-upload bank checks, XSD validators that do not check totals, IBANs
+      or dates, developer libraries and paid desktop utilities. Distribution 6:
+      "pain.001 error", "SEPA XML control sum" and "SEPA XML validator" are
+      recurring queries; volume not measured with an external tool. Defensibility
+      3: the rule set is public and re-implementable, the edge is the line-level
+      explanations, the exact-decimal control totals, the repair step and the
+      local-only stance.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own file with model and omissions stated;
+      no banking or compliance advice, no warranty, independent-of-the-EPC-and-banks
+      clause and a payment-data note. The file never leaves the browser (a test
+      asserts no network calls), IBANs are masked in output, and the repair step
+      never edits an IBAN or amount so it cannot redirect or resize a payment.
+      Ethics: free, informational, nothing leaves the device.

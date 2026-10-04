@@ -1263,7 +1263,8 @@ const RELATIVE_SELF = relative(
 // +1: `era-835-underpayment-finder` graduated.
 // +1: `nacha-file-validator` graduated.
 // +1: `cobra-vs-marketplace-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 664;
+// +1: `sepa-pain001-validator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 665;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
