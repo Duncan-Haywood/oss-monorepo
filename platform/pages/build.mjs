@@ -1364,6 +1364,9 @@ const CATEGORY_RULES = [
       // `xero-invoice-csv-check` joined 2026-10-04 on its first commit: a bookkeeper's sales invoice import file checked before Xero
       // sees it, the same CSV-preflight job as the bank converter next to it.
       || slug === 'xero-invoice-csv-check'
+      // `quickbooks-import-csv-check` joined 2026-10-04 on its first commit: a bookkeeper's QuickBooks customer, vendor or item import
+      // file checked before QuickBooks sees it, the same CSV-preflight job as the Xero and bank converters next to it.
+      || slug === 'quickbooks-import-csv-check'
       // `email-list-csv-check` joined 2026-10-04 on its first commit: a contact list checked before it is imported into an email
       // platform, the same CSV-preflight job as the Xero and bank converters next to it.
       || slug === 'email-list-csv-check'
