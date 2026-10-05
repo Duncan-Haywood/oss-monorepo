@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 754 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 755 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -160,11 +160,11 @@
     <summary type="text">Free PayPal activity report to journal converter: proves the Balance column is continuous, splits sales, fees, refunds, disputes and bank transfers by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
-    <title>QIF File Checker — Fix Wrong Dates and Import Errors</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/qif-file-check/"/>
-    <id>tag:marisstella.dev,2026:tool/qif-file-check</id>
+    <title>Payroll Register to Xero and QuickBooks Journal</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/payroll-register-to-journal/"/>
+    <id>tag:marisstella.dev,2026:tool/payroll-register-to-journal</id>
     <updated>2026-10-05T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free QIF checker: finds why a QIF file imports with the wrong month, twice, or not at all (no !Type header, missing ^, mixed date order, bad amounts, unbalanced splits), with line numbers, and writes a repaired file. Runs in your browser.</summary>
+    <summary type="text">Free payroll register to journal converter: checks every employee row, books wages and employer taxes as expenses and every withholding as a liability, totals the 941 deposit for each pay run, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
