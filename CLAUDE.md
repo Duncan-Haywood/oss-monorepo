@@ -691,7 +691,7 @@ published snapshot** (added 2026-09-05):
 python3 platform/ci/pages_state.py --require-current   # exits 1 if it is stale
 CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
 python3 platform/ci/pages_state.py --require-current   # and 0 once you have
-python3 platform/ci/pages_state.py --record            # then commit the row it rewrites
+python3 platform/ci/pages_state.py --record            # commit only on a branch that ships work (land-your-work.md, step 7)
 python3 platform/ci/indexnow_state.py                  # and: was any of it announced?
 ```
 
@@ -1515,7 +1515,9 @@ blocker instead, say so in your reply and leave `main` alone — an unshipped
 session is a real outcome and does not need a commit to be true. (If you
 committed *product* work before hitting it, that work still goes in a PR, with
 the blocker named there; "leave `main` alone" never means "leave the branch
-with no PR".) Never bundle a ledger entry into a PR waiting on the owner.
+with no PR".) A ledger-only commit you won't ship comes off your branch before
+you stop, or the harness pushes it as an orphan (`land-your-work.md`, "Not
+shipping something?"). Never bundle a ledger entry into a PR waiting on the owner.
 
 `git fetch origin main` before appending; skip if the latest entry already
 covers your finding. The ledger *tooling* (`.py` under `portfolio/ledger/`) is

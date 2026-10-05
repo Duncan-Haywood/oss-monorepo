@@ -61,6 +61,11 @@ or on `main`.
    branch sits outside a PR or `main`.
 7. **If the merge touched a served surface, publish.** Follow the "After you
    merge a change that touches a served surface" block in `CLAUDE.md`.
+   Publishing pushes `gh-pages` and needs no PR. Do **not** commit a reading
+   after your merge. `pages_state.py --record`, an `infra_state.yaml` refresh
+   and an IndexNow note all write `portfolio/ledger/`, so on their own they are
+   a ledger-only change, and your branch is spent. Readings ride in a PR that
+   ships work: take them at the *start* of a session, on its work branch.
 
 Only then is the session finished. A final reply that says "pushed to branch
 X" with no merged PR is an unfinished session.
@@ -73,6 +78,25 @@ alone because it has moved. No check runs on it. If you keep working after
 your PR merges, open a **new** PR for the follow-up. Reusing the same branch
 is fine, and `unlanded_work.py` names the old PR and tells you to. Never end a
 session on a push to a merged PR's branch.
+
+## Not shipping something? Leave nothing to push
+
+Claude Code cloud sessions are told to commit and push their branch before
+they stop, and a stop hook asks again while the working tree is dirty. So
+"leave `main` alone" becomes a branch with no PR unless you also leave nothing
+to push. Of the 248 branches with no PR at all (tips from 2026-08 to
+2026-10-05), 43 held nothing but ledger entries, `infra_state.yaml` readings or
+other records.
+
+When you decide a change will not ship, take it off your branch before you
+stop and say in your reply what you dropped. Examples: ledger prose that
+`check_ledger_only.py` rejects, a reading taken after your merge, an abandoned
+experiment.
+- Discard uncommitted edits with `git restore <paths>`.
+- Drop your own unshipped commits, for example `git reset --keep HEAD~1` for
+  the last one. Never drop commits that are in a PR or on `main`.
+
+A tip that says "parked" or "not for merge" is still a deliberate exception.
 
 ## The only reasons not to merge
 

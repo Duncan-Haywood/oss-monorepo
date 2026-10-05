@@ -158,7 +158,9 @@ AI-wrap by default.
 
   If a session genuinely found a blocker instead of shipping: say so in the
   reply and leave `main` alone. An unshipped session is a real outcome and
-  does not need a commit to be true. The ledger *tooling* (`.py` under
+  does not need a commit to be true. Take the ledger commit off your branch
+  too, or the harness pushes it as a branch nobody reads
+  (`land-your-work.md`, "Not shipping something?"). The ledger *tooling* (`.py` under
   `portfolio/ledger/`) is exempt and passes the check — it is ordinary
   platform code.
 - **Do not close a PR as "already on main"** until
