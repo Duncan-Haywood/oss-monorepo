@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 764 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 765 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -70,6 +70,14 @@
     <updated>2026-10-05T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free COI tracker for contractors and property managers: check subcontractor insurance against your contract&#39;s limits, endorsements and lead time, find expired and expiring policies and renewal gaps, and export a chase list and calendar. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Course Platform Fee Calculator — Gumroad vs Podia vs Teachable</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/course-platform-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/course-platform-fee-calculator</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free calculator comparing what a course or digital-product creator keeps on Gumroad, Podia, Teachable, Thinkific, Kajabi and Udemy at their own price and volume, with the sales-per-month crossover where the cheapest platform changes. Entirely client-side, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>eBay Payout Report to Xero and QuickBooks Journal</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-05T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free Meta catalog feed CSV checker for Commerce Manager: finds semicolon or UTF-16 files, missing required columns, duplicate ids, prices without a currency, bad sale prices, wrong availability values, empty or http links, WebP images, invalid barcodes and Excel damage, with line numbers and safe fixes. Runs in your browser; the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>MT940 Statement Checker and CSV Converter</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mt940-statement-check/"/>
-    <id>tag:marisstella.dev,2026:tool/mt940-statement-check</id>
-    <updated>2026-10-05T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free MT940 checker: finds why a SWIFT MT940 bank statement fails to import or does not balance (opening plus transactions versus closing, gaps between statements, bad :61: lines, period decimals, repeats), with line numbers, and converts it to CSV. Runs in your browser.</summary>
   </entry>
 </feed>
