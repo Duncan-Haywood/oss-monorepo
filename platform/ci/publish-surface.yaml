@@ -1157,6 +1157,9 @@ workflows:
 - workflow: mailchimp-audience-csv-check-ci.yml
   classification: none
   publishes: []
+- workflow: redirect-map-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: shopify-inventory-csv-check-ci.yml
   classification: none
   publishes: []
