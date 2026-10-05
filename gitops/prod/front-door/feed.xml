@@ -16,6 +16,14 @@
     <summary type="text">Free Brevo (Sendinblue) contacts import CSV checker: finds invalid and duplicate emails, rows with neither email nor SMS, SMS numbers with no country code or ruined by Excel, unquoted commas that shift columns, mixed date formats and near-miss column names, with line numbers, and applies formatting-only safe fixes. Runs in your browser; the file is never uploaded.</summary>
   </entry>
   <entry>
+    <title>camt.053 Statement Checker and CSV Converter</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/camt053-statement-check/"/>
+    <id>tag:marisstella.dev,2026:tool/camt053-statement-check</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free camt.053 checker: finds why an ISO 20022 XML bank statement fails to import or does not balance (opening plus entries versus closing, gaps between statements, batch totals, declared counts, repeats, missing dates), with line numbers, and converts it to CSV. Runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Google Contacts CSV Check — Find Import Errors Before You Upload</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/google-contacts-csv-check/"/>
     <id>tag:marisstella.dev,2026:tool/google-contacts-csv-check</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free Amazon Seller Central inventory file checker: finds comma or UTF-16 files, UPCs that lost a leading zero, bad UPC and EAN check digits, scientific-notation SKUs, bad prices and quantities, wrong add-delete codes and missing condition notes, with line numbers, and applies safe fixes. Runs in your browser; the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>BAI2 Statement Reader — Read and Check a Bank BAI2 File in Your Browser</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bai2-statement-reader/"/>
-    <id>tag:marisstella.dev,2026:tool/bai2-statement-reader</id>
-    <updated>2026-10-04T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free BAI2 file viewer and checker: turns a bank&#39;s BAI2 statement into accounts, balances and a transaction list you can download as CSV, and checks the 49, 98 and 99 control totals and record counts. Runs in your browser; the file is never uploaded.</summary>
   </entry>
 </feed>
