@@ -43,6 +43,20 @@ byte-identical (below).
   - Next.js preview-mode keys in a `.next/` build directory committed once in
     early history. They are per-build random values with no deployment behind
     them.
+- **No personal email address in the tree.** The owner's Gmail address was
+  in 20 files. It's gone, with no `ventures/` file left naming it:
+  - `ai-first-markets` reads its allowlist from an `ALLOWED_EMAIL` secret and
+    lets nobody in without it. Set it with `npx wrangler secret put
+    ALLOWED_EMAIL` before the next deploy; `scripts/deploy-cloudflare.sh` now
+    requires it.
+  - `quick-pick-survey`'s privacy and terms pages take
+    `NEXT_PUBLIC_CONTACT_EMAIL` from Vercel. Without it they point at the
+    issue tracker.
+  - `real-estate-agent-photo-app` builds booking and payment messages from
+    `LISTING_LENS_CONTACT_EMAIL`. Without it, they carry an undeliverable
+    `.invalid` placeholder.
+  - Templates, docs and log entries are redacted.
+- **Pages URLs fixed.** See the Pages section below.
 - **Open issues checked.** The three open issues (#139, #1925, #1969) hold no
   credential-shaped string, email address or IP address. Closed issues and the
   6,000+ PR threads were not read one by one.
@@ -80,23 +94,19 @@ byte-identical (below).
 2. **No self-hosted runner may be registered.** Settings → Actions → Runners
    should be empty: remove any offline entries left by the deleted boxes.
    Keep the `CI_RUNNER` variable unset.
-3. **Decide on the personal email addresses.** Your personal Gmail address
-   appears in 20 tracked files. These are deliberate uses, not leaks: the
-   contact line on `quick-pick-survey`'s privacy and terms pages, payment
-   instructions in `ventures/real-estate-agent-photo-app/process/`, Cloudflare
-   Access allowlists for `ai-first-markets` and the photo app's docs site, and
-   the User-Agent of `portfolio/research/publish-endpoint-reachability`. Two
-   personal addresses are also author emails on about 80 commits. History
-   keeps all of these, so editing the current tree doesn't make them private.
-   Accept that, or rewrite history before the flip (`git filter-repo
-   --mailmap` / `--replace-text`, then force-push every branch). A rewrite
-   breaks every open PR and every session's clone.
-4. **Everything here becomes readable,** not just code: `CLAUDE.md`,
+3. **Set the three contact variables** named above (`ALLOWED_EMAIL`,
+   `NEXT_PUBLIC_CONTACT_EMAIL`, `LISTING_LENS_CONTACT_EMAIL`) wherever those
+   apps deploy. Only the first one gates anything; without the other two the
+   pages degrade rather than break.
+4. **Choose how the email addresses in old commits are handled.** See
+   "Personal email in old commits" below. The current tree is clean;
+   history isn't.
+5. **Everything here becomes readable,** not just code: `CLAUDE.md`,
    `prompt.md`, `portfolio/ledger/` (decisions, asks, revenue notes),
    `portfolio/research/`, `infra/`, the issue tracker and every closed PR's
    discussion. Nothing in it is a credential (see the scan above). Whether the
    strategy notes should be public is your call.
-5. **Agent apps.** On a public repository anyone can open issues and comment.
+6. **Agent apps.** On a public repository anyone can open issues and comment.
    Check that the Claude, Cursor and Kilo GitHub Apps only respond to
    collaborators, so a stranger's `@mention` can't spend your agent budget.
 
@@ -128,20 +138,45 @@ After the flip, the sentences that say "this repository is private" go stale:
 `.github/workflows/claude-routine-trigger.yml`. They are true until then, so
 they were left alone.
 
-## Not part of the flip, and urgent anyway: the Pages URL
+## The Pages URL (fixed in the tree)
 
-The repository was renamed from `monorepo-projects` to `fp-monorepo`. GitHub
-serves a project site at `/<repo-name>/` and lists the homepage as
-`https://duncan-haywood.github.io/fp-monorepo/`. But
-`platform/pages/build.mjs`'s `DEFAULT_BASE_URL` is still `/monorepo-projects/`.
-So does every canonical tag, sitemap `<loc>` and IndexNow submission on the
-`gh-pages` branch (published 2026-10-05, no `CNAME`), and 716 `VENTURE.yaml`
-`live_url`s. As far as I know GitHub doesn't redirect a renamed repository's
-project site, so search engines are being pointed at a path the site no longer
-answers. One logged-out visit to each URL settles it. The fix depends on a
-choice. Put Pages on a custom domain (the queued `pages-custom-domain` ask;
-`publish-branch.sh` then takes the base URL from `CNAME`). Or move every
-`/monorepo-projects/` URL to `/fp-monorepo/`.
+The repository was renamed from `monorepo-projects` to `fp-monorepo`, and
+GitHub doesn't redirect a renamed repository's project site. Measured
+2026-10-05: `duncan-haywood.github.io/monorepo-projects/` answers 404, and
+`duncan-haywood.github.io/fp-monorepo/` answers 200. `build.mjs`'s
+`DEFAULT_BASE_URL` and every canonical tag, sitemap, `live_url` and repo link
+now name `/fp-monorepo/`. `FORMER_BASE_URLS` rewrites the old path at build
+time, so a branch opened before the move still publishes correct URLs. **After
+this merges, republish** (`CONFIRM=publish-pages-branch PUSH=1
+./platform/pages/publish-branch.sh`). Until then the live `gh-pages` branch
+still advertises the 404 path.
+
+## Personal email in old commits
+
+The current tree is clean. History isn't. On `main`, two personal Gmail
+addresses are author or committer on 84 commits, and the address that
+was in the 20 files is in their old versions. A rewritten copy of `main` was
+prepared and verified with `git filter-repo`. It maps those addresses to
+`49566815+Duncan-Haywood@users.noreply.github.com` (already the address on
+5,190 commits) and redacts them from file contents and messages. **It has not
+been pushed anywhere.** The constraint is that **rewriting this repository in
+place can't hide the old commits.** GitHub keeps a read-only
+`refs/pull/<n>/head` for each of its ~5,800 PRs, those keep every old commit
+fetchable, and only GitHub Support can purge them. So the honest choices are:
+
+- **Publish a fresh repository from the rewritten history.** Rename this one
+  (for example to `fp-monorepo-private`) and keep it private with its PRs and
+  issues. Create a new public `fp-monorepo` and push the rewritten `main` to
+  it. The Pages URL stays `/fp-monorepo/`. Secrets, variables, Pages settings
+  and app installs need setting up again on the new repo, and in-flight agent
+  sessions must re-clone. A branch built on the old history would carry old
+  commits back in.
+- **Flip this repository and accept that old commits show the addresses.**
+  Nothing needs migrating. The addresses stay findable by anyone reading
+  history.
+- **Rewrite in place, then ask GitHub Support to purge the PR refs and cached
+  views.** That breaks every open PR and clone, and Support has to handle
+  ~5,800 refs.
 
 ## Re-running the secret scan
 
