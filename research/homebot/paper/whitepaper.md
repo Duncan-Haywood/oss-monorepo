@@ -40,7 +40,8 @@ v2 gears the elbow 2:1 and uses a rack-and-pinion parallel gripper. On the twin:
 - *Perception:* a rendered head camera and an ArUco fiducial locate the cube to 0.8 mm (median),
   or 3.5 mm once the head servos' backlash is included. That supports the 5 mm error used in
   training. But in the closed loop the arm hides the cube during the approach, and the pick
-  policies, trained on continuous tracking, lose most of their success.
+  policies, trained on continuous tracking, fall from 84–96 % to 32–40 % success. Training on a
+  model of the camera pipeline reaches 50 % (one seed).
 - *Two twins of the base* disagree by about 7.6 % of the distance driven.
 - *System identification on a test pendulum* recovers the servo parameters within 0.5 %
   (friction 9 %). A too-light pendulum leaves the overall parameter scale unidentifiable.
@@ -359,6 +360,20 @@ The randomised 5 mm is therefore of the right order for a head camera. The error
 by the head servos' backlash, not by image resolution. Lens distortion and calibration error,
 which are not modelled, would add to it.
 
+*In the loop.* The cube position comes from rendered images at 5 Hz instead of the simulator.
+The last estimate is held while the marker is hidden, and the cube is carried with the hand
+once the gripper servo reports a hold. Under these conditions the seed-0 policies fall:
+- nominal-trained: from 96 % to 40 % with a fixed camera and 32 % with the pan/tilt head;
+- randomised: from 84 % to 32 % with either camera.
+
+These are 50 paired episodes. The marker is detected in 11–18 % of frames, because the arm hides
+the cube from above during the approach. The policies nudge the cube while closing in, and a
+frozen estimate then misses it; in a 16-episode check, perception at 25 Hz did not help. A policy trained on a cheap
+model of this pipeline (estimates refreshed every 1–5 steps, held while the hand is within
+6–15 cm of the cube or a frame drops out, on the table plane, carried while held) reaches 50 %
+with the fixed camera. It gives up 20 points with a perfect cube position (64 %). One seed. For
+picking, the twin thus ranks perception, not dynamics, as the gap to close next.
+
 **A bug the second twin caught.** The first mobile run reported 93/100 tip-overs under +25 %
 mass on the planar twin, and none on the roller twin. MuJoCo precomputes subtree masses, and
 randomising `body_mass` without refreshing them had scaled the centre of mass on which the ZMP
@@ -373,8 +388,8 @@ is fixed with a regression test, and the mobile policy reported here was retrain
   modelled.
 - The planar base cannot tip; tipping is inferred from the ZMP [vukobratovic2004zero].
 - The RL tasks use privileged state: target and cube positions, joint angles. A rendered
-  head-camera check (E6) supports the pick task's 5 mm position error, but no policy sees
-  images. Contacts are rigid apart from MuJoCo's soft-contact parameters, and the TPU pads
+  head-camera check (E6) supports the pick task's 5 mm position error, but closing the loop
+  through rendered images drops picking to 32–50 %, and no policy sees images. Contacts are rigid apart from MuJoCo's soft-contact parameters, and the TPU pads
   are modelled by friction only.
 - The randomised pick policies reach 77 % on the nominal twin, well below the nominal-trained
   91 %. Larger openings, touch sensing from the servo load, or longer training are untested.

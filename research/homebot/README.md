@@ -417,6 +417,44 @@ camera pose from the head's forward kinematics. Over 200 random placements:
 The same `homebot.perception` functions run on a real webcam image; only the camera calibration
 changes (`pip install opencv-contrib-python-headless` for this part).
 
+**Closing the loop through the camera is where picking breaks.** (`experiments/pick_camera_loop.py`)
+Here the policy gets the cube position from rendered images at 5 Hz instead of from the
+simulator:
+- the last estimate is held while the marker is hidden;
+- once the gripper servo reports a hold (jaws stopped short of closed, load at the limit), the
+  cube is carried with the hand.
+
+*50 paired episodes on the nominal twin, seed-0 policies; in brackets, success on the episodes
+where the camera saw the marker at least once.*
+
+| Policy | Simulator pose | Fixed camera | Pan/tilt head (backlash) |
+|---|---|---|---|
+| trained on the nominal twin | 96 % | 40 % (50 %) | 32 % (41 %) |
+| trained on a randomised twin | 84 % | 32 % (36 %) | 32 % (36 %) |
+| randomised, plus a camera observation model | 76 % | **50 %** (58 %) | 40 % (47 %) |
+
+- **The marker is rarely visible.** Once the arm moves, it is detected in only 11–18 % of frames:
+  the arm and hand hide the cube from above during the approach. In 6–11 of the 50 episodes the
+  camera never sees it, mostly cubes near the post, behind the carriage.
+- **The policies need continuous tracking.** They nudge the cube while closing in. With the
+  estimate frozen they then miss it. In a 16-episode check, running perception at 25 Hz instead
+  of 5 Hz made no difference. A wrist camera helped little: with a side grasp, it sees the
+  top-face marker almost edge on.
+- **Training on a model of the camera helps a little.** The third policy was trained with
+  `Randomization.camera_model`, which models the camera without rendering:
+  - estimates refresh every 1–5 steps;
+  - they are held while the hand is within 6–15 cm of the cube or a frame drops out;
+  - they sit on the table plane, and follow the hand while it holds the cube.
+
+  This policy picks 50 % with the fixed camera, against 32–40 % for the others. But it gives up
+  20 points with a perfect cube position (64 % on 100 episodes, against 84–87 %), and on the
+  cheap model of the camera (`camera_5hz` twin) it is no better than the randomised policies:
+  50 % against 44–60 %. One seed, so this is a direction, not a result.
+
+So the twin says the next step for picking is perception, not dynamics: markers on more than one
+face, a wrist camera with PnP at close range, the servo load as a touch signal, or policies
+trained on images.
+
 **Base twin: planar or rollers?** (`experiments/base_fidelity.py`, 12 random 12 s drives of about
 1.8 m.) The fast twin moves the base on ideal planar joints, at 89x real time with the arms on
 one core. The detailed twin rolls three omni wheels with 20 passive rollers each through contact,
@@ -456,6 +494,8 @@ PYTHONPATH=src python experiments/summarize.py            # RL tables
 PYTHONPATH=src python experiments/pick_diagnosis.py experiments/runs/ArmPick_dr_ent_s0   # failures by factor
 PYTHONPATH=src python experiments/pick_behaviour.py experiments/runs/ArmPick_{nominal,dr_ent}_s{0,1,2}
 PYTHONPATH=src python experiments/cross_version.py --runs <v1 runs>   # v1 policies on the v2 twin
+MUJOCO_GL=egl PYTHONPATH=src python experiments/fiducial_pose.py      # camera + ArUco localisation (~3 min)
+MUJOCO_GL=egl PYTHONPATH=src python experiments/pick_camera_loop.py experiments/runs/ArmPick_dr_ent_s0   # ~3 min
 PYTHONPATH=src python -m homebot.cad.build                # rebuild STL/STEP/mass properties (needs cadquery)
 PYTHONPATH=src python -m homebot.analysis.bom             # rebuild hardware/BOM.md
 ```
@@ -525,9 +565,9 @@ Full references: [`paper/refs.bib`](paper/refs.bib). White paper: [`paper/whitep
   projects' BOMs and are marked as such. Small hardware is listed but not priced.
 - **RL scope.**
   - The tasks are reaching and picking with privileged state. The pick task assumes the cube's
-    position is known to about 5 mm. A rendered head-camera check with a fiducial supports that
-    figure, but the policies were not trained on images, and the hardware loop does not yet run
-    the estimator.
+    position is known to about 5 mm, all the time. A rendered camera supports the 5 mm but not
+    the "all the time": with the cube position from rendered images, picking drops to 32–50 %.
+    The hardware loop does not yet run the estimator.
   - The pads are rigid boxes with a friction coefficient.
   - The randomised pick policies reach 77 % on the nominal twin, against 91 % for policies
     trained without randomisation.

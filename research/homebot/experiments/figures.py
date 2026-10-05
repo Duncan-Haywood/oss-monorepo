@@ -38,17 +38,17 @@ def style(ax):
     ax.set_axisbelow(True)
 
 
+REPORTED_VARIANT = {"ArmPick": "ent"}  # the randomised regime reported for picking (entropy bonus)
+
+
 def randomised(r, rs) -> bool | None:
-    """True/False for the regime a run is plotted as, None to leave it out. Where an env has a
-    training-setting variant of the randomised runs (ArmPick: entropy bonus), the variant is the
-    reported randomised regime and the plain first attempt is left out."""
+    """True/False for the regime a run is plotted as, None to leave it out: for picking, the
+    entropy-bonus runs are the reported randomised regime; the first attempt and the camera-model
+    ablation are left out of the figures (they are in the tables)."""
     if not r["meta"]["dr"]:
         return False
-    env = r["meta"]["env"]
-    has_variant = any(x["meta"]["env"] == env and x["meta"]["dr"] and x["meta"].get("variant") for x in rs)
-    if has_variant and not r["meta"].get("variant"):
-        return None
-    return True
+    want = REPORTED_VARIANT.get(r["meta"]["env"], "")
+    return True if r["meta"].get("variant", "") == want else None
 
 
 def runs():

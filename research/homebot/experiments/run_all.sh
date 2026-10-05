@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Every training run reported in the README, in order (about 14 h on 4 CPU cores).
+# Every training run reported in the README, in order (about 16 h on 4 CPU cores).
 # Resumable: a run whose eval.json exists is skipped; a half-finished run starts over.
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -24,6 +24,9 @@ for seed in 0 1 2; do
   run "ArmPick_dr_ent_s$seed" --env ArmPick --steps 8000000 --seed $seed --dr --ent-coef 0.005 --variant ent \
     --eval-episodes 100
 done
+# Ablation: randomised picking trained on the camera observation model (Randomization.camera_model)
+run ArmPick_dr_cam_s0 --env ArmPick --steps 8000000 --seed 0 --dr --ent-coef 0.005 --variant cam --camera-model \
+  --eval-episodes 100
 # Reaching (retrained on the v2 arm)
 for seed in 0 1 2; do
   run "ArmReach_nominal_s$seed" --env ArmReach --steps 1500000 --seed $seed
