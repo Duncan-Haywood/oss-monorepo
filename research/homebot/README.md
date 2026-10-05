@@ -17,8 +17,8 @@ A small driver runs the same joint-target interface on the real servos.
 
 > **v2 in progress.** The code and parts now have a 2:1 geared elbow, a parallel rack-and-pinion
 > gripper with TPU pads, a CAD interference sweep over every joint and a learned pick task
-> (`ArmPick`). The design and engineering numbers below are for v2. The RL results are still
-> v1's and are being re-run for v2.
+> (`ArmPick`). The design, engineering and picking results below are for v2. The reaching
+> results are still v1's while they are retrained on the v2 arm.
 
 **Status: designed and simulated, not yet built.** Every number below comes from the code in
 this directory: CAD, the MuJoCo twin, analyses and RL runs. Nothing has been measured on
@@ -300,6 +300,76 @@ under +25 % mass on the planar twin, and none on the roller twin. The cause:
 It is fixed, with a regression test that fails on the old code, and the policy above was
 retrained after the fix. Dynamics were never affected. Comparing two twins of different
 fidelity is what exposed it.
+
+### Picking with the parallel gripper (v2)
+
+**Task** (`ArmPick`). One arm at the table edge grasps a cube and lifts it.
+- **Cube placement:** random, 0.24–0.40 m in front of the post, at any yaw within ±45°.
+- **Actions:** the policy moves the seven arm joints and the gripper by target increments. It
+  starts with the gripper open (61 mm).
+- **Observations:**
+  - its joints;
+  - the gripper servo's load (the STS3215 reports it);
+  - the cube's position relative to the gripper and the table;
+  - the cube's yaw;
+  - the gripper's axes.
+
+  There is no touch sensing. The cube position stands in for what a camera with a fiducial on
+  the cube would give; no vision is simulated.
+- **Reward:** staged and dense. It pays for approach, for each jaw touching the cube, and for
+  lift while both jaws hold it; it penalises table contact. An episode lasts 6 s.
+- **Success:** at the end of the episode the cube is at least 5 cm above the table and held
+  between both jaws.
+- **Extra randomisation:** on top of the reach list (minus the payload), cube edge 30–50 mm,
+  mass 30–200 g, cube friction 0.3–0.8, pad friction x0.65–1.25, and a 5 mm error (per axis,
+  fixed per episode) in the observed cube position.
+- **Extra test twins:** slippery pads (x0.55), a 300 g cube, a 10 mm cube-position error.
+
+*3 seeds per row; success on 100 fixed episodes per twin, mean (min–max over seeds).
+Nominal-trained: PPO, 3 M steps, 55 min per run. Randomised: PPO with an entropy bonus (0.005),
+8 M steps, 1.7–3.1 h per run.*
+
+| Twin the policy is tested on | Trained on the nominal twin | Trained on a randomised twin |
+|---|---|---|
+| nominal (40 mm, 60 g cube) | **91 %** (89–93) | 77 % (71–87) |
+| servo gain x0.5 / x2 | 90 % / 89 % | 77 % / 76 % |
+| friction x3 | 86 % | 72 % (56–86) |
+| links +25 % and 200 g in the hand | 92 % | 76 % |
+| **40 ms action latency** | **41 %** (27–58) | 77 % (69–86) |
+| **80 ms action latency** | **18 %** (10–27) | 63 % (56–69) |
+| **120 ms action latency** | **8 %** | 48 % (47–49) |
+| 10 mrad encoder noise | 93 % | 75 % |
+| slippery pads (x0.55) | 89 % | 80 % |
+| 300 g cube (beyond the randomised range) | 89 % (80–96) | 77 % |
+| 10 mm cube-position error | 67 % | 61 % |
+| combined | **27 %** (16–37) | **61 %** (52–71) |
+
+- **Latency again decides whether a nominal policy works.** As with reaching, it shrugs off
+  servo-gain, friction and mass errors, slippery pads and a cube five times the nominal mass.
+  One 40 ms step of latency takes it from 91 % to 41 %.
+- **For picking, robustness costs more.** Randomisation holds 77 % at 40 ms and 63 % at 80 ms,
+  but it gives up 14 points on the nominal twin (77 % against 91 %). For reaching it gave up 2.
+  It also needs about 6x the samples to reach 50 % training success: 0.73–3.75 M steps against
+  0.32–0.43 M for nominal training.
+- **Most failures are missed grasps, not drops.** On 300 twins drawn from the whole training
+  distribution (`experiments/pick_diagnosis.py`), the randomised policies succeed 65 % of the
+  time (60–73 % by seed); 4 % knock the cube off the table.
+  - What they miss is mostly large cubes: 53 % for 45–50 mm against 67–71 % below 45 mm. With
+    the jaws open to 61 mm, a 50 mm cube leaves about 5 mm per side. That is no more than the
+    5 mm (per axis) error in where the policy believes the cube is.
+  - The nominal-trained policies score 34 % on the same twins, falling from 56 % without
+    latency to 11 % at two steps.
+- **An optimiser detail that mattered.** The first randomised run, without the entropy bonus
+  and for 5 M steps, let PPO's exploration noise collapse (action std 0.6 to 0.08). It stalled
+  at 75 % on the nominal twin. With the bonus, seed 0 reaches 87 %, but two of three seeds
+  stay near 71 %, so the seeds vary widely.
+- **The policies grasp from the side, not from above.** When both jaws first touch the cube,
+  the gripper is tilted a median 43–78° from vertical, depending on the policy
+  (`experiments/pick_behaviour.py`, nominal twin). Unlike the scripted top-down grasp above,
+  this reaches cubes close to the post. The six policies pick 60–93 % of cubes placed less than
+  0.26 m in front of it (30 episodes each), where the scripted vertical grasp reached none.
+
+![pick policy](paper/figures/filmstrip_ArmPick.png)
 
 **Base twin: planar or rollers?** (`experiments/base_fidelity.py`, 12 random 12 s drives of about
 1.8 m.) The fast twin moves the base on ideal planar joints, at 89x real time with the arms on

@@ -270,6 +270,62 @@ eight lands 12 % off on *every* parameter with an unchanged residual: the reflec
 inertia (0.028 kg·m²) dominates the response and leaves the overall scale unidentifiable. This
 is validation on synthetic data only.
 
+**E5. Learning to pick with the parallel gripper.**
+
+*Setup.*
+- One arm at the table edge. A cube is placed at random 0.24–0.40 m in front of the post, at
+  any yaw within ±45°. The policy moves the seven arm joints and the gripper by target
+  increments, starting with the gripper open (61 mm).
+- *Observations:* joints, velocities and the previous action; the gripper servo's load (which
+  the STS3215 reports); the cube position relative to the gripper and to the table; the cube's
+  yaw as (sin 4ψ, cos 4ψ), because a cube is symmetric under quarter turns; and the gripper's
+  closing and approach axes. There is no touch sensing. The cube position stands in for a camera
+  with a fiducial on the cube; no images are rendered.
+- *Reward:* dense and staged. It pays 1 − tanh(10 d) for approach and 0.25 per jaw touching the
+  cube. While both jaws hold it, it adds twice the lift fraction (up to 8 cm), plus 1 once the
+  cube is 5 cm up. Small penalties apply for action size and for contact with the table. An
+  episode lasts 6 s.
+- *Success:* at the end of the episode the cube is at least 5 cm above the table and held by
+  both jaws.
+- *Randomisation:* as for reaching (without the hand payload), plus cube edge 30–50 mm, mass
+  30–200 g, cube friction 0.3–0.8, pad friction x0.65–1.25, and an observed cube position that
+  is off by N(0, 5 mm) per axis, fixed per episode, plus jitter.
+- *Extra test twins:* slippery pads (x0.55), a 300 g cube, a 10 mm position error.
+- *Training:* nominal policies use PPO for 3 M steps. Randomised policies use PPO with an
+  entropy bonus of 0.005 [schulman2017proximal] for 8 M steps. Three seeds each.
+
+*Result (mean over 3 seeds, min–max in brackets).*
+
+| Test twin | Nominal-trained | Randomised |
+|---|---|---|
+| nominal | 91 % (89–93) | 77 % (71–87) |
+| gain x0.5 / x2, friction x3, mass +25 % with 200 g | 86–92 % | 72–77 % |
+| latency 40 / 80 / 120 ms | 41 / 18 / 8 % | 77 / 63 / 48 % |
+| slippery pads, 300 g cube | 89 %, 89 % | 80 %, 77 % |
+| 10 mm cube-position error | 67 % | 61 % |
+| combined | 27 % (16–37) | 61 % (52–71) |
+
+- **The ranking of gaps carries over from reaching.** Latency is again what breaks a nominal
+  policy; servo, friction, mass and object errors barely matter.
+- **Randomisation is more expensive here.**
+  - It costs 14 points on the nominal twin, against 2 for reaching.
+  - It needs about 6x the samples to reach 50 % training success: 0.73–3.75 M steps against
+    0.32–0.43 M for nominal training.
+  - The seeds vary widely (71–87 % nominal).
+- **An optimiser detail mattered.** Without the entropy bonus, the first randomised run (5 M
+  steps) let PPO's action noise collapse from 0.6 to 0.08. It plateaued at 75 % on the nominal
+  twin.
+- **Failures are missed grasps.** On 300 twins drawn from the whole training distribution, the
+  randomised policies succeed 65 % of the time (60–73 % by seed), and 4 % knock the cube off
+  the table. The rest miss the grasp, most often on 45–50 mm cubes (53 %): with the jaws open to
+  61 mm, a 50 mm cube leaves about 5 mm per side, no more than the position error. The
+  nominal-trained policies score 34 % on the same twins, falling from 56 % without latency to
+  11 % at two steps.
+- **They grasp from the side.** At first two-jaw contact, the gripper is tilted a median 43–78°
+  from vertical, depending on the policy. That lets them pick 60–93 % of the cubes placed
+  closer than 0.26 m to the post, where the scripted vertical grasp (Section 4) finds no
+  solution.
+
 **A bug the second twin caught.** The first mobile run reported 93/100 tip-overs under +25 %
 mass on the planar twin, and none on the roller twin. MuJoCo precomputes subtree masses, and
 randomising `body_mass` without refreshing them had scaled the centre of mass on which the ZMP
@@ -283,23 +339,31 @@ is fixed with a regression test, and the mobile policy reported here was retrain
   (≤0.5° per the datasheet), deadband, thermal limits and printed-part compliance are not
   modelled.
 - The planar base cannot tip; tipping is inferred from the ZMP [vukobratovic2004zero].
-- The RL tasks are reaching tasks with privileged state (target position, joint angles).
-  Grasping is checked only with a scripted controller.
+- The RL tasks use privileged state: target and cube positions, joint angles. The pick task
+  assumes a camera and fiducial would supply the cube position with about 5 mm error; neither is
+  simulated. Contacts are rigid apart from MuJoCo's soft-contact parameters, and the TPU pads
+  are modelled by friction only.
+- The randomised pick policies reach 77 % on the nominal twin, well below the nominal-trained
+  91 %. Larger openings, touch sensing from the servo load, or longer training are untested.
 - Twin perturbations stand in for an unknown real robot. They show which errors a policy is
   sensitive to, not how large the real errors are.
 
 ## 7. Conclusion
 
 A 22-DOF printable mobile manipulator is feasible on one $15 servo if the shoulders are geared
-3:1 and the base is limited to gentle accelerations. Generating the parts and the twin from one
+3:1, the elbow 2:1, and the base is limited to gentle accelerations. Generating the parts and the twin from one
 source keeps them consistent. The twin also identifies, before any hardware exists, which gaps
 to close first:
-- Bus latency, not servo gain, friction or mass, is what breaks a reaching policy.
+- Bus latency, not servo gain, friction or mass, is what breaks a reaching or picking policy.
+  Randomisation fixes it at little cost for reaching, and at a real cost for picking.
 - The planar base twin is good enough to train closed-loop mobile policies, even though its
   odometry is about 7 % off.
 
-Next comes building stage A, identifying the servos, and measuring base odometry against the
-two twins.
+A mesh-interference sweep is worth running on any twin built this way: it found a joint range in
+v1 that the parts could not reach and that the simulator never noticed.
+
+Next comes building stage A, identifying the servos, measuring the bus latency, and measuring
+base odometry against the two twins.
 
 ## References
 
