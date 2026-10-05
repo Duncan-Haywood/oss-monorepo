@@ -57,9 +57,11 @@ def smooth(y, k=5):
 
 
 def learning(rs):
-    envs = [e for e in ("ArmReach", "BimanualReach", "MobileReach") if any(r["meta"]["env"] == e for r in rs)]
-    fig, axes = plt.subplots(1, len(envs), figsize=(4.0 * len(envs), 3.1), sharey=True, facecolor=SURFACE)
-    axes = np.atleast_1d(axes)
+    envs = [e for e in ("ArmReach", "BimanualReach", "MobileReach", "ArmPick") if any(r["meta"]["env"] == e for r in rs)]
+    cols = 2 if len(envs) == 4 else len(envs)
+    rows_n = (len(envs) + cols - 1) // cols
+    fig, axes = plt.subplots(rows_n, cols, figsize=(4.4 * cols, 3.1 * rows_n), sharey=True, facecolor=SURFACE)
+    axes = np.atleast_1d(axes).ravel()
     for ax, env in zip(axes, envs):
         style(ax)
         regimes = []
@@ -84,7 +86,8 @@ def learning(rs):
                          fontsize=10, loc="left")
         ax.set_xlabel("environment steps (millions)", color=INK2, fontsize=9)
         ax.set_ylim(0, 1.02)
-    axes[0].set_ylabel("training success rate (last 100 episodes)", color=INK2, fontsize=9)
+    for k in range(0, len(axes), cols):
+        axes[k].set_ylabel("training success rate\n(last 100 episodes)", color=INK2, fontsize=9)
     fig.tight_layout()
     fig.savefig(OUT / "learning_curves.png", dpi=160, facecolor=SURFACE)
     plt.close(fig)
@@ -122,7 +125,7 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     rs = runs()
     learning(rs)
-    for env in ("ArmReach", "BimanualReach", "MobileReach"):
+    for env in ("ArmReach", "BimanualReach", "MobileReach", "ArmPick"):
         gaps(rs, env)
 
 

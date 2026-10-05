@@ -58,7 +58,7 @@ any hardware exists.
 ## 2. Design
 
 **Kinematics.** Each arm has shoulder pitch, shoulder roll, upper-arm yaw, elbow, forearm roll,
-wrist pitch and wrist roll, plus a one-pivot gripper. Link lengths are set by the servo stack.
+wrist pitch and wrist roll, plus a parallel gripper. Link lengths are set by the servo stack.
 With the module offsets at their minimum, the arm reaches 0.53 m from the shoulder axis to the
 grasp point. The two arms are mirror images, and joint axes are mirrored so that a positive
 angle means the same anatomical motion on both sides (checked to 1e-9 m in the tests).
@@ -66,10 +66,19 @@ angle means the same anatomical motion on both sides (checked to 1e-9 m in the t
 **Modules.**
 - *Roll joints:* the servo sits in line with the link. The two mid-arm rolls run in a 6806
   thin-section bearing that carries the bending moment.
-- *Pitch joints:* a clevis bolted to the horn on one side and pivoting on an M4 shoulder screw
-  on the other.
+- *Pitch joint* (wrist): a clevis bolted to the horn on one side and pivoting on an M4 shoulder
+  screw on the other.
 - *Geared shoulder joints:* 14:42, module 2, profile shift ±0.3, on two 608 bearings and an M8
   shaft.
+- *Geared elbow:* 15:30, module 1.5. The forearm clevis turns on an M5 shaft in two 625 bearings,
+  and the servo sits one centre distance (34 mm) up the upper arm.
+- *Parallel gripper:* an 18-tooth module-1.25 pinion on the gripper servo drives two racks in
+  opposite directions. Each rack belongs to a jaw carriage on two 4 mm steel rods, and each jaw
+  carries a printed TPU pad. The jaws open 0–64 mm. At a 35 % torque register they squeeze with
+  about 37 N each and move at 17 mm/s.
+
+This is the second version of the arm. The first had a direct-drive elbow and a single pivoting
+jaw; section 4 compares the two.
 
 **Carriage, head, base.**
 - A two-part printed carriage rides on four mini V-wheels on a 1 m 2020 V-slot mast. The lift
@@ -78,8 +87,14 @@ angle means the same anatomical motion on both sides (checked to 1e-9 m in the t
 - The base is a Y frame of 2020 spokes on a printed hub, with three servo-driven 100 mm omni
   wheels at 0.2 m radius and a six-sector printed deck.
 
-**Parts.** 20 printed parts (29 STL files with the mirrored copies), all checked to fit a
-220 x 220 x 250 mm bed; 2.4 kg of PLA for the full robot.
+**Parts.** 24 printed parts (31 STL files with the mirrored copies), all checked to fit a
+220 x 220 x 250 mm bed; 2.5 kg of PLA for the full robot, plus a few grams of TPU.
+
+**Range of motion from the parts.** MuJoCo ignores contacts between a body and its parent, so a
+joint range the printed parts cannot reach is invisible in the twin. We therefore check each arm
+joint by intersecting the exact solids, printed parts plus servo envelopes, on both sides of the
+joint at 25 angles across its range (OpenCascade booleans). Gear and rack meshes are checked
+separately, in 2D, with both members turning.
 
 ## 3. Twin
 
@@ -106,6 +121,12 @@ BAM's extended friction model would be the next refinement.
 and the sign-magnitude encoding follow the FTServo SDK [ftservosdk] and LeRobot's tables
 [cadene2024lerobot]. Policies send the same joint targets to the twin and to the servos.
 
+**Coupled jaws.** The two jaws are slide joints tied by an equality constraint (q₂ = q₁). The
+gripper servo acts on one of them with ratio 1/r (r is the pinion's pitch radius), so its force
+limit is the total clamp force. Its reflected inertia, damping and friction are split equally
+between the two joints, which gives the same kinetic energy and dissipation as one servo
+driving both racks.
+
 **Two base twins.**
 - *Planar:* x, y and yaw joints with velocity servos whose force limits are those of three
   wheel servos.
@@ -117,47 +138,66 @@ and the sign-magnitude encoding follow the FTServo SDK [ftservosdk] and LeRobot'
 All numbers come from `experiments/analyze.py`, `experiments/scripted_pick.py` and
 `experiments/base_fidelity.py` (results under `experiments/results/`).
 
+**Range of motion (v1 and v2).** The interference sweep found two errors in v1:
+- its elbow parts collided from about 1.7 rad, although the twin allowed 2.3 rad;
+- a pivot boss overlapped its clevis cheek by 1.5 mm.
+
+Neither was visible in the twin, because parent–child contacts are excluded. All eight v2
+joints are clear over their full ranges. The v2 elbow first touches between 2.15 and 2.2 rad,
+and its range is set to 2.0.
+
 **Torque.** We took the worst static holding torque over 20,000 random arm poses plus the
-straight-out poses. With a 200 g payload, every joint stays at or below 46 % of its peak torque
-(stall torque times the reduction, with the shoulder torque register at 75 %).
+straight-out poses. With a 200 g payload, every joint stays at or below 49 % of its peak torque
+(stall torque times the reduction, with the geared joints' torque register at 75 %).
 
 Measured against the datasheet's *continuous* rating (10 kg·cm at 0.9 A, times the reduction),
-three joints exceed it when holding 200 g at full reach: shoulder pitch 103 %, upper-arm yaw
-119 %, elbow 120 %. The largest payload held with every joint within its continuous rating,
-arm level with the shoulder, is:
+the 2:1 elbow drops from 120 % (v1) to 69 %. The 67 g that v2 adds (28 g in the gripper, 39 g at
+the elbow) raises shoulder pitch from 103 % to 111 % and upper-arm yaw from 119 % to 127 %,
+with 200 g held at full reach. The largest payload held with every joint within its continuous
+rating, arm level with the shoulder, is:
 
-| Horizontal reach | Payload |
-|---|---|
-| 0.53 m | 135 g |
-| 0.42 m | 184 g |
-| 0.32 m | 240 g |
+| Horizontal reach | v2 | v1 |
+|---|---|---|
+| 0.53 m | 145 g | 135 g |
+| 0.42 m | 300 g | 184 g |
+| 0.32 m | 560 g | 240 g |
 
-Within peak torque, the same reaches hold 0.79, 0.94 and 1.11 kg. Without the 3:1 stage, the
-shoulder-pitch servo would hold 1.75 N·m just for the arm's own weight, 60 % of stall.
+Within peak torque, the same reaches hold 0.80, 1.12 and 1.60 kg. Without the 3:1 stage, the
+shoulder-pitch servo would hold 1.96 N·m just for the arm's own weight, 67 % of stall.
+
+The elbow's 15-tooth module-1.5 pinion is the most stressed printed tooth. By the Lewis formula
+(no profile-shift credit) its root stress is about 38 MPa at full stall with the 75 % register,
+against about 20 MPa for the shoulder pinions. That is within the 40–60 MPa tensile strength of
+printed PLA, but not by much, so the elbow relies on stall being brief. At the continuous rating
+it is about 17 MPa.
 
 **Stability.** The support triangle's edges lie R/2 = 0.1 m from the centre. The static margin
-of the full robot ranges from 38 mm (both arms straight forward, 200 g each) to 92 mm (arms
+of the full robot ranges from 35 mm (both arms straight forward, 200 g each) to 92 mm (arms
 down).
 
 The largest base acceleration before the point-mass ZMP leaves the triangle depends on the
 lift height:
-- 3.5 m/s² with the arms down and the lift low;
-- 0.68 m/s² with both arms forward and the lift at the top.
+- 3.6 m/s² with the arms down and the lift low;
+- 0.63 m/s² with both arms forward and the lift at the top.
 
 So velocity commands are ramped at 0.5 m/s² in both the environments and the driver.
 
 **Gripper (scripted, not learned).** Damped-least-squares IK drives the servo twin through a
-top-down pick of a 4 cm, 60 g cube at 40 random table positions. Results:
-- 32 picks hold the cube clear of the table after a 12 cm lift.
-- 6 positions are out of reach for a vertical grasp.
-- 2 picks fail.
-- The single pivoting jaw squeezes at an angle, so the cube slides a median 34 mm (22–53 mm)
-  down the jaws before wedging.
-- The proportional servo loops let the hand droop a median 5.6 mm under load.
+top-down pick of a 4 cm, 60 g cube at 40 random table positions, lifted 12 cm.
+- *v2, parallel jaws:* every one of the 24 reachable placements holds the cube, which slips
+  0 mm (median; at most 2 mm) down the pads.
+- *v1, pivoting jaw:* 32 of 34 held, but the jaw squeezed at an angle and the cube slid a median
+  34 mm (22–53 mm) before wedging.
+- *Reach:* in v2, 16 of the 40 placements are out of reach for a vertical grasp, against 6 in
+  v1. All 16 lie 0.18–0.26 m in front of the post, where a vertical grasp needs more elbow flex
+  than the parts allow. v1 appeared to reach them only with an elbow angle its own parts could
+  not reach.
+- *Droop:* the proportional servo loops let the hand droop a median 6 mm under load.
 
 **Cost.** 22 servos at $15.99, plus bearings, extrusion, belt, omni wheels, electronics and
-2.4 kg of PLA, come to $946 at the listed retail prices. The cheapest sourced options bring
-this to $625 (`hardware/BOM.md`).
+2.5 kg of PLA, come to $948 at the listed retail prices. The cheapest sourced options bring
+this to $627 (`hardware/BOM.md`). The v2 additions (625 bearings, M5 bolts, 4 mm rods, a few
+grams of TPU) are listed but not priced.
 
 ## 5. Twin-gap experiments
 

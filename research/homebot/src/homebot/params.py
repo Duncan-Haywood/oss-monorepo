@@ -312,7 +312,7 @@ class Robot:
     lift: Lift = field(default_factory=Lift)
     base: Base = field(default_factory=Base)
     shoulder_torque_fraction: float = 0.75  # torque-limit register on geared servos (protects PLA teeth)
-    elbow_torque_fraction: float = 0.75  # same limit as the shoulders: ~36 MPa Lewis root stress at stall
+    elbow_torque_fraction: float = 0.75  # as the shoulders; Lewis root stress ~38 MPa at stall (shoulder ~20)
 
     # ----------------------------------------------------------------------------------
     def arm_drive(self, joint: str) -> Drive:
