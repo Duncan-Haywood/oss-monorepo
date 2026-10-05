@@ -1294,6 +1294,8 @@ const CATEGORY_RULES = [
       || slug === 'etsy-statement-to-journal'
       // `square-sales-to-journal` joined 2026-10-05: the Square end of the same payout-to-journal set, filed beside it.
       || slug === 'square-sales-to-journal'
+      // `payroll-register-to-journal` joined 2026-10-05: the payroll side of the same journal-engine family (register check, then a pay-run journal with every withholding as a liability), filed beside it.
+      || slug === 'payroll-register-to-journal'
       // `ebay-payout-to-journal` joined 2026-10-05: the eBay end of the same payout-to-journal set, filed beside it.
       || slug === 'ebay-payout-to-journal'
       // `gumroad-sales-to-journal` joined 2026-10-05: the Gumroad end of the same payout-to-journal set, filed beside it.

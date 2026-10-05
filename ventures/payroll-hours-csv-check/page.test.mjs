@@ -63,3 +63,7 @@ test("every column the page lists as checked is a column the code knows", async 
     assert.ok(html.includes(c), c);
   }
 });
+
+test("footer links to the payroll register to journal converter", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/payroll-register-to-journal\/"/);
+});
