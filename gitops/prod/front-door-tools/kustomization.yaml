@@ -62,8 +62,8 @@
 #   portfolio-front-tools-26: 116 files, 552011 bytes
 #   portfolio-front-tools-27: 93 files, 555248 bytes
 #   portfolio-front-tools-28: 124 files, 553585 bytes
-#   portfolio-front-tools-29: 116 files, 555606 bytes
-#   portfolio-front-tools-30: 127 files, 549273 bytes
+#   portfolio-front-tools-29: 115 files, 553803 bytes
+#   portfolio-front-tools-30: 128 files, 552818 bytes
 #   portfolio-front-tools-31: 130 files, 556365 bytes
 #   portfolio-front-tools-32: 123 files, 551728 bytes
 #   portfolio-front-tools-33: 89 files, 490201 bytes
@@ -3941,12 +3941,12 @@ configMapGenerator:
       - stucco-repair-bid-calculator__usage.mjs.gz=stucco-repair-bid-calculator__usage.mjs.gz
       - stucco-repair-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=stucco-repair-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
       - stucco-repair-bid-calculator__vs-jobber.html.gz=stucco-repair-bid-calculator__vs-jobber.html.gz
-      - studio-class-slot-optimizer__calc.mjs.gz=studio-class-slot-optimizer__calc.mjs.gz
   - name: portfolio-front-tools-30
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - studio-class-slot-optimizer__calc.mjs.gz=studio-class-slot-optimizer__calc.mjs.gz
       - studio-class-slot-optimizer__index.html.gz=studio-class-slot-optimizer__index.html.gz
       - studio-class-slot-optimizer__usage.mjs.gz=studio-class-slot-optimizer__usage.mjs.gz
       - subdomain-takeover-check__analyze.mjs.gz=subdomain-takeover-check__analyze.mjs.gz

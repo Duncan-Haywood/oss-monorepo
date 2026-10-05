@@ -30,3 +30,9 @@ test("robots and sitemap let crawlers find the page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
 });
+
+test("price-rise simulator is labelled and documented as assumptions", () => {
+  const html = page("index.html");
+  for (const id of ["sim-plan", "sim-pct", "sim-loss", "sim-lift"]) assert.match(html, new RegExp(`<label for="${id}">`));
+  assert.match(html, /not a forecast/);
+});
