@@ -33,39 +33,39 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547459 bytes
-#   portfolio-front-tools-1: 92 files, 555163 bytes
-#   portfolio-front-tools-2: 144 files, 553495 bytes
-#   portfolio-front-tools-3: 128 files, 549085 bytes
-#   portfolio-front-tools-4: 136 files, 553963 bytes
-#   portfolio-front-tools-5: 128 files, 555362 bytes
+#   portfolio-front-tools-0: 145 files, 547455 bytes
+#   portfolio-front-tools-1: 92 files, 555172 bytes
+#   portfolio-front-tools-2: 144 files, 553489 bytes
+#   portfolio-front-tools-3: 128 files, 549066 bytes
+#   portfolio-front-tools-4: 136 files, 553997 bytes
+#   portfolio-front-tools-5: 128 files, 555364 bytes
 #   portfolio-front-tools-6: 122 files, 553875 bytes
-#   portfolio-front-tools-7: 133 files, 554276 bytes
-#   portfolio-front-tools-8: 134 files, 556662 bytes
-#   portfolio-front-tools-9: 135 files, 555987 bytes
-#   portfolio-front-tools-10: 122 files, 555488 bytes
-#   portfolio-front-tools-11: 130 files, 553439 bytes
-#   portfolio-front-tools-12: 130 files, 549912 bytes
-#   portfolio-front-tools-13: 130 files, 550474 bytes
-#   portfolio-front-tools-14: 118 files, 552724 bytes
-#   portfolio-front-tools-15: 119 files, 552735 bytes
-#   portfolio-front-tools-16: 118 files, 554968 bytes
-#   portfolio-front-tools-17: 117 files, 554943 bytes
-#   portfolio-front-tools-18: 123 files, 555293 bytes
-#   portfolio-front-tools-19: 125 files, 551763 bytes
-#   portfolio-front-tools-20: 132 files, 552689 bytes
-#   portfolio-front-tools-21: 124 files, 556053 bytes
-#   portfolio-front-tools-22: 125 files, 555508 bytes
-#   portfolio-front-tools-23: 135 files, 556221 bytes
-#   portfolio-front-tools-24: 118 files, 556372 bytes
-#   portfolio-front-tools-25: 122 files, 550255 bytes
-#   portfolio-front-tools-26: 92 files, 551597 bytes
-#   portfolio-front-tools-27: 119 files, 556208 bytes
-#   portfolio-front-tools-28: 121 files, 555775 bytes
-#   portfolio-front-tools-29: 127 files, 554213 bytes
-#   portfolio-front-tools-30: 130 files, 556875 bytes
-#   portfolio-front-tools-31: 121 files, 549063 bytes
-#   portfolio-front-tools-32: 90 files, 484519 bytes
+#   portfolio-front-tools-7: 133 files, 554233 bytes
+#   portfolio-front-tools-8: 134 files, 556668 bytes
+#   portfolio-front-tools-9: 135 files, 555954 bytes
+#   portfolio-front-tools-10: 122 files, 555449 bytes
+#   portfolio-front-tools-11: 130 files, 553467 bytes
+#   portfolio-front-tools-12: 130 files, 549892 bytes
+#   portfolio-front-tools-13: 130 files, 550463 bytes
+#   portfolio-front-tools-14: 118 files, 552721 bytes
+#   portfolio-front-tools-15: 119 files, 552773 bytes
+#   portfolio-front-tools-16: 118 files, 555009 bytes
+#   portfolio-front-tools-17: 117 files, 554933 bytes
+#   portfolio-front-tools-18: 123 files, 555250 bytes
+#   portfolio-front-tools-19: 125 files, 551767 bytes
+#   portfolio-front-tools-20: 132 files, 552713 bytes
+#   portfolio-front-tools-21: 124 files, 556104 bytes
+#   portfolio-front-tools-22: 125 files, 555533 bytes
+#   portfolio-front-tools-23: 135 files, 556244 bytes
+#   portfolio-front-tools-24: 118 files, 556360 bytes
+#   portfolio-front-tools-25: 122 files, 550298 bytes
+#   portfolio-front-tools-26: 92 files, 551595 bytes
+#   portfolio-front-tools-27: 119 files, 556215 bytes
+#   portfolio-front-tools-28: 121 files, 555768 bytes
+#   portfolio-front-tools-29: 127 files, 554212 bytes
+#   portfolio-front-tools-30: 130 files, 556839 bytes
+#   portfolio-front-tools-31: 121 files, 549132 bytes
+#   portfolio-front-tools-32: 93 files, 498764 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -4327,6 +4327,9 @@ configMapGenerator:
       - xero-invoice-csv-check__calc.mjs.gz=xero-invoice-csv-check__calc.mjs.gz
       - xero-invoice-csv-check__index.html.gz=xero-invoice-csv-check__index.html.gz
       - xero-invoice-csv-check__usage.mjs.gz=xero-invoice-csv-check__usage.mjs.gz
+      - youtube-chapters-check__calc.mjs.gz=youtube-chapters-check__calc.mjs.gz
+      - youtube-chapters-check__index.html.gz=youtube-chapters-check__index.html.gz
+      - youtube-chapters-check__usage.mjs.gz=youtube-chapters-check__usage.mjs.gz
       - youtube-revenue-rpm-analyzer__calc.mjs.gz=youtube-revenue-rpm-analyzer__calc.mjs.gz
       - youtube-revenue-rpm-analyzer__index.html.gz=youtube-revenue-rpm-analyzer__index.html.gz
       - youtube-revenue-rpm-analyzer__usage.mjs.gz=youtube-revenue-rpm-analyzer__usage.mjs.gz
