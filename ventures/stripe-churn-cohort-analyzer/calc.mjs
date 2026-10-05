@@ -208,6 +208,55 @@ export function analyze(subs, { asOf = null } = {}) {
   return { months, cohorts, summary, findings, plans, tenureEndedCount: ended.length };
 }
 
+// Month index the analysis treats as "now" (same rule analyze() uses).
+function nowIndex(subs, asOf) {
+  if (asOf) return monthIndex(asOf);
+  return Math.max(monthIndex(new Date(Math.max(...subs.map((s) => (s.end ?? s.start).getTime())))), Math.max(...subs.map((s) => monthIndex(s.end ?? s.start))));
+}
+
+// Monthly logo churn for one plan (or "all") over the last three complete months.
+export function planChurn(subs, plan = "all", { asOf = null } = {}) {
+  const pool = plan === "all" ? subs : subs.filter((s) => s.plan === plan);
+  if (!pool.length) return 0;
+  const now = nowIndex(subs, asOf);
+  let gone = 0, base = 0;
+  for (let i = now - 3; i < now; i++) {
+    const open = endOfIndex(i - 1);
+    base += pool.filter((s) => activeAt(s, open)).length;
+    gone += pool.filter((s) => s.end && monthIndex(s.end) === i).length;
+  }
+  return base > 0 ? gone / base : 0;
+}
+
+const annuity = (x, months) => { let t = 0; for (let k = 1; k <= months; k++) t += Math.pow(1 - x, k); return t; };
+
+// What a price rise does to recurring revenue over `months`, for the live subscriptions on one plan.
+// increasePct: the rise, e.g. 15. extraLossPct: share of affected subscriptions that cancel as a direct
+// result, right away. churnLiftPts: extra monthly churn points on the survivors for the whole horizon.
+// breakevenLossPct is the extra-cancellation share at which the rise stops paying over the horizon.
+export function simulatePriceIncrease(subs, { plan = "all", increasePct = 10, extraLossPct = 5, churnLiftPts = 0, months = 12, asOf = null } = {}) {
+  if (!subs.length) return { invalid: "No subscriptions to simulate." };
+  const now = nowIndex(subs, asOf);
+  const instant = endOfIndex(now);
+  const live = subs.filter((s) => activeAt(s, instant) && (plan === "all" || s.plan === plan));
+  if (!live.length) return { invalid: "No active subscriptions on that plan." };
+  const p = Math.max(0, increasePct) / 100, e = Math.min(100, Math.max(0, extraLossPct)) / 100;
+  const lift = Math.max(0, churnLiftPts) / 100;
+  const base = Math.min(0.99, planChurn(subs, plan, { asOf }) || planChurn(subs, "all", { asOf }));
+  const mrr0 = live.reduce((t, s) => t + s.mrr, 0);
+  const sBase = annuity(base, months), sNew = annuity(Math.min(0.99, base + lift), months);
+  const without = mrr0 * sBase;
+  const withRise = mrr0 * (1 - e) * (1 + p) * sNew;
+  const breakeven = p > 0 && sNew > 0 ? Math.max(0, 1 - sBase / ((1 + p) * sNew)) : 0;
+  const path = [];
+  for (let k = 1; k <= months; k++) path.push({ month: k, without: mrr0 * Math.pow(1 - base, k), withRise: mrr0 * (1 - e) * (1 + p) * Math.pow(1 - Math.min(0.99, base + lift), k) });
+  return {
+    plan, subscriptions: live.length, currentMrr: mrr0, baselineChurn: base,
+    newMrr: mrr0 * (1 - e) * (1 + p), withoutRevenue: without, withRevenue: withRise, delta: withRise - without,
+    breakevenLossPct: breakeven * 100, pays: withRise >= without, path, months,
+  };
+}
+
 // Deterministic demo data so the example is reproducible.
 export function sampleCsv() {
   let seed = 20260929;

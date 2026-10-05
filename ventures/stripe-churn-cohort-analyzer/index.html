@@ -8,7 +8,7 @@
   <meta property="og:title" content="Stripe Churn and Cohort Analyzer — free, private, CSV in your browser">
   <meta property="og:description" content="MRR waterfall, churn, cohort retention and findings from a Stripe subscriptions export. Nothing leaves your device.">
   <link rel="canonical" href="./index.html">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Stripe Churn & Cohort Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Stripe subscriptions CSV export into an MRR waterfall, monthly churn, cohort retention table and plain-language findings. Runs entirely in your browser; the file is never uploaded.", "featureList": "MRR waterfall, logo and revenue churn, cohort retention heatmap, tenure at cancellation, concentration and plan-gap findings"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Stripe Churn & Cohort Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Stripe subscriptions CSV export into an MRR waterfall, monthly churn, cohort retention table and plain-language findings. Runs entirely in your browser; the file is never uploaded.", "featureList": "price-rise simulator with break-even cancellation share, MRR waterfall, logo and revenue churn, cohort retention heatmap, tenure at cancellation, concentration and plan-gap findings"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I get churn and cohort retention out of Stripe without a paid analytics tool?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Export your subscriptions from the Stripe Dashboard (Billing, Subscriptions, Export) as CSV and drop it here. The tool computes MRR, new and churned MRR, monthly churn and a cohort retention table from the start and cancel dates in the file. Nothing is uploaded; the file is read in your browser."}}, {"@type": "Question", "name": "How is MRR calculated from the export?", "acceptedAnswer": {"@type": "Answer", "text": "Each subscription's amount is normalised to a monthly figure (yearly divided by 12, weekly times 52/12) and multiplied by quantity if the file has a quantity column. Each subscription's MRR is held constant at that value, because a subscription export has no history of upgrades, downgrades or discounts."}}, {"@type": "Question", "name": "What does the tool not see?", "acceptedAnswer": {"@type": "Answer", "text": "Expansion and contraction between plans, coupons, tax, refunds, failed payments and usage billing. A customer who cancels and resubscribes appears as one churn and one new subscription. Treat the numbers as an estimate from the dates and amounts in your file."}}, {"@type": "Question", "name": "What is the difference between logo churn and revenue churn?", "acceptedAnswer": {"@type": "Answer", "text": "Logo churn is the share of customers who left in a month; revenue churn is the share of MRR they represented. If small plans leave more than large ones, revenue churn is the lower of the two."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file you provide and does not replace your own records or a qualified adviser."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
@@ -84,6 +84,20 @@
     <p><button type="button" class="secondary" id="download">Download the monthly table as CSV</button></p>
   </section>
 
+  <section class="card" id="simulator" hidden>
+    <h2>What would a price rise do?</h2>
+    <p class="note">Uses the active subscriptions and each plan's own recent churn from your file. The two sliders are your assumptions, not predictions: nobody can know how many customers a rise will lose until it happens.</p>
+    <label for="sim-plan">Plan</label>
+    <select id="sim-plan"></select>
+    <label for="sim-pct">Price rise (%)</label>
+    <input type="number" id="sim-pct" value="15" min="0" max="200" step="1">
+    <label for="sim-loss">Customers who cancel because of it (%)</label>
+    <input type="number" id="sim-loss" value="5" min="0" max="100" step="1">
+    <label for="sim-lift">Extra monthly churn afterwards (points)</label>
+    <input type="number" id="sim-lift" value="0" min="0" max="20" step="0.1">
+    <p class="stats" id="sim-out"></p>
+  </section>
+
   <section class="card">
     <h2>The model, and what it leaves out</h2>
     <ul>
@@ -91,6 +105,7 @@
       <li><strong>Waterfall.</strong> Start MRR + new − churned = end MRR every month. A subscription that starts and ends in the same month counts in both, so the table always reconciles.</li>
       <li><strong>Logo churn</strong> is subscriptions ended in a month divided by subscriptions active at its start; the summary uses the last three complete months.</li>
       <li><strong>Lifetime</strong> is 1 ÷ monthly logo churn and <strong>revenue LTV</strong> is average revenue per subscription × lifetime. It is revenue, not profit, and is unreliable when churn is near zero.</li>
+      <li><strong>Price-rise simulator.</strong> Takes the subscriptions active now on one plan, applies your rise, removes the share you say cancels at once, then decays the rest at that plan's own recent monthly churn (plus any lift you add) for 12 months, and compares with no rise. Break-even is the cancelled share at which the two totals are equal. It is arithmetic on your assumptions, not a forecast; it ignores grandfathering, annual contracts that renew later, and customers who downgrade instead of leaving.</li>
       <li><strong>Not modelled:</strong> upgrades and downgrades, coupons, tax, refunds, failed-payment recovery, usage billing. A customer who cancels and resubscribes shows as one churn and one new subscription.</li>
     </ul>
   </section>
@@ -120,13 +135,18 @@
   </footer>
 
   <script type="module">
-    import { parseCsv, normalizeRows, analyze, sampleCsv, money, pct } from "./calc.mjs";
+    import { parseCsv, normalizeRows, analyze, sampleCsv, money, pct, simulatePriceIncrease } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    let lastMonths = [];
+    let lastMonths = [], lastSubs = [];
+    function simulate() {
+      const r = simulatePriceIncrease(lastSubs, { plan: $("#sim-plan").value, increasePct: Number($("#sim-pct").value), extraLossPct: Number($("#sim-loss").value), churnLiftPts: Number($("#sim-lift").value) });
+      $("#sim-out").innerHTML = r.invalid ? esc(r.invalid) : `${r.subscriptions} active subscriptions, ${money(r.currentMrr)} MRR, plan churn ${pct(r.baselineChurn)}/month. Over ${r.months} months: <strong>${money(r.withRevenue)}</strong> with the rise against ${money(r.withoutRevenue)} without, a ${r.delta >= 0 ? "gain" : "loss"} of <strong>${money(Math.abs(r.delta))}</strong>. The rise stops paying if more than <strong>${r.breakevenLossPct.toFixed(1)}%</strong> of these customers cancel because of it.`;
+    }
+    for (const id of ["#sim-plan", "#sim-pct", "#sim-loss", "#sim-lift"]) $(id).addEventListener("input", simulate);
 
     function run(text) {
       const n = normalizeRows(parseCsv(text));
@@ -134,7 +154,10 @@
       const r = analyze(n.subs);
       if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
       const s = r.summary;
-      lastMonths = r.months;
+      lastMonths = r.months; lastSubs = n.subs;
+      const plans = [...new Set(n.subs.map((x) => x.plan))].sort();
+      $("#sim-plan").innerHTML = ["all", ...plans].map((p) => `<option value="${esc(p)}">${p === "all" ? "All plans" : esc(p)}</option>`).join("");
+      $("#simulator").hidden = false; simulate();
       $("#report-stats").innerHTML = `${s.firstMonth} to ${s.lastMonth}: <strong>${money(s.currentMrr)} MRR</strong> across ${s.currentCustomers} active subscriptions (average ${money(s.arpa)}). Last 3 complete months (${esc(s.windowLabel)}): logo churn <strong>${pct(s.logoChurn)}</strong>/month, revenue churn ${pct(s.revenueChurn)}/month`
         + (s.lifetimeMonths ? `, implied lifetime ${s.lifetimeMonths.toFixed(1)} months, revenue LTV ${money(s.revenueLtv)}` : "")
         + (s.quickRatio ? `, quick ratio ${s.quickRatio.toFixed(1)}` : "") + ".";
@@ -162,7 +185,7 @@
       $("#file").value = "";
       if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic data for a small SaaS with three plans. Not real customers."; }
     });
-    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; lastMonths = []; status.textContent = "Choose a file or paste CSV text, then click Analyze."; });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; $("#simulator").hidden = true; lastMonths = []; lastSubs = []; status.textContent = "Choose a file or paste CSV text, then click Analyze."; });
     $("#download").addEventListener("click", () => {
       const rows = ["month,start_mrr,new_mrr,churned_mrr,end_mrr,customers,churned_customers"].concat(lastMonths.map((m) => [m.key, m.startMrr, m.newMrr, m.churnedMrr, m.endMrr, m.endCustomers, m.churnedCustomers].map((v) => typeof v === "number" ? Math.round(v * 100) / 100 : v).join(",")));
       const a = document.createElement("a");
