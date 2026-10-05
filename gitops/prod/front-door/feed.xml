@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 737 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 738 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -70,6 +70,14 @@
     <updated>2026-10-05T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free OFX and QFX file checker: finds the problems that make QuickBooks, Quicken, YNAB and Xero reject a bank or credit-card Web Connect file — bad header, unclosed tags, duplicate FITIDs, invalid dates and amounts, unescaped ampersands, DTSTART and DTEND mismatches — and writes the file back fixed. Runs in your browser; the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>QIF File Checker — Fix Wrong Dates and Import Errors</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/qif-file-check/"/>
+    <id>tag:marisstella.dev,2026:tool/qif-file-check</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free QIF checker: finds why a QIF file imports with the wrong month, twice, or not at all (no !Type header, missing ^, mixed date order, bad amounts, unbalanced splits), with line numbers, and writes a repaired file. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>Redirect Map Checker — Find Loops, Chains and 404 Targets Before You Migrate</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Enter your COBRA premium and a marketplace quote and see the total cost of each over the months you need coverage, at five levels of medical care, with the break-even point and your election and special-enrollment deadlines. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>eBay File Exchange Check — Find Bulk Listing CSV Errors Before You Upload</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ebay-file-exchange-check/"/>
-    <id>tag:marisstella.dev,2026:tool/ebay-file-exchange-check</id>
-    <updated>2026-10-04T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free eBay File Exchange and bulk listing CSV checker: finds semicolon or UTF-16 files, titles over 80 characters, UPCs that lost a leading zero, bad UPC and EAN check digits, scientific-notation ItemIDs and SKUs, bad prices, quantities, durations and picture URLs, and active content in descriptions, with line numbers and safe fixes. Runs in your browser; the file is never uploaded.</summary>
   </entry>
 </feed>
