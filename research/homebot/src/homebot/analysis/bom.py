@@ -74,7 +74,7 @@ UNPRICED = [
     "625ZZ bearings (5 x 16 x 5 mm) and an M5 x 45 bolt with nyloc nut (geared elbow): 2 + 1 per arm",
     "4 mm steel rod, 100 mm long (gripper guides; 304 stainless or silver steel): 2 per arm",
     "M4 shoulder screw (or M4 bolt) and M4 heat-set insert (wrist-pitch pivot): 1 per arm",
-    "TPU 95A filament for the jaw pads: about 7 g per arm",
+    "TPU 95A filament for the jaw pads: about 4 g per arm",
     "Servo extension cables (the STS3215 ships with one 3-pin cable)",
     "Wire, XT60 connector and an inline fuse/switch for the battery (mobile)",
 ]

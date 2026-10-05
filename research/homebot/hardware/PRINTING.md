@@ -58,5 +58,5 @@ See `BOM.md` for the full table with masses and print sizes. Stage C (the mobile
 Stage A (one arm) needs one arm set (the plain, not mirrored, files), one `hand`,
 `grip_pinion`, two `jaw`s and two `pad`s, both carriage halves and `post_foot`. Stage B adds the second arm (mirror files) and the head.
 
-Total filament: about 1.1 kg (A), 1.6 kg (B), 2.4 kg (C) including 15 % for supports and failed
-prints (`python -m homebot.analysis.bom`).
+Total filament: about 1.1 kg (A), 1.7 kg (B), 2.5 kg (C) of PLA including 15 % for supports and failed
+prints (`python -m homebot.analysis.bom`), plus about 4 g of TPU per arm for the pads.
