@@ -1295,6 +1295,9 @@ workflows:
 - workflow: meta-ads-fatigue-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: meta-catalog-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: metal-roof-bid-calculator-ci.yml
   classification: none
   publishes: []
