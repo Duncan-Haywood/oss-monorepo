@@ -1202,10 +1202,16 @@ workflows:
 - workflow: bank-statement-pdf-to-csv-ci.yml
   classification: none
   publishes: []
+- workflow: coi-expiry-gap-checker-ci.yml
+  classification: none
+  publishes: []
 - workflow: quickbooks-iif-file-check-ci.yml
   classification: none
   publishes: []
 - workflow: mt940-statement-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: camt053-statement-check-ci.yml
   classification: none
   publishes: []
 - workflow: law-firm-realization-rate-calculator-ci.yml
