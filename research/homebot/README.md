@@ -275,11 +275,17 @@ distance. The v1 arm's results are in brackets.*
 
 ![Learning curves](paper/figures/learning_curves.png)
 
-*Both arms, each reaching its own target (randomised twin, 1 seed, 3 M steps, 29 min):* 80 %
-success on the nominal twin (both hands within 3 cm; median worse hand 18 mm), and 81–90 %
-under most perturbations. It drops to 65 % with doubled servo gain and 34 % at 120 ms latency.
-Both of those lie outside its training ranges. The 14-joint policy is still improving at 3 M
-steps (figure above), so this is an under-trained result rather than a ceiling.
+*Both arms, each reaching its own target (randomised twin, 1 seed, 6 M steps, 66 min).*
+- 87 % success on the nominal twin (both hands within 3 cm; median worse hand 20 mm).
+- 78–90 % under the single servo, mass and noise perturbations.
+- 77 % at 40 ms and 58 % at 80 ms latency, 22 % at 120 ms.
+- 75 % under the combined perturbation.
+
+v1's policy (3 M steps) scored 80 % nominal but held up better under latency (86 % at 80 ms). We
+trained v2 twice as long because v1 was still improving at 3 M. Instead, training success
+peaked near 85 % at about 3 M steps and drifted down to 68 % by 6 M (figure above). With one
+seed each, the differences between the two runs cannot be split between the arm change and the
+longer training. The 14-joint task is the least settled result here.
 
 | ![arm policy](paper/figures/filmstrip_ArmReach.png) |
 |---|

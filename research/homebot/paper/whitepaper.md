@@ -234,9 +234,11 @@ grams of TPU) are listed but not priced.
   and mass errors are nearly irrelevant to a reaching policy within the ranges tested (gain
   x0.5–2, friction x3, mass +25 %). Bus latency decides whether it works at all.
 
-*Two arms (randomised, 1 seed, 3 M steps).* 80 % on the nominal twin, where success means both
-hands within 3 cm. It falls to 65 % with servo gain x2 and 34 % at 120 ms latency, both outside
-its training ranges.
+*Two arms (randomised, 1 seed, 6 M steps).* 87 % on the nominal twin, where success means both
+hands within 3 cm, and 78–90 % under the single non-latency perturbations. Latency hurts more
+than for one arm: 58 % at 80 ms and 22 % at 120 ms, against 86 % and 34 % for the v1 policy
+(3 M steps). The v2 run's training success peaked at about 3 M steps and then declined. With
+one seed per version, we do not attribute the difference.
 
 **E2. Planar or roller base twin?** Both twins receive 12 random drives of 12 s (about 1.8 m
 each) through the same kiwi wheel commands.
