@@ -1284,6 +1284,8 @@ const CATEGORY_RULES = [
       || slug === 'bank-statement-pdf-to-csv'
       // `bai2-to-ofx-converter` joined 2026-10-05: the US BAI2 counterpart of the camt.053/MT940 converter above (control-total and balance check first, then OFX/QBO, QIF or Xero CSV).
       || slug === 'bai2-to-ofx-converter'
+      // `amazon-settlement-to-journal` joined 2026-10-05: the accounting-journal end of the marketplace tools (deposit check first, then a month-split Xero / QuickBooks journal), filed beside the bank-export converters above.
+      || slug === 'amazon-settlement-to-journal'
       // `quickbooks-iif-file-check` joined 2026-10-05: the QuickBooks Desktop IIF half of the import-file pre-flights above, same line-numbered findings and explicit not-checked list.
       || slug === 'quickbooks-iif-file-check'
       // `mt940-statement-check` joined 2026-10-05: the SWIFT MT940 half of the bank-export pre-flights above (balance arithmetic, statement continuity, CSV conversion), same line-numbered findings and explicit not-checked list.
