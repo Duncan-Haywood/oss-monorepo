@@ -1193,6 +1193,9 @@ workflows:
 - workflow: qif-file-check-ci.yml
   classification: none
   publishes: []
+- workflow: mt940-file-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: law-firm-realization-rate-calculator-ci.yml
   classification: none
   publishes: []

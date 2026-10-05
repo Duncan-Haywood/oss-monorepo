@@ -1,0 +1,29 @@
+name: mt940-file-check
+description: >-
+  Free browser tool that checks a SWIFT MT940 bank statement file before it goes into DATEV, Xero,
+  QuickBooks, Sage or a banking app, and says why an import fails: a closing balance that is not the
+  opening balance plus the :61: lines (with the exact difference), amounts written with a dot instead of
+  a comma, missing :20: :25: :60F: :62F: tags, dates that are not real, a statement that does not continue
+  from the previous closing balance, repeated lines, over-long references and umlauts. It gives a line
+  number for each and writes a repaired file (dot to comma, closing -, optional transliteration). The
+  file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 in a new-venture-first session, after ofx-file-check and qif-file-check shipped the
+# other two bank-file formats. MT940 is the format European banks and corporate cash management still
+# export and bookkeepers still import (DATEV, Xero, Sage, Odoo, Exact); camt.053 is its XML successor and
+# is not covered. Nearest existing ventures: ofx-file-check, qif-file-check, bank-csv-to-qbo-converter.
+# First visitor: a bookkeeper or SME finance person whose MT940 import was rejected or whose balance will
+# not reconcile; search phrases like "mt940 import error", "mt940 file format", "mt940 balance does not
+# match", "mt940 validator". Volume not measured with an external tool.
+#
+# Deterministic and local: no bank login, no aggregator, no upload, so no credential or data-protection
+# exposure and no cost per user.
+#
+# Path to revenue (payment rails stay off): lead magnet for bookkeeper audiences, paired with the other
+# bank-file checkers; a paid version, if usage appears, is a batch check over a client folder plus camt.053
+# behind an env-var switch; none built.
+#
+# Liability: format checks on the user's own file, no warranty, independent-of-every-product clause,
+# trademarks used nominatively, no promise any importer will accept the file.
