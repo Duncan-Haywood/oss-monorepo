@@ -1193,7 +1193,12 @@ workflows:
 - workflow: qif-file-check-ci.yml
   classification: none
   publishes: []
+- workflow: xero-bank-statement-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: quickbooks-iif-file-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: mt940-statement-check-ci.yml
   classification: none
   publishes: []

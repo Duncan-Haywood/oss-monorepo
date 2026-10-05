@@ -1276,6 +1276,8 @@ const CATEGORY_RULES = [
       || slug === 'ofx-file-check'
       // `qif-file-check` joined 2026-10-05: the QIF half of the bank-export pre-flights above (no transaction ID, no declared date order), same line-numbered findings and explicit not-checked list.
       || slug === 'qif-file-check'
+      // `xero-bank-statement-csv-check` joined 2026-10-05: the statement-CSV member of the bank-export pre-flights above, same line-numbered findings and explicit not-checked list.
+      || slug === 'xero-bank-statement-csv-check'
       // `quickbooks-iif-file-check` joined 2026-10-05: the QuickBooks Desktop IIF half of the import-file pre-flights above, same line-numbered findings and explicit not-checked list.
       || slug === 'quickbooks-iif-file-check'
       // `mt940-statement-check` joined 2026-10-05: the SWIFT MT940 half of the bank-export pre-flights above (balance arithmetic, statement continuity, CSV conversion), same line-numbered findings and explicit not-checked list.
