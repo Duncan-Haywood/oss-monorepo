@@ -1199,6 +1199,9 @@ workflows:
 - workflow: camt053-to-ofx-converter-ci.yml
   classification: none
   publishes: []
+- workflow: bank-statement-pdf-to-csv-ci.yml
+  classification: none
+  publishes: []
 - workflow: quickbooks-iif-file-check-ci.yml
   classification: none
   publishes: []
