@@ -1,0 +1,49 @@
+name: music-distribution-fee-calculator
+description: >-
+  Free browser calculator for independent musicians: releases per year, streams per month and each distributor's yearly
+  fee, per-release fee and royalty cut become what you keep per year on DistroKid, TuneCore, CD Baby, Amuse, RouteNote and
+  UnitedMasters (every number editable), a cheapest-by-volume ladder, and the streams-per-month crossover where a flat
+  plan overtakes a revenue share. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05: no existing venture covers music distribution. Commercial analogues: distributor pricing pages
+# quote only their own scheme; "DistroKid vs TuneCore vs CD Baby" blog posts compare features with stale fee tables.
+# None offers an interactive net-at-my-volume page with the crossover. Sibling of course-platform-fee-calculator.
+# Where the first visitor comes from: search "DistroKid vs TuneCore cost", "cheapest music distributor", "is DistroKid
+# worth it", "how much does CD Baby take"; r/WeAreTheMusicMakers, r/musicproduction. Volume not measured externally.
+#
+# Path to revenue (payment rails stay off): lead magnet for artists; a later layer could be a royalty-statement analyzer
+# (per-store, per-stream payout) feeding the default payout. Not built: live fee scraping.
+#
+# Liability: arithmetic on user-editable numbers; says presets are unverified, carries no-warranty / not-advice clauses.
+#
+# Unverified: ALL preset schemes and the 0.0035 default payout per stream are from general knowledge, not checked
+# against a live pricing page this session.
+
+hypotheses:
+  - claim: >-
+      An independent artist choosing or reconsidering a distributor will use a free calculator that shows net royalties at
+      their own release count and streams plus the volume where the cheapest scheme changes, because no distributor
+      pricing page does.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars) engage within 90 days of being reachable from the published site.
+  - A user reports a preset fee as wrong and fee drift makes the presets more work to maintain than the page earns.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/music-distribution-fee-calculator/
+  analytics: null
