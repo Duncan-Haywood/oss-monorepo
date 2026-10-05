@@ -1160,6 +1160,9 @@ workflows:
 - workflow: redirect-map-check-ci.yml
   classification: none
   publishes: []
+- workflow: gtin-list-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: shopify-inventory-csv-check-ci.yml
   classification: none
   publishes: []

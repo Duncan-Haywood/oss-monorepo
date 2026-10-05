@@ -1259,7 +1259,9 @@ const CATEGORY_RULES = [
       // `meta-catalog-csv-check` joined 2026-10-05: a Meta (Facebook and Instagram) catalog feed pre-flight, the same line-numbered findings and explicit not-checked list as the import pre-flights above, filed beside them for the same reason.
       || slug === 'meta-catalog-csv-check'
       // `redirect-map-check` joined 2026-10-05: a site-migration redirect map pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them for the same bundle-bound reason.
-      || slug === 'redirect-map-check',
+      || slug === 'redirect-map-check'
+      // `gtin-list-check` joined 2026-10-05: a product-list barcode pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them for the same bundle-bound reason.
+      || slug === 'gtin-list-check',
   },
   {
     id: 'backoffice',
