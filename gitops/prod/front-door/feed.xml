@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 749 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 750 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -136,6 +136,14 @@
     <summary type="text">Free OFX and QFX file checker: finds the problems that make QuickBooks, Quicken, YNAB and Xero reject a bank or credit-card Web Connect file — bad header, unclosed tags, duplicate FITIDs, invalid dates and amounts, unescaped ampersands, DTSTART and DTEND mismatches — and writes the file back fixed. Runs in your browser; the file is never uploaded.</summary>
   </entry>
   <entry>
+    <title>PayPal Activity to Xero and QuickBooks Journal</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/paypal-activity-to-journal/"/>
+    <id>tag:marisstella.dev,2026:tool/paypal-activity-to-journal</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free PayPal activity report to journal converter: proves the Balance column is continuous, splits sales, fees, refunds, disputes and bank transfers by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>QIF File Checker — Fix Wrong Dates and Import Errors</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/qif-file-check/"/>
     <id>tag:marisstella.dev,2026:tool/qif-file-check</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-05T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free 301 redirect map checker for site migrations: finds redirect loops, chains, conflicting duplicates, mass redirects to the homepage, spaces and fragments in URLs, targets missing from the new site and old URLs with no rule, then writes a flattened map for Shopify, Netlify, Apache or nginx. Runs in your browser; the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Stripe Payout Report to Xero and QuickBooks Journal</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/stripe-payout-to-journal/"/>
-    <id>tag:marisstella.dev,2026:tool/stripe-payout-to-journal</id>
-    <updated>2026-10-05T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free Stripe payout reconciliation to journal converter: proves the rows add up to the payout, splits gross sales, Stripe fees, refunds and disputes by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
