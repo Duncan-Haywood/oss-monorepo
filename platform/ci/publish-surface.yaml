@@ -1175,6 +1175,9 @@ workflows:
 - workflow: iban-list-check-ci.yml
   classification: none
   publishes: []
+- workflow: ics-calendar-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: lambda-memory-rightsizer-ci.yml
   classification: none
   publishes: []

@@ -1265,7 +1265,9 @@ const CATEGORY_RULES = [
       // `gtin-list-check` joined 2026-10-05: a product-list barcode pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them for the same bundle-bound reason.
       || slug === 'gtin-list-check'
       // `iban-list-check` joined 2026-10-05: a supplier/payroll bank-detail pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them.
-      || slug === 'iban-list-check',
+      || slug === 'iban-list-check'
+      // `ics-calendar-check` joined 2026-10-05: an iCalendar file pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them for the same bundle-bound reason.
+      || slug === 'ics-calendar-check',
   },
   {
     id: 'backoffice',
