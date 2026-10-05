@@ -172,7 +172,7 @@ jobs:
             echo "- Repository: ${GITHUB_REPOSITORY:-unknown}"
             echo "- Workflow run: ${GITHUB_RUN_ID:-unknown}"
             echo
-            echo "Start now. Consult the router, claim work, implement, verify, and open a PR."
+            echo "Start now. Consult the router, claim work, implement, verify, open a PR, and merge it once it is verified. A pushed branch with no merged PR is unfinished work."
           } > "$PROMPT_PATH"
 
           # portfolio-work.md is REPO_WRITE, so a line equal to a fixed delimiter
