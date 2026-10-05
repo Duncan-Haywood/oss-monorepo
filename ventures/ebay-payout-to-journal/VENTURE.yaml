@@ -1,0 +1,63 @@
+name: ebay-payout-to-journal
+description: >-
+  Free browser tool that turns an eBay Transaction report into balanced accounting journals for Xero,
+  QuickBooks Online and QuickBooks Desktop (IIF). It proves the rows add up to the payout (from the report's
+  Payout row, or a deposit typed in from the bank), books sales, final value fees, Promoted Listings charges,
+  refunds, claims and shipping labels separately instead of the net deposit, splits a payout that straddles a
+  month end into one journal per month, and balances each to an eBay clearing account. Rows no rule recognises
+  are journalled to an uncategorised account rather than dropped. The report is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05. The commercial analogue is A2X (payout-to-journal sync for Shopify, Amazon, eBay, Etsy and
+# others, sold per month to merchants and their bookkeepers) plus eBay accounting integrations in Xero and
+# QuickBooks app stores; this is the no-account, no-upload, one-report-at-a-time version. Sibling of
+# shopify-payout-to-journal, stripe-payout-to-journal, paypal-activity-to-journal and amazon-settlement-to-journal,
+# same engine, different export. eBay is the largest resale marketplace the portfolio covers and already has a fee
+# calculator and a Transaction report profit analyser, but nothing that produces the journal an accountant posts.
+# Search phrases: "eBay payout to Xero", "eBay transaction report to QuickBooks", "eBay payout journal entry",
+# "reconcile eBay payouts", "eBay fees accounting entry", "eBay clearing account".
+# Volume not measured with an external tool.
+#
+# Who: eBay sellers who keep their own books and the bookkeepers serving several sellers, who today book the net
+# deposit as income (wrong: final value fees, ads, refunds and claims are hidden, and a payout across a month end
+# lands in the wrong month) or pay a monthly sync fee.
+#
+# Path to revenue (payment rails stay off): lead magnet for the seller and bookkeeper audience. If usage appears, the
+# paid version is what a browser page cannot do: batch many payouts, remember the account mapping per client, pull
+# reports on a schedule (behind an env-var switch), split shipping income and sales tax out of the order using the
+# order-level columns, and add Etsy, Walmart and Square payouts. Not built.
+#
+# Liability: it writes a journal from the user's own report, shows the check it ran, states what it does not check
+# (tax split, revenue recognition), and carries the no-warranty, independent-of-eBay and financial-data clauses.
+#
+# Unverified: the column names and Type values of the eBay Transaction report, and the Xero, QuickBooks Online and
+# IIF import layouts, are from memory of public help documents; nothing ran against a real eBay report or a live
+# import. The first report this misreads, or a journal an importer refuses, is the priority fix.
+
+hypotheses:
+  - claim: >-
+      An eBay seller or their bookkeeper will paste a Transaction report into a no-upload page to get a
+      month-split journal, because the alternatives are booking the net deposit (hiding fees, refunds and
+      disputes) or paying a monthly sync fee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a payout this tool misreads, or a journal that Xero or QuickBooks refuses, at which point the layouts need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ebay-payout-to-journal/
+  analytics: null

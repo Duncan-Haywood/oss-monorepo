@@ -1290,6 +1290,8 @@ const CATEGORY_RULES = [
       || slug === 'stripe-payout-to-journal'
       // `shopify-payout-to-journal` joined 2026-10-05: the Shopify end of the same payout-to-journal set, filed beside it.
       || slug === 'shopify-payout-to-journal'
+      // `ebay-payout-to-journal` joined 2026-10-05: the eBay end of the same payout-to-journal set (Transaction report, month-split journal), filed beside it.
+      || slug === 'ebay-payout-to-journal'
       // `etsy-statement-to-journal` joined 2026-10-05: the Etsy end of the same payout-to-journal set, filed beside it.
       || slug === 'etsy-statement-to-journal'
       // `square-sales-to-journal` joined 2026-10-05: the Square end of the same payout-to-journal set, filed beside it.
