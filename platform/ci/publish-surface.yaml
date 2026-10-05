@@ -1196,6 +1196,9 @@ workflows:
 - workflow: xero-bank-statement-csv-check-ci.yml
   classification: none
   publishes: []
+- workflow: camt053-to-ofx-converter-ci.yml
+  classification: none
+  publishes: []
 - workflow: quickbooks-iif-file-check-ci.yml
   classification: none
   publishes: []
