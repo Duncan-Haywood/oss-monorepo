@@ -57,3 +57,7 @@ test("usage events named on the page are the ones the code records", () => {
     assert.match(html, new RegExp(`<code>${e}</code>`));
   }
 });
+
+test("footer links to the music distribution fee calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/music-distribution-fee-calculator\/"/);
+});

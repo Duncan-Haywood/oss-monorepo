@@ -52,3 +52,7 @@ test("usage events are recorded and the script cannot reach the network", () => 
 test("the page tells the visitor the preset fees are unverified", () => {
   assert.match(page("index.html"), /not verified/);
 });
+
+test("footer links to the Bandcamp sales report analyzer sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/bandcamp-sales-report-analyzer\/"/);
+});

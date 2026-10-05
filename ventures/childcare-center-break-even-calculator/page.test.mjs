@@ -43,3 +43,7 @@ test("usage events are recorded and the script cannot reach the network", () => 
   assert.doesNotMatch(html, /\bfetch\(|XMLHttpRequest/);
   assert.doesNotMatch(page("calc.mjs"), /\bfetch\(|XMLHttpRequest/);
 });
+
+test("footer links to the childcare tuition calculator sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/childcare-tuition-calculator\/"/);
+});
