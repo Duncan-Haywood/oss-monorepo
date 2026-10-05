@@ -1296,6 +1296,8 @@ const CATEGORY_RULES = [
       || slug === 'square-sales-to-journal'
       // `ebay-payout-to-journal` joined 2026-10-05: the eBay end of the same payout-to-journal set, filed beside it.
       || slug === 'ebay-payout-to-journal'
+      // `gumroad-sales-to-journal` joined 2026-10-05: the Gumroad end of the same payout-to-journal set, filed beside it.
+      || slug === 'gumroad-sales-to-journal'
       // `paypal-activity-to-journal` joined 2026-10-05: the PayPal end of the same payout-to-journal set (Balance-column continuity proof, then a month-split journal), filed beside it.
       || slug === 'paypal-activity-to-journal'
       // `quickbooks-iif-file-check` joined 2026-10-05: the QuickBooks Desktop IIF half of the import-file pre-flights above, same line-numbered findings and explicit not-checked list.
