@@ -1286,6 +1286,8 @@ const CATEGORY_RULES = [
       || slug === 'bai2-to-ofx-converter'
       // `amazon-settlement-to-journal` joined 2026-10-05: the accounting-journal end of the marketplace tools (deposit check first, then a month-split Xero / QuickBooks journal), filed beside the bank-export converters above.
       || slug === 'amazon-settlement-to-journal'
+      // `stripe-payout-to-journal` joined 2026-10-05: the Stripe end of the same payout-to-journal pair, filed beside it.
+      || slug === 'stripe-payout-to-journal'
       // `quickbooks-iif-file-check` joined 2026-10-05: the QuickBooks Desktop IIF half of the import-file pre-flights above, same line-numbered findings and explicit not-checked list.
       || slug === 'quickbooks-iif-file-check'
       // `mt940-statement-check` joined 2026-10-05: the SWIFT MT940 half of the bank-export pre-flights above (balance arithmetic, statement continuity, CSV conversion), same line-numbered findings and explicit not-checked list.

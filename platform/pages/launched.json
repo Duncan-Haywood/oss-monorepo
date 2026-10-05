@@ -646,6 +646,7 @@
     "str-turnover-crew-planner": "2026-10-02",
     "stripe-churn-cohort-analyzer": "2026-09-29",
     "stripe-failed-payment-recovery-analyzer": "2026-09-29",
+    "stripe-payout-to-journal": "2026-10-05",
     "structured-data-drift-check": "2026-09-09",
     "stucco-repair-bid-calculator": "2026-08-26",
     "studio-class-slot-optimizer": "2026-09-30",

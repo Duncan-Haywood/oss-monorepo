@@ -1315,7 +1315,8 @@ const RELATIVE_SELF = relative(
 // +1: `coi-expiry-gap-checker` graduated.
 // +1: `bai2-to-ofx-converter` graduated.
 // +1: `amazon-settlement-to-journal` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 727;
+// +1: `stripe-payout-to-journal` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 728;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
