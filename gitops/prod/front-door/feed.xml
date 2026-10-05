@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 732 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 733 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -54,6 +54,14 @@
     <updated>2026-10-05T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free 301 redirect map checker for site migrations: finds redirect loops, chains, conflicting duplicates, mass redirects to the homepage, spaces and fragments in URLs, targets missing from the new site and old URLs with no rule, then writes a flattened map for Shopify, Netlify, Apache or nginx. Runs in your browser; the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>vCard Checker — Fix a .vcf Contacts File Before Import</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/vcard-contacts-check/"/>
+    <id>tag:marisstella.dev,2026:tool/vcard-contacts-check</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free vCard (.vcf) checker: finds cards with no FN or N, bad email and phone values, impossible birthdays, quoted-printable text, unclosed cards, identical duplicates and wrong line endings that make Google Contacts, Apple Contacts and Outlook skip or garble contacts, and writes the file back fixed. Runs in your browser; the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>1099-NEC Vendor CSV Checker — Find Missing TINs and Who Crosses $2,000 Before You File</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free Etsy bulk listing CSV checker: finds titles over 140 characters, more than 13 tags, tags over 20 characters, bad prices and currency codes, quantities over 999, broken image links, duplicate variation choices and Excel-damaged SKUs, with line numbers, and applies safe fixes. Runs in your browser; the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>EU Bank Statement Reader — Open camt.053 and MT940 Files and Convert to CSV</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-bank-statement-reader/"/>
-    <id>tag:marisstella.dev,2026:tool/eu-bank-statement-reader</id>
-    <updated>2026-10-04T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free camt.053 and MT940 bank statement reader: see balances and entries as a table, check that opening balance plus entries equals the closing balance, catch duplicates and gaps, and download a CSV. Runs in your browser; the file is never uploaded.</summary>
   </entry>
 </feed>
