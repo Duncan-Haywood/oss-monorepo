@@ -58,3 +58,7 @@ test("page offers sample-data buttons and a downloadable fixed file", () => {
   const html = page("index.html");
   for (const id of ["load-example", "load-broken", "download-fixed", "optout", "report-summary"]) assert.match(html, new RegExp(`id="${id}"`));
 });
+
+test("links to the camt.053/MT940 to OFX converter", () => {
+  assert.match(page("index.html"), /href="\.\.\/camt053-to-ofx-converter\/"/);
+});

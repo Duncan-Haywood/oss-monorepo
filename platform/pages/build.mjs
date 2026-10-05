@@ -1278,6 +1278,8 @@ const CATEGORY_RULES = [
       || slug === 'qif-file-check'
       // `xero-bank-statement-csv-check` joined 2026-10-05: the statement-CSV member of the bank-export pre-flights above, same line-numbered findings and explicit not-checked list.
       || slug === 'xero-bank-statement-csv-check'
+      // `camt053-to-ofx-converter` joined 2026-10-05: the conversion half of the camt.053/MT940 pair (balance check first, then OFX/QBO, QIF or Xero CSV), same line-numbered findings and explicit not-checked list.
+      || slug === 'camt053-to-ofx-converter'
       // `quickbooks-iif-file-check` joined 2026-10-05: the QuickBooks Desktop IIF half of the import-file pre-flights above, same line-numbered findings and explicit not-checked list.
       || slug === 'quickbooks-iif-file-check'
       // `mt940-statement-check` joined 2026-10-05: the SWIFT MT940 half of the bank-export pre-flights above (balance arithmetic, statement continuity, CSV conversion), same line-numbered findings and explicit not-checked list.
