@@ -228,35 +228,36 @@ The twin's own encoder quantisation is applied everywhere.
 
 ![Success on perturbed twins](paper/figures/gaps_ArmReach.png)
 
-*One arm reaching a random point at the table: 3 seeds each, 1.5 M steps, about 12.5 min per
+*One v2 arm reaching a random point at the table: 3 seeds each, 1.5 M steps, about 14 min per
 run. Success rate is the mean over seeds (range); the second figure is the median final
-distance.*
+distance. The v1 arm's results are in brackets.*
 
 | Twin the policy is tested on | Trained on the nominal twin | Trained on a randomised twin |
 |---|---|---|
-| nominal | 100 % (99–100), 2 mm | 98 % (96–99), 8 mm |
-| servo gain x0.5 | 100 %, 2 mm | 98 %, 6 mm |
-| servo gain x2 | 100 %, 3 mm | 96 % (92–99), 10 mm |
-| friction x3 | 100 %, 2 mm | 97 % (94–99), 7 mm |
-| links +25 % and 200 g in the hand | 100 %, 2 mm | 98 %, 6 mm |
-| **40 ms action latency** | **10 % (5–14), 51 mm** | 99 %, 5 mm |
-| **80 ms action latency** | **4 %, 79 mm** | 97 %, 8 mm |
-| **120 ms action latency** (beyond the randomised range) | **2 %, 101 mm** | 81 % (74–93), 15 mm |
-| 10 mrad encoder noise | 99 %, 2 mm | 98 %, 8 mm |
-| combined (gain x0.6, friction x2, mass x1.15, +100 g, 80 ms, 5 mrad) | **3 %, 99 mm** | 98 %, 7 mm |
+| nominal | 99 % (98–100), 2 mm [v1 100 %] | 99 %, 8 mm [98 %] |
+| servo gain x0.5 | 99 %, 2 mm | 99 %, 6 mm |
+| servo gain x2 | 99 %, 3 mm | 99 %, 10 mm |
+| friction x3 | 99 %, 2 mm | 99 %, 8 mm |
+| links +25 % and 200 g in the hand | 99 %, 2 mm | 99 %, 7 mm |
+| **40 ms action latency** | **29 % (25–31), 41 mm** [10 %] | 99 %, 6 mm [99 %] |
+| **80 ms action latency** | **8 % (5–12), 67 mm** [4 %] | 99 %, 7 mm [97 %] |
+| **120 ms action latency** (beyond the randomised range) | **2 %, 92 mm** [2 %] | 71 % (45–88), 21 mm [81 %] |
+| 10 mrad encoder noise | 100 %, 2 mm | 100 %, 9 mm |
+| combined (gain x0.6, friction x2, mass x1.15, +100 g, 80 ms, 5 mrad) | **5 %, 83 mm** [3 %] | 100 %, 7 mm [98 %] |
 
-- **Latency is what breaks a nominal policy.** Trained on the exact twin, it ignores halving or
-  doubling the servo gain, tripling friction, 25 % heavier links with 200 g in the hand, and
-  encoder noise. A single control step of action latency (40 ms) takes it from 100 % to 10 %.
+- **Latency is what breaks a nominal policy, on both versions of the arm.** Trained on the exact
+  twin, a policy ignores halving or doubling the servo gain, tripling friction, 25 % heavier
+  links with 200 g in the hand, and encoder noise. A single control step of action latency
+  (40 ms) takes it from 99 % to 29 % (v1: 100 % to 10 %).
   We expect about one step of delay on the real bus, though it is not measured: a sync read of
   20 servos at the default 0.5 ms return delay is about 12 ms before USB latency and inference
   are added.
 - **Randomisation fixes this at a cost.**
-  - Success stays at 97–99 % up to 80 ms.
-  - At 120 ms, beyond anything it saw in training, it still reaches 81 %.
+  - Success stays at 99 % up to 80 ms.
+  - At 120 ms, beyond anything it saw in training, it still reaches 71 % (45–88 % by seed).
   - The price is precision: the median final error rises from 2 mm to 8 mm.
-  - It also needs about 2.3x the samples to reach 90 % training success (0.59 M steps against
-    0.21–0.27 M).
+  - It also needs about 2.3x the samples to reach 90 % training success (0.48–0.59 M steps
+    against 0.20–0.28 M).
 - **Measuring the real bus's latency is therefore the first sim-to-real job**, ahead of
   friction or mass identification.
 
