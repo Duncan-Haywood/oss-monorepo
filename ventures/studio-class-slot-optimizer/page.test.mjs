@@ -103,3 +103,7 @@ test("footer links to the related tools", () => {
     assert.match(html, new RegExp(`href="\\.\\./${slug}/"`), slug);
   }
 });
+
+test("links to the pickleball facility pro forma", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/pickleball-facility-pro-forma\/"/);
+});

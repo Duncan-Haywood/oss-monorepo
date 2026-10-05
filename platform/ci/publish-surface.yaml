@@ -269,6 +269,9 @@ workflows:
 - workflow: bank-csv-to-qbo-converter-ci.yml
   classification: none
   publishes: []
+- workflow: bank-statement-pdf-to-csv-ci.yml
+  classification: none
+  publishes: []
 - workflow: basement-finishing-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -354,6 +357,12 @@ workflows:
   classification: none
   publishes: []
 - workflow: cam-reconciliation-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: camt053-statement-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: camt053-to-ofx-converter-ci.yml
   classification: none
   publishes: []
 - workflow: candle-batch-cost-calculator-ci.yml
@@ -486,6 +495,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: coffee-roaster-margin-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: coi-expiry-gap-checker-ci.yml
   classification: none
   publishes: []
 - workflow: commercial-lease-effective-rent-calculator-ci.yml
@@ -971,6 +983,9 @@ workflows:
 - workflow: google-play-earnings-report-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: gpx-track-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: grant-deadline-tracker-ci.yml
   classification: none
   publishes: []
@@ -984,6 +999,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: gravel-driveway-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: gtin-list-check-ci.yml
   classification: none
   publishes: []
 - workflow: gumroad-sales-fee-analyzer-ci.yml
@@ -1067,7 +1085,13 @@ workflows:
 - workflow: hvac-repair-tier-price-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: iban-list-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: ice-dam-removal-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: ics-calendar-check-ci.yml
   classification: none
   publishes: []
 - workflow: ifta-quarterly-fuel-tax-calculator-ci.yml
@@ -1160,66 +1184,6 @@ workflows:
 - workflow: klaviyo-profile-csv-check-ci.yml
   classification: none
   publishes: []
-- workflow: mailchimp-audience-csv-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: redirect-map-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: gtin-list-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: shopify-inventory-csv-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: payroll-hours-csv-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: iban-list-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: ics-calendar-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: gpx-track-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: vcard-contacts-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: ofx-file-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: qif-file-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: xero-bank-statement-csv-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: camt053-to-ofx-converter-ci.yml
-  classification: none
-  publishes: []
-- workflow: bank-statement-pdf-to-csv-ci.yml
-  classification: none
-  publishes: []
-- workflow: coi-expiry-gap-checker-ci.yml
-  classification: none
-  publishes: []
-- workflow: quickbooks-iif-file-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: mt940-statement-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: camt053-statement-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: law-firm-realization-rate-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: youtube-chapters-check-ci.yml
-  classification: none
-  publishes: []
 - workflow: lambda-memory-rightsizer-ci.yml
   classification: none
   publishes: []
@@ -1239,6 +1203,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: laundromat-machine-payback-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: law-firm-realization-rate-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: lawn-care-bid-calculator-ci.yml
@@ -1394,6 +1361,9 @@ workflows:
 - workflow: mrr-waterfall-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: mt940-statement-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: music-lesson-break-even-ci.yml
   classification: none
   publishes: []
@@ -1443,6 +1413,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: obsidian-plugin-review-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: ofx-file-check-ci.yml
   classification: none
   publishes: []
 - workflow: oidc-trust-policy-check-ci.yml
@@ -1554,6 +1527,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: physician-wrvu-contract-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: pickleball-facility-pro-forma-ci.yml
   classification: none
   publishes: []
 - workflow: pinned-actions-check-ci.yml
@@ -1685,6 +1661,9 @@ workflows:
 - workflow: qbi-deduction-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: qif-file-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: qsbs-exclusion-calculator-ci.yml
   classification: none
   publishes: []
@@ -1695,6 +1674,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: quickbooks-chart-of-accounts-csv-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: quickbooks-iif-file-check-ci.yml
   classification: none
   publishes: []
 - workflow: quickbooks-import-csv-check-ci.yml
@@ -2300,6 +2282,9 @@ workflows:
 - workflow: van-westendorp-pricing-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: vcard-contacts-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: vector-db-cost-calculator-ci.yml
   classification: none
   publishes: []
@@ -2420,10 +2405,16 @@ workflows:
 - workflow: world-clock-widget-ci.yml
   classification: none
   publishes: []
+- workflow: xero-bank-statement-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: xero-contacts-csv-check-ci.yml
   classification: none
   publishes: []
 - workflow: xero-invoice-csv-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: youtube-chapters-check-ci.yml
   classification: none
   publishes: []
 - workflow: youtube-revenue-rpm-analyzer-ci.yml
