@@ -384,6 +384,32 @@ Nominal-trained: PPO, 3 M steps, 55 min per run. Randomised: PPO with an entropy
 
 ![pick policy](paper/figures/filmstrip_ArmPick.png)
 
+**Is a 5 mm cube-position error realistic?** (`experiments/fiducial_pose.py`,
+`homebot.perception`.) The pick policies are told where the cube is, with an error. To check that
+error, the twin renders the head camera of the two-arm build at 720p with pixel noise, looking at
+a 40 mm cube with a 30 mm ArUco marker on its top face. OpenCV finds the marker. The cube
+position is where the ray through the marker centre meets the plane of the cube's top, using the
+camera pose from the head's forward kinematics. Over 200 random placements:
+
+| Head pose used for the estimate | Median horizontal error | 90th percentile |
+|---|---|---|
+| true head angles | 0.8 mm | 1.0 mm |
+| angles as the servos report them (1-tick quantisation, ±0.5° backlash) | 3.5 mm | 6.2 mm |
+| (full marker pose by PnP, true head angles) | 8 mm, plus 11 mm in height | 12 mm |
+
+- **Head backlash, not pixels, sets the error.** At 640x480 the plane method still gives
+  1.1 mm with the true head pose.
+- **The randomised 5 mm per axis is in the right range.** Lens distortion, calibration error
+  and lighting are not modelled, so a real camera will do somewhat worse.
+- **Using the known table plane matters.** PnP from a 30 mm marker seen from 0.6 m gets depth
+  wrong by about a centimetre.
+- **The carriage blocks part of the view.** The marker is found in 179 of 200 images. Twenty of
+  the misses are cubes within 0.265 m of the post, which the arm carriage hides from the head.
+  That is the same zone a vertical grasp cannot reach, so it needs the wrist camera.
+
+The same `homebot.perception` functions run on a real webcam image; only the camera calibration
+changes (`pip install opencv-contrib-python-headless` for this part).
+
 **Base twin: planar or rollers?** (`experiments/base_fidelity.py`, 12 random 12 s drives of about
 1.8 m.) The fast twin moves the base on ideal planar joints, at 89x real time with the arms on
 one core. The detailed twin rolls three omni wheels with 20 passive rollers each through contact,
@@ -457,8 +483,9 @@ CPU only). Bringing up hardware is covered in
   - dynamics randomisation, including randomised action timing (Peng et al. 2018), after visual
     domain randomisation (Tobin et al. 2017).
 - **Tools:** MuJoCo (Todorov et al. 2012), Gymnasium (Towers et al. 2025), Stable-Baselines3
-  (Raffin et al. 2021), PPO (Schulman et al. 2017), CadQuery. Servo protocol and control table:
-  Feetech's FTServo SDK and LeRobot's Feetech tables.
+  (Raffin et al. 2021), PPO (Schulman et al. 2017), CadQuery, OpenCV's ArUco markers
+  (Garrido-Jurado et al. 2014). Servo protocol and control table: Feetech's FTServo SDK and
+  LeRobot's Feetech tables.
 - **Research directions:** digital twins of manipulation workcells and sim-to-real for
   manipulation, the HIRO Group (Alessandro Roncone, CU Boulder,
   <https://hiro-group.ronc.one/>); learning from demonstration and human-robot collaboration in
@@ -491,8 +518,9 @@ Full references: [`paper/refs.bib`](paper/refs.bib). White paper: [`paper/whitep
   projects' BOMs and are marked as such. Small hardware is listed but not priced.
 - **RL scope.**
   - The tasks are reaching and picking with privileged state. The pick task assumes the cube's
-    position is known to about 5 mm, as from a camera and a fiducial. Neither is simulated, and
-    the hardware driver has no pose estimator.
+    position is known to about 5 mm. A rendered head-camera check with a fiducial supports that
+    figure, but the policies were not trained on images, and the hardware loop does not yet run
+    the estimator.
   - The pads are rigid boxes with a friction coefficient.
   - The randomised pick policies reach 77 % on the nominal twin, against 91 % for policies
     trained without randomisation.
@@ -505,9 +533,9 @@ Full references: [`paper/refs.bib`](paper/refs.bib). White paper: [`paper/whitep
 2. Print and test the v2 gripper and elbow stage: rod fit and racking of the jaws, backlash of
    the 2:1 elbow, and whether the 38 MPa stall stress is survivable.
 3. Run the 1 m square odometry test to decide between the planar and roller base twins.
-4. Close the pick task's state gap: estimate the cube pose from the wrist camera (a printed
-   fiducial on the object), then train on images. Test whether a wider jaw opening fixes the
-   large-cube failures.
+4. Close the pick task's state gap: run `homebot.perception` on the real head and wrist cameras,
+   with the wrist camera covering the zone the carriage hides. Then train on images. Test
+   whether a wider jaw opening fixes the large-cube failures.
 5. Collect teleoperated demonstrations with a mirrored leader arm for learning from
    demonstration, and add pick-and-place.
 

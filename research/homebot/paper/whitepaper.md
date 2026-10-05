@@ -330,6 +330,25 @@ is validation on synthetic data only.
   closer than 0.26 m to the post, where the scripted vertical grasp (Section 4) finds no
   solution.
 
+**E6. Can a camera supply the cube position?** The pick policies observe the cube position
+with a randomised 5 mm (per axis) error. To check that figure, we render the stage-B head
+camera (60° vertical field of view, at 1.3 m) at 720p with Gaussian pixel noise (σ = 2/255).
+The scene is a 40 mm cube with a 30 mm ArUco marker [garrido2014automatic] on its top face, at
+200 random placements. OpenCV detects the marker. We then intersect the ray through its centre
+with the plane of the cube's top face, using the camera pose from the head's forward kinematics.
+- *True head angles:* median 0.8 mm horizontal error (90th percentile 1.0 mm); 1.1 mm at
+  640x480.
+- *Angles as the servos report them* (quantised to one tick and offset by up to the datasheet's
+  0.5° backlash): 3.5 mm median, 6.2 mm at the 90th percentile.
+- *Full marker pose by PnP*, without the plane: 8 mm horizontal and 11 mm vertical median
+  error, because a 30 mm marker at 0.6 m constrains depth poorly.
+- *Visibility:* the carriage hides the table within 0.265 m of the post from the head (20 of
+  the 21 failed detections).
+
+The randomised 5 mm is therefore of the right order for a head camera. The error budget is set
+by the head servos' backlash, not by image resolution. Lens distortion and calibration error,
+which are not modelled, would add to it.
+
 **A bug the second twin caught.** The first mobile run reported 93/100 tip-overs under +25 %
 mass on the planar twin, and none on the roller twin. MuJoCo precomputes subtree masses, and
 randomising `body_mass` without refreshing them had scaled the centre of mass on which the ZMP
@@ -343,9 +362,9 @@ is fixed with a regression test, and the mobile policy reported here was retrain
   (≤0.5° per the datasheet), deadband, thermal limits and printed-part compliance are not
   modelled.
 - The planar base cannot tip; tipping is inferred from the ZMP [vukobratovic2004zero].
-- The RL tasks use privileged state: target and cube positions, joint angles. The pick task
-  assumes a camera and fiducial would supply the cube position with about 5 mm error; neither is
-  simulated. Contacts are rigid apart from MuJoCo's soft-contact parameters, and the TPU pads
+- The RL tasks use privileged state: target and cube positions, joint angles. A rendered
+  head-camera check (E6) supports the pick task's 5 mm position error, but no policy sees
+  images. Contacts are rigid apart from MuJoCo's soft-contact parameters, and the TPU pads
   are modelled by friction only.
 - The randomised pick policies reach 77 % on the nominal twin, well below the nominal-trained
   91 %. Larger openings, touch sensing from the servo load, or longer training are untested.
@@ -375,4 +394,4 @@ BibTeX in `refs.bib`. Cited keys: todorov2012mujoco, towers2025gymnasium, raffin
 schulman2017proximal, tobin2017domain, peng2018sim, tan2018sim, hwangbo2019learning,
 duclusaud2025extended, zhao2023learning, fu2024mobile, kemp2022design, cadene2024lerobot,
 vukobratovic2004zero, siegwart2011introduction, openduckmini, wang2025xlerobot, soarm100,
-lekiwi, feetechsts3215, ftservosdk.
+lekiwi, feetechsts3215, ftservosdk, garrido2014automatic.
