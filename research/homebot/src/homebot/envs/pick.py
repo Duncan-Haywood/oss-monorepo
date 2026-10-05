@@ -2,9 +2,10 @@
 
 The policy moves the seven arm joints and the gripper by increments of their servo targets
 (as in the reach tasks; up to 4 mm of jaw travel per step, the servo itself moves about
-0.7 mm per step), starting with the gripper open. It observes its joints, the gripper servo's load (the STS3215 reports it) and
-an estimate of the cube's position and yaw, as a camera with a fiducial on the cube would
-give; there is no touch sensing. Domain randomisation adds cube size, mass and friction, pad
+0.7 mm per step), starting with the gripper open. It observes its joints, the gripper servo's
+load (the STS3215 reports it) and an estimate of the cube's position and yaw, as a camera with
+a fiducial on the cube would give (``homebot.perception``, ``experiments/fiducial_pose.py``);
+there is no touch sensing. Domain randomisation adds cube size, mass and friction, pad
 friction and a 5 mm error on the cube position to the servo randomisation of the reach tasks.
 
 Success: at the end of the episode the cube is at least 5 cm above the table and held

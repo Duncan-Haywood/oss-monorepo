@@ -38,6 +38,19 @@ def style(ax):
     ax.set_axisbelow(True)
 
 
+def randomised(r, rs) -> bool | None:
+    """True/False for the regime a run is plotted as, None to leave it out. Where an env has a
+    training-setting variant of the randomised runs (ArmPick: entropy bonus), the variant is the
+    reported randomised regime and the plain first attempt is left out."""
+    if not r["meta"]["dr"]:
+        return False
+    env = r["meta"]["env"]
+    has_variant = any(x["meta"]["env"] == env and x["meta"]["dr"] and x["meta"].get("variant") for x in rs)
+    if has_variant and not r["meta"].get("variant"):
+        return None
+    return True
+
+
 def runs():
     out = []
     for p in sorted(RUNS.glob("*/eval.json")):
@@ -66,7 +79,7 @@ def learning(rs):
         style(ax)
         regimes = []
         for dr in (False, True):
-            g = [r for r in rs if r["meta"]["env"] == env and r["meta"]["dr"] == dr]
+            g = [r for r in rs if r["meta"]["env"] == env and randomised(r, rs) is dr]
             if not g:
                 continue
             regimes.append(dr)
@@ -104,7 +117,7 @@ def gaps(rs, env="ArmReach"):
     ax.grid(False, axis="y")
     y = np.arange(len(names))[::-1]
     for dr, off in ((False, 0.12), (True, -0.12)):
-        g = [r for r in g_all if r["meta"]["dr"] == dr]
+        g = [r for r in g_all if randomised(r, rs) is dr]
         if not g:
             continue
         s = np.array([[r["eval"][n]["success_rate"] for n in names] for r in g])
