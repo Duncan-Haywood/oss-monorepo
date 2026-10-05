@@ -1181,6 +1181,9 @@ workflows:
 - workflow: vcard-contacts-check-ci.yml
   classification: none
   publishes: []
+- workflow: youtube-chapters-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: lambda-memory-rightsizer-ci.yml
   classification: none
   publishes: []
