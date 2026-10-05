@@ -24146,6 +24146,38 @@ ventures:
       construction advice, no warranty, no market data asserted, limits stated in
       two places. Nothing leaves the browser. Ethics: helps a homeowner see the
       numbers before a large spend; says the value uplift is the weakest input.
+  - slug: pickleball-facility-pro-forma
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.333
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic capacity, P&L, ramp cash-curve and break-even arithmetic in
+      the browser; no language model and no paid API. The value is one honest
+      pro-forma with sensitivities and a one-at-a-time profit-lever ranking.
+    basis: >-
+      Screened 2026-10-05; full write-up in this venture's own VENTURE.yaml
+      comment. Distribution 7: "pickleball facility business plan" and "cost to
+      open an indoor pickleball facility" are high-intent queries, and r/pickleball
+      and facility-owner groups trade exactly these numbers (volume not measured
+      with an external tool). Defensibility 3: spreadsheets and consultant
+      templates exist; the edge is a private no-signup tool with break-evens, a
+      ramp curve and lever ranking.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not legal, tax or financial
+      advice, no warranty, no market data asserted, limits stated in two places.
+      Nothing leaves the browser. Ethics: helps an owner see the numbers before a
+      large commitment; says what it does not model.
   - slug: dog-grooming-profit-calculator
     scores:
       ai_leverage: 3
