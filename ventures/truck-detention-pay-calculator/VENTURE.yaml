@@ -1,0 +1,51 @@
+name: truck-detention-pay-calculator
+description: >-
+  Free browser calculator for truck drivers and owner-operators: arrival, appointment and departure times plus the
+  detention terms from the rate confirmation (rate, free time, billing increment, cap) become the billable detention
+  hours, the amount owed per stop, real hourly pay on the load with and without the claim, a yearly figure, and a
+  claim email ready to paste to the broker. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05. Commercial analogues: detention-tracking features inside trucking TMS/ELD products (Trucker
+# Path, Motive, Samsara geofence dwell reports) and broker-side detention request forms; none offers a free
+# no-signup "enter the gate times, get the number and the email" page. Sibling of freight-accessorial-auditor
+# (shipper side, audits carrier invoices); this is the carrier side, the claim a driver files. Search phrases:
+# "detention pay calculator trucking", "how to calculate detention pay", "truck detention pay rate",
+# "detention request email to broker". Volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet for owner-operators, linked from the CPM, load-chain and
+# per diem calculators. A later paid layer could be multi-load detention history and invoice-ready PDF claims.
+# Not built: ELD/geofence import.
+#
+# Liability: arithmetic on the user's own times and contract terms; says the contract decides, carries the
+# no-warranty / not-advice clauses.
+#
+# Unverified: the "typical terms" in the FAQ (2h free, $40-$100/h, 15/30 min increments, 24-72h windows) are
+# common industry practice from general knowledge, not checked against a source in this session.
+
+hypotheses:
+  - claim: >-
+      An owner-operator who waited at a dock will search for how to calculate detention and use a free, no-signup
+      calculator that also writes the claim email.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars) engage within 90 days of being reachable from the published site.
+  - A user reports the clock or rounding rule this tool applies as wrong for their contract.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/truck-detention-pay-calculator/
+  analytics: null
