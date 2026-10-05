@@ -2966,7 +2966,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `bank-statement-pdf-to-csv` graduated (browser bank/credit card statement PDF to CSV with a balance proof: opening + rows = closing, running-balance sign check, Xero/QuickBooks layouts).
     # +1: `coi-expiry-gap-checker` graduated (browser subcontractor certificate-of-insurance list checker: expiry and lead time, limits with umbrella make-up, endorsements, renewal gaps, chase list and .ics).
     # +1: `pickleball-facility-pro-forma` graduated (browser indoor pickleball/padel facility pro-forma: steady-state P&L, break-even utilization and members, 24-month ramp cash curve, sensitivities, profit-lever ranking).
-    total = 757  # `infra/OWNER_CHECKLIST.md`'s own "N of the 757 tools" wording.
+    total = 758  # `infra/OWNER_CHECKLIST.md`'s own "N of the 758 tools" wording.
     # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).
