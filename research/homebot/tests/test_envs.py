@@ -138,3 +138,32 @@ def test_pick_reward_counts_a_held_cube():
         _, r, term, _, info = env.step(act)
     assert info["grasped"] and not term
     assert info["lift"] > 0.05 and info["is_success"]  # held 14 cm above the table
+
+
+def test_pick_camera_model_holds_and_follows():
+    """The camera observation model: a stale estimate while the hand hides the cube, on the
+    table plane, and carried with the hand once the gripper servo reports a hold."""
+    import mujoco
+
+    env = ENVS["ArmPick"](randomize=Randomization(camera_model=True, object_pose_noise=0.0,
+                                                  frame_dropout=(0.0, 0.0)), seed=0)
+    env.reset(seed=0)
+    env._camera.update(period=1, radius=0.15)
+    m, d = env.model, env.data
+    est0, _ = env._camera_estimate()
+    assert np.allclose(est0, env.cube_pos(), atol=1e-9)
+    # hand over the cube: the cube moves 5 cm but the estimate does not
+    a = env._cube_q
+    d.qpos[a:a + 2] = env.tcp(0)[:2] + np.array([0.02, 0.0])
+    mujoco.mj_forward(m, d)
+    env.t = 1
+    est1, _ = env._camera_estimate()
+    assert np.allclose(est1, est0)
+    # a hold: the estimate is attached at its offset from the hand, then follows the hand
+    env._cam_est = env.tcp(0).copy()
+    env.holding = lambda: True
+    env._camera_estimate()
+    d.qpos[env.jnt["r_shoulder_pitch"][0]] += 0.2
+    mujoco.mj_forward(m, d)
+    est2, _ = env._camera_estimate()
+    assert np.allclose(est2, env.tcp(0), atol=1e-9)

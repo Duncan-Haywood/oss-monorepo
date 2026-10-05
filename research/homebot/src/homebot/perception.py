@@ -77,14 +77,25 @@ def marker_centre_pixel(corners: np.ndarray) -> np.ndarray:
     return x[:2] / x[2]
 
 
-def locate_on_plane(corners: np.ndarray, K: np.ndarray, cam_pos, R_cam: np.ndarray, plane_z: float) -> np.ndarray:
-    """World position of the marker centre, given that it lies on the plane z = ``plane_z``."""
-    d = pixel_ray(marker_centre_pixel(corners), K, R_cam)
+def pixel_on_plane(uv, K: np.ndarray, cam_pos, R_cam: np.ndarray, plane_z: float) -> np.ndarray:
+    """World point seen at pixel ``uv`` on the plane z = ``plane_z``."""
+    d = pixel_ray(uv, K, R_cam)
     p = np.asarray(cam_pos, float)
     if abs(d[2]) < 1e-9:
         raise ValueError("ray parallel to the plane")
-    t = (plane_z - p[2]) / d[2]
-    return p + t * d
+    return p + (plane_z - p[2]) / d[2] * d
+
+
+def locate_on_plane(corners: np.ndarray, K: np.ndarray, cam_pos, R_cam: np.ndarray, plane_z: float) -> np.ndarray:
+    """World position of the marker centre, given that it lies on the plane z = ``plane_z``."""
+    return pixel_on_plane(marker_centre_pixel(corners), K, cam_pos, R_cam, plane_z)
+
+
+def yaw_on_plane(corners: np.ndarray, K: np.ndarray, cam_pos, R_cam: np.ndarray, plane_z: float) -> float:
+    """Direction (rad, about z) of the marker's first edge on the plane. A square marker on a
+    cube face gives the cube's yaw modulo 90 deg, whichever way the label was printed."""
+    p0, p1 = (pixel_on_plane(c, K, cam_pos, R_cam, plane_z) for c in corners[:2])
+    return math.atan2(p1[1] - p0[1], p1[0] - p0[0])
 
 
 def locate_pnp(corners: np.ndarray, K: np.ndarray, cam_pos, R_cam: np.ndarray, marker_len: float) -> np.ndarray:

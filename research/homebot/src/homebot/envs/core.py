@@ -43,6 +43,13 @@ class Randomization:
     object_friction: tuple[float, float] = (0.3, 0.8)
     pad_friction: tuple[float, float] = (0.65, 1.25)  # multiplies the TPU pad estimate
     object_pose_noise: float = 0.005  # m, error of the object position estimate (camera/fiducial)
+    # camera observation model (off by default; ArmPick only): the object estimate refreshes every
+    # 1-5 control steps, is held while the hand is over the object or a frame drops out, sits on
+    # the table plane, and follows the hand once the gripper servo reports a hold
+    camera_model: bool = False
+    camera_period: tuple[int, int] = (1, 5)  # control steps between camera frames
+    occlusion_radius: tuple[float, float] = (0.06, 0.15)  # m, hand-to-object horizontal distance
+    frame_dropout: tuple[float, float] = (0.0, 0.5)  # probability that a frame finds no marker
 
 
 @dataclass(frozen=True)
@@ -61,6 +68,9 @@ class Gap:
     pad_friction: float = 1.0
     object_mass: float | None = None  # kg; None = the task's nominal object
     object_pose_noise: float = 0.0
+    camera_period: int = 0  # >0: the camera observation model, one frame per this many steps
+    occlusion_radius: float = 0.10
+    frame_dropout: float = 0.0
 
 
 GAPS = {
@@ -81,6 +91,9 @@ OBJECT_GAPS = {
     "slippery_pads": Gap(pad_friction=0.55),  # worn or dusty TPU, a glossy object
     "heavy_object": Gap(object_mass=0.30),  # outside the randomised range (30-200 g)
     "pose_error_10mm": Gap(object_pose_noise=0.010),  # outside the randomised 5 mm
+    # the object pose from a head camera at 5 Hz, held while the hand hides the object
+    # (Randomization.camera_model; compare experiments/pick_camera_loop.py, which renders it)
+    "camera_5hz": Gap(object_pose_noise=0.004, camera_period=5, occlusion_radius=0.10),
 }
 
 

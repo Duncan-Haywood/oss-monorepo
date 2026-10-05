@@ -20,6 +20,9 @@ import numpy as np
 from .core import GAPS, OBJECT_GAPS, HomebotEnv, arm_joint_names
 
 TABLE_TOP = 0.75
+HOLD_OPENING = 0.004  # m per jaw: the gripper holds something if it stopped wider than this ...
+HOLD_SPEED = 0.002  # m/s ... and its servo load is at least HOLD_LOAD of the force limit
+HOLD_LOAD = 0.5
 LIFT = 0.08  # m, the lift the reward asks for
 SUCCESS_LIFT = 0.05  # m
 NOMINAL = {"size": 0.04, "mass": 0.06, "friction": 0.5}
@@ -103,6 +106,14 @@ class ArmPick(HomebotEnv):
             noise = R.object_pose_noise
         self._set_object(size, mass, fric, pad)
         self._pose_noise = noise
+        self._camera = None
+        R = self.randomize
+        if self.gap is not None and self.gap.camera_period > 0:
+            self._camera = {"period": self.gap.camera_period, "radius": self.gap.occlusion_radius,
+                            "dropout": self.gap.frame_dropout}
+        elif self.gap is None and R is not None and R.camera_model:
+            self._camera = {"period": int(rng.integers(R.camera_period[0], R.camera_period[1] + 1)),
+                            "radius": rng.uniform(*R.occlusion_radius), "dropout": rng.uniform(*R.frame_dropout)}
 
     def _sample_task(self):
         rng = self._np_random
@@ -116,6 +127,7 @@ class ArmPick(HomebotEnv):
         # the estimate of the cube pose is biased per episode (calibration error) plus jitter
         self._pose_bias = rng.normal(0.0, self._pose_noise, 3) if self._pose_noise > 0 else np.zeros(3)
         self.max_lift = 0.0
+        self._cam_est, self._cam_yaw, self._cam_offset = None, 0.0, None
 
     # ------------------------------------------------------------------ observation
     def cube_pos(self) -> np.ndarray:
@@ -125,14 +137,51 @@ class ArmPick(HomebotEnv):
         w, x, y, z = self.data.qpos[self._cube_q + 3:self._cube_q + 7]
         return math.atan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z))
 
+    # An external estimator (e.g. a camera, experiments/pick_camera_loop.py) can replace the
+    # simulator's cube pose: a callable returning (position, yaw), called once per observation.
+    cube_estimator = None
+
+    def holding(self) -> bool:
+        """What the gripper servo can tell: jaws stopped short of closed, load at the limit."""
+        qa, va = self.jnt["r_gripper"][0], self.jnt["r_gripper"][1]
+        load = abs(float(self.data.actuator_force[self._grip_act])) / self._grip_max
+        return (float(self.data.qpos[qa]) > HOLD_OPENING and abs(float(self.data.qvel[va])) < HOLD_SPEED
+                and load > HOLD_LOAD)
+
+    def _camera_estimate(self):
+        """The cube pose as a camera pipeline would deliver it (see Randomization.camera_model):
+        refreshed at the camera rate unless the hand hides the cube or the frame drops out, placed
+        on the table plane, and carried with the hand while the gripper holds something."""
+        c, rng = self._camera, self._np_random
+        Rh = self.data.xmat[self.model.body("r_hand").id].reshape(3, 3)
+        tcp = self.tcp(0)
+        if self._cam_est is not None and self.holding():
+            if self._cam_offset is None:
+                self._cam_offset = Rh.T @ (self._cam_est - tcp)
+            self._cam_est = tcp + Rh @ self._cam_offset
+            return self._cam_est.copy(), self._cam_yaw
+        self._cam_offset = None
+        cube = self.cube_pos()
+        hidden = (np.hypot(*(tcp[:2] - cube[:2])) < c["radius"] and tcp[2] > cube[2]) or rng.random() < c["dropout"]
+        if self._cam_est is None or (self.t % c["period"] == 0 and not hidden):
+            est = cube + self._pose_bias + rng.normal(0.0, 0.3 * self._pose_noise, 3)
+            est[2] = self.rest_z + self._pose_bias[2]  # the marker is located on the table plane
+            self._cam_est, self._cam_yaw = est, self.cube_yaw()
+        return self._cam_est.copy(), self._cam_yaw
+
     def _task_obs(self):
         d = self.data
         tcp = self.tcp(0)
-        est = self.cube_pos() + self._pose_bias
-        if self._pose_noise > 0:
-            est = est + self._np_random.normal(0.0, 0.3 * self._pose_noise, 3)
+        if self.cube_estimator is not None:
+            est, yaw = self.cube_estimator()
+        elif self._camera is not None:
+            est, yaw = self._camera_estimate()
+        else:
+            est = self.cube_pos() + self._pose_bias
+            if self._pose_noise > 0:
+                est = est + self._np_random.normal(0.0, 0.3 * self._pose_noise, 3)
+            yaw = self.cube_yaw()
         Rh = d.xmat[self.model.body("r_hand").id].reshape(3, 3)
-        yaw = self.cube_yaw()
         load = d.actuator_force[self._grip_act] / self._grip_max
         ref = np.array([0.32, -0.18, TABLE_TOP])
         return np.concatenate([est - tcp, est - ref, tcp - ref, Rh[:, 0], Rh[:, 2],

@@ -24,11 +24,12 @@ sys.path.insert(0, str(HERE.parent / "src"))
 from homebot.envs import ENVS, GAPS, Randomization  # noqa: E402
 
 
-def make_env(name, randomize, gap=None, seed=0):
+def make_env(name, randomize, gap=None, seed=0, camera_model=False):
     def thunk():
         from stable_baselines3.common.monitor import Monitor
 
-        env = ENVS[name](randomize=Randomization() if randomize else None, gap=gap, seed=seed)
+        R = Randomization(camera_model=camera_model) if randomize else None
+        env = ENVS[name](randomize=R, gap=gap, seed=seed)
         return Monitor(env, info_keywords=("is_success",))
 
     return thunk
@@ -90,8 +91,12 @@ def main():
     ap.add_argument("--eval-also", nargs="*", default=[],
                     help="other envs with the same spaces to evaluate on (e.g. MobileReachRollers)")
     ap.add_argument("--eval-also-gaps", nargs="*", default=["nominal", "combined"])
+    ap.add_argument("--gaps", nargs="*", default=None,
+                    help="with --eval-only: evaluate only these twins and merge them into eval.json")
     ap.add_argument("--ent-coef", type=float, default=0.0, help="PPO entropy bonus")
     ap.add_argument("--variant", default="", help="label for a training-setting ablation (part of the run tag)")
+    ap.add_argument("--camera-model", action="store_true",
+                    help="ArmPick: train on the camera observation model (Randomization.camera_model)")
     args = ap.parse_args()
 
     import torch
@@ -108,9 +113,11 @@ def main():
             print(f"eval on {name}", flush=True)
             gaps = None if name == args.env else args.eval_also_gaps
             out.setdefault("cross_eval" if name != args.env else "eval", {})
+            if name == args.env and args.gaps:
+                gaps = args.gaps
             res = evaluate(model, run / "vecnormalize.pkl", name, args.eval_episodes, gaps=gaps)
             if name == args.env:
-                out["eval"] = res
+                out["eval"] = {**out.get("eval", {}), **res} if args.gaps else res
             else:
                 out["cross_eval"][name] = res
         (run / "eval.json").write_text(json.dumps(out, indent=2))
@@ -119,7 +126,8 @@ def main():
     tag = f"{args.env}_{'dr' if args.dr else 'nominal'}{'_' + args.variant if args.variant else ''}_s{args.seed}"
     run = Path(args.out) / tag
     run.mkdir(parents=True, exist_ok=True)
-    venv = SubprocVecEnv([make_env(args.env, args.dr, None, args.seed * 1000 + i) for i in range(args.n_envs)])
+    venv = SubprocVecEnv([make_env(args.env, args.dr, None, args.seed * 1000 + i, args.camera_model)
+                          for i in range(args.n_envs)])
     venv = VecNormalize(venv, norm_obs=True, norm_reward=True, gamma=0.98, clip_obs=10.0)
     episode_steps = ENVS[args.env].episode_steps
     model = PPO(
@@ -138,6 +146,7 @@ def main():
     print(f"{tag}: trained {args.steps} steps in {wall / 60:.1f} min", flush=True)
     res = evaluate(model, run / "vecnormalize.pkl", args.env, args.eval_episodes)
     meta = {"env": args.env, "dr": args.dr, "variant": args.variant, "ent_coef": args.ent_coef,
+            "camera_model": args.camera_model,
             "seed": args.seed, "steps": args.steps, "wall_minutes": wall / 60,
             "n_envs": args.n_envs, "torch_threads": 1, "cpu_count": os.cpu_count()}
     out = {"meta": meta, "eval": res, "cross_eval": {}}
