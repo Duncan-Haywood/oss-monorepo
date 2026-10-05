@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 727 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 728 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-10-05T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Facebook &amp; Instagram Catalog Feed Checker — Find CSV Errors Before You Upload</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/meta-catalog-csv-check/"/>
+    <id>tag:marisstella.dev,2026:tool/meta-catalog-csv-check</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free Meta catalog feed CSV checker for Commerce Manager: finds semicolon or UTF-16 files, missing required columns, duplicate ids, prices without a currency, bad sale prices, wrong availability values, empty or http links, WebP images, invalid barcodes and Excel damage, with line numbers and safe fixes. Runs in your browser; the file is never uploaded.</summary>
+  </entry>
   <entry>
     <title>Redirect Map Checker — Find Loops, Chains and 404 Targets Before You Migrate</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/redirect-map-check/"/>
@@ -158,13 +166,5 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free Google Ads Editor CSV checker: finds headlines over 30 characters, descriptions over 90, responsive search ads with too few headlines, exclamation marks, duplicate headlines and keywords, bad keyword symbols and match types, Final URLs without https, and budgets or bids with currency symbols, with line numbers and safe fixes. Runs in your browser; the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>HubSpot Contacts CSV Check — Find Import Errors Before You Upload</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hubspot-contacts-csv-check/"/>
-    <id>tag:marisstella.dev,2026:tool/hubspot-contacts-csv-check</id>
-    <updated>2026-10-04T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free HubSpot contacts and companies CSV checker: finds duplicate and invalid emails, Excel-damaged phone numbers and ZIP codes, date format problems, bad lifecycle stage and lead status values and headings HubSpot will not match, with line numbers, and applies formatting-only safe fixes. Runs in your browser; the file is never uploaded.</summary>
   </entry>
 </feed>

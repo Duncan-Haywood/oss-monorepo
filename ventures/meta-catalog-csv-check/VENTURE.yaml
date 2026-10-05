@@ -1,0 +1,35 @@
+name: meta-catalog-csv-check
+description: >-
+  Free browser tool that checks a Meta (Facebook and Instagram) catalog feed (CSV or TSV) before it is
+  uploaded to Commerce Manager: semicolon or UTF-16 files, missing required columns, duplicate or damaged
+  ids, prices without an ISO currency or written with a symbol or decimal comma, sale prices not below the
+  price or in another currency, availability and condition values, empty or http product links, WebP and
+  SVG images, GTIN check digits and Excel-damaged barcodes, titles in capitals or carrying promotional
+  text, and item-group variants with identical options, each with its line number, plus a safe-fixes pass
+  that converts the delimiter, spells availability as Meta expects and restores a barcode's leading zeros
+  only when the check digit confirms them. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 in a new-venture-first session. Sibling checkers read Shopify, WooCommerce, Etsy,
+# eBay, Amazon and Google Merchant files; none reads the Meta catalog feed, which every small store that
+# runs Instagram Shopping or dynamic ads maintains by hand. Feed-management SaaS (DataFeedWatch,
+# Channable, Feedonomics) sells ongoing sync and rules to agencies; this is the stateless one-shot file
+# check for the CSV a seller already has open, and does not compete for the query "Facebook catalog
+# upload error".
+#
+# First visitor: small-store owners and agency staff searching the literal symptoms ("Facebook catalog
+# CSV error", "Commerce Manager feed price format", "Instagram shop catalog image link error", "catalog
+# upload duplicate id"). Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: the file never leaves the browser (a test asserts no network
+# calls). Rules are stated as read from memory of Meta's public catalog help pages, with an explicit
+# not-checked list; domain verification, policy review, reachability of links and images and image
+# dimensions are out of scope and said so.
+#
+# Path to revenue (payment rails stay off): lead magnet for the e-commerce and agency audience. A paid
+# version, if usage appears, is saved rule sets per client, batch checks over many feeds and scheduled
+# feed URL checks behind an env-var switch; not built.
+#
+# Liability: format checks on the user's own file, no warranty, independent-of-Meta clause, trademarks
+# used nominatively.
