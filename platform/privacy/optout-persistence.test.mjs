@@ -1302,7 +1302,8 @@ const RELATIVE_SELF = relative(
 // +1: `ics-calendar-check` graduated.
 // +1: `vcard-contacts-check` graduated.
 // +1: `ofx-file-check` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 713;
+// +1: `youtube-chapters-check` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 714;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.

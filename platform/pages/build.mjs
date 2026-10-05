@@ -1271,7 +1271,9 @@ const CATEGORY_RULES = [
       // `vcard-contacts-check` joined 2026-10-05: a vCard contacts-file pre-flight, same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them.
       || slug === 'vcard-contacts-check'
       // `ofx-file-check` joined 2026-10-05: a bank-export (OFX/QFX) pre-flight, same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them.
-      || slug === 'ofx-file-check',
+      || slug === 'ofx-file-check'
+      // `youtube-chapters-check` joined 2026-10-05: a chapter-list pre-flight, same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them.
+      || slug === 'youtube-chapters-check',
   },
   {
     id: 'backoffice',
