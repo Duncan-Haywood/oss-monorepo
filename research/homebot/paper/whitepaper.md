@@ -5,13 +5,13 @@ the code in this directory. Simulation only: the robot has not been built.*
 
 ## Abstract
 
-We describe an open design for a home-assistant robot built entirely from one cheap servo
-model (Feetech STS3215, 12 V) and PLA:
-- two 7-DOF arms with grippers;
+We describe an open design for a home-assistant robot built entirely from one cheap servo model
+(Feetech STS3215, 12 V) and PLA:
+- two 7-DOF arms with parallel grippers;
 - a pan/tilt head;
 - a 0.5 m lift;
 - a holonomic omni-wheel base;
-- 22 actuators in total, for $625–946 in parts.
+- 22 actuators in total, for $627–948 in parts.
 
 The robot is generated, together with its MuJoCo twin, from a single parameter file. Printed
 parts are cut from a measured servo envelope, and each body's inertia is summed from the
@@ -19,23 +19,31 @@ printed geometry (a slicer-like shell model) and the bought parts. The servo is 
 saturating proportional loop in front of a brushed motor, which MJCF reproduces exactly: a
 force-limited position actuator plus back-EMF damping gives the datasheet torque-speed line.
 
-On this twin we run five checks:
-- *Engineering checks:* with 3:1 printed gears on the shoulders, every joint stays under half
-  its peak torque with 200 g in the hand. A 135 g payload is held indefinitely at the full
-  0.53 m reach. The tall kiwi base tips at 0.68 m/s² in its worst pose, which sets a 0.5 m/s²
-  command ramp.
-- *A twin-gap study for RL:* reaching policies trained on the exact twin ignore servo-gain,
-  friction and mass errors, but fail as soon as one 40 ms control step of action latency is
-  added (100 % to 10 % success). Domain randomisation restores 97–99 %.
+This is the second version of the arm. v1 had a direct-drive elbow and a single pivoting jaw;
+v2 gears the elbow 2:1 and uses a rack-and-pinion parallel gripper. On the twin:
+- *Engineering checks:* with printed gears at the shoulders (3:1) and elbow (2:1), every joint
+  stays under half its peak torque with 200 g in the hand. The arm holds 145 g indefinitely at
+  its full 0.53 m reach and 560 g at 0.32 m. A sweep that intersects the exact printed solids
+  over each joint's range found that v1's elbow could not reach the range its twin allowed,
+  because the simulator ignores contacts between linked bodies. The parallel jaws remove the
+  34 mm slip of v1's pivoting jaw in a scripted pick. The tall kiwi base tips at 0.63 m/s² in
+  its worst pose, which sets a 0.5 m/s² command ramp.
+- *Which twin errors matter for learning:* reaching and picking policies trained on the exact
+  twin ignore servo-gain, friction, mass and object errors. They fail once one 40 ms control
+  step of action latency is added: reaching drops from 99 % to 29 %, picking from 91 % to 41 %.
+  Domain randomisation fixes this almost for free for reaching (99 % up to 80 ms), but for
+  picking it costs 14 points on the nominal twin (77 %, holding 77 % at 40 ms) and about 6x the
+  samples.
 - *Mobile transfer:* a whole-body mobile reaching policy trained on a cheap planar base twin
-  transfers to a contact-rich roller-wheel twin. It reaches 100 % success on its nominal twin and
-  96 % under combined perturbations, with no tip-overs.
-- *Two twins of the base:* ideal planar joints versus omni wheels with passive rollers. They
-  disagree by about 7.6 % of the distance driven, and the gap does not depend on the wheel
-  servos' speed-loop gain.
-- *System identification on a test pendulum:* it recovers the servo parameters within 0.5 %
-  (friction 9 %) from 12 s of synthetic steps. A too-light pendulum leaves the overall
-  parameter scale unidentifiable.
+  transfers to a contact-rich roller-wheel twin (98 % nominal, 95 % under combined
+  perturbations, no tip-overs).
+- *Perception:* a rendered head camera and an ArUco fiducial locate the cube to 0.8 mm (median),
+  or 3.5 mm once the head servos' backlash is included. That supports the 5 mm error used in
+  training. But in the closed loop the arm hides the cube during the approach, and the pick
+  policies, trained on continuous tracking, lose most of their success.
+- *Two twins of the base* disagree by about 7.6 % of the distance driven.
+- *System identification on a test pendulum* recovers the servo parameters within 0.5 %
+  (friction 9 %). A too-light pendulum leaves the overall parameter scale unidentifiable.
 
 ## 1. Motivation
 
@@ -254,17 +262,17 @@ each) through the same kiwi wheel commands.
 - The policy commands the base twist, the lift and 7 arm joints.
 - Targets lie 0.22–1.45 m from the base centre and 0.29–1.09 m high (5–95 % ranges), in any
   direction.
-- It is trained with randomisation on the planar twin (6 M steps, 62 min) and terminated when
+- It is trained with randomisation on the planar twin (6 M steps, 77 min) and terminated when
   the point-mass ZMP leaves the wheel triangle.
 
 *Result.*
-- **Planar twin:** 100 % success (6 mm) on the nominal twin, 99–100 % under every single
-  perturbation and 97 % under the combined one, with no tip-overs.
-- **Roller twin** (never seen in training, physically able to tip): 100 % nominal (5.5 mm) and
-  96 % combined, with no tip-overs.
+- **Planar twin:** 98 % success (6 mm) on the nominal twin, 95–98 % under every single
+  perturbation and 95 % under the combined one, with no tip-overs (v1: 100 %, 99–100 %, 97 %).
+- **Roller twin** (never seen in training, physically able to tip): 98 % nominal (6 mm) and
+  95 % combined, with no tip-overs (v1: 100 % and 96 %).
 - Because the policy closes the loop on the observed target, the 6–8 % odometric gap between
   the twins (E2) costs it almost nothing.
-- It tolerates 120 ms of latency better than the one-arm policy (100 % against 81 %). A likely
+- It tolerates 120 ms of latency better than the one-arm policy (96 % against 71 %). A likely
   reason, untested, is that its 10 s episodes leave time to settle where the arm task's 4 s do
   not.
 

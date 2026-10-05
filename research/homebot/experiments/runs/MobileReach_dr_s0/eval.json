@@ -2,9 +2,11 @@
   "meta": {
     "env": "MobileReach",
     "dr": true,
+    "variant": "",
+    "ent_coef": 0.0,
     "seed": 0,
     "steps": 6000000,
-    "wall_minutes": 62.1865664879481,
+    "wall_minutes": 76.75617169936498,
     "n_envs": 8,
     "torch_threads": 1,
     "cpu_count": 4
@@ -12,82 +14,82 @@
   "eval": {
     "nominal": {
       "episodes": 100,
-      "success_rate": 1.0,
-      "success_ci95": 1.9599999999999998e-07,
-      "final_distance_median_m": 0.0056488283808520294,
-      "final_distance_mean_m": 0.006637596894300119,
+      "success_rate": 0.98,
+      "success_ci95": 0.02744000000000001,
+      "final_distance_median_m": 0.006055338825584271,
+      "final_distance_mean_m": 0.007628587183823128,
       "tipped": 0
     },
     "soft_servo": {
       "episodes": 100,
-      "success_rate": 0.99,
-      "success_ci95": 0.01950175376728976,
-      "final_distance_median_m": 0.005318995942693437,
-      "final_distance_mean_m": 0.0068042107190679465,
+      "success_rate": 0.97,
+      "success_ci95": 0.033435095334094694,
+      "final_distance_median_m": 0.005731613567276373,
+      "final_distance_mean_m": 0.007493555416625286,
       "tipped": 0
     },
     "stiff_servo": {
       "episodes": 100,
-      "success_rate": 1.0,
-      "success_ci95": 1.9599999999999998e-07,
-      "final_distance_median_m": 0.006067642740833575,
-      "final_distance_mean_m": 0.0073970818214261335,
+      "success_rate": 0.97,
+      "success_ci95": 0.033435095334094694,
+      "final_distance_median_m": 0.009283664252201968,
+      "final_distance_mean_m": 0.010529991284956415,
       "tipped": 0
     },
     "sticky": {
       "episodes": 100,
-      "success_rate": 1.0,
-      "success_ci95": 1.9599999999999998e-07,
-      "final_distance_median_m": 0.005760172191835564,
-      "final_distance_mean_m": 0.006718514379276046,
+      "success_rate": 0.98,
+      "success_ci95": 0.02744000000000001,
+      "final_distance_median_m": 0.005160290759307536,
+      "final_distance_mean_m": 0.006902490247059007,
       "tipped": 0
     },
     "heavy": {
       "episodes": 100,
-      "success_rate": 1.0,
-      "success_ci95": 1.9599999999999998e-07,
-      "final_distance_median_m": 0.005100177551513469,
-      "final_distance_mean_m": 0.006708169620586185,
+      "success_rate": 0.97,
+      "success_ci95": 0.033435095334094694,
+      "final_distance_median_m": 0.005931665356992176,
+      "final_distance_mean_m": 0.00835147997964947,
       "tipped": 0
     },
     "latency_40ms": {
       "episodes": 100,
-      "success_rate": 0.99,
-      "success_ci95": 0.01950175376728976,
-      "final_distance_median_m": 0.0058977235521881395,
-      "final_distance_mean_m": 0.006989091265845955,
+      "success_rate": 0.98,
+      "success_ci95": 0.02744000000000001,
+      "final_distance_median_m": 0.004908015595079731,
+      "final_distance_mean_m": 0.0063985399454282235,
       "tipped": 0
     },
     "latency_80ms": {
       "episodes": 100,
-      "success_rate": 1.0,
-      "success_ci95": 1.9599999999999998e-07,
-      "final_distance_median_m": 0.00681848634420297,
-      "final_distance_mean_m": 0.008414450522899991,
+      "success_rate": 0.97,
+      "success_ci95": 0.033435095334094694,
+      "final_distance_median_m": 0.006279343677579719,
+      "final_distance_mean_m": 0.008131119633810526,
       "tipped": 0
     },
     "latency_120ms": {
       "episodes": 100,
-      "success_rate": 1.0,
-      "success_ci95": 1.9599999999999998e-07,
-      "final_distance_median_m": 0.00782065345420044,
-      "final_distance_mean_m": 0.009704827756659243,
+      "success_rate": 0.96,
+      "success_ci95": 0.03840799916684025,
+      "final_distance_median_m": 0.011309899608895826,
+      "final_distance_mean_m": 0.01318822994545425,
       "tipped": 0
     },
     "noisy": {
       "episodes": 100,
-      "success_rate": 0.99,
-      "success_ci95": 0.01950175376728976,
-      "final_distance_median_m": 0.00549360349834022,
-      "final_distance_mean_m": 0.006813561469450951,
+      "success_rate": 0.95,
+      "success_ci95": 0.04271720964669862,
+      "final_distance_median_m": 0.006518630024327732,
+      "final_distance_mean_m": 0.009070066085751316,
       "tipped": 0
     },
     "combined": {
       "episodes": 100,
-      "success_rate": 0.97,
-      "success_ci95": 0.033435095334094694,
-      "final_distance_median_m": 0.007328903309092255,
-      "final_distance_mean_m": 0.009699253199574707,
+      "success_rate": 0.95,
+      "success_ci95": 0.04271720964669862,
+      "final_distance_median_m": 0.006749500630910059,
+      "final_distance_mean_m": 0.009696573399638931,
       "tipped": 0
     }
   },
@@ -95,18 +97,18 @@
     "MobileReachRollers": {
       "nominal": {
         "episodes": 100,
-        "success_rate": 1.0,
-        "success_ci95": 1.9599999999999998e-07,
-        "final_distance_median_m": 0.005475912001139177,
-        "final_distance_mean_m": 0.006498456847663319,
+        "success_rate": 0.98,
+        "success_ci95": 0.02744000000000001,
+        "final_distance_median_m": 0.005836148534856154,
+        "final_distance_mean_m": 0.007518743347014878,
         "tipped": 0
       },
       "combined": {
         "episodes": 100,
-        "success_rate": 0.96,
-        "success_ci95": 0.03840799916684025,
-        "final_distance_median_m": 0.00667885800151658,
-        "final_distance_mean_m": 0.009939434391673092,
+        "success_rate": 0.95,
+        "success_ci95": 0.04271720964669862,
+        "final_distance_median_m": 0.006647934753737001,
+        "final_distance_mean_m": 0.009691791382296604,
         "tipped": 0
       }
     }

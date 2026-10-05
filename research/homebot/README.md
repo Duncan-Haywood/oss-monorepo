@@ -15,10 +15,11 @@ together, so they agree by construction:
 
 A small driver runs the same joint-target interface on the real servos.
 
-> **v2 in progress.** The code and parts now have a 2:1 geared elbow, a parallel rack-and-pinion
-> gripper with TPU pads, a CAD interference sweep over every joint and a learned pick task
-> (`ArmPick`). The design, engineering and picking results below are for v2. The reaching
-> results are still v1's while they are retrained on the v2 arm.
+> **This is v2.** It has a 2:1 geared elbow and a parallel rack-and-pinion gripper with TPU pads.
+> A CAD interference sweep checks every joint's range, a learned pick task (`ArmPick`) is added,
+> and the cube's position comes from a camera and fiducial pipeline (`homebot.perception`). v1,
+> with a direct-drive elbow and a pivoting jaw, is in git history (commit `c6562c97`); the
+> README compares the two where it matters.
 
 **Status: designed and simulated, not yet built.** Every number below comes from the code in
 this directory: CAD, the MuJoCo twin, analyses and RL runs. Nothing has been measured on
@@ -293,17 +294,17 @@ longer training. The 14-joint task is the least settled result here.
 
 *Whole robot, driving to a target and reaching it.* Targets lie 0.22–1.45 m from the base
 centre and 0.29–1.09 m high (5–95 % ranges), in any direction. The policy commands the base
-twist, the lift and 7 arm joints (randomised twin, 1 seed, 6 M steps, 62 min):
+twist, the lift and 7 arm joints (randomised twin, 1 seed, 6 M steps, 77 min):
 - **On the twin it trained on (planar base):**
-  - 100 % success, median 6 mm, on the nominal twin;
-  - 99–100 % under every single perturbation, including +25 % mass with 200 g in the hand
+  - 98 % success, median 6 mm, on the nominal twin;
+  - 95–98 % under every single perturbation, including +25 % mass with 200 g in the hand
     and 120 ms latency;
-  - 97 % (7 mm) under the combined perturbation.
+  - 95 % (7 mm) under the combined perturbation (v1: 100 %, 99–100 % and 97 %).
 - **Tipping.** None of the 1,000 planar-twin or 200 roller-twin evaluation episodes ended in a
   tip-over. On the planar twin that is the ZMP check; on the roller twin it is a physical tilt
   above 10°.
-- **On the roller-wheel twin it never saw:** 100 % on the nominal roller twin (median 5.5 mm)
-  and 96 % under the combined perturbation.
+- **On the roller-wheel twin it never saw:** 98 % on the nominal roller twin (median 6 mm) and
+  95 % under the combined perturbation (v1: 100 % and 96 %).
 - **Why it transfers.** The policy closes the loop on the target position it observes, so the
   6–8 % base drift between the two twins (below) costs it almost nothing.
 
