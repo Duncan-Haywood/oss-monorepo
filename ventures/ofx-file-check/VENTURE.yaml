@@ -1,0 +1,30 @@
+name: ofx-file-check
+description: >-
+  Free browser tool that checks an OFX or QFX bank or credit-card export (the "Web Connect" file imported
+  into QuickBooks, Quicken, YNAB and Xero) for what makes the import fail: header lines, unclosed tags,
+  missing TRNTYPE, DTPOSTED, TRNAMT or FITID, invalid dates and amounts, duplicate FITIDs, statement
+  dates that do not cover the transactions, blank account fields, unescaped ampersands and over-long
+  names, each with its line number. It writes the file back with every provable fix applied and shows a
+  plain diff of what changed. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 in a new-venture-first session. Sibling of ics-calendar-check and vcard-contacts-check
+# (same archetype: paste-your-file pre-flight checker with a standards core, here OFX 1.0.2 / 2.x).
+# Closest existing venture is bank-csv-to-qbo-converter (0.39 overlap), which converts a CSV into a QBO
+# file; this checks and repairs an OFX/QFX file the bank already produced. First visitor: a bookkeeper or
+# small-business owner whose bank download "won't import into QuickBooks"; search phrases like "QFX file
+# won't import QuickBooks", "OFX import error invalid date", "QuickBooks web connect error"; communities
+# such as r/QuickBooks and r/Bookkeeping. Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: a bank export holds account numbers and every transaction, so the
+# file never leaves the browser (a test asserts no network calls). Fixes are limited to what is provable;
+# slash dates, comma amounts, which duplicate is real, and long-name shortening are reported, never done.
+# A duplicate-FITID fix is deterministic but changes an ID the bank issued, so it is listed in the diff
+# and the page tells the user to confirm the two transactions really differ.
+#
+# Path to revenue (payment rails stay off): lead magnet for bookkeeper and accounting-software audiences;
+# a paid version, if usage appears, is a bulk CLI / CI check behind an env-var switch; none built.
+#
+# Liability: format checks on the user's own file, no warranty, independent-of-every-vendor clause,
+# trademarks used nominatively, no acceptance promise.

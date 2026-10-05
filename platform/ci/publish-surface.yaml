@@ -1187,6 +1187,9 @@ workflows:
 - workflow: vcard-contacts-check-ci.yml
   classification: none
   publishes: []
+- workflow: ofx-file-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: youtube-chapters-check-ci.yml
   classification: none
   publishes: []
