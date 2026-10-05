@@ -20,7 +20,7 @@ from homebot.mjcf import build_xml  # noqa: E402
 from homebot.render import montage, save_png, snapshot  # noqa: E402
 
 VIEW = {"ArmReach": (215, -15, 1.1, (0.2, -0.15, 0.95)), "BimanualReach": (155, -22, 1.5, (0.25, 0, 0.95)),
-        "MobileReach": (140, -18, 1.9, None), "ArmPick": (200, -22, 0.75, (0.30, -0.16, 0.82))}
+        "MobileReach": (140, -18, 1.9, None), "ArmPick": (205, -18, 0.62, (0.30, -0.16, 0.87))}
 
 
 def pick_seed(cls, lo=0.28, tries=50):
