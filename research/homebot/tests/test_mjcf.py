@@ -50,8 +50,26 @@ def test_total_mass_plausible(model):
 
 def test_mass_properties_present():
     props = load_mass_properties()
-    for part in ("gear42", "pinion", "shoulder_block", "upper_arm_top", "upper_arm", "forearm_clevis",
-                 "forearm", "wrist_clevis", "hand", "jaw", "carriage", "hub", "deck"):
+    for part in ("gear42", "pinion", "elbow_gear", "elbow_pinion", "grip_pinion", "shoulder_block",
+                 "upper_arm_top", "upper_arm", "forearm_clevis", "forearm", "wrist_clevis", "hand", "jaw", "pad",
+                 "carriage", "hub", "deck"):
         assert part in props
         assert props[part]["mass"] > 0
         assert props[part]["fits_bed"]
+
+
+def test_parallel_jaws_are_coupled_and_close_symmetrically():
+    m = mujoco.MjModel.from_xml_string(build_xml(DEFAULT, "arm"))
+    d = mujoco.MjData(m)
+    mujoco.mj_resetDataKeyframe(m, d, 0)
+    assert m.neq == 1 and m.actuator("r_gripper") is not None
+    d.ctrl[m.actuator("r_gripper").id] = 0.02
+    for _ in range(1500):  # 3 s
+        mujoco.mj_step(m, d)
+    q1, q2 = d.joint("r_gripper").qpos[0], d.joint("r_gripper_follow").qpos[0]
+    assert q1 == pytest.approx(0.02, abs=1e-3) and q2 == pytest.approx(q1, abs=1e-4)
+    # the tool centre point stays midway between the pads
+    pads = [d.geom(f"r_{j}_pad").xpos for j in ("jaw", "jaw2")]
+    assert np.allclose((pads[0] + pads[1]) / 2, d.site("r_tcp").xpos, atol=1e-3)
+    gap = np.linalg.norm(pads[0] - pads[1]) - DEFAULT.arm.gripper.pad[0]
+    assert gap == pytest.approx(2 * q1, abs=1e-3)

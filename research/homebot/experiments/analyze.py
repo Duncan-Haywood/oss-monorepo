@@ -1,6 +1,6 @@
 """Engineering checks and twin statistics reported in the README.
 
-    PYTHONPATH=src python experiments/analyze.py     # ~4 min; writes results/analysis.json
+    PYTHONPATH=src python experiments/analyze.py     # ~8 min; writes results/analysis.json
 
 1. torque budget of the arm joints (own weight + rated payload) vs continuous and peak torque
 2. payload capacity at full / 80 % / 60 % horizontal reach
@@ -8,6 +8,8 @@
 4. bill-of-materials totals
 5. system identification on synthetic step responses (recovery error over random servos)
 6. model sizes and simulation speed of the environments
+7. mesh interference of the printed parts and servos over every arm joint's range (needs
+   cadquery; ~4 min)
 """
 from __future__ import annotations
 
@@ -71,6 +73,22 @@ def model_stats():
     return out
 
 
+def interference_study():
+    try:
+        from homebot.cad import interference
+    except ImportError:  # cadquery not installed
+        return None
+    sweep = interference.sweep(DEFAULT, n=25)
+    out = {j: {"range": r["range"], "all_free": r["all_free"], "worst_overlap_mm3": max(r["overlap_mm3"])}
+           for j, r in sweep.items()}
+    for j in ("elbow", "wrist_pitch"):
+        out[j]["clear_beyond_range"] = interference.margin(DEFAULT, j)
+    for j, r in out.items():
+        print(f"interference {j:15s} {'clear' if r['all_free'] else 'INTERFERES'} "
+              f"(worst {r['worst_overlap_mm3']:.0f} mm^3) {r.get('clear_beyond_range', '')}", flush=True)
+    return out
+
+
 def main():
     res = {}
     t0 = time.time()
@@ -82,12 +100,14 @@ def main():
     res["sysid"] = sysid_study()
     res["sysid_light_rig"] = sysid_study(rig=Rig(arm_mass=0.10, arm_length=0.10, bar_mass=0.015))
     res["model"] = model_stats()
+    res["interference"] = interference_study()
     res["seconds"] = time.time() - t0
     out = HERE / "results"
     out.mkdir(exist_ok=True)
     (out / "analysis.json").write_text(json.dumps(res, indent=1))
     for r in res["torque_budget"]["rows"]:
-        print(f"{r['joint']:15s} worst {r['worst_no_payload']:.2f} / {r['worst_payload']:.2f} N*m "
+        unit = "N" if r["joint"] == "gripper" else "N*m"
+        print(f"{r['joint']:15s} worst {r['worst_no_payload']:.2f} / {r['worst_payload']:.2f} {unit} "
               f"(cont {r['continuous_limit']:.2f}, peak {r['peak_limit']:.2f})")
     print(json.dumps(res["payload_capacity"], indent=1))
     print(json.dumps(res["bom"], indent=1))

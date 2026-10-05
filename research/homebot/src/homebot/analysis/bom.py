@@ -71,11 +71,14 @@ ITEMS = [
 
 UNPRICED = [
     "M8 x 60 bolts with nyloc nuts (shoulder shafts): 4 per arm",
-    "M4 shoulder screws (or M4 bolts) and M4 heat-set inserts (clevis pivots): 3 per arm",
+    "625ZZ bearings (5 x 16 x 5 mm) and an M5 x 45 bolt with nyloc nut (geared elbow): 2 + 1 per arm",
+    "4 mm steel rod, 100 mm long (gripper guides; 304 stainless or silver steel): 2 per arm",
+    "M4 shoulder screw (or M4 bolt) and M4 heat-set insert (wrist-pitch pivot): 1 per arm",
+    "TPU 95A filament for the jaw pads: about 7 g per arm",
     "Servo extension cables (the STS3215 ships with one 3-pin cable)",
     "Wire, XT60 connector and an inline fuse/switch for the battery (mobile)",
-    "Grip tape or TPU pads for the jaws",
 ]
+TPU_PARTS = {"pad"}  # printed in TPU, not counted in the PLA total
 
 # Budget route: same parts, cheapest sourced options (servo 10-packs, VEX omni wheels with
 # LeKiwi's hub, the $14.99 screw assortment, a laptop instead of the Pi, an existing charger).
@@ -84,7 +87,8 @@ BUDGET = {"Feetech": 13.99, "omni wheel": 9.99, "screw and nut set": 14.99, "Ras
 PLA_PRICE = 17.99  # USD/kg, Polymaker Panchroma Basic refill or Overture Easy PLA (us.polymaker.com, overture3d.com)
 
 ARM_PARTS = {"gear42": 2, "pinion": 2, "shoulder_block": 1, "upper_arm_top": 1, "upper_arm": 1,
-             "forearm_clevis": 1, "forearm": 1, "wrist_clevis": 1, "hand": 1, "jaw": 1}
+             "elbow_pinion": 1, "elbow_gear": 1, "forearm_clevis": 1, "forearm": 1, "wrist_clevis": 1, "hand": 1,
+             "grip_pinion": 1, "jaw": 2, "pad": 2}
 STAGE_PARTS = {
     "arm": {**ARM_PARTS, "carriage": 2, "post_foot": 1},
     "torso": {**{k: 2 * v for k, v in ARM_PARTS.items()}, "carriage": 2, "post_foot": 1, "mast_cap": 1, "neck": 1,
@@ -96,7 +100,7 @@ STAGE_PARTS = {
 
 def printed_mass(stage: str) -> float:
     props = json.loads(Path(MASS_FILE).read_text())
-    return sum(props[p]["mass"] * n for p, n in STAGE_PARTS[stage].items())
+    return sum(props[p]["mass"] * n for p, n in STAGE_PARTS[stage].items() if p not in TPU_PARTS)
 
 
 def totals() -> dict:
@@ -134,7 +138,7 @@ def markdown() -> str:
                      f"${r['pla_usd']:.0f} | **${r['total_usd']:.0f}** | ${r['budget_total_usd']:.0f} |")
     lines += ["", f"PLA at ${PLA_PRICE}/kg (Polymaker Panchroma Basic refill, us.polymaker.com; Overture Easy PLA, "
               "overture3d.com). Printed masses come from `hardware/mass_properties.json` "
-              "(3 perimeters, 25 % infill).", "",
+              "(3 perimeters, 25 % infill). The jaw pads (`pad`) are printed in TPU and are not in the PLA total.", "",
               "Budget route: servos in 10-packs ($13.99 each), the VEX 4 in omni wheel ($9.99, BOM-stated) "
               "with LeKiwi's printed hub instead of `wheel_hub`, the $14.99 screw assortment (BOM-stated), a laptop "
               "on a USB cable instead of the Raspberry Pi, and a LiPo charger you already own.", "",

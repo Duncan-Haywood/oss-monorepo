@@ -35,8 +35,14 @@ class Randomization:
     mass: tuple[float, float] = (0.85, 1.2)
     payload: tuple[float, float] = (0.0, 0.15)  # kg added at each tool centre point
     latency: tuple[int, int] = (0, 2)  # control steps of action delay
-    obs_noise: float = 0.003  # rad, on joint positions (plus 1-tick quantisation)
+    obs_noise: float = 0.003  # rad at the servo output shaft (plus 1-tick quantisation)
     gravity_tilt: float = 0.0  # rad, floor tilt (mobile)
+    # object tasks (ArmPick)
+    object_size: tuple[float, float] = (0.030, 0.050)  # m, cube edge
+    object_mass: tuple[float, float] = (0.03, 0.20)  # kg
+    object_friction: tuple[float, float] = (0.3, 0.8)
+    pad_friction: tuple[float, float] = (0.65, 1.25)  # multiplies the TPU pad estimate
+    object_pose_noise: float = 0.005  # m, error of the object position estimate (camera/fiducial)
 
 
 @dataclass(frozen=True)
@@ -51,6 +57,10 @@ class Gap:
     payload: float = 0.0
     latency: int = 0
     obs_noise: float = 0.0
+    # object tasks
+    pad_friction: float = 1.0
+    object_mass: float | None = None  # kg; None = the task's nominal object
+    object_pose_noise: float = 0.0
 
 
 GAPS = {
@@ -64,6 +74,13 @@ GAPS = {
     "latency_120ms": Gap(latency=3),  # outside the randomised range (0-2 control steps)
     "noisy": Gap(obs_noise=0.01),
     "combined": Gap(kp=0.6, friction=2.0, mass=1.15, payload=0.1, latency=2, obs_noise=0.005),
+}
+
+# Extra perturbations for tasks that hold an object (the reach gaps above, plus these).
+OBJECT_GAPS = {
+    "slippery_pads": Gap(pad_friction=0.55),  # worn or dusty TPU, a glossy object
+    "heavy_object": Gap(object_mass=0.30),  # outside the randomised range (30-200 g)
+    "pose_error_10mm": Gap(object_pose_noise=0.010),  # outside the randomised 5 mm
 }
 
 
@@ -81,6 +98,7 @@ class HomebotEnv(gym.Env):
     controlled: tuple[str, ...] = ()
     episode_steps = 100
     max_delta = 0.08  # rad per control step at |a| = 1 (2 rad/s at 25 Hz)
+    joint_delta: dict[str, float] = {}  # per-joint step (e.g. metres for a gripper), default max_delta
     base_action = False  # last three action dims command the base twist (vx, vy, wz), body frame
     default_timestep = 0.002
 
@@ -116,6 +134,14 @@ class HomebotEnv(gym.Env):
         self.ctrl_v = np.array([self.jnt[n][1] for n in self.ctrl_names], int)
         self.ctrl_lo = np.array([self.jnt[n][2][0] for n in self.ctrl_names])
         self.ctrl_hi = np.array([self.jnt[n][2][1] for n in self.ctrl_names])
+        from ..hardware.robot import joint_ratio
+
+        # per joint: step size of a full action, how far the target may lead the joint, and the
+        # encoder resolution in joint units
+        self.ctrl_delta = np.array([self.joint_delta.get(n, self.max_delta) for n in self.ctrl_names])
+        self.ctrl_window = 5.0 * self.ctrl_delta
+        self.ctrl_ratio = np.array([joint_ratio(robot, n) for n in self.ctrl_names])
+        self.ctrl_res = robot.servo.tick / self.ctrl_ratio
         self.tcp_sites = [m.site(s).id for s in self._tcp_names() if mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_SITE, s) >= 0]
         self.hand_bodies = [m.body(b).id for b in self._hand_names() if mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, b) >= 0]
         self.n_base = 3 if self.base_action else 0
@@ -176,9 +202,13 @@ class HomebotEnv(gym.Env):
         for b in self.hand_bodies:
             m.body_mass[b] += payload
             m.body_inertia[b] += payload * 0.03 ** 2
+        self._refresh_subtree_mass()
+
+    def _refresh_subtree_mass(self):
         # MuJoCo precomputes subtree masses at compile time and divides by them in
         # mj_comPos, so after changing body_mass they must be refreshed or every
         # subtree_com (and the tip-over check built on it) is scaled by the mass change.
+        m = self.model
         sub = m.body_mass.copy()
         for i in range(m.nbody - 1, 0, -1):
             sub[m.body_parentid[i]] += sub[i]
@@ -233,10 +263,9 @@ class HomebotEnv(gym.Env):
     def _joint_obs(self):
         d = self.data
         q = d.qpos[self.ctrl_q].copy()
-        if self._obs_noise > 0:
-            q += self._np_random.normal(0, self._obs_noise, q.shape)
-        tick = self.robot.servo.tick
-        q = np.round(q / tick) * tick
+        if self._obs_noise > 0:  # encoder-level noise, reduced by any gearing to the joint
+            q += self._np_random.normal(0, 1.0, q.shape) * self._obs_noise / self.ctrl_ratio
+        q = np.round(q / self.ctrl_res) * self.ctrl_res
         v = d.qvel[self.ctrl_v]
         return q, v
 
@@ -252,12 +281,8 @@ class HomebotEnv(gym.Env):
         d = self.data
         n = len(self.ctrl_names)
         if n:
-            q = d.qpos[self.ctrl_q]
-            tgt = self.target + a[:n] * self.max_delta
-            tgt = np.clip(tgt, q - 0.4, q + 0.4)
-            tgt = np.clip(tgt, self.ctrl_lo, self.ctrl_hi)
-            self.target = tgt
-            d.ctrl[self.ctrl_idx] = tgt
+            self.target = self.joint_targets(self.target, d.qpos[self.ctrl_q], a[:n])
+            d.ctrl[self.ctrl_idx] = self.target
         if self.n_base:
             b = self.robot.base
             want = np.array([a[-3] * b.max_speed, a[-2] * b.max_speed, a[-1] * b.max_yaw_rate])
@@ -274,6 +299,14 @@ class HomebotEnv(gym.Env):
                 from ..hardware.robot import kiwi_wheel_speeds
 
                 d.ctrl[self.wheel_ids] = kiwi_wheel_speeds(self.robot, vx, vy, wz)
+
+    def joint_targets(self, target, q, a) -> np.ndarray:
+        """Servo targets from the joint part of an action (the same rule runs on hardware,
+        ``homebot.hardware.robot.policy_loop``): increments of ``ctrl_delta`` that may lead the
+        measured position by at most ``ctrl_window``, inside the joint range."""
+        tgt = np.asarray(target, float) + np.asarray(a, float) * self.ctrl_delta
+        tgt = np.clip(tgt, q - self.ctrl_window, q + self.ctrl_window)
+        return np.clip(tgt, self.ctrl_lo, self.ctrl_hi)
 
     def base_pose(self) -> np.ndarray:
         """(x, y, yaw) of the base in the world."""

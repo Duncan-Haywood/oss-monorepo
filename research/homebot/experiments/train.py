@@ -39,12 +39,13 @@ def evaluate(model, vecnorm_path, name, episodes=100, seed=10_000, gaps=None):
     from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 
     out = {}
-    for gap in gaps or GAPS:
-        venv = DummyVecEnv([make_env(name, False, gap, seed)])
+    all_gaps = getattr(ENVS[name], "gaps", GAPS)
+    for gap in gaps or all_gaps:
+        venv = DummyVecEnv([make_env(name, False, all_gaps[gap], seed)])
         venv = VecNormalize.load(str(vecnorm_path), venv)
         venv.training = False
         venv.norm_reward = False
-        succ, dist, tipped = [], [], 0
+        succ, dist, tipped, lift = [], [], 0, []
         venv.seed(seed)
         obs = venv.reset()
         done_eps = 0
@@ -56,6 +57,8 @@ def evaluate(model, vecnorm_path, name, episodes=100, seed=10_000, gaps=None):
                 succ.append(bool(info.get("is_success", False)))
                 dist.append(float(info.get("distance", np.nan)))
                 tipped += int(info.get("tipped", False))
+                if "max_lift" in info:
+                    lift.append(float(info["max_lift"]))
                 done_eps += 1
         venv.close()
         n = len(succ)
@@ -67,7 +70,9 @@ def evaluate(model, vecnorm_path, name, episodes=100, seed=10_000, gaps=None):
             "final_distance_mean_m": float(np.mean(dist)),
             "tipped": tipped,
         }
-        print(f"  {gap:12s} success {out[gap]['success_rate']:.2f} ± {out[gap]['success_ci95']:.2f}  "
+        if lift:
+            out[gap]["ever_lifted_5cm"] = float(np.mean(np.array(lift) >= 0.05))
+        print(f"  {gap:16s} success {out[gap]['success_rate']:.2f} ± {out[gap]['success_ci95']:.2f}  "
               f"median dist {out[gap]['final_distance_median_m'] * 1000:.1f} mm  tipped {tipped}", flush=True)
     return out
 

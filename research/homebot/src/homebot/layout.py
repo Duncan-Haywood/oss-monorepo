@@ -104,10 +104,43 @@ class ArmGeometry:
                                self.pitch_case_top + sb.bottom - self.clr - a.wall - 0.0005)
         corner = math.hypot(sb.axis_from_end, sb.width / 2)
         self.pitch_web = (-(corner + 0.0014 + 0.0035), -(corner + 0.0014))  # z span of the child web
-        # --- Gripper (hand frame: origin at the wrist-roll horn face)
-        self.piv = np.array([a.gripper_pivot[0], 0.0, a.gripper_pivot[1]])
-        self.grip_horn_y = -a.jaw_thickness / 2  # (x o): jaw sits on +o side of the horn face
-        self.grip_case_top = self.grip_horn_y - sb.horn_top
+        # --- J4 (elbow), geared 2:1: the forearm clevis turns on an M5 shaft in two 625
+        #     bearings in a lobe at the bottom of the upper arm. Its outboard cheek carries the
+        #     gear; the servo sits a centre distance up the upper arm, pinion on its horn.
+        eg = a.elbow_gear
+        self.eC = eg.centre_distance
+        self.e_gear_R = eg.outer_radius(eg.gear_teeth)
+        self.e_pinion_R = eg.outer_radius(eg.pinion_teeth)
+        self.e_gw = eg.face_width
+        self.e_bearing = (0.005, 0.016, 0.005)  # 625: bore, OD, width
+        self.e_lobe_r = self.e_bearing[1] / 2 + 0.0035
+        self.e_lobe_y = (-0.013, 0.013)
+        gap = 0.0005
+        self.e_cheek_in = (self.e_lobe_y[0] - gap - a.cheek, self.e_lobe_y[0] - gap)  # (x o)
+        self.e_cheek_out = (self.e_lobe_y[1] + gap, self.e_lobe_y[1] + gap + a.cheek)
+        self.e_horn_y = self.e_cheek_out[1]  # gear and pinion run from here outward
+        self.e_case_top = self.e_horn_y - sb.horn_top
+        self.e_web = (-(self.e_lobe_r + 0.0015 + 0.0035), -(self.e_lobe_r + 0.0015))  # clevis web z span
+        # --- Gripper (hand frame: origin at the wrist-roll horn face, z down the arm)
+        g = a.gripper
+        self.g_hub = (-g.hub_plate, 0.0)
+        self.g_plate = (-(g.hub_plate + g.neck + a.wall), -(g.hub_plate + g.neck))  # cradle top plate
+        self.g_horn_z = -g.stack(sb, a.wall)  # gripper horn face = top of the pinion and racks
+        self.g_case_top = self.g_horn_z + sb.horn_top
+        self.g_rack_z = (self.g_horn_z - g.face_width, self.g_horn_z)
+        self.g_carriage_z = (self.g_rack_z[0] - 0.001 - g.carriage[2], self.g_rack_z[0] - 0.001)
+        self.g_rod_z = sum(self.g_carriage_z) / 2
+        self.g_tip_z = -g.tip(sb, a.wall)
+        self.g_tcp_z = self.g_tip_z + g.tcp_above_tip
+        m, r = g.module, g.pitch_radius
+        # rack of the +x jaw on the -y side of the pinion (pinion profile shift +0.3)
+        self.g_rack_pitch = r + 0.3 * m
+        self.g_rack_tip = self.g_rack_pitch - m
+        self.g_rack_root = self.g_rack_pitch + 1.25 * m
+        self.g_rack_back = self.g_rack_root + 0.0045
+        self.g_rack_x = (-(g.stroke + 0.008), g.pad[0] + g.carriage[0])  # jaw frame, jaws closed
+        self.g_wall_x = (g.stroke + g.pad[0] + g.carriage[0] + 0.001, g.stroke + g.pad[0] + g.carriage[0] + 0.005)
+        self.g_beam_z = (self.g_horn_z + 0.0005, self.g_horn_z + 0.0045)
 
     def check(self) -> list[str]:
         """Packaging constraints the parameters must satisfy (empty list = ok)."""
@@ -127,9 +160,21 @@ class ArmGeometry:
             errs.append("upper_arm too short for a tube between the J3 hub and the elbow cradle")
         if a.forearm - (sb.length - sb.axis_from_end) - 0.003 - 0.006 < 0.02:
             errs.append("forearm too short")
-        # gripper servo below the wrist-roll hub
-        if self.piv[2] + (sb.length - sb.axis_from_end) > -0.006:
-            errs.append("gripper pivot too high for the gripper servo case")
+        # geared elbow: tube above the elbow servo, cradle clear of the clevis cheeks
+        if a.upper_arm - self.eC - (sb.length - sb.axis_from_end) - 0.003 - 0.006 < 0.02:
+            errs.append("upper_arm too short for the elbow servo a centre distance above the elbow")
+        if self.eC - sb.axis_from_end - a.wall - 0.0003 < 0.017 + 0.001:
+            errs.append("elbow servo cradle hits the gear-carrying clevis cheek (r 17 mm)")
+        if a.elbow_to_roll < -self.e_web[0] + 0.001 + self.roll_case_bottom:
+            errs.append("elbow_to_roll too short for the J5 servo below the elbow clevis web")
+        # gripper: pinion clears the horn screws, rods fit, stroke within one servo turn
+        g = a.gripper
+        if g.pitch_radius - 1.25 * g.module * (1 - 0.3 / 1.25) < sb.horn_bolt_circle / 2 + 0.00165 + 0.0003:
+            errs.append("gripper pinion root too close to the horn screws")
+        if 2 * self.g_wall_x[0] > g.rod_length or g.rod_length > 2 * self.g_wall_x[1]:
+            errs.append("gripper rods do not end inside the end walls")
+        if g.stroke / g.pitch_radius > 2 * math.pi * 0.95:
+            errs.append("gripper stroke needs more than one servo turn")
         # J2 gear must stay outboard of the carriage face
         if a.roll_outboard - self.gear_R < self.carriage_face_y + 0.001:
             errs.append("J2 gear would hit the carriage")
@@ -196,21 +241,29 @@ def _arm(robot: Robot, side: str, parent: Body, shoulder: np.ndarray, ids: dict)
     ut.shapes.append(servo_shape(r, s3, R3, p + "servo_j3"))
     ut.masses.append(Mass(p + "j3_bearing", r.bought.bearing_6806, (0, 0, -a.roll_to_yaw)))
 
-    # ---- upper arm (J3 child): hub in the bearing, tube, elbow cradle --------------------------
+    # ---- upper arm (J3 child): hub in the bearing, tube, elbow servo + pinion, elbow lobe -----
     ua = ut.add(Body(p + "upper_arm", (0, 0, -a.roll_to_yaw)))
     ua.joints.append(J("upper_arm_yaw", (0, 0, 1)))
     ua.parts.append(Placement("upper_arm", (0, 0, 0), np.eye(3), mirror))
-    top_of_elbow_case = -a.upper_arm + (sb.length - sb.axis_from_end)
+    ez = -a.upper_arm + G.eC  # elbow servo axis, a gear centre distance above the elbow
+    top_of_elbow_case = ez + (sb.length - sb.axis_from_end)
     ua.shapes.append(Shape("capsule", (tube,), fromto=(0, 0, -0.010, 0, 0, top_of_elbow_case), rgba=PLA, name=p + "upper_arm_tube"))
-    s4 = np.array([0.0, o * G.pitch_case_top, -a.upper_arm])
+    s4 = np.array([0.0, o * G.e_case_top, ez])
     R4 = servo_frame(o * EY, EZ)  # output outward, case running up the arm
     ua.masses.append(servo_mass(r, p + "servo_elbow", s4, R4))
     ua.shapes.append(servo_shape(r, s4, R4, p + "servo_j4"))
+    ua.parts.append(Placement("elbow_pinion", (0, o * G.e_horn_y, ez), _rot_y_to(o * EY), mirror))
+    ly = (G.e_lobe_y[1] - G.e_lobe_y[0]) / 2
+    ua.shapes.append(Shape("cylinder", (G.e_lobe_r, ly), (0, 0, -a.upper_arm), _quat_axis(EY), rgba=PLA, name=p + "elbow_lobe"))
+    ua.masses.append(Mass(p + "j4_bearings_shaft", 2 * r.bought.bearing_625 + 0.008, (0, 0, -a.upper_arm)))
 
-    # ---- forearm (J4 child): clevis, cradle of the forearm-roll servo --------------------------
+    # ---- forearm (J4 child): clevis around the lobe, gear on its outboard cheek, J5 cradle ------
     fa = ua.add(Body(p + "forearm", (0, 0, -a.upper_arm)))
     fa.joints.append(J("elbow", (0, -1, 0)))
     fa.parts.append(Placement("forearm_clevis", (0, 0, 0), np.eye(3), mirror))
+    fa.parts.append(Placement("elbow_gear", (0, o * G.e_horn_y, 0), _rot_y_to(o * EY), mirror))
+    gy = o * (G.e_horn_y + G.e_gw / 2)
+    fa.shapes.append(Shape("cylinder", (G.e_gear_R, G.e_gw / 2), (0, gy, 0), _quat_axis(EY), rgba=PLA, name=p + "elbow_gear"))
     s5 = np.array([0.0, 0.0, -a.elbow_to_roll + G.roll_case_top])
     R5 = servo_frame(-EZ, -EX)
     fa.masses.append(servo_mass(r, p + "servo_forearm_roll", s5, R5))
@@ -237,32 +290,68 @@ def _arm(robot: Robot, side: str, parent: Body, shoulder: np.ndarray, ids: dict)
     wr.masses.append(servo_mass(r, p + "servo_wrist_roll", s7, R7))
     wr.shapes.append(servo_shape(r, s7, R7, p + "servo_j7"))
 
-    # ---- hand (J7 child): hub, gripper-servo cradle, fixed jaw ---------------------------------
+    # ---- hand (J7 child): hub, gripper servo (output down), guide rods; two jaws on the rods ----
+    g = a.gripper
     hd = wr.add(Body(p + "hand", (0, 0, -a.wrist_to_roll)))
     hd.joints.append(J("wrist_roll", (0, 0, 1)))
-    hd.parts.append(Placement("hand", (0, 0, 0), np.eye(3), mirror))
-    s8 = G.piv + np.array([0.0, o * G.grip_case_top, 0.0])
-    R8 = servo_frame(o * EY, EZ)
+    hd.parts.append(Placement("hand", (0, 0, 0), np.eye(3), False))  # left-right symmetric
+    s8 = np.array([0.0, 0.0, G.g_case_top])
+    R8 = servo_frame(-EZ, -EX)  # output down, case running back
     hd.masses.append(servo_mass(r, p + "servo_gripper", s8, R8))
     hd.shapes.append(servo_shape(r, s8, R8, p + "servo_j8"))
-    jt = a.jaw_thickness
-    tip = G.piv[2] - a.finger_length
-    fixed_top = G.piv[2] - 0.013
-    hd.shapes.append(Shape("box", (jt / 2, jt / 2, (fixed_top - tip) / 2), (jt / 2, 0, (fixed_top + tip) / 2),
-                           rgba=PLA_DARK, name=p + "fixed_jaw", friction=(1.2, 0.02, 0.001)))
-    hd.sites.append((p + "tcp", (0.0, 0.0, -a.hand)))
-    hd.cameras.append({"name": p + "wrist_cam", "pos": (0.030, 0.0, -0.020), "xyaxes": "0 -1 0 0.6 0 -0.8",
+    hd.parts.append(Placement("grip_pinion", (0, 0, G.g_horn_z), _rot_y_to(-EZ), False))
+    hd.shapes.append(Shape("cylinder", (0.012, g.hub_plate / 2), (0, 0, -g.hub_plate / 2), rgba=PLA, name=p + "hand_hub"))
+    wx0, wx1 = G.g_wall_x
+    bz0, bz1 = G.g_beam_z
+    wz0 = G.g_carriage_z[0] - 0.001
+    for sx in (1.0, -1.0):  # end walls holding the rods, and the beams joining them to the cradle
+        hd.shapes.append(Shape("box", ((wx1 - wx0) / 2, 0.014, (bz1 - wz0) / 2), (sx * (wx0 + wx1) / 2, 0, (bz1 + wz0) / 2),
+                               rgba=PLA, name=p + f"hand_wall{'p' if sx > 0 else 'n'}"))
+    hd.shapes.append(Shape("box", (wx1, 0.018, (bz1 - bz0) / 2), (0, 0, (bz0 + bz1) / 2), rgba=PLA, name=p + "hand_beam"))
+    rr = g.rod_diameter / 2
+    for k, yy in enumerate((-g.rod_spacing / 2, g.rod_spacing / 2)):
+        hd.shapes.append(Shape("capsule", (rr,), fromto=(-g.rod_length / 2 + rr, yy, G.g_rod_z, g.rod_length / 2 - rr, yy, G.g_rod_z),
+                               rgba=ALU, name=p + f"guide_rod{k}"))
+    hd.masses.append(Mass(p + "guide_rods", 2 * r.bought.steel_rod_4mm * g.rod_length, (0, 0, G.g_rod_z),
+                          (g.rod_length, g.rod_spacing, g.rod_diameter)))
+    hd.sites.append((p + "tcp", (0.0, 0.0, G.g_tcp_z)))
+    hd.cameras.append({"name": p + "wrist_cam", "pos": (0.032, 0.0, G.g_beam_z[1] + 0.006), "xyaxes": "0 -1 0 0.6 0 -0.8",
                        "fovy": "70"})
 
-    # ---- moving jaw (J8 child) --------------------------------------------------------------
-    jw = hd.add(Body(p + "jaw", tuple(G.piv)))
+    # ---- jaws: the same printed part twice, the second turned 180 deg about the pinion axis ----
+    cx, cy, cz = g.carriage
+    pt, pw, ph = g.pad
+    c0, c1 = G.g_carriage_z
+    tip = G.g_tip_z
+    drive = r.arm_drive("gripper")
     lo, hi = ARM_RANGES["gripper"]
-    jw.joints.append(Joint(p + "gripper", "hinge", (0.0, 1.0, 0.0), (lo, hi), r.arm_drive("gripper"), ids.get(p + "gripper")))
-    jw.parts.append(Placement("jaw", (0, 0, 0), np.eye(3), mirror))
-    jl = a.finger_length - 0.013
-    jw.shapes.append(Shape("box", (jt / 2, jt / 2, jl / 2), (-jt / 2 - G.piv[0], 0, -0.013 - jl / 2),
-                           rgba=PLA_DARK, name=p + "moving_jaw", friction=(1.2, 0.02, 0.001)))
-    jw.masses.append(Mass(p + "jaw_pad", 0.004, (-0.002, 0, -a.finger_length + 0.01)))
+    for name, sgn in (("jaw", 1.0), ("jaw2", -1.0)):
+        jw = hd.add(Body(p + name, (0.0, 0.0, 0.0)))
+        if sgn > 0:  # driven jaw (+x): the servo's joint, half the servo's passive dynamics
+            jw.joints.append(Joint(p + "gripper", "slide", (1.0, 0.0, 0.0), (lo, hi), drive, ids.get(p + "gripper"),
+                                   share=0.5))
+        else:  # geared to the first through the pinion: q = q_gripper
+            jw.joints.append(Joint(p + "gripper_follow", "slide", (-1.0, 0.0, 0.0), (lo, hi), drive, None,
+                                   follow=p + "gripper", share=0.5))
+        Rz = np.diag([sgn, sgn, 1.0])
+        jw.parts.append(Placement("jaw", (0, 0, 0), Rz, False))
+        jw.parts.append(Placement("pad", (0, 0, 0), Rz, False))
+
+        def at(x, y, z):
+            return (sgn * x, sgn * y, z)
+
+        jw.shapes.append(Shape("box", (cx / 2, cy / 2, cz / 2), at(pt + cx / 2, 0, (c0 + c1) / 2), rgba=PLA_DARK,
+                               name=p + name + "_carriage"))
+        rx0, rx1 = G.g_rack_x
+        rz0, rz1 = G.g_rack_z
+        jw.shapes.append(Shape("box", ((rx1 - rx0) / 2, (G.g_rack_back - G.g_rack_tip) / 2, (rz1 - rz0) / 2),
+                               at((rx0 + rx1) / 2, -(G.g_rack_back + G.g_rack_tip) / 2, (rz0 + rz1) / 2),
+                               rgba=PLA_DARK, name=p + name + "_rack", collide=True))
+        ft = g.finger_thickness
+        jw.shapes.append(Shape("box", (ft / 2, pw / 2, (c0 - tip) / 2), at(pt + ft / 2, 0, (c0 + tip) / 2), rgba=PLA_DARK,
+                               name=p + name + "_finger"))
+        jw.shapes.append(Shape("box", (pt / 2, pw / 2, ph / 2), at(pt / 2, 0, tip + ph / 2), rgba=RUBBER,
+                               name=p + name + "_pad", friction=(g.pad_friction, 0.005, 0.0001), condim=4))
 
 
 def _rot_y_to(v) -> np.ndarray:

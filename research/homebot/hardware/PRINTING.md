@@ -22,12 +22,17 @@ them, update `Print` and rebuild so the twin's masses follow.
 
 Exceptions:
 
-- `gear42` and `pinion`: 5 perimeters, 50 % infill, print flat. Grease the teeth (PTFE or
-  lithium grease). The printed masses of these two will be a few grams above the model.
+- Gears (`gear42`, `pinion`, `elbow_gear`, `elbow_pinion`, `grip_pinion`): 5 perimeters,
+  50 % infill, print flat. Grease the teeth (PTFE or lithium grease). Their printed masses will be
+  a few grams above the model.
+- `jaw`: lay it on the rack's back face, with supports under the carriage and the finger; 5
+  perimeters so the rack teeth are solid.
+- `pad`: TPU 95A, face down, 100 % infill, slow (about 20 mm/s). The grooves face the object.
 - `carriage` halves and `hub`: 4 perimeters (they carry the arms and the mast).
 
-Use tree supports for the servo cradles (`shoulder_block`, `upper_arm_top`, the clevises, `hand`,
-`carriage`). Test-fit one STS3215 in a cradle before printing the full set: the pocket clearance
+Use tree supports for the servo cradles (`shoulder_block`, `upper_arm_top`, the clevises,
+`carriage`). Print the `hand` standing on its two rod end walls, with supports under the rails
+and the servo cradle. Test-fit one STS3215 in a cradle before printing the full set: the pocket clearance
 is 0.3 mm per side.
 
 ## Parts per build stage
@@ -38,7 +43,10 @@ See `BOM.md` for the full table with masses and print sizes. Stage C (the mobile
 |---|---|---|
 | `gear42` | 4 | J1/J2 output gears (42 T, module 2) |
 | `pinion` | 4 | 14 T, bolted to a servo horn |
-| `shoulder_block`, `upper_arm_top`, `upper_arm`, `forearm_clevis`, `forearm`, `wrist_clevis`, `hand`, `jaw` | 1 + 1 mirror each | one set per arm |
+| `elbow_gear`, `elbow_pinion` | 2 each | 2:1 elbow stage (30 T / 15 T, module 1.5) |
+| `shoulder_block`, `upper_arm_top`, `upper_arm`, `forearm_clevis`, `forearm`, `wrist_clevis` | 1 + 1 mirror each | one set per arm |
+| `hand`, `grip_pinion` | 2 each | parallel gripper (the same on both arms) |
+| `jaw`, `pad` | 4 each | two jaws per gripper; pads in TPU |
 | `carriage` | 1 + 1 mirror | halves bolt together around the mast |
 | `pulley` | 1 | GT2 36 T on the lift servo horn |
 | `mast_cap`, `neck`, `head` | 1 each | pan/tilt head |
@@ -47,8 +55,8 @@ See `BOM.md` for the full table with masses and print sizes. Stage C (the mobile
 | `wheel_hub` | 3 | servo horn to AndyMark DuraOmni 4 in wheel |
 | `deck` | 6 | 60-degree sectors, half-lap joints |
 
-Stage A (one arm) needs one arm set (the plain, not mirrored, files), both carriage halves and
-`post_foot`. Stage B adds the second arm (mirror files) and the head.
+Stage A (one arm) needs one arm set (the plain, not mirrored, files), one `hand`,
+`grip_pinion`, two `jaw`s and two `pad`s, both carriage halves and `post_foot`. Stage B adds the second arm (mirror files) and the head.
 
 Total filament: about 1.1 kg (A), 1.6 kg (B), 2.4 kg (C) including 15 % for supports and failed
 prints (`python -m homebot.analysis.bom`).

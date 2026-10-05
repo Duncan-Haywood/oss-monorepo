@@ -5,9 +5,10 @@ left arm uses mirror images (``build.py`` exports both). Interfaces come from
 ``ArmGeometry`` so the parts and the MuJoCo model move together when a parameter changes.
 
 Hardware assumed per joint: M3 screws into the aluminium horn (4 per horn), M2 x 6 screws
-into the servo case, 608ZZ bearings + M8 bolt on the geared shoulder joints, a 6806ZZ
-bearing on the upper-arm and forearm roll joints, and an M4 shoulder screw (or M4 bolt with
-a printed bushing) as the passive pivot of each clevis.
+into the servo case, 608ZZ bearings + M8 bolt on the geared shoulder joints, two 625ZZ
+bearings + M5 bolt on the geared elbow, a 6806ZZ bearing on the upper-arm and forearm roll
+joints, an M4 shoulder screw (or M4 bolt with a printed bushing) as the passive pivot of the
+wrist-pitch clevis, and two 4 mm x 100 mm steel rods guiding the gripper jaws.
 """
 from __future__ import annotations
 
@@ -46,8 +47,8 @@ def _servo_cradle(robot: Robot, origin_m, R, top_open=-8.0, side_stop=None, bott
         keep = box(0, L1 + 0.3 + w, -W - w, W + w, zb - w - 1, top_open + 1).union(
             cyl(bottom_round, zb - w - 1, top_open + 1))
         walls = walls.intersect(keep)
-    if pivot:
-        walls = walls.union(cyl(5.0, zb - w - 2.0, zb))
+    if pivot:  # washer face for the clevis cheek: 0.4 mm proud of the plate (the cheek sits 0.5 mm off)
+        walls = walls.union(cyl(5.0, zb - w - 0.4, zb))
     cut = place_servo_cutter(robot.servo_body, (0, 0, 0), np.eye(3), horn_r=0.1)
     walls = walls.cut(cut).cut(servo_mount_holes(sb, -sb.height * MM - 1.5, depth=12))
     if pivot:
@@ -121,6 +122,41 @@ def pinion(robot: Robot):
         ang = math.pi / 4 + k * math.pi / 2
         part = part.cut(cyl(3.0, w - 3.0, w + 1, r * math.cos(ang), r * math.sin(ang)))
     return part
+
+
+def _horn_pinion(sb, module, teeth, width, cb_depth=3.0):
+    """Pinion bolted to a servo horn (4 x M3 from the outer face, heads counterbored)."""
+    part = spur_gear(module, teeth, width, shift=0.3)
+    part = part.cut(horn_holes(sb, -1, width + 1, centre_clear=8.0))
+    r = sb.horn_bolt_circle * MM / 2
+    for k in range(4):
+        ang = math.pi / 4 + k * math.pi / 2
+        part = part.cut(cyl(3.0, width - cb_depth, width + 1, r * math.cos(ang), r * math.sin(ang)))
+    return part
+
+
+def elbow_gear(robot: Robot):
+    """30T m1.5 elbow gear, bolted to the outboard cheek of the forearm clevis (M5 shaft)."""
+    g = robot.arm.elbow_gear
+    w = g.face_width * MM
+    part = spur_gear(g.module * MM, g.gear_teeth, w, shift=-0.3, bore=5.3)
+    for k in range(6):
+        ang = math.pi / 6 + k * math.pi / 3
+        part = part.cut(cyl(2.6, -1, w + 1, 16.5 * math.cos(ang), 16.5 * math.sin(ang)))
+    for k in range(4):
+        ang = math.pi / 4 + k * math.pi / 2
+        part = part.cut(cyl(1.65, -1, w + 1, 11.0 * math.cos(ang), 11.0 * math.sin(ang)))
+    return part
+
+
+def elbow_pinion(robot: Robot):
+    g = robot.arm.elbow_gear
+    return _horn_pinion(robot.servo_body, g.module * MM, g.pinion_teeth, g.face_width * MM)
+
+
+def grip_pinion(robot: Robot):
+    g = robot.arm.gripper
+    return _horn_pinion(robot.servo_body, g.module * MM, g.pinion_teeth, g.face_width * MM, cb_depth=3.5)
 
 
 # --------------------------------------------------------------------------------------
@@ -222,7 +258,36 @@ def _link(robot: Robot, length_m: float, bearing: bool):
 
 
 def upper_arm(robot: Robot):
-    return _link(robot, robot.arm.upper_arm, bearing=True)
+    """J3 child: hub in the 6806 bearing, tube, the elbow servo a gear centre distance above the
+    elbow (horn outward, pinion on the horn), and the elbow lobe with two 625 bearings for the
+    M5 shaft, held from behind so the forearm clevis can fold forward around it."""
+    a, sb = robot.arm, robot.servo_body
+    G = ArmGeometry(robot)
+    o = O
+    hub, plate_bottom = _hub(G, sb, True)
+    ez = -a.upper_arm + G.eC
+    s = np.array([0.0, o * G.e_case_top, ez])
+    R = servo_frame_matrix(o * EY, EZ)
+    cradle = _servo_cradle(robot, s, R, top_open=-3.0)
+    case_top_z = (ez + sb.length - sb.axis_from_end) * MM + a.wall * MM + 0.3
+    r = a.link_section * MM / 2
+    tube = _tube(plate_bottom, case_top_z, r)
+    yc0, yc1 = sorted((o * G.e_case_top * MM, o * (G.e_case_top + sb.bottom - 0.003) * MM))
+    lid = box(-14.9, 14.9, yc0, yc1, case_top_z - 3.0, case_top_z)
+    lid = lid.intersect(cyl(r + 3, case_top_z - 4, case_top_z + 1)).cut(cyl(r - 2.4, case_top_z - 4, case_top_z + 1))
+    # lobe and its support (behind the axis, up to the near end of the cradle, which it stops)
+    lz = -a.upper_arm * MM
+    ly0, ly1 = (v * MM for v in G.e_lobe_y)
+    lr = G.e_lobe_r * MM
+    lobe = cyl_axis(lr, ly0, ly1, "y", (0, 0, lz))
+    near_end = (ez - sb.axis_from_end) * MM - 0.3
+    support = box(-15.2, -1.5, ly0, ly1, lz, near_end)
+    part = union_all([hub, tube, cradle, lid, lobe, support])
+    part = part.cut(place_servo_cutter(sb, s, R, horn_r=12.5))
+    bw, bo = G.e_bearing[2] * MM, G.e_bearing[1] * MM / 2 + 0.05
+    part = part.cut(cyl_axis(bo, ly0 - 1, ly0 + bw, "y", (0, 0, lz))).cut(cyl_axis(bo, ly1 - bw, ly1 + 1, "y", (0, 0, lz)))
+    part = part.cut(cyl_axis(3.5, ly0 - 1, ly1 + 1, "y", (0, 0, lz)))  # M5 shaft clearance between the bearings
+    return part
 
 
 def forearm(robot: Robot):
@@ -264,7 +329,38 @@ def _clevis(robot: Robot, drop_m: float, bearing: bool):
 
 
 def forearm_clevis(robot: Robot):
-    return _clevis(robot, robot.arm.elbow_to_roll, bearing=True)
+    """J4 child: two cheeks around the elbow lobe on the M5 shaft (the outboard one carries the
+    elbow gear), a web trimmed to a 21 mm radius so it folds past the upper arm, and the cradle
+    and bearing housing of the forearm-roll servo."""
+    a, sb = robot.arm, robot.servo_body
+    G = ArmGeometry(robot)
+    o = O
+    ci0, ci1 = sorted(v * MM * o for v in G.e_cheek_in)
+    co0, co1 = sorted(v * MM * o for v in G.e_cheek_out)
+    web0, web1 = (v * MM for v in G.e_web)
+    s = np.array([0.0, 0.0, -a.elbow_to_roll + G.roll_case_top])
+    R = servo_frame_matrix(-EZ, -EX)
+    cradle_top = (s[2] - sb.bottom + 0.0003 + a.wall) * MM  # top of the J5 cradle plate
+    inner = cyl_axis(13.0, ci0, ci1, "y").union(box(-12.7, 12.7, ci0, ci1, cradle_top - 1, 0))
+    outer = cyl_axis(17.0, co0, co1, "y").union(box(-12.7, 12.7, co0, co1, cradle_top - 1, 0))
+    for k in range(4):
+        ang = math.pi / 4 + k * math.pi / 2
+        outer = outer.cut(cyl_axis(1.25, co0 - 1, co1 + 1, "y", (11.0 * math.cos(ang), 0, 11.0 * math.sin(ang))))  # M3 thread-forming
+    y0, y1 = min(ci0, co0), max(ci1, co1)
+    web = box(-12.7, 12.7, y0, y1, cradle_top - 1, web1).intersect(cyl_axis(21.0, y0 - 1, y1 + 1, "y"))
+    cradle = _servo_cradle(robot, s, R, top_open=1.5)
+    hz = -a.elbow_to_roll * MM
+    skirt = box(-35.2 - 3, 12.7, -14.9, 14.9, hz + G.bearing_z[1] * MM, s[2] * MM)
+    skirt = skirt.cut(place_servo_cutter(sb, s, R, horn_r=20.0))
+    ring = _bearing_ring(G, -a.elbow_to_roll + G.bearing_z[0], -a.elbow_to_roll + G.bearing_z[1])
+    part = union_all([inner, outer, web, cradle, skirt, ring])
+    part = part.cut(cyl(G.bearing[1] * MM / 2 + 0.05, hz + G.bearing_z[0] * MM - 1, hz + G.bearing_z[1] * MM))
+    part = part.cut(cyl(G.bearing[1] * MM / 2 - 2.5, hz - 20, hz + G.bearing_z[1] * MM + 1.4))
+    part = part.cut(cyl_axis(2.7, y0 - 1, y1 + 1, "y"))  # M5 shaft
+    part = part.cut(cyl_axis(G.e_lobe_r * MM + 1.0, ci1 if o > 0 else ci0, co0 if o > 0 else co1, "y"))  # lobe clearance
+    part = part.cut(box(-5, 5, -5, 5, cradle_top - 2, web1 + 1))  # cable hole
+    del web0
+    return part
 
 
 def wrist_clevis(robot: Robot):
@@ -276,49 +372,104 @@ def wrist_clevis(robot: Robot):
 # --------------------------------------------------------------------------------------
 
 def hand(robot: Robot):
-    """Hub on the wrist-roll horn, cradle of the gripper servo (axis along y), fixed jaw."""
-    a, sb = robot.arm, robot.servo_body
+    """Hand of the parallel gripper (hand frame: origin at the wrist-roll horn face, z down the
+    arm). Hub plate on the wrist-roll horn; a 7 mm neck open front and back so a hex key reaches
+    the horn screws and the near servo screws; the cradle of the gripper servo (output down,
+    case running back); two rails and two end walls holding the 4 mm guide rods (through holes
+    on +x, blind on -x)."""
+    sb, g = robot.servo_body, robot.arm.gripper
     G = ArmGeometry(robot)
-    o = O
-    hub, plate_bottom = _hub(G, sb, bearing=False)
-    piv = G.piv
-    s = piv + np.array([0.0, o * G.grip_case_top, 0.0])
-    R = servo_frame_matrix(o * EY, EZ)
-    cradle = _servo_cradle(robot, s, R, top_open=-2.5)
-    # frame from the hub to the cradle
-    ys = sorted((o * (G.grip_case_top + sb.bottom) * MM - 2.8, 0.0))
-    frame = box(-22.0, 9.0, ys[0], ys[1] if ys[1] > ys[0] else 0.0, plate_bottom - 4.0, plate_bottom)
-    jt = a.jaw_thickness * MM
-    tip = (piv[2] - a.finger_length) * MM
-    side_y = sorted((o * (G.grip_case_top + sb.bottom) * MM - 2.8 * o * -1, o * (jt / 2 + 0.5)))
-    bridge_bottom = (piv[2] - 0.013) * MM - 10.0
-    side = box(5.0, 5.0 + jt, side_y[0], side_y[1], bridge_bottom, plate_bottom)
-    bar = box(0.5, 0.5 + jt, -jt / 2, jt / 2, tip, (piv[2] - 0.013) * MM)
-    part = union_all([hub, cradle, frame, side, bar])
-    part = part.cut(place_servo_cutter(sb, s, R, horn_r=12.5))
-    # horn sweep of the moving jaw
-    part = part.cut(cyl_axis(13.0, -jt / 2 - 0.6, jt / 2 + 0.6, "y", (piv[0] * MM, 0, piv[2] * MM)))
+    hz0 = G.g_hub[0] * MM
+    hub = box(-14, 14, -10, 10, hz0, 0).union(cyl(12.0, hz0, 0)).cut(horn_holes(sb, hz0 - 1, 1))
+    pz = G.g_plate[1] * MM
+    neck = box(-14, -11, -10, 10, pz, hz0).union(box(11, 14, -10, 10, pz, hz0))
+    s = np.array([0.0, 0.0, G.g_case_top])
+    R = servo_frame_matrix(-EZ, -EX)
+    cradle = _servo_cradle(robot, s, R, top_open=-2.0)
+    wx0, wx1 = (v * MM for v in G.g_wall_x)
+    bz0 = G.g_beam_z[0] * MM
+    side_bottom = (G.g_case_top + 0.002) * MM  # where the cradle side walls stop
+    rails = [box(-wx1, wx1, sy * 13.0, sy * 18.0, bz0, side_bottom + 0.5) for sy in (1, -1)]
+    wz0 = (G.g_carriage_z[0] - 0.001) * MM
+    walls = [box(sx * wx0, sx * wx1, -18, 18, wz0, side_bottom + 0.5) for sx in (1, -1)]
+    part = union_all([hub, neck, cradle] + rails + walls)
+    part = part.cut(place_servo_cutter(sb, s, R, horn_r=11.5))
+    rz = G.g_rod_z * MM
+    rr = g.rod_diameter * MM / 2 + 0.05  # press fit in the walls
+    for yy in (-g.rod_spacing * MM / 2, g.rod_spacing * MM / 2):
+        part = part.cut(cyl_axis(rr, wx0 - 1, wx1 + 1, "x", (0, yy, rz)))  # through, +x wall
+        part = part.cut(cyl_axis(rr, -wx0 + 1, -(g.rod_length * MM / 2 + 0.3), "x", (0, yy, rz)))  # blind, -x wall
     return part
 
 
+def _rack_profile(G: ArmGeometry, g, x0, x1, backlash=0.15):
+    """Outline (x, y in mm) of the rack of the +x jaw: teeth pointing +y toward the pinion, a
+    tooth centred on x = 0 (the pinion has a gap at -90 deg)."""
+    m = g.module * MM
+    p = math.pi * m
+    tan = math.tan(math.radians(20))
+    half_pitch_t = (p / 2 - backlash) / 2
+    yp, yt, yr = -G.g_rack_pitch * MM, -G.g_rack_tip * MM, -G.g_rack_root * MM
+    h_root = half_pitch_t + (yp - yr) * tan
+    h_tip = half_pitch_t - (yt - yp) * tan
+    pts = [(x0, -G.g_rack_back * MM), (x1, -G.g_rack_back * MM), (x1, yr)]
+    k = math.floor((x1 - h_root) / p)
+    while k * p - h_root > x0:
+        c = k * p
+        pts += [(c + h_root, yr), (c + h_tip, yt), (c - h_tip, yt), (c - h_root, yr)]
+        k -= 1
+    pts.append((x0, yr))
+    return pts
+
+
 def jaw(robot: Robot):
-    """Moving jaw on the gripper servo horn (jaw frame: origin on the pivot axis)."""
-    a, sb = robot.arm, robot.servo_body
+    """One jaw: carriage on the two rods, rack under the pinion's -y side, finger with pegs for
+    the TPU pad. The second jaw is the same part turned 180 deg about the pinion axis."""
+    g = robot.arm.gripper
     G = ArmGeometry(robot)
-    o = O
-    jt = a.jaw_thickness * MM
-    y0, y1 = sorted((o * G.grip_horn_y * MM, -o * G.grip_horn_y * MM))
-    hub = cyl_axis(12.0, y0, y1, "y")
-    hub = hub.cut(transform(horn_holes(sb, -1, jt + 2), servo_frame_matrix(o * EY, EZ), (0, o * G.grip_horn_y * MM, 0)))
-    x0 = -jt / 2 - G.piv[0] * MM + 0.0
-    finger = box(x0 - jt / 2 + 0.5 - 0.5, x0 + jt / 2 - 0.5, y0, y1, -a.finger_length * MM, -6.0)
-    part = hub.union(finger)
+    pt, pw, ph = (v * MM for v in g.pad)
+    cx, cy, cz = (v * MM for v in g.carriage)
+    c0, c1 = (v * MM for v in G.g_carriage_z)
+    rz0, rz1 = (v * MM for v in G.g_rack_z)
+    tip = G.g_tip_z * MM
+    carriage = box(pt, pt + cx, -cy / 2, cy / 2, c0, c1)
+    rx0, rx1 = (v * MM for v in G.g_rack_x)
+    prof = _rack_profile(G, g, rx0, rx1)
+    rack = cq.Workplane("XY").polyline(prof).close().extrude(rz1 - rz0).translate((0, 0, rz0))
+    riser = box(pt, pt + cx, -G.g_rack_back * MM, -cy / 2 + 1.0, c1 - 1.0, rz0 + 1.0)
+    ft = g.finger_thickness * MM
+    finger = box(pt, pt + ft, -pw / 2, pw / 2, tip, c0 + 0.5)
+    part = union_all([carriage, rack, riser, finger])
+    rr = g.rod_diameter * MM / 2 + 0.2  # sliding fit (ream or run in with the rod)
+    for yy in (-g.rod_spacing * MM / 2, g.rod_spacing * MM / 2):
+        part = part.cut(cyl_axis(rr, pt - 1, pt + cx + 1, "x", (0, yy, G.g_rod_z * MM)))
+    for zz in (tip + ph / 3, tip + 2 * ph / 3):  # pad pegs
+        part = part.cut(cyl_axis(1.65, pt - 1, pt + 3.5, "x", (0, 0, zz)))
+    return part
+
+
+def pad(robot: Robot):
+    """TPU (95A) pad on the inner face of a jaw, with two pegs into the finger."""
+    g = robot.arm.gripper
+    G = ArmGeometry(robot)
+    pt, pw, ph = (v * MM for v in g.pad)
+    tip = G.g_tip_z * MM
+    part = box(0, pt, -pw / 2, pw / 2, tip, tip + ph)
+    for zz in (tip + ph / 3, tip + 2 * ph / 3):
+        part = part.union(cyl_axis(1.5, pt - 0.5, pt + 3.0, "x", (0, 0, zz)))
+    # shallow grooves across the face (grip on wet or dusty objects)
+    for k in range(1, 6):
+        z = tip + k * ph / 6
+        part = part.cut(box(-0.1, 0.5, -pw / 2 - 1, pw / 2 + 1, z - 0.4, z + 0.4))
     return part
 
 
 ARM_PARTS = {
     "gear42": gear42,
     "pinion": pinion,
+    "elbow_gear": elbow_gear,
+    "elbow_pinion": elbow_pinion,
+    "grip_pinion": grip_pinion,
     "shoulder_block": shoulder_block,
     "upper_arm_top": upper_arm_top,
     "upper_arm": upper_arm,
@@ -327,4 +478,5 @@ ARM_PARTS = {
     "wrist_clevis": wrist_clevis,
     "hand": hand,
     "jaw": jaw,
+    "pad": pad,
 }

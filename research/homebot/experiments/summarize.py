@@ -31,7 +31,7 @@ def group(runs, env, dr):
 
 
 def table(runs, env):
-    gaps = list(runs[0]["eval"].keys())
+    gaps = list(next(r for r in runs if r["meta"]["env"] == env)["eval"].keys())
     out = {}
     for dr in (False, True):
         g = group(runs, env, dr)
@@ -45,6 +45,8 @@ def table(runs, env):
             out[key][gap] = {"seeds": len(g), "success_mean": float(s.mean()), "success_min": float(s.min()),
                              "success_max": float(s.max()), "median_dist_mm_mean": float(dist.mean() * 1000),
                              "tipped": int(sum(r["eval"][gap].get("tipped", 0) for r in g))}
+            if "ever_lifted_5cm" in g[0]["eval"][gap]:
+                out[key][gap]["ever_lifted_mean"] = float(np.mean([r["eval"][gap]["ever_lifted_5cm"] for r in g]))
     return out
 
 

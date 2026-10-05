@@ -3,7 +3,8 @@
 A 4 cm, 60 g cube is placed at random on the table in front of the single-arm build.
 Damped-least-squares IK on the 7 arm joints (position + orientation, gripper pointing down,
 jaws across the cube) gives waypoints; the servos are driven through them: pre-grasp 8 cm
-above, open, descend, close (target slightly past closed so the servo squeezes), lift 12 cm.
+above, open to 60 mm, descend, close (target fully closed, so the servo squeezes at its torque
+limit), lift 12 cm. The tool centre point is midway between the pads.
 Success = cube held clear of the table (>= 5 cm up) and between the jaws after the lift. The
 servos' proportional position loop droops under load, so the hand ends below the commanded
 lift height; that droop is reported too.
@@ -32,6 +33,7 @@ CUBE_XML = (f'<body name="cube" pos="0.25 -0.2 {TABLE_TOP + CUBE}"><freejoint/>'
             f'<geom name="cube" type="box" size="{CUBE} {CUBE} {CUBE}" mass="0.06" rgba="0.2 0.5 0.9 1" '
             f'friction="1.0 0.01 0.001"/></body>')
 JOINTS = [f"r_{j}" for j in ARM_JOINTS[:-1]]
+OPEN = 0.030  # per jaw: 60 mm between the pads
 
 
 def ik(m, d, pos, yaw, q0, restarts=8, seed=0):
@@ -104,10 +106,8 @@ def trial(rng, m):
     mujoco.mj_forward(m, d)
     act = np.array([m.actuator(j).id for j in JOINTS])
     q_home = np.array([d.joint(j).qpos[0] for j in JOINTS])
-    # Jaws close along x of the hand frame; align them with a cube face. The TCP site is on the
-    # fixed jaw's inner face, so the cube centre sits half a cube width behind it.
+    # Jaws close along x of the hand frame; align them with a pair of cube faces.
     yaw = yaw_cube
-    cx, cy = cx + CUBE * math.cos(yaw), cy + CUBE * math.sin(yaw)
     above, e1 = ik(m, d, np.array([cx, cy, TABLE_TOP + CUBE + 0.08]), yaw, d.qpos.copy())
     q_tmp = d.qpos.copy()
     for k, j in enumerate(JOINTS):
@@ -118,18 +118,19 @@ def trial(rng, m):
     lift, e3 = ik(m, d, np.array([cx, cy, TABLE_TOP + CUBE + 0.12]), yaw, q_tmp)
     if max(e1, e2, e3) > 0.01:
         return {"ok": False, "reason": "ik", "ik_err": max(e1, e2, e3), "pos": [cx, cy]}
-    drive(m, d, act, q_home, above, 1.0, 2.0)
-    drive(m, d, act, above, grasp, 1.0, 1.5)
-    drive(m, d, act, grasp, grasp, -0.05, 1.0)
-    drive(m, d, act, grasp, lift, -0.05, 2.0)
+    drive(m, d, act, q_home, above, OPEN, 2.0)
+    drive(m, d, act, above, grasp, OPEN, 1.5)
+    drive(m, d, act, grasp, grasp, 0.0, 1.5)
+    drive(m, d, act, grasp, lift, 0.0, 2.0)
     z = float(d.qpos[cj + 2])
     tcp = d.site("r_tcp").xpos
     held = z > TABLE_TOP + CUBE + 0.05 and np.linalg.norm(tcp[:2] - d.qpos[cj:cj + 2]) < 0.04
     droop = float(TABLE_TOP + CUBE + 0.12 - tcp[2])
-    grip_angle = float(d.joint("r_gripper").qpos[0])
+    opening = 2 * float(d.joint("r_gripper").qpos[0])
+    slip = float(TABLE_TOP + CUBE + 0.12 - droop - z)  # how far the cube sits below where the hand put it
     return {"ok": bool(held), "cube_z_above_table": z - TABLE_TOP - CUBE, "tcp_droop_m": droop,
-            "pos": [cx, cy], "yaw": yaw_cube,
-            "gripper_angle": grip_angle, "gripper_force": float(d.actuator("r_gripper").force[0])}
+            "slip_m": slip, "pos": [cx, cy], "yaw": yaw_cube, "jaw_opening_m": opening,
+            "gripper_force_n": float(d.actuator("r_gripper").force[0])}
 
 
 def main(n=40, seed=0):
@@ -139,13 +140,17 @@ def main(n=40, seed=0):
     ok = sum(r["ok"] for r in rows)
     ik_fail = sum(r.get("reason") == "ik" for r in rows)
     droop = [r["tcp_droop_m"] for r in rows if "tcp_droop_m" in r]
+    slip = [r["slip_m"] for r in rows if r["ok"]]
     print(f"picked {ok}/{n} (IK out of reach: {ik_fail}); hand droop at the lift pose: median "
-          f"{np.median(droop) * 1000:.1f} mm, max {np.max(droop) * 1000:.1f} mm")
+          f"{np.median(droop) * 1000:.1f} mm, max {np.max(droop) * 1000:.1f} mm; slip of held cubes: median "
+          f"{np.median(slip) * 1000:.1f} mm, max {np.max(slip) * 1000:.1f} mm")
     out = HERE / "results"
     out.mkdir(exist_ok=True)
     (out / "scripted_pick.json").write_text(json.dumps({"success": ok, "trials": n, "ik_fail": ik_fail,
                                                         "droop_median_m": float(np.median(droop)),
-                                                        "droop_max_m": float(np.max(droop)), "rows": rows}, indent=1))
+                                                        "droop_max_m": float(np.max(droop)),
+                                                        "slip_median_m": float(np.median(slip)),
+                                                        "slip_max_m": float(np.max(slip)), "rows": rows}, indent=1))
 
 
 if __name__ == "__main__":

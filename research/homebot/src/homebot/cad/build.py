@@ -55,14 +55,18 @@ def catalogue():
     cat = {
         "gear42": (parts.gear42, PartInfo("gear42", 4, False, I3, "J1 and J2 output gears, 42T m2")),
         "pinion": (parts.pinion, PartInfo("pinion", 4, False, I3, "14T m2 pinions on the J1/J2 servo horns")),
+        "elbow_gear": (parts.elbow_gear, PartInfo("elbow_gear", 2, False, I3, "30T m1.5 elbow gear, on the forearm clevis")),
+        "elbow_pinion": (parts.elbow_pinion, PartInfo("elbow_pinion", 2, False, I3, "15T m1.5 pinion on the elbow servo horn")),
+        "grip_pinion": (parts.grip_pinion, PartInfo("grip_pinion", 2, False, I3, "18T m1.25 pinion on the gripper servo horn")),
         "shoulder_block": (parts.shoulder_block, PartInfo("shoulder_block", 2, True, _rx(90))),
         "upper_arm_top": (parts.upper_arm_top, PartInfo("upper_arm_top", 2, True, _ry(-90))),
         "upper_arm": (parts.upper_arm, PartInfo("upper_arm", 2, True, _rx(180))),
         "forearm_clevis": (parts.forearm_clevis, PartInfo("forearm_clevis", 2, True, _rx(180))),
         "forearm": (parts.forearm, PartInfo("forearm", 2, True, _rx(180))),
         "wrist_clevis": (parts.wrist_clevis, PartInfo("wrist_clevis", 2, True, _rx(180))),
-        "hand": (parts.hand, PartInfo("hand", 2, True, _rx(90))),
-        "jaw": (parts.jaw, PartInfo("jaw", 2, True, _rx(90))),
+        "hand": (parts.hand, PartInfo("hand", 2, False, I3, "rod end walls on the bed; support the rails and cradle")),
+        "jaw": (parts.jaw, PartInfo("jaw", 4, False, _rx(90), "on the rack's back face; support under the carriage and finger")),
+        "pad": (parts.pad, PartInfo("pad", 4, False, _ry(90), "TPU 95A, face down, 100 % infill")),
     }
     for name, (fn, info) in base_parts.PARTS.items():
         cat[name] = (fn, info)

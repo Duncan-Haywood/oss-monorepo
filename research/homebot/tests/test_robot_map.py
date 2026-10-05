@@ -40,15 +40,27 @@ def test_kiwi_matches_roller_twin():
 def test_real_robot_on_mock_bus():
     ids = [SERVO_IDS["r_elbow"], SERVO_IDS["r_shoulder_pitch"]]
     bus = FeetechBus(serial=MockSerial(ids=ids))
-    cal = Calibration({"r_elbow": JointCal(ids[0], 1000, 1, 1.0), "r_shoulder_pitch": JointCal(ids[1], 2048, -1, 3.0)})
+    cal = Calibration({"r_elbow": JointCal(ids[0], 1000, 1, 2.0), "r_shoulder_pitch": JointCal(ids[1], 2048, -1, 3.0)})
     robot = RealHomebot(bus, cal)
     robot.enable(True)
+    # the geared joints get the twin's torque-limit fraction (75 %) written to RAM
+    assert bus.read(ids[0], "torque_limit") == 750 and bus.read(ids[1], "torque_limit") == 750
     robot.command_joints({"r_elbow": 1.0, "r_shoulder_pitch": 0.5})
     q = robot.read_joints()
     assert q["r_elbow"] == pytest.approx(1.0, abs=2e-3)
     assert q["r_shoulder_pitch"] == pytest.approx(0.5, abs=1e-3)
     robot.command_joints({"r_elbow": 9.0})  # clipped to the joint range
-    assert robot.read_joints()["r_elbow"] <= 2.3 + 1e-3
+    assert robot.read_joints()["r_elbow"] <= 2.0 + 1e-3
+
+
+def test_gripper_ticks_are_jaw_metres():
+    from homebot.hardware.robot import joint_ratio
+    from homebot.params import DEFAULT
+
+    r = joint_ratio(DEFAULT, "r_gripper")
+    c = JointCal(SERVO_IDS["r_gripper"], 1024, 1, r)
+    assert c.to_ticks(0.032) - c.to_ticks(0.0) == pytest.approx(0.032 * r * 4096 / (2 * 3.141592653589793), abs=1)
+    assert c.to_q(c.to_ticks(0.0123)) == pytest.approx(0.0123, abs=1e-4)
 
 
 def test_calibrate_cli_on_mock_bus(tmp_path, monkeypatch):

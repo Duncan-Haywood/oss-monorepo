@@ -102,7 +102,7 @@ def body_inertial(robot: Robot, body: Body, props: dict) -> tuple[float, np.ndar
     return m, c, I
 
 
-def _add_body(robot, parent_el, body: Body, props, meshes, mesh_names, actuators, excludes):
+def _add_body(robot, parent_el, body: Body, props, meshes, mesh_names, actuators, equalities):
     el = ET.SubElement(parent_el, "body", name=body.name, pos=_f(body.pos))
     m, c, I = body_inertial(robot, body, props)
     I = (I + I.T) / 2
@@ -119,12 +119,15 @@ def _add_body(robot, parent_el, body: Body, props, meshes, mesh_names, actuators
         if j.range is not None:
             attrs["range"] = _f(j.range)
         if j.drive is not None:
-            attrs.update(mjcf_joint_attrs(j.drive))
+            attrs.update(mjcf_joint_attrs(j.drive, j.share))
             lo, hi = j.range if j.range is not None else (-1.0, 1.0)
             if j.drive.mode == "velocity":
                 v = j.drive.max_speed
                 lo, hi = -v, v
-            actuators.append(mjcf_actuator(j.drive, j.name, j.name, (lo, hi)))
+            if j.follow is None:
+                actuators.append(mjcf_actuator(j.drive, j.name, j.name, (lo, hi)))
+            else:  # geared to another joint (second gripper jaw): q = q_follow
+                equalities.append((j.name, j.follow))
         else:
             attrs.update({"damping": "0.0", "armature": "0.0"} if j.kind != "hinge" or "roller" not in j.name
                          else {"damping": "1e-4", "armature": "1e-6"})
@@ -147,6 +150,8 @@ def _add_body(robot, parent_el, body: Body, props, meshes, mesh_names, actuators
             g["group"] = "0" if not meshes else "1"
         if sh.friction is not None:
             g["friction"] = _f(sh.friction)
+        if sh.condim is not None:
+            g["condim"] = str(sh.condim)
         g["mass"] = "0"
         ET.SubElement(el, "geom", **g)
     if meshes:
@@ -161,7 +166,7 @@ def _add_body(robot, parent_el, body: Body, props, meshes, mesh_names, actuators
     for cam in body.cameras:
         ET.SubElement(el, "camera", **{k: (v if isinstance(v, str) else _f(v)) for k, v in cam.items()})
     for ch in body.children:
-        _add_body(robot, el, ch, props, meshes, mesh_names, actuators, excludes)
+        _add_body(robot, el, ch, props, meshes, mesh_names, actuators, equalities)
     return el
 
 
@@ -282,12 +287,16 @@ def build_xml(robot: Robot = DEFAULT, variant: str = "mobile", base_mode: str = 
         ET.SubElement(wb, "geom", name="table", type="box", size="0.30 0.45 0.02", pos="0.42 0 0.73",
                       rgba="0.55 0.40 0.28 1", group="0")
     actuators: list = []
-    excludes: list = []
+    equalities: list = []
     for ch in tree.children:
-        _add_body(robot, wb, ch, props, meshes, mesh_names, actuators, excludes)
+        _add_body(robot, wb, ch, props, meshes, mesh_names, actuators, equalities)
     if extra_world:
         for el in ET.fromstring(f"<w>{extra_world}</w>"):
             wb.append(el)
+    if equalities:
+        eq = ET.SubElement(root, "equality")
+        for j1, j2 in equalities:
+            ET.SubElement(eq, "joint", joint1=j1, joint2=j2, polycoef="0 1 0 0 0", solref="0.004 1")
     act = ET.SubElement(root, "actuator")
     for tag, attrs in actuators:
         ET.SubElement(act, tag, **attrs)
@@ -295,9 +304,13 @@ def build_xml(robot: Robot = DEFAULT, variant: str = "mobile", base_mode: str = 
         for tag, attrs in planar_base_actuators(robot):
             ET.SubElement(act, tag, **attrs)
     xml = ET.tostring(root, encoding="unicode")
-    pairs = _overlapping_pairs(xml)
+    pairs = set(_overlapping_pairs(xml))
+    tree_names = [b.name for b in tree.walk()]
+    for side in ("l_", "r_"):  # the two jaws: geared together, pads touch when closed
+        if side + "jaw" in tree_names:
+            pairs.add((side + "jaw", side + "jaw2"))
+    pairs = sorted(pairs)
     if variant == "mobile" and base_mode == "free":  # rollers touch only the floor
-        tree_names = [b.name for b in tree.walk()]
         pairs = sorted(set(pairs) | {tuple(sorted(("base", n))) for n in tree_names if "_roller_" in n})
     if pairs:
         contact = ET.SubElement(root, "contact")

@@ -102,6 +102,8 @@ class Bought:
     extrusion_2020: float = 0.50  # kg/m, 2020 aluminium profile
     bearing_608: float = 0.012
     bearing_6806: float = 0.011
+    bearing_625: float = 0.005
+    steel_rod_4mm: float = 0.0985  # kg/m, 4 mm steel rod (gripper guides)
     omni_wheel: float = 0.060  # 100 mm plastic omni wheel (estimate; see BOM)
     battery: float = 0.40  # 3S 5000 mAh LiPo (12.6 V full; a 4S pack would trip the 14 V servo limit)
     computer: float = 0.10  # Raspberry Pi 5 + case
@@ -139,11 +141,56 @@ class Gear:
 
 
 @dataclass(frozen=True)
+class Gripper:
+    """Parallel gripper (v2). A pinion on the gripper servo drives two racks in opposite
+    directions; each rack belongs to a jaw carriage that slides on two steel guide rods, and
+    each jaw carries a printed TPU pad. Both jaws are the same printed part.
+
+    Hand frame: origin at the wrist-roll horn face, z along the arm (down at the zero pose);
+    the jaws close along x. The gripper servo stands on the hand axis, output down, its case
+    running back (-x), under a hub plate with a gap for reaching the wrist-horn screws."""
+
+    module: float = 0.00125
+    pinion_teeth: int = 18
+    face_width: float = 0.008
+    stroke: float = 0.032  # per jaw: the jaws open 0-64 mm
+    hub_plate: float = 0.004
+    neck: float = 0.007  # gap under the hub plate: hex-key access to the wrist-horn screws
+    rod_diameter: float = 0.004  # 2 x 4 mm steel rod, 100 mm
+    rod_length: float = 0.100
+    rod_spacing: float = 0.018  # y distance between the two rods
+    carriage: tuple[float, float, float] = (0.012, 0.028, 0.010)  # x, y, z size of a jaw carriage
+    finger_length: float = 0.036  # carriage bottom -> fingertip
+    finger_thickness: float = 0.007
+    pad: tuple[float, float, float] = (0.002, 0.022, 0.032)  # TPU pad: thickness, width (y), height (z)
+    pad_friction: float = 0.9  # TPU 95A on dry PLA/cardboard (estimate; randomised in the pick task)
+    tcp_above_tip: float = 0.016  # tool centre point: between the pads, mid-height
+    efficiency: float = 0.8  # rack and pinion plus rod bushings (estimate)
+    friction: float = 1.5  # N, rod bushings (estimate)
+    torque_fraction: float = 0.35  # torque-limit register: ~37 N per jaw at stall, 17 mm/s per jaw
+
+    @property
+    def pitch_radius(self) -> float:
+        return self.module * self.pinion_teeth / 2
+
+    def stack(self, sb: "ServoBody", wall: float) -> float:
+        """Wrist-roll horn face -> gripper-servo horn face (top of the pinion)."""
+        return self.hub_plate + self.neck + wall + 0.0003 + sb.stack
+
+    def tip(self, sb: "ServoBody", wall: float) -> float:
+        """Wrist-roll horn face -> fingertips."""
+        return (self.stack(sb, wall) + self.face_width + 0.001 + self.carriage[2] + self.finger_length)
+
+
+@dataclass(frozen=True)
 class Arm:
     """One 7-DOF arm (shoulder pitch, shoulder roll, upper-arm yaw, elbow, forearm roll,
-    wrist pitch, wrist roll) plus a one-moving-jaw gripper. Lengths are between joint axes
+    wrist pitch, wrist roll) plus a parallel gripper. Lengths are between joint axes
     along the hanging arm; the module offsets (``*_to_*``) are the minimum the servo stack
-    allows (see ``homebot.layout.ArmGeometry``), the two link lengths are free choices."""
+    allows (see ``homebot.layout.ArmGeometry``), the two link lengths are free choices.
+
+    v2 (this version) gears the elbow 2:1 and replaces v1's single pivoting jaw with the
+    parallel gripper; v1's values are in the git history and the README."""
 
     shoulder_width: float = 0.34  # distance between the two shoulder points (on the J1 axes)
     shoulder_forward: float = 0.055  # shoulder-pitch axis ahead of the mast centre
@@ -154,28 +201,31 @@ class Arm:
     elbow_to_roll: float = 0.060  # elbow axis -> forearm roll horn face
     forearm: float = 0.095  # forearm roll horn face -> wrist pitch axis (free)
     wrist_to_roll: float = 0.060  # wrist pitch axis -> wrist roll horn face
-    gripper_pivot: tuple[float, float] = (-0.006, -0.044)  # (x, z) of the jaw axis below the wrist-roll horn
-    finger_length: float = 0.060  # pivot -> fingertip
-    jaw_thickness: float = 0.012
-    tcp_above_tip: float = 0.012
     link_section: float = 0.034  # outer diameter of the printed arm tubes
     wall: float = 0.0025  # printed wall around servos
     cheek: float = 0.004  # clevis cheek thickness
     shoulder_gear: Gear = field(default_factory=Gear)
-    geared_joints: tuple[str, ...] = ("shoulder_pitch", "shoulder_roll")
+    # 2:1 elbow stage, module 1.5: the servo sits a centre distance up the upper arm
+    elbow_gear: Gear = field(default_factory=lambda: Gear(module=0.0015, pinion_teeth=15, gear_teeth=30,
+                                                          face_width=0.012, friction=0.03))
+    geared_joints: tuple[str, ...] = ("shoulder_pitch", "shoulder_roll", "elbow")
     roll_bearing_joints: tuple[str, ...] = ("upper_arm_yaw", "forearm_roll")  # 6806 bearing at the joint
+    gripper: Gripper = field(default_factory=Gripper)
     payload: float = 0.20  # rated payload (kg) at the tool centre point
 
     @property
     def hand(self) -> float:
         """Wrist-roll horn face -> tool centre point."""
-        return -self.gripper_pivot[1] + self.finger_length - self.tcp_above_tip
+        return Gripper.tip(self.gripper, ServoBody(), self.wall) - self.gripper.tcp_above_tip
 
     @property
     def length(self) -> float:
         """Shoulder-pitch axis to tool centre point when straight."""
         return (self.pitch_to_roll + self.roll_to_yaw + self.upper_arm + self.elbow_to_roll
                 + self.forearm + self.wrist_to_roll + self.hand)
+
+    def gear(self, joint: str) -> Gear:
+        return self.elbow_gear if joint == "elbow" else self.shoulder_gear
 
 
 # Joint order of one arm; the same order is used by the sim, the driver and the policies.
@@ -189,14 +239,15 @@ ARM_JOINTS = (
 ARM_RANGES = {
     # Geared joints must stay inside one servo turn (position mode is single-turn, 4096
     # counts), so their range is at most 2*pi/3 at the 3:1 gear (see tests/test_params.py).
+    # Every range is also checked against the printed parts by homebot.cad.interference.
     "shoulder_pitch": (-0.25, 1.80),  # + raises the arm forward (hanging -> 13 deg above level)
     "shoulder_roll": (-0.15, 1.6),  # + abducts away from the body
     "upper_arm_yaw": (-1.6, 1.6),
-    "elbow": (-0.1, 2.3),  # + flexes the forearm forward/up
+    "elbow": (-0.1, 2.0),  # + flexes the forearm forward/up (v1 claimed 2.3; its parts stopped at 1.7)
     "forearm_roll": (-2.6, 2.6),
     "wrist_pitch": (-1.6, 1.6),
     "wrist_roll": (-2.8, 2.8),
-    "gripper": (-0.05, 1.0),  # 0 = jaws touching; slightly negative squeezes
+    "gripper": (0.0, 0.032),  # metres per jaw: 0 = pads touching, 0.032 = 64 mm open
 }
 
 
@@ -261,14 +312,20 @@ class Robot:
     lift: Lift = field(default_factory=Lift)
     base: Base = field(default_factory=Base)
     shoulder_torque_fraction: float = 0.75  # torque-limit register on geared servos (protects PLA teeth)
+    elbow_torque_fraction: float = 0.75  # same limit as the shoulders: ~36 MPa Lewis root stress at stall
 
     # ----------------------------------------------------------------------------------
     def arm_drive(self, joint: str) -> Drive:
         a = self.arm
+        if joint == "gripper":
+            g = a.gripper  # servo radians per metre of jaw travel (the lift's convention)
+            return Drive(self.servo, ratio=1.0 / g.pitch_radius, efficiency=g.efficiency,
+                         extra_friction=g.friction, torque_fraction=g.torque_fraction)
         if joint in a.geared_joints:
-            g = a.shoulder_gear
+            g = a.gear(joint)
+            frac = self.elbow_torque_fraction if joint == "elbow" else self.shoulder_torque_fraction
             return Drive(self.servo, ratio=g.ratio, efficiency=g.efficiency,
-                         extra_friction=g.friction, torque_fraction=self.shoulder_torque_fraction)
+                         extra_friction=g.friction, torque_fraction=frac)
         if joint in a.roll_bearing_joints:
             return Drive(self.servo, extra_friction=0.01)
         return Drive(self.servo)

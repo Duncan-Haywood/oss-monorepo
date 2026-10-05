@@ -42,3 +42,25 @@ def test_arm_length_is_sum_of_segments():
     a = DEFAULT.arm
     assert a.length == pytest.approx(0.53, abs=0.005)
     assert set(ARM_RANGES) == set(ARM_JOINTS)
+
+
+def test_geared_elbow():
+    a = DEFAULT.arm
+    assert a.elbow_gear.ratio == 2.0
+    assert a.elbow_gear.centre_distance == pytest.approx(0.03375)
+    d = DEFAULT.arm_drive("elbow")
+    s = DEFAULT.servo
+    assert d.max_effort == pytest.approx(s.stall_torque * 2 * a.elbow_gear.efficiency * DEFAULT.elbow_torque_fraction)
+    assert d.max_speed == pytest.approx(s.no_load_speed / 2)
+
+
+def test_gripper_drive_is_rack_and_pinion():
+    g = DEFAULT.arm.gripper
+    d = DEFAULT.arm_drive("gripper")
+    assert d.ratio == pytest.approx(1 / g.pitch_radius)  # servo rad per metre of jaw travel
+    # one servo pushes both racks: per-jaw clamp force is half the joint's force limit
+    per_jaw = d.max_effort / 2
+    assert 25 < per_jaw < 50  # N
+    lo, hi = ARM_RANGES["gripper"]
+    assert (lo, hi) == (0.0, g.stroke)
+    assert hi * d.ratio < 2 * math.pi  # position mode, single turn

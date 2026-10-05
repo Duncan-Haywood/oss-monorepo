@@ -115,8 +115,21 @@ class RealHomebot:
         self._wheel_cmd = np.zeros(3)
 
     # ------------------------------------------------------------------ setup
+    def torque_limits(self) -> dict[int, int]:
+        """Torque-limit register values (0-1000 = 0-100 % of stall) for the joints whose drive
+        limits the servo below stall in the twin (geared joints protect printed teeth; the
+        gripper limits the squeeze). The twin uses the same fractions (``Drive.torque_fraction``)."""
+        out = {}
+        for j in self.joints:
+            base = j[2:] if j[:2] in ("l_", "r_") else j
+            if base in ARM_JOINTS:
+                out[self.cal.joints[j].servo_id] = int(round(1000 * self.robot.arm_drive(base).torque_fraction))
+        return out
+
     def enable(self, on: bool = True) -> None:
         ids = [self.cal.joints[j].servo_id for j in self.joints]
+        if on:  # the torque-limit register is RAM: it resets to the EEPROM maximum at power-up
+            self.bus.sync_write("torque_limit", self.torque_limits())
         self.bus.sync_write("torque_enable", {sid: int(on) for sid in ids})
         if self.mobile:
             wheel_ids = [SERVO_IDS[f"wheel_{i}"] for i in range(3)] + [SERVO_IDS["lift"]]
@@ -190,19 +203,20 @@ class RealHomebot:
         return q
 
 
-def policy_loop(env_cls, policy, real: RealHomebot, hz: float = 25.0, seconds: float = 10.0, obs_fn=None):
+def policy_loop(env, policy, real: RealHomebot, hz: float = 25.0, seconds: float = 10.0, obs_fn=None):
     """Run a twin-trained policy on hardware at ``hz``: read joints, build the observation
-    with ``obs_fn(joint_dict) -> obs`` (task-specific), apply delta targets like the env."""
+    with ``obs_fn(joint_dict) -> obs`` (task-specific), and turn actions into servo targets
+    with the env's own rule (``env.joint_targets``: per-joint increments and a lead window),
+    so the policy sees the same action semantics as in training."""
     dt = 1.0 / hz
+    names = env.ctrl_names
     q = real.read_joints()
-    target = dict(q)
+    target = np.array([q[j] for j in names])
     t_end = time.monotonic() + seconds
     while time.monotonic() < t_end:
         t0 = time.monotonic()
         q = real.read_joints()
-        a = policy(obs_fn(q))
-        for j, aj in zip(env_cls.controlled, a):
-            if j in target:
-                target[j] = float(np.clip(target[j] + aj * env_cls.max_delta, q[j] - 0.4, q[j] + 0.4))
-        real.command_joints(target)
+        a = np.asarray(policy(obs_fn(q)), float)
+        target = env.joint_targets(target, np.array([q[j] for j in names]), a[:len(names)])
+        real.command_joints(dict(zip(names, map(float, target))))
         time.sleep(max(0.0, dt - (time.monotonic() - t0)))

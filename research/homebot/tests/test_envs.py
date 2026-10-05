@@ -91,3 +91,50 @@ def _ancestors(m, i):
     while i:
         i = m.body_parentid[i]
         yield i
+
+
+def test_pick_randomises_the_object_and_pads():
+    env = ENVS["ArmPick"](randomize=Randomization(), seed=0)
+    sizes, masses, pads = [], [], []
+    for s in range(6):
+        env.reset(seed=s)
+        sizes.append(env.half * 2)
+        masses.append(env.model.body_mass[env._cube_body])
+        pads.append(env.model.geom_friction[env._pads[0], 0])
+        cube = env.cube_pos()
+        assert cube[2] == pytest.approx(0.75 + env.half)  # resting on the table
+    assert np.std(sizes) > 0 and np.std(masses) > 0 and np.std(pads) > 0
+    R = Randomization()
+    assert R.object_size[0] <= min(sizes) and max(sizes) <= R.object_size[1]
+
+
+def test_pick_gripper_moves_by_increments_and_starts_open():
+    env = ENVS["ArmPick"](seed=0)
+    env.reset(seed=0)
+    g = env.ctrl_names.index("r_gripper")
+    open0 = env.target[g]
+    assert open0 > 0.025  # starts open
+    a = np.zeros(env.action_space.shape)
+    a[g] = -1.0
+    env.step(a)
+    assert env.target[g] == pytest.approx(open0 - env.joint_delta["r_gripper"])
+
+
+def test_pick_reward_counts_a_held_cube():
+    """Close the jaws on a cube placed between them and lift: grasped, lifted, success."""
+    import mujoco
+
+    env = ENVS["ArmPick"](seed=0)
+    env.reset(seed=0)
+    m, d = env.model, env.data
+    tcp = env.tcp(0)
+    a = env._cube_q
+    d.qpos[a:a + 3] = tcp  # cube centred between the open pads, in the air
+    d.qpos[a + 3:a + 7] = env.data.xquat[m.body("r_hand").id]
+    mujoco.mj_forward(m, d)
+    act = np.zeros(env.action_space.shape)
+    act[env.ctrl_names.index("r_gripper")] = -1.0
+    for _ in range(20):
+        _, r, term, _, info = env.step(act)
+    assert info["grasped"] and not term
+    assert info["lift"] > 0.05 and info["is_success"]  # held 14 cm above the table

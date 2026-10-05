@@ -126,12 +126,13 @@ class Drive:
         return replace(self, servo=replace(self.servo, **kw))
 
 
-def mjcf_joint_attrs(drive: Drive) -> dict:
-    """Joint attributes that carry the drive's passive dynamics."""
+def mjcf_joint_attrs(drive: Drive, share: float = 1.0) -> dict:
+    """Joint attributes that carry the drive's passive dynamics (``share`` of them when one
+    servo drives several coupled joints)."""
     return {
-        "damping": f"{drive.damping:.6g}",
-        "armature": f"{drive.armature:.6g}",
-        "frictionloss": f"{drive.friction:.6g}",
+        "damping": f"{drive.damping * share:.6g}",
+        "armature": f"{drive.armature * share:.6g}",
+        "frictionloss": f"{drive.friction * share:.6g}",
     }
 
 

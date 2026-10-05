@@ -22,6 +22,11 @@ class Joint:
     drive: Drive | None = None
     servo_id: int | None = None  # bus id on the real robot
     sign: int = 1  # real servo direction relative to the sim joint (set by mounting)
+    # Coupled joints (the two jaws of the parallel gripper): ``follow`` names the driven joint
+    # this one is geared to (q = q_driven); the drive's reflected inertia, back-EMF damping
+    # and friction are split between the coupled joints by ``share``.
+    follow: str | None = None
+    share: float = 1.0
 
 
 @dataclass
@@ -38,6 +43,7 @@ class Shape:
     name: str | None = None
     friction: tuple[float, float, float] | None = None
     group: int = 0
+    condim: int | None = None
 
 
 @dataclass

@@ -15,6 +15,10 @@ together, so they agree by construction:
 
 A small driver runs the same joint-target interface on the real servos.
 
+> **v2 in progress.** The code and parts now have a 2:1 geared elbow, a parallel rack-and-pinion
+> gripper with TPU pads, a CAD interference sweep over every joint and a learned pick task
+> (`ArmPick`). The numbers below are from v1 and are being re-run for v2.
+
 **Status: designed and simulated, not yet built.** Every number below comes from the code in
 this directory: CAD, the MuJoCo twin, analyses and RL runs. Nothing has been measured on
 hardware yet. `hardware/ASSEMBLY.md` lists what to measure on the first build so the twin can be

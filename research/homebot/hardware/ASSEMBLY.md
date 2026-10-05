@@ -15,9 +15,8 @@ stage (`WIRING.md`).
 - Centre every servo before fitting a horn: power it, enable torque, and command position 2048.
   The calibration step records the real zero, so this centring only keeps each joint's range
   inside the servo's single turn.
-- Press the 608ZZ and 6806ZZ bearings in with a vice or clamp, not a hammer.
-- Use M4 heat-set inserts for the clevis pivots: 3 per arm, in the `upper_arm`, `forearm` and
-  `hand` cradle plates.
+- Press the 608ZZ, 625ZZ and 6806ZZ bearings in with a vice or clamp, not a hammer.
+- Use an M4 heat-set insert for the wrist-pitch pivot: 1 per arm, in the `forearm` cradle plate.
 
 ## 1. Arm (repeat mirrored for the left arm)
 
@@ -30,12 +29,38 @@ Work from the hand up. Each joint is one of three modules.
 3. Push the child's hub into the bearing bore, align it with the horn and fix it with
    4 x M3 screws from below. J7 has no bearing.
 
-**Pitch module** (elbow J4, wrist pitch J6, gripper J8).
-1. Fix the servo in the cradle of the link above it (output pointing outward).
-2. Slide the child clevis over it.
+**Pitch module** (wrist pitch J6).
+1. Fix the servo in the cradle of the `forearm` (output pointing outward).
+2. Slide the `wrist_clevis` over it.
 3. Bolt the outer cheek to the horn (4 x M3).
 4. Put an M4 shoulder screw through the inner cheek into the insert on the cradle's pivot boss.
    It should turn freely with no axial play.
+
+**Geared elbow** (J4, 2:1).
+1. Bolt an `elbow_pinion` to the elbow servo horn (4 x M3 x 16, heads in the counterbores).
+2. Fix the servo in the `upper_arm` cradle, horn outward, case running up the arm. Its near end
+   rests on the lobe support.
+3. Press two 625ZZ into the elbow lobe at the bottom of the `upper_arm`.
+4. Screw the `elbow_gear` to the outboard cheek of the `forearm_clevis` (4 x M3, thread-forming
+   into the cheek).
+5. Put the clevis around the lobe and push an M5 x 45 bolt through the gear, the outboard cheek,
+   the lobe bearings and the inboard cheek. Shim with M5 washers so the cheeks clear the lobe.
+6. Set the mesh before tightening: a little play, no binding. Grease the teeth.
+
+**Parallel gripper** (J8).
+1. Bolt the `hand` hub to the wrist-roll horn first: 4 x M3 from below, through the side windows
+   of the neck with a ball-end hex key.
+2. Push the gripper servo into its cradle from below (output down, case running back) and fix it
+   with M2 x 6 screws from above (the two near screws through the same windows).
+3. Close the jaws: centre the servo, then bolt the `grip_pinion` to the horn (4 x M3, heads in the
+   counterbores).
+4. Push the two TPU `pad`s onto the pegs of the two `jaw`s (both jaws are the same part).
+5. Slide the two 4 mm rods through the +x end wall, through both jaw carriages (one jaw turned
+   180 deg so its rack meets the other side of the pinion) and into the blind holes of the -x
+   wall. Before the rods go fully home, set both jaws so that the pads touch while the pinion
+   meshes with both racks.
+6. Run the jaws open and closed by hand; ream the carriage holes (4.4 mm) if they bind. A drop of
+   light oil on the rods helps.
 
 **Geared shoulder** (J1, J2).
 1. Bolt a `pinion` to the J2 servo horn (4 x M3 x 16).
