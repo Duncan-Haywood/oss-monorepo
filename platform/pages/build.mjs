@@ -1306,6 +1306,8 @@ const CATEGORY_RULES = [
       || slug === 'patreon-payout-to-journal'
       // `lemonsqueezy-payout-to-journal` joined 2026-10-05: the Lemon Squeezy end of the same payout-to-journal set, filed beside it.
       || slug === 'lemonsqueezy-payout-to-journal'
+      // `paddle-payout-to-journal` joined 2026-10-05: the Paddle (merchant-of-record SaaS) end of the same payout-to-journal set, filed beside it.
+      || slug === 'paddle-payout-to-journal'
       // `sales-export-to-journal` joined 2026-10-05: the single front door to the eight platform tools above (drop any export, the page detects the platform), filed beside them.
       || slug === 'sales-export-to-journal'
       // `airbnb-payout-to-journal` joined 2026-10-05: the Airbnb host end of the same payout-to-journal set, filed beside it.

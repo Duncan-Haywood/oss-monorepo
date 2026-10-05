@@ -457,6 +457,7 @@
     "owner-operator-load-chain-planner": "2026-10-02",
     "owner-operator-per-diem-calculator": "2026-10-04",
     "package-exports-drift-check": "2026-09-09",
+    "paddle-payout-to-journal": "2026-10-05",
     "painting-bid-calculator": "2026-08-26",
     "parcel-dim-weight-calculator": "2026-09-18",
     "parcel-late-delivery-refund-finder": "2026-09-29",

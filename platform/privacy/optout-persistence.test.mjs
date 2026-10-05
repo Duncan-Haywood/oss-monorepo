@@ -1324,8 +1324,9 @@ const RELATIVE_SELF = relative(
 // +1: `sales-export-to-journal` graduated.
 // +1: `airbnb-payout-to-journal` graduated.
 // +1: `lemonsqueezy-payout-to-journal` graduated.
+// +1: `paddle-payout-to-journal` graduated.
 // +1: `sep-ira-vs-solo-401k-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 741;
+const SWITCHES_IN_THE_CATALOGUE = 742;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
