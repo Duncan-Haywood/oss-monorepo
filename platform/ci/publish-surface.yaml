@@ -1193,6 +1193,9 @@ workflows:
 - workflow: qif-file-check-ci.yml
   classification: none
   publishes: []
+- workflow: mt940-statement--check-ci.yml
+  classification: none
+  publishes: []
 - workflow: youtube-chapters-check-ci.yml
   classification: none
   publishes: []
