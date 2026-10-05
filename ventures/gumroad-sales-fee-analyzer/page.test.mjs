@@ -74,3 +74,8 @@ test("page links the Teachers Pay Teachers earnings analyzer sibling", () => {
   const html = page("index.html");
   assert.match(html, /href="\.\.\/teachers-pay-teachers-earnings-analyzer\/"/);
 });
+
+test("page links the Gumroad sales to journal converter sibling", () => {
+  const html = page("index.html");
+  assert.match(html, /href="\.\.\/gumroad-sales-to-journal\/"/);
+});

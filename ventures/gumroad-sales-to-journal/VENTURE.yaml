@@ -1,0 +1,68 @@
+name: gumroad-sales-to-journal
+description: >-
+  Free browser tool that turns a Gumroad sales CSV export into balanced monthly accounting journals for
+  Xero, QuickBooks Online and QuickBooks Desktop (IIF). It checks every row against its own columns, books
+  product sales, shipping, tax or VAT (as a liability when the seller is paid it, never as revenue),
+  Gumroad fees and affiliate commissions (expenses), refunds and chargebacks (contra) separately instead of
+  the net payout, writes one journal per calendar month balanced to a Gumroad clearing account, moves each
+  payout from clearing to the bank, and ties every Payout ID to the sales it paid. Money no rule explains
+  is journalled to an uncategorised account rather than dropped. The file is read locally and never
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 in a new-venture-first session. The commercial analogue is A2X and the per-month
+# marketplace sync apps; this is the no-account, no-upload, one-export-at-a-time version. Sibling of
+# stripe-payout-to-journal, shopify-payout-to-journal, etsy-statement-to-journal, paypal-activity-to-journal,
+# amazon-settlement-to-journal and square-sales-to-journal: same engine family, different export. It is the
+# bookkeeping half for digital-product creators; gumroad-sales-fee-analyzer already analyses what the fees
+# cost and is deliberately not duplicated -- this tool writes the journal and does not model take-home.
+# Search phrases: "Gumroad to QuickBooks", "Gumroad sales to Xero", "Gumroad payout journal entry",
+# "Gumroad fees accounting entry", "Gumroad VAT bookkeeping", "Gumroad accounting spreadsheet".
+# Volume not measured with an external tool.
+#
+# Who: creators and small digital-product sellers on Gumroad who keep their own books, and the bookkeepers
+# who serve several of them. Today they book the payout as income (wrong month, fees hidden) or pay a
+# monthly sync fee.
+#
+# Path to revenue (payment rails stay off): lead magnet for the creator and bookkeeper audience. If usage
+# appears, the paid version is what a browser page cannot do: batch many months and clients, remember the
+# account mapping per client, pull exports on a schedule (behind an env-var switch) and add VAT return
+# figures. Not built.
+#
+# Liability: it writes a journal from the user's own export, shows the check it ran, states what it does
+# not check (tax and VAT treatment, fees reported outside the export), and carries the no-warranty,
+# independent-of-Gumroad and financial-data clauses.
+#
+# Unverified: the column names of the Gumroad sales export, the row types for refunds, chargebacks and
+# payouts, whether Gumroad collects and remits tax itself in the Net, the sign of amounts, and the Xero,
+# QuickBooks Online and IIF import layouts are from memory of public help documents; columns are matched by
+# alias and nothing ran against a real Gumroad export or a live import. The first export this misreads, or
+# a journal an importer refuses, is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A Gumroad creator or their bookkeeper will paste a sales export into a no-upload page to get a
+      monthly journal, because the alternatives are booking the net payout as income (hiding fees and
+      refunds) or paying a monthly sync fee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports an export this tool misreads, or a journal that Xero or QuickBooks refuses, at which point the layouts need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/gumroad-sales-to-journal/
+  analytics: null
