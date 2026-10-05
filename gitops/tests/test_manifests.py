@@ -2964,7 +2964,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `quickbooks-iif-file-check` graduated (browser QuickBooks Desktop IIF checker: ENDTRNS, TRNS/SPL balance, stray tabs, dates, Excel quotes, safe fixes).
     # +1: `mt940-statement-check` graduated (browser SWIFT MT940 statement checker: balance arithmetic, statement continuity, :61: layout, comma decimals, repeats, closing -, CSV conversion).
     # +1: `bank-statement-pdf-to-csv` graduated (browser bank/credit card statement PDF to CSV with a balance proof: opening + rows = closing, running-balance sign check, Xero/QuickBooks layouts).
-    total = 747  # `infra/OWNER_CHECKLIST.md`'s own "N of the 747 tools" wording.
+    # +1: `coi-expiry-gap-checker` graduated (browser subcontractor certificate-of-insurance list checker: expiry and lead time, limits with umbrella make-up, endorsements, renewal gaps, chase list and .ics).
+    total = 748  # `infra/OWNER_CHECKLIST.md`'s own "N of the 748 tools" wording.
     # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).
