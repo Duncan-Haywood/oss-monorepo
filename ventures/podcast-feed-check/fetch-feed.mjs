@@ -10,7 +10,7 @@
 const DEFAULT_TIMEOUT_MS = 15_000;
 const DEFAULT_MAX_BYTES = 10 * 1024 * 1024; // 10 MB: generous for any real RSS feed
 const USER_AGENT =
-  'podcast-feed-check/1 (+https://duncan-haywood.github.io/monorepo-projects/podcast-feed-check/)';
+  'podcast-feed-check/1 (+https://duncan-haywood.github.io/fp-monorepo/podcast-feed-check/)';
 
 /**
  * Fetches `url` and returns its body text, or an error -- never throws.

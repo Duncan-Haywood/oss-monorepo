@@ -526,7 +526,7 @@ test('the off-origin check sees resources fetched by <link>, not just src', () =
   // switched off.
   assert.deepEqual(offOriginResources(`
     <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor</a>
-    <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/">
+    <link rel="canonical" href="https://duncan-haywood.github.io/fp-monorepo/">
     <link rel="icon" href="favicon.ico">
   `), []);
 });

@@ -115,4 +115,4 @@ loss or damage arising from its use.
 MIT licensed — see [`LICENSE`](LICENSE).
 
 Free support is optional and never required:
-[the project on GitHub](https://github.com/Duncan-Haywood/monorepo-projects).
+[the project on GitHub](https://github.com/Duncan-Haywood/fp-monorepo).

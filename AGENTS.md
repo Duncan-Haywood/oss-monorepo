@@ -53,7 +53,7 @@ Do not open a second `deploy-settings` ask.
 
 **As of 2026-09-06 the primary deploy (GitHub Pages) is done and confirmed
 current** — `deploy-settings` is granted, ~175 products are live at
-`https://duncan-haywood.github.io/monorepo-projects/`, and the standing job
+`https://duncan-haywood.github.io/fp-monorepo/`, and the standing job
 is just keeping the snapshot fresh (`python3 platform/ci/pages_state.py`,
 then `platform/pages/publish-branch.sh` if stale). With distribution solved,
 default to reading [`portfolio/usage/usage.yaml`](portfolio/usage/README.md)

@@ -224,7 +224,7 @@ export function buildEpkHtml(data) {
   </section>
 
   <footer>
-    <p>Press kit${generatedLabel ? ` generated ${generatedLabel}` : ""}. Built with the free, no-signup <a href="https://duncan-haywood.github.io/monorepo-projects/epk-generator/" rel="noopener">EPK Generator</a> — nothing in it was uploaded to build this page; it runs entirely in the browser that made it.</p>
+    <p>Press kit${generatedLabel ? ` generated ${generatedLabel}` : ""}. Built with the free, no-signup <a href="https://duncan-haywood.github.io/fp-monorepo/epk-generator/" rel="noopener">EPK Generator</a> — nothing in it was uploaded to build this page; it runs entirely in the browser that made it.</p>
   </footer>
 </body>
 </html>

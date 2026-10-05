@@ -22,7 +22,7 @@ to open any of them", written before the `gh-pages` *branch* route — a fourth
 path, distinct from the `portfolio-pages.yml` row above, and not downstream of
 a runner — was confirmed live the same day: `python3 platform/ci/pages_state.py`
 shows GitHub's own managed builder deploying that branch, so the catalogue is
-reachable today at `https://duncan-haywood.github.io/monorepo-projects/`. What
+reachable today at `https://duncan-haywood.github.io/fp-monorepo/`. What
 the table still describes correctly is `marisstella.dev` itself: none of its
 three routes serve it, so the portfolio's *own name* still refuses every
 connection even though the catalogue has a public URL elsewhere. See

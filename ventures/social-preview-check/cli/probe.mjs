@@ -21,7 +21,7 @@ const DEFAULT_TIMEOUT_MS = 10_000;
 const MAX_HTML_BYTES = 500_000;
 const MAX_IMAGE_BYTES = 65_536;
 const USER_AGENT =
-  'social-preview-check/1 (+https://duncan-haywood.github.io/monorepo-projects/social-preview-check/)';
+  'social-preview-check/1 (+https://duncan-haywood.github.io/fp-monorepo/social-preview-check/)';
 
 /**
  * One GET request to `url`, capped at `maxBytes` of response body -- once

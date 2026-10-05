@@ -668,11 +668,12 @@ readings:
     # Distinct from `github-pages-plan` above, and the distinction is the whole
     # point of this row. That one asks whether the account *could* serve a
     # private repository's Pages site. This one asks whether
-    # `duncan-haywood.github.io/monorepo-projects/` **is serving one right
-    # now** — confirmed 2026-09-23 by a direct, credential-free curl from a
-    # session with open egress. See the dated note below for the reading.
+    # `duncan-haywood.github.io/fp-monorepo/` **is serving one right now** —
+    # confirmed 2026-10-05 by a direct, credential-free curl. The repository
+    # was renamed from `monorepo-projects`, and the old path now answers 404.
+    # See the dated notes below.
     verdict: up
-    measured: "2026-09-23"
+    measured: "2026-10-05"
     run: null
     how: >-
       Dispatch `Public surface check`
@@ -687,7 +688,7 @@ readings:
       above is flapping.
       Third route, added 2026-09-07 and usable from a session: ask a search
       engine for pages on the host (`WebSearch` for the exact string
-      `duncan-haywood.github.io/monorepo-projects`). This is deliberately
+      `duncan-haywood.github.io/fp-monorepo`). This is deliberately
       asymmetric and only one direction of it is a proof. **Any** indexed
       page from that host settles the row `up` outright — a crawler is an
       anonymous stranger, and it could not have read a member-only site.
@@ -764,6 +765,14 @@ readings:
       open egress; do not treat this as needing the `WebSearch`
       indexed-page proof any longer, since the stronger direct proof is now
       in hand.
+      **Re-measured 2026-10-05, after the repository was renamed to
+      `fp-monorepo`.** `curl -sI` on `https://duncan-haywood.github.io/fp-monorepo/`
+      returned `HTTP/2 200` from `server: GitHub.com` (`last-modified: Mon,
+      05 Oct 2026 17:10:27 GMT`); `.../monorepo-projects/` returned `HTTP/2
+      404`. GitHub does not redirect a renamed repository's project site, so
+      every canonical tag and sitemap `<loc>` naming the old path pointed at
+      a 404 until `build.mjs`'s `DEFAULT_BASE_URL` moved, and `FORMER_BASE_URLS`
+      now rewrites any page that still names it.
 
   agent-session-egress:
     # What a Claude Code web session — the thing that runs most of the work

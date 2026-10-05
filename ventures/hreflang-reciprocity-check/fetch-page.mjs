@@ -18,7 +18,7 @@ const DEFAULT_TIMEOUT_MS = 10_000;
 const MAX_REDIRECTS = 5;
 const MAX_BYTES = 5 * 1024 * 1024; // 5 MB is generous for an HTML document's <head>+<body>
 const USER_AGENT =
-  'hreflang-reciprocity-check/1 (+https://duncan-haywood.github.io/monorepo-projects/hreflang-reciprocity-check/)';
+  'hreflang-reciprocity-check/1 (+https://duncan-haywood.github.io/fp-monorepo/hreflang-reciprocity-check/)';
 
 /**
  * One GET request to `targetUrl`. Resolves rather than rejects on any

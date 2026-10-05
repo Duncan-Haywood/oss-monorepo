@@ -21,7 +21,7 @@
 # fourth path, distinct from the Actions-source row above and not downstream
 # of a runner. GitHub's own managed builder deploys that branch, so the
 # catalogue is reachable today at
-# https://duncan-haywood.github.io/monorepo-projects/. What the table above
+# https://duncan-haywood.github.io/fp-monorepo/. What the table above
 # still describes correctly is `marisstella.dev` itself: none of its three
 # routes serve it, so the portfolio's own name still refuses every connection
 # even though the catalogue has a public URL elsewhere. See

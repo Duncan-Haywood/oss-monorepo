@@ -116,5 +116,5 @@ This free tool does not tell anyone what to charge. Outputs are arithmetic
 on the user's own inputs.
 
 MIT licensed — see [`LICENSE`](LICENSE). Optional support via the
-[project on GitHub](https://github.com/Duncan-Haywood/monorepo-projects)
+[project on GitHub](https://github.com/Duncan-Haywood/fp-monorepo)
 never changes what the tool does.

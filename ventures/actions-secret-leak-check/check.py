@@ -348,14 +348,14 @@ def render_sarif(findings, root):
                 "tool": {
                     "driver": {
                         "name": "actions-secret-leak-check",
-                        "informationUri": "https://duncan-haywood.github.io/monorepo-projects/actions-secret-leak-check/",
+                        "informationUri": "https://duncan-haywood.github.io/fp-monorepo/actions-secret-leak-check/",
                         "rules": [
                             {
                                 "id": rule_id,
                                 "name": rule["name"],
                                 "shortDescription": {"text": rule["short"]},
                                 "fullDescription": {"text": rule["text"]},
-                                "helpUri": "https://duncan-haywood.github.io/monorepo-projects/actions-secret-leak-check/why-github-actions-secret-masking-fails.html",
+                                "helpUri": "https://duncan-haywood.github.io/fp-monorepo/actions-secret-leak-check/why-github-actions-secret-masking-fails.html",
                             }
                             for rule_id, rule in _SARIF_RULES.items()
                         ],

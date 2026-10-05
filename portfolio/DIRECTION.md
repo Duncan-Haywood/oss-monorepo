@@ -334,7 +334,7 @@ Revenue comes later. For now:
 > `current` — the snapshot was built from `main`'s own tip (`d5f6709f`), not
 > a stale commit. `deploy-settings` is granted. All ~175 finished products
 > are reachable today at
-> `https://duncan-haywood.github.io/monorepo-projects/`, no owner action
+> `https://duncan-haywood.github.io/fp-monorepo/`, no owner action
 > pending. Stop naming that flip as a blocker and stop reading a built
 > product with no *second* URL as undeployed.
 >

@@ -336,7 +336,7 @@ browser's Do Not Track / Global Privacy Control setting.
 ## Support
 
 The tool is free and full-featured. The
-[project lives on GitHub](https://github.com/Duncan-Haywood/monorepo-projects);
+[project lives on GitHub](https://github.com/Duncan-Haywood/fp-monorepo);
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is entirely
 optional and never changes what the tool does.
 

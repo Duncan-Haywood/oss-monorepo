@@ -824,7 +824,7 @@ candidate list. Either:
 > **SUPERSEDED IN PART, 2026-09-06: the catalogue IS served. Read this first.**
 >
 > All 175 products are built, deployed and being served by GitHub Pages at
-> **https://duncan-haywood.github.io/monorepo-projects/** — Pages serves the
+> **https://duncan-haywood.github.io/fp-monorepo/** — Pages serves the
 > `gh-pages` branch that `platform/pages/publish-branch.sh` writes.
 > Proof rather than inference: GitHub's own managed builder
 > `dynamic/pages/pages-build-deployment` ran on that branch and concluded

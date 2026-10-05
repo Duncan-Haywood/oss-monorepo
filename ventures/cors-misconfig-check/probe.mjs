@@ -18,7 +18,7 @@ import { randomBytes } from 'node:crypto';
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 const USER_AGENT =
-  'cors-misconfig-check/1 (+https://duncan-haywood.github.io/monorepo-projects/cors-misconfig-check/)';
+  'cors-misconfig-check/1 (+https://duncan-haywood.github.io/fp-monorepo/cors-misconfig-check/)';
 
 function headerValue(headers, name) {
   const value = headers[name.toLowerCase()];

@@ -471,7 +471,7 @@ invalid old data, the calculator continues to work and simply skips that count.
 ## Support
 
 The tool is free and full-featured. The
-[project lives on GitHub](https://github.com/Duncan-Haywood/monorepo-projects);
+[project lives on GitHub](https://github.com/Duncan-Haywood/fp-monorepo);
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is entirely
 voluntary and never changes what the tool does.
 

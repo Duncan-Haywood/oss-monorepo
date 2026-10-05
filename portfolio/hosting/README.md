@@ -107,7 +107,7 @@ answers nothing.
 
 The `gh-pages` branch route (`platform/pages/publish-branch.sh`) is the only
 delivery path here that is downstream of neither a runner nor the cluster. Its
-one gap was that it published to `duncan-haywood.github.io/monorepo-projects/`
+one gap was that it published to `duncan-haywood.github.io/fp-monorepo/`
 and had no way to serve the portfolio's own name — so the flip restored the
 *catalogue* while leaving the *domain* dark.
 

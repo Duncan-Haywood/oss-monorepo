@@ -139,7 +139,7 @@
   </p>
   <pre class="cmd"><code>node check.mjs app.staging.example.com --ca letsencrypt.org --json</code></pre>
   <p class="status-note">
-    Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/caa-record-check" rel="noopener">check.mjs, lookup.mjs, parse.mjs, and analyze.mjs from the repo</a> —
+    Get <a href="https://github.com/Duncan-Haywood/fp-monorepo/tree/main/ventures/caa-record-check" rel="noopener">check.mjs, lookup.mjs, parse.mjs, and analyze.mjs from the repo</a> —
     exit code 1 on a malformed record, a critical unrecognized tag, or (with --ca) a blocked CA;
     exit code 2 if the lookup itself could not complete. Wire it into deploy verification or a
     recurring DNS-zone-audit job.

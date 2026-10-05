@@ -32,7 +32,7 @@ test('names no specific product or company -- this is a generic-method compariso
 test('the canonical tag names this file at the real GitHub Pages origin', () => {
   assert.match(
     html,
-    /<link rel="canonical" href="https:\/\/duncan-haywood\.github\.io\/monorepo-projects\/appointment-deposit-calculator\/vs-doing-it-by-hand\.html">/,
+    /<link rel="canonical" href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/appointment-deposit-calculator\/vs-doing-it-by-hand\.html">/,
   );
 });
 

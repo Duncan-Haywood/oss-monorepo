@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://duncan-haywood.github.io/monorepo-projects/chargeback-evidence-packet/sitemap.xml
+Sitemap: https://duncan-haywood.github.io/fp-monorepo/chargeback-evidence-packet/sitemap.xml

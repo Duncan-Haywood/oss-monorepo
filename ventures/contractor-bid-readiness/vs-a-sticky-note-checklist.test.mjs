@@ -28,7 +28,7 @@ test('names no vendor, competing checklist, or platform', () => {
 test('the canonical tag names this file at the real GitHub Pages origin', () => {
   assert.match(
     html,
-    /<link rel="canonical" href="https:\/\/duncan-haywood\.github\.io\/monorepo-projects\/contractor-bid-readiness\/vs-a-sticky-note-checklist\.html">/,
+    /<link rel="canonical" href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/contractor-bid-readiness\/vs-a-sticky-note-checklist\.html">/,
   );
 });
 

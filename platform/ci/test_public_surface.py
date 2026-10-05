@@ -491,15 +491,15 @@ class PagesSitemapTests(unittest.TestCase):
 
     INDEX = (
         "<sitemapindex>"
-        "<sitemap><loc>https://duncan-haywood.github.io/monorepo-projects/sitemap-hub.xml</loc></sitemap>"
-        "<sitemap><loc>https://duncan-haywood.github.io/monorepo-projects/a-calculator/sitemap.xml</loc></sitemap>"
+        "<sitemap><loc>https://duncan-haywood.github.io/fp-monorepo/sitemap-hub.xml</loc></sitemap>"
+        "<sitemap><loc>https://duncan-haywood.github.io/fp-monorepo/a-calculator/sitemap.xml</loc></sitemap>"
         "</sitemapindex>"
     )
-    HUB = "<urlset><url><loc>https://duncan-haywood.github.io/monorepo-projects/</loc></url></urlset>"
+    HUB = "<urlset><url><loc>https://duncan-haywood.github.io/fp-monorepo/</loc></url></urlset>"
     CHILD = (
         "<urlset>"
-        "<url><loc>https://duncan-haywood.github.io/monorepo-projects/a-calculator/</loc></url>"
-        "<url><loc>https://duncan-haywood.github.io/monorepo-projects/a-calculator/vs-x.html</loc></url>"
+        "<url><loc>https://duncan-haywood.github.io/fp-monorepo/a-calculator/</loc></url>"
+        "<url><loc>https://duncan-haywood.github.io/fp-monorepo/a-calculator/vs-x.html</loc></url>"
         "</urlset>"
     )
 
@@ -518,13 +518,13 @@ class PagesSitemapTests(unittest.TestCase):
         with unittest.mock.patch.object(
             ps.publish_surface, "pages_branch_survey", return_value={"ref": "origin/gh-pages"}
         ), unittest.mock.patch.object(ps.publish_surface, "_git", self._git_stub(table)):
-            urls = ps.pages_sitemap_urls(base_url="https://duncan-haywood.github.io/monorepo-projects/")
+            urls = ps.pages_sitemap_urls(base_url="https://duncan-haywood.github.io/fp-monorepo/")
         self.assertEqual(
             urls,
             [
-                "https://duncan-haywood.github.io/monorepo-projects/",
-                "https://duncan-haywood.github.io/monorepo-projects/a-calculator/",
-                "https://duncan-haywood.github.io/monorepo-projects/a-calculator/vs-x.html",
+                "https://duncan-haywood.github.io/fp-monorepo/",
+                "https://duncan-haywood.github.io/fp-monorepo/a-calculator/",
+                "https://duncan-haywood.github.io/fp-monorepo/a-calculator/vs-x.html",
             ],
         )
 
@@ -550,7 +550,7 @@ class PagesSitemapTests(unittest.TestCase):
         with unittest.mock.patch.object(
             ps.publish_surface, "pages_branch_survey", return_value={"ref": "origin/gh-pages"}
         ), unittest.mock.patch.object(ps.publish_surface, "_git", self._git_stub(table)):
-            urls = ps.pages_sitemap_urls(base_url="https://duncan-haywood.github.io/monorepo-projects/")
+            urls = ps.pages_sitemap_urls(base_url="https://duncan-haywood.github.io/fp-monorepo/")
         self.assertEqual(urls, [])
 
     def test_probes_expect_a_document(self):
@@ -594,7 +594,7 @@ class RenderTests(unittest.TestCase):
     def test_a_broken_pages_sitemap_url_is_listed_separately_from_the_apex(self):
         dead = ps.Result(
             probe=ps.Probe(
-                "https://duncan-haywood.github.io/monorepo-projects/x/", "serves", "GitHub Pages sitemap"
+                "https://duncan-haywood.github.io/fp-monorepo/x/", "serves", "GitHub Pages sitemap"
             ),
             status=404,
         )

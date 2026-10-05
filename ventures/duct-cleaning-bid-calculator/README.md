@@ -106,5 +106,5 @@ law, the authors accept no liability for any loss or damage arising
 from its use.
 
 Free and open source. Support via the
-[project on GitHub](https://github.com/Duncan-Haywood/monorepo-projects)
+[project on GitHub](https://github.com/Duncan-Haywood/fp-monorepo)
 is entirely optional and never changes what the tool does.

@@ -58,7 +58,7 @@
   This checker does one narrower thing, differently. It reads your project's own PostgREST schema
   listing (an <code>OpenAPI</code> document the anon key can already see), then sends one capped,
   read-only GET per table it finds and reports which ones return real rows to that unauthenticated
-  request. The code is <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/supabase-rls-check" rel="nofollow noopener">open source and readable in full</a> before you trust it,
+  request. The code is <a href="https://github.com/Duncan-Haywood/fp-monorepo/tree/main/ventures/supabase-rls-check" rel="nofollow noopener">open source and readable in full</a> before you trust it,
   it runs entirely in your own browser tab (or as a Node CLI you can wire into CI), and it never
   sends your project URL, anon key, or anything it reads back to any server of ours.
 </p>

@@ -108,7 +108,17 @@ export const REPO_ROOT = path.resolve(HERE, '..', '..');
 
 // Owner-overridable at build time; this default is where GitHub serves a
 // project Pages site for this repository.
-export const DEFAULT_BASE_URL = 'https://duncan-haywood.github.io/monorepo-projects/';
+export const DEFAULT_BASE_URL = 'https://duncan-haywood.github.io/fp-monorepo/';
+
+// Where the site used to be served. The repository was renamed from
+// `monorepo-projects`, and GitHub does not redirect a renamed repository's
+// project site: measured 2026-10-05, the old path answers 404 and the new one
+// 200. A page that still names the old origin -- one written by a branch
+// opened before the rename -- would tell every crawler its canonical home is
+// a dead page, so the build rewrites it like the placeholder below.
+export const FORMER_BASE_URLS = Object.freeze([
+  'https://duncan-haywood.github.io/monorepo-projects/',
+]);
 
 // IndexNow (api.indexnow.org) proves ownership of a set of URLs with a key
 // file hosted at a location the submitter names in each request -- it does
@@ -4448,7 +4458,10 @@ export async function publishedPages(dir, prefix = '') {
 // Point already-written SEO at the real, served URL: every venture wrote its
 // canonical tags against the placeholder origin, back when none existed.
 function rewriteOrigin(contents, baseUrl) {
-  const rewritten = contents.split(PLACEHOLDER_ORIGIN).join(baseUrl);
+  let rewritten = contents.split(PLACEHOLDER_ORIGIN).join(baseUrl);
+  for (const former of FORMER_BASE_URLS) {
+    rewritten = rewritten.split(former).join(baseUrl);
+  }
 
   // Three ventures (freelance-retainer, no-show-fee, retainage-cashflow) wrote
   // today's Pages address into their canonical tags directly, rather than the
@@ -4536,7 +4549,7 @@ export async function copyTree(from, to, baseUrl) {
 // Link repair
 // ---------------------------------------------------------------------------
 
-export const SOURCE_URL_PREFIX = 'https://github.com/Duncan-Haywood/monorepo-projects/blob/main/';
+export const SOURCE_URL_PREFIX = 'https://github.com/Duncan-Haywood/fp-monorepo/blob/main/';
 
 /**
  * Every venture page was written assuming its own directory was the site root,

@@ -116,7 +116,7 @@ use this as a system of record. If a tool needs to survive, export your inputs
 and run it yourself.
 
 MIT licensed — see [`LICENSE`](LICENSE). Support via the
-[project on GitHub](https://github.com/Duncan-Haywood/monorepo-projects) is
+[project on GitHub](https://github.com/Duncan-Haywood/fp-monorepo) is
 entirely optional and never changes what the tool does.
 
 ## Saving and sharing a bid

@@ -20,7 +20,7 @@ This builder is the missing half. It lays out
 and it is the *single source of truth* for that layout. Ventures currently
 disagree about where they will live -- most sitemaps say
 `https://example.invalid/<slug>/`, four say
-`https://duncan-haywood.github.io/monorepo-projects/ventures/<slug>/` -- because
+`https://duncan-haywood.github.io/fp-monorepo/ventures/<slug>/` -- because
 until now nothing existed to settle it. Rather than hand-editing 30 sitemaps
 (which the next session would guess at again), the build rewrites every
 `<loc>` and `Sitemap:` line to the base URL it actually deploys to.
@@ -48,7 +48,7 @@ DEFAULT_OUT = REPO_ROOT / "_site"
 # The project-site URL for this repo. Overridable so moving to a custom domain
 # (registrar A/CNAME straight to GitHub -- see portfolio/hosting/README.md) is a
 # workflow input, not a code change.
-DEFAULT_BASE_URL = "https://duncan-haywood.github.io/monorepo-projects"
+DEFAULT_BASE_URL = "https://duncan-haywood.github.io/fp-monorepo"
 
 # Static web assets a browser product can ask for. Everything else in a venture
 # directory (tests, READMEs, VENTURE.yaml, fixtures) stays out of the artifact.
@@ -102,9 +102,11 @@ EXCLUDED_DIRS = frozenset(
 
 # Hosts the ventures currently point their sitemaps at. Each is a guess made
 # before a deploy existed; all of them get rewritten to the real base.
+# `monorepo-projects` is the repository's name before it was renamed to
+# `fp-monorepo`; GitHub does not redirect the old project-site path.
 PLACEHOLDER_URL_RE = re.compile(
     r"https?://(?:example\.invalid|duncan-haywood\.github\.io)"
-    r"(?:/monorepo-projects)?(?:/ventures)?",
+    r"(?:/(?:fp-monorepo|monorepo-projects))?(?:/ventures)?",
 )
 
 
@@ -319,7 +321,7 @@ def _iter_web_assets(root: Path):
 
 # Where a link that escapes the published site still resolves. Mirrors
 # `SOURCE_URL_PREFIX` in `platform/pages/build.mjs`.
-SOURCE_URL_PREFIX = "https://github.com/Duncan-Haywood/monorepo-projects/blob/main/"
+SOURCE_URL_PREFIX = "https://github.com/Duncan-Haywood/fp-monorepo/blob/main/"
 
 _LOCAL_REF_RE = re.compile(r'((?:href|src)=")([^"]+)(")')
 _ABSOLUTE_REF_RE = re.compile(r"^(?:[a-z][a-z0-9+.-]*:|//|#)")

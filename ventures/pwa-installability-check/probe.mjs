@@ -11,7 +11,7 @@
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 const USER_AGENT =
-  'pwa-installability-check/1 (+https://duncan-haywood.github.io/monorepo-projects/pwa-installability-check/)';
+  'pwa-installability-check/1 (+https://duncan-haywood.github.io/fp-monorepo/pwa-installability-check/)';
 
 async function fetchText(url, { timeoutMs = DEFAULT_TIMEOUT_MS } = {}) {
   const controller = new AbortController();

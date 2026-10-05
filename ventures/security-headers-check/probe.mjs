@@ -15,7 +15,7 @@ import { request as httpsRequest } from 'node:https';
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 const USER_AGENT =
-  'security-headers-check/1 (+https://duncan-haywood.github.io/monorepo-projects/security-headers-check/)';
+  'security-headers-check/1 (+https://duncan-haywood.github.io/fp-monorepo/security-headers-check/)';
 
 const HEADER_NAMES = [
   'content-security-policy',

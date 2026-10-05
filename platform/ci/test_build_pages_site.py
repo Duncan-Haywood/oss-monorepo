@@ -230,7 +230,17 @@ class UrlRewriting(unittest.TestCase):
         """Four sitemaps guessed a `/ventures/<slug>/` layout; the build
         publishes `<slug>/`. Both must normalise to the same URL."""
         out = bp.rewrite_base_urls(
-            "<loc>https://duncan-haywood.github.io/monorepo-projects/ventures/widget/</loc>",
+            "<loc>https://duncan-haywood.github.io/fp-monorepo/ventures/widget/</loc>",
+            "https://host.example.com/repo",
+            "widget",
+        )
+        self.assertEqual(out, "<loc>https://host.example.com/repo/widget/</loc>")
+
+    def test_rewrites_the_pre_rename_repository_path(self):
+        """The repo was renamed from monorepo-projects; pages still naming
+        the old path must normalise too, since GitHub serves 404 there."""
+        out = bp.rewrite_base_urls(
+            "<loc>https://duncan-haywood.github.io/monorepo-projects/widget/</loc>",
             "https://host.example.com/repo",
             "widget",
         )

@@ -477,7 +477,7 @@ metadata:
   name: prod
 spec:
   source:
-    repoURL: https://github.com/Duncan-Haywood/monorepo-projects.git
+    repoURL: https://github.com/Duncan-Haywood/fp-monorepo.git
     targetRevision: main
     path: gitops/prod
   syncPolicy:

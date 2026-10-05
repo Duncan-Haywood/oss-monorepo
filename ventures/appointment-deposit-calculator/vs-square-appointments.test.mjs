@@ -33,7 +33,7 @@ test('no unverifiable price is claimed for Square Appointments', () => {
 test('the canonical tag names this file at the real GitHub Pages origin', () => {
   assert.match(
     html,
-    /<link rel="canonical" href="https:\/\/duncan-haywood\.github\.io\/monorepo-projects\/appointment-deposit-calculator\/vs-square-appointments\.html">/,
+    /<link rel="canonical" href="https:\/\/duncan-haywood\.github\.io\/fp-monorepo\/appointment-deposit-calculator\/vs-square-appointments\.html">/,
   );
 });
 

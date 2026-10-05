@@ -112,5 +112,5 @@ loss or damage arising from its use.
 
 MIT licensed — see [`LICENSE`](LICENSE).
 
-Optional support via the [GitHub repository](https://github.com/Duncan-Haywood/monorepo-projects)
+Optional support via the [GitHub repository](https://github.com/Duncan-Haywood/fp-monorepo)
 never changes what the tool does.

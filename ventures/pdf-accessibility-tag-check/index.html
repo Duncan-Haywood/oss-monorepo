@@ -102,7 +102,7 @@
   <strong>alternate text</strong>, do form fields have an <strong>accessible name</strong>, and does every
   page have a real <strong>text layer</strong> rather than being an un-OCR'd scan. Runs entirely in your
   browser -- the file is never uploaded. Preparing for
-  <a href="https://duncan-haywood.github.io/monorepo-projects/ada-title-ii-evidence/">ADA Title II's April
+  <a href="https://duncan-haywood.github.io/fp-monorepo/ada-title-ii-evidence/">ADA Title II's April
   2027/2028 deadlines</a>? PDFs your site links are "web content" under that rule too.
 </p>
 
@@ -129,7 +129,7 @@
   <p>Node.js, no dependencies to install -- checks the exact same things as the browser page:</p>
   <pre class="cmd"><code>node cli/check.mjs ./document-library/ --json</code></pre>
   <p class="status-note">
-    Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/pdf-accessibility-tag-check" rel="noopener">check.mjs, engine.mjs, and pdf-parser.mjs from the repo</a>
+    Get <a href="https://github.com/Duncan-Haywood/fp-monorepo/tree/main/ventures/pdf-accessibility-tag-check" rel="noopener">check.mjs, engine.mjs, and pdf-parser.mjs from the repo</a>
     — plain Node, nothing to install. It only ever reads the files you point it at; nothing goes through
     this site. Point it at a folder to scan every <code>.pdf</code> in it (recursively), or list files
     directly. Exits non-zero if any file has a finding, so it works as a CI or scheduled-job gate.
@@ -171,9 +171,9 @@
   CI/scheduled check on newly-published documents. It shares the exact same checking code as the browser
   page, so the two can never silently disagree.</p>
   <p>Preparing web-page (not PDF) evidence for the same deadline? See
-  <a href="https://duncan-haywood.github.io/monorepo-projects/ada-title-ii-evidence/">the ADA Title II deadline lookup and WCAG evidence report</a>.
+  <a href="https://duncan-haywood.github.io/fp-monorepo/ada-title-ii-evidence/">the ADA Title II deadline lookup and WCAG evidence report</a>.
   Buying software rather than publishing your own PDFs? See
-  <a href="https://duncan-haywood.github.io/monorepo-projects/vpat-acr-generator/">the VPAT/ACR generator</a>
+  <a href="https://duncan-haywood.github.io/fp-monorepo/vpat-acr-generator/">the VPAT/ACR generator</a>
   for a vendor's own accessibility conformance report.</p>
 </section>
 

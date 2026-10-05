@@ -642,7 +642,7 @@ decisions:
   # Measured, current loss of a public surface, per the OUTAGE convention in
   # decision_queue.py: `Public surface check` run 33912053750 (2026-09-04,
   # no credential, every request one a stranger could make) got 404 from
-  # `https://duncan-haywood.github.io/monorepo-projects/` — the origin ~670
+  # `https://duncan-haywood.github.io/fp-monorepo/` — the origin ~670
   # generated pages name in their own `<link rel="canonical">`.
   #
   # This row sat at position 9 for 16 days while the queue's outage banner
@@ -699,7 +699,7 @@ decisions:
     `github-actions-runners` was down, so this route does not spend the
     metered Actions allowance.
     What is genuinely left, and it is not a settings change: **open
-    https://duncan-haywood.github.io/monorepo-projects/ in a logged-out
+    https://duncan-haywood.github.io/fp-monorepo/ in a logged-out
     browser and confirm you see the catalogue.** A deploy succeeding is not
     the same as an unauthenticated stranger getting a 200 — a Pages site can be
     access-controlled — and no session can check it, because the agent egress
@@ -1510,7 +1510,7 @@ decisions:
     - >-
       Sitemap auto-discovery for all 881 published pages, which has never once
       happened. The site is served from a project-Pages *subpath*
-      (`https://duncan-haywood.github.io/monorepo-projects/`), but a crawler
+      (`https://duncan-haywood.github.io/fp-monorepo/`), but a crawler
       fetches `robots.txt` from the *host* root -- which belongs to the
       owner's separate user-level Pages site. So the `Sitemap:` line this
       build writes has never been read by anything, and

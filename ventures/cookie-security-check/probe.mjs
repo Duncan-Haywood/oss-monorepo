@@ -22,7 +22,7 @@ import { request as httpsRequest } from 'node:https';
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 const USER_AGENT =
-  'cookie-security-check/1 (+https://duncan-haywood.github.io/monorepo-projects/cookie-security-check/)';
+  'cookie-security-check/1 (+https://duncan-haywood.github.io/fp-monorepo/cookie-security-check/)';
 
 /**
  * One GET request to `targetUrl`. Resolves rather than rejects on any

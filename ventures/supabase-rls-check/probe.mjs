@@ -19,7 +19,7 @@
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 const USER_AGENT =
-  'supabase-rls-check/1 (+https://duncan-haywood.github.io/monorepo-projects/supabase-rls-check/)';
+  'supabase-rls-check/1 (+https://duncan-haywood.github.io/fp-monorepo/supabase-rls-check/)';
 
 function normalizeBaseUrl(projectUrl) {
   const trimmed = String(projectUrl || '').trim().replace(/\/+$/, '');

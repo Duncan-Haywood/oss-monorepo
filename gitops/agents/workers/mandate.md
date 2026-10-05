@@ -196,7 +196,7 @@ metadata follows; do not hand-write a schema block beside it.
 
 **Know what the current origin does to two items on that list before you spend
 a run on them** (added 2026-09-10). The catalogue is served from a project-Pages
-*subpath* (`https://duncan-haywood.github.io/monorepo-projects/`), and a crawler
+*subpath* (`https://duncan-haywood.github.io/fp-monorepo/`), and a crawler
 fetches `robots.txt` from the **host root** — which belongs to the owner's
 separate user-level Pages site. So the `robots.txt` this build publishes is not
 the file any crawler reads, and the `Sitemap:` line inside it has never been
