@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 739 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 740 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -88,6 +88,14 @@
     <summary type="text">Free QIF checker: finds why a QIF file imports with the wrong month, twice, or not at all (no !Type header, missing ^, mixed date order, bad amounts, unbalanced splits), with line numbers, and writes a repaired file. Runs in your browser.</summary>
   </entry>
   <entry>
+    <title>QuickBooks IIF File Checker — Fix Import Errors</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/quickbooks-iif-file-check/"/>
+    <id>tag:marisstella.dev,2026:tool/quickbooks-iif-file-check</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free QuickBooks Desktop IIF checker: finds why an IIF import fails or posts wrong (missing ENDTRNS, transactions that do not balance, stray tabs, bad dates, Excel quotes, unknown accounts), with line numbers, and writes a repaired file. Runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Redirect Map Checker — Find Loops, Chains and 404 Targets Before You Migrate</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/redirect-map-check/"/>
     <id>tag:marisstella.dev,2026:tool/redirect-map-check</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free BigCommerce product CSV checker: finds SKU rows with no product or option set, duplicate SKUs, bad prices, wrong Y/N flags, wrong barcode check digits, broken image URLs, Excel-damaged SKUs and semicolon files, with line numbers, and applies safe fixes. Runs in your browser; the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Business Vehicle Depreciation Calculator — Section 179 vs bonus vs MACRS, heavy SUV and truck</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/business-vehicle-depreciation-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/business-vehicle-depreciation-calculator</id>
-    <updated>2026-10-04T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Enter the vehicle price, class and business-use percentage and see the first-year deduction and tax saved under regular MACRS, 100% bonus depreciation and Section 179, with the car luxury-auto caps and the 6,000 lb SUV cap applied, plus standard mileage. Free, runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

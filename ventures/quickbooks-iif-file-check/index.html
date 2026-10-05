@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>QuickBooks IIF File Checker — Fix Import Errors</title>
+  <meta name="description" content="Free QuickBooks Desktop IIF checker: finds why an IIF import fails or posts wrong (missing ENDTRNS, transactions that do not balance, stray tabs, bad dates, Excel quotes, unknown accounts), with line numbers, and writes a repaired file. Runs in your browser.">
+  <meta property="og:title" content="QuickBooks IIF File Check — free, private, in your browser">
+  <meta property="og:description" content="Find out why your IIF file will not import into QuickBooks Desktop, with line numbers. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "QuickBooks IIF File Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free browser tool that checks QuickBooks Desktop IIF import files for missing ENDTRNS rows, unbalanced transactions, stray tabs, bad dates, quoted cells and unknown accounts, and writes a repaired file."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does QuickBooks say my IIF file has an error or imports nothing?", "acceptedAnswer": {"@type": "Answer", "text": "The usual causes are a transaction with no ENDTRNS row, TRNS and SPL amounts that do not sum to zero, a row with more columns than its header (a stray tab inside a memo or name), columns separated by spaces or commas instead of tabs, and header names that are misspelled. This tool finds each one and gives the line number."}}, {"@type": "Question", "name": "Why must the TRNS and SPL amounts add up to zero?", "acceptedAnswer": {"@type": "Answer", "text": "An IIF transaction is a double entry: the TRNS row posts one side and the SPL rows post the other, with opposite signs. If the sum is not exactly 0.00, QuickBooks refuses the transaction. The checker names the transaction and the difference."}}, {"@type": "Question", "name": "What does Excel do to an IIF file?", "acceptedAnswer": {"@type": "Answer", "text": "Saving as Text (Tab delimited) keeps the tabs but Excel may wrap cells that contain quotation marks in more quotes, turn dates into its own format, or drop leading zeros. QuickBooks reads the quote marks as part of an account or customer name, so the match fails. The checker finds wrapped cells and year-first dates and can fix them."}}, {"@type": "Question", "name": "Why are my dates refused or wrong?", "acceptedAnswer": {"@type": "Answer", "text": "QuickBooks reads IIF dates in the computer's short-date format, normally MM/DD/YYYY in a US locale. A date like 31/12/2024 or 2024-12-31 is then refused or misread. A date such as 03/05/2024 could be either order, so the tool only rewrites day-first dates when another date in the file proves the order or you tell it."}}, {"@type": "Question", "name": "Do the accounts and names have to exist already?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. An IIF import does not create the accounts a transaction posts to unless the file also carries an !ACCNT list. The checker lists the account names a file uses and, when the file has an !ACCNT list, warns about any that are not in it. Names must match your chart exactly, with colons between parent and sub-accounts."}}, {"@type": "Question", "name": "Is my file uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is read in your browser tab and a test in the code asserts there are no network calls. Accounting files hold customer and vendor names, so do not paste one into a tool that uploads it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2f5d8a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1d3f66; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1d3f66; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1d3f6610; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f5d8a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf4; color: #1d3f66; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1d3f66; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">QUICKBOOKS IIF FILE CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why won't my IIF file import into QuickBooks?</h1>
+    <p>Drop in an <strong>IIF</strong> file and get every problem <strong>with its line number</strong>: a transaction with <strong>no ENDTRNS</strong>, <strong>TRNS and SPL amounts that do not sum to zero</strong>, a row with <strong>more columns than its header</strong>, columns <strong>split by spaces instead of tabs</strong>, <strong>Excel quote marks</strong>, <strong>dates in the wrong form</strong>, accounts that are not in the file's own list, and transactions that appear twice. Then download a repaired file.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device; accounting files hold customer and vendor names, so that matters. This checks the file against IIF conventions QuickBooks Desktop follows, not against your company file, so it cannot know which accounts you already have. For bank files use the <a href="../ofx-file-check/">OFX file check</a> or the <a href="../qif-file-check/">QIF file check</a>. Independent of every product named.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your IIF file</h2>
+    <p class="note">A .iif file, or its text pasted below (tabs must survive the paste).</p>
+    <label for="file">Choose a file</label>
+    <input type="file" id="file" accept=".iif,.txt,text/plain">
+    <label for="paste">…or paste the text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="!TRNS&#9;TRNSTYPE&#9;DATE&#9;ACCNT&#9;AMOUNT"></textarea>
+    <div class="grid">
+      <div><label for="convert">Fix day-first dates</label><select id="convert"><option value="">Leave dates as they are</option><option value="dmy">Rewrite DD/MM/YYYY as MM/DD/YYYY</option></select></div>
+      <div><label for="order">If the file cannot prove its date order, read it as</label><select id="order"><option value="">Do not guess</option><option value="dmy">Day/month</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="validate">Check file</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Check file.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <div id="fix-box" hidden>
+      <h3>Repaired file</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <label for="fixed-out">Preview</label>
+      <textarea id="fixed-out" class="small" readonly spellcheck="false" wrap="off"></textarea>
+      <p><button type="button" id="copy-fixed">Copy</button> <button type="button" class="secondary" id="download-fixed">Download repaired file</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Structure:</strong> tab-delimited; ! header rows that name each record type's columns; every transaction a TRNS row, SPL rows and an ENDTRNS row.</li>
+      <li><strong>Balance:</strong> the TRNS and SPL amounts of one transaction sum to 0.00, with opposite signs.</li>
+      <li><strong>Columns:</strong> a row may not have more cells than its header names; TRNS needs TRNSTYPE, DATE, ACCNT and AMOUNT, SPL needs ACCNT and AMOUNT.</li>
+      <li><strong>Dates:</strong> MM/DD/YYYY, the form a US-locale QuickBooks reads. Year-first dates are always rewritten; day-first dates only when the file proves the order or you choose it; mixed orders are an error.</li>
+      <li><strong>Lists:</strong> ACCNTTYPE values, duplicate accounts, account names over 31 characters, names over 41, and accounts used but absent from the file's !ACCNT list.</li>
+      <li><strong>Fixed automatically:</strong> missing ENDTRNS rows and header, quote marks around cells, plain-decimal amounts, year-first dates, spaces around names.</li>
+      <li><strong>Never guessed:</strong> which side of an unbalanced transaction is wrong, a garbled amount, a misspelled account, or whether two similar transactions are one.</li>
+      <li><strong>Not checked:</strong> that accounts, customers, vendors or items exist in your company file, closing-date or period locks, sales tax, items and inventory rows, or what any one QuickBooks version will accept. Read from memory of common IIF practice; confirm against Intuit's own IIF documentation and import into a copy of the company file first.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does QuickBooks say my IIF file has an error or imports nothing?</h3>
+    <p>The usual causes are a transaction with no ENDTRNS row, TRNS and SPL amounts that do not sum to zero, a row with more columns than its header (a stray tab inside a memo or name), columns separated by spaces or commas instead of tabs, and header names that are misspelled. This tool finds each one and gives the line number.</p>
+    <h3>Why must the TRNS and SPL amounts add up to zero?</h3>
+    <p>An IIF transaction is a double entry: the TRNS row posts one side and the SPL rows post the other, with opposite signs. If the sum is not exactly 0.00, QuickBooks refuses the transaction. The checker names the transaction and the difference.</p>
+    <h3>What does Excel do to an IIF file?</h3>
+    <p>Saving as Text (Tab delimited) keeps the tabs but Excel may wrap cells that contain quotation marks in more quotes, turn dates into its own format, or drop leading zeros. QuickBooks reads the quote marks as part of an account or customer name, so the match fails. The checker finds wrapped cells and year-first dates and can fix them.</p>
+    <h3>Why are my dates refused or wrong?</h3>
+    <p>QuickBooks reads IIF dates in the computer's short-date format, normally MM/DD/YYYY in a US locale. A date like 31/12/2024 or 2024-12-31 is then refused or misread. A date such as 03/05/2024 could be either order, so the tool only rewrites day-first dates when another date in the file proves the order or you tell it.</p>
+    <h3>Do the accounts and names have to exist already?</h3>
+    <p>Yes. An IIF import does not create the accounts a transaction posts to unless the file also carries an !ACCNT list. The checker lists the account names a file uses and, when the file has an !ACCNT list, warns about any that are not in it. Names must match your chart exactly, with colons between parent and sub-accounts.</p>
+    <h3>Is my file uploaded anywhere?</h3>
+    <p>No. It is read in your browser tab and a test in the code asserts there are no network calls. Accounting files hold customer and vendor names, so do not paste one into a tool that uploads it.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace your bookkeeper or QuickBooks' own import checks. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including importing into a backup copy of your company file and checking balances and transaction counts afterwards, and a clean result is not a promise that QuickBooks will accept the file.</p>
+    <p><strong>Not affiliated with any platform.</strong> This tool is independent and is not sponsored, endorsed or connected to Intuit, QuickBooks, Excel or any company named. Their names are trademarks of their owners, used here only to say which behaviour is meant. Specifications are read from memory of public sources and may be out of date.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../quickbooks-import-csv-check/">QuickBooks import CSV check</a> covers customer, vendor and item CSV imports, the <a href="../quickbooks-chart-of-accounts-csv-check/">QuickBooks chart of accounts CSV check</a> checks an account list, the <a href="../ofx-file-check/">OFX file check</a> and the <a href="../qif-file-check/">QIF file check</a> cover bank files, and the <a href="../bank-csv-to-qbo-converter/">bank CSV to QBO converter</a> builds a bank file from a CSV.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, cleaned = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const r = validate(text);
+      lastResult = r;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `<strong>${s.errors} error${s.errors === 1 ? "" : "s"}</strong>, ${s.warnings} warning${s.warnings === 1 ? "" : "s"} · ${s.transactions} transaction${s.transactions === 1 ? "" : "s"}${s.lists.length ? ` · lists: ${esc(s.lists.join(", "))}` : ""}`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || "<p>No problems found.</p>";
+      cleaned = repair(text, { fixDates: $("#convert").value || undefined, order: $("#order").value || undefined });
+      $("#fix-box").hidden = false;
+      $("#fix-note").textContent = cleaned.changes.length ? `${cleaned.changes.length} change${cleaned.changes.length === 1 ? "" : "s"} made. Anything that cannot be proven is left as it was and named above.` : "Nothing to change.";
+      $("#fix-list").innerHTML = cleaned.changes.map((c) => `<li>${esc(c)}</li>`).join("");
+      $("#fixed-out").value = cleaned.text;
+      report.hidden = false;
+      status.textContent = s.errors ? `Found ${s.errors} error(s) in ${s.transactions} transaction(s).` : `No errors in ${s.transactions} transaction(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: a made-up two-transaction check and deposit file."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: no !ENDTRNS header, an unknown account type, an unbalanced transaction, a missing ENDTRNS, a stray tab, a year-first date, quote marks, an undefined account and a repeat."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#paste", "#file"]) $(id).value = ""; report.hidden = true; lastResult = null; cleaned = null; status.textContent = "Choose a file or paste the text, then click Check file."; });
+    $("#download-fixed").addEventListener("click", () => { if (!cleaned) return; record("fixes_applied"); download("repaired.iif", cleaned.text, "text/plain"); });
+    $("#copy-fixed").addEventListener("click", async () => { try { await navigator.clipboard.writeText($("#fixed-out").value); status.textContent = "Copied."; record("fixes_applied"); } catch { $("#fixed-out").select(); status.textContent = "Select the preview and copy it."; } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("iif-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
