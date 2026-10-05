@@ -2140,3 +2140,27 @@ entries:
       Liability: spelling and structure checks on the user's own file, no deliverability
       verification, no consent determination, not legal advice, no warranty, independent-of-vendor
       clause. Ethics: free, nothing leaves the device, no scraping.
+
+  - venture: pickleball-facility-pro-forma
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built pickleball-facility-pro-forma for people opening or running an indoor
+        pickleball or padel facility: a browser-local pro-forma taking courts, build-out, hours,
+        rates and utilization by daypart, memberships, league/lesson/event revenue, pro-shop margin,
+        costs, debt service and ramp-up, and showing the steady-state monthly P&L, revenue per
+        court-hour, break-even utilization and members, a 24-month ramp cash curve (months to cash
+        break-even, peak drawdown), build-out payback, utilization x peak-rate and fee x member-count
+        sensitivity tables, and a one-at-a-time +/-10% ranking of what raises profit most. Member
+        court-hours beyond capacity are capped with a warning. Nothing leaves the browser (a test
+        asserts no network calls). Tested on hand-calculated examples only, stated on the page,
+        README and VENTURE.yaml; sample numbers are invented.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed figures, no market data asserted, not legal, tax or
+      financial advice, no warranty, independent of any pickleball brand. Ethics: free, nothing
+      leaves the device.

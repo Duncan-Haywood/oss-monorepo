@@ -996,10 +996,12 @@ const CATEGORY_RULES = [
     // `car-wash-membership-calculator` joined 2026-10-01 on its first commit: an owner turning plan
     // price, wash cost and member usage into break-even washes sits beside `vending-machine-route-margin`
     // and `laundromat-machine-payback-calculator`, the same recurring-revenue small-operator job.
+    // `pickleball-facility-pro-forma` joined 2026-10-05 on its first commit: a facility owner turning court hours, rates, membership
+    // and a ramp into a monthly P&L and break-even sits beside `car-wash-membership-calculator` and `laundromat-machine-payback-calculator`.
     // `pool-service-route-calculator` joined 2026-10-03: a pool route owner's per-account true hourly, reprice/drop and route
     // density sits beside `pool-route-pricing` (same buyer, same job at route level) and `vending-machine-route-margin`.
     test: (slug) =>
-      /^(car-wash-membership|law-firm-realization-rate-calculator|laundromat-machine-payback|home-care-agency|booth-rent|commercial-photo-license|notary-trip|mobile-signing-agent|pool-route|pool-service-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|tattoo-piece-profit|massage-therapist-profit|dj-gig-profit|driving-instructor-lesson-pricing|wedding-photographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|embroidery-shop-quote|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-budget-allocator|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|coffee-roaster-margin|house-cleaning-quote|str-turnover-crew|process-server-day|appraisal-assignment|translation-job|tax-season-client|interior-design-fee|nail-tech-booth-rent|dog-grooming-price)/.test(
+      /^(pickleball-facility|car-wash-membership|law-firm-realization-rate-calculator|laundromat-machine-payback|home-care-agency|booth-rent|commercial-photo-license|notary-trip|mobile-signing-agent|pool-route|pool-service-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|tattoo-piece-profit|massage-therapist-profit|dj-gig-profit|driving-instructor-lesson-pricing|wedding-photographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|embroidery-shop-quote|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-budget-allocator|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|coffee-roaster-margin|house-cleaning-quote|str-turnover-crew|process-server-day|appraisal-assignment|translation-job|tax-season-client|interior-design-fee|nail-tech-booth-rent|dog-grooming-price)/.test(
         slug,
       ),
   },
@@ -1300,6 +1302,10 @@ const CATEGORY_RULES = [
       || slug === 'ebay-payout-to-journal'
       // `gumroad-sales-to-journal` joined 2026-10-05: the Gumroad end of the same payout-to-journal set, filed beside it.
       || slug === 'gumroad-sales-to-journal'
+      // `patreon-payout-to-journal` joined 2026-10-05: the Patreon end of the same payout-to-journal set (platform and processing fees booked separately), filed beside it.
+      || slug === 'patreon-payout-to-journal'
+      // `sales-export-to-journal` joined 2026-10-05: the single front door to the eight platform tools above (drop any export, the page detects the platform), filed beside them.
+      || slug === 'sales-export-to-journal'
       // `airbnb-payout-to-journal` joined 2026-10-05: the Airbnb host end of the same payout-to-journal set, filed beside it.
       || slug === 'airbnb-payout-to-journal'
       // `paypal-activity-to-journal` joined 2026-10-05: the PayPal end of the same payout-to-journal set (Balance-column continuity proof, then a month-split journal), filed beside it.
