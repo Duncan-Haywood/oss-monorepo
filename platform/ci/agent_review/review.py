@@ -518,7 +518,8 @@ def merge_eligible(pr_number: int) -> tuple[bool, list[str]]:
     files = changed_files(pr_number)
     if path_touches_ventures(files):
         return False, reasons + [
-            "touches ventures/* — human-gated; owner must merge"
+            "touches ventures/* — not auto-merged; the session that opened it "
+            "merges it once verified (.github/prompts/land-your-work.md)"
         ]
 
     ok, eval_reasons = evaluate_pr(pr_number)
