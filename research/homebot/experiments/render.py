@@ -37,17 +37,19 @@ def shot(variant, pose, views, size=(720, 720), name="x", base_mode="planar"):
 
 
 def closeup(name="hand_elbow", size=(560, 560)):
-    """The v2 parts: parallel gripper (front, from below) and the geared elbow (side)."""
+    """The v2 parts: parallel gripper (hanging, front and from below) and the geared elbow."""
     m = mujoco.MjModel.from_xml_string(build_xml(variant="arm", meshes=True, scene="none"))
     d = mujoco.MjData(m)
-    for k, v in {"r_gripper": 0.016, "r_gripper_follow": 0.016, "r_elbow": 0.6}.items():
-        d.joint(k).qpos[0] = v
-    mujoco.mj_forward(m, d)
-    hand = d.body("r_hand").xpos.copy()
-    hand[2] -= 0.05
-    elbow = d.body("r_forearm").xpos.copy()
-    ims = [snapshot(m, d, *size, az, el, distance=dist, lookat=look, groups=(0, 1, 2))
-           for az, el, dist, look in [(90, 8, 0.24, hand), (135, -40, 0.24, hand), (90, 0, 0.3, elbow)]]
+    ims = []
+    for pose, views in (({"r_gripper": 0.016, "r_gripper_follow": 0.016}, [(90, 8, 0.22), (130, -35, 0.24)]),
+                        ({"r_elbow": 0.7}, [(90, 0, 0.3)])):
+        mujoco.mj_resetData(m, d)
+        for k, v in pose.items():
+            d.joint(k).qpos[0] = v
+        mujoco.mj_forward(m, d)
+        hand = d.body("r_hand").xpos.copy() - [0, 0, 0.05]
+        look = hand if "r_gripper" in pose else d.body("r_forearm").xpos.copy()
+        ims += [snapshot(m, d, *size, az, el, distance=dist, lookat=look, groups=(0, 1, 2)) for az, el, dist in views]
     save_png(montage(ims, cols=len(ims)), OUT / f"{name}.png")
 
 

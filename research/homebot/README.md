@@ -118,6 +118,11 @@ the real driver sends as goal positions. Control runs at 25 Hz on 500 Hz physics
 
   v2 is clear on all eight joints. The elbow first touches between 2.15 and 2.2 rad, so its
   range is set to 2.0.
+
+![The v2 gripper and geared elbow](hardware/renders/hand_elbow.png)
+
+*The parallel gripper half open: from the front, and from below with the racks under the pinion.
+Right: the 2:1 elbow stage.*
 - **The servo model reproduces the torque-speed line.** A hobby servo is a brushed motor behind
   a saturating proportional loop: τ = clip(k_p e, ±τ_stall) − b ω, with b = τ_stall/ω₀ the
   back-EMF slope. In MJCF this is a force-limited `position` actuator plus joint damping b, so at
