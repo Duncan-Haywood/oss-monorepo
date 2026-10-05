@@ -64,9 +64,10 @@ cd research/homebot
 python -m venv .venv && . .venv/bin/activate
 pip install numpy scipy mujoco gymnasium pyserial pytest stable-baselines3
 pip install torch --index-url https://download.pytorch.org/whl/cpu
-PYTHONPATH=src python -m pytest tests -q                   # 59 tests, ~10 s on an idle 4-core machine
+PYTHONPATH=src python -m pytest tests -q                   # 71 tests, ~45 s (the CAD tests need cadquery)
 PYTHONPATH=src python experiments/view.py mobile           # interactive viewer (arm | torso | mobile)
-PYTHONPATH=src python experiments/train.py --env ArmReach --dr --steps 1500000   # ~13 min on 4 cores
+PYTHONPATH=src python experiments/train.py --env ArmReach --dr --steps 1500000   # ~14 min on 4 cores
+PYTHONPATH=src python experiments/train.py --env ArmPick --steps 3000000         # ~55 min
 ```
 
 ```python
@@ -74,10 +75,15 @@ import gymnasium as gym, homebot.envs
 env = gym.make("homebot/MobileReach-v0", randomize=homebot.envs.Randomization())
 ```
 
-Environments: `ArmReach` (one arm, 7 joints), `BimanualReach` (14 joints), `MobileReach`
-(base twist + lift + 7 arm joints, on the fast planar base), and `MobileReachRollers` (the same
-task on the roller-wheel base, for evaluation). Actions are joint-target increments, exactly what
-the real driver sends as goal positions. Control runs at 25 Hz on 500 Hz physics.
+Environments:
+- `ArmReach`: one arm, 7 joints.
+- `BimanualReach`: 14 joints.
+- `MobileReach`: base twist, lift and 7 arm joints, on the fast planar base.
+- `MobileReachRollers`: the same task on the roller-wheel base, for evaluation.
+- `ArmPick`: one arm and its gripper, grasp a cube and lift it.
+
+Actions are joint-target increments (metres of jaw travel for the gripper), exactly what the real
+driver sends as goal positions. Control runs at 25 Hz on 500 Hz physics.
 
 ## How the design and the twin fit together
 
@@ -260,6 +266,12 @@ distance. The v1 arm's results are in brackets.*
     against 0.20–0.28 M).
 - **Measuring the real bus's latency is therefore the first sim-to-real job**, ahead of
   friction or mass identification.
+- **Policies survive the hardware revision.** The randomised v1 policies, trained before the
+  elbow was geared and the gripper replaced, run unchanged on the v2 twin
+  (`experiments/cross_version.py`; v1 results in brackets):
+  - one arm: 98 % [98 %];
+  - both arms: 75 % [80 %];
+  - mobile: 99 % nominal and 93 % combined [100 %, 97 %].
 
 ![Learning curves](paper/figures/learning_curves.png)
 
@@ -399,18 +411,25 @@ inertia (0.028 kg·m², 28x the pendulum's) dominates, and one of 8 fits converg
 
 ```bash
 cd research/homebot
-PYTHONPATH=src python -m pytest tests -q                  # 59 tests
-PYTHONPATH=src python experiments/analyze.py              # torque, payload, stability, BOM, sysid (~4 min)
+PYTHONPATH=src python -m pytest tests -q                  # 71 tests
+PYTHONPATH=src python experiments/analyze.py              # torque, payload, stability, BOM, sysid,
+                                                          # interference sweep (~8 min)
+PYTHONPATH=src python -m homebot.cad.interference         # joint ranges vs the printed parts (~3 min)
 PYTHONPATH=src python experiments/base_fidelity.py        # planar vs roller base (~3 min)
 PYTHONPATH=src python experiments/scripted_pick.py        # gripper check (~1 min)
-bash experiments/run_all.sh                               # all RL runs (~3.5 h on 4 cores)
+bash experiments/run_all.sh                               # all RL runs (~14 h on 4 cores)
 PYTHONPATH=src python experiments/summarize.py            # RL tables
+# pick analyses over the six pick policies (only the seed-0 policies ship; run_all.sh regenerates the rest)
+PYTHONPATH=src python experiments/pick_diagnosis.py experiments/runs/ArmPick_dr_ent_s0   # failures by factor
+PYTHONPATH=src python experiments/pick_behaviour.py experiments/runs/ArmPick_{nominal,dr_ent}_s{0,1,2}
+PYTHONPATH=src python experiments/cross_version.py --runs <v1 runs>   # v1 policies on the v2 twin
 PYTHONPATH=src python -m homebot.cad.build                # rebuild STL/STEP/mass properties (needs cadquery)
 PYTHONPATH=src python -m homebot.analysis.bom             # rebuild hardware/BOM.md
 ```
 
-The three randomised seed-0 policies ship in `experiments/runs/*_dr_s0/` (`policy.zip` with its
-observation normaliser), with every run's learning curve and evaluation. Run
+The randomised seed-0 policies ship in `experiments/runs/` (`ArmReach_dr_s0`, `BimanualReach_dr_s0`,
+`MobileReach_dr_s0`, `ArmPick_dr_ent_s0`; `policy.zip` with its observation normaliser), with every
+run's learning curve and evaluation. The v1 policies are in git history (commit `c6562c97`). Run
 `experiments/filmstrip.py <run dir>` to watch one. Versions in `requirements.txt` (Python 3.11,
 CPU only). Bringing up hardware is covered in
 `experiments/hardware.py` (`set-id`, `calibrate`, `sysid-log`, `sysid-fit`) and `WIRING.md`.
@@ -462,22 +481,35 @@ Full references: [`paper/refs.bib`](paper/refs.bib). White paper: [`paper/whitep
 - **Mechanical limits.**
   - Geared shoulder pitch travels only 120° (−14° to +103°) because position mode is
     single-turn.
+  - The elbow flexes to 2.0 rad (115°), limited by the parts.
   - The lift runs in speed mode, with the host counting turns.
-  - The gripper is a single pivoting jaw and lets objects slide.
+  - The gripper opens 64 mm, which limits it to objects of about 45 mm with a 5 mm position
+    estimate. Its rods and racks are unproven in print.
+  - The elbow's printed pinion runs at about 38 MPa root stress at stall. Upper-arm yaw and
+    shoulder pitch exceed their continuous rating holding 200 g at full reach.
 - **Prices** were checked on 2026-10-02 from the retailers listed. A few are taken from other
   projects' BOMs and are marked as such. Small hardware is listed but not priced.
-- **RL scope.** The tasks are reaching only. Picking with learned policies, camera observations,
-  and any real-robot transfer are not attempted.
+- **RL scope.**
+  - The tasks are reaching and picking with privileged state. The pick task assumes the cube's
+    position is known to about 5 mm, as from a camera and a fiducial. Neither is simulated, and
+    the hardware driver has no pose estimator.
+  - The pads are rigid boxes with a friction coefficient.
+  - The randomised pick policies reach 77 % on the nominal twin, against 91 % for policies
+    trained without randomisation.
+  - No real-robot transfer is attempted.
 
 ## Next steps
 
 1. Print and assemble stage A. Measure part masses, gear backlash and joint friction. Fit the
    servo parameters with `sysid-log` and update `params.py`.
-2. Gear the elbow (it exceeds its continuous rating holding 200 g at full reach) and replace the
-   pivoting jaw with a parallel or pre-angled jaw with TPU pads.
+2. Print and test the v2 gripper and elbow stage: rod fit and racking of the jaws, backlash of
+   the 2:1 elbow, and whether the 38 MPa stall stress is survivable.
 3. Run the 1 m square odometry test to decide between the planar and roller base twins.
-4. Add camera observations (wrist cams and head cam) and pick-and-place tasks. Collect
-   teleoperated demonstrations with a mirrored leader arm for learning from demonstration.
+4. Close the pick task's state gap: estimate the cube pose from the wrist camera (a printed
+   fiducial on the object), then train on images. Test whether a wider jaw opening fixes the
+   large-cube failures.
+5. Collect teleoperated demonstrations with a mirrored leader arm for learning from
+   demonstration, and add pick-and-place.
 
 ## Notes
 

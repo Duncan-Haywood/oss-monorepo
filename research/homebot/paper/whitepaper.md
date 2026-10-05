@@ -206,7 +206,8 @@ grams of TPU) are listed but not priced.
 *Setup.*
 - PPO [schulman2017proximal] from Stable-Baselines3 [raffin2021stable], an MLP of 2x256 units,
   8 Gymnasium environments [towers2025gymnasium] in MuJoCo [todorov2012mujoco], 1.5 M steps
-  (about 12.5 min on 4 cores).
+  (about 14 min on 4 cores).
+- All results below are for the v2 arm; v1 values are given where they differ.
 - Action: joint-target increments at 25 Hz on 500 Hz physics.
 - Observation: joint angles (quantised to the encoder) and velocities, the previous action, and
   the target relative to the gripper.
@@ -219,13 +220,16 @@ grams of TPU) are listed but not priced.
   actuator-and-latency modelling of [tan2018sim].
 
 *Result (one arm, 3 seeds each):*
-- **Nominal training.** The policy reaches 100 % (2 mm median error) on the nominal twin and
-  stays at 100 % under servo gain x0.5 and x2, friction x3, +25 % link mass with 200 g in the
-  hand, and 10 mrad encoder noise. One control step of latency (40 ms) drops it to 10 % (5–14 %),
-  80 ms to 4 %, 120 ms to 2 %, and the combined perturbation to 3 %.
-- **Randomised training.** 98 % (8 mm) on the nominal twin, 97–99 % up to 80 ms, and 81 %
-  (74–93 %) at 120 ms, beyond the training range. It needs about 2.3x the samples to reach 90 %
-  training success.
+- **Nominal training.** The policy reaches 99 % (2 mm median error) on the nominal twin and
+  stays at 99–100 % under servo gain x0.5 and x2, friction x3, +25 % link mass with 200 g in
+  the hand, and 10 mrad encoder noise. One control step of latency (40 ms) drops it to 29 %
+  (25–31 %; v1 10 %), 80 ms to 8 %, 120 ms to 2 %, and the combined perturbation to 5 %.
+- **Randomised training.** 99 % (8 mm) on the nominal twin, 99 % up to 80 ms, 100 % under the
+  combined perturbation, and 71 % (45–88 %; v1 81 %) at 120 ms, beyond the training range. It
+  needs about 2.3x the samples to reach 90 % training success.
+- **Changing the arm.** The v1 policies, trained before the elbow was geared and the gripper
+  replaced, run unchanged on the v2 twin. One arm keeps 98 % (98 % on v1). The mobile policy
+  drops from 100 % to 99 % nominal, and from 97 % to 93 % combined.
 - **Interpretation.** For a position-controlled hobby-servo arm, the twin's servo gain, friction
   and mass errors are nearly irrelevant to a reaching policy within the ranges tested (gain
   x0.5–2, friction x3, mass +25 %). Bus latency decides whether it works at all.
