@@ -124,7 +124,7 @@ convention. It's also rendered live at `/process/` on the private docs site.
 
 ## Docs site (private)
 
-The documentation site is a **Next.js** app in `docs-site/`. It deploys to **Cloudflare Pages** and is protected by **Cloudflare Access** with a single-email allowlist (`duncan.andrew.haywood@gmail.com`).
+The documentation site is a **Next.js** app in `docs-site/`. It deploys to **Cloudflare Pages** and is protected by **Cloudflare Access** with a single-email allowlist (the owner's address).
 
 **Live:** https://listing-lens-docs.pages.dev
 

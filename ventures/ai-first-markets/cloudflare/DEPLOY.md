@@ -26,7 +26,7 @@ After connecting, set build secrets in **Workers & Pages → your worker → Set
 | Variable | Type | Value |
 |----------|------|-------|
 | `AUTH_SECRET` | Secret | Random 32+ char string |
-| `ALLOWED_EMAIL` | Variable | `duncan.andrew.haywood@gmail.com` |
+| `ALLOWED_EMAIL` | Secret | The one address allowed in. Unset, nobody gets in |
 
 Build command: `npm run build`  
 Deploy command: `npm run deploy`
@@ -61,7 +61,7 @@ After the Worker is deployed:
 2. On `workers.dev`, click **Enable Cloudflare Access**
 3. Click **Manage Cloudflare Access**
 4. Edit the Allow policy to include only:
-   - **Email:** `duncan.andrew.haywood@gmail.com`
+   - **Email:** your address (the same one as `ALLOWED_EMAIL`)
 5. Copy `TEAM_DOMAIN` and `POLICY_AUD` from the modal
 6. Add them as Worker environment variables:
 

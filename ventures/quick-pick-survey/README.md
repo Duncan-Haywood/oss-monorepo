@@ -17,6 +17,11 @@ The repo is at `Duncan-Haywood/quick-pick-survey` (private).
    Variables (all environments):
    - `ADMIN_KEY`
    - `ADMIN_SESSION_SECRET`
+
+   And `NEXT_PUBLIC_CONTACT_EMAIL`, the address the privacy and terms pages
+   give for data export and deletion requests. It isn't committed because the
+   repository is public. Without it those pages point at the GitHub issue
+   tracker instead.
 4. **Redeploy.** The build runs `prisma migrate deploy` then seeds the surveys, so
    the schema and content are in place before the app serves a request. Both steps
    are idempotent and safe on every deploy.

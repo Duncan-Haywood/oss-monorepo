@@ -29,7 +29,7 @@ RESULTS = HERE / "results.json"
 
 # crates.io returns 403 to requests without a descriptive User-Agent. That is
 # its documented crawler policy, not a network denial -- see README.
-UA = "monorepo-projects-reachability-probe (duncan.andrew.haywood@gmail.com)"
+UA = "fp-monorepo-reachability-probe (+https://github.com/Duncan-Haywood/fp-monorepo)"
 
 TARGETS = [
     # (channel, role, url)

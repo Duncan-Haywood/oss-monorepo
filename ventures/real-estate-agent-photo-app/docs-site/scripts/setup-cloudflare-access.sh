@@ -18,9 +18,6 @@ set -euo pipefail
 #   ACCESS_ALLOW_POLICY_ID - Reusable allow policy (auto-detected if unset)
 #   ACCESS_DENY_POLICY_ID  - Reusable deny policy (auto-detected if unset)
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-POLICY_FILE="${SCRIPT_DIR}/../infra/access-policy.json"
-ALLOWED_EMAIL=$(jq -r '.allowed_identities[0].email' "${POLICY_FILE}")
 
 : "${CLOUDFLARE_API_TOKEN:?Set CLOUDFLARE_API_TOKEN}"
 : "${CLOUDFLARE_ACCOUNT_ID:?Set CLOUDFLARE_ACCOUNT_ID}"
@@ -109,5 +106,7 @@ auth_domain=$(curl -sS "${auth_header[@]}" \
 
 echo "Access application configured: ${app_id}"
 echo "Protected hostname: ${DOCS_HOSTNAME}"
-echo "Whitelisted email: ${ALLOWED_EMAIL}"
+# The allowed address lives in the reusable "duncan-only" policy in Cloudflare,
+# not here: Actions logs are public with the repository, so it is not printed.
+echo "Allow policy: duncan-only (reusable)"
 echo "Login URL: https://${auth_domain}/cdn-cgi/access/login/${aud}"

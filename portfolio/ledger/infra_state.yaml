@@ -328,7 +328,7 @@ readings:
       the served page is a "Maris Stella Labs — Independent Venture Studio"
       landing page (`last-modified: Mon, 21 Sep 2026 22:13:38 GMT`, two days
       before this reading), linking to `https://pairwise.marisstella.dev`,
-      `https://duncanhaywood.dev`, and `mailto:duncan.andrew.haywood@gmail.com`
+      `https://duncanhaywood.dev`, and a `mailto:` link to the owner's personal address
       — content that matches nothing in `gitops/prod/` (no `/tools/<slug>/`
       links, no `CollectionPage` catalogue markup). `tools.marisstella.dev`
       is still unreachable (curl exit 000). The k3s API port (`:6443`) still

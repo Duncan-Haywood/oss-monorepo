@@ -113,7 +113,7 @@ process/leads-log.ts` before committing, same as any other edit.
 
 ### Docs site (`docs-site/`)
 
-Private documentation deployed to **Cloudflare Pages** with **Cloudflare Access** (single-email allowlist: `duncan.andrew.haywood@gmail.com`).
+Private documentation deployed to **Cloudflare Pages** with **Cloudflare Access** (single-email allowlist: the owner's address).
 
 - **Run (dev):** `cd docs-site && npm run dev` → http://localhost:3000
 - **Build:** `cd docs-site && npm run build` → static export in `docs-site/out/`

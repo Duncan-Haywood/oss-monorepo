@@ -12,7 +12,7 @@ Access is restricted to a single email allowlist. No other identities can reach 
 
 | Field | Value |
 | --- | --- |
-| Email | `duncan.andrew.haywood@gmail.com` |
+| Email | your address |
 
 ## Architecture
 
@@ -20,7 +20,7 @@ Access is restricted to a single email allowlist. No other identities can reach 
 Browser → Cloudflare Access (email gate) → Cloudflare Pages (static Next.js export)
 ```
 
-Cloudflare Access runs at the edge before any page is served. Unauthenticated visitors are prompted to authenticate via Cloudflare Access (one-time PIN to the whitelisted email). Only `duncan.andrew.haywood@gmail.com` can complete authentication.
+Cloudflare Access runs at the edge before any page is served. Unauthenticated visitors are prompted to authenticate via Cloudflare Access (one-time PIN to the whitelisted email). Only your address can complete authentication.
 
 ## Local development
 
@@ -72,7 +72,7 @@ export DOCS_HOSTNAME=listing-lens-docs.pages.dev
 ./docs-site/scripts/setup-cloudflare-access.sh
 ```
 
-The script attaches reusable Zero Trust policies (`duncan-only` allow + `whitelist-only` deny) and the one-time PIN identity provider for `duncan.andrew.haywood@gmail.com`.
+The script attaches reusable Zero Trust policies (`duncan-only` allow + `whitelist-only` deny) and the one-time PIN identity provider for your address.
 
 **Important:** Do not create self-hosted Access apps for `*.workers.dev` hostnames — use Workers Settings → Enable Cloudflare Access instead. For Pages, use the script above or the dashboard steps below.
 
@@ -82,7 +82,7 @@ The script attaches reusable Zero Trust policies (`duncan-only` allow + `whiteli
 2. Type: **Self-hosted**
 3. Application domain: `listing-lens-docs.pages.dev`
 4. Identity provider: **One-time PIN**
-5. Policy: **Allow** → Include → **Emails** → `duncan.andrew.haywood@gmail.com`
+5. Policy: **Allow** → Include → **Emails** → your address
 6. Policy: **Deny** → Include → **Everyone**
 7. Enable the **Access App Launcher** in Zero Trust settings so the login flow works
 

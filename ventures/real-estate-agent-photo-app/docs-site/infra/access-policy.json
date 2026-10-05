@@ -4,7 +4,7 @@
   "session_duration": "24h",
   "allowed_identities": [
     {
-      "email": "duncan.andrew.haywood@gmail.com"
+      "email": "you@example.com"
     }
   ],
   "allow_policy": {
@@ -14,7 +14,7 @@
     "include": [
       {
         "email": {
-          "email": "duncan.andrew.haywood@gmail.com"
+          "email": "you@example.com"
         }
       }
     ]

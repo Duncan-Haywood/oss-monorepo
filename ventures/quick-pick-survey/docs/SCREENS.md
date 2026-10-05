@@ -48,6 +48,7 @@ row are true; those are facts you confirm by opening the file.
 | `CardViews` | via `UnifiedRunner` | — | — | — | via the runner |
 | `CategoryIcon` | via `CardViews` | — | — | — | no |
 | `Celebration` | via `UnifiedRunner` | — | — | — | no |
+| `ContactLine` | `/privacy`, `/terms` | — | — | — | yes |
 | `CoupleView` | `/couple` | `couple/compare`, `couple/create`, `couple/join` | error + retry in place | sign-in prompt | yes |
 | `FeedbackWidget` | via `InsightsView` | `feedback` | swallowed on purpose — see below | swallowed | no |
 | `InsightsView` | `/insights` | `insights` | error + retry in place | same as any failure | yes |

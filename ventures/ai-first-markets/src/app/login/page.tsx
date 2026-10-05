@@ -1,4 +1,4 @@
-import { ALLOWED_EMAIL, isGoogleAuthConfigured } from "@/lib/auth";
+import { isGoogleAuthConfigured } from "@/lib/auth";
 import { sanitizeRedirectPath } from "@/lib/redirect";
 
 interface LoginPageProps {
@@ -52,9 +52,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         )}
 
         <p className="mt-6 text-center text-xs text-zinc-400">
-          Only{" "}
-          <span className="font-mono text-zinc-400">{ALLOWED_EMAIL}</span> is
-          authorized.
+          Only the owner&apos;s account is authorized.
         </p>
 
         <p className="mt-4 text-center text-xs text-zinc-600">

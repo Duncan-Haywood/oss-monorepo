@@ -11,6 +11,7 @@ function assert(condition: unknown, message: string): asserts condition {
 }
 
 function run() {
+  process.env.LISTING_LENS_CONTACT_EMAIL = "owner@example.com";
   const withMicrosite = deliveryMessageText({
     listingAddress: "123 Main St",
     recipientName: "Jane",
@@ -21,7 +22,7 @@ function run() {
   assert(withMicrosite.includes("123 Main St"), "should include the listing address");
   assert(withMicrosite.includes("19"), "should include the photo count");
   assert(withMicrosite.includes("index.html"), "should mention the microsite filename when set");
-  assert(withMicrosite.includes("duncan.andrew.haywood@gmail.com"), "should include payment instructions");
+  assert(withMicrosite.includes("owner@example.com"), "should include payment instructions to the configured address");
 
   const withoutExtras = deliveryMessageText({
     listingAddress: "456 Oak Ave",

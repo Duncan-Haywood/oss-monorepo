@@ -14,7 +14,7 @@ Built with Next.js 15, TypeScript, Tailwind CSS, and deployable to **Cloudflare 
 - **8 evaluated business ideas** across devtools, vertical SaaS, AI agents, API infrastructure, and content automation
 - **6 analytical reports**: executive summary, $100k path, $1M path, automation playbook, scoring methodology, category analysis
 - **Scoring framework** across AI leverage, zero-employee ops, time-to-revenue, margin, defensibility, and distribution
-- **Whitelist-only access** for `duncan.andrew.haywood@gmail.com`
+- **Allowlist-only access** for one account, set as the `ALLOWED_EMAIL` secret
 - **Cloudflare deployment** ready with OpenNext adapter
 
 ## Quick start (local)
@@ -50,7 +50,7 @@ npm run deploy
 
 1. **Workers & Pages → ai-first-markets → Settings → Domains & Routes**
 2. Click **Enable Cloudflare Access** on `workers.dev`
-3. Restrict policy to `duncan.andrew.haywood@gmail.com`
+3. Restrict policy to your own address (the same one as `ALLOWED_EMAIL`)
 4. Add `TEAM_DOMAIN` and `POLICY_AUD` env vars from the Access modal
 
 ### MCP verification

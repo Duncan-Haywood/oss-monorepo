@@ -1,17 +1,23 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { SignJWT } from "jose";
-import { ALLOWED_EMAIL } from "./auth";
 import { createSessionToken, verifySessionToken } from "./session";
+
+// A fixture, not the real address: that lives in the ALLOWED_EMAIL secret.
+const ALLOWED_EMAIL = "owner@example.com";
 
 describe("createSessionToken / verifySessionToken", () => {
   const originalSecret = process.env.AUTH_SECRET;
+  const originalAllowed = process.env.ALLOWED_EMAIL;
 
   beforeEach(() => {
     process.env.AUTH_SECRET = "test-secret-do-not-use-in-production";
+    process.env.ALLOWED_EMAIL = ALLOWED_EMAIL;
   });
 
   afterEach(() => {
     process.env.AUTH_SECRET = originalSecret;
+    if (originalAllowed === undefined) delete process.env.ALLOWED_EMAIL;
+    else process.env.ALLOWED_EMAIL = originalAllowed;
   });
 
   it("round-trips a session for the allowed email", async () => {

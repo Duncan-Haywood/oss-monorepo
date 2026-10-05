@@ -1,11 +1,17 @@
-export const ALLOWED_EMAIL = "duncan.andrew.haywood@gmail.com";
+// The one account allowed in. It comes from the environment (a Worker secret in
+// production, .env.local in development) so the public repository carries no
+// personal address. Unset means nobody gets in.
+export function getAllowedEmail(): string {
+  return (process.env.ALLOWED_EMAIL ?? "").trim().toLowerCase();
+}
 
 export const AUTH_COOKIE_NAME = "bir_session";
 export const AUTH_COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
 export function isEmailAllowed(email: string | null | undefined): boolean {
-  if (!email) return false;
-  return email.toLowerCase().trim() === ALLOWED_EMAIL.toLowerCase();
+  const allowed = getAllowedEmail();
+  if (!email || !allowed) return false;
+  return email.toLowerCase().trim() === allowed;
 }
 
 export function getAuthSecret(): string {

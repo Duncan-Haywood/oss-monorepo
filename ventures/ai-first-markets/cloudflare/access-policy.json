@@ -1,11 +1,11 @@
 {
   "name": "AI-First Markets Access Policy",
-  "description": "Whitelist-only access for duncan.andrew.haywood@gmail.com",
+  "description": "Allowlist-only access for one account. Replace you@example.com with the ALLOWED_EMAIL address before applying.",
   "decision": "allow",
   "include": [
     {
       "email": {
-        "email": "duncan.andrew.haywood@gmail.com"
+        "email": "you@example.com"
       }
     }
   ],

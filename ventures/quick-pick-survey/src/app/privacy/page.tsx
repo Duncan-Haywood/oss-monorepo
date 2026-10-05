@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ContactLine from "@/components/ContactLine";
 
 export const metadata = { title: "Privacy policy" };
 
@@ -71,12 +72,12 @@ export default function PrivacyPage() {
       <H>Your choices</H>
       <p>
         You can use the app without an account at all — answers then live only in your own browser.
-        You can ask for your data to be exported or permanently deleted at any time by emailing the
-        address below, and it will be done.
+        You can ask for your data to be exported or permanently deleted at any time through the
+        contact below, and it will be done.
       </p>
 
       <H>Contact</H>
-      <p>duncan.andrew.haywood@gmail.com</p>
+      <ContactLine />
 
       <Link href="/" className="mt-4 text-amber-700 underline underline-offset-2 dark:text-amber-400">
         ← Back

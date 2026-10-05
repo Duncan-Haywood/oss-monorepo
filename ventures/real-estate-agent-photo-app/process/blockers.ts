@@ -113,7 +113,7 @@ export const humanBlockers: HumanBlocker[] = [
     id: "cloudflare-access-dashboard",
     title: "Flip on the Cloudflare Access policy for the docs site",
     whatsNeeded:
-      "In the Cloudflare dashboard: Workers & Pages -> listing-lens-docs -> Settings -> Enable access policy, restrict to duncan.andrew.haywood@gmail.com, then merge PR #4 (cursor/fix-pages-access-4a7e).",
+      "In the Cloudflare dashboard: Workers & Pages -> listing-lens-docs -> Settings -> Enable access policy, restrict to [owner email], then merge PR #4 (cursor/fix-pages-access-4a7e).",
     unblocks: ["p0-docs-site"],
     firstFlagged: "2026-06-15",
     lastConfirmed: "2026-07-28",
@@ -135,7 +135,7 @@ export const humanBlockers: HumanBlocker[] = [
     id: "payment-handle-setup",
     title: "Confirm/set the real payment handle prospects will pay",
     whatsNeeded:
-      "process/payment-collection.ts (built 2026-07-13) defaults to requesting payment via Zelle (primary) / PayPal goods & services (fallback) sent to duncan.andrew.haywood@gmail.com (the same known real address already used for booking-link.ts and Cloudflare Access). Confirm that email actually receives payments on at least one of those apps (or link it), or swap in a different real handle in payment-collection.ts if not. Quick (a few minutes), independent of booking a shoot — worth doing before the first delivery, not blocking on it.",
+      "process/payment-collection.ts (built 2026-07-13) defaults to requesting payment via Zelle (primary) / PayPal goods & services (fallback) sent to [owner email] (the same known real address already used for booking-link.ts and Cloudflare Access). Confirm that email actually receives payments on at least one of those apps (or link it), or swap in a different real handle in payment-collection.ts if not. Quick (a few minutes), independent of booking a shoot — worth doing before the first delivery, not blocking on it.",
     unblocks: ["p2-first-deliveries"],
     firstFlagged: "2026-07-13",
     lastConfirmed: "2026-07-28",

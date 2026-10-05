@@ -9,7 +9,7 @@
  *
  * Zero-cost, zero-backend, zero-deploy fix: a mailto: link pre-filled with
  * the same bookingIntakeFields questions outreach-templates.ts already
- * defines, addressed to Duncan directly. This is deliberately not a hosted
+ * defines, addressed to the operator's inbox (owner-contact.ts). This is deliberately not a hosted
  * form/landing page — that would mean standing up a new public Cloudflare
  * Pages project, a domain decision, and a paid-or-not form service, none of
  * which is needed to make "reply to book" actually work today. See the
@@ -18,9 +18,10 @@
  */
 
 import { bookingIntakeFields } from "./outreach-templates";
+import { ownerContactEmail } from "./owner-contact";
 
-/** Duncan's real inbox — same address already used for docs-site's Cloudflare Access allowlist. */
-export const BOOKING_CONTACT_EMAIL = "duncan.andrew.haywood@gmail.com";
+/** The operator's inbox, from LISTING_LENS_CONTACT_EMAIL (see owner-contact.ts). */
+export const BOOKING_CONTACT_EMAIL = ownerContactEmail();
 
 const BOOKING_SUBJECT = "Book a Listing Lens shoot";
 

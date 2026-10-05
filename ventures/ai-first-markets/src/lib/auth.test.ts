@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  ALLOWED_EMAIL,
+  getAllowedEmail,
   getAuthSecret,
   getCloudflareAccessAudience,
   getCloudflareAccessTeamDomain,
@@ -12,7 +12,35 @@ import {
   normalizeTeamDomain,
 } from "./auth";
 
+// A fixture, not the real address: that lives in the ALLOWED_EMAIL secret.
+const ALLOWED_EMAIL = "owner@example.com";
+
 describe("isEmailAllowed", () => {
+  const original = process.env.ALLOWED_EMAIL;
+
+  beforeEach(() => {
+    process.env.ALLOWED_EMAIL = ALLOWED_EMAIL;
+  });
+
+  afterEach(() => {
+    if (original === undefined) delete process.env.ALLOWED_EMAIL;
+    else process.env.ALLOWED_EMAIL = original;
+  });
+
+  it("lets nobody in when ALLOWED_EMAIL is unset or blank", () => {
+    delete process.env.ALLOWED_EMAIL;
+    expect(getAllowedEmail()).toBe("");
+    expect(isEmailAllowed(ALLOWED_EMAIL)).toBe(false);
+    expect(isEmailAllowed("")).toBe(false);
+    process.env.ALLOWED_EMAIL = "   ";
+    expect(isEmailAllowed("   ")).toBe(false);
+  });
+
+  it("normalizes the configured address", () => {
+    process.env.ALLOWED_EMAIL = "  Owner@Example.COM ";
+    expect(isEmailAllowed("owner@example.com")).toBe(true);
+  });
+
   it("allows the exact allowed email", () => {
     expect(isEmailAllowed(ALLOWED_EMAIL)).toBe(true);
   });

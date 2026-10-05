@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ALLOWED_EMAIL } from "@/lib/auth";
 
 export default function UnauthorizedPage() {
   return (
@@ -7,9 +6,8 @@ export default function UnauthorizedPage() {
       <div className="w-full max-w-md text-center">
         <h1 className="text-2xl font-semibold text-zinc-50">Access Denied</h1>
         <p className="mt-4 text-zinc-400">
-          Your account is not on the whitelist. Only{" "}
-          <span className="font-mono text-zinc-300">{ALLOWED_EMAIL}</span> can
-          access these reports.
+          Your account is not on the allowlist. Only the owner&apos;s account
+          can access these reports.
         </p>
         <Link
           href="/login"

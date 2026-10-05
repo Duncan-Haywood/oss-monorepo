@@ -10,7 +10,6 @@
     "binding": "ASSETS"
   },
   "vars": {
-    "ALLOWED_EMAIL": "duncan.andrew.haywood@gmail.com",
     "NODE_ENV": "production"
   },
   "observability": {
