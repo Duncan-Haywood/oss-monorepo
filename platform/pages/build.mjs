@@ -1278,6 +1278,8 @@ const CATEGORY_RULES = [
       || slug === 'qif-file-check'
       // `quickbooks-iif-file-check` joined 2026-10-05: the QuickBooks Desktop IIF half of the import-file pre-flights above, same line-numbered findings and explicit not-checked list.
       || slug === 'quickbooks-iif-file-check'
+      // `mt940-statement-check` joined 2026-10-05: the SWIFT MT940 half of the bank-export pre-flights above (balance arithmetic, statement continuity, CSV conversion), same line-numbered findings and explicit not-checked list.
+      || slug === 'mt940-statement-check'
       // `youtube-chapters-check` joined 2026-10-05: a chapter-list pre-flight, same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them.
       || slug === 'youtube-chapters-check'
       // `google-contacts-csv-check` joined 2026-10-05: the CSV half of the contacts-file pre-flights above, same line-numbered findings and explicit not-checked list.

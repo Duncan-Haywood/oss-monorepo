@@ -1194,6 +1194,7 @@ workflows:
   classification: none
   publishes: []
 - workflow: quickbooks-iif-file-check-ci.yml
+- workflow: mt940-statement-check-ci.yml
   classification: none
   publishes: []
 - workflow: law-firm-realization-rate-calculator-ci.yml
