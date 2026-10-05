@@ -2960,7 +2960,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `teachers-pay-teachers-earnings-analyzer` graduated (browser TPT sales CSV analyzer: observed fee incl. flat per-sale fee, per-resource take-home, repeat buyers, break-even price).
     # +1: `google-ads-editor-csv-check` graduated (browser Google Ads Editor import checker: headline/description limits, RSA counts, keyword symbols and match types, URLs, budgets, safe fixes).
     # +1: `meta-catalog-csv-check` graduated (browser Meta catalog feed checker: required fields, ids, price and sale price, availability, links, images, GTIN check digits, item groups, Excel damage, safe fixes).
-    total = 731  # `infra/OWNER_CHECKLIST.md`'s own "N of the 731 tools" wording.
+    total = 732  # `infra/OWNER_CHECKLIST.md`'s own "N of the 732 tools" wording.
     # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).

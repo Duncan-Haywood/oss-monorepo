@@ -1,0 +1,30 @@
+name: iban-list-check
+description: >-
+  Free browser tool that checks a supplier, payroll or refund list's IBAN column before the payment file is
+  uploaded to a bank: wrong ISO 13616 mod-97 check digits (with an adjacent-swap suggestion when exactly one
+  swap proves it), wrong length for the country, unknown countries, spaces / lower case / labels from
+  copy-paste (cleaned when provably harmless), duplicates and blanks, each with its line number. It writes
+  the file back cleaned, optionally in print groups of four. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 in a new-venture-first session (build-now pipeline empty, 739 ventures).
+# Archetype: paste-your-file pre-flight checker with an arithmetic core -- the IBAN mod-97 check. Not a
+# duplicate: no IBAN tool exists in ventures/ (`bank-csv-to-qbo-converter`, `payroll-hours-csv-check` and the
+# 1099 checkers never validate bank account numbers). Searches: "bulk IBAN validator", "validate IBAN list
+# excel", "SEPA file IBAN invalid".
+#
+# First visitor: an accounts-payable clerk, bookkeeper or payroll admin in the EU/UK with a supplier master
+# list of 50-5,000 IBANs whose SEPA batch or bulk-payment upload was rejected. Volume not measured with an
+# external tool.
+#
+# Privacy is the liability boundary: bank details never leave the browser (a test asserts no network
+# calls). Whether an account exists or belongs to the payee is out of scope and said so; the page tells users
+# to confirm changed bank details with the payee.
+#
+# Path to revenue (payment rails stay off): lead magnet for the AP / bookkeeping audience. A paid version, if
+# usage appears, is a SEPA pain.001 / bulk-payment file pre-flight, BIC derivation, saved per-client rule
+# sets and an API behind an env-var switch; none built.
+#
+# Liability: format checks on the user's own file, no warranty, independent-of-every-bank clause, country list
+# stated as read from memory of the public registry, no payment-acceptance promise.
