@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 751 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 752 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -62,6 +62,14 @@
     <updated>2026-10-05T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free COI tracker for contractors and property managers: check subcontractor insurance against your contract&#39;s limits, endorsements and lead time, find expired and expiring policies and renewal gaps, and export a chase list and calendar. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Etsy Statement to Xero and QuickBooks Journal</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/etsy-statement-to-journal/"/>
+    <id>tag:marisstella.dev,2026:tool/etsy-statement-to-journal</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free Etsy statement to journal converter: checks every row, books gross sales, listing and transaction fees, ads, shipping labels, refunds and bank deposits separately by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Google Contacts CSV Check — Find Import Errors Before You Upload</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-05T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free QuickBooks Desktop IIF checker: finds why an IIF import fails or posts wrong (missing ENDTRNS, transactions that do not balance, stray tabs, bad dates, Excel quotes, unknown accounts), with line numbers, and writes a repaired file. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Redirect Map Checker — Find Loops, Chains and 404 Targets Before You Migrate</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/redirect-map-check/"/>
-    <id>tag:marisstella.dev,2026:tool/redirect-map-check</id>
-    <updated>2026-10-05T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free 301 redirect map checker for site migrations: finds redirect loops, chains, conflicting duplicates, mass redirects to the homepage, spaces and fragments in URLs, targets missing from the new site and old URLs with no rule, then writes a flattened map for Shopify, Netlify, Apache or nginx. Runs in your browser; the file is never uploaded.</summary>
   </entry>
 </feed>
