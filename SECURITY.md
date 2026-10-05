@@ -13,9 +13,9 @@ week. This is a one-person portfolio, so there's no bug bounty.
 ## Scope
 
 - **In scope:** code in this repository, and the tools it publishes to GitHub
-  Pages and `marisstella.dev`. Most tools run entirely in the visitor's
-  browser and promise that the visitor's data never leaves their device. A way
-  to break that promise is the most important kind of report.
+  Pages. Most tools run entirely in the visitor's browser and promise that the
+  visitor's data never leaves their device. A way to break that promise is the
+  most important kind of report.
 - **Out of scope:** findings that need a compromised machine or browser
   extension, missing hardening headers with no demonstrated impact, and the
   deliberate fake credentials in test fixtures (for example
@@ -25,4 +25,4 @@ week. This is a one-person portfolio, so there's no bug bounty.
 
 Pull requests from forks are welcome. A human reviews them before they can
 merge. The agent review bots that auto-merge internal pull requests skip
-forks (`platform/ci/agent_review/review.py`).
+forks and outside authors (`platform/ci/agent_review/review.py`).

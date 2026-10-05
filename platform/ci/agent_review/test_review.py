@@ -7,11 +7,11 @@ from review import (
     author_matches_skip,
     checks_all_success,
     count_allowed_approvals,
-    is_fork_pr,
     load_config,
     mergeable_state_ok,
     path_touches_ventures,
     reviewer_already_approved,
+    untrusted_reason,
 )
 
 
@@ -186,31 +186,6 @@ class HumanGateTest(unittest.TestCase):
         self.assertFalse(path_touches_ventures(["platform/ci/agent_review/review.py"]))
 
 
-def _pr(head_repo, base_repo="Duncan-Haywood/fp-monorepo"):
-    return {
-        "head": {"repo": {"full_name": head_repo} if head_repo else None},
-        "base": {"repo": {"full_name": base_repo}},
-    }
-
-
-class ForkGateTest(unittest.TestCase):
-    # On a public repo anyone can open a PR from a fork; the mechanical
-    # reviews must never approve or merge one.
-    def test_same_repo_branch_is_not_a_fork(self):
-        self.assertFalse(is_fork_pr(_pr("Duncan-Haywood/fp-monorepo")))
-
-    def test_owner_case_differences_are_the_same_repo(self):
-        self.assertFalse(is_fork_pr(_pr("duncan-haywood/fp-monorepo")))
-
-    def test_fork_head_is_a_fork(self):
-        self.assertTrue(is_fork_pr(_pr("stranger/fp-monorepo")))
-
-    def test_deleted_fork_fails_closed(self):
-        # GitHub reports head.repo = null once the fork is deleted.
-        self.assertTrue(is_fork_pr(_pr(None)))
-        self.assertTrue(is_fork_pr({}))
-
-
 class MergeableStateTest(unittest.TestCase):
     def test_clean_passes(self):
         ok, reasons = mergeable_state_ok({"mergeable_state": "clean"})
@@ -238,6 +213,33 @@ class MergeableStateTest(unittest.TestCase):
         # head; a merge must wait rather than proceed on a stale/absent verdict.
         self.assertFalse(mergeable_state_ok({"mergeable_state": None})[0])
         self.assertFalse(mergeable_state_ok({})[0])
+
+
+def _pr(head="o/r", base="o/r", association="OWNER", login="someone"):
+    return {
+        "head": {"repo": {"full_name": head} if head else None},
+        "base": {"repo": {"full_name": base}},
+        "author_association": association,
+        "user": {"login": login},
+    }
+
+
+class UntrustedReasonTest(unittest.TestCase):
+    def test_same_repo_collaborator_is_trusted(self):
+        self.assertIsNone(untrusted_reason(_pr(association="COLLABORATOR")))
+
+    def test_same_repo_bot_is_trusted(self):
+        self.assertIsNone(untrusted_reason(_pr(association="NONE", login="cursor[bot]")))
+
+    def test_fork_is_untrusted_even_from_owner(self):
+        self.assertIn("human-gated", untrusted_reason(_pr(head="stranger/r")))
+
+    def test_deleted_fork_is_untrusted(self):
+        self.assertIn("deleted fork", untrusted_reason(_pr(head=None)))
+
+    def test_outside_human_author_is_untrusted(self):
+        reason = untrusted_reason(_pr(association="CONTRIBUTOR"))
+        self.assertIn("author_association=CONTRIBUTOR", reason)
 
 
 if __name__ == "__main__":

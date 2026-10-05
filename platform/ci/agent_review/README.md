@@ -74,10 +74,10 @@ Copilot code review does **not** count toward required approvals.
    when `config.yaml`'s `required_approvals` (default **2**) allowed bot
    approvals exist and checks pass.
 
-**Pull requests from forks are never reviewed or merged by these bots**
-(`is_fork_pr` in `review.py`). The reviews are mechanical, which stands in for
-judgment only while every author has push access. A fork PR on a public
-repository needs a human.
+**Pull requests from forks or outside authors are never reviewed or merged
+by these bots** (`untrusted_reason` in `review.py`). The reviews are
+mechanical, which stands in for judgment only while every author has push
+access. On a public repository those PRs need a human.
 3. **Agent sessions** — before new work, run review pending PRs (see
    `.github/prompts/review-open-prs-first.md`).
 

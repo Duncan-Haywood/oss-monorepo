@@ -155,6 +155,7 @@ guardrails, and opportunity-selection criteria.
 ## License
 
 MIT — see [`LICENSE`](LICENSE). Each venture under `ventures/` also carries its
-own copy, so one extracted on its own keeps the grant. Report vulnerabilities
-privately as described in [`SECURITY.md`](SECURITY.md). Making the repository
-public is tracked in [`infra/GOING_PUBLIC.md`](infra/GOING_PUBLIC.md).
+own copy, so one extracted on its own keeps the grant. How to contribute:
+[`CONTRIBUTING.md`](CONTRIBUTING.md). Report vulnerabilities privately as
+described in [`SECURITY.md`](SECURITY.md). Making the repository public is
+tracked in [`infra/GOING_PUBLIC.md`](infra/GOING_PUBLIC.md).
