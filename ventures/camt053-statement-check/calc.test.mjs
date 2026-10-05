@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { validate, parseXml, parseAmount, fmtAmount, toCsv, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer, looksLikeMt940 } from "./calc.mjs";
+import { validate, repair, parseXml, parseAmount, fmtAmount, toCsv, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer, looksLikeMt940 } from "./calc.mjs";
 
 const by = (r, t) => r.findings.find((f) => f.title.startsWith(t));
 
@@ -143,4 +143,18 @@ test("CSV has a signed amount, one row per entry, and honours a comma decimal", 
 test("decodeBuffer reads UTF-8, UTF-16 and falls back to Windows-1252", () => {
   assert.equal(decodeBuffer(new TextEncoder().encode("<a>É</a>")), "<a>É</a>");
   assert.equal(decodeBuffer(new Uint8Array([0x3c, 0xe9])), "<é");
+});
+
+test("repair fixes only comma decimals and bare ampersands, and never touches a total", () => {
+  const xml = sampleFile().replace(/<Nm>[^<]*<\/Nm>/, "<Nm>Smith & Sons</Nm>").replace(/<Amt Ccy="EUR">1000\.00/, '<Amt Ccy="EUR">1000,00');
+  assert.ok(validate(xml).findings.some((f) => f.title.startsWith("Unescaped &")));
+  const { text, changes } = repair(xml);
+  assert.equal(changes.length, 2);
+  assert.match(text, /Smith &amp; Sons/);
+  assert.doesNotMatch(text, /1000,00/);
+  assert.deepEqual(validate(text).findings, []);
+  assert.deepEqual(repair(sampleFile()).changes, []);
+  assert.match(repair("<A><![CDATA[a & b]]></A>").text, /a & b/);
+  const off = sampleFile().replace("3437.91", "3400,00");
+  assert.ok(validate(repair(off).text).findings.some((f) => f.title.startsWith("Balances do not add up")), "totals are never guessed");
 });
