@@ -320,6 +320,9 @@ workflows:
 - workflow: breakeven-roas-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: brevo-contacts-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: bridal-hair-makeup-pricing-calculator-ci.yml
   classification: none
   publishes: []
@@ -1247,6 +1250,9 @@ workflows:
 - workflow: ltl-freight-class-estimator-ci.yml
   classification: none
   publishes: []
+- workflow: mailchimp-audience-csv-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: market-event-picker-ci.yml
   classification: none
   publishes: []
@@ -1418,6 +1424,9 @@ workflows:
 - workflow: owner-operator-load-chain-planner-ci.yml
   classification: none
   publishes: []
+- workflow: owner-operator-per-diem-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: package-exports-drift-check-ci.yml
   classification: none
   publishes: []
@@ -1455,6 +1464,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: payment-reconciliation-workbench-ci.yml
+  classification: none
+  publishes: []
+- workflow: payroll-hours-csv-check-ci.yml
   classification: none
   publishes: []
 - workflow: payroll-tax-deposit-penalty-calculator-ci.yml
@@ -1669,6 +1681,9 @@ workflows:
     gates:
     - env.CLOUDFLARE_API_TOKEN != ''
 - workflow: redirect-chain-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: redirect-map-check-ci.yml
   classification: none
   publishes: []
 - workflow: referrer-permissions-policy-check-ci.yml
@@ -1908,6 +1923,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: shopify-fee-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: shopify-inventory-csv-check-ci.yml
   classification: none
   publishes: []
 - workflow: shopify-inventory-reorder-planner-ci.yml

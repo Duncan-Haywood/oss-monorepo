@@ -33,39 +33,39 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547493 bytes
-#   portfolio-front-tools-1: 92 files, 555183 bytes
-#   portfolio-front-tools-2: 144 files, 553602 bytes
-#   portfolio-front-tools-3: 128 files, 549088 bytes
-#   portfolio-front-tools-4: 136 files, 553969 bytes
-#   portfolio-front-tools-5: 128 files, 555368 bytes
-#   portfolio-front-tools-6: 122 files, 553873 bytes
-#   portfolio-front-tools-7: 135 files, 554107 bytes
-#   portfolio-front-tools-8: 132 files, 549410 bytes
-#   portfolio-front-tools-9: 133 files, 556907 bytes
-#   portfolio-front-tools-10: 122 files, 550609 bytes
-#   portfolio-front-tools-11: 131 files, 554278 bytes
-#   portfolio-front-tools-12: 131 files, 553973 bytes
-#   portfolio-front-tools-13: 128 files, 555923 bytes
-#   portfolio-front-tools-14: 121 files, 553124 bytes
-#   portfolio-front-tools-15: 118 files, 549231 bytes
-#   portfolio-front-tools-16: 120 files, 554870 bytes
-#   portfolio-front-tools-17: 118 files, 556740 bytes
-#   portfolio-front-tools-18: 124 files, 555307 bytes
-#   portfolio-front-tools-19: 125 files, 555513 bytes
-#   portfolio-front-tools-20: 133 files, 554357 bytes
-#   portfolio-front-tools-21: 125 files, 556528 bytes
-#   portfolio-front-tools-22: 125 files, 552360 bytes
-#   portfolio-front-tools-23: 132 files, 555933 bytes
-#   portfolio-front-tools-24: 121 files, 555366 bytes
-#   portfolio-front-tools-25: 116 files, 548218 bytes
-#   portfolio-front-tools-26: 91 files, 554315 bytes
-#   portfolio-front-tools-27: 123 files, 542877 bytes
-#   portfolio-front-tools-28: 118 files, 556726 bytes
-#   portfolio-front-tools-29: 125 files, 546787 bytes
-#   portfolio-front-tools-30: 131 files, 549793 bytes
-#   portfolio-front-tools-31: 120 files, 553416 bytes
-#   portfolio-front-tools-32: 77 files, 427574 bytes
+#   portfolio-front-tools-0: 145 files, 547446 bytes
+#   portfolio-front-tools-1: 92 files, 555166 bytes
+#   portfolio-front-tools-2: 144 files, 553588 bytes
+#   portfolio-front-tools-3: 128 files, 549020 bytes
+#   portfolio-front-tools-4: 136 files, 553927 bytes
+#   portfolio-front-tools-5: 128 files, 555358 bytes
+#   portfolio-front-tools-6: 122 files, 553858 bytes
+#   portfolio-front-tools-7: 133 files, 554235 bytes
+#   portfolio-front-tools-8: 134 files, 556653 bytes
+#   portfolio-front-tools-9: 135 files, 555899 bytes
+#   portfolio-front-tools-10: 122 files, 555446 bytes
+#   portfolio-front-tools-11: 130 files, 553429 bytes
+#   portfolio-front-tools-12: 130 files, 549876 bytes
+#   portfolio-front-tools-13: 130 files, 550484 bytes
+#   portfolio-front-tools-14: 119 files, 557044 bytes
+#   portfolio-front-tools-15: 120 files, 556907 bytes
+#   portfolio-front-tools-16: 120 files, 555607 bytes
+#   portfolio-front-tools-17: 118 files, 556643 bytes
+#   portfolio-front-tools-18: 124 files, 554152 bytes
+#   portfolio-front-tools-19: 125 files, 556998 bytes
+#   portfolio-front-tools-20: 133 files, 553638 bytes
+#   portfolio-front-tools-21: 124 files, 552823 bytes
+#   portfolio-front-tools-22: 125 files, 554969 bytes
+#   portfolio-front-tools-23: 131 files, 551321 bytes
+#   portfolio-front-tools-24: 120 files, 552147 bytes
+#   portfolio-front-tools-25: 119 files, 556289 bytes
+#   portfolio-front-tools-26: 91 files, 556149 bytes
+#   portfolio-front-tools-27: 124 files, 545506 bytes
+#   portfolio-front-tools-28: 118 files, 556648 bytes
+#   portfolio-front-tools-29: 125 files, 546804 bytes
+#   portfolio-front-tools-30: 131 files, 549683 bytes
+#   portfolio-front-tools-31: 120 files, 553387 bytes
+#   portfolio-front-tools-32: 77 files, 427554 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1090,6 +1090,9 @@ configMapGenerator:
       - breakeven-roas-calculator__how-to-calculate-break-even-roas.html.gz=breakeven-roas-calculator__how-to-calculate-break-even-roas.html.gz
       - breakeven-roas-calculator__index.html.gz=breakeven-roas-calculator__index.html.gz
       - breakeven-roas-calculator__usage.mjs.gz=breakeven-roas-calculator__usage.mjs.gz
+      - brevo-contacts-csv-check__calc.mjs.gz=brevo-contacts-csv-check__calc.mjs.gz
+      - brevo-contacts-csv-check__index.html.gz=brevo-contacts-csv-check__index.html.gz
+      - brevo-contacts-csv-check__usage.mjs.gz=brevo-contacts-csv-check__usage.mjs.gz
       - bridal-hair-makeup-pricing-calculator__calc.mjs.gz=bridal-hair-makeup-pricing-calculator__calc.mjs.gz
       - bridal-hair-makeup-pricing-calculator__index.html.gz=bridal-hair-makeup-pricing-calculator__index.html.gz
       - bridal-hair-makeup-pricing-calculator__share.mjs.gz=bridal-hair-makeup-pricing-calculator__share.mjs.gz
@@ -1148,16 +1151,16 @@ configMapGenerator:
       - canonical-tag-check__analyze.mjs.gz=canonical-tag-check__analyze.mjs.gz
       - canonical-tag-check__index.html.gz=canonical-tag-check__index.html.gz
       - canonical-tag-check__usage.mjs.gz=canonical-tag-check__usage.mjs.gz
-      - canonical-tag-check__vs-checking-canonicals-by-view-source.html.gz=canonical-tag-check__vs-checking-canonicals-by-view-source.html.gz
-      - canonical-tag-check__vs-screaming-frog.html.gz=canonical-tag-check__vs-screaming-frog.html.gz
-      - canonical-tag-check__which-canonical-finding-to-fix-first.html.gz=canonical-tag-check__which-canonical-finding-to-fix-first.html.gz
-      - canonical-tag-check__why-two-canonical-tags-is-worse-than-none.html.gz=canonical-tag-check__why-two-canonical-tags-is-worse-than-none.html.gz
-      - caption-quality-check__check.mjs.gz=caption-quality-check__check.mjs.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - canonical-tag-check__vs-checking-canonicals-by-view-source.html.gz=canonical-tag-check__vs-checking-canonicals-by-view-source.html.gz
+      - canonical-tag-check__vs-screaming-frog.html.gz=canonical-tag-check__vs-screaming-frog.html.gz
+      - canonical-tag-check__which-canonical-finding-to-fix-first.html.gz=canonical-tag-check__which-canonical-finding-to-fix-first.html.gz
+      - canonical-tag-check__why-two-canonical-tags-is-worse-than-none.html.gz=canonical-tag-check__why-two-canonical-tags-is-worse-than-none.html.gz
+      - caption-quality-check__check.mjs.gz=caption-quality-check__check.mjs.gz
       - caption-quality-check__engine.mjs.gz=caption-quality-check__engine.mjs.gz
       - caption-quality-check__index.html.gz=caption-quality-check__index.html.gz
       - caption-quality-check__usage.mjs.gz=caption-quality-check__usage.mjs.gz
@@ -1287,14 +1290,14 @@ configMapGenerator:
       - clearance-markdown-planner__calc.mjs.gz=clearance-markdown-planner__calc.mjs.gz
       - clearance-markdown-planner__index.html.gz=clearance-markdown-planner__index.html.gz
       - clearance-markdown-planner__usage.mjs.gz=clearance-markdown-planner__usage.mjs.gz
-      - client-concentration-risk-analyzer__cli.mjs.gz=client-concentration-risk-analyzer__cli.mjs.gz
-      - client-concentration-risk-analyzer__client-concentration-guide.html.gz=client-concentration-risk-analyzer__client-concentration-guide.html.gz
-      - client-concentration-risk-analyzer__engine.mjs.gz=client-concentration-risk-analyzer__engine.mjs.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - client-concentration-risk-analyzer__cli.mjs.gz=client-concentration-risk-analyzer__cli.mjs.gz
+      - client-concentration-risk-analyzer__client-concentration-guide.html.gz=client-concentration-risk-analyzer__client-concentration-guide.html.gz
+      - client-concentration-risk-analyzer__engine.mjs.gz=client-concentration-risk-analyzer__engine.mjs.gz
       - client-concentration-risk-analyzer__index.html.gz=client-concentration-risk-analyzer__index.html.gz
       - client-concentration-risk-analyzer__usage.mjs.gz=client-concentration-risk-analyzer__usage.mjs.gz
       - client-profitability-time-analyzer__calc.mjs.gz=client-profitability-time-analyzer__calc.mjs.gz
@@ -1427,12 +1430,12 @@ configMapGenerator:
       - cow-calf-breakeven-calculator__engine.mjs.gz=cow-calf-breakeven-calculator__engine.mjs.gz
       - cow-calf-breakeven-calculator__index.html.gz=cow-calf-breakeven-calculator__index.html.gz
       - cow-calf-breakeven-calculator__usage.mjs.gz=cow-calf-breakeven-calculator__usage.mjs.gz
-      - cra-evidence-desk__index.html.gz=cra-evidence-desk__index.html.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cra-evidence-desk__index.html.gz=cra-evidence-desk__index.html.gz
       - cra-evidence-desk__match.mjs.gz=cra-evidence-desk__match.mjs.gz
       - cra-evidence-desk__sbom-and-advisory-package-names-dont-match.html.gz=cra-evidence-desk__sbom-and-advisory-package-names-dont-match.html.gz
       - cra-evidence-desk__usage.mjs.gz=cra-evidence-desk__usage.mjs.gz
@@ -1554,12 +1557,12 @@ configMapGenerator:
       - dependent-care-fsa-vs-credit-calculator__index.html.gz=dependent-care-fsa-vs-credit-calculator__index.html.gz
       - dependent-care-fsa-vs-credit-calculator__usage.mjs.gz=dependent-care-fsa-vs-credit-calculator__usage.mjs.gz
       - deploy-concurrency-check__classify.mjs.gz=deploy-concurrency-check__classify.mjs.gz
-      - deploy-concurrency-check__how-a-deploy-ships-an-older-commit.html.gz=deploy-concurrency-check__how-a-deploy-ships-an-older-commit.html.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - deploy-concurrency-check__how-a-deploy-ships-an-older-commit.html.gz=deploy-concurrency-check__how-a-deploy-ships-an-older-commit.html.gz
       - deploy-concurrency-check__index.html.gz=deploy-concurrency-check__index.html.gz
       - deploy-concurrency-check__usage.mjs.gz=deploy-concurrency-check__usage.mjs.gz
       - deploy-concurrency-check__vs-reading-your-workflows-yourself.html.gz=deploy-concurrency-check__vs-reading-your-workflows-yourself.html.gz
@@ -1689,13 +1692,13 @@ configMapGenerator:
       - duplicate-payment-audit__app.mjs.gz=duplicate-payment-audit__app.mjs.gz
       - duplicate-payment-audit__detect.mjs.gz=duplicate-payment-audit__detect.mjs.gz
       - duplicate-payment-audit__export.mjs.gz=duplicate-payment-audit__export.mjs.gz
-      - duplicate-payment-audit__index.html.gz=duplicate-payment-audit__index.html.gz
-      - duplicate-payment-audit__usage.mjs.gz=duplicate-payment-audit__usage.mjs.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - duplicate-payment-audit__index.html.gz=duplicate-payment-audit__index.html.gz
+      - duplicate-payment-audit__usage.mjs.gz=duplicate-payment-audit__usage.mjs.gz
       - duplicate-payment-audit__vs-a-spreadsheet.html.gz=duplicate-payment-audit__vs-a-spreadsheet.html.gz
       - duplicate-payment-audit__vs-bill-com.html.gz=duplicate-payment-audit__vs-bill-com.html.gz
       - duplicate-payment-audit__vs-prgx.html.gz=duplicate-payment-audit__vs-prgx.html.gz
@@ -1824,14 +1827,14 @@ configMapGenerator:
       - epoxy-garage-floor-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=epoxy-garage-floor-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
       - epoxy-garage-floor-bid-calculator__vs-coatingos.html.gz=epoxy-garage-floor-bid-calculator__vs-coatingos.html.gz
       - equipment-auction-buyer-premium-calculator__calc.mjs.gz=equipment-auction-buyer-premium-calculator__calc.mjs.gz
-      - equipment-auction-buyer-premium-calculator__index.html.gz=equipment-auction-buyer-premium-calculator__index.html.gz
-      - equipment-auction-buyer-premium-calculator__share.mjs.gz=equipment-auction-buyer-premium-calculator__share.mjs.gz
-      - equipment-auction-buyer-premium-calculator__usage.mjs.gz=equipment-auction-buyer-premium-calculator__usage.mjs.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - equipment-auction-buyer-premium-calculator__index.html.gz=equipment-auction-buyer-premium-calculator__index.html.gz
+      - equipment-auction-buyer-premium-calculator__share.mjs.gz=equipment-auction-buyer-premium-calculator__share.mjs.gz
+      - equipment-auction-buyer-premium-calculator__usage.mjs.gz=equipment-auction-buyer-premium-calculator__usage.mjs.gz
       - equipment-auction-buyer-premium-calculator__vs-a-flat-percent-rule.html.gz=equipment-auction-buyer-premium-calculator__vs-a-flat-percent-rule.html.gz
       - equipment-auction-buyer-premium-calculator__why-is-sales-tax-charged-on-the-buyers-premium.html.gz=equipment-auction-buyer-premium-calculator__why-is-sales-tax-charged-on-the-buyers-premium.html.gz
       - equipment-lease-buyout-calculator__calc.mjs.gz=equipment-lease-buyout-calculator__calc.mjs.gz
@@ -1959,12 +1962,12 @@ configMapGenerator:
       - firebase-rules-check__why-does-firebase-test-mode-expose-my-data.html.gz=firebase-rules-check__why-does-firebase-test-mode-expose-my-data.html.gz
       - fireplace-insert-bid-calculator__calc.mjs.gz=fireplace-insert-bid-calculator__calc.mjs.gz
       - fireplace-insert-bid-calculator__how-much-to-charge-to-install-a-fireplace-insert.html.gz=fireplace-insert-bid-calculator__how-much-to-charge-to-install-a-fireplace-insert.html.gz
-      - fireplace-insert-bid-calculator__index.html.gz=fireplace-insert-bid-calculator__index.html.gz
   - name: portfolio-front-tools-14
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - fireplace-insert-bid-calculator__index.html.gz=fireplace-insert-bid-calculator__index.html.gz
       - fireplace-insert-bid-calculator__share.mjs.gz=fireplace-insert-bid-calculator__share.mjs.gz
       - fireplace-insert-bid-calculator__usage.mjs.gz=fireplace-insert-bid-calculator__usage.mjs.gz
       - fireplace-insert-bid-calculator__vs-a-flat-2499-installed-special.html.gz=fireplace-insert-bid-calculator__vs-a-flat-2499-installed-special.html.gz
@@ -2083,14 +2086,14 @@ configMapGenerator:
       - french-drain-bid-calculator__index.html.gz=french-drain-bid-calculator__index.html.gz
       - french-drain-bid-calculator__usage.mjs.gz=french-drain-bid-calculator__usage.mjs.gz
       - french-drain-bid-calculator__vs-a-flat-price-per-foot.html.gz=french-drain-bid-calculator__vs-a-flat-price-per-foot.html.gz
-      - french-drain-bid-calculator__vs-jobber.html.gz=french-drain-bid-calculator__vs-jobber.html.gz
-      - furnace-bid-calculator__calc.mjs.gz=furnace-bid-calculator__calc.mjs.gz
-      - furnace-bid-calculator__how-much-to-charge-to-replace-a-furnace.html.gz=furnace-bid-calculator__how-much-to-charge-to-replace-a-furnace.html.gz
   - name: portfolio-front-tools-15
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - french-drain-bid-calculator__vs-jobber.html.gz=french-drain-bid-calculator__vs-jobber.html.gz
+      - furnace-bid-calculator__calc.mjs.gz=furnace-bid-calculator__calc.mjs.gz
+      - furnace-bid-calculator__how-much-to-charge-to-replace-a-furnace.html.gz=furnace-bid-calculator__how-much-to-charge-to-replace-a-furnace.html.gz
       - furnace-bid-calculator__index.html.gz=furnace-bid-calculator__index.html.gz
       - furnace-bid-calculator__share.mjs.gz=furnace-bid-calculator__share.mjs.gz
       - furnace-bid-calculator__usage.mjs.gz=furnace-bid-calculator__usage.mjs.gz
@@ -2208,12 +2211,12 @@ configMapGenerator:
       - hardwood-refinishing-bid-calculator__usage.mjs.gz=hardwood-refinishing-bid-calculator__usage.mjs.gz
       - hardwood-refinishing-bid-calculator__vs-a-flat-price-per-square-foot.html.gz=hardwood-refinishing-bid-calculator__vs-a-flat-price-per-square-foot.html.gz
       - hardwood-refinishing-bid-calculator__vs-jobber.html.gz=hardwood-refinishing-bid-calculator__vs-jobber.html.gz
-      - heat-pump-vs-furnace-calculator__calc.mjs.gz=heat-pump-vs-furnace-calculator__calc.mjs.gz
   - name: portfolio-front-tools-16
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - heat-pump-vs-furnace-calculator__calc.mjs.gz=heat-pump-vs-furnace-calculator__calc.mjs.gz
       - heat-pump-vs-furnace-calculator__index.html.gz=heat-pump-vs-furnace-calculator__index.html.gz
       - heat-pump-vs-furnace-calculator__usage.mjs.gz=heat-pump-vs-furnace-calculator__usage.mjs.gz
       - helm-values-schema-check__cli.mjs.gz=helm-values-schema-check__cli.mjs.gz
@@ -2333,12 +2336,12 @@ configMapGenerator:
       - import-landed-cost-calculator__share.mjs.gz=import-landed-cost-calculator__share.mjs.gz
       - import-landed-cost-calculator__usage.mjs.gz=import-landed-cost-calculator__usage.mjs.gz
       - import-landed-cost-calculator__vs-flexport.html.gz=import-landed-cost-calculator__vs-flexport.html.gz
-      - import-landed-cost-calculator__vs-tracking-landed-cost-in-a-spreadsheet.html.gz=import-landed-cost-calculator__vs-tracking-landed-cost-in-a-spreadsheet.html.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - import-landed-cost-calculator__vs-tracking-landed-cost-in-a-spreadsheet.html.gz=import-landed-cost-calculator__vs-tracking-landed-cost-in-a-spreadsheet.html.gz
       - incident-postmortem-timeline__classify.mjs.gz=incident-postmortem-timeline__classify.mjs.gz
       - incident-postmortem-timeline__how-to-write-a-blameless-postmortem.html.gz=incident-postmortem-timeline__how-to-write-a-blameless-postmortem.html.gz
       - incident-postmortem-timeline__index.html.gz=incident-postmortem-timeline__index.html.gz
@@ -2456,12 +2459,12 @@ configMapGenerator:
       - k8s-resource-limits-check__vs-reading-the-manifest-by-eye.html.gz=k8s-resource-limits-check__vs-reading-the-manifest-by-eye.html.gz
       - k8s-resource-limits-check__why-a-missing-resource-limit-takes-down-a-node.html.gz=k8s-resource-limits-check__why-a-missing-resource-limit-takes-down-a-node.html.gz
       - k8s-resource-limits-check__yaml.mjs.gz=k8s-resource-limits-check__yaml.mjs.gz
-      - k8s-rollout-safety-check__check.mjs.gz=k8s-rollout-safety-check__check.mjs.gz
   - name: portfolio-front-tools-18
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - k8s-rollout-safety-check__check.mjs.gz=k8s-rollout-safety-check__check.mjs.gz
       - k8s-rollout-safety-check__engine.mjs.gz=k8s-rollout-safety-check__engine.mjs.gz
       - k8s-rollout-safety-check__index.html.gz=k8s-rollout-safety-check__index.html.gz
       - k8s-rollout-safety-check__usage.mjs.gz=k8s-rollout-safety-check__usage.mjs.gz
@@ -2585,12 +2588,12 @@ configMapGenerator:
       - locksmith-bid-calculator__index.html.gz=locksmith-bid-calculator__index.html.gz
       - locksmith-bid-calculator__share.mjs.gz=locksmith-bid-calculator__share.mjs.gz
       - locksmith-bid-calculator__usage.mjs.gz=locksmith-bid-calculator__usage.mjs.gz
-      - locksmith-bid-calculator__vs-a-flat-rate-for-every-call.html.gz=locksmith-bid-calculator__vs-a-flat-rate-for-every-call.html.gz
   - name: portfolio-front-tools-19
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - locksmith-bid-calculator__vs-a-flat-rate-for-every-call.html.gz=locksmith-bid-calculator__vs-a-flat-rate-for-every-call.html.gz
       - locksmith-bid-calculator__vs-housecall-pro.html.gz=locksmith-bid-calculator__vs-housecall-pro.html.gz
       - locksmith-bid-calculator__vs-jobber.html.gz=locksmith-bid-calculator__vs-jobber.html.gz
       - locksmith-bid-calculator__vs-workiz.html.gz=locksmith-bid-calculator__vs-workiz.html.gz
@@ -2715,12 +2718,12 @@ configMapGenerator:
       - mobile-bartender-event-quote__index.html.gz=mobile-bartender-event-quote__index.html.gz
       - mobile-bartender-event-quote__usage.mjs.gz=mobile-bartender-event-quote__usage.mjs.gz
       - mobile-detailing-bid-calculator__calc.mjs.gz=mobile-detailing-bid-calculator__calc.mjs.gz
-      - mobile-detailing-bid-calculator__how-much-to-charge.html.gz=mobile-detailing-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-20
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - mobile-detailing-bid-calculator__how-much-to-charge.html.gz=mobile-detailing-bid-calculator__how-much-to-charge.html.gz
       - mobile-detailing-bid-calculator__index.html.gz=mobile-detailing-bid-calculator__index.html.gz
       - mobile-detailing-bid-calculator__share.mjs.gz=mobile-detailing-bid-calculator__share.mjs.gz
       - mobile-detailing-bid-calculator__usage.mjs.gz=mobile-detailing-bid-calculator__usage.mjs.gz
@@ -2853,12 +2856,12 @@ configMapGenerator:
       - osha-trir-dart-calculator__index.html.gz=osha-trir-dart-calculator__index.html.gz
       - osha-trir-dart-calculator__usage.mjs.gz=osha-trir-dart-calculator__usage.mjs.gz
       - osha-trir-dart-calculator__vs-spreadsheet.html.gz=osha-trir-dart-calculator__vs-spreadsheet.html.gz
-      - overtime-pay-calculator__calc.mjs.gz=overtime-pay-calculator__calc.mjs.gz
   - name: portfolio-front-tools-21
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - overtime-pay-calculator__calc.mjs.gz=overtime-pay-calculator__calc.mjs.gz
       - overtime-pay-calculator__index.html.gz=overtime-pay-calculator__index.html.gz
       - overtime-pay-calculator__usage.mjs.gz=overtime-pay-calculator__usage.mjs.gz
       - overtime-pay-calculator__vs-doing-it-by-hand.html.gz=overtime-pay-calculator__vs-doing-it-by-hand.html.gz
@@ -2982,13 +2985,13 @@ configMapGenerator:
       - physician-wrvu-contract-calculator__calc.mjs.gz=physician-wrvu-contract-calculator__calc.mjs.gz
       - physician-wrvu-contract-calculator__index.html.gz=physician-wrvu-contract-calculator__index.html.gz
       - physician-wrvu-contract-calculator__usage.mjs.gz=physician-wrvu-contract-calculator__usage.mjs.gz
-      - pinned-actions-check__check.py.gz=pinned-actions-check__check.py.gz
-      - pinned-actions-check__classify.mjs.gz=pinned-actions-check__classify.mjs.gz
   - name: portfolio-front-tools-22
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - pinned-actions-check__check.py.gz=pinned-actions-check__check.py.gz
+      - pinned-actions-check__classify.mjs.gz=pinned-actions-check__classify.mjs.gz
       - pinned-actions-check__how-to-pin-a-github-action-to-a-commit-sha.html.gz=pinned-actions-check__how-to-pin-a-github-action-to-a-commit-sha.html.gz
       - pinned-actions-check__index.html.gz=pinned-actions-check__index.html.gz
       - pinned-actions-check__usage.mjs.gz=pinned-actions-check__usage.mjs.gz
@@ -3112,13 +3115,13 @@ configMapGenerator:
       - process-server-fee-calculator__vs-doing-it-by-hand.html.gz=process-server-fee-calculator__vs-doing-it-by-hand.html.gz
       - process-server-fee-calculator__vs-servemanager.html.gz=process-server-fee-calculator__vs-servemanager.html.gz
       - product-analytics-pricing-calculator__cli.mjs.gz=product-analytics-pricing-calculator__cli.mjs.gz
-      - product-analytics-pricing-calculator__engine.mjs.gz=product-analytics-pricing-calculator__engine.mjs.gz
-      - product-analytics-pricing-calculator__how-to-choose-a-product-analytics-tool.html.gz=product-analytics-pricing-calculator__how-to-choose-a-product-analytics-tool.html.gz
   - name: portfolio-front-tools-23
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - product-analytics-pricing-calculator__engine.mjs.gz=product-analytics-pricing-calculator__engine.mjs.gz
+      - product-analytics-pricing-calculator__how-to-choose-a-product-analytics-tool.html.gz=product-analytics-pricing-calculator__how-to-choose-a-product-analytics-tool.html.gz
       - product-analytics-pricing-calculator__index.html.gz=product-analytics-pricing-calculator__index.html.gz
       - product-analytics-pricing-calculator__usage.mjs.gz=product-analytics-pricing-calculator__usage.mjs.gz
       - production-mix-optimizer__calc.mjs.gz=production-mix-optimizer__calc.mjs.gz
@@ -3248,14 +3251,14 @@ configMapGenerator:
       - regex-redos-check__cli.mjs.gz=regex-redos-check__cli.mjs.gz
       - regex-redos-check__engine.mjs.gz=regex-redos-check__engine.mjs.gz
       - regex-redos-check__how-regex-denial-of-service-works-and-how-to-find-it-before-an-attacker-does.html.gz=regex-redos-check__how-regex-denial-of-service-works-and-how-to-find-it-before-an-attacker-does.html.gz
-      - regex-redos-check__index.html.gz=regex-redos-check__index.html.gz
-      - regex-redos-check__probe.mjs.gz=regex-redos-check__probe.mjs.gz
-      - regex-redos-check__usage.mjs.gz=regex-redos-check__usage.mjs.gz
   - name: portfolio-front-tools-24
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - regex-redos-check__index.html.gz=regex-redos-check__index.html.gz
+      - regex-redos-check__probe.mjs.gz=regex-redos-check__probe.mjs.gz
+      - regex-redos-check__usage.mjs.gz=regex-redos-check__usage.mjs.gz
       - renewal-rent-optimizer__calc.mjs.gz=renewal-rent-optimizer__calc.mjs.gz
       - renewal-rent-optimizer__index.html.gz=renewal-rent-optimizer__index.html.gz
       - renewal-rent-optimizer__usage.mjs.gz=renewal-rent-optimizer__usage.mjs.gz
@@ -3373,15 +3376,15 @@ configMapGenerator:
       - safe-dilution-calculator__usage.mjs.gz=safe-dilution-calculator__usage.mjs.gz
       - salary-range-posting-check__cli.mjs.gz=salary-range-posting-check__cli.mjs.gz
       - salary-range-posting-check__engine.mjs.gz=salary-range-posting-check__engine.mjs.gz
-      - salary-range-posting-check__index.html.gz=salary-range-posting-check__index.html.gz
-      - salary-range-posting-check__share.mjs.gz=salary-range-posting-check__share.mjs.gz
-      - salary-range-posting-check__usage.mjs.gz=salary-range-posting-check__usage.mjs.gz
-      - salary-range-posting-check__vs-checking-each-states-law-by-hand.html.gz=salary-range-posting-check__vs-checking-each-states-law-by-hand.html.gz
   - name: portfolio-front-tools-25
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - salary-range-posting-check__index.html.gz=salary-range-posting-check__index.html.gz
+      - salary-range-posting-check__share.mjs.gz=salary-range-posting-check__share.mjs.gz
+      - salary-range-posting-check__usage.mjs.gz=salary-range-posting-check__usage.mjs.gz
+      - salary-range-posting-check__vs-checking-each-states-law-by-hand.html.gz=salary-range-posting-check__vs-checking-each-states-law-by-hand.html.gz
       - salary-range-posting-check__why-pay-range-laws-differ-by-state.html.gz=salary-range-posting-check__why-pay-range-laws-differ-by-state.html.gz
       - sales-commission-plan-comparison-calculator__calc.mjs.gz=sales-commission-plan-comparison-calculator__calc.mjs.gz
       - sales-commission-plan-comparison-calculator__index.html.gz=sales-commission-plan-comparison-calculator__index.html.gz
@@ -3497,12 +3500,12 @@ configMapGenerator:
       - septic-pumping-bid-calculator__share.mjs.gz=septic-pumping-bid-calculator__share.mjs.gz
       - septic-pumping-bid-calculator__usage.mjs.gz=septic-pumping-bid-calculator__usage.mjs.gz
       - septic-pumping-bid-calculator__vs-a-flat-pump-special.html.gz=septic-pumping-bid-calculator__vs-a-flat-pump-special.html.gz
-      - septic-pumping-bid-calculator__vs-servicecore.html.gz=septic-pumping-bid-calculator__vs-servicecore.html.gz
   - name: portfolio-front-tools-26
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - septic-pumping-bid-calculator__vs-servicecore.html.gz=septic-pumping-bid-calculator__vs-servicecore.html.gz
       - service-hourly-yield-analyzer__calc.mjs.gz=service-hourly-yield-analyzer__calc.mjs.gz
       - service-hourly-yield-analyzer__index.html.gz=service-hourly-yield-analyzer__index.html.gz
       - service-hourly-yield-analyzer__usage.mjs.gz=service-hourly-yield-analyzer__usage.mjs.gz
@@ -3593,12 +3596,12 @@ configMapGenerator:
       - shopify-payout-profit-analyzer__usage.mjs.gz=shopify-payout-profit-analyzer__usage.mjs.gz
       - shopify-permission-drift__capture.html.gz=shopify-permission-drift__capture.html.gz
       - shopify-permission-drift__capture.mjs.gz=shopify-permission-drift__capture.mjs.gz
-      - shopify-permission-drift__compare.mjs.gz=shopify-permission-drift__compare.mjs.gz
   - name: portfolio-front-tools-27
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shopify-permission-drift__compare.mjs.gz=shopify-permission-drift__compare.mjs.gz
       - shopify-permission-drift__index.html.gz=shopify-permission-drift__index.html.gz
       - shopify-permission-drift__usage.mjs.gz=shopify-permission-drift__usage.mjs.gz
       - shopify-permission-drift__vs-miniorange.html.gz=shopify-permission-drift__vs-miniorange.html.gz

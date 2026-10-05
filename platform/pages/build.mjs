@@ -1260,6 +1260,8 @@ const CATEGORY_RULES = [
       || slug === 'meta-catalog-csv-check'
       // `redirect-map-check` joined 2026-10-05: a site-migration redirect map pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them for the same bundle-bound reason.
       || slug === 'redirect-map-check'
+      // `brevo-contacts-csv-check` joined 2026-10-05: the Brevo (email + SMS contacts) member of the same import pre-flight family.
+      || slug === 'brevo-contacts-csv-check'
       // `gtin-list-check` joined 2026-10-05: a product-list barcode pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them for the same bundle-bound reason.
       || slug === 'gtin-list-check',
   },
