@@ -1,0 +1,26 @@
+name: gpx-track-check
+description: >-
+  Free browser tool that checks a GPX track file for what makes Strava, Garmin Connect and Komoot reject or
+  mis-read it: missing creator, version and namespace, points at 0,0, GPS jumps, timestamps out of order,
+  tracks with no times, impossible elevations, truncated files and empty segments, each with its line number.
+  It writes the file back with every provable fix applied and leaves the rest untouched. The file is read
+  locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 in a new-venture-first session (build-now pipeline empty). duplicate_check.py top
+# match 0.16 (caption-quality-check). Archetype: paste-your-file pre-flight checker, same family as
+# ics-calendar-check and vcard-contacts-check, aimed at runners, cyclists, hikers and route-planning hobbyists.
+#
+# First visitor: someone whose GPX export from a watch, phone app or route planner "failed to upload" or
+# "has no time data" on Strava; search phrases like "gpx file upload failed", "strava gpx no timestamps",
+# "fix gpx file online". Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: a GPX file reveals home and training locations, so the file never
+# leaves the browser (a test asserts no network calls). Acceptance by any service is out of scope and said so.
+#
+# Path to revenue (payment rails stay off): lead magnet; a paid version, if usage appears, is a batch CLI /
+# CI check for people who publish route libraries. None built.
+#
+# Liability: format checks on the user's own file, no warranty, independent-of-every-service clause,
+# trademarks used nominatively, no acceptance promise, no route-safety claim.

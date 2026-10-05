@@ -20084,6 +20084,39 @@ ventures:
       the browser (a test asserts no network calls), so the portfolio holds no
       seller or buyer data. Ethics: purely informational, helps a seller see their
       own margins.
+  - slug: teachers-pay-teachers-earnings-analyzer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on rows of the user's own file and the costs and hours they type.
+    basis: >-
+      Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment.
+      gumroad-sales-fee-analyzer is the closest sibling; nothing reads a Teachers Pay Teachers sales file. Distribution 6: "tpt fee calculator" and r/TeachersPayTeachers and
+      seller-group threads on what TPT keeps are recurring queries with a real audience; volume not
+      measured with an external tool. Defensibility 3: the local-only stance and
+      observed-not-assumed fee are the differentiators.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own file and typed costs with model and
+      omissions stated; no tax or financial advice, no warranty,
+      independent-of-TPT clause on the page, default fee percentage and flat per-sale fee stated as
+      an assumption and only used when the file has no fee. The file never leaves
+      the browser (a test asserts no network calls), so the portfolio holds no
+      seller or buyer data. Ethics: purely informational, helps a seller see their
+      own margins.
   - slug: restaurant-delivery-commission-analyzer
     scores:
       ai_leverage: 1
@@ -26430,3 +26463,1157 @@ ventures:
       competence, certification, confidentiality and agency terms named as coming first, no warranty, nothing leaves
       the device. Ethics: helps small independent practitioners decide which jobs are worth their hours; the user
       decides and remains responsible.
+  - slug: bookkeeping-client-fee-calculator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic workload-to-fee arithmetic, cleanup quote, walk-away price and roster ranking; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for bookkeepers with real search demand ("how much to charge for bookkeeping services monthly")
+      where the existing tools are generic freelance retainers or after-the-fact time analysis; the wedge is pricing from
+      transaction, account, payroll and filing volume by cleanliness of books, plus a roster ranked by effective hourly,
+      free and client-side; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that prices a bookkeeping retainer and ranks existing clients from the user's own time estimates.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed volumes and minutes, stated so and not market rates, tax, accounting or legal advice,
+      no warranty, engagement terms and licensing rules come first, nothing leaves the device. Ethics: helps small
+      bookkeepers charge for the time clients take; the user decides and remains responsible.
+  - slug: tax-season-client-picker
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic CSV parser and exact deadline-pruned subset search; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-02 on graduation; the screening and first-visitor channel are in the venture's own
+      VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a direct earn-more decision for
+      independent tax preparers who accept or decline late-season clients against filing and extension deadlines,
+      where nothing prices a declined client against the hours it would take; the wedge is the exact best set under
+      a daily-hours capacity plus the exact fee at which each declined client earns a place, free and client-side;
+      volume not measured with an external tool. Shares its engine with translation-job-picker and
+      appraisal-assignment-picker, which lowers defensibility's upside.
+      Scope: Free CLI and browser tool that picks which engagements to accept from the user's own fees, hours and due dates.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on pasted text at user-supplied estimates, stated so and not tax or business advice,
+      competence, due diligence, Circular 230 and engagement terms named as coming first, no warranty, nothing leaves
+      the device. Ethics: helps small independent practitioners decide which engagements are worth their hours; the
+      user decides and remains responsible.
+  - slug: actions-timeout-check
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 3
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic line scan of workflow YAML; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in the venture's
+      own VENTURE.yaml comment. Time to revenue 3 (a free dev tool, donations only), distribution 5 and
+      defensibility 3: searches for the timeout-minutes default and for jobs stuck for six hours land
+      on docs and forum threads with no checker attached, and the check is easy to copy. Volume not
+      measured with an external tool.
+      Scope: Free CLI and browser tool that flags Actions jobs with no timeout from the user's own workflow files.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: mechanical read-only scan, minute figures are labelled upper bounds, no warranty, nothing
+      leaves the device. Ethics: defensive CI hygiene on the user's own repository.
+  - slug: interior-design-fee-calculator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic hours-to-fee arithmetic, overrun scenarios and past-project grouping; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for designers with real search demand ("interior design fee structure", "flat fee vs hourly")
+      where the existing tools are generic freelance retainers or after-the-fact time analysis; the wedge is comparing every fee
+      model on one project with scope creep priced in, plus an audit of past projects by fee model, free and client-side;
+      volume not measured with an external tool.
+      Scope: Free CLI and browser tool that compares interior design fee models and audits past projects from the user's own hours.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed hours, rates and budgets, stated so and not market rates, tax, legal or licensing advice,
+      no warranty, contract terms and local rules come first, nothing leaves the device. Ethics: helps small designers
+      charge for the time projects take; the user decides and remains responsible.
+  - slug: snow-plow-contract-calculator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic storm-count, hours and contract-price arithmetic and past-season grouping; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for plow contractors as the season starts, with real search demand ("per push vs seasonal snow plow
+      contract") where the closest tool in the tree prices one property's winter; the wedge is a whole route compared across a low,
+      normal and high snow year with a walk-away price, plus an audit of past seasons by contract model, free and client-side;
+      volume not measured with an external tool.
+      Scope: Free CLI and browser tool that compares snow plow contract models across low, normal and high snow years and audits past seasons from the user's own numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed prices, storm counts, hours and costs, stated so and not market rates, tax, legal, insurance or
+      contract advice, no warranty, contracts and local rules come first, nothing leaves the device. Ethics: helps small plow
+      contractors price winter work at what it takes; the user decides and remains responsible.
+  - slug: jwt-verification-misuse-check
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 3
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic line scan of source files; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in the venture's
+      own VENTURE.yaml comment. Time to revenue 3 (a free dev tool, donations only), distribution 5 and
+      defensibility 3: searches for jwt.decode versus jwt.verify, alg none and PyJWT verify_signature
+      land on docs and blog posts with no checker attached, and the check is easy to copy. Volume not
+      measured with an external tool.
+      Scope: Free CLI and browser tool that flags JWT verification mistakes in the user's own source code.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: mechanical read-only heuristic scan, labelled not a security audit, no warranty, nothing
+      leaves the device. Ethics: defensive hygiene on the user's own source code.
+  - slug: nail-tech-booth-rent-calculator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic weekly arithmetic, client-count scans and past-week grouping; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for nail techs with real search demand ("booth rent vs commission", "nail tech commission split")
+      where the closest existing tool (booth-rent-vs-commission) compares two paths and has no employee option, tax estimate or
+      weekly audit; the wedge is take-home per hour worked with idle chair time counted, three arrangements and a CSV audit of past
+      weeks, free and client-side; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that compares booth rent, commission and employee take-home per hour worked and audits past weeks from the user's own numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed prices, rents and tax rates, stated so and not market rates, tax, legal or financial advice,
+      no warranty, lease and employment terms come first, nothing leaves the device. Ethics: helps small beauty professionals
+      see what a chair pays; the user decides and remains responsible.
+  - slug: grant-indirect-cost-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.167
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic MTDC and indirect-cost arithmetic; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct recover-more decision for grant writers and small nonprofits with real search demand ("MTDC calculator",
+      "indirect cost calculator grant budget") and no dedicated free tool in the tree; the wedge is the per-subaward
+      $50,000 rule, the equipment threshold and fitting a budget under a funder's total cap, free and client-side;
+      volume not measured with an external tool.
+      Scope: Free browser tool that computes MTDC, indirect cost and award-cap fit from the user's own budget.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed amounts under the published federal definition, stated so and not grant,
+      accounting or legal advice, no warranty, funder rules come first, nothing leaves the device. Ethics: helps
+      small organisations claim the indirect cost they are allowed; the user decides and remains responsible.
+  - slug: docker-compose-security-check
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 3
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic line scan of a configuration file; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in the venture's
+      own VENTURE.yaml comment. Time to revenue 3 (a free dev tool, donations only), distribution 5 and
+      defensibility 3: searches for docker compose privileged, docker.sock mounts and exposed database
+      ports land on docs and blog posts with no checker attached, and the check is easy to copy.
+      Volume not measured with an external tool.
+      Scope: Free CLI and browser tool that flags risky settings in the user's own docker-compose.yml.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: mechanical read-only heuristic scan, labelled not a security audit, no warranty, nothing
+      leaves the device. Ethics: defensive hygiene on the user's own configuration file.
+  - slug: dog-grooming-price-calculator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 6.167
+    rater_b: null
+    floor: 3
+    floor_dimension: defensibility
+    floor_note: >-
+      Partial overlap with three existing grooming tools in this repo; the per-class audit with drive time and no-shows is the only wedge.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5 and distribution 5: a direct
+      earn-more decision for groomers with real search demand ("how much to charge for dog grooming");
+      defensibility 3 because three sibling grooming tools exist; the wedge is auditing past appointments
+      by breed class against a target hourly with drive time and no-shows, free and client-side;
+      volume not measured with an external tool.
+      Scope: Free CLI and browser tool that prices dog grooming classes and audits past appointments from the user's own numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed prices, minutes and percentages, stated so and not market rates or advice,
+      no warranty, nothing leaves the device. Ethics: helps small groomers charge for the time dogs take;
+      the user decides and remains responsible.
+  - slug: upwork-connects-roi-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic cost-per-hire and break-even arithmetic; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 5: freelancers argue about whether Connects pay off
+      in r/Upwork and r/freelance and search "upwork connects worth it"; no dedicated free tool in the tree prices
+      proposal time per hire; volume not measured with an external tool. Defensibility 3 and time to revenue 4:
+      a small arithmetic tool whose upgrade path is a proposal-history importer.
+      Scope: Free browser tool that computes cost per hire, break-even win rate and the Connects ceiling from the user's own numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed values, stated so and not financial or business advice, no warranty, platform
+      prices and rules are the user's to check, not affiliated with the platform, nothing leaves the device. Ethics: helps
+      freelancers see what bidding costs them; no scraping, no platform data used.
+  - slug: thumbtack-lead-roi-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic cost-per-job and break-even arithmetic; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 5: home-service pros argue about whether paid leads pay off
+      in trade subreddits and search "is thumbtack worth it"; no dedicated free tool in the tree prices
+      lead fees plus quoting time per job; volume not measured with an external tool. Defensibility 3 and time to revenue 4:
+      a small arithmetic tool whose upgrade path is a lead-history importer.
+      Scope: Free browser tool that computes cost per job won, break-even close rate and the lead price ceiling from the user's own numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed values, stated so and not financial or business advice, no warranty, platform
+      prices and rules are the user's to check, not affiliated with the platform, nothing leaves the device. Ethics: helps
+      contractors see what paid leads cost them; no scraping, no platform data used.
+  - slug: app-subscription-proceeds-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic net-proceeds and lifetime-value arithmetic; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 5: indie developers argue about the 30 vs 15 percent
+      tiers and web checkout in r/iOSProgramming and r/indiehackers and search "app store small business program
+      calculator"; volume not measured with an external tool. Defensibility 3 and time to revenue 4:
+      a small arithmetic tool whose upgrade path is a store-export importer that fits churn per cohort.
+      Scope: Free browser tool that computes net per charge, subscriber value, payback and the web-checkout difference from the user's own numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed values, stated so and not financial or business advice, no warranty, platform
+      prices and rules are the user's to check, not affiliated with the platform, nothing leaves the device. Ethics: helps
+      freelancers see what bidding costs them; no scraping, no platform data used.
+  - slug: k8s-pod-security-check
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 3
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic line scan of manifest files; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in the venture's
+      own VENTURE.yaml comment. Time to revenue 3 (a free dev tool, donations only), distribution 5 and
+      defensibility 3: searches for kubernetes privileged, allowPrivilegeEscalation and hostPath
+      docker.sock land on docs and blog posts with no checker attached, and the check is easy to copy.
+      Volume not measured with an external tool.
+      Scope: Free CLI and browser tool that flags risky pod and container security settings in the
+      user's own Kubernetes manifests.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: mechanical read-only heuristic scan, labelled not a security audit or compliance claim,
+      no warranty, nothing leaves the device. Ethics: defensive hygiene on the user's own manifests.
+  - slug: pool-service-route-calculator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic per-account hours, cost and hourly arithmetic with route-density what-ifs; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Time to revenue 5, distribution 5 and defensibility 4: a
+      direct earn-more decision for pool route owners at price-letter time, with real search demand ("which pool service
+      customers to drop", "is my pool route profitable") where the closest tools price one account or are generic across route trades;
+      the wedge is chemicals and callbacks priced as unpaid trips, route-density effect of dropping or adding a stop, and a CSV audit,
+      free and client-side; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that audits a pool service route per account and models adding or dropping a stop from the user's own numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed prices, minutes and costs, stated so and not market rates, tax, legal or contract advice,
+      no warranty, service agreements and local rules come first, nothing leaves the device. Ethics: helps small pool route
+      owners price at what the route takes; the user decides and remains responsible.
+  - slug: git-bus-factor-check
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 3
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over commit metadata; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in the venture's
+      own VENTURE.yaml comment. Time to revenue 3 (a free dev tool, donations only), distribution 5 and
+      defensibility 3: "bus factor calculator" and "truck factor github" searches land on vendor pages
+      and research papers with no pasteable free tool, and the method is easy to copy. Volume not
+      measured with an external tool.
+      Scope: Free CLI and browser tool that computes a per-folder bus factor from the user's own git log.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on commit metadata the user already holds, labelled a heuristic and barred as the sole
+      basis for decisions about people, no warranty, nothing leaves the device. Ethics: framed on folders and
+      backups rather than ranking individuals; no scraping.
+  - slug: terraform-plan-cost-estimate
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 8
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 2
+      distribution: 5
+    composite: 5.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Pricing is table lookup and arithmetic over the
+      resource attributes a plan carries, and a CI budget gate has to give the same answer on
+      every run. Defensibility 2 is the other sub-5 dimension; its basis is below.
+    basis: >-
+      Scored 2026-10-03 on graduation; screening and the first-visitor channel are in the
+      venture's own VENTURE.yaml comment. Defensibility 2: the lookup is easy to copy and the
+      incumbent (Infracost) is open source, so the only edge is offline and zero-setup. Autonomous ops 8
+      rather than 10 because the bundled price table goes stale and a person has to re-date it.
+      Time to revenue 4 (a free dev tool, donations only), distribution 5: "infracost alternative"
+      and "terraform plan cost estimate" are real query shapes, but subreddit sizes were not
+      verified and no audience is owned. Volume not measured with an external tool.
+      Scope: Free CLI and browser tool that estimates the monthly AWS cost delta of the user's own
+      Terraform plan from an approximate bundled price table.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on a plan file the user supplies, labelled an estimate and not a quote,
+      table date printed, unpriced resources listed rather than counted as zero, no warranty, not
+      affiliated with HashiCorp, AWS or Infracost, nothing leaves the device. Ethics: free, no
+      accuracy-gated tier, no scraping.
+  - slug: aws-bill-change-explainer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 9
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 2
+      distribution: 5
+    composite: 5.2
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Ranking, per-day scaling and a cause-checklist lookup, and a
+      CI-style gate has to give the same answer on every run. Defensibility 2 is the other sub-5
+      dimension; its basis is below.
+    basis: >-
+      Scored 2026-10-03 on graduation; screening and the first-visitor channel are in the venture's own
+      VENTURE.yaml comment. Defensibility 2: ranking two columns is easy to copy, and the console and paid
+      FinOps tools cover the same question, so the only edge is offline and zero-setup. Autonomous ops 9:
+      static page and one-file CLI; the checklist wording can go stale but carries no prices. Time to
+      revenue 4 (a free dev tool, donations only), distribution 5: "why did my AWS bill go up" is a real
+      query shape but subreddit sizes were not verified and no audience is owned. Volume not measured with
+      an external tool.
+      Scope: Free CLI and browser tool that explains a month-over-month AWS bill change from the user's own
+      Cost Explorer CSV export.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on an export the user supplies, labelled a checklist and not a diagnosis, not
+      billing or financial advice, no warranty, not affiliated with Amazon Web Services, nothing leaves the
+      device. Ethics: free, no accuracy-gated tier, no scraping.
+  - slug: ci-test-shard-balancer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 9
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 2
+      distribution: 5
+    composite: 5.2
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Parsing, partitioning and a lookup of runner flags, and a CI gate
+      has to give the same answer on every run. Defensibility 2 is the other sub-5 dimension; its basis is
+      below.
+    basis: >-
+      Scored 2026-10-03 on graduation; screening and the first-visitor channel are in the venture's own
+      VENTURE.yaml comment. Defensibility 2: number partitioning is textbook and the paid splitters cover
+      the same job with live history, so the edge is free, offline and account-free. Autonomous ops 9: static
+      page and one-file CLI; the emitted runner flags can go stale in wording. Time to revenue 4 (a free dev
+      tool, donations only), distribution 5: "split tests across CI shards" is a real query shape but
+      volume was not measured with an external tool and no audience is owned.
+      Scope: Free CLI and browser tool that splits a test suite into balanced CI shards from the user's own
+      JUnit XML timings.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on reports the user supplies, labelled a heuristic and not a guarantee, not
+      engineering or financial advice, no warranty, not affiliated with Knapsack Pro, Buildkite or
+      CircleCI, nothing leaves the device. Ethics: free, no accuracy-gated tier, no scraping.
+  - slug: datadog-bill-estimator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.167
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic usage-to-bill calculator over typed or pasted numbers; contains no model and calls no paid API.
+    basis: >-
+      Scored 2026-10-03 on graduation; the screening and first-visitor channel are in
+      the venture's own VENTURE.yaml comment. Distribution 5 and defensibility 4: a
+      developer CLI with real search demand ("reduce datadog costs", "datadog pricing
+      calculator") but crowded by vendor-side cost-management features and the vendor's own
+      rate card; volume not measured with an external tool.
+      Scope: Free CLI and browser tool that estimates a monthly Datadog bill and ranks the levers that cut it.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed numbers, estimate labelled as the user's own inputs
+      times editable approximate list prices, no warranty, nothing leaves the device. Ethics:
+      helps engineers avoid surprise observability bills.
+  - slug: saas-efficiency-metrics-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every result is deterministic
+      arithmetic on the user's own inputs, never an inference step.
+    basis: >-
+      Screened 2026-10-03 per portfolio/pipeline/README.md's scoring process;
+      write-up in this venture's own VENTURE.yaml comment. duplicate_check.py
+      top score 0.18. Distribution 6: "burn multiple calculator", "SaaS magic
+      number calculator" and "rule of 40 calculator" are recurring founder and
+      investor queries; no sibling venture computes them. Search volume not
+      measured with an external tool. Defensibility 2: textbook arithmetic.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: output is arithmetic on the founder's own inputs, never
+      fundraising or investment advice; bands are labelled rules of thumb; no
+      warranty. Ethics: free, no scraping, nothing leaves the device.
+  - slug: wedding-budget-allocator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every result is deterministic
+      arithmetic on the user's own inputs, never an inference step.
+    basis: >-
+      Screened 2026-10-03 per portfolio/pipeline/README.md's scoring process;
+      write-up in this venture's own VENTURE.yaml comment. duplicate_check.py
+      top score 0.23. Distribution 6: "wedding budget calculator" is a
+      high-volume evergreen consumer query; no sibling serves the couple's
+      side. Search volume not measured with an external tool. Defensibility 2:
+      simple allocation arithmetic. Time to revenue 4: consumer audience with
+      no payment path, donations only.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: output is arithmetic on the couple's own inputs with labelled
+      ballpark baselines, never financial advice; no warranty. Ethics: free, no
+      scraping, nothing leaves the device.
+  - slug: sms-segment-cost-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every result is deterministic
+      text-encoding rules and arithmetic on the user's own inputs.
+    basis: >-
+      Screened 2026-10-03 per portfolio/pipeline/README.md's scoring process;
+      write-up in this venture's own VENTURE.yaml comment. No SMS venture
+      existed. Distribution 6: "sms segment calculator" and "why is my SMS
+      3 segments" are recurring developer queries answered by provider docs
+      with no cost model; search volume not measured with an external tool.
+      Defensibility 2: published encoding rules.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: counts follow published encoding rules, prices labelled
+      approximate and editable, compliance stated as the user's
+      responsibility, no warranty. Ethics: free, nothing leaves the device.
+  - slug: tow-truck-rate-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every result is deterministic
+      arithmetic on the operator's own inputs, never an inference step.
+    basis: >-
+      Screened 2026-10-03 per portfolio/pipeline/README.md's scoring process;
+      write-up in this venture's own VENTURE.yaml comment. Nearest sibling
+      tow-motor-club-call-calculator answers a different question (accept or
+      decline a club dispatch). Distribution 6: "tow truck rate calculator" and
+      "how much to charge for a tow" are recurring operator queries; search
+      volume not measured with an external tool. Defensibility 2: cost-plus
+      arithmetic.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: output is arithmetic on the operator's own inputs, asserts no
+      rate, cap or rule, and tells the user to check local tow rate regulation;
+      no warranty. Ethics: free, no scraping, nothing leaves the device.
+  - slug: era-835-underpayment-finder
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on segments of the user's own remittance file and the contract
+      rates they type.
+    basis: >-
+      Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Small practices receive
+      835 remittances that their practice-management system posts and writes off
+      without comparing any line to the signed fee schedule; the existing answers
+      are enterprise revenue-cycle platforms, some on contingency, and
+      spreadsheets. Distribution 6: "835 era underpayment", "how to read an 835
+      file" and billing-community threads are recurring queries; volume not
+      measured with an external tool. Defensibility 4: the parser, the
+      clean-line rule and the balance checks are real work a spreadsheet does not
+      replicate, and the local-only stance is the differentiator against vendors
+      that want the file on their servers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own file and rates with model and
+      omissions stated; no billing, legal or compliance advice, no warranty,
+      independent-of-payer clause and an explicit PHI note. The file never leaves
+      the browser (a test asserts no network calls) and no patient name or member
+      ID is kept by the parser, so the portfolio holds no practice or patient
+      data. Ethics: helps a practice collect what its contract already says it is
+      owed; purely informational.
+  - slug: nacha-file-validator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every finding is deterministic
+      arithmetic and layout checks on the user's own ACH file.
+    basis: >-
+      Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Bookkeepers and payroll
+      admins edit ACH files by hand and learn about a fault from a terse bank
+      rejection; existing answers are post-upload bank validators, developer
+      libraries and paid desktop editors. Distribution 6: "ACH file rejected",
+      "NACHA entry hash" and "ACH file validator" are recurring queries; volume
+      not measured with an external tool. Defensibility 3: the rule set is public
+      and re-implementable, the edge is the line-level explanations, the
+      control-record rebuild and the local-only stance.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own file with model and omissions stated;
+      no banking or compliance advice, no warranty, independent-of-Nacha-and-banks
+      clause and a payment-data note. The file never leaves the browser (a test
+      asserts no network calls), account numbers are masked in output, and the
+      repair step never edits an entry so it cannot redirect a payment. Ethics:
+      free, informational, nothing leaves the device.
+  - slug: sepa-payment-file-validator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every finding is deterministic
+      arithmetic and layout checks on the user's own SEPA file.
+    basis: >-
+      Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. European bookkeepers and
+      finance admins edit pain.001 files by hand and learn about a fault from a terse
+      bank rejection; existing answers are post-upload bank validators, schema-only
+      XSD checkers and paid desktop utilities. Distribution 6: "SEPA XML file
+      rejected", "pain.001 validator" and "CtrlSum does not match" are recurring
+      queries; volume not measured with an external tool. Defensibility 3: the rule
+      set is public and re-implementable, the edge is the line-level explanations,
+      the control-sum rebuild and the local-only stance.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own file with model and omissions stated;
+      no banking or compliance advice, no warranty, independent-of-EPC-and-banks
+      clause and a payment-data note. The file never leaves the browser (a test
+      asserts no network calls), IBANs are masked in output, and the repair step
+      never edits a payment so it cannot redirect money. Ethics: free,
+      informational, nothing leaves the device.
+  - slug: bai2-statement-reader
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every finding is deterministic
+      arithmetic and layout checking on the user's own BAI2 file.
+    basis: >-
+      Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Bookkeepers and treasury
+      staff receive BAI2 files that are unreadable by eye and fail imports with
+      terse errors; existing answers are developer libraries, paid converters and
+      treasury-system viewers. Distribution 6: "BAI2 file viewer", "BAI2 to CSV" and
+      "BAI2 format" are recurring queries; volume not measured with an external
+      tool. Defensibility 3: the format is public and re-implementable, the edge is
+      the line-level explanations, the multi-convention total check and the
+      local-only stance.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own file with model and omissions stated;
+      no banking or accounting advice, no warranty, independent-of-BAI-and-banks
+      clause and a payment-data note. The file never leaves the browser (a test
+      asserts no network calls), account numbers are masked in output, and the
+      rebuild never edits a transaction. Ethics: free, informational, nothing leaves
+      the device.
+  - slug: form-5500-late-filing-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every output is date arithmetic and
+      editable constants applied to the user's own plan dates.
+    basis: >-
+      Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Plan sponsors who miss
+      July 31 find provider blog posts and agency pages but no free page that puts
+      the due date, the extension, the DFVC cost and the IRS and DOL ceilings
+      together. Distribution 6: "Form 5500 late filing penalty", "DFVC program cost"
+      and "when is Form 5500 due" are recurring queries, strongly seasonal; volume
+      not measured with an external tool. Defensibility 3: the rules are public and
+      re-implementable, the edge is the multi-year case, the ceilings-not-predictions
+      framing and the local-only stance.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on dates and editable figures; penalty amounts are shown
+      as statutory ceilings and labelled from memory, not predictions; no tax, legal
+      or retirement-plan advice, no warranty, independent-of-the-IRS-and-DOL clause.
+      Ethics: free, informational, nothing leaves the device.
+  - slug: eu-bank-statement-reader
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every finding is deterministic
+      arithmetic and layout checks on the user's own statement file.
+    basis: >-
+      Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Bookkeepers receive
+      camt.053 or MT940 files they cannot read and import tools reject them tersely;
+      existing answers are developer parsers, paid converters and converters that
+      need the bank file uploaded. Distribution 6: "camt.053 to CSV" and "MT940 to
+      CSV" are recurring queries; volume not measured with an external tool.
+      Defensibility 3: the formats are public and re-implementable, the edge is the
+      balance check naming the amount, the two-format model and the local-only stance.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own file with model and omissions stated;
+      no banking or accounting advice, no warranty, independent-of-SWIFT-and-banks
+      clause and a financial-data note. The file never leaves the browser (a test
+      asserts no network calls) and account numbers are masked by default. Ethics:
+      free, informational, nothing leaves the device.
+  - slug: sepa-pain001-validator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every finding is deterministic
+      arithmetic, calendar and layout checks on the user's own SEPA file.
+    basis: >-
+      Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Bookkeepers, club
+      treasurers and ERP integrators in the euro area export pain.001 or pain.008
+      files and learn about a fault from a terse bank rejection; existing answers
+      are post-upload bank checks, XSD validators that do not check totals, IBANs
+      or dates, developer libraries and paid desktop utilities. Distribution 6:
+      "pain.001 error", "SEPA XML control sum" and "SEPA XML validator" are
+      recurring queries; volume not measured with an external tool. Defensibility
+      3: the rule set is public and re-implementable, the edge is the line-level
+      explanations, the exact-decimal control totals, the repair step and the
+      local-only stance.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own file with model and omissions stated;
+      no banking or compliance advice, no warranty, independent-of-the-EPC-and-banks
+      clause and a payment-data note. The file never leaves the browser (a test
+      asserts no network calls), IBANs are masked in output, and the repair step
+      never edits an IBAN or amount so it cannot redirect or resize a payment.
+      Ethics: free, informational, nothing leaves the device.
+  - slug: sepa-pain002-status-reader
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every line is a lookup and arithmetic on the
+      user's own status report.
+    basis: >-
+      Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process; full write-up
+      in this venture's own VENTURE.yaml comment. Bookkeepers and ERP integrators who upload
+      SEPA files get a pain.002 whose rejections are raw XML and ISO codes; existing answers
+      are the bank's own portal, developer libraries and paid reconciliation suites.
+      Distribution 6: "pain.002 rejected" and "what does AM04 mean SEPA" are recurring
+      queries; volume not measured with an external tool, and it pairs with the pain.001
+      validator. Defensibility 3: the code lists are public, the edge is the per-payment
+      reading, the rejected totals and the resend list.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: reads the user's own file with model and omissions stated; no banking
+      advice, no warranty, independent-of-the-EPC-and-banks clause and a payment-data note.
+      The file never leaves the browser (a test asserts no network calls) and IBANs are
+      masked. Ethics: free, informational, nothing leaves the device.
+  - slug: eu-vat-oss-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic exact-decimal
+      arithmetic on the user's own sales file against a rate table with an as-of date.
+    basis: >-
+      Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Small sellers of digital goods,
+      e-commerce products and services to EU consumers, including non-EU sellers on the
+      non-Union OSS, must charge destination-country VAT above EUR 10,000 of cross-border
+      consumer sales and file a quarterly OSS return; existing answers are paid VAT suites
+      that connect to the shop, accountant guides with rate tables and no arithmetic, and
+      per-country rate lookups. Distribution 6: "EU VAT OSS calculator", "do I need OSS" and
+      "distance selling threshold" are recurring queries; volume not measured with an
+      external tool. Defensibility 3: the rules are public and re-implementable, the edge
+      is the threshold date from the user's own file, the per-country-per-rate table, the
+      reconciling gross reverse-calculation and the local-only stance. The rate table is from
+      memory and flagged as such, which caps how much the figures can be trusted today.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own sales file with model and omissions stated;
+      rate table from memory and flagged as such, no tax or legal advice, no warranty,
+      independent-of-the-EU-and-tax-authorities clause. The file never leaves the browser
+      (a test asserts no network calls). Ethics: free, informational, nothing leaves the device.
+
+  - slug: edi-x12-order-checker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every finding is deterministic
+      arithmetic and layout checks on the user's own X12 file.
+    basis: >-
+      Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Small suppliers to large
+      retailers are told to "do EDI" and meet rejections as terse 997 codes or chargebacks;
+      existing answers are per-document paid EDI networks, post-upload partner portals and
+      developer libraries. Distribution 6: "997 error codes", "SE01 segment count" and "EDI
+      856 SSCC" are recurring queries; volume not measured with an external tool.
+      Defensibility 3: the formats are public and re-implementable, the edge is the plain
+      language 997 translation, the check-digit and total checks and the local-only stance.
+      Time to revenue 5: the follow-on is partner rule packs for named retailers, not built.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and layout checks on the user's own file with model and
+      omissions stated; no trade or compliance advice, no warranty, independent-of-retailers
+      clause, chargeback exposure disclaimed. The file never leaves the browser (a test
+      asserts no network calls) and the repair step rewrites counts only. Ethics: free,
+      informational, nothing leaves the device.
+
+  - slug: bank-csv-to-qbo-converter
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Conversion is deterministic parsing and arithmetic
+      on the user's own CSV.
+    basis: >-
+      Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process; full write-up
+      in this venture's own VENTURE.yaml comment. Bookkeepers and small businesses whose bank
+      only exports CSV need QBO/OFX/QIF for QuickBooks or Quicken; existing answers are paid
+      desktop converters, subscription web converters that take the file onto a server, and
+      QuickBooks Online's own strict CSV import. Distribution 7: "csv to qbo", "convert csv to
+      ofx" and "bank csv won't import into quickbooks" are long-standing, high-intent queries;
+      volume not measured with an external tool. Defensibility 3: the formats are public and
+      re-implementable, the edge is stated date/sign assumptions, stable IDs and the local-only
+      stance. Time to revenue 5: the follow-on is batch conversion and saved bank profiles for
+      bookkeeping firms, not built.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: format conversion of the user's own file, no accounting or banking advice, no
+      warranty, independent-of-Intuit-and-banks clause and a financial-data note. The file never
+      leaves the browser (a test asserts no network calls). Ethics: free, nothing leaves the
+      device, no scraping.
+      Liability: arithmetic on the user's own file, not tax advice, no warranty, independent
+      of the European Commission and every tax authority, rates shown with an as-of date and a
+      verify-before-filing instruction, no payment code. The file never leaves the browser (a
+      test asserts no network calls). Ethics: free, informational, nothing leaves the device.
+
+  - slug: xero-invoice-csv-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Checking an invoice file is deterministic parsing and
+      arithmetic on the user's own CSV.
+    basis: >-
+      Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process; full write-up in
+      this venture's own VENTURE.yaml comment. Bookkeepers and freelancers importing sales
+      invoices into Xero by CSV; existing answers are Xero's own terse error text, paid
+      migration services and generic CSV linters. Distribution 7: "xero invoice import dates
+      invalid", "xero csv import 500 lines" and "excel date serial number xero" are high-intent
+      error queries; volume not measured with an external tool. Defensibility 3: the template
+      is public, the edge is the invoice model, date-order detection and the invoice-aware
+      splitter. Time to revenue 5: the follow-on is bulk checks across client files and sibling
+      QuickBooks/FreshBooks/Sage import checkers, not built.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: format checks on the user's own file, no accounting advice, no warranty,
+      independent-of-Xero clause, rules stated as read from memory. The file never leaves the
+      browser (a test asserts no network calls). Ethics: free, nothing leaves the device.
+
+  - slug: email-list-csv-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Checking a contact list is deterministic parsing and
+      string comparison on the user's own CSV.
+    basis: >-
+      Screened 2026-10-04 per portfolio/pipeline/README.md's scoring process; full write-up in
+      this venture's own VENTURE.yaml comment. Small-list owners importing contacts into an email
+      platform; existing answers are paid verifiers that upload the list, each platform's terse
+      import error and generic CSV linters. Distribution 7: "mailchimp import skipped rows",
+      "check email list before import" and "remove duplicate emails csv" are high-intent
+      queries; volume not measured with an external tool. Defensibility 3: the heading names and
+      typo lists are public, the edge is the per-platform headings, alias duplicates and the
+      rejected-rows file. Time to revenue 5: the follow-on is bulk checks across lists, not built.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: format checks on the user's own file, no deliverability or consent claim, no legal
+      advice, no warranty, independent-of-vendor clause. The file never leaves the browser (a test
+      asserts no network calls). Ethics: free, nothing leaves the device.

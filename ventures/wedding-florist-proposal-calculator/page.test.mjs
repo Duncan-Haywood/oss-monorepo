@@ -242,3 +242,8 @@ test('index links the bridal-hair-makeup-pricing-calculator sibling', () => {
   // `platform/pages/siblings.mjs` counts as a crawlable orphan.
   assert.match(html, /href="\.\.\/bridal-hair-makeup-pricing-calculator\/"/);
 });
+
+test('index links the interior-design-fee-calculator sibling', () => {
+  // The interior design fee calculator links here; both hrefs are asserted so the pair is not a crawlable orphan.
+  assert.match(html, /href="\.\.\/interior-design-fee-calculator\/"/);
+});

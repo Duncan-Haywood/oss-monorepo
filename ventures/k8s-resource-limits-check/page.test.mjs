@@ -116,3 +116,10 @@ test("the SoftwareApplication schema on index is valid JSON and free", async () 
   assert.ok(schema, "index is missing a SoftwareApplication schema block");
   assert.equal(schema.offers.price, "0");
 });
+
+// Inbound hop for k8s-pod-security-check, which would otherwise be a
+// crawlable orphan (`platform/pages/siblings.mjs` fails on one).
+test("index links one hop to the k8s-pod-security-check sibling", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /href="\.\.\/k8s-pod-security-check\/"/);
+});

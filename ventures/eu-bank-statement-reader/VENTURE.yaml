@@ -1,0 +1,80 @@
+name: eu-bank-statement-reader
+description: >-
+  Free browser tool that reads an ISO 20022 camt.053 (XML) or SWIFT MT940 (text) bank
+  statement into accounts, opening and closing balances and an entry table with a CSV
+  download, and checks that opening balance plus booked entries equals the closing balance
+  (naming the amount it is off by), that consecutive statements join up, the account IBAN
+  check digits, dates, amounts and duplicated references. The file is read locally and never
+  uploaded; account numbers are masked in the report and exports.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session, as the European counterpart to
+# bai2-statement-reader and the receiving side of sepa-payment-file-validator.
+# duplicate_check.py: top score 0.31 (bai2-statement-reader, a US format), nothing near 0.45.
+#
+# Who: bookkeepers, small-business owners and accounting-software integrators in the euro
+# area and UK who download camt.053 or MT940 statements from a bank's business portal and need
+# them in a spreadsheet or an import tool. The files are XML or tagged text, import tools
+# reject them tersely, and banks are migrating MT940 to camt.053 so people meet both. Existing
+# answers are developer libraries (parsers in several languages), paid converters, and
+# converters that require uploading the bank file to a stranger's server.
+#
+# First visitor: people searching "camt.053 to CSV", "MT940 to CSV", "open MT940 file",
+# "camt.053 viewer", "MT940 file won't import". Volume not measured with an external tool.
+#
+# What makes it more than a viewer: one model for both formats; the balance check names the
+# exact amount that is off (a single missing or duplicated entry explains it); reversals flip
+# sign; pending entries stay out of the balance; consecutive statements are checked to join
+# up; the IBAN mod-97 check catches a mistyped account; the CSV neutralises spreadsheet
+# formula characters.
+#
+# Privacy is the liability boundary: bank data never leaves the browser (a test asserts no
+# network calls), account numbers are masked by default, and the page says it is not
+# accounting or banking advice.
+#
+# Path to revenue (payment rails stay off): lead magnet for bookkeeping and reconciliation
+# audiences. A paid version, if usage appears, is multi-file merging, bank-specific profiles
+# and mapping to DATEV/Xero/QuickBooks import templates behind an env-var switch; not built.
+#
+# Liability: arithmetic and layout checks on the user's own file, model and omissions stated,
+# no accounting or banking advice, no warranty, independent-of-SWIFT-and-banks clause,
+# financial data note.
+#
+# Unverified: the camt element paths, the MT940 :61: layout and reversal signs, the
+# :86: structured subfields and the zero- and three-decimal currency lists are from memory of
+# the public formats; no real bank file or bank validator was available. The first user report
+# of a real file that this tool misreads, or the reverse, is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A bookkeeper handed a camt.053 or MT940 file will paste it into a no-login page to read it
+      or get a CSV, because the alternative is a paid tool, code, or uploading bank data to an
+      unknown converter.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing exactly which amount makes a statement fail its balance check brings the same
+      person back for the next file that will not import.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted file structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a real bank file this tool misreads or a balance it computes differently from their bank, at which point the rules need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/eu-bank-statement-reader/
+  analytics: null

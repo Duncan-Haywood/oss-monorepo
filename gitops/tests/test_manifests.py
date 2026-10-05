@@ -87,7 +87,10 @@ def test_no_live_secrets_in_git() -> None:
     ):
         if not path.is_file():
             continue
-        if path.suffix in {".png", ".jpg"}:
+        # Compressed bytes decoded as text can contain "ghp_" by chance (it fired
+        # on a regenerated front-door .gz, 2026-10-04); the plain sources the .gz
+        # files are built from are scanned as ordinary files.
+        if path.suffix in {".png", ".jpg", ".gz"}:
             continue
         if "tests" in path.parts:
             continue
@@ -2914,9 +2917,56 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `appraisal-assignment-picker` graduated (browser + CLI which-assignments-to-accept picker with exact deadline-capacity search and break-even fee).
     # +1: `saas-renewal-planner` graduated (browser + CLI SaaS renewal notice-deadline and negotiation planner).
     # +1: `thrift-haul-buy-picker` graduated (browser + CLI thrift/estate-sale buy picker with walk-away price and exact best set under cash or hours caps).
+    # +1: `bookkeeping-client-fee-calculator` graduated (browser + CLI bookkeeping retainer, cleanup and walk-away fee calculator with a client roster ranked by effective hourly).
     # +1: `owner-operator-load-chain-planner` graduated (browser + CLI best chain of paid loads with exact walk-away rate per load).
     # +1: `translation-job-picker` graduated (browser + CLI which-translation-jobs-to-accept picker).
-    total = 620  # `infra/OWNER_CHECKLIST.md`'s own "N of the 620 tools" wording.
+    # +1: `tax-season-client-picker` graduated (browser + CLI late-season tax client picker).
+    # +1: `interior-design-fee-calculator` graduated (browser + CLI interior design fee-model comparator with overrun scenarios and a past-project audit by fee model).
+    # +1: `snow-plow-contract-calculator` graduated (browser + CLI snow plow contract-model comparator across low/normal/high snow years with a past-season audit).
+    # +1: `pool-service-route-calculator` graduated (browser + CLI pool route audit: per-account true hourly, reprice/drop, route density and CSV export).
+    # +1: `nail-tech-booth-rent-calculator` graduated (browser + CLI booth rent vs commission vs employee take-home per hour worked, with break-even clients and a past-week audit).
+    # +1: `grant-indirect-cost-calculator` graduated (browser MTDC, indirect cost and award-cap fit calculator).
+    # +1: `docker-compose-security-check` graduated (browser + CLI risky-settings scanner for docker-compose.yml).
+    # +1: `dog-grooming-price-calculator` graduated (browser + CLI dog grooming price by breed class and time, with a past-appointment audit).
+    # +1: `k8s-pod-security-check` graduated (browser + CLI risky pod and container security-settings scanner for Kubernetes manifests).
+    # +1: `terraform-plan-cost-estimate` graduated (browser + CLI monthly AWS cost delta estimate for a Terraform plan, from an approximate bundled price table).
+    # +1: `aws-bill-change-explainer` graduated (browser + CLI explainer for an AWS Cost Explorer CSV: ranked movers, partial-month normalisation, cause checklist, CI gate).
+    # +1: `lockfile-license-check` graduated (browser + CLI licence audit of an npm package-lock.json).
+    # +1: `firewood-profit-calculator` graduated (browser firewood profit per cord and hour, price needed for a wage, delivery distance).
+    # +1: `feie-physical-presence-calculator` graduated (browser Form 2555 physical presence 330-day counter).
+    # +1: `ci-test-shard-balancer` graduated (browser + CLI balanced CI test sharding from JUnit XML timings, with shard-count sweep and Actions matrix).
+    # +1: `webhook-signature-debugger` graduated (browser + CLI webhook HMAC signature verification and mismatch diagnosis).
+    # +1: `hvac-repair-tier-price-calculator` graduated (browser HVAC Good/Better/Best repair pricing, diagnostic fee and average-call model).
+    # +1: `training-gpu-pricing-calculator` graduated (browser + CLI GPU cloud pricing with idle time and rent-versus-buy breakeven).
+    # +1: `era-835-underpayment-finder` graduated (browser 835 remittance parser: payments below contract rates, denials, takebacks).
+    # +1: `nacha-file-validator` graduated (browser ACH/NACHA file validator: record layout, check digits, control totals, control-record rebuild).
+    # +1: `cobra-vs-marketplace-calculator` graduated (browser + CLI COBRA vs marketplace total cost, break-even and election deadlines).
+    # +1: `sepa-pain001-validator` graduated (browser SEPA pain.001/pain.008 XML validator: control sums, IBAN, dates, character set, totals repair).
+    # +1: `eu-vat-oss-calculator` graduated (browser EU VAT OSS calculator: EUR 10,000 threshold date and the quarterly return per country and rate from a sales CSV).
+    # +1: `form-5500-late-filing-calculator` graduated (browser Form 5500 due date, days late, DFVC cost against IRS and DOL penalty exposure).
+    # +1: `irs-iris-1099-csv-check` graduated (browser IRS IRIS 1099-NEC/MISC bulk CSV checker: TIN formats, thresholds, duplicates, totals, safe fixes).
+    # +1: `edi-x12-order-checker` graduated (browser X12 EDI 850/810/856/997 checker: envelope counts, UPC/SSCC check digits, invoice totals, 997 translation).
+    # +1: `xero-invoice-csv-check` graduated (browser Xero sales invoice CSV checker: per-invoice agreement, date order, Excel damage, safe fixes, 500-line splitter).
+    # +1: `quickbooks-chart-of-accounts-csv-check` graduated (browser QuickBooks Online chart of accounts import checker: account types, detail types, duplicates, sub-account order, balances and dates).
+    # +1: `xero-contacts-csv-check` graduated (browser Xero contacts import checker: duplicate names, emails, Excel damage, payment terms, safe fixes, splitter).
+    # +1: `hubspot-contacts-csv-check` graduated (browser HubSpot contacts/companies import checker: duplicate and invalid emails, Excel damage, date formats, lifecycle stage and lead status values, formatting-only safe fixes).
+    # +1: `pipedrive-import-csv-check` graduated (browser Pipedrive deals/people/organizations import checker: deal status, value and currency, probability, duplicate deals and emails, Excel damage, date formats, safe fixes).
+    # +1: `zoho-crm-import-csv-check` graduated (browser Zoho CRM leads/contacts/accounts/deals import checker: required fields, Stage and Lead Status picklists, amount and currency, probability, duplicates, Excel damage, date formats, safe fixes).
+    # +1: `klaviyo-profile-csv-check` graduated (browser Klaviyo profile import checker: identifiers, E.164 phones, Excel damage, near-miss headers, lat/long/timezone, mixed dates, safe fixes).
+    # +1: `mailchimp-audience-csv-check` graduated (browser Mailchimp audience import checker: no-email rows, duplicate emails, unquoted Tags commas, birthday format, Excel phone damage, mixed dates, safe fixes).
+    # +1: `shopify-inventory-csv-check` graduated (browser Shopify inventory import checker: On hand (new) column, text/fraction/thousands-comma quantities, tenfold jumps, duplicate variant+location rows, handles, location spelling, Excel SKU damage, safe fixes).
+    # +1: `payroll-hours-csv-check` graduated (browser payroll hours / timesheet CSV checker: decimal vs h:mm, Excel date serials, duplicate person-days, hours over 24, Start/End arithmetic, safe fixes).
+    # +1: `shopify-customer-csv-check` graduated (browser Shopify customer import checker: emails, E.164 phones, Excel zip and phone damage, country and province codes, consent values, tags, safe fixes).
+    # +1: `teachers-pay-teachers-earnings-analyzer` graduated (browser TPT sales CSV analyzer: observed fee incl. flat per-sale fee, per-resource take-home, repeat buyers, break-even price).
+    # +1: `google-ads-editor-csv-check` graduated (browser Google Ads Editor import checker: headline/description limits, RSA counts, keyword symbols and match types, URLs, budgets, safe fixes).
+    # +1: `meta-catalog-csv-check` graduated (browser Meta catalog feed checker: required fields, ids, price and sale price, availability, links, images, GTIN check digits, item groups, Excel damage, safe fixes).
+    # +1: `youtube-chapters-check` graduated (browser YouTube chapter-list checker: 0:00 start, three-chapter and 10-second rules, ordering and format fixes, marker-export conversion to chapters.json, FFmetadata, WebVTT).
+    # +1: `quickbooks-iif-file-check` graduated (browser QuickBooks Desktop IIF checker: ENDTRNS, TRNS/SPL balance, stray tabs, dates, Excel quotes, safe fixes).
+    # +1: `mt940-statement-check` graduated (browser SWIFT MT940 statement checker: balance arithmetic, statement continuity, :61: layout, comma decimals, repeats, closing -, CSV conversion).
+    # +1: `bank-statement-pdf-to-csv` graduated (browser bank/credit card statement PDF to CSV with a balance proof: opening + rows = closing, running-balance sign check, Xero/QuickBooks layouts).
+    # +1: `coi-expiry-gap-checker` graduated (browser subcontractor certificate-of-insurance list checker: expiry and lead time, limits with umbrella make-up, endorsements, renewal gaps, chase list and .ics).
+    total = 757  # `infra/OWNER_CHECKLIST.md`'s own "N of the 757 tools" wording.
+    # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).
     # +1: `ticket-resale-profit-calculator` graduated (browser + CLI ticket resale payout, break-even and sales-log audit).
@@ -3051,7 +3101,7 @@ def test_portfolio_front_configmaps_keep_their_content_hash() -> None:
             merged = dict(entry)
             merged["options"] = {**shared, **entry.get("options", {})}
             by_name[entry["name"]] = merged
-    for name in ("portfolio-front-html", "portfolio-front-nginx", *_mirror_shard_names()):
+    for name in ("portfolio-front-html", "portfolio-front-html-index", "portfolio-front-nginx", *_mirror_shard_names()):
         options = by_name[name].get("options", {})
         assert not options.get("disableNameSuffixHash"), (
             f"{name} is mounted by a Deployment; without the hash a content "

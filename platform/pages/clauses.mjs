@@ -2535,6 +2535,17 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // comparison-page filename. Same reasoning as the other generic-method
   // pages above (e.g. eitc-calculator's vs-doing-the-math-by-hand.html).
   'freelance-writer-rate-calculator/vs-judging-a-quote-by-its-headline-number.html',
+  // Compares against "time and materials" billing -- the hourly-rate-plus-parts
+  // method every plumber already knows, not a company or product this could be
+  // mistaken for. The page names no software or vendor, and its own test
+  // (page.test.mjs) pins that, so this exemption cannot quietly stop being true.
+  // Same reasoning as the other generic-method pages above.
+  'plumber-flat-rate-price-calculator/vs-time-and-materials.html',
+  // Compares against quoting a single repair price -- the generic method most
+  // small shops start from, not a company or product this could be mistaken for.
+  // The page names no software, vendor or manufacturer, and its own test
+  // (page.test.mjs) pins that, so this exemption cannot quietly stop being true.
+  'hvac-repair-tier-price-calculator/vs-quoting-one-repair-price.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

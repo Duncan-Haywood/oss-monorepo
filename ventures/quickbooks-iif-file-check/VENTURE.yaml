@@ -1,0 +1,33 @@
+name: quickbooks-iif-file-check
+description: >-
+  Free browser tool that checks a QuickBooks Desktop IIF (Intuit Interchange Format) import file before
+  it goes in, and says why the import fails or posts wrong: a transaction with no ENDTRNS row, TRNS and
+  SPL amounts that do not sum to zero, a row with more columns than its header (a stray tab), columns
+  separated by spaces instead of tabs, header columns missing, cells wrapped in Excel quote marks, dates
+  that are year-first or day-first, unknown account types, accounts used but absent from the file's own
+  !ACCNT list, and transactions repeated. It gives a line number for each and writes a repaired file. The
+  file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 in a new-venture-first session. duplicate_check scored the nearest ventures at 0.37
+# (ofx-file-check, qif-file-check, bank-csv-to-qbo-converter, quickbooks-import-csv-check,
+# quickbooks-chart-of-accounts-csv-check); none reads IIF. The CSV checkers cover QuickBooks' CSV
+# importers; IIF is the Desktop-only tab-delimited transaction format that bookkeepers and developers
+# still hand-build or export from other systems, and whose double-entry rule (TRNS plus SPL rows sum to
+# zero, ENDTRNS closes each) is the failure the CSV checkers cannot see.
+#
+# First visitor: a bookkeeper or small-business owner moving transactions into QuickBooks Desktop from a
+# spreadsheet, a point-of-sale or payroll export, or a developer generating IIF; search phrases like
+# "iif import error", "quickbooks iif file format", "iif file not importing", "quickbooks desktop import
+# journal entries iif". Volume not measured with an external tool.
+#
+# Deterministic and local: no QuickBooks login, no upload, no cost per user.
+#
+# Path to revenue (payment rails stay off): lead magnet for the bookkeeper audience, paired with the
+# QuickBooks CSV checkers and the bank-file checkers; a paid version, if usage appears, is a batch
+# check or a spreadsheet-to-IIF generator behind an env-var switch; none built.
+#
+# Liability: format checks on the user's own file, no warranty, independent-of-every-product clause,
+# trademarks used nominatively, no promise QuickBooks will accept the file, advice to import into a
+# backup copy of the company file.

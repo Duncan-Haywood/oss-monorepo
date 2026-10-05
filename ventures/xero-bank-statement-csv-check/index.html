@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Xero Bank Statement CSV Check — Fix Import Errors</title>
+  <meta name="description" content="Free Xero bank statement CSV checker: finds why a statement will not import or imports with wrong dates (rows above the header, separate Debit/Credit columns, bad amounts, mixed date order, repeats), with line numbers, and writes a repaired CSV. Runs in your browser.">
+  <meta property="og:title" content="Xero Bank Statement CSV Check — free, private, in your browser">
+  <meta property="og:description" content="Find out why your bank statement CSV fails or imports wrong in Xero, with line numbers. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Xero Bank Statement CSV Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free browser tool that checks a bank statement CSV before it is imported into Xero: header row, one signed Amount column, date order, plain-decimal amounts, repeats and spreadsheet damage, and writes a repaired CSV."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does Xero say my bank statement CSV could not be imported?", "acceptedAnswer": {"@type": "Answer", "text": "The usual causes are rows above the header (account details or a title), separate Debit and Credit columns instead of one Amount column, an amount with a currency symbol, brackets or a thousands separator, a date Xero cannot read in the format you chose, and a quoted field that never closes. This tool reads the file, names each problem with its line number, and writes a repaired CSV."}}, {"@type": "Question", "name": "Why did my dates import as the wrong month?", "acceptedAnswer": {"@type": "Answer", "text": "A date such as 03/04/2024 does not say whether it is 3 April or March 4, and the file has no field to declare it; you choose the format in Xero's import step. This tool reads the whole file: any date like 13/01/2024 proves day-first and any date like 01/13/2024 proves month-first. If every date has both numbers 12 or under it says the order cannot be proven and tells you to pick the format your bank uses and spot-check one row."}}, {"@type": "Question", "name": "My bank gives me separate Debit and Credit columns. What do I do?", "acceptedAnswer": {"@type": "Answer", "text": "Xero takes one Amount column with money out as a negative number. The repair merges the two columns, writing the debit amount with a minus sign and the credit amount as it is. Rows where both columns are filled, or neither, are reported and left for you."}}, {"@type": "Question", "name": "Why were transactions imported twice?", "acceptedAnswer": {"@type": "Answer", "text": "A statement downloaded twice, or two overlapping date ranges, repeats rows. The checker flags rows with the same date, amount and text so you can trim the overlap before importing. If two of them are genuinely separate payments, ignore the flag."}}, {"@type": "Question", "name": "Does it change my file without telling me?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every change is listed. Only provable fixes are made: dropping rows above the header and blank rows, renaming columns to Xero's names, dropping columns Xero does not read, merging Debit and Credit, plain-decimal amounts, and, if you ask, dates rewritten in a four-digit-year format in an order the file proves or you confirm. Garbled amounts, mixed date orders and ragged rows are reported and left for you."}}, {"@type": "Question", "name": "Is my file uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is read in your browser tab and a test in the code asserts there are no network calls. Bank files contain account details, so do not paste one into a tool that uploads it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2f5d8a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1d3f66; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1d3f66; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1d3f6610; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f5d8a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf4; color: #1d3f66; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1d3f66; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">XERO BANK STATEMENT CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why won't my bank statement CSV import into Xero?</h1>
+    <p>Drop in a bank <strong>statement CSV</strong> and get every problem <strong>with its line number</strong>: <strong>account details above the header</strong>, <strong>separate Debit and Credit columns</strong> instead of one Amount, amounts like <code>1.234,56</code>, <code>(18.00)</code> or <code>$12.50</code>, <strong>dates the file cannot prove the order of</strong> or that <strong>mix day-first and month-first</strong>, rows downloaded twice, and cells a spreadsheet damaged. Then download a repaired CSV in Xero's column layout.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device; bank files hold account details, so that matters. This checks the file against what Xero's statement import is documented to expect, not against Xero itself. For OFX, QFX or QBO use the <a href="../ofx-file-check/">OFX file check</a>; for QIF use the <a href="../qif-file-check/">QIF file check</a>. Independent of every product named.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your statement CSV</h2>
+    <p class="note">A .csv download from your bank, or its text pasted below. Comma, semicolon and tab separators are read.</p>
+    <label for="file">Choose a file</label>
+    <input type="file" id="file" accept=".csv,.txt,text/csv,text/plain">
+    <label for="paste">…or paste the text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Date,Amount,Payee,Description&#10;15/01/2024,-42.10,Corner Grocery,Card purchase"></textarea>
+    <div class="grid">
+      <div><label for="convert">Rewrite dates as</label><select id="convert"><option value="">Leave dates as they are</option><option value="DD/MM/YYYY">DD/MM/YYYY</option><option value="MM/DD/YYYY">MM/DD/YYYY</option><option value="YYYY-MM-DD">YYYY-MM-DD</option></select></div>
+      <div><label for="order">If the file cannot prove its date order, read it as</label><select id="order"><option value="">Do not guess</option><option value="mdy">Month/day</option><option value="dmy">Day/month</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="validate">Check file</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Check file.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <div id="fix-box" hidden>
+      <h3>Repaired file</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <label for="fixed-out">Preview</label>
+      <textarea id="fixed-out" class="small" readonly spellcheck="false" wrap="off"></textarea>
+      <p><button type="button" id="copy-fixed">Copy</button> <button type="button" class="secondary" id="download-fixed">Download repaired file</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Structure:</strong> the first row names the columns, with at least Date and Amount; no rows above it; no blank rows; every row has the header's number of cells.</li>
+      <li><strong>Amount:</strong> one column, negative for money out, plain digits and a decimal point. Currency symbols, brackets, trailing minus, CR/DR and thousands separators are rewritten; Debit and Credit columns are merged.</li>
+      <li><strong>Dates:</strong> DD/MM/YYYY, MM/DD/YYYY, YYYY-MM-DD or 5 Jan 2024. The order is proven only by a date that can be read one way; mixed orders are an error.</li>
+      <li><strong>Fixed automatically:</strong> rows above the header and blank rows removed, columns renamed to Xero's names, unknown columns dropped, Debit/Credit merged, plain-decimal amounts, and, only if you ask, dates rewritten with a four-digit year in a proven or confirmed order.</li>
+      <li><strong>Never guessed:</strong> the date order when the file does not prove it, a garbled amount, a row that is both money in and out, or whether two similar rows are one payment.</li>
+      <li><strong>Not checked:</strong> that balances match your bank, that the file came from your bank, which bank account or currency you import into, Xero's row limit, or what Xero will accept today. Read from memory of Xero's public import help and sample file, with no Xero import available when this was built; confirm against Xero's own current documentation.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does Xero say my bank statement CSV could not be imported?</h3>
+    <p>The usual causes are rows above the header (account details or a title), separate Debit and Credit columns instead of one Amount column, an amount with a currency symbol, brackets or a thousands separator, a date Xero cannot read in the format you chose, and a quoted field that never closes. This tool reads the file, names each problem with its line number, and writes a repaired CSV.</p>
+    <h3>Why did my dates import as the wrong month?</h3>
+    <p>A date such as 03/04/2024 does not say whether it is 3 April or March 4, and the file has no field to declare it; you choose the format in Xero's import step. This tool reads the whole file: any date like 13/01/2024 proves day-first and any date like 01/13/2024 proves month-first. If every date has both numbers 12 or under it says the order cannot be proven and tells you to pick the format your bank uses and spot-check one row.</p>
+    <h3>My bank gives me separate Debit and Credit columns. What do I do?</h3>
+    <p>Xero takes one Amount column with money out as a negative number. The repair merges the two columns, writing the debit amount with a minus sign and the credit amount as it is. Rows where both columns are filled, or neither, are reported and left for you.</p>
+    <h3>Why were transactions imported twice?</h3>
+    <p>A statement downloaded twice, or two overlapping date ranges, repeats rows. The checker flags rows with the same date, amount and text so you can trim the overlap before importing. If two of them are genuinely separate payments, ignore the flag.</p>
+    <h3>Does it change my file without telling me?</h3>
+    <p>No. Every change is listed. Only provable fixes are made: dropping rows above the header and blank rows, renaming columns to Xero's names, dropping columns Xero does not read, merging Debit and Credit, plain-decimal amounts, and, if you ask, dates rewritten in a four-digit-year format in an order the file proves or you confirm. Garbled amounts, mixed date orders and ragged rows are reported and left for you.</p>
+    <h3>Is my file uploaded anywhere?</h3>
+    <p>No. It is read in your browser tab and a test in the code asserts there are no network calls. Bank files contain account details, so do not paste one into a tool that uploads it.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace your bookkeeper or Xero's own import checks. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including checking balances and transaction counts after you import, and a clean result is not a promise that Xero will accept the file.</p>
+    <p><strong>Not affiliated with any platform.</strong> This tool is independent and is not sponsored, endorsed or connected to Xero or any bank or company named. Their names are trademarks of their owners, used here only to say which behaviour is meant. Specifications are read from memory of public sources and may be out of date.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../bank-statement-pdf-to-csv/">bank statement PDF to CSV converter</a> reads a statement PDF into a Xero-ready CSV, the <a href="../xero-invoice-csv-check/">Xero invoice CSV check</a>, the <a href="../xero-contacts-csv-check/">Xero contacts CSV check</a>, the <a href="../ofx-file-check/">OFX file check</a>, the <a href="../qif-file-check/">QIF file check</a> and the <a href="../quickbooks-import-csv-check/">QuickBooks import CSV check</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, cleaned = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const r = validate(text, { order: $("#order").value || undefined });
+      lastResult = r;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `<strong>${s.errors} error${s.errors === 1 ? "" : "s"}</strong>, ${s.warnings} warning${s.warnings === 1 ? "" : "s"} · ${s.transactions} transaction${s.transactions === 1 ? "" : "s"}${s.delimiter ? ` · separator: ${esc(s.delimiter === "," ? "comma" : s.delimiter === ";" ? "semicolon" : s.delimiter)}` : ""}`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || "<p>No problems found.</p>";
+      cleaned = repair(text, { dateFormat: $("#convert").value || undefined, order: $("#order").value || undefined });
+      $("#fix-box").hidden = false;
+      $("#fix-note").textContent = cleaned.changes.length ? `${cleaned.changes.length} change${cleaned.changes.length === 1 ? "" : "s"} made. Anything that cannot be proven is left as it was and named above.` : "Nothing to change.";
+      $("#fix-list").innerHTML = cleaned.changes.map((c) => `<li>${esc(c)}</li>`).join("");
+      $("#fixed-out").value = cleaned.text;
+      report.hidden = false;
+      status.textContent = s.errors ? `Found ${s.errors} error(s) in ${s.transactions} transaction(s).` : `No errors in ${s.transactions} transaction(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: a made-up three-row statement in Xero's own column layout."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: account details above the header, a semicolon separator, separate Debit and Credit columns, mixed date orders, a repeated row, a two-digit year and a row with no amount."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#paste", "#file"]) $(id).value = ""; report.hidden = true; lastResult = null; cleaned = null; status.textContent = "Choose a file or paste the text, then click Check file."; });
+    $("#download-fixed").addEventListener("click", () => { if (!cleaned) return; record("fixes_applied"); download("xero-statement-repaired.csv", cleaned.text, "text/csv"); });
+    $("#copy-fixed").addEventListener("click", async () => { try { await navigator.clipboard.writeText($("#fixed-out").value); status.textContent = "Copied."; record("fixes_applied"); } catch { $("#fixed-out").select(); status.textContent = "Select the preview and copy it."; } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("xero-statement-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,370 +1,170 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 620 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 757 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
-  <updated>2026-10-02T00:00:00Z</updated>
+  <updated>2026-10-05T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
   <entry>
-    <title>Appraisal Assignment Picker — Which Requests to Accept</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/appraisal-assignment-picker/"/>
-    <id>tag:marisstella.dev,2026:tool/appraisal-assignment-picker</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
+    <title>Airbnb Transaction History to Xero and QuickBooks Journal</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/airbnb-payout-to-journal/"/>
+    <id>tag:marisstella.dev,2026:tool/airbnb-payout-to-journal</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free Airbnb host earnings to journal converter: splits every reservation into rental income, cleaning fees, Airbnb host fees and cancellations, books pass-through occupancy tax as a liability, compares the rows to your payouts and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Amazon Settlement Report to Xero and QuickBooks Journal</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/amazon-settlement-to-journal/"/>
+    <id>tag:marisstella.dev,2026:tool/amazon-settlement-to-journal</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free Amazon settlement report to journal converter: proves the rows add up to the deposit, splits sales, fees, refunds and tax by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>BAI2 to OFX, QBO, QIF and Xero CSV Converter</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bai2-to-ofx-converter/"/>
+    <id>tag:marisstella.dev,2026:tool/bai2-to-ofx-converter</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free BAI2 converter: check the file&#39;s control totals and balances, then download OFX/QBO for QuickBooks and Quicken, QIF, or a Xero statement CSV, with stable transaction IDs. Runs in your browser; the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Bank Statement PDF to CSV Converter, Balance-Checked and Private</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bank-statement-pdf-to-csv/"/>
+    <id>tag:marisstella.dev,2026:tool/bank-statement-pdf-to-csv</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free bank and credit card statement PDF to CSV converter that proves the result: opening balance plus the transactions must equal the closing balance. CSV for Xero, QuickBooks Online or Excel. Runs in your browser; the PDF is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Brevo Contacts CSV Check — Find Import Errors Before You Import</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/brevo-contacts-csv-check/"/>
+    <id>tag:marisstella.dev,2026:tool/brevo-contacts-csv-check</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free Brevo (Sendinblue) contacts import CSV checker: finds invalid and duplicate emails, rows with neither email nor SMS, SMS numbers with no country code or ruined by Excel, unquoted commas that shift columns, mixed date formats and near-miss column names, with line numbers, and applies formatting-only safe fixes. Runs in your browser; the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>camt.053 Statement Checker and CSV Converter</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/camt053-statement-check/"/>
+    <id>tag:marisstella.dev,2026:tool/camt053-statement-check</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free camt.053 checker: finds why an ISO 20022 XML bank statement fails to import or does not balance (opening plus entries versus closing, gaps between statements, batch totals, declared counts, repeats, missing dates), with line numbers, and converts it to CSV. Runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>camt.053 and MT940 to OFX, QBO, QIF and Xero CSV Converter</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/camt053-to-ofx-converter/"/>
+    <id>tag:marisstella.dev,2026:tool/camt053-to-ofx-converter</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free camt.053 and MT940 converter: balance-check the statement, then download OFX/QBO for QuickBooks and Quicken, QIF, or a Xero statement CSV, with stable transaction IDs. Runs in your browser; the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Certificate of Insurance Tracker and Gap Checker</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/coi-expiry-gap-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/coi-expiry-gap-checker</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free COI tracker for contractors and property managers: check subcontractor insurance against your contract&#39;s limits, endorsements and lead time, find expired and expiring policies and renewal gaps, and export a chase list and calendar. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>eBay Payout Report to Xero and QuickBooks Journal</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ebay-payout-to-journal/"/>
+    <id>tag:marisstella.dev,2026:tool/ebay-payout-to-journal</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free eBay payout to journal converter: proves the transactions add up to the payout, splits item sales, shipping income, sales tax, final value fees, Promoted Listings, store fees, shipping labels and refunds by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Etsy Statement to Xero and QuickBooks Journal</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/etsy-statement-to-journal/"/>
+    <id>tag:marisstella.dev,2026:tool/etsy-statement-to-journal</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free Etsy statement to journal converter: checks every row, books gross sales, listing and transaction fees, ads, shipping labels, refunds and bank deposits separately by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Google Contacts CSV Check — Find Import Errors Before You Upload</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/google-contacts-csv-check/"/>
+    <id>tag:marisstella.dev,2026:tool/google-contacts-csv-check</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free Google Contacts CSV checker: finds headings Google skips, emails and phone numbers that will not import, impossible birthdays, blank and duplicate rows and Excel damage, with line numbers, applies safe fixes and splits big files. Runs in your browser; the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>GPX Track Checker — Find Why a GPX File Won&#39;t Upload and Fix It</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/gpx-track-check/"/>
+    <id>tag:marisstella.dev,2026:tool/gpx-track-check</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free GPX checker: finds why Strava, Garmin Connect or Komoot rejects a track file, with line numbers: missing creator, version and namespace, GPS jumps, points at 0,0, timestamps out of order, no times, bad elevations. Downloads a repaired copy. Runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>GTIN, UPC and EAN List Checker — Bulk Check Digits and Restore Excel-Damaged Barcodes</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/gtin-list-check/"/>
+    <id>tag:marisstella.dev,2026:tool/gtin-list-check</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free bulk barcode checker: validates a list of UPC, EAN, GTIN and ISBN codes, finds bad check digits, leading zeros lost to Excel, scientific notation, duplicates and reserved prefixes, and writes the list back fixed. Runs in your browser; the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Gumroad Sales Export to Xero and QuickBooks Journal</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/gumroad-sales-to-journal/"/>
+    <id>tag:marisstella.dev,2026:tool/gumroad-sales-to-journal</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free Gumroad sales to journal converter: proves the sales add up to your payout, splits product sales, shipping, tax you collected, Gumroad fees and refunds by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Bulk IBAN Validator — Check a Supplier or Payroll List Before You Upload the Payment File</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/iban-list-check/"/>
+    <id>tag:marisstella.dev,2026:tool/iban-list-check</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free bulk IBAN checker: validates a whole column of IBANs, finds wrong check digits (with the swapped-digit fix), wrong lengths, unknown countries, stray spaces, duplicates and blanks, and writes the list back cleaned. Runs in your browser; the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>ICS Calendar Checker — Find Why an .ics File Won&#39;t Import and Fix It</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ics-calendar-check/"/>
+    <id>tag:marisstella.dev,2026:tool/ics-calendar-check</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free iCalendar (.ics) checker: finds the missing UID, DTSTAMP and VERSION, events that end before they start, bad recurrence rules, time zones without definitions, duplicate UIDs and long lines that make Google Calendar, Outlook and Apple Calendar reject a file, and writes it back fixed. Runs in your browser; the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Law Firm Realization Rate Calculator — Where Billable Time Leaks</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/law-firm-realization-rate-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/law-firm-realization-rate-calculator</id>
+    <updated>2026-10-05T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Paste the appraisal assignments you have been offered and get the set that earns the most before the due dates, the order to work them, and the fee each declined file would need. Free, runs in your browser, nothing is uploaded.</summary>
+    <summary type="text">Free law firm realization calculator: realization, collection rate and yield per lawyer, dollars lost before and after billing, lockup days, and what a point of realization is worth. Runs in your browser.</summary>
   </entry>
   <entry>
-    <title>BigQuery Query Cost Advisor — On-Demand vs Editions and Query Guardrails</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bigquery-query-cost-advisor/"/>
-    <id>tag:marisstella.dev,2026:tool/bigquery-query-cost-advisor</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your BigQuery query groups (runs per month, GB billed, slot-hours) and see on-demand vs Editions cost, the expensive queries to cap with maximum_bytes_billed, and repeat large scans. Free, runs in your browser, nothing is uploaded.</summary>
+    <title>Facebook &amp; Instagram Catalog Feed Checker — Find CSV Errors Before You Upload</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/meta-catalog-csv-check/"/>
+    <id>tag:marisstella.dev,2026:tool/meta-catalog-csv-check</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free Meta catalog feed CSV checker for Commerce Manager: finds semicolon or UTF-16 files, missing required columns, duplicate ids, prices without a currency, bad sale prices, wrong availability values, empty or http links, WebP images, invalid barcodes and Excel damage, with line numbers and safe fixes. Runs in your browser; the file is never uploaded.</summary>
   </entry>
   <entry>
-    <title>Booking Request Chooser — Which Rental Requests to Accept for the Most Income</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/booking-request-chooser/"/>
-    <id>tag:marisstella.dev,2026:tool/booking-request-chooser</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Paste your confirmed bookings and pending requests and get the exact set of requests to accept for the highest income, counting turnover cost and the dead gap nights a short stay leaves behind. Free, runs in your browser, nothing is uploaded.</summary>
+    <title>MT940 Statement Checker and CSV Converter</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mt940-statement-check/"/>
+    <id>tag:marisstella.dev,2026:tool/mt940-statement-check</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free MT940 checker: finds why a SWIFT MT940 bank statement fails to import or does not balance (opening plus transactions versus closing, gaps between statements, bad :61: lines, period decimals, repeats), with line numbers, and converts it to CSV. Runs in your browser.</summary>
   </entry>
   <entry>
-    <title>Card Grading Submission Picker — Which Cards to Send to PSA, BGS, CGC or SGC</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/card-grading-submission-picker/"/>
-    <id>tag:marisstella.dev,2026:tool/card-grading-submission-picker</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Is it worth grading this card? Paste your cards with your own value at each grade and grade chances and get which to send to a grader, which fee tier, which to sell raw, the break-even chance of a 10 and the downside. Pokemon, baseball, basketball and MTG. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Catering Quote Calculator — Price Per Guest, Margin and Break-Even Headcount</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/catering-quote-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/catering-quote-calculator</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Paste a catering cost sheet and get the per-guest price that hits your margin, food and labor percentages, the deposit, a guest-count tier table and the break-even guest count. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Client Concentration Risk Analyzer — How Dependent Is Your Revenue on One Client</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/client-concentration-risk-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/client-concentration-risk-analyzer</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Paste an invoice export and see each client&#39;s share of revenue, your top-three share, whether dependence is rising, and whether you survive losing your biggest client. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>CloudWatch Logs Cost Advisor — Retention, Ingestion and Dead Log Groups</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cloudwatch-logs-cost-advisor/"/>
-    <id>tag:marisstella.dev,2026:tool/cloudwatch-logs-cost-advisor</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your CloudWatch log groups (stored GB, retention, GB ingested per month) and get what each costs, the retention policy to set, dead groups and Infrequent Access candidates. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Consignment Markdown Planner — When to Mark Down and What to Decline</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/consignment-markdown-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/consignment-markdown-planner</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Paste the items in your consignment or resale shop and get the exact best markdown schedule for each, which items to decline at intake, and how much a fixed 30/60-day rule leaves on the table. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>CSA Share Pricing Calculator — What Should a Farm Share Cost?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/csa-share-pricing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/csa-share-pricing-calculator</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">List what goes in your CSA box and see what a member gets at retail, what the season pays you per hour, the price that pays your target wage, break-even shares and a price sweep. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Databricks Cluster Cost Advisor — Autotermination, Jobs Compute and DBU Cost</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/databricks-cluster-cost-advisor/"/>
-    <id>tag:marisstella.dev,2026:tool/databricks-cluster-cost-advisor</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your Databricks clusters (kind, DBUs used, autotermination) and get what each costs, scheduled work running on pricier all-purpose compute, clusters that never terminate and long autotermination tails, with the setting to change. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Dog Grooming Day Planner — Which Dogs to Book for the Most Net</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dog-grooming-day-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/dog-grooming-day-planner</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Quote a groom so it earns your target per table hour, then paste the requests on your list and get the exact set of dogs that earns the most in a day. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>EBS Volume Cost Advisor — gp2 to gp3, io1 Over-Provisioning and Unattached Volumes</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ebs-volume-cost-advisor/"/>
-    <id>tag:marisstella.dev,2026:tool/ebs-volume-cost-advisor</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your EBS volumes (type, size, provisioned and peak IOPS) and get the cheapest volume type that still covers the peak, the aws ec2 modify-volume command, gp2 burst risk and unattached volumes. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Embroidery Pricing Calculator for Small Shops: Quotes, Quantity Breaks and Margin</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/embroidery-shop-quote-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/embroidery-shop-quote-calculator</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Price an embroidery job from your own machine time and costs: per-piece price that hits your target margin, quantity breaks, stitch-count sensitivity, and whether a per-1000-stitches rule loses money. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Free Shipping Threshold Optimizer — What Minimum Earns You the Most</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/free-shipping-threshold-optimizer/"/>
-    <id>tag:marisstella.dev,2026:tool/free-shipping-threshold-optimizer</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Paste your past orders and see what each free-shipping minimum would earn, how many buyers it must win back to pay for the shipping you give away, and the threshold that loses least if your assumptions are wrong. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Freelance Project Picker — Which Projects to Accept for the Most Income</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freelance-project-picker/"/>
-    <id>tag:marisstella.dev,2026:tool/freelance-project-picker</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Paste your weekly hours and the project offers on the table and get the exact set to accept for the highest income, with the fee each declined project would need to earn its place. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Insurance Denial Appeal Builder — Appeal Letter, Deadline and Checklist for a Denied Claim</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/insurance-denial-appeal-builder/"/>
-    <id>tag:marisstella.dev,2026:tool/insurance-denial-appeal-builder</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free tool for patients: paste your health insurance denial letter and get the likely denial reason, your appeal deadline, a draft appeal letter, a checklist of what to gather and calendar reminders. Runs in your browser, the letter is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Kubernetes Requests Rightsizer — Are Your Pod CPU and Memory Requests Wasting Money</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/k8s-requests-rightsizer/"/>
-    <id>tag:marisstella.dev,2026:tool/k8s-requests-rightsizer</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste kubectl top output, kubectl get pods JSON or a simple CSV and see which containers request far more CPU and memory than they use, a recommended request with headroom, the monthly saving, out-of-memory risk and YAML patches. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Lambda vs Fargate Cost Break-Even — When Containers Beat Pay-Per-Request</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/lambda-vs-fargate-cost-breakeven/"/>
-    <id>tag:marisstella.dev,2026:tool/lambda-vs-fargate-cost-breakeven</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Enter requests per month, duration, memory and concurrency and compare the monthly cost of AWS Lambda, Google Cloud Run, AWS Fargate and EC2, plus the request volume where always-on containers become cheaper. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Lot Split Calculator — Sell a Bulk Lot Whole or List It Item by Item?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/lot-split-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/lot-split-calculator</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Paste the items in a bulk lot and a whole-lot offer and see whether listing item by item earns more after fees, shipping and your time, which lines to list and which to sell on in bulk. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Market Event Picker — Which Markets and Festivals to Work for the Most Profit</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/market-event-picker/"/>
-    <id>tag:marisstella.dev,2026:tool/market-event-picker</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Paste the markets, fairs and festivals you could work and get the exact set that earns the most net profit after booth fees, travel, crew hours and cost of goods, with the reason for every event skipped. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Mobile Signing Agent Day Picker — Which Signings to Take Today</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mobile-signing-agent-day-picker/"/>
-    <id>tag:marisstella.dev,2026:tool/mobile-signing-agent-day-picker</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Paste the day&#39;s offered loan signings and notary appointments and get the most profitable set and order for one mobile notary or signing agent, with appointment windows, drive cost and the fee every declined signing would need. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Mobile Tire Van Job Picker — Which Calls to Run Today</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mobile-tire-van-job-picker/"/>
-    <id>tag:marisstella.dev,2026:tool/mobile-tire-van-job-picker</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Logistics, freight &amp; cloud cost"/>
-    <summary type="text">Paste the day&#39;s requested mobile tire and roadside jobs and get the most profitable set and order for one van, with time windows, drive cost and a price for every job it turns down. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>NAT Gateway Cost Advisor — S3 and DynamoDB Endpoints, Interface Endpoint Break-Even</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/nat-gateway-cost-advisor/"/>
-    <id>tag:marisstella.dev,2026:tool/nat-gateway-cost-advisor</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your NAT gateway traffic per destination and get the monthly NAT cost, which AWS services should use a free S3/DynamoDB gateway endpoint or an interface endpoint, the net saving after endpoint fees, and the create-vpc-endpoint commands. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Owner Operator Load Chain Planner — Which Loads to Chain and What to Counter</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/owner-operator-load-chain-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/owner-operator-load-chain-planner</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Logistics, freight &amp; cloud cost"/>
-    <summary type="text">Paste a load-board shortlist with your own rates, pickup windows and costs and get the exact best chain of loads to run, which to leave, and the lowest rate each is worth, with deadhead, waiting and rest priced in. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Price Increase Break-Even Calculator — How Many Customers Can You Lose</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/price-increase-breakeven-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/price-increase-breakeven-calculator</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Paste your prices, unit costs and volumes, set a price increase, and see how many units you can lose before the raise stops paying, item by item. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Process Server Day Picker — Which Serves to Take Today</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/process-server-day-picker/"/>
-    <id>tag:marisstella.dev,2026:tool/process-server-day-picker</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Paste the day&#39;s requested process-serving assignments and get the most profitable set and order for one server, with time windows, drive cost and a price for every job it turns down. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>RDS Instance Cost Advisor — Multi-AZ, io1 IOPS, Graviton and Idle Instances</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rds-instance-cost-advisor/"/>
-    <id>tag:marisstella.dev,2026:tool/rds-instance-cost-advisor</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your Amazon RDS instances (class, engine, Multi-AZ, storage, IOPS, CPU) and get what each costs, Multi-AZ you pay for outside production, io1 IOPS that gp3 covers, Graviton twins and idle instances, with the aws rds command to change each. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>RDS Instance Rightsizer — Is Your RDS or Aurora Instance Too Big</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rds-instance-rightsizer/"/>
-    <id>tag:marisstella.dev,2026:tool/rds-instance-rightsizer</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste CloudWatch CPU, freeable memory and connection numbers (or describe-db-instances JSON) and see which RDS and Aurora instances are over- or under-provisioned, the next class in the same family, Graviton savings, Multi-AZ cost and the modify-db-instance command. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Returns Policy Cost Analyzer — What Returns Really Cost Your Store</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/returns-policy-cost-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/returns-policy-cost-analyzer</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Paste your orders and refunds and see what each return really costs, which product categories lose money after returns, and whether a return fee or restocking fee would pay. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>S3 Storage Class Advisor — Standard, IA, Intelligent-Tiering or Glacier, Whichever Costs Less</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/s3-storage-class-advisor/"/>
-    <id>tag:marisstella.dev,2026:tool/s3-storage-class-advisor</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste per-bucket S3 size, object count and read activity and see the monthly cost in Standard, Standard-IA, Intelligent-Tiering and Glacier Instant Retrieval, with the small-object and minimum-duration traps. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>SaaS Renewal Planner — Notice Deadlines and Which Renewals to Negotiate First</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/saas-renewal-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/saas-renewal-planner</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Paste your SaaS subscriptions and get the last day to give notice before each auto-renewal, which renewals to negotiate first, a floor and stretch target price, a calendar file and an email draft per vendor. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Snowflake Warehouse Cost Advisor — AUTO_SUSPEND, Idle Warehouses and Sizing</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/snowflake-warehouse-cost-advisor/"/>
-    <id>tag:marisstella.dev,2026:tool/snowflake-warehouse-cost-advisor</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your Snowflake warehouses (size, credits used, AUTO_SUSPEND, resumes) and get what each costs, the AUTO_SUSPEND tail you are paying for, idle warehouses and a bounded right-sizing note, with the ALTER WAREHOUSE commands. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>STR Turnover Crew Planner — Which Cleans to Take, and Which Crew</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/str-turnover-crew-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/str-turnover-crew-planner</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Paste the day&#39;s vacation-rental turnovers and get the most profitable set of cleans, which of your one to three crews does each and in what order, with checkout and check-in windows, drive cost and the fee every turnover it declines would need. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Support Staffing Planner — Erlang C Agents and Cheapest Shifts</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/support-staffing-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/support-staffing-planner</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Paste contacts per half hour and get the agents each interval needs (Erlang C, shrinkage, occupancy cap) and the cheapest shifts that cover them, plus what each service target costs. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Thrift Haul Buy Picker — What to Buy and the Most to Pay for Resale</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/thrift-haul-buy-picker/"/>
-    <id>tag:marisstella.dev,2026:tool/thrift-haul-buy-picker</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Paste what you found at a thrift store, estate sale or liquidation with your own resale estimates and get which items to buy, the most to pay for each, the sell chance each needs to break even and the exact best set under a cash, item or hours cap. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Ticket Resale Profit Calculator — Break-Even List Price After Seller Fees</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ticket-resale-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/ticket-resale-profit-calculator</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Find the list price that breaks even or hits your profit target after StubHub, SeatGeek, Vivid Seats or Ticketmaster seller fees, see whether a listing pays once you allow for the chance it does not sell, and audit your past sales by marketplace. Free, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Trade Show ROI Calculator — Is a Booth Worth It and Which Shows to Buy</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/trade-show-roi-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/trade-show-roi-calculator</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Paste the trade shows and conferences you could exhibit at and get cost per lead, expected deals, ROI and break-even leads for each, plus the exact set of shows that earns the most under your yearly budget. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Translation Job Picker — Which Agency Offers to Accept</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/translation-job-picker/"/>
-    <id>tag:marisstella.dev,2026:tool/translation-job-picker</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Paste the translation jobs you have been offered and get the set that earns the most before the due dates, the order to work them, and the fee each declined file would need. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Used Car Lot Aging Planner — When to Wholesale Each Unit</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/used-car-lot-aging-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/used-car-lot-aging-planner</id>
-    <published>2026-10-02T00:00:00Z</published>
-    <updated>2026-10-02T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Paste your used-car inventory and get each unit&#39;s true carrying cost on the floorplan, the exact best day to wholesale it, which units to wholesale now ranked by earnings per $1,000 of line per day, and what waiting until it sells leaves behind. Free, runs in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>ADU Payback Calculator — is a backyard unit worth building?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/adu-payback-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/adu-payback-calculator</id>
-    <published>2026-10-01T00:00:00Z</published>
-    <updated>2026-10-01T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">ADU payback calculator for homeowners and builders. Enter build cost, loan, rent and operating costs and see cash flow, yield on cost, payback, IRR, NPV and break-even rent. Runs in your browser; nothing is uploaded.</summary>
+    <title>OFX / QFX File Checker — Fix a Bank Export Before QuickBooks Import</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ofx-file-check/"/>
+    <id>tag:marisstella.dev,2026:tool/ofx-file-check</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free OFX and QFX file checker: finds the problems that make QuickBooks, Quicken, YNAB and Xero reject a bank or credit-card Web Connect file — bad header, unclosed tags, duplicate FITIDs, invalid dates and amounts, unescaped ampersands, DTSTART and DTEND mismatches — and writes the file back fixed. Runs in your browser; the file is never uploaded.</summary>
   </entry>
 </feed>

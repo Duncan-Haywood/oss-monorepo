@@ -1,0 +1,44 @@
+name: feature-flag-pricing-calculator
+description: 'Free, zero-network, zero-dependency browser tool + CLI that prices hosted feature-flag services (PostHog, Flagsmith, ConfigCat) at a monthly flag-request volume (thousands) from editable approximate list prices, projects 12 months of spend under a monthly growth rate, and finds the volumes where the cheapest provider changes; has a --budget CI gate. A deterministic calculator over the user''s inputs, not a quote and not a guarantee of spend.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, sibling of log-management-pricing-calculator and
+# product-analytics-pricing-calculator. Nothing compares hosted feature-flag vendors
+# at one request volume with growth and a crossover.
+#
+# Where the first real visitor would come from: search phrases "posthog feature flags
+# pricing", "launchdarkly alternative cost", "flagsmith vs configcat", "cheapest feature
+# flag service"; r/webdev and Hacker News threads after a flag-vendor bill shock. The
+# reader is a lead dev or founder choosing a flag service. A hosted pricing-change
+# monitor is the natural paid path later.
+hypotheses:
+  - claim: A founder choosing or leaving a feature-flag vendor will search for a price comparison at their requests-per-month volume, enter volume and growth, and use the crossover table to decide.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will add the CLI to CI with --budget so growth that pushes feature-flag spend over budget fails review instead of the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool calculates only from typed numbers in
+  # the visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/feature-flag-pricing-calculator/
+  analytics: null

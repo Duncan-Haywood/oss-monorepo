@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kubernetes pod security: privileged, hostPath, root and how to fix each</title>
+  <meta name="description" content="Which Kubernetes pod and container settings are risky and why: privileged, hostNetwork, hostPath docker.sock, SYS_ADMIN, running as root, missing securityContext, :latest images and literal secrets, with the exact YAML fix for each.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="what-is-kubernetes-pod-security.html">
+  <meta property="og:title" content="Kubernetes pod security: privileged, hostPath, root and how to fix each">
+  <meta property="og:description" content="The fifteen pod and container settings a line scan can find, why each matters, and the fix.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a good baseline securityContext for a Kubernetes container?","acceptedAnswer":{"@type":"Answer","text":"Set allowPrivilegeEscalation: false, runAsNonRoot: true with a numeric runAsUser, readOnlyRootFilesystem: true, capabilities drop: [ALL] and seccompProfile type RuntimeDefault. Mount an emptyDir for any path the app must write, and add back only the capability the workload demonstrably needs."}},{"@type":"Question","name":"Is a hostPath volume to /var/run/docker.sock safe?","acceptedAnswer":{"@type":"Answer","text":"No. The Docker API is root on the node: a pod that can reach it can start another container with the node filesystem mounted. Mounting it read-only does not restrict the API. Use a build tool that does not need the daemon, or a socket proxy that exposes only the required endpoints."}},{"@type":"Question","name":"Does the default Kubernetes setup run containers as root?","acceptedAnswer":{"@type":"Answer","text":"Often yes. If neither the pod nor the container sets runAsNonRoot or runAsUser, the container runs as whatever user the image declares, which is frequently root. allowPrivilegeEscalation also defaults to true. Setting both explicitly removes the guesswork."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.02em; line-height: 1.12; color: #17324a; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .88rem; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .note { font-size: .9rem; color: #55606f; }
+    footer { margin-top: 28px; font-size: .82rem; color: #55606f; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Kubernetes Pod Security Check</a></p>
+  <h1>Kubernetes pod security: <code>privileged</code>, <code>hostPath</code>, root and how to fix each</h1>
+  <p>A pod spec decides how much of the node each container can touch. Most pod-related incidents are not clever exploits. They are one setting that removed a boundary, such as a privileged container, a mounted Docker socket or a password committed in plain text.</p>
+  <pre><code># hands the node to the container
+spec:
+  hostNetwork: true
+  containers:
+    - name: app
+      image: web:latest
+      securityContext:
+        privileged: true
+
+# baseline per container
+      securityContext:
+        allowPrivilegeEscalation: false
+        runAsNonRoot: true
+        runAsUser: 10001
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: [ALL]
+        seccompProfile:
+          type: RuntimeDefault</code></pre>
+
+  <h2>The fifteen patterns a line scan can find</h2>
+  <ul>
+    <li><strong>k8s-privileged</strong> — <code>privileged: true</code>. Fix: set it false or delete it; add one capability instead. High.</li>
+    <li><strong>k8s-host-namespace</strong> — <code>hostNetwork</code>, <code>hostPID</code> or <code>hostIPC</code> true. Fix: delete it. High.</li>
+    <li><strong>k8s-hostpath-sensitive</strong> — hostPath of <code>/</code>, <code>/etc</code>, <code>/root</code>, <code>/proc</code>, <code>/sys</code>, <code>/var/lib/kubelet</code> or the Docker socket. Fix: emptyDir, ConfigMap, Secret or a PersistentVolumeClaim. High.</li>
+    <li><strong>k8s-dangerous-capability</strong> — <code>capabilities.add</code> of ALL, SYS_ADMIN, NET_ADMIN, SYS_PTRACE, SYS_MODULE or DAC_READ_SEARCH. Fix: <code>drop: [ALL]</code> and add back one narrow capability. High.</li>
+    <li><strong>k8s-literal-secret-env</strong> — a PASSWORD, SECRET, TOKEN or API_KEY set to a literal <code>value:</code> in <code>env</code>. Fix: a Secret and <code>secretKeyRef</code>, then rotate. The tool never prints the value. High.</li>
+    <li><strong>k8s-privilege-escalation</strong> — <code>allowPrivilegeEscalation</code> true or unset (Kubernetes defaults it to true). Fix: set it false. Medium.</li>
+    <li><strong>k8s-runs-as-root</strong> — <code>runAsUser: 0</code>, <code>runAsNonRoot: false</code>, or neither <code>runAsNonRoot: true</code> nor a non-zero <code>runAsUser</code>. Fix: <code>runAsNonRoot: true</code> and <code>runAsUser: 10001</code>. Medium.</li>
+    <li><strong>k8s-hostpath-volume</strong> — any other hostPath volume. Fix: emptyDir or a PersistentVolumeClaim, or mount it read-only. Medium.</li>
+    <li><strong>k8s-image-latest</strong> — an image with no tag or <code>:latest</code>. Fix: pin a version or digest. Medium.</li>
+    <li><strong>k8s-host-port</strong> — <code>hostPort</code> used. Fix: expose the pod through a Service. Medium.</li>
+    <li><strong>k8s-no-security-context</strong> — a container with no <code>securityContext</code> at all. Fix: add the baseline block shown below. Medium.</li>
+    <li><strong>k8s-capabilities-not-dropped</strong> — <code>capabilities.drop</code> does not include ALL. Fix: <code>drop: [ALL]</code>. Low.</li>
+    <li><strong>k8s-writable-root-fs</strong> — <code>readOnlyRootFilesystem</code> not true. Fix: set it true and mount an emptyDir where the app writes. Low.</li>
+    <li><strong>k8s-automount-token</strong> — <code>automountServiceAccountToken</code> not false on the pod. Fix: set it false unless the workload calls the Kubernetes API. Low.</li>
+    <li><strong>k8s-seccomp-missing</strong> — no <code>seccompProfile</code> on the container or pod, or type Unconfined. Fix: <code>type: RuntimeDefault</code>. Low.</li>
+  </ul>
+
+  <h2>What is a good baseline securityContext for a Kubernetes container?</h2>
+  <p>Set allowPrivilegeEscalation: false, runAsNonRoot: true with a numeric runAsUser, readOnlyRootFilesystem: true, capabilities drop: [ALL] and seccompProfile type RuntimeDefault. Mount an emptyDir for any path the app must write, and add back only the capability the workload demonstrably needs.</p>
+
+  <h2>Is a hostPath volume to /var/run/docker.sock safe?</h2>
+  <p>No. The Docker API is root on the node: a pod that can reach it can start another container with the node filesystem mounted. Mounting it read-only does not restrict the API. Use a build tool that does not need the daemon, or a socket proxy that exposes only the required endpoints.</p>
+
+  <h2>Does the default Kubernetes setup run containers as root?</h2>
+  <p>Often yes. If neither the pod nor the container sets runAsNonRoot or runAsUser, the container runs as whatever user the image declares, which is frequently root. allowPrivilegeEscalation also defaults to true. Setting both explicitly removes the guesswork.</p>
+
+  <h2>Check your own manifests</h2>
+  <p><a href="./">Paste your YAML into Kubernetes Pod Security Check</a> to see every finding with its line, resource, container, risk and fix, or run the CLI in your own repository:</p>
+  <pre><code>python3 check.py --fail-on-risk</code></pre>
+  <p class="note">That exits with a nonzero status on any medium or high finding, so you can wire it into your own CI. Expect some findings to be deliberate (a node agent may truly need hostPath or a capability); review each one.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. This is a heuristic line scan, not a YAML parser, a security audit or a compliance claim; a clean scan does not mean your cluster is secure, only that these patterns were not found. Have a qualified person review anything that protects valuable data.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
+    <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>
+  </footer>
+</body>
+</html>

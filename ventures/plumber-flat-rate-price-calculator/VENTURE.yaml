@@ -1,0 +1,41 @@
+name: plumber-flat-rate-price-calculator
+description: 'Free, zero-network browser calculator for independent plumbers and small plumbing shops: enter wages and burden, truck, insurance, tools and overhead over your billable hours, then one job''s on-site and travel hours, parts cost and your target margin, and get your true cost per billable hour, a flat-rate price-book price with tiered parts markup, the effective hourly rate, a minimum callout price and a comparison with time and materials when a job runs long or short. Includes a price-book builder with CSV export and a share link. Arithmetic on the numbers the user types, not business, tax or licensing advice.'
+stage: prototype
+
+owner: duncan
+
+# Calculator archetype, earn-more: independent plumbers copy a competitor's price list or a franchise book and never spread truck, insurance and unbilled hours over the hours they actually sell, so their flat rates quietly under-earn.
+# Checked 2026-10-03: no plumbing venture exists in ventures/; not in screened-out.md. duplicate_check.py on "flat-rate price book calculator for plumbers: true hourly cost, parts markup tiers, callout, margin, compare to time and materials" scored 0.25 at most (embroidery-shop-quote-calculator, then forestry-mulching-bid-calculator and appliance-repair-quote-calculator at 0.21), below the 0.45 duplicate line.
+# Nearest tools: appliance-repair-quote-calculator prices one repair quote with a callback reserve and a repair-vs-replace call; handyman-minimum-job-calculator and electrical-panel-upgrade-bid-calculator price other trades. None builds a whole price book from a true billable-hour cost with tiered parts markup or compares flat rate with time and materials.
+#
+# First visitor: searches "how to build a plumbing flat rate price book", "plumbing flat rate pricing", "how much to charge for a plumbing service call", "plumber hourly rate calculator";
+# r/Plumbing, r/plumbingtips, trade forums and Facebook groups for small shops. Volume not measured with an external tool.
+# A hosted price book that syncs to invoicing and a customer-facing quote page is the natural paid upgrade.
+hypotheses:
+  - claim: An independent plumber will enter their real billable hours and overhead, see a true hourly cost well above the rate they quote, and re-price their most common jobs.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Visitors arrive for how to build a flat-rate price book at least as often as for an hourly rate.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the page computes only typed values in the visitor's own browser; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - No plumber reports changing a price or a price book because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/plumber-flat-rate-price-calculator/
+  analytics: null

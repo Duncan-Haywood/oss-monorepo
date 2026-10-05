@@ -136,3 +136,12 @@ test('index links one hop to the pypi-provenance-check sibling', () => {
     'index must link ../pypi-provenance-check/ so crawlers reach the PyPI provenance checker in one hop',
   );
 });
+
+// Reciprocal half of requirements-pin-check's own related-checks link.
+test('index links one hop to the requirements-pin-check sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/requirements-pin-check\/"/,
+    'index must link ../requirements-pin-check/ so crawlers reach the requirements pin checker in one hop',
+  );
+});

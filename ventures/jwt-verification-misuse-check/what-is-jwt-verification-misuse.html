@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JWT verification misuse: decode vs verify, alg none and how to fix each</title>
+  <meta name="description" content="What JWT verification misuse is, why jwt.decode is not jwt.verify, how alg none and unpinned algorithms let attackers forge tokens, and the exact fix for each mistake in JavaScript, Python, Go and Java.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="what-is-jwt-verification-misuse.html">
+  <meta property="og:title" content="JWT verification misuse: decode vs verify, alg none and how to fix each">
+  <meta property="og:description" content="A token you only decode can be written by anyone. The nine JWT mistakes a code scan can find, and the fix for each.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the difference between jwt.decode and jwt.verify?","acceptedAnswer":{"@type":"Answer","text":"jwt.decode base64-decodes the token and returns its payload without checking the signature, so anyone can write any claims. jwt.verify checks the signature (and by default the expiry) with your key and throws if the token is not genuine. Use verify for any claim you act on."}},{"@type":"Question","name":"What is the JWT alg none attack?","acceptedAnswer":{"@type":"Answer","text":"A JWT header names its own algorithm. If a verifier honours alg: none, a token with no signature at all passes. A related trick, algorithm confusion, hands an RS256 public key to a verifier that then treats it as an HS256 secret. Both end the same way: pin the algorithms you accept, never include none, and never let the token choose."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.02em; line-height: 1.12; color: #17324a; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .88rem; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .note { font-size: .9rem; color: #55606f; }
+    footer { margin-top: 28px; font-size: .82rem; color: #55606f; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← JWT Verification Misuse Check</a></p>
+  <h1>JWT verification misuse: <code>decode</code> vs <code>verify</code>, <code>alg: none</code> and how to fix each</h1>
+  <p>A JSON Web Token is only worth trusting if your server proved that someone holding the key signed it. Most JWT vulnerabilities in application code are not clever cryptography attacks. They are a line that reads the token without ever checking that proof.</p>
+  <pre><code>// reads the claims, checks nothing: anyone can write { "admin": true }
+const claims = jwt.decode(token);
+
+// proves the signature, and the expiry, with a pinned algorithm
+const claims = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });</code></pre>
+
+  <h2>What is the difference between jwt.decode and jwt.verify?</h2>
+  <p><code>jwt.decode</code> base64-decodes the token and returns its payload without checking the signature, so anyone can write any claims. <code>jwt.verify</code> checks the signature (and by default the expiry) with your key and throws if the token is not genuine. Use verify for any claim you act on. Decode is fine only for claims you never trust, such as showing a name in a UI.</p>
+
+  <h2>The nine patterns a code scan can find</h2>
+  <ul>
+    <li><strong>jwt-decode-without-verify</strong> — <code>jwt.decode</code>, Go <code>ParseUnverified</code>, Java <code>JWT.decode</code>, python-jose <code>get_unverified_claims</code>. Fix: switch to the verifying call.</li>
+    <li><strong>jwt-verify-disabled</strong> — PyJWT <code>options={"verify_signature": False}</code> or the older <code>verify=False</code>. Fix: delete the override; verification is the default.</li>
+    <li><strong>jwt-alg-none</strong> — <code>"none"</code> accepted as an algorithm, Go <code>SigningMethodNone</code>, Java <code>Algorithm.none()</code>. Fix: remove it and pin a real algorithm.</li>
+    <li><strong>jwt-algorithms-not-pinned</strong> — <code>jwt.verify(token, key)</code> or <code>jwt.decode(token, key)</code> with no <code>algorithms</code>. Fix: pass the one algorithm you issue with.</li>
+    <li><strong>jwt-expiry-disabled</strong> — <code>ignoreExpiration: true</code>, <code>verify_exp: False</code>, Go <code>WithoutClaimsValidation</code>. Fix: delete it and issue short-lived tokens.</li>
+    <li><strong>jwt-not-before-disabled</strong> — <code>ignoreNotBefore: true</code>, <code>verify_nbf: False</code>.</li>
+    <li><strong>jwt-hardcoded-secret</strong> — a string literal as the signing or verification key. Fix: load it from the environment or a secret manager and rotate the leaked one.</li>
+    <li><strong>jwt-weak-secret</strong> — the literal is short or a well-known placeholder such as <code>'secret'</code>, <code>'changeme'</code> or <code>'shhhhh'</code>. An HS256 secret should be at least 32 random bytes, for example from <code>openssl rand -base64 48</code>.</li>
+    <li><strong>jwt-user-controlled-key</strong> — the verification key comes from <code>req.headers</code>, the query or the body, so the caller picks what verifies their own token. Fix: take keys from your own server-side store, looked up by <code>kid</code>.</li>
+  </ul>
+
+  <h2>What is the JWT alg none attack?</h2>
+  <p>A JWT header names its own algorithm. If a verifier honours <code>alg: none</code>, a token with no signature at all passes. A related trick, algorithm confusion, hands an RS256 public key to a verifier that then treats it as an HS256 secret. Both end the same way: pin the algorithms you accept, never include <code>none</code>, and never let the token choose.</p>
+
+  <h2>Check your own code</h2>
+  <p><a href="./">Paste your source into JWT Verification Misuse Check</a> to see every finding with its file, line, risk and fix, or run the CLI in your own repository:</p>
+  <pre><code>python3 check.py --fail-on-risk</code></pre>
+  <p class="note">That exits with a nonzero status if any pattern is found, so you can wire it into your own CI. Expect some findings to be deliberate (decoding a token to display a name); review each one.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. This is a heuristic line scan and not a security audit; a clean scan does not mean your authentication is safe, only that these patterns were not found. Have a qualified person review code that protects anything valuable.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
+    <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>
+  </footer>
+</body>
+</html>

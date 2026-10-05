@@ -173,6 +173,11 @@ export const DOWNLOADABLE_CLI_FILES = {
   'actions-runner-starvation-check': ['check.py'],
   'actions-secret-leak-check': ['check.py'],
   'actions-secrets-inherit-check': ['check.py'],
+  'actions-timeout-check': ['check.py'],
+  'jwt-verification-misuse-check': ['check.py'],
+  'docker-compose-security-check': ['check.py'],
+  'git-bus-factor-check': ['busfactor.py'],
+  'k8s-pod-security-check': ['check.py'],
   'actions-self-hosted-exposure-check': ['check.py'],
   'coverage-drop-check': ['check.py'],
   'dependency-confusion-check': ['check.py'],
@@ -220,6 +225,7 @@ export const SEARCH_ALIASES = [
   { slug: 'window-cleaning', add: 'window washing washer squeegee' },
   { slug: 'junk-removal', add: 'hauling haul away cleanout clean out debris' },
   { slug: 'snow-removal', add: 'plowing plow shoveling shovel deicing' },
+  { slug: 'snow-plow-contract', add: 'snow removal shoveling deicing salting ice management seasonal per push' },
   // "removal" earns its place: the matcher ANDs across words, so "wildlife
   // removal" found nothing while "wildlife" alone found this tool.
   { slug: 'pest-control', add: 'termite termites bedbug bed bugs roaches ants exterminator wildlife removal trapping' },
@@ -437,6 +443,12 @@ const CATEGORY_RULES = [
     // question this section already answers for a resale seller. It sat in
     // the catch-all because its slug names a streaming platform, not a
     // storefront keyword this rule already recognised.
+    // `upwork-connects-roi-calculator` prices the same Upwork bidding decision
+    // from the other side (what a hire costs in Connects and writing time), so
+    // it sits beside `freelance-platform-fee-calculator`, not in the catch-all.
+    // `app-subscription-proceeds-calculator` is the same platform-cut question for an app
+    // developer: what a subscription charge nets after the store's percentage, so it
+    // sits with the other fee tools rather than in the catch-all.
     // `freelance-platform-fee-calculator` is the same platform-cut shape one
     // further step removed again: Upwork and Fiverr take a percentage of a
     // freelancer's job price the same way a resale marketplace takes a
@@ -501,7 +513,7 @@ const CATEGORY_RULES = [
     // margin into the break-even ROAS and max CPA an ad campaign needs; the same reader as the fee tools here.
     // `used-car-lot-aging-planner` joined 2026-10-02 on its first commit: an independent dealer deciding when an
     // aged unit goes to auction is the same reseller as `auction-car-flip-calculator` here, and the two cross-link.
-    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|free-shipping-threshold|returns-policy|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|auction-car-flip|used-car-lot|liquidation-pallet|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace|ticket-resale|card-grading-submission|thrift-haul|price-increase-breakeven)/.test(slug),
+    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|free-shipping-threshold|returns-policy|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-product-csv|shopify-customer-csv|bigcommerce-product-csv|squarespace-product-csv|wix-product-csv|teachers-pay-teachers|shopify-to-woocommerce|woocommerce-product-csv|square-catalog-csv|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|auction-car-flip|used-car-lot|liquidation-pallet|stockx|twitch|freelance-platform-fee|upwork-connects|app-subscription|thumbtack-lead|mercari|kickstarter|depop|facebook-marketplace|ticket-resale|card-grading-submission|thrift-haul|price-increase-breakeven)/.test(slug),
   },
   {
     id: 'trades',
@@ -544,6 +556,8 @@ const CATEGORY_RULES = [
     // job-costing this section's bid calculators do, just for field work
     // instead of a construction trade, and it landed in the catch-all only
     // because its slug ends in `-rate-calculator`, not `-bid-calculator`.
+    // `cow-calf-breakeven-calculator` is the herd-side sibling: a cattle producer's cost per cow
+    // against calf price, the same own-numbers job costing for a farm, so it sits beside it.
     // `auto-repair-effective-labor-rate` is the same reader as `shop-rate`
     // above, arriving from the other end of the year: `shop-rate` computes the
     // hour a shop must sell, this measures the hour it actually sold. Its slug
@@ -568,7 +582,13 @@ const CATEGORY_RULES = [
     // own quote and lead history (when quotes close; how many leads a revenue target needs); slugs name no trade.
     // `home-service-lead-roi-analyzer` reads a trades owner's lead-buying log (Thumbtack, Angi, Google LSA) to
     // show which paid source books jobs; same reader as the bid calculators here, slug names no trade.
-    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tile-layout|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|lead-response-time)/.test(slug),
+    // `snow-plow-contract-calculator` joined 2026-10-03: compares per-push, per-inch, seasonal and hybrid plow contracts across low/normal/high snow
+    // years for a route of sites; slug names no `bid-calculator`, same reader as `snow-removal-bid-calculator` (also here, in trades-outdoor).
+    // `plumber-flat-rate-price-calculator` joined 2026-10-03 on its first commit: a plumbing shop's flat-rate price book from its own
+    // billable-hour cost, same reader as `appliance-repair-quote-calculator` and the bid calculators here; slug names no `bid-calculator`.
+    // `hvac-repair-tier-price-calculator` joined 2026-10-03 on its first commit: Good/Better/Best repair prices and an average-call model for an HVAC
+    // shop, same reader as `plumber-flat-rate-price-calculator` just above; slug names no `bid-calculator`.
+    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate|cow-calf-breakeven|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -659,6 +679,18 @@ const CATEGORY_RULES = [
       // `catering-quote-calculator` joined 2026-10-02 on its first commit: per-guest event pricing for the
       // operator who sells food, one hop from `food-truck-event-margin-calculator`.
       'catering-quote-calculator',
+      // `farmers-market-booth-calculator` joined 2026-10-03 on its first commit: market vendors who sell food,
+      // one hop from `food-truck-event-margin-calculator`.
+      'farmers-market-booth-calculator',
+      // `backyard-egg-profit-calculator` joined 2026-10-03 on its first commit: egg sellers at the same farm stands
+      // and markets, one hop from `farmers-market-booth-calculator`.
+      'backyard-egg-profit-calculator',
+      // `backyard-honey-profit-calculator` joined 2026-10-03 on its first commit: hobby sellers at the same farm stands
+      // and markets, one hop from `backyard-egg-profit-calculator`.
+      'backyard-honey-profit-calculator',
+      // `mobile-bartender-event-quote` joined 2026-10-03 on its first commit: per-event bar service pricing,
+      // one hop from `pour-cost-calculator` and `catering-quote-calculator`.
+      'mobile-bartender-event-quote',
       'commissary-kitchen-cost-split-calculator',
       // `restaurant-pos-menu-mix-analyzer` added 2026-09-29: the POS-export
       // sibling of `menu-engineering-calculator`, same owner reading the same
@@ -964,8 +996,10 @@ const CATEGORY_RULES = [
     // `car-wash-membership-calculator` joined 2026-10-01 on its first commit: an owner turning plan
     // price, wash cost and member usage into break-even washes sits beside `vending-machine-route-margin`
     // and `laundromat-machine-payback-calculator`, the same recurring-revenue small-operator job.
+    // `pool-service-route-calculator` joined 2026-10-03: a pool route owner's per-account true hourly, reprice/drop and route
+    // density sits beside `pool-route-pricing` (same buyer, same job at route level) and `vending-machine-route-margin`.
     test: (slug) =>
-      /^(car-wash-membership|laundromat-machine-payback|home-care-agency|booth-rent|commercial-photo-license|notary-trip|mobile-signing-agent|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|tattoo-piece-profit|massage-therapist-profit|dj-gig-profit|driving-instructor-lesson-pricing|wedding-photographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|embroidery-shop-quote|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|coffee-roaster-margin|house-cleaning-quote|str-turnover-crew|process-server-day|appraisal-assignment|translation-job)/.test(
+      /^(car-wash-membership|law-firm-realization-rate-calculator|laundromat-machine-payback|home-care-agency|booth-rent|commercial-photo-license|notary-trip|mobile-signing-agent|pool-route|pool-service-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|tattoo-piece-profit|massage-therapist-profit|dj-gig-profit|driving-instructor-lesson-pricing|wedding-photographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|embroidery-shop-quote|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-budget-allocator|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|coffee-roaster-margin|house-cleaning-quote|str-turnover-crew|process-server-day|appraisal-assignment|translation-job|tax-season-client|interior-design-fee|nail-tech-booth-rent|dog-grooming-price)/.test(
         slug,
       ),
   },
@@ -1046,7 +1080,7 @@ const CATEGORY_RULES = [
     // `container-load-planner` joined 2026-10-01 on its first commit: it packs the
     // cartons and pallets into a container or truck, the same shipper as the box
     // optimizer above, and the two cross-link.
-    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club|mobile-tire-van|route-stop-optimizer|shipping-box-size|container-load-planner)/.test(
+    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club|tow-truck-rate|mobile-tire-van|route-stop-optimizer|shipping-box-size|container-load-planner)/.test(
       slug,
     ),
   },
@@ -1200,7 +1234,86 @@ const CATEGORY_RULES = [
       || slug === 'osha-trir-dart-calculator'
       || slug === 'final-paycheck-deadline-calculator'
       || slug === 'mechanics-lien-deadline-calculator'
-      || slug === 'boi-reporting-exemption-checker',
+      || slug === 'boi-reporting-exemption-checker'
+      // `hubspot-contacts-csv-check` joined 2026-10-04: a list preflight that reports what it found with line numbers and an explicit not-checked list, and
+      // `backoffice` is already over its gzipped offline bundle bound, so it cannot take another page.
+      || slug === 'hubspot-contacts-csv-check'
+      // `salesforce-lead-import-csv-check` joined 2026-10-04: the Salesforce half of the CRM import pre-flight above, filed beside it for the same bundle-bound reason.
+      || slug === 'salesforce-lead-import-csv-check'
+      // `pipedrive-import-csv-check` joined 2026-10-04: the Pipedrive (deals, people, organizations) half of the same CRM import pre-flight.
+      || slug === 'pipedrive-import-csv-check'
+      // `zoho-crm-import-csv-check` joined 2026-10-04: the Zoho CRM (leads, contacts, accounts, deals) half of the same CRM import pre-flight.
+      || slug === 'zoho-crm-import-csv-check'
+      // `activecampaign-import-csv-check` joined 2026-10-04: the ActiveCampaign (contacts, accounts, deals) half of the same import pre-flight.
+      || slug === 'activecampaign-import-csv-check'
+      // `klaviyo-profile-csv-check` joined 2026-10-04: the Klaviyo (email/SMS marketing profiles) member of the same import pre-flight family.
+      || slug === 'klaviyo-profile-csv-check'
+      // `google-ads-editor-csv-check` joined 2026-10-04: the Google Ads Editor (campaigns, keywords, responsive search ads) member of the same import pre-flight family.
+      || slug === 'google-ads-editor-csv-check'
+      // `mailchimp-audience-csv-check` joined 2026-10-04: the Mailchimp (email audience contacts) member of the same import pre-flight family.
+      || slug === 'mailchimp-audience-csv-check'
+      // `payroll-hours-csv-check` joined 2026-10-04: the payroll hours sheet member of the same file pre-flight family.
+      || slug === 'payroll-hours-csv-check'
+      // `gbp-bulk-location-check` joined 2026-10-04: a Google Business Profile bulk-location spreadsheet pre-flight, the same line-numbered findings and explicit not-checked list as the import pre-flights above, filed beside them for the same reason.
+      || slug === 'gbp-bulk-location-check'
+      // `meta-catalog-csv-check` joined 2026-10-05: a Meta (Facebook and Instagram) catalog feed pre-flight, the same line-numbered findings and explicit not-checked list as the import pre-flights above, filed beside them for the same reason.
+      || slug === 'meta-catalog-csv-check'
+      // `redirect-map-check` joined 2026-10-05: a site-migration redirect map pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them for the same bundle-bound reason.
+      || slug === 'redirect-map-check'
+      // `brevo-contacts-csv-check` joined 2026-10-05: the Brevo (email + SMS contacts) member of the same import pre-flight family.
+      || slug === 'brevo-contacts-csv-check'
+      // `gtin-list-check` joined 2026-10-05: a product-list barcode pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them for the same bundle-bound reason.
+      || slug === 'gtin-list-check'
+      // `iban-list-check` joined 2026-10-05: a supplier/payroll bank-detail pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them.
+      || slug === 'iban-list-check'
+      // `ics-calendar-check` joined 2026-10-05: an iCalendar file pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them for the same bundle-bound reason.
+      || slug === 'ics-calendar-check'
+      // `gpx-track-check` joined 2026-10-05: a GPX track file pre-flight, filed beside the other file pre-flights for the same bundle-bound reason.
+      || slug === 'gpx-track-check'
+      // `vcard-contacts-check` joined 2026-10-05: a vCard contacts-file pre-flight, same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them.
+      || slug === 'vcard-contacts-check'
+      // `ofx-file-check` joined 2026-10-05: a bank-export (OFX/QFX) pre-flight, same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them.
+      || slug === 'ofx-file-check'
+      // `qif-file-check` joined 2026-10-05: the QIF half of the bank-export pre-flights above (no transaction ID, no declared date order), same line-numbered findings and explicit not-checked list.
+      || slug === 'qif-file-check'
+      // `xero-bank-statement-csv-check` joined 2026-10-05: the statement-CSV member of the bank-export pre-flights above, same line-numbered findings and explicit not-checked list.
+      || slug === 'xero-bank-statement-csv-check'
+      // `camt053-to-ofx-converter` joined 2026-10-05: the conversion half of the camt.053/MT940 pair (balance check first, then OFX/QBO, QIF or Xero CSV), same line-numbered findings and explicit not-checked list.
+      || slug === 'camt053-to-ofx-converter'
+      // `bank-statement-pdf-to-csv` joined 2026-10-05: the PDF front end to the bank-export tools above (rows read from a statement PDF, proved against its own balances), same findings and explicit not-checked list.
+      || slug === 'bank-statement-pdf-to-csv'
+      // `bai2-to-ofx-converter` joined 2026-10-05: the US BAI2 counterpart of the camt.053/MT940 converter above (control-total and balance check first, then OFX/QBO, QIF or Xero CSV).
+      || slug === 'bai2-to-ofx-converter'
+      // `amazon-settlement-to-journal` joined 2026-10-05: the accounting-journal end of the marketplace tools (deposit check first, then a month-split Xero / QuickBooks journal), filed beside the bank-export converters above.
+      || slug === 'amazon-settlement-to-journal'
+      // `stripe-payout-to-journal` joined 2026-10-05: the Stripe end of the same payout-to-journal pair, filed beside it.
+      || slug === 'stripe-payout-to-journal'
+      // `shopify-payout-to-journal` joined 2026-10-05: the Shopify end of the same payout-to-journal set, filed beside it.
+      || slug === 'shopify-payout-to-journal'
+      // `etsy-statement-to-journal` joined 2026-10-05: the Etsy end of the same payout-to-journal set, filed beside it.
+      || slug === 'etsy-statement-to-journal'
+      // `square-sales-to-journal` joined 2026-10-05: the Square end of the same payout-to-journal set, filed beside it.
+      || slug === 'square-sales-to-journal'
+      // `payroll-register-to-journal` joined 2026-10-05: the payroll side of the same journal-engine family (register check, then a pay-run journal with every withholding as a liability), filed beside it.
+      || slug === 'payroll-register-to-journal'
+      // `ebay-payout-to-journal` joined 2026-10-05: the eBay end of the same payout-to-journal set, filed beside it.
+      || slug === 'ebay-payout-to-journal'
+      // `gumroad-sales-to-journal` joined 2026-10-05: the Gumroad end of the same payout-to-journal set, filed beside it.
+      || slug === 'gumroad-sales-to-journal'
+      // `airbnb-payout-to-journal` joined 2026-10-05: the Airbnb host end of the same payout-to-journal set, filed beside it.
+      || slug === 'airbnb-payout-to-journal'
+      // `paypal-activity-to-journal` joined 2026-10-05: the PayPal end of the same payout-to-journal set (Balance-column continuity proof, then a month-split journal), filed beside it.
+      || slug === 'paypal-activity-to-journal'
+      // `quickbooks-iif-file-check` joined 2026-10-05: the QuickBooks Desktop IIF half of the import-file pre-flights above, same line-numbered findings and explicit not-checked list.
+      || slug === 'quickbooks-iif-file-check'
+      // `mt940-statement-check` joined 2026-10-05: the SWIFT MT940 half of the bank-export pre-flights above (balance arithmetic, statement continuity, CSV conversion), same line-numbered findings and explicit not-checked list.
+      || slug === 'mt940-statement-check'
+      // `camt053-statement-check` joined 2026-10-05: the ISO 20022 XML successor to the MT940 check above, same balance arithmetic, continuity and CSV conversion with line-numbered findings.
+      || slug === 'camt053-statement-check'
+      // `youtube-chapters-check` joined 2026-10-05: a chapter-list pre-flight, same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them.
+      || slug === 'youtube-chapters-check'
+      // `google-contacts-csv-check` joined 2026-10-05: the CSV half of the contacts-file pre-flights above, same line-numbered findings and explicit not-checked list.
+      || slug === 'google-contacts-csv-check',
   },
   {
     id: 'backoffice',
@@ -1289,9 +1402,66 @@ const CATEGORY_RULES = [
     test: (slug) =>
       /(break-even|reconciliation-check|reconciliation-workbench)$/.test(slug)
       || slug === '1099k-reconciliation-worksheet'
+      // `nacha-file-validator` joined 2026-10-04 on its first commit: it checks the ACH payment file a bookkeeper
+      // exports from payroll or AP before the bank sees it -- the same back-office money-movement job as
+      // `payroll-tax-deposit-penalty-calculator` and `duplicate-payment-audit`.
+      || slug === 'nacha-file-validator'
+      // `w2-efw2-file-validator` joined 2026-10-04 on its first commit: it checks the W-2 wage file a payroll
+      // preparer exports before it goes to SSA -- the same back-office payroll job as the deposit-penalty calculator.
+      || slug === 'w2-efw2-file-validator'
+      // `irs-iris-1099-csv-check` joined 2026-10-04 on its first commit: it checks the 1099-NEC/MISC bulk file a bookkeeper
+      // uploads to IRIS -- the same back-office information-return job as `w2-efw2-file-validator` just above.
+      || slug === 'irs-iris-1099-csv-check'
+      // `1099-vendor-csv-checker` joined 2026-10-04 on its first commit: the January pre-flight on the vendor list before 1099-NEC
+      // filing -- the same back-office tax-form job as the W-2 file validator and the 1099 vendor tracker.
+      || slug === '1099-vendor-csv-checker'
+      // `form-5500-late-filing-calculator` joined 2026-10-04 on its first commit: a retirement-plan sponsor's overdue
+      // annual return priced against two agencies' penalties -- the same downstream tax-authority obligation as
+      // `quarterly-estimated-tax-calendar` above, not `solo-earner` (nothing is priced before a sale).
+      || slug === 'form-5500-late-filing-calculator'
+      // `bai2-statement-reader` joined 2026-10-04 on its first commit: it reads and checks the bank statement file a
+      // bookkeeper downloads for reconciliation -- the same back-office money-movement job as `nacha-file-validator`.
+      || slug === 'bai2-statement-reader'
+      // `eu-bank-statement-reader` joined 2026-10-04 on its first commit: the camt.053/MT940 counterpart of
+      // `bai2-statement-reader` -- the statement file a bookkeeper downloads for reconciliation.
+      || slug === 'eu-bank-statement-reader'
+      // `sepa-payment-file-validator` joined 2026-10-04 on its first commit: the euro-area twin of `nacha-file-validator`,
+      // checking the pain.001 file a bookkeeper exports from AP or payroll before the bank sees it.
+      || slug === 'sepa-payment-file-validator'
+      // `sepa-pain001-validator` joined 2026-10-04 on its first commit: the euro-area twin of `nacha-file-validator` -- the SEPA payment
+      // file a bookkeeper exports from accounting or payroll, checked before the bank sees it.
+      || slug === 'sepa-pain001-validator'
+      // `sepa-pain002-status-reader` joined 2026-10-04 on its first commit: the receiving end of `sepa-pain001-validator` -- the bank's
+      // status report on an uploaded SEPA file, read per payment with each rejection code explained.
+      || slug === 'sepa-pain002-status-reader'
+      // `edi-x12-order-checker` joined 2026-10-04 on its first commit: a supplier's EDI purchase order, invoice and ship
+      // notice checked before they go to a retailer -- the same back-office document-preflight job as the payment-file checkers.
+      || slug === 'edi-x12-order-checker'
+      // `bank-csv-to-qbo-converter` joined 2026-10-04 on its first commit: the CSV-in, accounting-file-out partner of the statement
+      // readers -- a bookkeeper's bank CSV turned into QBO/OFX/QIF with the date and sign assumptions stated.
+      || slug === 'bank-csv-to-qbo-converter'
+      // `xero-invoice-csv-check` joined 2026-10-04 on its first commit: a bookkeeper's sales invoice import file checked before Xero
+      // sees it, the same CSV-preflight job as the bank converter next to it.
+      || slug === 'xero-invoice-csv-check'
+      // `quickbooks-import-csv-check` joined 2026-10-04 on its first commit: a bookkeeper's QuickBooks customer, vendor or item import
+      // file checked before QuickBooks sees it, the same CSV-preflight job as the Xero and bank converters next to it.
+      || slug === 'quickbooks-import-csv-check'
+      // `quickbooks-chart-of-accounts-csv-check` joined 2026-10-04 on its first commit: the chart-of-accounts half of the QuickBooks list checker next to it.
+      || slug === 'quickbooks-chart-of-accounts-csv-check'
+      // `xero-contacts-csv-check` joined 2026-10-04 on its first commit: the contacts half of the Xero import checker next to it.
+      || slug === 'xero-contacts-csv-check'
+      // `email-list-csv-check` joined 2026-10-04 on its first commit: a contact list checked before it is imported into an email
+      // platform, the same CSV-preflight job as the Xero and bank converters next to it.
+      || slug === 'email-list-csv-check'
+      // `eu-vat-oss-calculator` joined 2026-10-04 on its first commit: a small seller's EU cross-border VAT return from a sales export, the
+      // same back-office compliance-arithmetic job as the SEPA and e-invoice tools here.
+      || slug === 'eu-vat-oss-calculator'
       // `client-concentration-risk-analyzer` joined 2026-10-02 on its first commit: it reads the same invoice
       // export as `invoice-payment-terms-calculator` here and asks how much revenue one client carries.
       || slug === 'client-concentration-risk-analyzer'
+      // `bookkeeping-client-fee-calculator` joined 2026-10-02 on its first commit: a bookkeeper's retainer, cleanup and walk-away price from a client's
+      // workload, and a roster ranked by effective hourly -- the back-office pricing job `client-profitability-time-analyzer` does after the fact.
+      || slug === 'bookkeeping-client-fee-calculator'
       // `price-increase-breakeven-calculator` filed here 2026-10-02: it was landing in the catch-all (bound 5) and is
       // the same after-the-fact margin arithmetic as the break-even tools above.
       || slug === 'price-increase-breakeven-calculator'
@@ -1306,6 +1476,9 @@ const CATEGORY_RULES = [
       // per state checked against residency limits -- the same tax-obligation axis as
       // `quarterly-estimated-tax-calendar` above, which it links to.
       || slug === 'state-residency-day-counter'
+      // `feie-physical-presence-calculator` joined 2026-10-03 on its first commit: the federal 330-day
+      // count a US expat keeps, the same tax-obligation day-counting axis as `state-residency-day-counter`.
+      || slug === 'feie-physical-presence-calculator'
       // `cheap-meal-plan-optimizer` joined 2026-10-01 on its first commit: a household's food budget as a
       // minimum-cost linear program -- a personal money decision rather than an operator pricing food, so it
       // sits here and not under `food-service`, which is for people who sell food.
@@ -1645,7 +1818,7 @@ const CATEGORY_RULES = [
       // lookups with an eligibility wrinkle the headline number alone
       // does not capture), with a reciprocal inbound link from that
       // venture's first commit rather than shipping as an orphan.
-      || /^(nsa-idr-offer-calculator|adu-payback-calculator|wage-garnishment-limit|commercial-lease-effective-rent-calculator|ad-spend-saturation-optimizer|ad-incrementality-test-analyzer|freelance-retainer-vs-hourly-calculator|freelance-project-picker|like-kind-exchange|dependent-care-fsa-vs-credit-calculator|indie-game-payout|google-play-earnings-report|amazon-ppc-search-term|whatnot-sales-report|youtube-revenue-rpm|meta-ads-fatigue|upwork-earnings-fee|turo-earnings-report|patreon-members-churn|substack-subscriber-export|ghost-members-export|bandcamp-sales-report|app-store-sales-report|fiverr-earnings-fee|gumroad-sales-fee|tiktok-shop-settlement|kdp-royalty-report|gig-driver-earnings-report|airbnb-earnings-report|cash-runway|invoice-payment-terms|cam-|saas-seat|saas-renewal-planner|saas-annual-plan|saas-cac-payback|stripe-churn-cohort|stripe-failed-payment|google-ads-wasted-spend|subscription-price|subscription-audit-from-statement|self-storage-rate-increase|renewal-rent-optimizer|quote-follow-up-timing|trial-conversion-timing-analyzer|str-nightly-rate-optimizer|booking-request-chooser|market-event-picker|consignment-markdown-planner|trade-show-roi-calculator|dog-grooming-day-planner|support-staffing-planner|lot-split-calculator|csa-share-pricing-calculator|seller-net-sheet|property-tax-appeal-calculator|aca-subsidy-cliff-calculator|medical-bill-error-checker|insurance-denial-appeal-builder|mortgage-escrow-analysis-checker|social-security-claiming-age-calculator|travel-nurse-contract-comparison-calculator|appointment-deposit|appointment-no-show|appointment-overbooking|service-hourly-yield-analyzer|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|card-surcharge|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|workers-comp-premium-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|rd-tax-credit-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|gambling-loss-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker|child-tax-credit-calculator|eitc-calculator|hsa-contribution-limit-calculator|solo-401k-contribution-calculator|mileage-deduction-method-calculator|mileage-log|home-office-deduction-calculator|str-tax-loophole-calculator|estimated-tax-penalty-calculator|self-employment-tax-calculator|backdoor-roth-pro-rata-calculator|roth-conversion-bracket-fill-calculator|rsu-withholding-gap-calculator|iso-exercise-amt-calculator|job-offer-total-comp-calculator|physician-wrvu-compensation-calculator|dental-associate-pay-calculator|solar-payback-calculator|heat-pump-vs-furnace-calculator|cash-balance-plan-calculator|safe-dilution-calculator|cost-segregation-study-calculator|agent-brokerage-split-calculator|espp-tax-calculator|tax-loss-harvesting-calculator|crypto-cost-basis-calculator|home-sale-exclusion-calculator|medicare-irmaa-cliff-calculator|rmd-calculator|rental-dscr-calculator|rental-rent-optimizer|contractor-wip-schedule|landlord-repair-or-replace-planner|brrrr-calculator|self-employed-health-insurance-deduction-calculator|physician-wrvu-contract-calculator|veterinarian-associate-pay-calculator|section-83b-election-calculator|pslf-vs-refinance-calculator|startup-option-value-calculator|van-westendorp-pricing-analyzer|sales-commission-plan-comparison-calculator|rule-72t-sepp-calculator|locum-tenens-vs-employed-calculator|fix-and-flip-deal-analyzer|merchant-cash-advance-true-cost-calculator|business-loan-offer-comparator|usage-based-pricing-simulator|startup-exit-waterfall-calculator|augusta-rule-calculator|gabor-granger-price-analyzer|insurance-agency-book-valuation-calculator|ab-test-significance-calculator|online-business-valuation-calculator|customer-lifetime-value-predictor|sales-seasonality-forecaster|price-elasticity-estimator|seasonal-buy-quantity-optimizer|donor-retention-analyzer|private-practice-payer-mix-calculator|market-garden-bed-planner|cottage-food-pricing-calculator|payroll-tax-deposit-penalty-calculator|family-child-care-time-space-calculator)/.test(slug),
+      || /^(cobra-vs-marketplace-calculator|nsa-idr-offer-calculator|adu-payback-calculator|wage-garnishment-limit|commercial-lease-effective-rent-calculator|ad-spend-saturation-optimizer|ad-incrementality-test-analyzer|freelance-retainer-vs-hourly-calculator|scope-creep-change-order-calculator|freelance-project-picker|like-kind-exchange|dependent-care-fsa-vs-credit-calculator|indie-game-payout|google-play-earnings-report|amazon-ppc-search-term|whatnot-sales-report|youtube-revenue-rpm|meta-ads-fatigue|upwork-earnings-fee|turo-earnings-report|patreon-members-churn|substack-subscriber-export|ghost-members-export|bandcamp-sales-report|app-store-sales-report|era-835-underpayment-finder|fiverr-earnings-fee|gumroad-sales-fee|tiktok-shop-settlement|kdp-royalty-report|gig-driver-earnings-report|airbnb-earnings-report|cash-runway|invoice-payment-terms|cam-|saas-seat|saas-renewal-planner|saas-annual-plan|saas-efficiency-metrics-calculator|saas-cac-payback|stripe-churn-cohort|stripe-failed-payment|google-ads-wasted-spend|subscription-price|subscription-audit-from-statement|self-storage-rate-increase|renewal-rent-optimizer|quote-follow-up-timing|trial-conversion-timing-analyzer|str-nightly-rate-optimizer|booking-request-chooser|market-event-picker|consignment-markdown-planner|trade-show-roi-calculator|dog-grooming-day-planner|support-staffing-planner|lot-split-calculator|csa-share-pricing-calculator|seller-net-sheet|property-tax-appeal-calculator|aca-subsidy-cliff-calculator|medical-bill-error-checker|insurance-denial-appeal-builder|mortgage-escrow-analysis-checker|social-security-claiming-age-calculator|travel-nurse-contract-comparison-calculator|appointment-deposit|appointment-no-show|appointment-overbooking|service-hourly-yield-analyzer|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|card-surcharge|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|workers-comp-premium-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|rd-tax-credit-calculator|bonus-depreciation-calculator|business-vehicle-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|gambling-loss-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker|child-tax-credit-calculator|eitc-calculator|hsa-contribution-limit-calculator|solo-401k-contribution-calculator|mileage-deduction-method-calculator|mileage-log|home-office-deduction-calculator|str-tax-loophole-calculator|estimated-tax-penalty-calculator|self-employment-tax-calculator|backdoor-roth-pro-rata-calculator|roth-conversion-bracket-fill-calculator|rsu-withholding-gap-calculator|iso-exercise-amt-calculator|job-offer-total-comp-calculator|physician-wrvu-compensation-calculator|dental-associate-pay-calculator|solar-payback-calculator|heat-pump-vs-furnace-calculator|cash-balance-plan-calculator|safe-dilution-calculator|cost-segregation-study-calculator|agent-brokerage-split-calculator|espp-tax-calculator|tax-loss-harvesting-calculator|crypto-cost-basis-calculator|home-sale-exclusion-calculator|medicare-irmaa-cliff-calculator|rmd-calculator|rental-dscr-calculator|rental-rent-optimizer|contractor-wip-schedule|landlord-repair-or-replace-planner|brrrr-calculator|self-employed-health-insurance-deduction-calculator|physician-wrvu-contract-calculator|veterinarian-associate-pay-calculator|section-83b-election-calculator|pslf-vs-refinance-calculator|startup-option-value-calculator|van-westendorp-pricing-analyzer|sales-commission-plan-comparison-calculator|rule-72t-sepp-calculator|locum-tenens-vs-employed-calculator|fix-and-flip-deal-analyzer|merchant-cash-advance-true-cost-calculator|business-loan-offer-comparator|usage-based-pricing-simulator|startup-exit-waterfall-calculator|augusta-rule-calculator|gabor-granger-price-analyzer|insurance-agency-book-valuation-calculator|ab-test-significance-calculator|online-business-valuation-calculator|customer-lifetime-value-predictor|sales-seasonality-forecaster|price-elasticity-estimator|seasonal-buy-quantity-optimizer|donor-retention-analyzer|private-practice-payer-mix-calculator|market-garden-bed-planner|cottage-food-pricing-calculator|payroll-tax-deposit-penalty-calculator|family-child-care-time-space-calculator)/.test(slug),
   },
   {
     id: 'ci',
@@ -2574,7 +2747,7 @@ const CATEGORY_RULES = [
     // footers -- left for a future pass, the same as several siblings
     // above that only cross-link one direction at graduation).
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|license-compat-check|npm-lifecycle-script-check|npm-provenance-check|vscode-extension-drift-check|dependency-confusion-check|dependabot-config-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|llm-call-cost-scan|lambda-memory-rightsizer|k8s-requests-rightsizer|rds-instance-rightsizer|lambda-vs-fargate-cost-breakeven|dynamodb-capacity-mode-advisor|ebs-volume-cost-advisor|nat-gateway-cost-advisor|cloudwatch-logs-cost-advisor|bigquery-query-cost-advisor|snowflake-warehouse-cost-advisor|rds-instance-cost-advisor|databricks-cluster-cost-advisor|s3-storage-class-savings|s3-storage-class-advisor|postgres-explain-analyzer|prometheus-cardinality-cost|slo-burn-rate-alerts|regex-redos-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|aws-commitment-breakeven-calculator|llm-usage-log-analyzer|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check|claude-code-hooks-security-check|pypi-provenance-check|referrer-permissions-policy-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ci-test-shard-balancer|datadog-bill-estimator|vercel-bill-estimator|neon-bill-estimator|cloudflare-bill-estimator|upstash-redis-bill-estimator|error-tracking-pricing-calculator|product-analytics-pricing-calculator|auth-mau-pricing-calculator|git-timesheet|email-api-pricing-calculator|ci-minutes-pricing-calculator|cdn-bandwidth-pricing-calculator|object-storage-pricing-calculator|search-api-pricing-calculator|training-gpu-pricing-calculator|uptime-monitoring-pricing-calculator|speech-to-text-pricing-calculator|video-hosting-pricing-calculator|log-management-pricing-calculator|feature-flag-pricing-calculator|merchant-of-record-fee-calculator|llm-output-regression-diff|app-store-commission-calculator|sms-segment-cost-calculator|supabase-bill-estimator|webhook-signature-debugger|ai-crawler-access|license-drift-check|license-compat-check|npm-lifecycle-script-check|npm-provenance-check|vscode-extension-drift-check|dependency-confusion-check|dependabot-config-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|llm-call-cost-scan|lambda-memory-rightsizer|k8s-requests-rightsizer|rds-instance-rightsizer|lambda-vs-fargate-cost-breakeven|dynamodb-capacity-mode-advisor|ebs-volume-cost-advisor|nat-gateway-cost-advisor|cloudwatch-logs-cost-advisor|bigquery-query-cost-advisor|snowflake-warehouse-cost-advisor|rds-instance-cost-advisor|databricks-cluster-cost-advisor|s3-storage-class-savings|s3-storage-class-advisor|postgres-explain-analyzer|prometheus-cardinality-cost|slo-burn-rate-alerts|regex-redos-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|aws-commitment-breakeven-calculator|aws-bill-change-explainer|llm-usage-log-analyzer|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check|claude-code-hooks-security-check|pypi-provenance-check|referrer-permissions-policy-check|jwt-verification-misuse-check|docker-compose-security-check|git-bus-factor-check|lockfile-license-check|requirements-pin-check|incident-postmortem-timeline|k8s-pod-security-check)/.test(
         slug,
       ),
   },
@@ -3518,7 +3691,7 @@ const SUBCATEGORY_RULES = {
       // margin, the same job-costing shape as `job-margin` and
       // `shop-rate` for a licensed surveyor's boundary/ALTA retracement
       // work instead of a construction trade.
-      test: (slug) => /^(quote-margin|retainage|freelance-retainer|price-increase-breakeven|freelance-rate-increase|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|project-estimate-calibrator|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|lead-response-time|custom-farm-rate|land-survey|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability)/.test(slug),
+      test: (slug) => /^(quote-margin|coi-expiry-gap-checker|retainage|freelance-retainer|price-increase-breakeven|freelance-rate-increase|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|project-estimate-calibrator|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|plumber-flat-rate|hvac-repair-tier|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|lead-response-time|custom-farm-rate|cow-calf-breakeven|firewood-profit|land-survey|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability)/.test(slug),
     },
     {
       id: 'trades-cleaning',
@@ -3591,7 +3764,7 @@ const SUBCATEGORY_RULES = {
       // work -- but this tool prices vegetation removal by acres per
       // machine-hour, not excavation, grading or a poured product, and its
       // nearest neighbour by both buyer and job is the tree service beside it.
-      test: (slug) => /^(artificial-turf|sod-install|lawn-care|irrigation-|tree-service|forestry-mulching|landscape-lighting|holiday-light|snow-removal|fence|deck-|deck-bid|pergola|hot-tub|pool-plaster|vinyl-liner)/.test(slug),
+      test: (slug) => /^(artificial-turf|sod-install|lawn-care|irrigation-|tree-service|forestry-mulching|landscape-lighting|holiday-light|snow-removal|snow-plow-contract|fence|deck-|deck-bid|pergola|hot-tub|pool-plaster|vinyl-liner)/.test(slug),
     },
   ],
 };

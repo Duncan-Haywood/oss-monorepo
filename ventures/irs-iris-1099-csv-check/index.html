@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>IRS IRIS 1099 CSV Check — Find Upload Errors Before You File</title>
+  <meta name="description" content="Free IRIS 1099-NEC and 1099-MISC CSV checker: finds bad TINs, invalid SSNs, state and ZIP errors, money formats, below-threshold amounts and duplicate recipients with line numbers, and applies safe fixes. Runs in your browser; the file is never uploaded.">
+  <meta property="og:title" content="IRS IRIS 1099 CSV Check — free, private, in your browser">
+  <meta property="og:description" content="Catch what breaks an IRIS 1099 bulk upload, with the line number, before you file. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "IRS IRIS 1099 CSV Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks an IRS IRIS bulk-upload CSV for 1099-NEC and 1099-MISC for header layout, TIN formats, names, addresses, money formats, filing thresholds, duplicate recipients and totals before it is uploaded, and applies safe fixes. Runs entirely in your browser; the file is never uploaded.", "featureList": "IRIS CSV validator, 1099-NEC CSV checker, TIN format check, invalid SSN finder, duplicate recipient finder, ZIP leading zero fix, 1099 totals check"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does the IRS IRIS 1099 CSV upload fail or reject records?", "acceptedAnswer": {"@type": "Answer", "text": "Common causes are a TIN that is not nine digits (Excel drops leading zeros and turns long numbers into scientific notation), an SSN in a number range the SSA does not issue, a state written out instead of the two-letter code, a four-digit ZIP, an amount with a dollar sign or comma, a header that does not match the template, and a duplicate recipient. This tool tests each of them and names the line."}}, {"@type": "Question", "name": "How do I check an IRIS bulk-upload CSV before uploading?", "acceptedAnswer": {"@type": "Answer", "text": "Paste the file or drop it onto this page. It reads the header against the layout described here, checks every row, and lists each problem with its line number as errors, warnings and notes. Nothing is uploaded."}}, {"@type": "Question", "name": "Is FIRE being retired, and do small filers have to use IRIS?", "acceptedAnswer": {"@type": "Answer", "text": "From memory of public IRS announcements, the FIRE system is being retired for information returns and filers are moving to IRIS, which accepts a bulk CSV upload. Dates and thresholds change, so confirm the current schedule on irs.gov. This is unverified."}}, {"@type": "Question", "name": "What is the 1099-NEC filing threshold?", "acceptedAnswer": {"@type": "Answer", "text": "From memory, $600 of nonemployee compensation for payments made through 2025 and $2,000 for payments made in 2026, with any amount of federal tax withheld also requiring a form. The tool flags amounts below the threshold as a warning, not an error, because filing a form below it is allowed. Unverified; check the instructions for the form."}}, {"@type": "Question", "name": "What does Apply safe fixes change?", "acceptedAnswer": {"@type": "Answer", "text": "Only things with one reasonable reading: the delimiter, header capitalisation, stray spaces, dashes in TINs, lower-case state codes and Form Type, a lost leading zero on a ZIP in a state whose ZIP codes start with 0, and $ signs and thousands commas in amounts. It never changes a name, an address, or an amount's value, never guesses at a short TIN or a negative, and lists every change it makes."}}, {"@type": "Question", "name": "Is it safe to put TINs into a web page?", "acceptedAnswer": {"@type": "Answer", "text": "The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls, and findings show only the last four digits of a TIN. Your own policies still decide what you may open in a browser."}}, {"@type": "Question", "name": "What does this not check?", "acceptedAnswer": {"@type": "Answer", "text": "Whether IRIS will accept the file today, whether a TIN and name match IRS records (TIN matching is a separate IRS service), state filing programs, correction and void record rules, and anything the IRS changes in the template. A clean result is not a promise of acceptance."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">IRS IRIS 1099 CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will my IRIS 1099 bulk upload be accepted?</h1>
+    <p>Paste or drop your <strong>1099-NEC / 1099-MISC CSV</strong> and get every problem <strong>with its line number</strong> before you upload to IRIS: TINs that are not nine digits, <strong>SSNs in ranges that are never issued</strong> (000, 666, 9xx), all-same-digit placeholders, states written out, four-digit ZIPs, amounts like <code>$4,200.00</code>, amounts under the filing threshold, duplicate recipients, and record counts and totals that do not match your own list. Then <strong>apply the safe fixes</strong> and download a cleaned CSV.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device; TINs appear in results only as their last four digits. Independent of the IRS. <strong>Every rule on this page is from memory of public IRS IRIS template / Pub 5717-style guidance; unverified.</strong> No IRS template or IRIS account was available when this was built.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your IRIS CSV</h2>
+    <p class="note">One row per recipient and form, saved as CSV. A made-up example is one click away; do not rely on it as the real template.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.txt,text/csv,text/plain">
+    <label for="paste">…or paste the CSV text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Form Type,Tax Year,Corrected,Payer TIN,..."></textarea>
+    <div class="grid">
+      <div><label for="exp-records">Records you expect (optional)</label><input id="exp-records" inputmode="numeric" placeholder="e.g. 42"></div>
+      <div><label for="exp-total">Total reportable you expect (optional)</label><input id="exp-total" inputmode="decimal" placeholder="e.g. 128,450.00"></div>
+    </div>
+    <p>
+      <button type="button" id="validate">Check file</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Check file.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Totals by form and year</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Form</th><th scope="col">Year</th><th class="n" scope="col">Records</th><th scope="col">Box totals</th></tr></thead><tbody id="totals"></tbody></table></div>
+    <div id="fix-box" hidden>
+      <h3>Safe fixes</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <p><button type="button" id="download-fixed">Download cleaned CSV</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The layout, the rules, and what they leave out</h2>
+    <p class="note">All from memory of public IRS IRIS template / Pub 5717-style guidance; unverified. Compare with the current IRS template before relying on any line.</p>
+    <ul>
+      <li><strong>Columns:</strong> Form Type, Tax Year, Corrected, Payer TIN, Payer Name, Payer Address, Payer City, Payer State, Payer ZIP, Recipient TIN, Recipient TIN Type, Recipient Name, Recipient Name 2, Recipient Address, Recipient City, Recipient State, Recipient ZIP, Account Number, Second TIN Notice, the NEC Box 1 and MISC box amounts, Box 4 Federal Income Tax Withheld, State Tax Withheld, State ID, State Income. Ten of them are required here. The real template may name or order them differently; the tool reads names regardless of order and capitalisation.</li>
+      <li><strong>TINs:</strong> nine digits, dashes optional. SSN area 000, 666 and 9xx, group 00 and serial 0000 are flagged; ITINs start with 9 and have middle digits in the ranges ITINs use; EIN prefixes are checked against the list of prefixes the IRS assigns; all-same-digit and well-known sample numbers are errors.</li>
+      <li><strong>Money:</strong> digits and an optional decimal point, at most two decimals, positive. Federal withholding cannot exceed the amount paid.</li>
+      <li><strong>Thresholds:</strong> 1099-NEC Box 1 from $600 for payments through 2025 and $2,000 from 2026; 1099-MISC rents, other income, medical, crop insurance and attorney proceeds from $600, royalties and substitute payments from $10; any federal withholding. Below-threshold rows are warnings, not errors.</li>
+      <li><strong>Names and addresses:</strong> name on the W-9, letters, digits, space and &amp; - . , ' / only, about 40 characters a line; two-letter USPS state codes; five- or nine-digit ZIP.</li>
+      <li><strong>Safe fixes</strong> change only delimiter, header capitals, stray spaces, TIN dashes, state and form capitals, a lost leading zero on a ZIP in CT, MA, ME, NH, NJ, PR, RI, VT or VI, and the $ and commas in an amount. It never changes a name, an address or an amount's value, and lists every change.</li>
+      <li><strong>Not checked:</strong> that IRIS will accept the file today, that a name and TIN match IRS records, state filing programs, corrected and void returns, e-file mandates, and anything the IRS changes in the template.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does the IRS IRIS 1099 CSV upload fail or reject records?</h3>
+    <p>Common causes are a TIN that is not nine digits (Excel drops leading zeros and turns long numbers into scientific notation), an SSN in a number range the SSA does not issue, a state written out instead of the two-letter code, a four-digit ZIP, an amount with a dollar sign or comma, a header that does not match the template, and a duplicate recipient. This tool tests each of them and names the line.</p>
+    <h3>How do I check an IRIS bulk-upload CSV before uploading?</h3>
+    <p>Paste the file or drop it onto this page. It reads the header against the layout described here, checks every row, and lists each problem with its line number as errors, warnings and notes. Nothing is uploaded.</p>
+    <h3>Is FIRE being retired, and do small filers have to use IRIS?</h3>
+    <p>From memory of public IRS announcements, the FIRE system is being retired for information returns and filers are moving to IRIS, which accepts a bulk CSV upload. Dates and thresholds change, so confirm the current schedule on irs.gov. This is unverified.</p>
+    <h3>What is the 1099-NEC filing threshold?</h3>
+    <p>From memory, $600 of nonemployee compensation for payments made through 2025 and $2,000 for payments made in 2026, with any amount of federal tax withheld also requiring a form. The tool flags amounts below the threshold as a warning, not an error, because filing a form below it is allowed. Unverified; check the instructions for the form.</p>
+    <h3>What does Apply safe fixes change?</h3>
+    <p>Only things with one reasonable reading: the delimiter, header capitalisation, stray spaces, dashes in TINs, lower-case state codes and Form Type, a lost leading zero on a ZIP in a state whose ZIP codes start with 0, and $ signs and thousands commas in amounts. It never changes a name, an address, or an amount's value, never guesses at a short TIN or a negative, and lists every change it makes.</p>
+    <h3>Is it safe to put TINs into a web page?</h3>
+    <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls, and findings show only the last four digits of a TIN. Your own policies still decide what you may open in a browser.</p>
+    <h3>What does this not check?</h3>
+    <p>Whether IRIS will accept the file today, whether a TIN and name match IRS records (TIN matching is a separate IRS service), state filing programs, correction and void record rules, and anything the IRS changes in the template. A clean result is not a promise of acceptance.</p>
+    
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace the IRS's own validation in IRIS. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including by uploading a small test file first, and a clean result is not a promise that IRIS will accept the file or that a return is correct or timely.</p>
+    <p><strong>Independent of the IRS.</strong> This tool is not affiliated with, sponsored by, endorsed by or connected to the Internal Revenue Service, the U.S. Treasury or any government agency. IRS and IRIS are used only to say which file format the tool reads. The column list, limits and thresholds are from memory of public guidance, unverified, and may be out of date or wrong; check them against the current IRS instructions.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../w2-efw2-file-validator/">W-2 EFW2 file validator</a> checks the wage file before it goes to SSA, the <a href="../1099-vendor-tracker/">1099 vendor tracker</a> tracks who crosses the threshold, the <a href="../1099-k-threshold-checker/">1099-K threshold checker</a> covers payment-card and marketplace reporting, and the <a href="../payroll-tax-deposit-penalty-calculator/">payroll tax deposit penalty calculator</a> prices a late deposit.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, sampleFile, sampleBrokenFile, findingsCsv, decodeBuffer, fmt } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, fixedText = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const r = validate(text, { expectedRecords: $("#exp-records").value.trim(), expectedTotal: $("#exp-total").value.trim() });
+      lastResult = r;
+      const s = r.summary;
+      const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${s.records} record${s.records === 1 ? "" : "s"} from ${s.rows} row${s.rows === 1 ? "" : "s"}, ${s.columns} columns`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      $("#totals").innerHTML = Object.values(s.totals).map((t) => `<tr><td>${esc(t.form)}</td><td>${esc(t.year)}</td><td class="n">${t.records}</td><td>${Object.entries(t.sums).map(([c, v]) => `${esc(c)}: ${fmt(v)}`).join("<br>")}</td></tr>`).join("") || `<tr><td colspan="4">No records found.</td></tr>`;
+      const fix = repair(text);
+      fixedText = fix.text;
+      $("#fix-box").hidden = false;
+      $("#download-fixed").hidden = !fix.text || !fix.changes.length;
+      $("#fix-note").textContent = fix.error ? fix.error : fix.changes.length
+        ? `${fix.changes.length} safe change${fix.changes.length === 1 ? "" : "s"} available. Names, addresses and amounts' values are left exactly as they are.`
+        : "Nothing here has a single safe fix; the findings above need your decision.";
+      $("#fix-list").innerHTML = fix.changes.slice(0, 200).map((c) => `<li>${esc(c)}</li>`).join("") + (fix.changes.length > 200 ? `<li>…and ${fix.changes.length - 200} more.</li>` : "");
+      report.hidden = false;
+      status.textContent = errs ? `Found ${errs} error(s) in ${s.rows} row(s).` : `No errors in ${s.rows} row(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: a made-up payer and made-up recipients, not real TINs."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: the same made-up file after a spreadsheet round trip, with typical faults."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; lastResult = null; fixedText = null; status.textContent = "Choose a file or paste the text, then click Check file."; });
+    $("#download-fixed").addEventListener("click", () => { if (fixedText) { record("fixes_applied"); download("iris-1099-cleaned.csv", fixedText, "text/csv"); } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("iris-1099-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

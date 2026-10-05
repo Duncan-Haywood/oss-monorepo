@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bulk IBAN Validator — Check a Supplier or Payroll List Before You Upload the Payment File</title>
+  <meta name="description" content="Free bulk IBAN checker: validates a whole column of IBANs, finds wrong check digits (with the swapped-digit fix), wrong lengths, unknown countries, stray spaces, duplicates and blanks, and writes the list back cleaned. Runs in your browser; the file is never uploaded.">
+  <meta property="og:title" content="IBAN List Check — free, private, in your browser">
+  <meta property="og:description" content="Catch typos in supplier and payroll IBANs before the bank rejects the payment file. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "IBAN List Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks a list of IBANs for wrong check digits, wrong length for the country, unknown countries, stray spaces and lower case, duplicates and blanks, and writes the list back cleaned. Runs entirely in your browser; the file is never uploaded.", "featureList": "Bulk IBAN validator, IBAN mod-97 check, IBAN length by country, IBAN cleaner for payment files"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the IBAN check and what does it catch?", "acceptedAnswer": {"@type": "Answer", "text": "An IBAN has two check digits right after the country code. Move the first four characters to the end, turn letters into numbers (A=10 to Z=35), and the whole number divided by 97 must leave a remainder of 1. The check catches every single mistyped character and every swap of two neighbouring characters, which are the usual typing errors. It does not prove the account exists."}}, {"@type": "Question", "name": "Why does my bank or payment file reject an IBAN that looks right?", "acceptedAnswer": {"@type": "Answer", "text": "Most often a character is wrong or two are swapped, there are stray spaces or a hidden non-breaking space from a PDF or web page, the letters are lower case, or the IBAN is shorter or longer than the country allows. This tool names which of those it is, with the line number."}}, {"@type": "Question", "name": "Can the tool tell me whether the account exists or whose it is?", "acceptedAnswer": {"@type": "Answer", "text": "No. A valid IBAN is well formed. Whether the account is open, and whether it belongs to the supplier you intend to pay, is only known to the bank. Confirm new or changed bank details with the payee through a channel you already trust before sending money."}}, {"@type": "Question", "name": "How long is an IBAN in each country?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the country: for example Germany 22, the United Kingdom 22, France 27, the Netherlands 18, Spain 24, Italy 27, Belgium 16, Switzerland 21. The tool checks the length for each country it knows and tells you how many characters are missing or extra."}}, {"@type": "Question", "name": "Is my supplier or payroll list uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page reads the file in your browser and a test in the code asserts there are no network calls. Bank details are sensitive; that is why this runs on your device."}}, {"@type": "Question", "name": "What does this not check?", "acceptedAnswer": {"@type": "Answer", "text": "Whether an account exists or matches a name, BIC/SWIFT codes, sort codes and account numbers that are not IBANs, sanctions or fraud screening, whether your bank supports payments to a country, or the country-specific national check digits inside the account part. It reads one column of one file."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2f5d8a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1d3f66; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1d3f66; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1d3f6610; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f5d8a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf4; color: #1d3f66; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1d3f66; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">IBAN LIST CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Are the IBANs in your payment list actually valid?</h1>
+    <p>Paste or drop a <strong>supplier, payroll or refund list with an IBAN column</strong> and get every bad one <strong>with its line number</strong> before the bank or your accounting package rejects the batch: <strong>wrong check digits</strong> (with the swapped-digit fix when one swap proves it), <strong>wrong length for the country</strong>, <strong>unknown countries</strong>, <strong>spaces and lower case</strong> from copy-paste, <strong>duplicates</strong> and <strong>blanks</strong>. Then download the file with every provable clean-up applied.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. A valid IBAN is well formed, not proof that the account exists or belongs to the payee. Independent of every bank and payment scheme named.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your list</h2>
+    <p class="note">CSV, TSV, semicolon-separated, or one IBAN per line. The column is found from its header (IBAN, bank account) or by which column looks most like IBANs.</p>
+    <label for="file">Choose a file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values,text/plain">
+    <label for="paste">…or paste the text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="supplier,iban&#10;Acme GmbH,DE89 3704 0044 0532 0130 00&#10;Brown Ltd,GB82 WEST 1234 5698 7654 32"></textarea>
+    <div class="grid">
+      <div>
+        <label for="column">IBAN column number (optional)</label>
+        <input id="column" inputmode="numeric" placeholder="1 is the first column; blank = detect">
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="groups"><label for="groups">Write IBANs in groups of four (print format) instead of unbroken</label>
+      </div>
+    </div>
+    <p>
+      <button type="button" id="validate">Check list</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Check list.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <div id="fix-box" hidden>
+      <h3>Cleaned file</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <label for="fixed-out">Preview</label>
+      <textarea id="fixed-out" class="small" readonly spellcheck="false" wrap="off"></textarea>
+      <p><button type="button" id="download-fixed">Download cleaned file</button> <button type="button" class="secondary" id="copy-fixed">Copy</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Check digits:</strong> the ISO 13616 mod-97 test. Catches every single wrong character and every swap of two neighbours. When exactly one adjacent swap would make a bad IBAN valid it is suggested, never applied.</li>
+      <li><strong>Length and shape:</strong> total length per country for about 80 countries, and for common ones (Germany, UK, France-length, Netherlands, Spain, Belgium, Austria and others) whether the account part is digits or letters where it must be.</li>
+      <li><strong>Cleaned automatically:</strong> spaces, hyphens and non-breaking spaces, lower case, a leading apostrophe, Excel's <code>="…"</code> wrapper and a leading "IBAN:" label.</li>
+      <li><strong>Warned:</strong> duplicate IBANs, blank cells, and a list that mixes several countries.</li>
+      <li><strong>Not checked:</strong> whether the account exists or belongs to the payee, BIC/SWIFT codes, plain account numbers and sort codes, sanctions or fraud screening, national check digits inside the account part. The country list and lengths are read from memory of the public IBAN registry; confirm against your bank's current documentation.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the IBAN check and what does it catch?</h3>
+    <p>An IBAN has two check digits right after the country code. Move the first four characters to the end, turn letters into numbers (A=10 to Z=35), and the whole number divided by 97 must leave a remainder of 1. The check catches every single mistyped character and every swap of two neighbouring characters, which are the usual typing errors. It does not prove the account exists.</p>
+    <h3>Why does my bank or payment file reject an IBAN that looks right?</h3>
+    <p>Most often a character is wrong or two are swapped, there are stray spaces or a hidden non-breaking space from a PDF or web page, the letters are lower case, or the IBAN is shorter or longer than the country allows. This tool names which of those it is, with the line number.</p>
+    <h3>Can the tool tell me whether the account exists or whose it is?</h3>
+    <p>No. A valid IBAN is well formed. Whether the account is open, and whether it belongs to the supplier you intend to pay, is only known to the bank. Confirm new or changed bank details with the payee through a channel you already trust before sending money.</p>
+    <h3>How long is an IBAN in each country?</h3>
+    <p>It depends on the country: for example Germany 22, the United Kingdom 22, France 27, the Netherlands 18, Spain 24, Italy 27, Belgium 16, Switzerland 21. The tool checks the length for each country it knows and tells you how many characters are missing or extra.</p>
+    <h3>Is my supplier or payroll list uploaded anywhere?</h3>
+    <p>No. The page reads the file in your browser and a test in the code asserts there are no network calls. Bank details are sensitive; that is why this runs on your device.</p>
+    <h3>What does this not check?</h3>
+    <p>Whether an account exists or matches a name, BIC/SWIFT codes, sort codes and account numbers that are not IBANs, sanctions or fraud screening, whether your bank supports payments to a country, or the country-specific national check digits inside the account part. It reads one column of one file.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace your bank's own validation or a payee-verification service. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including confirming any bank details with the payee, and a clean result is not a promise that a payment will be accepted or reach the right person.</p>
+    <p><strong>Not affiliated with any platform.</strong> This tool is independent and is not sponsored, endorsed or connected to SWIFT, any bank, the European Payments Council or any other company named. Their names are trademarks of their owners, used here only to say which format is meant. Specifications are read from memory of public sources and may be out of date.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../payroll-hours-csv-check/">payroll hours CSV check</a>, the <a href="../irs-iris-1099-csv-check/">IRIS 1099 CSV check</a>, the <a href="../quickbooks-import-csv-check/">QuickBooks import CSV check</a> and the <a href="../bank-csv-to-qbo-converter/">bank CSV to QBO converter</a> check other files you hand to a finance system.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, fixedText = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const options = () => ({ column: $("#column").value, excelSafe: $("#groups").checked });
+
+    function run(text) {
+      const o = options();
+      const r = validate(text, o);
+      lastResult = r;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `<strong>${s.errors} error${s.errors === 1 ? "" : "s"}</strong>, ${s.warnings} warning${s.warnings === 1 ? "" : "s"} · ${s.codes} code${s.codes === 1 ? "" : "s"} read from column ${r.column + 1} · ${s.valid} valid as written, ${s.fixable} fixable, ${s.unfixable} not recoverable`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      const fix = repair(text, o);
+      fixedText = fix.text;
+      $("#fix-box").hidden = false;
+      $("#fixed-out").value = fix.text;
+      $("#fix-note").textContent = fix.changes.length ? `${fix.changes.length} code${fix.changes.length === 1 ? "" : "s"} fixed. Rows that cannot be proven are left exactly as they were and named above.` : "No provable fixes: the file is written as it was.";
+      $("#fix-list").innerHTML = fix.changes.slice(0, 200).map((c) => `<li>${esc(c)}</li>`).join("") + (fix.changes.length > 200 ? `<li>…and ${fix.changes.length - 200} more.</li>` : "");
+      report.hidden = false;
+      status.textContent = s.errors ? `Found ${s.errors} error(s) in ${s.rows} row(s).` : `No errors in ${s.rows} row(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: four made-up suppliers using published example IBANs, not real accounts."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: a transposed digit, a short IBAN, an unknown country, a plain account number, a duplicate and a blank."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#paste", "#column", "#file"]) $(id).value = ""; report.hidden = true; lastResult = null; fixedText = null; status.textContent = "Choose a file or paste the text, then click Check list."; });
+    $("#download-fixed").addEventListener("click", () => { if (fixedText) { record("fixes_applied"); download("iban-list-fixed.csv", fixedText, "text/csv"); } });
+    $("#copy-fixed").addEventListener("click", async () => { try { await navigator.clipboard.writeText(fixedText || ""); status.textContent = "Copied."; record("fixes_applied"); } catch { $("#fixed-out").select(); status.textContent = "Select the preview and copy it."; } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("iban-list-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

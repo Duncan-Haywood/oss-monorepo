@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Terraform Plan Cost Estimate — Free Infracost Alternative, Offline</title>
+  <meta name="description" content="Paste a Terraform plan (terraform show -json) and get an approximate monthly AWS cost delta before you apply: top cost drivers, an honest list of what it could not price, and a budget threshold for CI. Free, no signup, runs entirely in your browser. An offline alternative to Infracost for the common AWS resources.">
+  <meta property="og:title" content="What will this terraform apply add to the monthly AWS bill?">
+  <meta property="og:description" content="Paste the JSON from terraform show -json and see the approximate monthly cost change per resource, the biggest drivers, and what could not be priced. Free, no signup, nothing uploaded, with a CLI that fails CI over a budget.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Terraform Plan Cost Estimate", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste a Terraform structured plan (terraform show -json) and get an approximate monthly AWS cost delta for create, update and delete, top cost drivers, an honest list of unpriced resources, and a budget threshold usable as a CI gate. Runs entirely in the browser or as a zero-dependency Node CLI; uses a bundled approximate us-east-1 price table, not live pricing."}
+  </script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this an Infracost alternative?", "acceptedAnswer": {"@type": "Answer", "text": "For one narrow job, yes: paste the JSON from terraform show -json and get an approximate monthly cost delta for the common AWS resources, with no signup, no API key and no upload. Infracost covers more clouds and uses live pricing, so it is the better tool if you need that; this is the zero-setup, offline option. See the comparison page."}}, {"@type": "Question", "name": "How accurate is the estimate?", "acceptedAnswer": {"@type": "Answer", "text": "It is an approximation, not a quote. It uses a small bundled table of rounded us-east-1 on-demand list prices (dated on the page and in every report), scaled by a rough regional multiplier. It does not know your discounts, savings plans, reserved instances, spot usage or free tier, and it does not estimate usage-based charges such as data transfer, S3 storage, Lambda invocations or log ingestion."}}, {"@type": "Question", "name": "What happens to resources it cannot price?", "acceptedAnswer": {"@type": "Answer", "text": "They are listed under unpriced with the reason, and the summary says the figure is not the full change. Nothing unpriced is silently counted as zero. Usage-based resources such as S3 buckets and Lambda functions are named separately."}}, {"@type": "Question", "name": "Is my plan uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page reads a pasted or locally loaded file in your browser and makes no network request. The CLI reads a local file and makes no network call."}}, {"@type": "Question", "name": "Can I fail CI when a change costs too much?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The CLI takes --max-delta USD and exits 1 when the estimated monthly delta is above it, so it can sit between terraform plan and terraform apply. Resources it cannot price are excluded from the number the gate sees, and the output warns when that happened."}}, {"@type": "Question", "name": "Which file does it need?", "acceptedAnswer": {"@type": "Answer", "text": "The structured plan JSON: terraform plan -out=tfplan && terraform show -json tfplan > plan.json. Not the text output and not the terraform plan -json stream."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; background: #e3e9ef; color: #17324a; }
+    .pill.danger { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fdf2e0; color: #7a4a09; }
+    .risk { border: 2px solid #c23b3b; border-radius: 12px; padding: 16px; margin: 12px 0; background: #fff7f7; }
+    .risk h3 { margin-top: 0; color: #7f1d1d; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .ok { color: #14532d; font-weight: 600; }
+    .bad { color: #7f1d1d; font-weight: 700; }
+    input[type=number], select { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; font: inherit; }
+    .row { display: flex; flex-wrap: wrap; gap: 16px; margin: 8px 0; }
+    .big { font-size: 2rem; font-weight: 800; margin: 4px 0; }
+    .scroll { overflow-x: auto; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">TERRAFORM PLAN COST ESTIMATE · RUNS IN YOUR BROWSER</p>
+    <h1>What will this <code>terraform apply</code> add to the monthly AWS bill?</h1>
+    <p>Paste or load a Terraform structured plan (<code>terraform show -json</code>) and get an approximate monthly cost delta for every create, update and delete, the biggest cost drivers, and an honest list of what could not be priced. A free, offline alternative to Infracost for the common AWS resources.</p>
+    <p class="note">Nothing is uploaded. The file you load is read in this browser and never leaves your device. Prices come from a small bundled table of approximate us-east-1 on-demand rates dated 2026-10-03 — an estimate, not a quote.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Load your plan</h2>
+    <p>
+      <label for="file-input">From a file (the JSON from <code>terraform show -json</code> — read locally, never uploaded)</label>
+      <input type="file" id="file-input" accept=".json,.txt">
+    </p>
+    <label for="plan-input">…or paste it directly</label>
+    <textarea id="plan-input" spellcheck="false" placeholder='{"format_version":"1.2","resource_changes":[...]}'></textarea>
+    <div class="row">
+      <div>
+        <label for="region">Region (rough multiplier on us-east-1 prices)</label>
+        <select id="region"></select>
+      </div>
+      <div>
+        <label for="budget">Monthly budget threshold, USD (optional)</label>
+        <input type="number" id="budget" step="any" placeholder="e.g. 200">
+      </div>
+    </div>
+    <p>
+      <button type="button" id="estimate">Estimate monthly cost change</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. Estimated monthly change</h2>
+    <p class="big" id="delta"></p>
+    <p id="summary"></p>
+    <p id="budget-result"></p>
+    <p class="note" id="region-hint"></p>
+
+    <div id="partial-block" hidden>
+      <div class="risk">
+        <h3 id="partial-heading"></h3>
+        <div id="unpriced-rows"></div>
+      </div>
+    </div>
+
+    <h3>Top cost drivers</h3>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Address</th><th>Action</th><th>Type</th><th class="num">Monthly change</th></tr></thead>
+        <tbody id="driver-rows"></tbody>
+      </table>
+    </div>
+
+    <h3>Every priced resource</h3>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Address</th><th>Action</th><th class="num">Before</th><th class="num">After</th><th class="num">Change</th><th>What it is made of</th></tr></thead>
+        <tbody id="item-rows"></tbody>
+      </table>
+    </div>
+
+    <div id="usage-block" hidden>
+      <h3>Usage-based: named, not estimated</h3>
+      <div id="usage-rows"></div>
+    </div>
+
+    <h3>Assumptions and exclusions</h3>
+    <ul id="assumption-list"></ul>
+    <p class="note" id="footnote"></p>
+  </section>
+
+  <section class="card">
+    <h2>Want this as a gate before you apply?</h2>
+    <p>Same engine, zero dependencies, one file. Fails the job when the estimated monthly delta is above a number you choose:</p>
+    <pre class="cmd">terraform plan -out=tfplan &amp;&amp; terraform show -json tfplan &gt; plan.json
+node cli.mjs estimate plan.json                          # report only
+node cli.mjs estimate plan.json --max-delta 200          # exit 1 if it adds more than $200/month
+node cli.mjs estimate plan.json --region eu-west-1 --json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call, ever. Exit codes: 0 within budget, 1 over budget, 2 unreadable file or bad option.</p>
+  </section>
+
+  <section class="card">
+    <h2>What it prices, and what it does not</h2>
+    <p>Priced: EC2 instances (with root and extra EBS volumes), EBS volumes, RDS and Aurora instances, NAT gateways, ALB/NLB/classic load balancers, Elastic IPs, EKS control planes and node groups, ElastiCache, provisioned DynamoDB, and CloudWatch alarms and dashboards. Named as usage-based and not estimated: S3, Lambda, on-demand DynamoDB, log groups and a few more. Everything else is listed as unpriced. Comparing it with the paid, multi-cloud tool? <a href="vs-infracost.html">This tool vs. Infracost</a> says where each is the right answer. Want to know what the same plan destroys rather than costs? <a href="../terraform-plan-blast-radius-check/">Terraform Plan Blast Radius Check</a> reads the same file.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Resource type</th><th>Status</th></tr></thead>
+        <tbody id="coverage-rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <p class="note">Already applied it and the bill moved? Explain the change from a Cost Explorer export with the <a href="../aws-bill-change-explainer/">AWS Bill Change Explainer</a>.</p>
+    <h3>Is this an Infracost alternative?</h3>
+    <p>For one narrow job, yes: paste the JSON from terraform show -json and get an approximate monthly cost delta for the common AWS resources, with no signup, no API key and no upload. Infracost covers more clouds and uses live pricing, so it is the better tool if you need that; this is the zero-setup, offline option. See the comparison page.</p>
+    <h3>How accurate is the estimate?</h3>
+    <p>It is an approximation, not a quote. It uses a small bundled table of rounded us-east-1 on-demand list prices (dated on the page and in every report), scaled by a rough regional multiplier. It does not know your discounts, savings plans, reserved instances, spot usage or free tier, and it does not estimate usage-based charges such as data transfer, S3 storage, Lambda invocations or log ingestion.</p>
+    <h3>What happens to resources it cannot price?</h3>
+    <p>They are listed under unpriced with the reason, and the summary says the figure is not the full change. Nothing unpriced is silently counted as zero. Usage-based resources such as S3 buckets and Lambda functions are named separately.</p>
+    <h3>Is my plan uploaded anywhere?</h3>
+    <p>No. The page reads a pasted or locally loaded file in your browser and makes no network request. The CLI reads a local file and makes no network call.</p>
+    <h3>Can I fail CI when a change costs too much?</h3>
+    <p>Yes. The CLI takes --max-delta USD and exits 1 when the estimated monthly delta is above it, so it can sit between terraform plan and terraform apply. Resources it cannot price are excluded from the number the gate sees, and the output warns when that happened.</p>
+    <h3>Which file does it need?</h3>
+    <p>The structured plan JSON: terraform plan -out=tfplan &amp;&amp; terraform show -json tfplan &gt; plan.json. Not the text output and not the terraform plan -json stream.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is informational only — it is not financial, billing, engineering or other professional advice, and it does not replace the cloud provider's own pricing pages, the AWS Pricing Calculator, or your own review. Figures are estimates from an approximate bundled price table, not quotes; real bills depend on usage, discounts, taxes and prices that change. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with HashiCorp, Terraform, OpenTofu, Amazon Web Services, or Infracost.</strong> Terraform is a trademark of HashiCorp, AWS is a trademark of Amazon.com, Inc., and Infracost is a trademark of its owner. They are named only to describe what this tool reads and compares to; this is an independent, unofficial tool and is not endorsed by or connected with any of them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The plan you load is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_run</code>, <code>example_loaded</code>, <code>file_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parsePlan, estimatePlan, checkBudget, summarize, formatUsd, formatDelta, REGION_MULTIPLIERS, BASE_REGION, PRICE_TABLE_DATE, PRICED_TYPES, USAGE_ONLY_TYPES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      fileInput: $("#file-input"), plan: $("#plan-input"), status: $("#status"), region: $("#region"), budget: $("#budget"),
+      reportCard: $("#report-card"), delta: $("#delta"), summary: $("#summary"), budgetResult: $("#budget-result"),
+      regionHint: $("#region-hint"), partialBlock: $("#partial-block"), partialHeading: $("#partial-heading"),
+      unpricedRows: $("#unpriced-rows"), driverRows: $("#driver-rows"), itemRows: $("#item-rows"),
+      usageBlock: $("#usage-block"), usageRows: $("#usage-rows"), assumptions: $("#assumption-list"),
+      footnote: $("#footnote"), coverage: $("#coverage-rows"),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    els.region.innerHTML = Object.keys(REGION_MULTIPLIERS)
+      .map((r) => `<option value="${r}"${r === BASE_REGION ? " selected" : ""}>${r} (x${REGION_MULTIPLIERS[r]})</option>`).join("");
+
+    els.coverage.innerHTML =
+      PRICED_TYPES.map((t) => `<tr><td><code>${escapeHtml(t)}</code></td><td>Priced</td></tr>`).join("") +
+      USAGE_ONLY_TYPES.map((t) => `<tr><td><code>${escapeHtml(t)}</code></td><td>Usage-based, named not estimated</td></tr>`).join("");
+
+    function signClass(n) { return n > 0 ? "bad" : n < 0 ? "ok" : ""; }
+
+    function renderReport() {
+      let report;
+      try {
+        report = estimatePlan(parsePlan(els.plan.value), { region: els.region.value });
+      } catch (err) {
+        els.status.innerHTML = `<span class="bad">${escapeHtml(err.message)}</span>`;
+        return;
+      }
+      els.status.textContent = "";
+      const t = report.totals;
+      els.delta.innerHTML = `<span class="${signClass(t.delta)}">${escapeHtml(formatDelta(t.delta))}</span> per month`;
+      els.summary.textContent = summarize(report);
+
+      els.budgetResult.textContent = "";
+      const raw = els.budget.value.trim();
+      if (raw !== "" && Number.isFinite(Number(raw))) {
+        const b = checkBudget(report, raw);
+        els.budgetResult.innerHTML = b.exceeded
+          ? `<span class="bad">Over budget: ${escapeHtml(formatDelta(b.delta))}/month is above ${escapeHtml(formatUsd(b.max))}.</span>`
+          : `<span class="ok">Within budget: ${escapeHtml(formatDelta(b.delta))}/month is not above ${escapeHtml(formatUsd(b.max))}.</span>`;
+        if (report.partial) els.budgetResult.innerHTML += " Unpriced resources are excluded, so the real change may be higher.";
+      }
+
+      els.regionHint.textContent = report.detectedRegion && report.detectedRegion !== report.region
+        ? `The plan's provider config names region ${report.detectedRegion}; pick it above to price it there.` : "";
+
+      els.partialBlock.hidden = report.unpriced.length === 0;
+      els.partialHeading.textContent = `${report.unpriced.length} changed resource(s) could not be priced and are NOT in this estimate`;
+      els.unpricedRows.innerHTML = report.unpriced
+        .map((u) => `<p><code>${escapeHtml(u.address)}</code> (${escapeHtml(u.action)}) — ${escapeHtml(u.reason)}</p>`).join("");
+
+      els.driverRows.innerHTML = report.drivers.length
+        ? report.drivers.map((d) => `<tr><td><code>${escapeHtml(d.address)}</code></td><td>${escapeHtml(d.action)}</td><td><code>${escapeHtml(d.type)}</code></td><td class="num ${signClass(d.delta)}">${escapeHtml(formatDelta(d.delta))}</td></tr>`).join("")
+        : '<tr><td colspan="4">No priced resource changes cost.</td></tr>';
+
+      els.itemRows.innerHTML = report.items
+        .map((i) => `<tr><td><code>${escapeHtml(i.address)}</code></td><td>${escapeHtml(i.action)}</td>
+          <td class="num">${escapeHtml(formatUsd(i.before))}</td><td class="num">${escapeHtml(formatUsd(i.after))}</td>
+          <td class="num ${signClass(i.delta)}">${escapeHtml(formatDelta(i.delta))}</td>
+          <td>${i.components.map((c) => `${escapeHtml(c.label)} ${escapeHtml(formatUsd(c.monthly))}`).join("; ")}</td></tr>`).join("");
+
+      els.usageBlock.hidden = report.usageBased.length === 0;
+      els.usageRows.innerHTML = report.usageBased
+        .map((u) => `<p><code>${escapeHtml(u.address)}</code> (${escapeHtml(u.action)}) — ${escapeHtml(u.usage.join(" "))}</p>`).join("");
+
+      const notes = [...new Set(report.items.flatMap((i) => i.usage))];
+      els.assumptions.innerHTML = notes.map((n) => `<li>${escapeHtml(n)}</li>`).join("");
+      els.footnote.textContent = `${report.noChargeCount} changed resource(s) have no direct charge and ${report.unchangedCount} are unchanged. Price table dated ${PRICE_TABLE_DATE}; region ${report.region} (x${report.regionMultiplier}). Estimate, not a quote.`;
+
+      els.reportCard.hidden = false;
+      record("estimate_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#estimate").addEventListener("click", renderReport);
+
+    els.fileInput.addEventListener("change", () => {
+      const file = els.fileInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        els.plan.value = String(reader.result || "");
+        record("file_loaded");
+        renderReport();
+      };
+      reader.readAsText(file);
+    });
+
+    const EXAMPLE_PLAN = JSON.stringify({
+      format_version: "1.2",
+      resource_changes: [
+        { address: "aws_instance.web[0]", mode: "managed", type: "aws_instance", name: "web",
+          change: { actions: ["create"], before: null, after: { instance_type: "m5.large", root_block_device: [{ volume_size: 50, volume_type: "gp3" }] }, after_unknown: {} } },
+        { address: "aws_db_instance.main", mode: "managed", type: "aws_db_instance", name: "main",
+          change: { actions: ["delete", "create"],
+            before: { instance_class: "db.t3.medium", allocated_storage: 100, storage_type: "gp2", multi_az: false, engine: "postgres" },
+            after: { instance_class: "db.r6g.large", allocated_storage: 200, storage_type: "gp3", multi_az: true, engine: "postgres" }, after_unknown: {} } },
+        { address: "aws_nat_gateway.a", mode: "managed", type: "aws_nat_gateway", name: "a",
+          change: { actions: ["create"], before: null, after: {}, after_unknown: {} } },
+        { address: "aws_eks_cluster.main", mode: "managed", type: "aws_eks_cluster", name: "main",
+          change: { actions: ["create"], before: null, after: {}, after_unknown: {} } },
+        { address: "aws_eip.old", mode: "managed", type: "aws_eip", name: "old",
+          change: { actions: ["delete"], before: {}, after: null } },
+        { address: "aws_s3_bucket.assets", mode: "managed", type: "aws_s3_bucket", name: "assets",
+          change: { actions: ["create"], before: null, after: {}, after_unknown: {} } },
+        { address: "aws_opensearch_domain.search", mode: "managed", type: "aws_opensearch_domain", name: "search",
+          change: { actions: ["create"], before: null, after: {}, after_unknown: {} } },
+        { address: "aws_iam_role.app", mode: "managed", type: "aws_iam_role", name: "app",
+          change: { actions: ["no-op"], before: {}, after: {} } },
+      ],
+    }, null, 2);
+
+    $("#load-example").addEventListener("click", () => {
+      els.plan.value = EXAMPLE_PLAN;
+      renderReport();
+      record("example_loaded");
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.plan.value = "";
+      els.fileInput.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

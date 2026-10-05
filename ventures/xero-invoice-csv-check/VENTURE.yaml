@@ -1,0 +1,40 @@
+name: xero-invoice-csv-check
+description: >-
+  Free browser tool that checks a Xero sales invoice import CSV before it is uploaded: template
+  headings, required columns and cells, invoices whose lines disagree on contact or dates, date
+  order conflicts, Excel serial dates, amounts with symbols or decimal commas, account names in
+  the code column, tax rates typed as percentages, scientific-notation invoice numbers and
+  semicolon files, each with its line number, plus a safe-fixes pass, a date-format converter and
+  a splitter that keeps invoices whole under the 500-line import limit. The file is read locally
+  and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. No Xero tool exists in ventures/ (nearest
+# neighbours: bank-csv-to-qbo-converter, which converts bank exports; 1099-vendor-csv-checker and
+# the two ecommerce product-CSV checkers, which validate other file models). Bookkeepers and
+# freelancers move invoices into Xero by CSV when migrating from another package, billing from a
+# timesheet or CRM export, or catching up a backlog. The importer rejects the whole file with a
+# terse message, or accepts it and posts the wrong dates (day/month swapped) or splits one invoice
+# into two. Existing answers are Xero's own error text, paid migration services and generic CSV
+# linters that know nothing about one-invoice-many-lines or the organisation date format.
+#
+# First visitor: people searching the literal errors ("Xero invoice import dates invalid", "Xero
+# CSV import invoice number already exists", "Xero import 500 lines limit", "Excel date serial
+# number Xero import") and Xero Central/community threads, r/Xero and r/bookkeeping. Volume not
+# measured with an external tool.
+#
+# What makes it more than a CSV linter: it models the invoice (lines grouped by number must agree),
+# works out the file's date order from dates that can only mean one thing and refuses to guess
+# otherwise, converts Excel serials and date formats, and splits long files at invoice boundaries,
+# which is the chore that actually blocks migrations.
+#
+# Privacy is the liability boundary: invoices name customers and amounts, so the file never leaves
+# the browser (a test asserts no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet for the bookkeeper audience, a natural
+# sibling set for QuickBooks/FreshBooks/Sage import files. A paid version, if usage appears, is
+# bulk checks across client files with saved rules behind an env-var switch; not built.
+#
+# Liability: format checks on the user's own file, rules stated as read from memory, no warranty,
+# independent-of-Xero clause, trademark used nominatively.

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Choose a Feature Flag Service by Request Volume</title>
+  <meta name="description" content="Why feature-flag bills jump with request volume, how per-request, per-seat and flat plans compare, and what to cut before switching vendor.">
+  <link rel="canonical" href="./how-to-choose-a-feature-flag-service-by-requests.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why do feature-flag prices differ so much at the same volume?", "acceptedAnswer": {"@type": "Answer", "text": "Some vendors bill per request after a free allowance (PostHog), others sell flat plans with a pool of included requests (Flagsmith, ConfigCat), and others bill per seat or per monthly active user. At high request volumes the cheapest and most expensive list prices in the calculator differ by thousands of dollars a month."}}, {"@type": "Question", "name": "What matters more than the per-request price?", "acceptedAnswer": {"@type": "Answer", "text": "Requests you do not make. Caching flag values in the SDK, evaluating server-side once per session instead of per call, raising client polling intervals and using local evaluation usually cut request counts far more than switching vendor. Also check seat caps, environment limits and whether experimentation is billed separately."}}, {"@type": "Question", "name": "When should I switch feature-flag vendors?", "acceptedAnswer": {"@type": "Answer", "text": "When the 12-month spend under your growth rate differs enough to pay for the migration, which means swapping SDKs, re-creating flags and targeting rules and retraining the team. Run the calculator with your growth rate before deciding, and remember seats and add-ons can change the real figure."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+</head>
+<body>
+  <p><a href="./">← Feature Flag Pricing Calculator</a></p>
+  <h1>How to choose a feature flag service by request volume</h1>
+  <p>Put your monthly flag requests (in thousands) and growth rate into the <a href="./">calculator</a> to price PostHog, Flagsmith and ConfigCat side by side. These are the questions to settle before you trust the answer.</p>
+  <h2>Why do feature-flag prices differ so much at the same volume?</h2>
+  <p>Some vendors bill per request after a free allowance (PostHog), others sell flat plans with a pool of included requests (Flagsmith, ConfigCat), and others bill per seat or per monthly active user. At high request volumes the cheapest and most expensive list prices in the calculator differ by thousands of dollars a month.</p>
+  <h2>What matters more than the per-request price?</h2>
+  <p>Requests you do not make. Caching flag values in the SDK, evaluating server-side once per session instead of per call, raising client polling intervals and using local evaluation usually cut request counts far more than switching vendor. Also check seat caps, environment limits and whether experimentation is billed separately.</p>
+  <h2>When should I switch feature-flag vendors?</h2>
+  <p>When the 12-month spend under your growth rate differs enough to pay for the migration, which means swapping SDKs, re-creating flags and targeting rules and retraining the team. Run the calculator with your growth rate before deciding, and remember seats and add-ons can change the real figure.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial or engineering advice; verify prices at each vendor. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support is optional.</a></p>
+  </footer>
+</body>
+</html>

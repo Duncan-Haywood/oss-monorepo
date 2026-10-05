@@ -1,0 +1,31 @@
+name: mt940-statement-check
+description: >-
+  Free browser tool that checks a SWIFT MT940 bank statement before it goes into QuickBooks, Xero, Sage,
+  DATEV, Exact, Moneybird or a spreadsheet, and says why an import fails or posts wrong: opening balance
+  plus transactions that do not equal the closing balance (and by how much), a statement that does not
+  continue from the previous one, unreadable :61: lines, period decimals, transactions with no :86:
+  description, repeats, and a missing closing - line. It gives a line number for each, writes a repaired
+  MT940, and converts the transactions to CSV with the :86: text split into name and purpose. The file is
+  read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 in a new-venture-first session. Nearest existing ventures: qif-file-check and
+# ofx-file-check (US/Quicken formats), bai2-statement-reader (US cash-management format) and
+# bank-csv-to-qbo-converter. None reads MT940, the plain-text statement format most European and many
+# international banks hand to business customers, and the one that DATEV, Exact, Sage and Xero users meet
+# when a bank connection is not available. Paid MT940-to-CSV/QBO converters exist and charge per file or per
+# month; this one is free, local and adds the balance and continuity checks that find the missing day.
+# First visitor: a bookkeeper or small-business owner with a bank's .sta/.mt940 download that will not
+# import or does not reconcile; search phrases like "mt940 to csv", "mt940 import error", "mt940 balance
+# does not match", "mt940 file format". Volume not measured with an external tool.
+#
+# Deterministic and local: no bank login, no aggregator, no upload, so no credential or data-protection
+# exposure and no cost per user.
+#
+# Path to revenue (payment rails stay off): lead magnet for bookkeeper and accounting audiences, paired
+# with the other bank-file checks; a paid version, if usage appears, is a batch converter over a folder of
+# statements with account mapping and a QBO/CAMT output behind an env-var switch; none built.
+#
+# Liability: format checks on the user's own file, no warranty, independent-of-every-product clause,
+# trademarks used nominatively, no promise any importer will accept the file.

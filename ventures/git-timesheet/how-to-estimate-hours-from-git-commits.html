@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Estimate Hours Worked from Git Commits</title>
+  <meta name="description" content="How freelancers and agencies turn commit history into defensible billable hours: session grouping, lead time, what git cannot see, and how to present it to a client.">
+  <link rel="canonical" href="./how-to-estimate-hours-from-git-commits.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this upload my git history?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page parses the text you paste in your own browser and sends nothing anywhere. The CLI reads your local repository and makes no network call."}}, {"@type": "Question", "name": "How are hours estimated from commits?", "acceptedAnswer": {"@type": "Answer", "text": "Commits less than the idle gap apart (default 2 hours) form one working session. A session counts its span plus lead time (default 30 minutes) for the work before the first commit. Each contributor is estimated separately."}}, {"@type": "Question", "name": "Is the estimate accurate enough to invoice?", "acceptedAnswer": {"@type": "Answer", "text": "It is a defensible starting point, not a time record. Meetings, research, review and debugging without commits are not captured, so check the total against your own notes before you send it."}}, {"@type": "Question", "name": "Which git log format does it need?", "acceptedAnswer": {"@type": "Answer", "text": "git log --pretty=format:'%H|%an|%aI|%s'. The copy button gives you the exact command."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+</head>
+<body>
+  <p><a href="./">← Git Timesheet</a></p>
+  <h1>How to estimate hours worked from git commits</h1>
+  <p>Paste your history into <a href="./">Git Timesheet</a> to get hours per day and a client-ready summary. This is the method behind the number, and where it is weak.</p>
+  <h2>Does this upload my git history?</h2>
+  <p>No. The page parses the text you paste in your own browser and sends nothing anywhere. The CLI reads your local repository and makes no network call.</p>
+  <h2>How are hours estimated from commits?</h2>
+  <p>Commits less than the idle gap apart (default 2 hours) form one working session. A session counts its span plus lead time (default 30 minutes) for the work before the first commit. Each contributor is estimated separately.</p>
+  <h2>Is the estimate accurate enough to invoice?</h2>
+  <p>It is a defensible starting point, not a time record. Meetings, research, review and debugging without commits are not captured, so check the total against your own notes before you send it.</p>
+  <h2>Which git log format does it need?</h2>
+  <p>git log --pretty=format:'%H|%an|%aI|%s'. The copy button gives you the exact command.</p>
+  <h2>How should I present estimated hours to a client?</h2>
+  <p>Say they are estimated from commit activity, add the time you know git cannot see (calls, planning, review), and attach the day-by-day summary so each line of work is visible. Agree the method before the first invoice, not after.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not legal, tax or accounting advice; check your contract and local rules before billing on estimated time. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support is optional.</a></p>
+  </footer>
+</body>
+</html>

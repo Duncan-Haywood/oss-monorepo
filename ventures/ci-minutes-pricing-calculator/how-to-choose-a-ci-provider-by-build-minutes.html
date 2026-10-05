@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Choose a CI Provider by Build Minutes</title>
+  <meta name="description" content="Why CI bills jump at certain build-minute volumes, why per-seat plans and pay-as-you-go minutes compare differently, and what to fix before switching vendor.">
+  <link rel="canonical" href="./how-to-choose-a-ci-provider-by-build-minutes.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why do CI prices differ so much at the same build-minute volume?", "acceptedAnswer": {"@type": "Answer", "text": "Some vendors sell a per-seat plan with a pool of included minutes (GitLab, Bitbucket), others bill pure pay-as-you-go minutes (GitHub Actions beyond its free allowance, Buildkite hosted agents), and the per-minute rate varies by more than a factor of two. At 10,000 Linux minutes a month the cheapest and most expensive list prices in the calculator differ by more than four times."}}, {"@type": "Question", "name": "What matters more than the per-minute price?", "acceptedAnswer": {"@type": "Answer", "text": "Minutes you do not use. Caching dependencies, cancelling superseded runs, path filters and right-sized runners usually cut a CI bill more than switching vendor. Also check concurrency limits and queue time: a cheap provider that makes developers wait costs more in salary than it saves."}}, {"@type": "Question", "name": "When should I switch CI providers?", "acceptedAnswer": {"@type": "Answer", "text": "When the 12-month spend under your growth rate differs enough to pay for the migration, which means rewriting pipeline config, moving secrets and re-tuning caches. Run the calculator with your growth rate before deciding, and remember macOS and Windows minutes bill at multiples of Linux."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+</head>
+<body>
+  <p><a href="./">← CI Minutes Pricing Calculator</a></p>
+  <h1>How to choose a CI provider by build minutes</h1>
+  <p>Put your build minutes per month and growth rate into the <a href="./">calculator</a> to price GitHub Actions, CircleCI, GitLab, Bitbucket Pipelines and Buildkite side by side. These are the questions to settle before you trust the answer.</p>
+  <h2>Why do CI prices differ so much at the same build-minute volume?</h2>
+  <p>Some vendors sell a per-seat plan with a pool of included minutes (GitLab, Bitbucket), others bill pure pay-as-you-go minutes (GitHub Actions beyond its free allowance, Buildkite hosted agents), and the per-minute rate varies by more than a factor of two. At 10,000 Linux minutes a month the cheapest and most expensive list prices in the calculator differ by more than four times.</p>
+  <h2>What matters more than the per-minute price?</h2>
+  <p>Minutes you do not use. Caching dependencies, cancelling superseded runs, path filters and right-sized runners usually cut a CI bill more than switching vendor. Also check concurrency limits and queue time: a cheap provider that makes developers wait costs more in salary than it saves.</p>
+  <h2>When should I switch CI providers?</h2>
+  <p>When the 12-month spend under your growth rate differs enough to pay for the migration, which means rewriting pipeline config, moving secrets and re-tuning caches. Run the calculator with your growth rate before deciding, and remember macOS and Windows minutes bill at multiples of Linux.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial or engineering advice; verify prices at each vendor. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support is optional.</a></p>
+  </footer>
+</body>
+</html>

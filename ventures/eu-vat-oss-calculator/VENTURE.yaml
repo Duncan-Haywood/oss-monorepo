@@ -1,0 +1,112 @@
+name: eu-vat-oss-calculator
+description: >-
+  Free browser tool for small EU-bound digital and e-commerce sellers (Etsy, Shopify, indie
+  SaaS, app and course sellers, including non-EU sellers using the non-Union OSS). It checks
+  the EUR 10,000 EU-wide distance-sales threshold (headroom and the sale and date at which it
+  was crossed), then turns a pasted sales CSV into the quarterly One-Stop-Shop return: VAT
+  base and VAT due per destination country and per rate, in exact decimals, with refunds,
+  B2B sales with a VAT ID, domestic sales (shown as not part of OSS), gross-to-net reverse
+  calculation and manual exchange rates handled, a findings list with row numbers, a CSV of
+  the return and a list of the records to keep. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. duplicate_check.py: top score 0.25, nothing
+# near the 0.45 bar. Small sellers of digital goods and services to EU consumers (Etsy and Shopify
+# shops, indie SaaS and app makers, course and e-book sellers, and non-EU sellers using the
+# non-Union OSS) must charge the VAT of each customer's country once their cross-border
+# consumer sales pass EUR 10,000 net in the current or previous calendar year, and report it
+# on a quarterly OSS return. The people with the real problem are bookkeeping-light sellers
+# with a platform export and no accountant who can tell them which sales are on the return.
+# Existing answers are paid VAT automation suites that connect to the shop, accountant-written
+# guides with a rate table and no arithmetic, and per-country rate lookup widgets; nothing is a
+# free page that takes the actual export and shows the threshold date, the per-country return
+# and the rows it could not place.
+#
+# First visitor: sellers searching "EU VAT OSS calculator", "OSS return per country", "do I
+# need to register for OSS", "EUR 10000 distance selling threshold", "Etsy EU VAT OSS". Volume
+# not measured with an external tool.
+#
+# What makes it more than a rate table: the threshold is run over the user's own file in date
+# order (previous year included, typed or from the data) so the page names the row and date
+# where destination VAT started; domestic, B2B-with-VAT-ID, non-EU and below-threshold sales
+# are each separated and counted; gross amounts are reverse-calculated so base plus VAT equals
+# what customers paid; every number is BigInt or integer arithmetic and VAT is rounded once per
+# country and per rate (not per line), which is stated on the page; every unplaceable row is
+# listed by its row number in the file.
+#
+# Privacy is the liability boundary: sales files carry customer countries and order ids, so the
+# file never leaves the browser (a test asserts no network calls) and usage counters are events
+# only (file_analyzed, example_loaded, summary_exported), stored on the device and opt-out-able.
+#
+# Path to revenue (payment rails stay off): lead magnet for bookkeeping, marketplace-seller and
+# VAT-compliance audiences. A paid version, if usage appears, is multi-quarter history, saved
+# FX rates and a per-seller rate set behind an env-var switch; not built.
+#
+# Liability: not tax advice; arithmetic on the user's own data; no warranty; not affiliated
+# with the European Commission or any tax authority; rates stated with an as-of date and a
+# verify-against-the-Commission-page instruction; no payment code.
+#
+# Unverified (all from memory of public sources; no network was available, so nothing below was
+# checked against a live source or against a filed return). RATES_AS_OF is 2025-10-01 and means
+# "believed in force then", not "checked then":
+#   - Every reduced-rate list in the table (all 27 countries), including which of several
+#     reduced rates a country applies to which goods. The tool reads "reduced" as the highest
+#     reduced rate and warns when a country has several.
+#   - Every e-book / digital-publication rate. Null (so the standard rate is used, with a
+#     warning) for Bulgaria, Croatia and Slovakia because the author had no reliable figure.
+#     Least certain of the filled ones: Cyprus, Estonia, Finland, Ireland, Latvia, Romania.
+#   - Standard rates changed recently and flagged "std" in the table: Estonia 24% (from 1 July
+#     2025), Finland 25.5% (from 1 September 2024), Romania 21% (from 1 August 2025),
+#     Slovakia 23% (from 1 January 2025). Any change after 2025-10-01 is not in the table.
+#   - The EUR 10,000 figure and its reading: EU-wide, net of VAT, current or previous calendar
+#     year, "exceeds" meaning strictly more than; that the sale which crosses it already takes
+#     destination VAT; that credit notes reduce the running total; that the threshold applies to
+#     B2C distance sales of goods and B2C telecom, broadcasting and electronic services from a
+#     seller's own member state only, not to sellers established outside the EU.
+#   - Filing and payment deadline as the end of the month after the quarter (30 April, 31 July,
+#     31 October, 31 January).
+#   - Treatment of special territories: Northern Ireland (XI) not an OSS destination here,
+#     Monaco treated as France for VAT (not mapped by the tool), Isle of Man as UK, Aland,
+#     Canary Islands and the French overseas departments outside the EU VAT area.
+#   - The ECB reference rate for the last day of the period as the conversion rule, and the
+#     10-year record retention and "two pieces of non-conflicting evidence" wording.
+#   - Whether a refund of an earlier quarter's sale belongs on the current return or as a
+#     correction to the earlier one (the page places it in the quarter of the refund row and
+#     says so).
+#   - Per-country-per-rate rounding: stated as this tool's rule, not as what every authority
+#     or accounting system does.
+#   The first user report of a figure that differs from a filed or accepted return is the
+#   priority fix.
+
+hypotheses:
+  - claim: >-
+      A small seller who has just heard they may owe EU VAT will paste a platform export into a
+      no-login page, because the alternatives are a paid VAT suite or hand-built spreadsheets.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the date the threshold was crossed and a per-country table they can copy into the
+      OSS portal brings the same seller back each quarter.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted file structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a rate in the table, or a figure this tool produced, differs from what their tax authority or an accepted OSS return shows, at which point the rate table and the rules need revisiting before more users rely on them.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/eu-vat-oss-calculator/
+  analytics: null
