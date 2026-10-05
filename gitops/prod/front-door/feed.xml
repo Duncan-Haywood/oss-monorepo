@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 735 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 736 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -22,6 +22,14 @@
     <updated>2026-10-05T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free Google Contacts CSV checker: finds headings Google skips, emails and phone numbers that will not import, impossible birthdays, blank and duplicate rows and Excel damage, with line numbers, applies safe fixes and splits big files. Runs in your browser; the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>GPX Track Checker — Find Why a GPX File Won&#39;t Upload and Fix It</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/gpx-track-check/"/>
+    <id>tag:marisstella.dev,2026:tool/gpx-track-check</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free GPX checker: finds why Strava, Garmin Connect or Komoot rejects a track file, with line numbers: missing creator, version and namespace, GPS jumps, points at 0,0, timestamps out of order, no times, bad elevations. Downloads a repaired copy. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>GTIN, UPC and EAN List Checker — Bulk Check Digits and Restore Excel-Damaged Barcodes</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free EDI X12 file checker and reader for suppliers: finds wrong SE/GE/IEA counts and control numbers, UPC and SSCC check-digit errors, invoice totals that do not match the lines and broken ship-notice hierarchies, and translates 997 rejections. Runs in your browser; the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Email List CSV Check — Clean a Contact List Before You Import</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/email-list-csv-check/"/>
-    <id>tag:marisstella.dev,2026:tool/email-list-csv-check</id>
-    <updated>2026-10-04T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free email list CSV checker for Mailchimp, HubSpot, Klaviyo, Brevo and Constant Contact imports: finds invalid and duplicate emails, domain typos like gmial.com, role and disposable addresses, Excel damage and wrong column names, with line numbers, and downloads a safe-fixes copy plus a rejected-rows file. Runs in your browser; the list is never uploaded.</summary>
   </entry>
 </feed>
