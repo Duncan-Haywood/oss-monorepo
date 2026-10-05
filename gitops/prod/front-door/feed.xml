@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 730 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 731 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -22,6 +22,14 @@
     <updated>2026-10-05T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free bulk barcode checker: validates a list of UPC, EAN, GTIN and ISBN codes, finds bad check digits, leading zeros lost to Excel, scientific notation, duplicates and reserved prefixes, and writes the list back fixed. Runs in your browser; the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Bulk IBAN Validator — Check a Supplier or Payroll List Before You Upload the Payment File</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/iban-list-check/"/>
+    <id>tag:marisstella.dev,2026:tool/iban-list-check</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free bulk IBAN checker: validates a whole column of IBANs, finds wrong check digits (with the swapped-digit fix), wrong lengths, unknown countries, stray spaces, duplicates and blanks, and writes the list back cleaned. Runs in your browser; the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Facebook &amp; Instagram Catalog Feed Checker — Find CSV Errors Before You Upload</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-04T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free EU VAT OSS calculator: EUR 10,000 threshold check and the quarterly OSS return by country and rate from a sales CSV.</summary>
-  </entry>
-  <entry>
-    <title>Form 5500 Late Filing Calculator — DFVC Cost vs IRS and DOL Penalties</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/form-5500-late-filing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/form-5500-late-filing-calculator</id>
-    <updated>2026-10-04T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free Form 5500 late filing calculator for 401(k) and retirement-plan sponsors: the due date with weekend rollover and the Form 5558 extension, days late, and the DOL DFVC programme cost beside IRS and DOL penalty exposure. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>

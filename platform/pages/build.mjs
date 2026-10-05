@@ -1263,7 +1263,9 @@ const CATEGORY_RULES = [
       // `brevo-contacts-csv-check` joined 2026-10-05: the Brevo (email + SMS contacts) member of the same import pre-flight family.
       || slug === 'brevo-contacts-csv-check'
       // `gtin-list-check` joined 2026-10-05: a product-list barcode pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them for the same bundle-bound reason.
-      || slug === 'gtin-list-check',
+      || slug === 'gtin-list-check'
+      // `iban-list-check` joined 2026-10-05: a supplier/payroll bank-detail pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them.
+      || slug === 'iban-list-check',
   },
   {
     id: 'backoffice',

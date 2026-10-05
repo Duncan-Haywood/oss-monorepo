@@ -1172,6 +1172,9 @@ workflows:
 - workflow: payroll-hours-csv-check-ci.yml
   classification: none
   publishes: []
+- workflow: iban-list-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: lambda-memory-rightsizer-ci.yml
   classification: none
   publishes: []
