@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 760 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 761 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -144,6 +144,14 @@
     <summary type="text">Free law firm realization calculator: realization, collection rate and yield per lawyer, dollars lost before and after billing, lockup days, and what a point of realization is worth. Runs in your browser.</summary>
   </entry>
   <entry>
+    <title>Lemon Squeezy Payout Export to Xero and QuickBooks Journal</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/lemonsqueezy-payout-to-journal/"/>
+    <id>tag:marisstella.dev,2026:tool/lemonsqueezy-payout-to-journal</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free Lemon Squeezy payout to journal converter: proves the orders add up to your payout, splits product sales income, shipping, tax you collected, Lemon Squeezy platform and processing fees and refunds by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Facebook &amp; Instagram Catalog Feed Checker — Find CSV Errors Before You Upload</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/meta-catalog-csv-check/"/>
     <id>tag:marisstella.dev,2026:tool/meta-catalog-csv-check</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-05T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free MT940 checker: finds why a SWIFT MT940 bank statement fails to import or does not balance (opening plus transactions versus closing, gaps between statements, bad :61: lines, period decimals, repeats), with line numbers, and converts it to CSV. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>OFX / QFX File Checker — Fix a Bank Export Before QuickBooks Import</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ofx-file-check/"/>
-    <id>tag:marisstella.dev,2026:tool/ofx-file-check</id>
-    <updated>2026-10-05T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free OFX and QFX file checker: finds the problems that make QuickBooks, Quicken, YNAB and Xero reject a bank or credit-card Web Connect file — bad header, unclosed tags, duplicate FITIDs, invalid dates and amounts, unescaped ampersands, DTSTART and DTEND mismatches — and writes the file back fixed. Runs in your browser; the file is never uploaded.</summary>
   </entry>
 </feed>
