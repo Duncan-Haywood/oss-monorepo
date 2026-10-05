@@ -1,0 +1,50 @@
+name: xero-bank-statement-csv-check
+description: >-
+  Free browser tool that checks a bank statement CSV before it is imported into Xero and says why the
+  import fails or posts wrong: account details or a title above the header, separate Debit and Credit
+  columns instead of one signed Amount, amounts written 1.234,56, (18.00) or $12.50, dates whose
+  day/month order the file cannot prove (or that mix both), rows downloaded twice, two-digit years, and
+  cells a spreadsheet damaged (scientific notation, #REF!). It gives a line number for each and writes a
+  repaired CSV in Xero's column layout, optionally with dates rewritten in the format and order you
+  confirm. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Bookkeepers and small-business owners who hit a Xero statement-import error will paste the file into a checker that names the row and writes a fixed CSV, because the importer's own message does not.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Banks that only export separate Debit and Credit columns, or that put account details above the header, are the largest single source of failed statement imports, and merging them is a safe, provable repair.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three bookkeepers or owners check a file and read a result within 90 days.
+  - Xero's documented statement CSV rules turn out to differ materially from the ones in calc.mjs (read from memory, no import available) and cannot be corrected from public documentation.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/xero-bank-statement-csv-check/
+  analytics: null
+
+# Screened 2026-10-05 in a new-venture-first session. Siblings cover Xero invoices and contacts
+# (xero-invoice-csv-check, xero-contacts-csv-check) and bank formats OFX and QIF (ofx-file-check,
+# qif-file-check); the statement CSV, the file most small-business owners actually download, was not
+# covered. Search phrases: "xero bank statement csv import error", "xero csv date format wrong",
+# "xero debit credit columns import", "convert bank csv for xero". Volume not measured with an external tool.
+# Buyer: bookkeepers and owners of small firms on Xero, a paying segment with a recurring monthly chore.
+#
+# Deterministic and local: no bank login, no aggregator, no upload, so no credential or data-protection
+# exposure and no cost per user.
+#
+# Path to revenue (payment rails stay off): lead magnet for bookkeeper audiences; if usage appears, a
+# multi-file batch mode and per-bank column presets behind an env-var switch; none built.
+#
+# Liability: arithmetic and formatting on the user's own file; not accounting advice; rules read from memory
+# of public Xero documentation and flagged as such on the page; trademark used nominatively.
