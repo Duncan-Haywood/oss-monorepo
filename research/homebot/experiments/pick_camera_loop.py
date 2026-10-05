@@ -86,11 +86,13 @@ class CameraEstimator:
         self.K_wrist = P.intrinsics(float(self.mr.cam_fovy[self.mr.camera("r_wrist_cam").id]), WIDTH, HEIGHT)
         self.true_pose = (cam_pos, cam_R)
         self.stats = {"frames": 0, "detections": 0, "never_seen": 0, "episodes": 0}
+        self.seen_history: list[bool] = []
 
     def _new_episode(self):
         # (the vectorised env resets as soon as an episode ends, so the previous one is booked here)
-        if self.stats["episodes"] > 0 and not self.seen:
-            self.stats["never_seen"] += 1
+        if self.stats["episodes"] > 0:
+            self.seen_history.append(bool(self.seen))
+            self.stats["never_seen"] += int(not self.seen)
         self.stats["episodes"] += 1
         if self.head:
             tick = self.env.robot.servo.tick
@@ -177,7 +179,10 @@ def evaluate(run: Path, gap: str, head: bool | None, png: str, episodes: int, se
            "success_ci95": float(1.96 * math.sqrt(max(s * (1 - s), 1e-12) / episodes))}
     if cam is not None:
         cam.renderer.close()
-        out.update(marker_never_seen=cam.stats["never_seen"],
+        seen = cam.seen_history[:episodes]
+        ok_seen = [x for x, sn in zip(succ, seen) if sn]
+        out.update(marker_never_seen=episodes - sum(seen), seen_per_episode=[int(x) for x in seen],
+                   success_when_seen=float(np.mean(ok_seen)) if ok_seen else None,
                    detection_rate=cam.stats["detections"] / max(1, cam.stats["frames"]))
     return out
 
@@ -196,8 +201,9 @@ def main(runs, episodes=50, gaps=("nominal",)):
                 for cam_name, head in (("simulator_pose", None), ("fixed_camera", False), ("pan_tilt_head", True)):
                     r = evaluate(run, gap, head, png, episodes)
                     res.setdefault(gap, {})[cam_name] = r
-                    extra = (f" (marker never seen {r['marker_never_seen']}, detected in "
-                             f"{r['detection_rate'] * 100:.0f} % of frames)" if head is not None else "")
+                    extra = (f" (marker never seen {r['marker_never_seen']}, success when seen "
+                             f"{r['success_when_seen']:.2f}, detected in {r['detection_rate'] * 100:.0f} % of frames)"
+                             if head is not None else "")
                     print(f"{run.name:22s} {gap:12s} {cam_name:14s} success {r['success_rate']:.2f} "
                           f"± {r['success_ci95']:.2f}{extra}", flush=True)
                     out_path.write_text(json.dumps(out, indent=1))
