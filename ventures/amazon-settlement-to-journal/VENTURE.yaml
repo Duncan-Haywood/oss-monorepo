@@ -1,0 +1,65 @@
+name: amazon-settlement-to-journal
+description: >-
+  Free browser tool that turns an Amazon seller settlement report (Flat File V2) into balanced accounting
+  journals for Xero, QuickBooks Online and QuickBooks Desktop (IIF). It proves the rows add up to the deposit
+  Amazon states (naming the amount it is off by), groups rows into sales, shipping, promotions, refunds,
+  tax, referral and FBA fees, storage, advertising, subscription, reimbursements and reserves, splits a
+  settlement that straddles a month end into one journal per month, and balances each to an Amazon clearing
+  account. Rows no rule recognises are journalled to an uncategorised account rather than dropped. The report
+  is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 in a new-venture-first session. The commercial analogue is A2X (settlement-to-journal
+# sync for Amazon, Shopify and others, sold per month to sellers and their bookkeepers); this is the
+# no-account, no-upload, one-settlement-at-a-time version. The portfolio had Amazon profit and fee tools
+# (amazon-seller-profit-analyzer, amazon-fba-calculator) and bank-file converters, but nothing that
+# produces the journal an accountant actually posts.
+# Search phrases: "Amazon settlement report to Xero", "Amazon settlement to QuickBooks", "Amazon settlement
+# journal entry", "reconcile Amazon deposit", "Amazon settlement report month end split".
+# Volume not measured with an external tool.
+#
+# Who: Amazon sellers who keep their own books, and the bookkeepers who serve several of them, who today
+# either book the net deposit as income (wrong: fees, refunds and tax are hidden, and month end is wrong)
+# or pay a monthly sync fee. Marketplace sellers on Amazon number in the millions; the paid alternative
+# starts around tens of dollars a month per store.
+#
+# Path to revenue (payment rails stay off): lead magnet for the Amazon-seller and bookkeeper audience.
+# If usage appears, the paid version is the one thing a browser page cannot do: batch many settlements,
+# remember the account mapping per client, and handle other marketplaces (Shopify payouts, Etsy,
+# Walmart, eBay) behind an env-var switch. Not built.
+#
+# Liability: it writes a journal from the user's own report, shows the deposit check it ran, states what
+# it does not check, and carries the no-warranty, independent-of-Amazon and financial-data clauses.
+#
+# Unverified: the Flat File V2 column names and the amount-type / amount-description values, and the
+# Xero, QuickBooks Online and IIF import layouts, are from memory of public help documents; nothing ran
+# against a real settlement or a live import. The first report of a settlement this misreads, or a journal
+# an importer refuses, is the priority fix.
+
+hypotheses:
+  - claim: >-
+      An Amazon seller or their bookkeeper will paste a settlement report into a no-upload page to get a
+      month-split journal, because the alternatives are booking the net deposit (hiding fees and refunds)
+      or paying a monthly sync fee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted settlement structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a settlement this tool misreads, or a journal that Xero or QuickBooks refuses, at which point the layouts need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/amazon-settlement-to-journal/
+  analytics: null
