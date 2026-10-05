@@ -33,40 +33,40 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547468 bytes
-#   portfolio-front-tools-1: 92 files, 555209 bytes
-#   portfolio-front-tools-2: 144 files, 553527 bytes
-#   portfolio-front-tools-3: 128 files, 549100 bytes
-#   portfolio-front-tools-4: 136 files, 553976 bytes
-#   portfolio-front-tools-5: 127 files, 553663 bytes
-#   portfolio-front-tools-6: 119 files, 549731 bytes
-#   portfolio-front-tools-7: 127 files, 544836 bytes
-#   portfolio-front-tools-8: 133 files, 555295 bytes
-#   portfolio-front-tools-9: 131 files, 556411 bytes
-#   portfolio-front-tools-10: 123 files, 551416 bytes
-#   portfolio-front-tools-11: 133 files, 554686 bytes
-#   portfolio-front-tools-12: 126 files, 546243 bytes
-#   portfolio-front-tools-13: 124 files, 551242 bytes
-#   portfolio-front-tools-14: 122 files, 551127 bytes
-#   portfolio-front-tools-15: 125 files, 556334 bytes
-#   portfolio-front-tools-16: 117 files, 555678 bytes
-#   portfolio-front-tools-17: 119 files, 555854 bytes
-#   portfolio-front-tools-18: 115 files, 543614 bytes
-#   portfolio-front-tools-19: 128 files, 556758 bytes
-#   portfolio-front-tools-20: 119 files, 550745 bytes
-#   portfolio-front-tools-21: 133 files, 555568 bytes
-#   portfolio-front-tools-22: 115 files, 552262 bytes
-#   portfolio-front-tools-23: 130 files, 554958 bytes
-#   portfolio-front-tools-24: 127 files, 553177 bytes
-#   portfolio-front-tools-25: 121 files, 549689 bytes
-#   portfolio-front-tools-26: 116 files, 556677 bytes
-#   portfolio-front-tools-27: 91 files, 549324 bytes
-#   portfolio-front-tools-28: 125 files, 551135 bytes
-#   portfolio-front-tools-29: 115 files, 556946 bytes
-#   portfolio-front-tools-30: 128 files, 552004 bytes
-#   portfolio-front-tools-31: 131 files, 552771 bytes
-#   portfolio-front-tools-32: 119 files, 541545 bytes
-#   portfolio-front-tools-33: 87 files, 482076 bytes
+#   portfolio-front-tools-0: 145 files, 547481 bytes
+#   portfolio-front-tools-1: 92 files, 555210 bytes
+#   portfolio-front-tools-2: 144 files, 553540 bytes
+#   portfolio-front-tools-3: 128 files, 549112 bytes
+#   portfolio-front-tools-4: 136 files, 553980 bytes
+#   portfolio-front-tools-5: 127 files, 553667 bytes
+#   portfolio-front-tools-6: 119 files, 549739 bytes
+#   portfolio-front-tools-7: 127 files, 544842 bytes
+#   portfolio-front-tools-8: 133 files, 555242 bytes
+#   portfolio-front-tools-9: 131 files, 556354 bytes
+#   portfolio-front-tools-10: 123 files, 551445 bytes
+#   portfolio-front-tools-11: 133 files, 554664 bytes
+#   portfolio-front-tools-12: 126 files, 546190 bytes
+#   portfolio-front-tools-13: 124 files, 551218 bytes
+#   portfolio-front-tools-14: 122 files, 551144 bytes
+#   portfolio-front-tools-15: 125 files, 556317 bytes
+#   portfolio-front-tools-16: 117 files, 555706 bytes
+#   portfolio-front-tools-17: 119 files, 555915 bytes
+#   portfolio-front-tools-18: 115 files, 543588 bytes
+#   portfolio-front-tools-19: 128 files, 556776 bytes
+#   portfolio-front-tools-20: 119 files, 550802 bytes
+#   portfolio-front-tools-21: 133 files, 555590 bytes
+#   portfolio-front-tools-22: 115 files, 552244 bytes
+#   portfolio-front-tools-23: 130 files, 554946 bytes
+#   portfolio-front-tools-24: 127 files, 553103 bytes
+#   portfolio-front-tools-25: 121 files, 549528 bytes
+#   portfolio-front-tools-26: 116 files, 552010 bytes
+#   portfolio-front-tools-27: 93 files, 555234 bytes
+#   portfolio-front-tools-28: 124 files, 553585 bytes
+#   portfolio-front-tools-29: 116 files, 555605 bytes
+#   portfolio-front-tools-30: 127 files, 549273 bytes
+#   portfolio-front-tools-31: 130 files, 554872 bytes
+#   portfolio-front-tools-32: 122 files, 550675 bytes
+#   portfolio-front-tools-33: 87 files, 482030 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3571,6 +3571,9 @@ configMapGenerator:
       - senior-deduction-calculator__usage.mjs.gz=senior-deduction-calculator__usage.mjs.gz
       - senior-deduction-calculator__vs-estimating-the-deduction-by-hand.html.gz=senior-deduction-calculator__vs-estimating-the-deduction-by-hand.html.gz
       - senior-deduction-calculator__why-does-the-senior-deduction-phase-out-completely.html.gz=senior-deduction-calculator__why-does-the-senior-deduction-phase-out-completely.html.gz
+      - sep-ira-vs-solo-401k-calculator__calc.mjs.gz=sep-ira-vs-solo-401k-calculator__calc.mjs.gz
+      - sep-ira-vs-solo-401k-calculator__index.html.gz=sep-ira-vs-solo-401k-calculator__index.html.gz
+      - sep-ira-vs-solo-401k-calculator__usage.mjs.gz=sep-ira-vs-solo-401k-calculator__usage.mjs.gz
       - sepa-pain001-validator__calc.mjs.gz=sepa-pain001-validator__calc.mjs.gz
       - sepa-pain001-validator__index.html.gz=sepa-pain001-validator__index.html.gz
       - sepa-pain001-validator__usage.mjs.gz=sepa-pain001-validator__usage.mjs.gz
@@ -3591,14 +3594,14 @@ configMapGenerator:
       - service-hourly-yield-analyzer__index.html.gz=service-hourly-yield-analyzer__index.html.gz
       - service-hourly-yield-analyzer__usage.mjs.gz=service-hourly-yield-analyzer__usage.mjs.gz
       - service-van-stock-optimizer__calc.mjs.gz=service-van-stock-optimizer__calc.mjs.gz
-      - service-van-stock-optimizer__index.html.gz=service-van-stock-optimizer__index.html.gz
-      - service-van-stock-optimizer__usage.mjs.gz=service-van-stock-optimizer__usage.mjs.gz
-      - sewer-hydrojet-bid-calculator__calc.mjs.gz=sewer-hydrojet-bid-calculator__calc.mjs.gz
   - name: portfolio-front-tools-27
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - service-van-stock-optimizer__index.html.gz=service-van-stock-optimizer__index.html.gz
+      - service-van-stock-optimizer__usage.mjs.gz=service-van-stock-optimizer__usage.mjs.gz
+      - sewer-hydrojet-bid-calculator__calc.mjs.gz=sewer-hydrojet-bid-calculator__calc.mjs.gz
       - sewer-hydrojet-bid-calculator__how-much-to-charge-for-hydro-jetting.html.gz=sewer-hydrojet-bid-calculator__how-much-to-charge-for-hydro-jetting.html.gz
       - sewer-hydrojet-bid-calculator__index.html.gz=sewer-hydrojet-bid-calculator__index.html.gz
       - sewer-hydrojet-bid-calculator__share.mjs.gz=sewer-hydrojet-bid-calculator__share.mjs.gz
@@ -3689,12 +3692,12 @@ configMapGenerator:
       - shopify-permission-drift__index.html.gz=shopify-permission-drift__index.html.gz
       - shopify-permission-drift__usage.mjs.gz=shopify-permission-drift__usage.mjs.gz
       - shopify-permission-drift__vs-miniorange.html.gz=shopify-permission-drift__vs-miniorange.html.gz
-      - shopify-product-csv-check__calc.mjs.gz=shopify-product-csv-check__calc.mjs.gz
   - name: portfolio-front-tools-28
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shopify-product-csv-check__calc.mjs.gz=shopify-product-csv-check__calc.mjs.gz
       - shopify-product-csv-check__index.html.gz=shopify-product-csv-check__index.html.gz
       - shopify-product-csv-check__usage.mjs.gz=shopify-product-csv-check__usage.mjs.gz
       - shopify-to-woocommerce-converter__converter.mjs.gz=shopify-to-woocommerce-converter__converter.mjs.gz
@@ -3818,13 +3821,13 @@ configMapGenerator:
       - spray-foam-bid-calculator__share.mjs.gz=spray-foam-bid-calculator__share.mjs.gz
       - spray-foam-bid-calculator__usage.mjs.gz=spray-foam-bid-calculator__usage.mjs.gz
       - spray-foam-bid-calculator__vs-a-flat-per-square-foot-price.html.gz=spray-foam-bid-calculator__vs-a-flat-per-square-foot-price.html.gz
-      - spray-foam-bid-calculator__vs-jobber.html.gz=spray-foam-bid-calculator__vs-jobber.html.gz
-      - sql-migration-lock-check__check.mjs.gz=sql-migration-lock-check__check.mjs.gz
   - name: portfolio-front-tools-29
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - spray-foam-bid-calculator__vs-jobber.html.gz=spray-foam-bid-calculator__vs-jobber.html.gz
+      - sql-migration-lock-check__check.mjs.gz=sql-migration-lock-check__check.mjs.gz
       - sql-migration-lock-check__engine.mjs.gz=sql-migration-lock-check__engine.mjs.gz
       - sql-migration-lock-check__index.html.gz=sql-migration-lock-check__index.html.gz
       - sql-migration-lock-check__sql.mjs.gz=sql-migration-lock-check__sql.mjs.gz
@@ -3939,12 +3942,12 @@ configMapGenerator:
       - stucco-repair-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=stucco-repair-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
       - stucco-repair-bid-calculator__vs-jobber.html.gz=stucco-repair-bid-calculator__vs-jobber.html.gz
       - studio-class-slot-optimizer__calc.mjs.gz=studio-class-slot-optimizer__calc.mjs.gz
-      - studio-class-slot-optimizer__index.html.gz=studio-class-slot-optimizer__index.html.gz
   - name: portfolio-front-tools-30
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - studio-class-slot-optimizer__index.html.gz=studio-class-slot-optimizer__index.html.gz
       - studio-class-slot-optimizer__usage.mjs.gz=studio-class-slot-optimizer__usage.mjs.gz
       - subdomain-takeover-check__analyze.mjs.gz=subdomain-takeover-check__analyze.mjs.gz
       - subdomain-takeover-check__check.mjs.gz=subdomain-takeover-check__check.mjs.gz
@@ -4071,13 +4074,13 @@ configMapGenerator:
       - tire-shop-ticket-margin-calculator__calc.mjs.gz=tire-shop-ticket-margin-calculator__calc.mjs.gz
       - tire-shop-ticket-margin-calculator__index.html.gz=tire-shop-ticket-margin-calculator__index.html.gz
       - tire-shop-ticket-margin-calculator__usage.mjs.gz=tire-shop-ticket-margin-calculator__usage.mjs.gz
-      - toilet-replacement-bid-calculator__calc.mjs.gz=toilet-replacement-bid-calculator__calc.mjs.gz
-      - toilet-replacement-bid-calculator__how-much-to-charge-to-replace-a-toilet.html.gz=toilet-replacement-bid-calculator__how-much-to-charge-to-replace-a-toilet.html.gz
   - name: portfolio-front-tools-31
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - toilet-replacement-bid-calculator__calc.mjs.gz=toilet-replacement-bid-calculator__calc.mjs.gz
+      - toilet-replacement-bid-calculator__how-much-to-charge-to-replace-a-toilet.html.gz=toilet-replacement-bid-calculator__how-much-to-charge-to-replace-a-toilet.html.gz
       - toilet-replacement-bid-calculator__index.html.gz=toilet-replacement-bid-calculator__index.html.gz
       - toilet-replacement-bid-calculator__should-i-install-a-customer-supplied-toilet.html.gz=toilet-replacement-bid-calculator__should-i-install-a-customer-supplied-toilet.html.gz
       - toilet-replacement-bid-calculator__should-i-take-a-saturday-toilet-call.html.gz=toilet-replacement-bid-calculator__should-i-take-a-saturday-toilet-call.html.gz
@@ -4206,14 +4209,14 @@ configMapGenerator:
       - vendor-change-watch__usage.mjs.gz=vendor-change-watch__usage.mjs.gz
       - vendor-change-watch__vs-changedetection-io.html.gz=vendor-change-watch__vs-changedetection-io.html.gz
       - vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz=vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz
-      - vercel-bill-estimator__cli.mjs.gz=vercel-bill-estimator__cli.mjs.gz
-      - vercel-bill-estimator__engine.mjs.gz=vercel-bill-estimator__engine.mjs.gz
-      - vercel-bill-estimator__how-to-reduce-your-vercel-bill.html.gz=vercel-bill-estimator__how-to-reduce-your-vercel-bill.html.gz
   - name: portfolio-front-tools-32
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vercel-bill-estimator__cli.mjs.gz=vercel-bill-estimator__cli.mjs.gz
+      - vercel-bill-estimator__engine.mjs.gz=vercel-bill-estimator__engine.mjs.gz
+      - vercel-bill-estimator__how-to-reduce-your-vercel-bill.html.gz=vercel-bill-estimator__how-to-reduce-your-vercel-bill.html.gz
       - vercel-bill-estimator__index.html.gz=vercel-bill-estimator__index.html.gz
       - vercel-bill-estimator__usage.mjs.gz=vercel-bill-estimator__usage.mjs.gz
       - veterinarian-associate-pay-calculator__calc.mjs.gz=veterinarian-associate-pay-calculator__calc.mjs.gz
