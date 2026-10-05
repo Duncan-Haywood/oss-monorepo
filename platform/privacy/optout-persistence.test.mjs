@@ -1327,7 +1327,9 @@ const RELATIVE_SELF = relative(
 // +1: `paddle-payout-to-journal` graduated.
 // +1: `sep-ira-vs-solo-401k-calculator` graduated.
 // +1: `truck-detention-pay-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 744;
+// +1: `childcare-center-break-even-calculator` graduated.
+// +1: `course-platform-fee-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 745;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
