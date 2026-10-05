@@ -1181,6 +1181,9 @@ workflows:
 - workflow: ics-calendar-check-ci.yml
   classification: none
   publishes: []
+- workflow: gpx-track-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: vcard-contacts-check-ci.yml
   classification: none
   publishes: []
