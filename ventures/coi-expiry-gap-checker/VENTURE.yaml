@@ -1,0 +1,63 @@
+name: coi-expiry-gap-checker
+description: >-
+  Free browser tool for general contractors, property managers and anyone who hires subcontractors: paste a list of
+  vendor insurance policies (one row per policy, as read off the certificates) and set what your contract requires.
+  It reports who is expired, who expires inside your lead time, whose limits are under the requirement (optionally
+  letting an in-force umbrella make up the shortfall), who lacks additional-insured, waiver-of-subrogation or
+  primary-and-non-contributory wording, and where a renewal left a gap between policies. Downloads a chase list CSV
+  and renewal reminders as an .ics calendar. The list is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 in a new-venture-first session. No venture here tracked vendor insurance (grep of
+# VENTURE.yaml for certificate of insurance / COI / exemption certificate found none). Adjacent back-office
+# tools: certified-payroll-calculator, retainage-cashflow-calculator, change-order-margin-calculator.
+# Search phrases: "COI tracker", "certificate of insurance tracking spreadsheet", "subcontractor insurance
+# requirements checklist", "track vendor insurance expiration".
+# Volume not measured with an external tool.
+#
+# Who: small and mid-size GCs, remodelers, property managers and facilities teams who keep subcontractor COIs in a
+# folder or spreadsheet. Existing answers are paid COI-compliance platforms (per-vendor subscriptions) and
+# spreadsheets; the buyer who would pay is the one with hundreds of vendors and an audit.
+#
+# What makes it more than a spreadsheet: requirement logic that is easy to get wrong by eye (umbrella making up a
+# primary shortfall, a blank endorsement is not a yes, renewal gaps measured from the dates, the lead-time
+# boundary), a chase list, and calendar reminders with stable UIDs.
+#
+# Path to revenue (payment rails stay off): lead magnet for contractor and property-manager audiences. A paid
+# version, if usage appears, is a saved vendor roster, certificate PDF reading, and email reminders behind an
+# env-var switch; not built.
+#
+# Liability: it reads the user's own list, shows the checks it ran, states what it does not check (a certificate
+# is not coverage, endorsements are not verified, adequacy of limits is the contract's), and carries the
+# no-warranty, independent-of-ACORD and business-data clauses. It never says a vendor is "insured".
+#
+# Unverified: default limits are common figures, not a recommendation; nothing was run against a real compliance
+# program or real certificates. The first report of a wrong flag is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A small contractor or property manager keeping subcontractor COIs in a folder will paste a vendor policy
+      list into a no-upload page to find who has lapsed or is under limit, because the paid COI platforms charge
+      per vendor and a spreadsheet does not compare limits or endorsements.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted list structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a flag that is wrong for a normal certificate list, at which point the requirement logic needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/coi-expiry-gap-checker/
+  analytics: null
