@@ -1312,7 +1312,8 @@ const RELATIVE_SELF = relative(
 // +1: `quickbooks-iif-file-check` graduated.
 // +1: `camt053-statement-check` graduated.
 // +1: `bank-statement-pdf-to-csv` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 724;
+// +1: `bai2-to-ofx-converter` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 725;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
