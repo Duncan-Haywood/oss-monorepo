@@ -90,6 +90,8 @@ def main():
     ap.add_argument("--eval-also", nargs="*", default=[],
                     help="other envs with the same spaces to evaluate on (e.g. MobileReachRollers)")
     ap.add_argument("--eval-also-gaps", nargs="*", default=["nominal", "combined"])
+    ap.add_argument("--ent-coef", type=float, default=0.0, help="PPO entropy bonus")
+    ap.add_argument("--variant", default="", help="label for a training-setting ablation (part of the run tag)")
     args = ap.parse_args()
 
     import torch
@@ -114,7 +116,7 @@ def main():
         (run / "eval.json").write_text(json.dumps(out, indent=2))
         return
 
-    tag = f"{args.env}_{'dr' if args.dr else 'nominal'}_s{args.seed}"
+    tag = f"{args.env}_{'dr' if args.dr else 'nominal'}{'_' + args.variant if args.variant else ''}_s{args.seed}"
     run = Path(args.out) / tag
     run.mkdir(parents=True, exist_ok=True)
     venv = SubprocVecEnv([make_env(args.env, args.dr, None, args.seed * 1000 + i) for i in range(args.n_envs)])
@@ -123,7 +125,7 @@ def main():
     model = PPO(
         "MlpPolicy", venv, seed=args.seed, device="cpu", verbose=0,
         n_steps=512, batch_size=1024, n_epochs=10, learning_rate=3e-4, gamma=0.98 if episode_steps <= 100 else 0.99,
-        gae_lambda=0.95, clip_range=0.2, ent_coef=0.0, max_grad_norm=0.5,
+        gae_lambda=0.95, clip_range=0.2, ent_coef=args.ent_coef, max_grad_norm=0.5,
         policy_kwargs=dict(net_arch=dict(pi=[256, 256], vf=[256, 256]), log_std_init=-0.5),
     )
     model.set_logger(configure(str(run), ["csv"]))
@@ -135,7 +137,8 @@ def main():
     venv.close()
     print(f"{tag}: trained {args.steps} steps in {wall / 60:.1f} min", flush=True)
     res = evaluate(model, run / "vecnormalize.pkl", args.env, args.eval_episodes)
-    meta = {"env": args.env, "dr": args.dr, "seed": args.seed, "steps": args.steps, "wall_minutes": wall / 60,
+    meta = {"env": args.env, "dr": args.dr, "variant": args.variant, "ent_coef": args.ent_coef,
+            "seed": args.seed, "steps": args.steps, "wall_minutes": wall / 60,
             "n_envs": args.n_envs, "torch_threads": 1, "cpu_count": os.cpu_count()}
     out = {"meta": meta, "eval": res, "cross_eval": {}}
     for name in args.eval_also:

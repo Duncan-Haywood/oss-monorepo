@@ -26,18 +26,23 @@ def load_runs():
     return runs
 
 
-def group(runs, env, dr):
-    return [r for r in runs if r["meta"]["env"] == env and r["meta"]["dr"] == dr]
+def regime(r) -> str:
+    """'nominal', 'dr', or 'dr_<variant>' for a training-setting ablation."""
+    base = "dr" if r["meta"]["dr"] else "nominal"
+    v = r["meta"].get("variant", "")
+    return f"{base}_{v}" if v else base
+
+
+def group(runs, env, key):
+    return [r for r in runs if r["meta"]["env"] == env and regime(r) == key]
 
 
 def table(runs, env):
     gaps = list(next(r for r in runs if r["meta"]["env"] == env)["eval"].keys())
     out = {}
-    for dr in (False, True):
-        g = group(runs, env, dr)
-        if not g:
-            continue
-        key = "dr" if dr else "nominal"
+    keys = sorted({regime(r) for r in runs if r["meta"]["env"] == env}, key=lambda k: (k != "nominal", k))
+    for key in keys:
+        g = group(runs, env, key)
         out[key] = {}
         for gap in gaps:
             s = np.array([r["eval"][gap]["success_rate"] for r in g])
