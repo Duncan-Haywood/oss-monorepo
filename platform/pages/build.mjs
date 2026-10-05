@@ -1302,6 +1302,8 @@ const CATEGORY_RULES = [
       || slug === 'gumroad-sales-to-journal'
       // `sales-export-to-journal` joined 2026-10-05: the single front door to the eight platform tools above (drop any export, the page detects the platform), filed beside them.
       || slug === 'sales-export-to-journal'
+      // `airbnb-payout-to-journal` joined 2026-10-05: the Airbnb host end of the same payout-to-journal set, filed beside it.
+      || slug === 'airbnb-payout-to-journal'
       // `paypal-activity-to-journal` joined 2026-10-05: the PayPal end of the same payout-to-journal set (Balance-column continuity proof, then a month-split journal), filed beside it.
       || slug === 'paypal-activity-to-journal'
       // `quickbooks-iif-file-check` joined 2026-10-05: the QuickBooks Desktop IIF half of the import-file pre-flights above, same line-numbered findings and explicit not-checked list.
