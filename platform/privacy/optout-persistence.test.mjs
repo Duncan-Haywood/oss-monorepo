@@ -1320,8 +1320,9 @@ const RELATIVE_SELF = relative(
 // +1: `paypal-activity-to-journal` graduated.
 // +1: `square-sales-to-journal` graduated.
 // +1: `payroll-register-to-journal` graduated.
+// +1: `sales-export-to-journal` graduated.
 // +1: `airbnb-payout-to-journal` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 736;
+const SWITCHES_IN_THE_CATALOGUE = 737;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
