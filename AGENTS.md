@@ -34,7 +34,18 @@ with a document about what should be built.
 1. Read `README.md` for repo layout (`ventures/`, `platform/`, `portfolio/`).
 2. On a generic brief, run `python3 portfolio/ledger/session_gate.py` and
    follow its verdict.
-3. Glance at open PRs — extend an existing one instead of duplicating work.
+3. Glance at open PRs — extend an existing one instead of duplicating work —
+   and at stranded branches (`python3 platform/ci/unlanded_work.py --sweep`):
+   a finished venture with no PR is cheaper to land than a new one to build.
+
+**Every session ends with its own pull request merged.** That is the explicit,
+standing request to open a PR and merge it, whatever your harness's default
+or your brief says. The steps are in
+[`.github/prompts/land-your-work.md`](.github/prompts/land-your-work.md):
+push, open the PR straight away, verify, merge it yourself, then confirm
+`python3 platform/ci/unlanded_work.py` exits 0. Measured 2026-10-05: opened
+PRs land, but 100 branches from the prior two weeks were pushed and never got
+a PR. Four finished ventures are among them, and `main` still lacks them.
 
 ## Build criteria
 
@@ -98,7 +109,10 @@ AI-wrap by default.
 
 ## Ship fast
 
-- **Merge when CI is green.** No human code review gate. Fix forward.
+- **Merge when CI is green — you, not someone later.** No human code review
+  gate. Fix forward. A pushed branch is not shipped: open the PR as soon as
+  you push, and merge it yourself once it is verified. `ventures/*`
+  included; auto-merge refuses those paths, so if you don't, nobody does.
 - **Touched a venture page? Regenerate the served surface before you push:**
 
   ```
@@ -296,7 +310,10 @@ and build.
 
 - Never write `fixes #N` / `closes #N` when referring to someone else's PR —
   GitHub closes the PR unmerged. Say "per #109" or "resolved the conflict on #109".
-- One logical change per commit; push branch `cursor/<name>-<id>`.
+- One logical change per commit; push branch `cursor/<name>-<id>`, open its
+  PR, and merge it. Work pushed after that PR merges needs a **new** PR.
+  `python3 platform/ci/unlanded_work.py` exits 1 while anything on your
+  branch is outside a PR and `main`.
 
 ## Venture-specific notes
 
