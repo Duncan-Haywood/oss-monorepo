@@ -1181,6 +1181,9 @@ workflows:
 - workflow: vcard-contacts-check-ci.yml
   classification: none
   publishes: []
+- workflow: ofx-file-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: lambda-memory-rightsizer-ci.yml
   classification: none
   publishes: []
