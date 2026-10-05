@@ -164,6 +164,18 @@ export function validate(text) {
     findings.push(f("error", "This is an MT940 file, not camt.053", "It has :20: and :60F: fields, which is the older SWIFT text format. Use the MT940 statement check for it, or ask your bank for camt.053 XML.", 1));
     return done([]);
   }
+  // A bare & (as in "Smith & Sons") is the commonest reason a strict importer refuses an otherwise good file.
+  {
+    const lines = String(text).split(/\r\n|\n|\r/);
+    let inCdata = false, hits = 0, first = 0;
+    lines.forEach((ln, i) => {
+      if (inCdata) { if (ln.includes("]]>")) inCdata = false; return; }
+      const plain = ln.replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, "");
+      if (plain.includes("<![CDATA[")) inCdata = true;
+      if (/&(?!(?:amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);)/.test(plain)) { hits++; if (!first) first = i + 1; }
+    });
+    if (hits) findings.push(f("error", "Unescaped & in the XML", `${hits} line${hits === 1 ? "" : "s"} contain a bare & (first here). XML requires &amp;, and strict importers refuse the whole file at this point. Fixed automatically in the repaired XML.`, first));
+  }
   const p = parseCamt(text);
   if (p.error) {
     findings.push(f("error", "The XML is not well formed", `${p.error.msg}. An importer will refuse the whole file, usually with an unhelpful message.`, p.error.line));
@@ -265,6 +277,19 @@ export function validate(text) {
 }
 
 const csvCell = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+
+// Repairs only what the file itself proves: a comma decimal inside <Amt>/<Sum> becomes a period, and a bare &
+// becomes &amp; (CDATA is left alone). Totals, entries and indicators are never touched.
+export function repair(text) {
+  const changes = [];
+  let n = 0;
+  let out = String(text).replace(/^\uFEFF/, "").replace(/(<(?:\w+:)?(?:Amt|Sum)\b[^>]*>)\s*(\d+),(\d{1,5})\s*(<)/g, (_, o, i, f, c) => { n++; return `${o}${i}.${f}${c}`; });
+  if (n) changes.push(`${n} amount${n === 1 ? "" : "s"} written with a period instead of a comma`);
+  let amps = 0;
+  out = out.replace(/(<!\[CDATA\[[\s\S]*?\]\]>)|&(?!(?:amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);)/g, (m, cdata) => { if (cdata) return cdata; amps++; return "&amp;"; });
+  if (amps) changes.push(`${amps} bare ampersand${amps === 1 ? "" : "s"} escaped`);
+  return { text: out, changes };
+}
 
 export function toCsv(res, { decimal = "." } = {}) {
   const head = ["account", "statement", "booking_date", "value_date", "amount", "currency", "status", "reversal", "end_to_end_id", "bank_reference", "type_code", "counterparty", "counterparty_account", "description"];
