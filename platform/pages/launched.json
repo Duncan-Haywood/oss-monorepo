@@ -602,6 +602,7 @@
     "shopify-inventory-reorder-planner": "2026-09-29",
     "shopify-payments-fee-analyzer": "2026-09-29",
     "shopify-payout-profit-analyzer": "2026-09-29",
+    "shopify-payout-to-journal": "2026-10-05",
     "shopify-permission-drift": "2026-08-24",
     "shopify-product-csv-check": "2026-10-04",
     "shopify-to-woocommerce-converter": "2026-10-04",

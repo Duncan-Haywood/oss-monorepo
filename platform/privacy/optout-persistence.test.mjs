@@ -1317,7 +1317,7 @@ const RELATIVE_SELF = relative(
 // +1: `amazon-settlement-to-journal` graduated.
 // +1: `stripe-payout-to-journal` graduated.
 // +1: `paypal-activity-to-journal` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 729;
+const SWITCHES_IN_THE_CATALOGUE = 730;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
