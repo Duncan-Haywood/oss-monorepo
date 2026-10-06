@@ -1,0 +1,46 @@
+name: rv-rental-host-profit-calculator
+description: >-
+  Free browser tool for owners who rent out an RV, camper or trailer: enter nightly rate, nights rented, platform fee,
+  cleaning, wear, insurance, storage, loan payment and depreciation, and see the cash result, the result after
+  depreciation, break-even nights, the rate needed for a target, and the effect of occupancy. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check: nearest are turo-host-payout-calculator and
+# str-cleaning-fee-pricing-calculator (cars and homes); no RV, camper or trailer tool in ventures/ or screened-out.md.
+# Searches by owners: "is renting my RV worth it", "RV rental income calculator", "how many nights to break even
+# renting my camper", "Outdoorsy vs RVshare earnings".
+#
+# Who: people with a financed or paid-off RV, camper van or trailer weighing a listing on a peer-to-peer rental site.
+# First visitor: an owner deciding before this season whether to list, or a buyer asking whether rental income can
+# carry the payment (r/RVLiving, r/Outdoorsy-style owner threads, RV owner forums).
+#
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. A fleet version for owners
+# with several rigs (calendar, per-rig P&L) is a possible paid version, not built.
+#
+# Liability: arithmetic on the user's own figures with visible rules; carries the no-warranty and not-advice clauses
+# and lists what is not decided (insurance, tax, lender terms, platform rates).
+#
+# Unverified: no platform fee, market rate or occupancy is claimed; sample figures are illustrative only.
+
+hypotheses:
+  - claim: >-
+      An RV owner considering a listing will enter rate, nights, fee and ownership costs to see break-even nights and
+      the result after depreciation, because platform earnings estimates leave out depreciation and fixed costs.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool by 2027-03-15.
+  - A report that the arithmetic differs from the stated rules on the same inputs.
