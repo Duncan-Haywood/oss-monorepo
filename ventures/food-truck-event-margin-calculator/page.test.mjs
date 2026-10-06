@@ -176,3 +176,8 @@ test('index links one hop to the commissary-kitchen-cost-split-calculator siblin
 test('index links one hop to the farmers-market-booth-calculator sibling', () => {
   assert.match(html, /href="\.\.\/farmers-market-booth-calculator\/"/);
 });
+
+test('index links fishing-charter-trip-pricing-calculator so crawlers reach it in one hop', () => {
+  const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(html, /href="\.\.\/fishing-charter-trip-pricing-calculator\/"/);
+});
