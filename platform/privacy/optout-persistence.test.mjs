@@ -1363,7 +1363,8 @@ const RELATIVE_SELF = relative(
 // +1: `freelance-editor-quote-calculator` graduated.
 // +1: `social-security-benefits-tax-calculator` graduated.
 // +1: `installment-sale-tax-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 787;
+// +1: `app-listing-metadata-check` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 788;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
