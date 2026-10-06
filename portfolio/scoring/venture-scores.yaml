@@ -27784,7 +27784,7 @@ ventures:
       gross_margin: 10
       defensibility: 3
       distribution: 6
-    composite: 5.5
+    composite: 5.667
     rater_b: null
     floor: 1
     floor_dimension: ai_leverage
