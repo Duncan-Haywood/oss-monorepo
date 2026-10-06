@@ -2506,3 +2506,17 @@ entries:
         exports and no payer rule is encoded. 22 calc, usage and page tests. Registered launch date, category rule,
         tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: injury-settlement-net-proceeds-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built injury-settlement-net-proceeds-calculator: a browser-local worksheet that takes a
+        personal-injury settlement offer from gross to what the client keeps. Fee on gross or net of costs, case costs,
+        a list of liens each with a negotiated reduction, Medicare lines reduced by the pro-rata procurement-cost share
+        (fee plus costs over gross), tax on a taxable portion and any set-aside; it also gives the net at other offer
+        sizes and solves the gross needed for a target net. Screened with duplicate_check.py (closest ventures under
+        0.30, none a settlement tool). First visitor: someone holding an offer searching "settlement calculator after
+        fees and liens". No plaintiff attorney has checked it against a real closing statement. 19 calc, usage and page
+        tests. Registered launch date, category rule, tree counts; regenerated the mirror; linked from a sibling page.
+    mrr_end: 0
