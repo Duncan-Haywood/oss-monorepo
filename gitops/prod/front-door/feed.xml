@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 784 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 785 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -30,6 +30,14 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free year-end donation receipt generator for small nonprofits: paste a gift list, get one acknowledgment letter per donor with the IRS $250 and $75 quid pro quo wording, and a list of gifts that cannot be written up. Runs in your browser; donor data is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Exemption Certificate Audit Check</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/exemption-certificate-audit-check/"/>
+    <id>tag:marisstella.dev,2026:tool/exemption-certificate-audit-check</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free sales tax audit prep for wholesalers and distributors: paste your exempt sales and the certificates on file, and see which sales have no valid certificate, the tax at stake, and which customers to chase first. Runs in your browser; your sales data is never uploaded.</summary>
   </entry>
   <entry>
     <title>Fiverr Earnings to Xero and QuickBooks Journal</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-05T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free bank and credit card statement PDF to CSV converter that proves the result: opening balance plus the transactions must equal the closing balance. CSV for Xero, QuickBooks Online or Excel. Runs in your browser; the PDF is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Brevo Contacts CSV Check — Find Import Errors Before You Import</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/brevo-contacts-csv-check/"/>
-    <id>tag:marisstella.dev,2026:tool/brevo-contacts-csv-check</id>
-    <updated>2026-10-05T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free Brevo (Sendinblue) contacts import CSV checker: finds invalid and duplicate emails, rows with neither email nor SMS, SMS numbers with no country code or ruined by Excel, unquoted commas that shift columns, mixed date formats and near-miss column names, with line numbers, and applies formatting-only safe fixes. Runs in your browser; the file is never uploaded.</summary>
   </entry>
 </feed>
