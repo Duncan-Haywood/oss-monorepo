@@ -24306,6 +24306,37 @@ ventures:
       warranty, no market prices asserted, limits stated. No client or event data;
       nothing leaves the browser. Ethics: helps a small business owner price work
       honestly.
+  - slug: wedding-videographer-profit-calculator
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.167
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic per-booking margin arithmetic in the browser; no language model
+      and no paid API. The value is putting edit hours and revision creep into the
+      hourly rate, which is where video bookings lose money.
+    basis: >-
+      Screened 2026-10-06 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 5: "how much
+      to charge as a wedding videographer" is a perennial question in videographer
+      communities (volume not measured with an external tool). Defensibility 4:
+      booking software sells contracts and payments, not a free private
+      hourly-rate and minimum-package check.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not tax or financial advice, no
+      warranty, no market prices asserted, limits stated. No client or event data;
+      nothing leaves the browser. Ethics: helps a small business owner price work
+      honestly.
   - slug: shipping-box-size-optimizer
     scores:
       ai_leverage: 3
