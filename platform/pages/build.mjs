@@ -1309,6 +1309,8 @@ const CATEGORY_RULES = [
       || slug === 'patreon-payout-to-journal'
       // `ko-fi-payout-to-journal` joined 2026-10-05: the Ko-fi end of the same payout-to-journal set (income split by transaction type, fee derived), filed beside it.
       || slug === 'ko-fi-payout-to-journal'
+      // `buymeacoffee-payout-to-journal` joined 2026-10-06: the Buy Me a Coffee end of the same payout-to-journal set, filed beside it.
+      || slug === 'buymeacoffee-payout-to-journal'
       // `lemonsqueezy-payout-to-journal` joined 2026-10-05: the Lemon Squeezy end of the same payout-to-journal set, filed beside it.
       || slug === 'lemonsqueezy-payout-to-journal'
       // `paddle-payout-to-journal` joined 2026-10-05: the Paddle (merchant-of-record SaaS) end of the same payout-to-journal set, filed beside it.
