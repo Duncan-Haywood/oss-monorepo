@@ -1355,6 +1355,7 @@ const RELATIVE_SELF = relative(
 // +1: `medicaid-lookback-penalty-calculator` graduated.
 // +1: `supplier-price-creep-checker` graduated.
 // +1: `lien-waiver-checker` graduated.
+// +1: `employment-contract-checker` graduated.
 // +1: `restaurant-tip-pool-calculator` graduated.
 const SWITCHES_IN_THE_CATALOGUE = 778;
 // +1: `sms-segment-cost-calculator` graduated.
