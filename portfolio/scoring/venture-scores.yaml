@@ -27743,3 +27743,36 @@ ventures:
       agreement is stated to control. The model was written without review by a securities professional,
       stated in VENTURE.yaml. Ethics: helps passive investors understand what they are agreeing to
       and sponsors explain it; nothing leaves the device.
+  - slug: med-spa-treatment-profit-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic arithmetic on numbers
+      the owner types.
+    basis: >-
+      Screened 2026-10-06 per portfolio/pipeline/README.md's scoring process; full write-up in
+      this venture's own VENTURE.yaml comment. Med spa owners have money, product-heavy treatments
+      and a recurring need to see margin per treatment and per room hour; the common answers are
+      sales-led practice-management suites or a hand-built spreadsheet. Distribution 6: "med spa
+      profit margin per treatment", "botox pricing per unit profit" and "med spa pricing calculator"
+      are recurring queries; volume not measured with an external tool. Defensibility 3: the
+      contribution arithmetic is simple; the edge is a free no-signup page that ranks treatments by
+      profit per room hour and gives the target-margin price. Time to revenue 4: the paid layer
+      (saved menus, booking-system import, commission plans, memberships) is not built.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed numbers; the limits are listed on the page; not
+      accounting, tax, legal or medical advice, no warranty; margin is stated never to be a reason
+      to recommend a treatment. The model was written without review by a med spa operator, stated
+      in VENTURE.yaml. Ethics: helps small clinic owners price honestly; nothing leaves the device.
