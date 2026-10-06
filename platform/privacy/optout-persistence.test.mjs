@@ -1333,6 +1333,7 @@ const RELATIVE_SELF = relative(
 // +1: `buymeacoffee-payout-to-journal` graduated.
 // +1: `teachable-payout-to-journal` graduated.
 // +1: `upwork-earnings-to-journal` graduated.
+// +1: `fiverr-earnings-to-journal` graduated.
 // +1: `music-distribution-fee-calculator` graduated.
 // +1: `microgreens-tray-planner` graduated.
 // +1: `wise-statement-to-journal` graduated.
@@ -1344,7 +1345,7 @@ const RELATIVE_SELF = relative(
 // +1: `med-spa-treatment-profit-calculator` graduated.
 // +1: `chiropractor-new-patient-roi-calculator` graduated.
 // +1: `grant-writer-proposal-price-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 761;
+const SWITCHES_IN_THE_CATALOGUE = 762;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.

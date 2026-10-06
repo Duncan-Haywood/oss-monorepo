@@ -2970,11 +2970,12 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `ko-fi-payout-to-journal` graduated (browser Ko-fi transactions export to month-split Xero/QuickBooks journals, income by transaction type, derived fee).
     # +1: `buymeacoffee-payout-to-journal` graduated (browser Buy Me a Coffee export to month-split Xero/QuickBooks journals).
     # +1: `teachable-payout-to-journal` graduated (browser Teachable transactions export to month-split Xero/QuickBooks journals).
+    # +1: `fiverr-earnings-to-journal` graduated (browser Fiverr earnings history to month-split Xero/QuickBooks journals, gross revenue and 20% fee split, with a running-balance completeness check).
     # +1: `upwork-earnings-to-journal` graduated (browser Upwork transaction history to month-split Xero/QuickBooks journals with a running-balance completeness check).
     # +1: `youtube-adsense-payout-to-journal` graduated (browser AdSense payments export to month-split Xero/QuickBooks journals with US withholding receivable and realised FX).
     # +1: `revolut-business-statement-to-journal` graduated (browser Revolut Business currency statement to month-split Xero/QuickBooks journals with realised FX).
     # +1: `syndication-waterfall-calculator` graduated (browser-local GP/LP waterfall with preferred return and promote tiers).
-    total = 782  # `infra/OWNER_CHECKLIST.md`'s own "N of the 782 tools" wording.
+    total = 783  # `infra/OWNER_CHECKLIST.md`'s own "N of the 783 tools" wording.
     # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).

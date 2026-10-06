@@ -2276,3 +2276,21 @@ entries:
         public docs and stated unverified on the page. 42 calc, usage and page tests. Registered launch
         date, category rule, tree counts; regenerated the mirror; linked from teachable-payout-to-journal.
     mrr_end: 0
+  - venture: fiverr-earnings-to-journal
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built fiverr-earnings-to-journal: a browser-local Fiverr earnings history to
+        month-split Xero / QuickBooks Online / QuickBooks Desktop (IIF) journal tool, the Fiverr end of the
+        marketplace payout-to-journal family and a sibling of upwork-earnings-to-journal. Order revenue and
+        tips are booked gross, Fiverr's 20% service fee and withdrawal fees are separate expenses, refunds
+        and cancellations reverse revenue, withdrawals clear to the bank, and a running Balance column (when
+        present) is walked row by row so a dropped or edited row is named with the amount missing. Files
+        whose order rows are already net of the fee can be grossed up at a set percentage. Complements
+        fiverr-earnings-fee-analyzer (diagnostic) rather than duplicating it. First visitor: r/Fiverr and
+        r/freelance bookkeeping threads, "Fiverr to QuickBooks" searches. Column names are alias-matched and
+        stated unverified against a real export on the page. 43 calc, usage and page tests. Registered
+        launch date, category rule, tree counts; regenerated the mirror; cross-linked from
+        upwork-earnings-to-journal.
+    mrr_end: 0
