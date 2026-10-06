@@ -513,7 +513,7 @@ const CATEGORY_RULES = [
     // margin into the break-even ROAS and max CPA an ad campaign needs; the same reader as the fee tools here.
     // `used-car-lot-aging-planner` joined 2026-10-02 on its first commit: an independent dealer deciding when an
     // aged unit goes to auction is the same reseller as `auction-car-flip-calculator` here, and the two cross-link.
-    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|free-shipping-threshold|returns-policy|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-product-csv|shopify-customer-csv|bigcommerce-product-csv|squarespace-product-csv|wix-product-csv|teachers-pay-teachers|course-platform|music-distribution|shopify-to-woocommerce|woocommerce-product-csv|square-catalog-csv|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|auction-car-flip|used-car-lot|liquidation-pallet|stockx|twitch|freelance-platform-fee|upwork-connects|app-subscription|thumbtack-lead|mercari|kickstarter|depop|facebook-marketplace|ticket-resale|card-grading-submission|thrift-haul|price-increase-breakeven)/.test(slug),
+    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|free-shipping-threshold|returns-policy|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-product-csv|shopify-customer-csv|bigcommerce-product-csv|squarespace-product-csv|wix-product-csv|teachers-pay-teachers|course-platform|music-distribution|shopify-to-woocommerce|woocommerce-product-csv|square-catalog-csv|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|rv-rental-host|turo-host|kdp|whatnot|poshmark|storage-auction|auction-car-flip|used-car-lot|liquidation-pallet|stockx|twitch|freelance-platform-fee|upwork-connects|app-subscription|thumbtack-lead|mercari|kickstarter|depop|facebook-marketplace|ticket-resale|card-grading-submission|thrift-haul|price-increase-breakeven)/.test(slug),
   },
   {
     id: 'trades',
@@ -2984,6 +2984,11 @@ const CATEGORY_RULES = [
         // gzipped offline bound; what it answers is what one owner-operator
         // takes home after the loan on a business they are about to buy.
         'small-business-acquisition-calculator',
+        // `cash-flow-risk-forecaster` and `freelance-editor-quote-calculator` joined 2026-10-06. Back-office was at
+        // its 3 MB offline bound and the catch-all at its bound; a freelancer or owner-operator pricing their
+        // own job or forecasting their own cash is this section's earner.
+        'cash-flow-risk-forecaster',
+        'freelance-editor-quote-calculator',
         // `installment-sale-tax-calculator` joined 2026-10-06 for the same reason: back-office was at the 3 MB
         // gzipped bound, and what it answers is what one seller nets, year by year, from selling their own business or
         // property for a note.
