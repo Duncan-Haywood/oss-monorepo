@@ -1341,7 +1341,8 @@ const RELATIVE_SELF = relative(
 // +1: `syndication-waterfall-calculator` graduated.
 // +1: `youtube-adsense-payout-to-journal` graduated.
 // +1: `med-spa-treatment-profit-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 758;
+// +1: `chiropractor-new-patient-roi-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 759;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.

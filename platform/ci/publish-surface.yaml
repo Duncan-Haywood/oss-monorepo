@@ -434,6 +434,9 @@ workflows:
 - workflow: chimney-sweep-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: chiropractor-new-patient-roi-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: chrome-extension-permission-check-ci.yml
   classification: none
   publishes: []
@@ -1292,6 +1295,9 @@ workflows:
 - workflow: mechanics-lien-deadline-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: med-spa-treatment-profit-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: medical-bill-error-checker-ci.yml
   classification: none
   publishes: []
@@ -1485,6 +1491,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: payment-reconciliation-workbench-ci.yml
+  classification: none
+  publishes: []
+- workflow: payoneer-statement-to-journal-ci.yml
   classification: none
   publishes: []
 - workflow: payroll-hours-csv-check-ci.yml
@@ -2156,9 +2165,6 @@ workflows:
 - workflow: support-staffing-planner-ci.yml
   classification: none
   publishes: []
-- workflow: med-spa-treatment-profit-calculator-ci.yml
-  classification: none
-  publishes: []
 - workflow: syndication-waterfall-calculator-ci.yml
   classification: none
   publishes: []
@@ -2364,6 +2370,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: wedding-photographer-profit-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: wedding-videographer-profit-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: well-pump-bid-calculator-ci.yml
