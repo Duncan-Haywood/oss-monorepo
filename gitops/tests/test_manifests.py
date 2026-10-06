@@ -2980,7 +2980,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `donor-acknowledgment-letter-generator` graduated (browser gift list to per-donor IRS acknowledgment letters, per-gift $250 rule and $75 quid pro quo statement).
     # +1: `exemption-certificate-audit-check` graduated (browser exempt sales matched to certificates on file, tax at stake by customer and state).
     # +1: `rent-increase-notice-checker` graduated (browser rent roll to per-unit cap, notice period and earliest effective date).
-    total = 789  # `infra/OWNER_CHECKLIST.md`'s own "N of the 789 tools" wording.
+    total = 790  # `infra/OWNER_CHECKLIST.md`'s own "N of the 790 tools" wording.
     # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).

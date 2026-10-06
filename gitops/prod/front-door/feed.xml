@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 789 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 790 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -44,7 +44,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/exemption-certificate-audit-check/"/>
     <id>tag:marisstella.dev,2026:tool/exemption-certificate-audit-check</id>
     <updated>2026-10-06T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free sales tax audit prep for wholesalers and distributors: paste your exempt sales and the certificates on file, and see which sales have no valid certificate, the tax at stake, and which customers to chase first. Runs in your browser; your sales data is never uploaded.</summary>
   </entry>
   <entry>
@@ -76,7 +76,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/insurance-commission-reconciler/"/>
     <id>tag:marisstella.dev,2026:tool/insurance-commission-reconciler</id>
     <updated>2026-10-06T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free commission statement reconciler for independent insurance agencies: load your policy book and your carriers&#39; commission statements, find unpaid policies, short-paid rates, chargebacks on policies still in force and duplicate lines, and get a review request per carrier. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
@@ -102,6 +102,14 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free planner for microgreens growers: what to seed on which day for your harvest days, how many rack spaces the busiest weekday needs, which crop earns the most per rack space, and the best mix when the rack is full. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Pay Application Generator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pay-application-generator/"/>
+    <id>tag:marisstella.dev,2026:tool/pay-application-generator</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free pay application generator for subcontractors and small general contractors: paste your schedule of values, set retainage, and get the contract sum, change orders, retainage, previous certificates and current payment due, plus a line-by-line table and CSV. Private, runs in your browser.</summary>
   </entry>
   <entry>
     <title>Payoneer Statement to Xero and QuickBooks Journal with FX Gain and Loss</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free Wise to QuickBooks and Xero journal converter for multi-currency balances: values every row in your base currency at your rates, tracks average cost, books realised FX gain or loss separately, proves the running balance, and downloads a balanced month-split journal. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>YouTube AdSense Payments to Xero and QuickBooks Journal</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/youtube-adsense-payout-to-journal/"/>
-    <id>tag:marisstella.dev,2026:tool/youtube-adsense-payout-to-journal</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free YouTube AdSense to Xero and QuickBooks journal converter: books AdSense payments to revenue, US tax withheld to a separate receivable, the bank deposit and the realised FX gain or loss, splits by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
