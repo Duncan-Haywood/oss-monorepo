@@ -2976,6 +2976,11 @@ const CATEGORY_RULES = [
     // moved here (exact slugs, as the rest of this list) rather than the bound being raised.
     test: (slug) =>
       [
+        // `small-business-acquisition-calculator` joined 2026-10-06 on its first
+        // commit. Its natural home, back-office, was already over the 3 MB
+        // gzipped offline bound; what it answers is what one owner-operator
+        // takes home after the loan on a business they are about to buy.
+        'small-business-acquisition-calculator',
         'indie-game-payout-calculator',
         'upwork-earnings-fee-analyzer',
         'patreon-members-churn-analyzer',

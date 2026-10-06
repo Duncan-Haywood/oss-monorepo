@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 794 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 795 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -152,19 +152,19 @@
     <summary type="text">Free Revolut Business to QuickBooks and Xero journal converter for multi-currency balances: values every row in your base currency at your rates, tracks average cost, books realised FX gain or loss separately, proves the running balance, and downloads a balanced month-split journal. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Small Business Acquisition Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/small-business-acquisition-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/small-business-acquisition-calculator</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free calculator for buying a small business: enter the asking price, SDE and financing and see DSCR, cash needed at close, owner take-home, the highest price that still clears a lender&#39;s coverage floor and what happens if earnings fall. Private, runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Supplier Price Creep Checker</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/supplier-price-creep-checker/"/>
     <id>tag:marisstella.dev,2026:tool/supplier-price-creep-checker</id>
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free supplier price creep checker for restaurants, cafes and shops: paste invoice lines, see which items crept up, which invoice was a one-off overcharge, what it costs a year, and a credit-request email. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Syndication Waterfall Calculator — Pref, Hurdles and Promote, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/syndication-waterfall-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/syndication-waterfall-calculator</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free real estate syndication waterfall calculator: preferred return, IRR hurdles and sponsor promote tiers, with LP and GP IRR, equity multiples and a year-by-year split. Entirely client-side, nothing uploaded.</summary>
   </entry>
 </feed>
