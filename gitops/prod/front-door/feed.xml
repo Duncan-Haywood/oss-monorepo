@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 804 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 805 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -120,6 +120,14 @@
     <summary type="text">Free injury settlement calculator: enter the gross amount, attorney fee, costs and medical liens and see what the client actually takes home, with Medicare&#39;s procurement-cost reduction and the effect of negotiating each lien. Private, runs in your browser.</summary>
   </entry>
   <entry>
+    <title>Installment Sale Tax Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/installment-sale-tax-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/installment-sale-tax-calculator</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free installment sale tax calculator: selling a business, rental or land for a note? See the gain taxed each year, the depreciation recapture due up front, the tax saved by spreading it and what the interest earns after tax. Private, runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Insurance Commission Reconciler</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/insurance-commission-reconciler/"/>
     <id>tag:marisstella.dev,2026:tool/insurance-commission-reconciler</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free Medicaid look-back calculator: list gifts and transfers, see which fall in the 60-month window, the penalty period in months and days, the care cost it leaves you to cover, and the date each gift ages out. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Microgreens Tray Planner — What to Seed, Rack Space and the Best Crop Mix</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/microgreens-tray-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/microgreens-tray-planner</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free planner for microgreens growers: what to seed on which day for your harvest days, how many rack spaces the busiest weekday needs, which crop earns the most per rack space, and the best mix when the rack is full. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
