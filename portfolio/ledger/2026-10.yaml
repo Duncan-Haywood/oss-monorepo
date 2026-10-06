@@ -2364,11 +2364,24 @@ entries:
         calc, usage and page tests plus a headless-browser run of the example and a real file flow. Column names are
         unverified against a real AMS export or carrier statement and the page says so.
     mrr_end: 0
+  - venture: distrokid-royalty-to-journal
   - venture: rent-increase-notice-checker
     agent_spend_usd: null
     human_hours: 0
     outcomes:
       - >-
+        Graduated and built distrokid-royalty-to-journal: a browser-local DistroKid earnings report (CSV or TSV
+        from Bank) to month-split Xero / QuickBooks Online / QuickBooks Desktop (IIF) / plain CSV journal tool,
+        the independent-music end of the payout-to-journal family and the first one for musicians. Earnings are
+        booked gross by store and kind (streaming, downloads, social and video such as TikTok and YouTube Content
+        ID) in the sale month, songwriter royalties withheld are a separate deduction, each currency is
+        journalled on its own with no conversion invented, stores no rule recognises go to an uncategorised
+        account, and a per-row Total column or a Total row is checked against the rows. A setting covers earnings
+        columns that are already after the withheld amount. First visitor: r/WeAreTheMusicMakers and
+        r/musicbusiness bookkeeping threads, "DistroKid to QuickBooks" searches. Column names are alias-matched
+        and stated unverified against a real export on the page. 30 calc plus usage and page tests. Registered
+        launch date, category rule, tree counts; regenerated the mirror; cross-linked from
+        music-distribution-fee-calculator.
         Graduated and built rent-increase-notice-checker: a browser-local tool for small landlords. A rent roll with
         proposed rents is checked unit by unit against the state cap (California AB 1482, Oregon, Washington, New York
         Good Cause; cap measured from the lowest rent in the last 12 months, to the cent), the notice period by
