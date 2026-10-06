@@ -2490,3 +2490,19 @@ entries:
         Lender practice is not verified with a lender and the page says so. 27 calc, usage and page tests; page driven in
         headless Chromium. Registered launch date and category rule; inbound links from two sibling pages.
     mrr_end: 0
+  - venture: aba-authorization-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built aba-authorization-tracker: a browser-local tool for ABA therapy practices. An
+        authorization list (client, CPT code, units approved, start, end, units used, optional units per week and rate
+        per unit) is projected to each end date on the scheduled or observed pace. It names the date units run out,
+        prices units that would expire unused, and gives a reauthorization submit-by date from the user's own lead
+        time, sorted most urgent first with a CSV report. Screened with duplicate_check.py (closest
+        era-835-underpayment-finder under 0.25; it checks payments, this watches approvals). The sweep of stranded
+        branches found every unmerged "new venture" already duplicated on main, so none was landed. First visitor: a
+        practice owner or biller searching "ABA authorization tracker". Column names are guesses at practice-management
+        exports and no payer rule is encoded. 22 calc, usage and page tests. Registered launch date, category rule,
+        tree counts; regenerated the mirror.
+    mrr_end: 0

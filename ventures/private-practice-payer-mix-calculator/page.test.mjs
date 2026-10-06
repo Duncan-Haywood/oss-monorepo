@@ -105,3 +105,7 @@ test("the dental sibling links to this tool", () => {
   const sibling = readFileSync(new URL("../dental-ppo-writeoff-calculator/index.html", import.meta.url), "utf8");
   assert.match(sibling, /href="\.\.\/private-practice-payer-mix-calculator\/"/);
 });
+
+test("links to the ABA authorization tracker", () => {
+  assert.match(page("index.html"), /href="\.\.\/aba-authorization-tracker\/"/);
+});
