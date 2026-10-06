@@ -1315,6 +1315,8 @@ const CATEGORY_RULES = [
       || slug === 'paddle-payout-to-journal'
       // `wise-statement-to-journal` joined 2026-10-06: the multi-currency bank end of the same journal set (foreign balance valued in the books' currency, realised FX on its own line), filed beside it.
       || slug === 'wise-statement-to-journal'
+      // `revolut-business-statement-to-journal` joined 2026-10-06: the Revolut Business end of the same multi-currency journal set, filed beside Wise.
+      || slug === 'revolut-business-statement-to-journal'
       // `sales-export-to-journal` joined 2026-10-05: the single front door to the eight platform tools above (drop any export, the page detects the platform), filed beside them.
       || slug === 'sales-export-to-journal'
       // `airbnb-payout-to-journal` joined 2026-10-05: the Airbnb host end of the same payout-to-journal set, filed beside it.
