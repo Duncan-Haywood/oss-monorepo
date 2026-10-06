@@ -106,3 +106,7 @@ test("related-tool links point at ventures that exist", () => {
     assert.ok(existsSync(new URL(`../${m[1]}/index.html`, import.meta.url)), m[1]);
   }
 });
+
+test("links to its video sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/wedding-videographer-profit-calculator\/"/);
+});
