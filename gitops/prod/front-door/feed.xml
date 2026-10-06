@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 811 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 812 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -78,6 +78,14 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free sales tax audit prep for wholesalers and distributors: paste your exempt sales and the certificates on file, and see which sales have no valid certificate, the tax at stake, and which customers to chase first. Runs in your browser; your sales data is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Farrier Visit Pricing Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/farrier-visit-pricing-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/farrier-visit-pricing-calculator</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free pricing calculator for farriers: drive time, minutes per horse, materials, fixed costs and the income you want become a trip charge plus a per-horse rate, with a table by stop size. Private, runs in your browser.</summary>
   </entry>
   <entry>
     <title>Fishing Charter Trip Pricing Calculator</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free installment sale tax calculator: selling a business, rental or land for a note? See the gain taxed each year, the depreciation recapture due up front, the tax saved by spreading it and what the interest earns after tax. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Insurance Commission Reconciler</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/insurance-commission-reconciler/"/>
-    <id>tag:marisstella.dev,2026:tool/insurance-commission-reconciler</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free commission statement reconciler for independent insurance agencies: load your policy book and your carriers&#39; commission statements, find unpaid policies, short-paid rates, chargebacks on policies still in force and duplicate lines, and get a review request per carrier. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
