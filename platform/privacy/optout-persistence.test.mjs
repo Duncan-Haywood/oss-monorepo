@@ -1366,7 +1366,7 @@ const RELATIVE_SELF = relative(
 // +1: `installment-sale-tax-calculator` graduated.
 // +1: `app-listing-metadata-check` graduated.
 // +1: `mobile-mechanic-visit-pricing-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 792;
+const SWITCHES_IN_THE_CATALOGUE = 793;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
@@ -1375,6 +1375,7 @@ const SWITCHES_IN_THE_CATALOGUE = 792;
 // +1: `fishing-charter-trip-pricing-calculator` graduated.
 // +1: `farrier-visit-pricing-calculator` graduated.
 // +1: `rv-rental-host-profit-calculator` graduated.
+// +1: `horse-boarding-stall-profit-calculator` graduated.
 
 let counter = 0;
 function fixture(source) {
