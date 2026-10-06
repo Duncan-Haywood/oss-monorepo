@@ -59,8 +59,8 @@
 #   portfolio-front-tools-23: 123 files, 553605 bytes
 #   portfolio-front-tools-24: 133 files, 554699 bytes
 #   portfolio-front-tools-25: 115 files, 550938 bytes
-#   portfolio-front-tools-26: 132 files, 556993 bytes
-#   portfolio-front-tools-27: 94 files, 543167 bytes
+#   portfolio-front-tools-26: 131 files, 555925 bytes
+#   portfolio-front-tools-27: 95 files, 544325 bytes
 #   portfolio-front-tools-28: 110 files, 553666 bytes
 #   portfolio-front-tools-29: 115 files, 556768 bytes
 #   portfolio-front-tools-30: 128 files, 554826 bytes
@@ -3605,12 +3605,12 @@ configMapGenerator:
       - security-txt-check__engine.mjs.gz=security-txt-check__engine.mjs.gz
       - security-txt-check__fetch-url.mjs.gz=security-txt-check__fetch-url.mjs.gz
       - security-txt-check__index.html.gz=security-txt-check__index.html.gz
-      - security-txt-check__usage.mjs.gz=security-txt-check__usage.mjs.gz
   - name: portfolio-front-tools-27
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - security-txt-check__usage.mjs.gz=security-txt-check__usage.mjs.gz
       - security-txt-check__vs-checking-it-by-eye.html.gz=security-txt-check__vs-checking-it-by-eye.html.gz
       - security-txt-check__vs-securitytxt-org-generator.html.gz=security-txt-check__vs-securitytxt-org-generator.html.gz
       - security-txt-check__why-security-txt-expires.html.gz=security-txt-check__why-security-txt-expires.html.gz

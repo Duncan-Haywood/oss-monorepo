@@ -1,5 +1,5 @@
-// Sales export -> journal, any platform. Drop the CSV you have; this works out which of fourteen
-// platforms wrote it (Airbnb, Amazon, eBay, Etsy, Fiverr, Gumroad, Ko-fi/Buy Me a Coffee/Teachable, Paddle, Patreon/Lemon Squeezy, PayPal, Shopify, Square, Stripe, Upwork) by running each
+// Sales export -> journal, any platform. Drop the CSV you have; this works out which of fifteen
+// platforms wrote it (Airbnb, Amazon, eBay, Etsy, Fiverr, Gumroad, KDP, Ko-fi/Buy Me a Coffee/Teachable, Paddle, Patreon/Lemon Squeezy, PayPal, Shopify, Square, Stripe, Upwork) by running each
 // platform's own reader over it and keeping the one that understands the most rows, then hands back
 // that engine's journals. The readers are unmodified copies of the per-platform tools in this
 // portfolio, so a fix to one is a copy away from the hub; detect.test.mjs feeds every engine's own
@@ -10,6 +10,7 @@ import * as ebay from "./engines/ebay.mjs";
 import * as etsy from "./engines/etsy.mjs";
 import * as fiverr from "./engines/fiverr.mjs";
 import * as gumroad from "./engines/gumroad.mjs";
+import * as kdp from "./engines/kdp.mjs";
 import * as kofi from "./engines/kofi.mjs";
 import * as paddle from "./engines/paddle.mjs";
 import * as patreon from "./engines/patreon.mjs";
@@ -26,6 +27,7 @@ export const PLATFORMS = [
   { id: "etsy", label: "Etsy payment account statement", engine: etsy },
   { id: "fiverr", label: "Fiverr earnings history", engine: fiverr },
   { id: "gumroad", label: "Gumroad sales export", engine: gumroad },
+  { id: "kdp", label: "Amazon KDP royalty report", engine: kdp },
   { id: "kofi", label: "Ko-fi, Buy Me a Coffee or Teachable transactions export", engine: kofi },
   { id: "paddle", label: "Paddle transactions export", engine: paddle },
   { id: "patreon", label: "Patreon or Lemon Squeezy earnings export", engine: patreon },
@@ -45,6 +47,7 @@ const SIGNATURES = {
   etsy: ["fees & taxes", "fees-&-taxes"],
   fiverr: ["date,order id,type", "order id,type,description"],
   gumroad: ["sale id", "purchase id"],
+  kdp: ["asin/isbn", "printing cost", "kenp"],
   kofi: ["transactiontype", "datetime (utc)"],
   paddle: ["paddle fee", "billed at"],
   patreon: ["pledge amount", "platform fee"],
@@ -89,7 +92,7 @@ export function detect(text, opts = {}) {
 export function convert(text, opts = {}) {
   const d = opts.platform && opts.platform !== "auto" ? { id: opts.platform, ranked: [], confident: true, forced: true } : detect(text, opts);
   if (!d.id) {
-    return { detection: d, platform: null, result: null, findings: [{ severity: "error", title: "Could not tell which platform wrote this file", detail: "None of the fourteen readers recognised the header row. Choose the platform from the list, or open the single-platform tool for the export you have.", line: 0 }] };
+    return { detection: d, platform: null, result: null, findings: [{ severity: "error", title: "Could not tell which platform wrote this file", detail: "None of the fifteen readers recognised the header row. Choose the platform from the list, or open the single-platform tool for the export you have.", line: 0 }] };
   }
   const p = platform(d.id);
   const { platform: _drop, ...rest } = opts;
