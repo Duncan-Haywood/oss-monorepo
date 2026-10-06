@@ -19603,6 +19603,42 @@ ventures:
       (test asserts no network calls) and GPS positions are not stored. Ethics:
       helps a taxpayer keep an honest record; the checks push toward accurate,
       contemporaneous entries rather than reconstruction.
+  - slug: invoice-maker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 8
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Totals, dates and completeness
+      checks are deterministic arithmetic on the user's own invoices, never an
+      inference step.
+    basis: >-
+      Screened 2026-10-06 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment.
+      duplicate_check.py top score 0.18; no portfolio tool makes an invoice,
+      the siblings analyse or chase invoices that already exist.
+      Distribution 8: "free invoice generator" and "invoice template" are among
+      the largest small-business software queries, with a paid market
+      (FreshBooks, Wave, Zoho Invoice, Invoice Simple); volume not measured with
+      an external tool. Defensibility 2: free, private and no-watermark is the
+      wedge, and it is easy to copy.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: formats the numbers the user enters, states what it does not
+      model (one tax rate, no e-invoicing formats, no late-fee cap advice) and
+      says it is not legal, tax or accounting advice. Invoices never leave the
+      browser (test asserts no network calls) and all user text is escaped
+      before rendering. Ethics: helps a sole proprietor get paid on time with a
+      complete invoice; no dark patterns, no data capture.
   - slug: airbnb-earnings-report-analyzer
     scores:
       ai_leverage: 1

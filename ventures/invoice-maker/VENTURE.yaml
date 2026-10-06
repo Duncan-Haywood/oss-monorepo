@@ -1,0 +1,70 @@
+name: invoice-maker
+description: >-
+  Free invoice generator that runs in the browser with no account or watermark:
+  itemised lines, tax, discount, deposits, due dates and a late-fee clause,
+  print or save as PDF, invoice numbering, overdue tracking and a receivables
+  aging view. Data stays on the device; CSV and JSON export.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session, a different archetype from
+# the 141 trade bid calculators: an installable, offline, stateful app for the
+# highest-volume small-business search there is ("free invoice generator").
+# duplicate_check.py top score 0.18 (affiliate-disclosure-checker); the
+# portfolio's invoice tools analyse or chase invoices after they exist
+# (invoice-aging-late-payer-analyzer, late-invoice-collections-kit,
+# invoice-payment-terms-calculator, einvoice-preflight) but none makes one.
+#
+# Paid market is real and the buyer has a dollar reason: FreshBooks, Wave,
+# Zoho Invoice, Invoice Simple and Square Invoices charge roughly $9-30 a month
+# or take a payment-processing cut, and invoices without a number, due date or
+# payment instructions are paid late.
+#
+# First visitor: freelancers and sole proprietors searching "free invoice
+# generator", "invoice template", "how to make an invoice" and asking in
+# r/freelance, r/smallbusiness, r/Etsy, r/graphic_design for a no-signup
+# option. Volume not measured with an external tool; head terms are among the
+# largest in small-business software search.
+#
+# Honest limits, stated on the page: single browser storage (backup prompt),
+# one tax rate per invoice, no e-invoicing formats, no recurring invoices, no
+# online card payment, no legal advice on late-fee caps.
+#
+# Path to revenue (payments stay off): free tool -> lead magnet, donations via
+# GitHub Sponsors. Natural next steps if it earns repeat visitors: recurring
+# invoices, client portal links via the Hetzner product box, Facturae/UBL
+# export (shares logic with einvoice-preflight), a native wrapper.
+
+hypotheses:
+  - claim: >-
+      Freelancers who dislike signup walls and watermarks will use a no-account
+      generator for each invoice and come back to mark invoices sent and paid,
+      because the overdue and aging view is the part spreadsheets and templates
+      do not give them.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The completeness check (number, payment instructions, due date) changes
+      what users send and is what they remember the tool for.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong total, or lost invoices to browser storage clearing, at which point the maths or the backup prompting needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/invoice-maker/
+  analytics: null
