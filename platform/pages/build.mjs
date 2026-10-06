@@ -2993,6 +2993,9 @@ const CATEGORY_RULES = [
         // gzipped bound, and what it answers is what one seller nets, year by year, from selling their own business or
         // property for a note.
         'installment-sale-tax-calculator',
+        // `invoice-maker` joined 2026-10-06 for the same reason (back-office at its 3 MB bound): a freelancer or sole proprietor
+        // making the invoice for their own job.
+        'invoice-maker',
         'indie-game-payout-calculator',
         'upwork-earnings-fee-analyzer',
         'patreon-members-churn-analyzer',
