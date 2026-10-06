@@ -2976,7 +2976,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `revolut-business-statement-to-journal` graduated (browser Revolut Business currency statement to month-split Xero/QuickBooks journals with realised FX).
     # +1: `syndication-waterfall-calculator` graduated (browser-local GP/LP waterfall with preferred return and promote tiers).
     # +1: `donor-acknowledgment-letter-generator` graduated (browser gift list to per-donor IRS acknowledgment letters, per-gift $250 rule and $75 quid pro quo statement).
-    total = 784  # `infra/OWNER_CHECKLIST.md`'s own "N of the 784 tools" wording.
+    total = 785  # `infra/OWNER_CHECKLIST.md`'s own "N of the 785 tools" wording.
     # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).
