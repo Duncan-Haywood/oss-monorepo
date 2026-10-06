@@ -1313,6 +1313,8 @@ const CATEGORY_RULES = [
       || slug === 'buymeacoffee-payout-to-journal'
       // `teachable-payout-to-journal` joined 2026-10-06: the Teachable (course creator) end of the same payout-to-journal set, filed beside it.
       || slug === 'teachable-payout-to-journal'
+      // `youtube-adsense-payout-to-journal` joined 2026-10-06: the YouTube AdSense end of the same payout-to-journal set (US withholding receivable, realised FX), filed beside it.
+      || slug === 'youtube-adsense-payout-to-journal'
       // `lemonsqueezy-payout-to-journal` joined 2026-10-05: the Lemon Squeezy end of the same payout-to-journal set, filed beside it.
       || slug === 'lemonsqueezy-payout-to-journal'
       // `paddle-payout-to-journal` joined 2026-10-05: the Paddle (merchant-of-record SaaS) end of the same payout-to-journal set, filed beside it.
