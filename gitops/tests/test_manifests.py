@@ -2983,7 +2983,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `supplier-price-creep-checker` graduated (browser supplier invoice lines to per-item creep, one-off spikes, contract overcharges and credit requests).
     # +1: `restaurant-tip-pool-calculator` graduated (browser shift list to tip pool payouts by hours, points or tip-out).
     # +1: `lien-waiver-checker` graduated (browser pasted lien waiver to red flags and the change to ask for).
-    total = 809  # `infra/OWNER_CHECKLIST.md`'s own "N of the 809 tools" wording.
+    # +1: `cash-flow-risk-forecaster` graduated (browser invoices and bills to the odds of a cash shortfall, cushion and biggest lever).
+    total = 811  # `infra/OWNER_CHECKLIST.md`'s own "N of the 811 tools" wording.
     # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).
