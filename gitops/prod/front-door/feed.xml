@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 798 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 801 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -12,7 +12,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/aba-authorization-tracker/"/>
     <id>tag:marisstella.dev,2026:tool/aba-authorization-tracker</id>
     <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free ABA authorization tracker: paste your authorizations and see which units run out early, which expire unused, and when each reauthorization is due. Private, runs in your browser.</summary>
   </entry>
   <entry>
@@ -46,6 +46,14 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free year-end donation receipt generator for small nonprofits: paste a gift list, get one acknowledgment letter per donor with the IRS $250 and $75 quid pro quo wording, and a list of gifts that cannot be written up. Runs in your browser; donor data is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Employment Contract Checker</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/employment-contract-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/employment-contract-checker</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free employment contract and job offer checker: paste the offer letter or agreement and see the non-compete, invention assignment, signing-bonus repayment, equity buyback, forfeited bonus, arbitration and salary-mismatch red flags, each with the change to ask for. Private, runs in your browser.</summary>
   </entry>
   <entry>
     <title>Exemption Certificate Audit Check</title>
@@ -128,6 +136,14 @@
     <summary type="text">Free med spa treatment profit calculator: contribution margin per treatment after product, card fees, provider time and room overhead, ranked by profit per room hour, with the price that hits your target margin. Runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Medicaid Look-Back Penalty Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/medicaid-lookback-penalty-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/medicaid-lookback-penalty-calculator</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free Medicaid look-back calculator: list gifts and transfers, see which fall in the 60-month window, the penalty period in months and days, the care cost it leaves you to cover, and the date each gift ages out. Private, runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Microgreens Tray Planner — What to Seed, Rack Space and the Best Crop Mix</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/microgreens-tray-planner/"/>
     <id>tag:marisstella.dev,2026:tool/microgreens-tray-planner</id>
@@ -150,21 +166,5 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free pay application generator for subcontractors and small general contractors: paste your schedule of values, set retainage, and get the contract sum, change orders, retainage, previous certificates and current payment due, plus a line-by-line table and CSV. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Payoneer Statement to Xero and QuickBooks Journal with FX Gain and Loss</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/payoneer-statement-to-journal/"/>
-    <id>tag:marisstella.dev,2026:tool/payoneer-statement-to-journal</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free Payoneer to QuickBooks and Xero journal converter for multi-currency balances: values every row in your base currency at your rates, tracks average cost, books realised FX gain or loss separately, proves the running balance, and downloads a balanced month-split journal. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Rent Increase Notice Checker</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rent-increase-notice-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/rent-increase-notice-checker</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free rent increase checker for small landlords: paste a rent roll, see which units are over the California, Oregon, Washington or New York cap, the notice days each needs, the earliest effective date, and a notice letter per unit. Private, runs in your browser.</summary>
   </entry>
 </feed>

@@ -2475,6 +2475,21 @@ entries:
         and state law is listed as not decided. 29 calc, usage and page tests. Registered launch date, category rule,
         tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: small-business-acquisition-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built small-business-acquisition-calculator: a browser-local buyer-side deal calculator for small
+        owner-operated businesses. Asking price, SDE, owner salary, capex reserve and a financing structure (down payment,
+        bank or SBA loan, seller note with optional full standby) give DSCR, cash needed at close including working capital,
+        cash flow after debt, return on cash, the maximum price that still clears the lender's DSCR floor (solved exactly,
+        tested), the SDE decline that takes DSCR to 1.00 and a falling-earnings table, plus a CSV report. Screened with
+        duplicate_check.py (closest rental-dscr-calculator and business-loan-offer-comparator at 0.26; online-business-valuation
+        values a business but does not model financing). First visitor: a first-time buyer with a BizBuySell-style listing.
+        Lender practice is not verified with a lender and the page says so. 27 calc, usage and page tests; page driven in
+        headless Chromium. Registered launch date and category rule; inbound links from two sibling pages.
+    mrr_end: 0
   - venture: aba-authorization-tracker
     agent_spend_usd: null
     human_hours: 0

@@ -50,3 +50,8 @@ test("related-tool links point at ventures that exist", () => {
   assert.ok(links.length >= 2);
   for (const m of links) assert.ok(existsSync(new URL(`../${m[1]}/VENTURE.yaml`, import.meta.url)), m[1]);
 });
+
+test("the payer mix calculator links to this tool", () => {
+  const sibling = readFileSync(new URL("../private-practice-payer-mix-calculator/index.html", import.meta.url), "utf8");
+  assert.match(sibling, /href="\.\.\/aba-authorization-tracker\/"/);
+});
