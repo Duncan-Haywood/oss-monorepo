@@ -2999,6 +2999,7 @@ const CATEGORY_RULES = [
         'craft-fair-booth-calculator',
         'epk-generator',
         'freelance-writer-rate-calculator',
+        'freelance-editor-quote-calculator',
         'gig-driver-net-pay-calculator',
         'influencer-media-kit-generator',
         'newsletter-sponsorship-rate-calculator',
