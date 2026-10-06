@@ -97,6 +97,7 @@
     "bundle-discount-optimizer": "2026-09-30",
     "business-loan-offer-comparator": "2026-10-01",
     "business-vehicle-depreciation-calculator": "2026-10-04",
+    "buymeacoffee-payout-to-journal": "2026-10-06",
     "caa-record-check": "2026-09-24",
     "cabinet-refinishing-bid-calculator": "2026-08-26",
     "cache-control-check": "2026-09-10",
@@ -374,7 +375,6 @@
     "kickstarter-fee-calculator": "2026-09-24",
     "kitchen-tile-backsplash-bid-calculator": "2026-08-25",
     "klaviyo-profile-csv-check": "2026-10-04",
-    "buymeacoffee-payout-to-journal": "2026-10-06",
     "ko-fi-payout-to-journal": "2026-10-05",
     "lambda-memory-rightsizer": "2026-10-01",
     "lambda-vs-fargate-cost-breakeven": "2026-10-02",
@@ -772,6 +772,7 @@
     "xero-bank-statement-csv-check": "2026-10-05",
     "xero-contacts-csv-check": "2026-10-04",
     "xero-invoice-csv-check": "2026-10-04",
+    "youtube-adsense-payout-to-journal": "2026-10-06",
     "youtube-chapters-check": "2026-10-05",
     "youtube-revenue-rpm-analyzer": "2026-09-29",
     "zoho-crm-import-csv-check": "2026-10-04"
