@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Inherited IRA 10-Year Rule Calculator 2026 — Withdrawal Plan, Free</title>
+  <meta name="description" content="Free inherited IRA 10-year rule calculator: plan how much to withdraw each year to empty the account by the deadline at the lowest tax, with the yearly required minimum if the owner had started RMDs. Runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Inherited IRA 10-Year Rule Calculator 2026 — withdrawal plan, free">
+  <meta property="og:description" content="Spread an inherited IRA over the 10-year window at the lowest tax. In your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Inherited IRA 10-Year Withdrawal Planner", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Plans yearly withdrawals from an inherited IRA under the 10-year rule at the lowest federal tax, with the yearly required minimum when it applies. Entirely client-side.", "featureList": "10-year rule, required minimums, bracket water-filling, year-by-year table"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Do I have to take money out of an inherited IRA every year?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on when the original owner died. If they had already started required minimum distributions (reached their required beginning date), you must take a yearly minimum in years 1 to 9 and empty the account by the end of year 10. If they had not, you can take nothing until the end of year 10, though that is rarely the lowest-tax choice."}}, {"@type": "Question", "name": "What is the 10-year rule for inherited IRAs?", "acceptedAnswer": {"@type": "Answer", "text": "Most non-spouse beneficiaries must empty an inherited IRA by December 31 of the tenth year after the owner's death. Spouses, minor children of the owner, disabled or chronically ill beneficiaries and people not more than 10 years younger than the owner are exceptions with different rules."}}, {"@type": "Question", "name": "What is the best way to withdraw from an inherited IRA over 10 years?", "acceptedAnswer": {"@type": "Answer", "text": "Because tax brackets rise with income, the cheapest plan equalises your marginal rate across the years: take more in low-income years and less in high-income years, instead of all at the end. This calculator fills the lowest brackets in every year first and shows the after-tax difference against waiting and against equal withdrawals."}}, {"@type": "Question", "name": "What is the penalty for missing an inherited IRA withdrawal?", "acceptedAnswer": {"@type": "Answer", "text": "A 25% excise tax on the amount you should have taken, reduced to 10% if you correct it within two years. It applies only to the yearly minimums when they are required, not to a plan that simply waits until year 10 when the owner died before their required beginning date."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies published 2026 federal brackets to the numbers you enter and ignores state tax, the net investment income tax, Medicare IRMAA, Social Security taxation and credits. Check the plan with a qualified tax professional or the IRS Publication 590-B tables before you act."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">INHERITED IRA 10-YEAR RULE · 2026 BRACKETS · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much should you take from an inherited IRA each year?</h1>
+    <p>Most non-spouse heirs must empty an inherited IRA within 10 years. Enter the balance and your other income
+    and get a <strong>year-by-year withdrawal plan at the lowest federal tax</strong>, compared with waiting until
+    year 10 and with equal withdrawals, plus the yearly <strong>required minimum</strong> if the owner had already
+    started theirs.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>The inherited account</h2>
+    <div class="grid">
+      <div><label for="balance">Balance at the start of year 1 ($)</label><input type="number" id="balance" min="0" step="1" placeholder="e.g. 500000"></div>
+      <div><label for="growth">Expected yearly growth (%)</label><input type="number" id="growth" min="-20" max="20" step="0.1" value="5"></div>
+      <div><label for="years">Years left in the 10-year window</label><input type="number" id="years" min="1" max="10" step="1" value="10"></div>
+      <div><label for="rmd">Did the owner die after their required beginning date?</label>
+        <select id="rmd"><option value="0">No — only the year-10 deadline</option><option value="1">Yes — yearly minimums apply</option></select></div>
+      <div><label for="age">Your age in the year after death</label><input type="number" id="age" min="20" max="110" step="1" placeholder="e.g. 50"></div>
+      <div><label for="factor">Exact IRS life-expectancy factor, optional</label><input type="number" id="factor" min="1" max="90" step="0.1" placeholder="from IRS Pub. 590-B Table I"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Your own income</h2>
+    <div class="grid">
+      <div><label for="status">Filing status</label>
+        <select id="status"><option value="single">Single</option><option value="mfj">Married filing jointly</option><option value="hoh">Head of household</option></select></div>
+      <div><label for="income-now">Other income per year, before the IRA ($)</label><input type="number" id="income-now" min="0" step="1" placeholder="e.g. 90000"></div>
+      <div><label for="change-year">Income changes starting in year, optional</label><input type="number" id="change-year" min="2" max="10" step="1" placeholder="e.g. 4 (retirement)"></div>
+      <div><label for="income-later">Other income per year after that ($)</label><input type="number" id="income-later" min="0" step="1" placeholder="e.g. 40000"></div>
+    </div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Plan my withdrawals</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter the balance and your income, then click Plan.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><thead><tr><th scope="col">Plan</th><th scope="col">After-tax wealth at end of window</th><th scope="col">Federal tax, today's dollars</th><th scope="col">Federal tax, total</th></tr></thead><tbody id="plan-table"></tbody></table>
+    <h3>Recommended plan, year by year</h3>
+    <table><thead><tr><th scope="col">Year</th><th scope="col">Other income</th><th scope="col">Required minimum</th><th scope="col">Withdraw</th><th scope="col">Tax on it</th><th scope="col">Marginal rate</th></tr></thead><tbody id="year-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Non-spouse beneficiaries on the 10-year rule only.</strong> Spouses, minor children of the owner, disabled or chronically ill beneficiaries and those within 10 years of the owner's age follow other rules.</li>
+      <li><strong>Federal ordinary income tax only,</strong> 2026 brackets and the standard deduction held constant. State tax, the 3.8% net investment income tax, Medicare IRMAA, Social Security taxation, credits and AMT are not modelled.</li>
+      <li><strong>The life-expectancy factor is approximate</strong> unless you enter the exact one from IRS Publication 590-B Table I.</li>
+      <li><strong>Growth is a single steady rate,</strong> and after-tax proceeds are assumed to earn the same rate. Real markets are not steady.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Do I have to take money out of an inherited IRA every year?</h3>
+    <p>It depends on when the original owner died. If they had already started required minimum distributions (reached their required beginning date), you must take a yearly minimum in years 1 to 9 and empty the account by the end of year 10. If they had not, you can take nothing until the end of year 10, though that is rarely the lowest-tax choice.</p>
+    <h3>What is the 10-year rule for inherited IRAs?</h3>
+    <p>Most non-spouse beneficiaries must empty an inherited IRA by December 31 of the tenth year after the owner's death. Spouses, minor children of the owner, disabled or chronically ill beneficiaries and people not more than 10 years younger than the owner are exceptions with different rules.</p>
+    <h3>What is the best way to withdraw from an inherited IRA over 10 years?</h3>
+    <p>Because tax brackets rise with income, the cheapest plan equalises your marginal rate across the years: take more in low-income years and less in high-income years, instead of all at the end. This calculator fills the lowest brackets in every year first and shows the after-tax difference against waiting and against equal withdrawals.</p>
+    <h3>What is the penalty for missing an inherited IRA withdrawal?</h3>
+    <p>A 25% excise tax on the amount you should have taken, reduced to 10% if you correct it within two years. It applies only to the yearly minimums when they are required, not to a plan that simply waits until year 10 when the owner died before their required beginning date.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. It applies published 2026 federal brackets to the numbers you enter and ignores state tax, the net investment income tax, Medicare IRMAA, Social Security taxation and credits. Check the plan with a qualified tax professional or the IRS Publication 590-B tables before you act.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming the rules for your own situation before withdrawing. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: the <a href="../roth-conversion-bracket-fill-calculator/">Roth conversion bracket-fill calculator</a>, the <a href="../rmd-calculator/">RMD calculator</a>, the <a href="../retirement-withdrawal-sequencer/">retirement withdrawal sequencer</a> and the <a href="../medicare-irmaa-cliff-calculator/">Medicare IRMAA cliff calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, incomePath, approxLifeFactor, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const ids = ["balance", "age", "factor", "income-now", "change-year", "income-later"];
+    const v = (id) => Number($("#" + id).value) || 0;
+    const status = $("#form-status"), report = $("#report");
+    const pct = (x) => Math.round(x * 100) + "%";
+    const NAMES = { best: "Lowest-tax plan", even: "Equal withdrawals", wait: "" };
+
+    function runCalculate() {
+      const years = Math.min(10, Math.max(1, Math.round(v("years")) || 10));
+      const rmdRequired = $("#rmd").value === "1";
+      const r = plan({
+        balance: v("balance"), growth: (Number($("#growth").value) || 0) / 100, years, rmdRequired,
+        beneficiaryAge: v("age"), factor: v("factor"), status: $("#status").value,
+        otherIncome: incomePath(v("income-now"), v("change-year"), v("income-later"), years),
+      });
+      if (r.invalid) {
+        status.textContent = "Enter a balance above zero.";
+        report.hidden = true;
+        return;
+      }
+      if (rmdRequired && !v("factor") && !v("age")) {
+        status.textContent = "Yearly minimums need your age (or the exact IRS factor).";
+        report.hidden = true;
+        return;
+      }
+      const waitName = rmdRequired ? "Minimums only, rest in the last year" : "Wait until the last year";
+      const rows = [["best", NAMES.best], ["even", NAMES.even], ["wait", waitName]];
+      $("#plan-table").innerHTML = rows.map(([k, name]) => {
+        const p = k === "best" ? r.plans.best : r.plans[k];
+        const label = k === "best" && r.bestKey !== "best" ? (r.bestKey === "even" ? "Equal withdrawals (best here)" : waitName + " (best here)") : name;
+        return `<tr><th scope="row">${label}</th><td>${money(p.wealth)}</td><td>${money(p.pvTax)}</td><td>${money(p.totalTax)}</td></tr>`;
+      }).join("");
+      $("#year-table").innerHTML = r.plans.best.rows.map((x) => `<tr><td>${x.year}</td><td>${money(x.other)}</td><td>${rmdRequired ? money(x.rmd) : "—"}</td><td><strong>${money(x.withdrawal)}</strong></td><td>${money(x.tax)}</td><td>${pct(x.marginal)}</td></tr>`).join("");
+      const edge = r.plans.best.wealth - r.wait.wealth;
+      $("#report-stats").innerHTML = `The recommended plan leaves you <strong>${money(edge)}</strong> ${edge >= 0 ? "better off" : "worse off"} after tax, at the end of year ${years}, than ${rmdRequired ? "taking only the minimums" : "waiting until the last year"}. Federal tax in today's dollars: <strong>${money(r.plans.best.pvTax)}</strong> versus ${money(r.wait.pvTax)}.`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `
+        <div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4><p>${f.detail}</p></div>`).join("");
+      report.hidden = false;
+      status.textContent = rmdRequired && !v("factor") ? `Used an approximate life-expectancy factor of ${approxLifeFactor(v("age"))} for age ${v("age")}; enter the exact IRS figure to be precise.` : "";
+      record("plan_calculated");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      const ex = { balance: 500000, age: 50, factor: "", "income-now": 150000, "change-year": 4, "income-later": 40000 };
+      for (const id of ids) $("#" + id).value = ex[id] ?? "";
+      $("#growth").value = "6";
+      $("#years").value = "10";
+      $("#rmd").value = "0";
+      $("#status").value = "single";
+      runCalculate();
+      record("example_loaded");
+      status.textContent = "Worked example: single, $500,000 inherited IRA, $150,000 income that drops to $40,000 in year 4.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of ids) $("#" + id).value = "";
+      report.hidden = true;
+      status.textContent = "Enter the balance and your income, then click Plan.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+name: inherited-ira-10-year-withdrawal-planner
+description: >-
+  Free browser tool for people who inherited an IRA: enter the balance, expected growth and your other income by year
+  and see a year-by-year withdrawal plan that empties the account within the 10-year rule at the lowest federal tax,
+  against waiting until year 10 and equal withdrawals, with the yearly required minimum when the owner had started
+  theirs. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check.py: closest ventures at 0.24 (trump-account-
+# calculator) and 0.19 (mega-backdoor-roth-calculator), both unrelated. No venture models inherited-IRA drawdown;
+# rmd-calculator is the owner's own RMD, roth-conversion-bracket-fill-calculator is converting one's own IRA.
+# Search phrases: "inherited IRA 10 year rule calculator", "inherited IRA withdrawal strategy", "inherited IRA RMD
+# calculator 2026", "how to spread inherited IRA over 10 years".
+# Volume not measured with an external tool. Demand is evergreen, with a bump each December and January when
+# beneficiaries plan the year's distribution, and every death creates a new searcher.
+#
+# Who: adult children and other non-spouse heirs holding a five- or six-figure inherited IRA; the paying buyer, if
+# there is one, is a financial planner or CPA who would run it for clients.
+#
+# Path to revenue (payment rails stay off): lead magnet for planners and CPAs. A paid version, if usage appears, is
+# saved scenarios, a state-tax module and a client-ready PDF behind an env-var switch; not built.
+#
+# Liability: it reads the user's own numbers, shows its model and assumptions, carries the no-warranty and not-tax-
+# advice clauses, and lists eligible-designated-beneficiary status, state tax, NIIT and IRMAA as not decided.
+#
+# Unverified: 2026 brackets and standard deductions are copied from the sibling Roth tool, not independently
+# re-checked; the life-expectancy factor is interpolated from anchor ages, not the full IRS table; the planner assumes
+# a single steady growth rate. The first report of a wrong figure is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A non-spouse heir will paste a balance and an income path into a no-signup page to learn how much to take each
+      year of the 10-year window, because the choice between all-at-the-end and spread-out is a real five-figure
+      tax difference and no free tool compares them year by year.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted scenario) engage with the tool by 2027-04-15, after the tax-filing season it is built for.
+  - A user reports a wrong bracket, minimum or deadline rule, at which point the model needs revisiting before it is promoted.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/inherited-ira-10-year-withdrawal-planner/
+  analytics: null
