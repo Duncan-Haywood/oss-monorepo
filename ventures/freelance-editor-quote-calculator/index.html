@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Freelance Editor Quote Calculator</title>
+  <meta name="description" content="Free quote calculator for freelance editors and proofreaders: word count, level of edit and your hourly target become a flat fee, a per-word rate, the days the job needs and what the fee pays if you edit slower than planned. Private, runs in your browser.">
+  <meta property="og:title" content="Editing quote calculator: price a proofread, copyedit or developmental edit. Free, private">
+  <meta property="og:description" content="Word count and hourly target in, flat fee and per-word rate out, with a rush fee and a slow-pace check.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Freelance Editor Quote Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I price an editing job?", "acceptedAnswer": {"@type": "Answer", "text": "Estimate the hours, then multiply by the hourly rate you need. Hours are the word count divided by how many words per hour you edit at that level, adjusted for how rough the text is, plus admin time and any extras such as a style sheet. Quote the result as a flat fee and state the per-word equivalent, because clients compare per-word."}}, {"@type": "Question", "name": "What are typical editing speeds?", "acceptedAnswer": {"@type": "Answer", "text": "They vary a lot with the person and the text. The defaults here are rule-of-thumb figures: about 2,000 words an hour for proofreading, 1,000 for copyediting, 600 for line editing and 350 for developmental editing. They are inputs, so replace them with your own timed pace."}}, {"@type": "Question", "name": "Why charge a flat fee instead of hourly?", "acceptedAnswer": {"@type": "Answer", "text": "Clients usually want a number up front. A flat fee is safe only if your pace estimate is right, so the page shows what the fee pays per hour if you work slower than planned and suggests a cap on scope or an overage clause."}}, {"@type": "Question", "name": "When should I add a rush fee?", "acceptedAnswer": {"@type": "Answer", "text": "When the deadline is shorter than your normal turnaround and displaces other work. Enter the working days the client gives and the window below which you charge extra; the surcharge percentage is yours to set."}}, {"@type": "Question", "name": "Does it know market rates?", "acceptedAnswer": {"@type": "Answer", "text": "No. It works backwards from the hourly income you want. Compare the per-word result with published rate surveys from editors' associations before you send a quote."}}, {"@type": "Question", "name": "Is my manuscript or my rate uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Only a word count and your own numbers are entered, everything is worked out in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FREELANCE EDITOR QUOTE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Quote an editing job: flat fee, per-word rate, and what happens if the manuscript is slower than you thought</h1>
+    <p>Enter the word count, the level of edit and the hourly rate you need. You get the flat fee, the per-word and per-page equivalents clients compare, the working days the job needs, a rush surcharge, and what your fee pays per hour if you edit <strong>slower than planned</strong>.</p>
+    <p class="note">Paces are in words per hour and you can change them. It works backwards from the income you want; it does not know market rates.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>The job</h2>
+    <div class="grid">
+      <div><label for="words">Manuscript length, words</label><input id="words" inputmode="decimal" value="" placeholder="80000"></div>
+      <div><label for="level">Level of edit</label><select id="level"><option value="proofread">Proofreading</option><option value="copyedit" selected>Copyediting</option><option value="line">Line editing</option><option value="developmental">Developmental editing</option></select></div>
+      <div><label for="condition">Condition of the manuscript</label><select id="condition"><option value="clean">Clean</option><option value="average" selected>Average</option><option value="rough">Rough</option></select></div>
+      <div><label for="pace">Your pace, words per hour (blank = level default)</label><input id="pace" inputmode="decimal" value="" placeholder="1000"></div>
+      <div><label for="rate">Hourly rate you want to earn, dollars</label><input id="rate" inputmode="decimal" value="" placeholder="45"></div>
+      <div><label for="overhead">Admin and client time on top, % (emails, invoicing)</label><input id="overhead" inputmode="decimal" value="" placeholder="15"></div>
+      <div><label for="extra">Extra hours for a style sheet, fact flags or a letter</label><input id="extra" inputmode="decimal" value="" placeholder="3"></div>
+      <div><label for="workdays">Working days the client gives you</label><input id="workdays" inputmode="decimal" value="" placeholder="14"></div>
+      <div><label for="hpd">Editing hours you can do per working day</label><input id="hpd" inputmode="decimal" value="" placeholder="5"></div>
+      <div><label for="rushdays">Rush window: charge extra at or under this many days (blank = no rush fee)</label><input id="rushdays" inputmode="decimal" value="" placeholder="7"></div>
+      <div><label for="rushpct">Rush surcharge, %</label><input id="rushpct" inputmode="decimal" value="" placeholder="25"></div>
+      <div><label for="slower">Risk check: if you edit this % slower than planned, %</label><input id="slower" inputmode="decimal" value="" placeholder="25"></div>
+      </div>
+    <p>
+      <button type="button" id="calc">Work out the quote</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the job, then click Work out the quote.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Quote</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>The same manuscript at each level</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Level</th><th scope="col" class="n">Words/hour</th><th scope="col" class="n">Billable hours</th><th scope="col" class="n">Fee</th><th scope="col" class="n">Per word</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download quote (text)</button> <button type="button" class="secondary" id="dl-csv">Download levels (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Counts:</strong> edit hours = words / (words per hour / condition factor of 0.85 clean, 1 average, 1.3 rough); billable hours = (edit hours + extra hours) plus the admin percentage; fee = billable hours times your rate, plus the rush surcharge when the deadline is inside your rush window.</li>
+      <li><strong>Not decided:</strong> what the market pays, your real words per hour (time yourself on a sample), sales tax or VAT, contract terms, payment schedule, kill fees, and whether the client's text needs the level they asked for.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How do I price an editing job?</h3>
+    <p>Estimate the hours, then multiply by the hourly rate you need. Hours are the word count divided by how many words per hour you edit at that level, adjusted for how rough the text is, plus admin time and any extras such as a style sheet. Quote the result as a flat fee and state the per-word equivalent, because clients compare per-word.</p>
+    <h3>What are typical editing speeds?</h3>
+    <p>They vary a lot with the person and the text. The defaults here are rule-of-thumb figures: about 2,000 words an hour for proofreading, 1,000 for copyediting, 600 for line editing and 350 for developmental editing. They are inputs, so replace them with your own timed pace.</p>
+    <h3>Why charge a flat fee instead of hourly?</h3>
+    <p>Clients usually want a number up front. A flat fee is safe only if your pace estimate is right, so the page shows what the fee pays per hour if you work slower than planned and suggests a cap on scope or an overage clause.</p>
+    <h3>When should I add a rush fee?</h3>
+    <p>When the deadline is shorter than your normal turnaround and displaces other work. Enter the working days the client gives and the window below which you charge extra; the surcharge percentage is yours to set.</p>
+    <h3>Does it know market rates?</h3>
+    <p>No. It works backwards from the hourly income you want. Compare the per-word result with published rate surveys from editors' associations before you send a quote.</p>
+    <h3>Is my manuscript or my rate uploaded anywhere?</h3>
+    <p>No. Only a word count and your own numbers are entered, everything is worked out in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+    </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output before sending a quote. Treat it as a worksheet to check, not a rate recommendation.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../translator-project-quote/">translator project quote</a> and the <a href="../brand-deal-rate-calculator/">brand deal rate calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, sweepCsv, dollars } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { words: "words", level: "level", condition: "condition", pace: "pace", rate: "rate", overhead: "overhead", extra: "extraHours", rushdays: "rushDays", rushpct: "rushPct", workdays: "workDays", hpd: "hoursPerDay", slower: "slower" };
+    const IDLE = "Fill in the job, then click Work out the quote.";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `Quote ${dollars(r.fee)} flat: ${dollars(r.perWord)} per word, ${r.billable.toFixed(1)} billable hours`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#rows").innerHTML = r.sweep.map((x) => `<tr><td>${esc(x.label)}</td><td class="n">${x.pace}</td><td class="n">${x.hours.toFixed(1)}</td><td class="n">${dollars(x.fee)}</td><td class="n">${dollars(x.perWord)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: an 80,000-word average manuscript, copyedit, $45 an hour target.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) { const e = $("#" + id); if (e.tagName === "INPUT") e.value = ""; } report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("edit-quote.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("edit-quote-levels.csv", sweepCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
