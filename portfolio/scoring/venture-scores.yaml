@@ -24337,6 +24337,35 @@ ventures:
       warranty, no market prices asserted, limits stated. No client or event data;
       nothing leaves the browser. Ethics: helps a small business owner price work
       honestly.
+  - slug: payoneer-statement-to-journal
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic parsing, average-cost valuation and journal arithmetic in the
+      browser; no language model and no paid API.
+    basis: >-
+      Screened 2026-10-06 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 5: freelancers
+      and marketplace sellers paid through Payoneer search for how to book it in
+      Xero or QuickBooks (volume not measured with an external tool). Defensibility 4:
+      bank-feed and sync apps charge monthly; a free private per-statement journal
+      with realised FX on its own line is a different shape.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own file and typed rates, no tax advice, no
+      warranty, independent of Payoneer, Xero and Intuit. Ethics: helps small
+      businesses keep honest books.
   - slug: shipping-box-size-optimizer
     scores:
       ai_leverage: 3

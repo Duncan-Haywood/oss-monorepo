@@ -23,6 +23,9 @@ owner: duncan
 # calculator", "is The Knot worth it for DJs"; DJ forums and groups ask the pricing and
 # marketplace-vs-direct question constantly. Volume not measured with an external tool.
 #
+# Extended 2026-10-06 (quote.mjs + guide): a quote builder and annual-income-target planner on the same page; searches "DJ rate per hour",
+# "wedding DJ pricing calculator", r/WeddingDJs, r/DJs. Extended rather than a second DJ venture, which would split the same visitors.
+#
 # Liability boundary: arithmetic on user-typed figures; no market prices asserted; no tax
 # advice; says what it does not model. No client or event data.
 #
