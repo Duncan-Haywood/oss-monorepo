@@ -2156,6 +2156,9 @@ workflows:
 - workflow: support-staffing-planner-ci.yml
   classification: none
   publishes: []
+- workflow: syndication-waterfall-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: tattoo-piece-profit-calculator-ci.yml
   classification: none
   publishes: []

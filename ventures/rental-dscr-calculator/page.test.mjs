@@ -104,3 +104,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
 test("links to the rental rent optimizer, which prices the unit the DSCR test assumes is rented", () => {
   assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/rental-rent-optimizer\/"/);
 });
+
+test("links to the syndication waterfall calculator, the equity-side counterpart of the DSCR loan test", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/syndication-waterfall-calculator\/"/);
+});
