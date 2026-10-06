@@ -2982,7 +2982,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `rent-increase-notice-checker` graduated (browser rent roll to per-unit cap, notice period and earliest effective date).
     # +1: `supplier-price-creep-checker` graduated (browser supplier invoice lines to per-item creep, one-off spikes, contract overcharges and credit requests).
     # +1: `restaurant-tip-pool-calculator` graduated (browser shift list to tip pool payouts by hours, points or tip-out).
-    total = 792  # `infra/OWNER_CHECKLIST.md`'s own "N of the 792 tools" wording.
+    total = 795  # `infra/OWNER_CHECKLIST.md`'s own "N of the 795 tools" wording.
     # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).

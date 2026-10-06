@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 792 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 795 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -80,6 +80,14 @@
     <summary type="text">Free H-1B weighted lottery odds calculator: enter registrations by wage level (I-IV) and your candidates, and see each person&#39;s selection chance under the weighted rule versus the old flat lottery, and what one wage level higher is worth. Private, runs in your browser.</summary>
   </entry>
   <entry>
+    <title>Inherited IRA 10-Year Rule Calculator 2026 — Withdrawal Plan, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/inherited-ira-10-year-withdrawal-planner/"/>
+    <id>tag:marisstella.dev,2026:tool/inherited-ira-10-year-withdrawal-planner</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free inherited IRA 10-year rule calculator: plan how much to withdraw each year to empty the account by the deadline at the lowest tax, with the yearly required minimum if the owner had started RMDs. Runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Insurance Commission Reconciler</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/insurance-commission-reconciler/"/>
     <id>tag:marisstella.dev,2026:tool/insurance-commission-reconciler</id>
@@ -110,6 +118,14 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free planner for microgreens growers: what to seed on which day for your harvest days, how many rack spaces the busiest weekday needs, which crop earns the most per rack space, and the best mix when the rack is full. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Pay Application Generator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pay-application-generator/"/>
+    <id>tag:marisstella.dev,2026:tool/pay-application-generator</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free pay application generator for subcontractors and small general contractors: paste your schedule of values, set retainage, and get the contract sum, change orders, retainage, previous certificates and current payment due, plus a line-by-line table and CSV. Private, runs in your browser.</summary>
   </entry>
   <entry>
     <title>Payoneer Statement to Xero and QuickBooks Journal with FX Gain and Loss</title>
@@ -150,21 +166,5 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free supplier price creep checker for restaurants, cafes and shops: paste invoice lines, see which items crept up, which invoice was a one-off overcharge, what it costs a year, and a credit-request email. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Syndication Waterfall Calculator — Pref, Hurdles and Promote, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/syndication-waterfall-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/syndication-waterfall-calculator</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free real estate syndication waterfall calculator: preferred return, IRR hurdles and sponsor promote tiers, with LP and GP IRR, equity multiples and a year-by-year split. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Teachable Transactions to Xero and QuickBooks Journal</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/teachable-payout-to-journal/"/>
-    <id>tag:marisstella.dev,2026:tool/teachable-payout-to-journal</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free Teachable to QuickBooks and Xero journal converter: books course sales, bundles, memberships and coaching to separate income accounts, derives the Teachable and PayPal or Stripe fee from Given minus Received, proves the rows add up to your deposit, splits by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
