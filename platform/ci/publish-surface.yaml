@@ -2495,3 +2495,6 @@ gitops:
 - workflow: grant-writer-proposal-price-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: invoice-maker-ci.yml
+  classification: none
+  publishes: []
