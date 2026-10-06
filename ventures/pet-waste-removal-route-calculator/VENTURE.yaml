@@ -1,0 +1,42 @@
+name: pet-waste-removal-route-calculator
+description: >-
+  Free browser tool for pet waste removal (dog poop scooping) route owners: enter weekly clients, price per visit,
+  minutes on site, drive minutes between yards, supplies, disposal and fixed costs, and see monthly profit, pay per hour
+  including driving, break-even clients, the price per visit for your target hourly pay, and hourly pay at each
+  average drive time. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06. duplicate_check scored 0.32 against dog-walking-route-pricing; no pet waste tool in ventures/,
+# not in screened-out.md. Low-capital, route-based, recurring weekly revenue; owners underprice because drive time is unpaid.
+# First visitor: someone searching "how much to charge for dog poop scooping", "pet waste removal business profit",
+# "is a poop scooping business profitable"; r/sweatystartup and r/Entrepreneur threads on route pricing.
+#
+# Who: solo owners of 20-120 client weekly pet waste routes.
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. Route scheduling, client
+# invoicing and skip-week tracking for pet waste services is the possible paid version, not built.
+# Liability: arithmetic on the user's own figures with visible rules; carries the no-warranty and not-advice clauses
+# and lists what is not decided (licensing, insurance, disposal rules, tax).
+# Unverified: no market rate is claimed; the sample figures are illustrative only.
+
+hypotheses:
+  - claim: >-
+      A pet waste route owner will enter clients, price and drive time to find hourly pay including driving and the
+      price needed, because routes often pay less than they feel like once unpaid driving is counted.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool by 2027-03-15.
+  - A report that the profit arithmetic differs from the stated rules on the same inputs.
