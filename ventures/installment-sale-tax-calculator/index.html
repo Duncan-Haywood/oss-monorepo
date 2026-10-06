@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Installment Sale Tax Calculator</title>
+  <meta name="description" content="Free installment sale tax calculator: selling a business, rental or land for a note? See the gain taxed each year, the depreciation recapture due up front, the tax saved by spreading it and what the interest earns after tax. Private, runs in your browser.">
+  <meta property="og:title" content="Installment sale tax calculator: what do you owe each year on a seller-financed sale? Free, private">
+  <meta property="og:description" content="Enter price, basis, depreciation and note terms. See the yearly gain, recapture, tax saved and a comparison by note length.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Installment Sale Tax Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is an installment sale?", "acceptedAnswer": {"@type": "Answer", "text": "When you sell a business, rental property, land or other investment asset and take a promissory note from the buyer, the IRS lets you report the gain as you collect the principal instead of all in the year of sale (IRC section 453, Form 6252). Each principal payment carries a share of taxable gain equal to your gross profit divided by the contract price."}}, {"@type": "Question", "name": "What is taxed in the first year no matter what?", "acceptedAnswer": {"@type": "Answer", "text": "Depreciation recapture. Under IRC 453(i), recapture on depreciation you claimed is recognised in full in the year of sale even if you collect nothing, and only the remaining gain is spread over the note. Interest on the note is ordinary income each year."}}, {"@type": "Question", "name": "Why would spreading the gain save tax?", "acceptedAnswer": {"@type": "Answer", "text": "Spreading can keep each year's gain in a lower capital gains bracket (0, 15 or 20 percent) and can keep income below thresholds for the 3.8 percent net investment income tax and Medicare premium surcharges. You enter the rate you expect with and without spreading, because it depends on your other income."}}, {"@type": "Question", "name": "What can go wrong?", "acceptedAnswer": {"@type": "Answer", "text": "The buyer can default, and tax already paid on payments received is not refunded. Notes over $5 million can trigger an interest charge on the deferred tax (IRC 453A). Sales to relatives, sales of inventory and publicly traded securities, and many depreciable-property sales to related parties are restricted. A note that pays less than the IRS minimum rate can be recharacterised in part as interest."}}, {"@type": "Question", "name": "Does this decide whether I qualify?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a worksheet that does arithmetic on the figures you enter, using a level yearly payment on the note, payments at year end, and no assumed debt. It does not model assumed mortgages above basis, a pledged note, state differences beyond the single extra rate you enter, or the alternative minimum tax. Check with a CPA before you sign."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is worked out in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">INSTALLMENT SALE TAX CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Selling for a note: how much tax do you owe each year, and what does spreading it save?</h1>
+    <p>When you finance the buyer yourself, the gain is taxed as you collect principal &mdash; but <strong>depreciation recapture is taxed in the sale year regardless</strong>. Enter the sale and the note and see the gain recognised each year, the tax with and without spreading, and how note length changes the answer.</p>
+    <p class="note">The numbers stay in this browser tab. It does arithmetic on what you type; it is a worksheet, not tax advice. Rates depend on your other income, so you enter them.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>The sale and the note</h2>
+    <div class="grid">
+      <div><label for="price">Selling price, dollars</label><input id="price" inputmode="decimal" value="" placeholder="1200000"></div>
+      <div><label for="basis">Adjusted basis, dollars (cost plus improvements minus depreciation taken)</label><input id="basis" inputmode="decimal" value="" placeholder="300000"></div>
+      <div><label for="expenses">Selling expenses, dollars (commissions, legal)</label><input id="expenses" inputmode="decimal" value="" placeholder="60000"></div>
+      <div><label for="depreciation">Depreciation previously claimed, dollars (recapture)</label><input id="depreciation" inputmode="decimal" value="" placeholder="150000"></div>
+      <div><label for="down">Payments received in the sale year, dollars</label><input id="down" inputmode="decimal" value="" placeholder="240000"></div>
+      <div><label for="years">Number of yearly note payments after the sale year</label><input id="years" inputmode="decimal" value="" placeholder="10"></div>
+      <div><label for="rate">Note interest rate, percent</label><input id="rate" inputmode="decimal" value="" placeholder="6"></div>
+      <div><label for="afr">Minimum rate the IRS requires, percent (optional)</label><input id="afr" inputmode="decimal" value="" placeholder="4.5"></div>
+      <div><label for="recaptureRate">Tax rate on depreciation recapture, percent</label><input id="recaptureRate" inputmode="decimal" value="" placeholder="25"></div>
+      <div><label for="lumpRate">Capital gains rate if you take it all in the sale year, percent</label><input id="lumpRate" inputmode="decimal" value="" placeholder="20"></div>
+      <div><label for="spreadRate">Capital gains rate if you spread it, percent</label><input id="spreadRate" inputmode="decimal" value="" placeholder="15"></div>
+      <div><label for="extraRate">Extra rate on all gain and interest, percent (3.8 NIIT plus state)</label><input id="extraRate" inputmode="decimal" value="" placeholder="8.8"></div>
+      <div><label for="discount">Discount rate for today's dollars, percent</label><input id="discount" inputmode="decimal" value="" placeholder="4"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out the tax</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Work out the tax.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>Year by year</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Year</th><th scope="col" class="n">Principal</th><th scope="col" class="n">Interest</th><th scope="col" class="n">Gain taxed</th><th scope="col" class="n">Tax on gain</th></tr></thead><tbody id="years"></tbody></table></div>
+    <h3>If the note ran a different length</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Yearly payments</th><th scope="col" class="n">Tax on gain</th><th scope="col" class="n">Saved vs lump sum, today's dollars</th><th scope="col" class="n">Interest received</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p class="note">Payments are level and fall at year end; the sale-year column holds only the payment you enter. Rates are held flat.</p>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download table (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Counts:</strong> gross profit (price minus basis and selling expenses); recapture taxed in the sale year and capped at the gain; the rest spread by gross profit percentage over each principal payment; interest taxed as ordinary income at the recapture rate you enter.</li>
+      <li><strong>Not decided:</strong> whether the sale qualifies; assumed mortgages above basis; related-party and dealer rules; the 453A interest charge; alternative minimum tax; your real brackets; and whether to offer seller financing at all.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is an installment sale?</h3>
+    <p>When you sell a business, rental property, land or other investment asset and take a promissory note from the buyer, the IRS lets you report the gain as you collect the principal instead of all in the year of sale (IRC section 453, Form 6252). Each principal payment carries a share of taxable gain equal to your gross profit divided by the contract price.</p>
+    <h3>What is taxed in the first year no matter what?</h3>
+    <p>Depreciation recapture. Under IRC 453(i), recapture on depreciation you claimed is recognised in full in the year of sale even if you collect nothing, and only the remaining gain is spread over the note. Interest on the note is ordinary income each year.</p>
+    <h3>Why would spreading the gain save tax?</h3>
+    <p>Spreading can keep each year's gain in a lower capital gains bracket (0, 15 or 20 percent) and can keep income below thresholds for the 3.8 percent net investment income tax and Medicare premium surcharges. You enter the rate you expect with and without spreading, because it depends on your other income.</p>
+    <h3>What can go wrong?</h3>
+    <p>The buyer can default, and tax already paid on payments received is not refunded. Notes over $5 million can trigger an interest charge on the deferred tax (IRC 453A). Sales to relatives, sales of inventory and publicly traded securities, and many depreciable-property sales to related parties are restricted. A note that pays less than the IRS minimum rate can be recharacterised in part as interest.</p>
+    <h3>Does this decide whether I qualify?</h3>
+    <p>No. It is a worksheet that does arithmetic on the figures you enter, using a level yearly payment on the note, payments at year end, and no assumed debt. It does not model assumed mortgages above basis, a pledged note, state differences beyond the single extra rate you enter, or the alternative minimum tax. Check with a CPA before you sign.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is worked out in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a CPA or tax attorney. You are responsible for reviewing and verifying its output before relying on it. Treat it as a worksheet to check, not a recommendation to structure a sale.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../like-kind-exchange-1031-calculator/">1031 exchange calculator</a> and the <a href="../depreciation-recapture-calculator/">depreciation recapture calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, sweepCsv, dollars } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { price: "price", basis: "basis", expenses: "expenses", depreciation: "depreciation", down: "down", years: "years", rate: "rate", afr: "afr", recaptureRate: "recaptureRate", lumpRate: "lumpRate", spreadRate: "spreadRate", extraRate: "extraRate", discount: "discount" };
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      const t = r.totals;
+      $("#due").textContent = `Spreading saves ${dollars(t.taxSaved)} of tax on the gain (${dollars(t.pvSaved)} in today's dollars); ${dollars(t.recapture)} of recapture is still due in the sale year`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#years").innerHTML = r.rows.map((y) => `<tr><td>${y.label}</td><td class="n">${dollars(y.principal)}</td><td class="n">${dollars(y.interest)}</td><td class="n">${dollars(y.gain + y.recapture)}</td><td class="n">${dollars(y.gainTax)}</td></tr>`).join("");
+      $("#rows").innerHTML = r.sweep.map((x) => `<tr><td class="n">${x.years}</td><td class="n">${dollars(x.tax)}</td><td class="n">${dollars(x.pvSaved)}</td><td class="n">${dollars(x.interest)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a $1.2 million sale with $240,000 down and a ten-year 6% note.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = "Fill in the figures, then click Work out the tax."; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("installment-sale-summary.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("installment-sale-table.csv", sweepCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
