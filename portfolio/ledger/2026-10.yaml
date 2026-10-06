@@ -2259,3 +2259,20 @@ entries:
         headless Chromium. Registered score row, launch date, category rule, CI workflow and tree
         counts; regenerated the mirror.
     mrr_end: 0
+  - venture: upwork-earnings-to-journal
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built upwork-earnings-to-journal: a browser-local Upwork transaction history to
+        month-split Xero / QuickBooks Online / QuickBooks Desktop (IIF) journal tool, the freelancer end of
+        the payout-to-journal family. Differs from its siblings in shape: Upwork's file is a ledger of typed
+        rows, not a payout, so income is booked gross by hourly / fixed price / bonus, service and withdrawal
+        fees and Connects are expenses, withdrawals clear to the bank, and the running Balance column is
+        walked row by row so a dropped or edited row is named with the amount missing (newest-first and
+        oldest-first both handled). Also reports Upwork's fee share of billings. Complements
+        upwork-earnings-fee-analyzer (diagnostic) rather than duplicating it. First visitor: r/Upwork and
+        r/freelance bookkeeping threads, "Upwork to QuickBooks" searches. Export layout is from memory of
+        public docs and stated unverified on the page. 42 calc, usage and page tests. Registered launch
+        date, category rule, tree counts; regenerated the mirror; linked from teachable-payout-to-journal.
+    mrr_end: 0

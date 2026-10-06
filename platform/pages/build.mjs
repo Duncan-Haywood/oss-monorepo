@@ -1311,6 +1311,8 @@ const CATEGORY_RULES = [
       || slug === 'ko-fi-payout-to-journal'
       // `buymeacoffee-payout-to-journal` joined 2026-10-06: the Buy Me a Coffee end of the same payout-to-journal set, filed beside it.
       || slug === 'buymeacoffee-payout-to-journal'
+      // `upwork-earnings-to-journal` joined 2026-10-06: the Upwork (freelancer) end of the same payout-to-journal set, filed beside it.
+      || slug === 'upwork-earnings-to-journal'
       // `teachable-payout-to-journal` joined 2026-10-06: the Teachable (course creator) end of the same payout-to-journal set, filed beside it.
       || slug === 'teachable-payout-to-journal'
       // `youtube-adsense-payout-to-journal` joined 2026-10-06: the YouTube AdSense end of the same payout-to-journal set (US withholding receivable, realised FX), filed beside it.
