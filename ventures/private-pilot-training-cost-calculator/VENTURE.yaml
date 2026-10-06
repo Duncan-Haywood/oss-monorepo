@@ -1,0 +1,44 @@
+name: private-pilot-training-cost-calculator
+description: >-
+  Free browser tool for student pilots and discovery-flight prospects: enter expected flight hours, aircraft and
+  instructor rates, briefing time and exam fees, and see the total cost of a private pilot certificate, the cost at
+  40 to 100 hours, the price of each extra hour, the monthly budget at your lesson schedule, and whether a flying club
+  beats renting. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check.py found no pilot or flight-training tool in
+# ventures/ and no row in screened-out.md. Training runs five figures and the biggest swing is hours flown, which
+# schools quote only as a range.
+# First visitor: someone searching "how much does a private pilot license cost", "student pilot cost calculator",
+# "flying club vs renting"; r/flying and r/studentpilot threads on budgeting training.
+#
+# Who: prospective and current Part 61 private pilot students, and the flight schools and clubs that answer their
+# cost questions.
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. A flight-school quote-sheet
+# and student budget tracker is the possible paid version, not built.
+# Liability: arithmetic on the user's own figures with visible rules; not flight instruction; carries the no-warranty
+# and not-advice clauses and lists what is not decided (hours needed, school rates, retests, medical class).
+# Unverified: no market rate is claimed; sample figures are illustrative only. The 40/20/10 minimums are 14 CFR 61.109.
+
+hypotheses:
+  - claim: >-
+      Prospective student pilots will enter their school's rates to see a total cost and the price of extra hours,
+      because quotes list hourly rates and never a total.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool by 2027-03-15.
+  - A report that the cost arithmetic differs from the stated rules on the same inputs.

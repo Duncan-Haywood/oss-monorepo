@@ -95,3 +95,7 @@ test("the cancellation rate input is bounded below 100", () => {
 test("page links the tutor hourly rate calculator", () => {
   assert.match(page("index.html"), /href="\.\.\/tutor-effective-hourly-rate-calculator\/"/);
 });
+
+test("page links the private pilot training cost calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/private-pilot-training-cost-calculator\/"/);
+});
