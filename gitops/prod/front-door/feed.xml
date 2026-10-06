@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 800 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 801 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -96,6 +96,14 @@
     <summary type="text">Free inherited IRA 10-year rule calculator: plan how much to withdraw each year to empty the account by the deadline at the lowest tax, with the yearly required minimum if the owner had started RMDs. Runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Injury Settlement Net Proceeds Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/injury-settlement-net-proceeds-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/injury-settlement-net-proceeds-calculator</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free injury settlement calculator: enter the gross amount, attorney fee, costs and medical liens and see what the client actually takes home, with Medicare&#39;s procurement-cost reduction and the effect of negotiating each lien. Private, runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Insurance Commission Reconciler</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/insurance-commission-reconciler/"/>
     <id>tag:marisstella.dev,2026:tool/insurance-commission-reconciler</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free pay application generator for subcontractors and small general contractors: paste your schedule of values, set retainage, and get the contract sum, change orders, retainage, previous certificates and current payment due, plus a line-by-line table and CSV. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Payoneer Statement to Xero and QuickBooks Journal with FX Gain and Loss</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/payoneer-statement-to-journal/"/>
-    <id>tag:marisstella.dev,2026:tool/payoneer-statement-to-journal</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free Payoneer to QuickBooks and Xero journal converter for multi-currency balances: values every row in your base currency at your rates, tracks average cost, books realised FX gain or loss separately, proves the running balance, and downloads a balanced month-split journal. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
