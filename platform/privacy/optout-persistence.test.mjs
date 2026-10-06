@@ -1352,10 +1352,11 @@ const RELATIVE_SELF = relative(
 // +1: `rent-increase-notice-checker` graduated.
 // +1: `pay-application-generator` graduated.
 // +1: `nua-employer-stock-calculator` graduated.
+// +1: `medicaid-lookback-penalty-calculator` graduated.
 // +1: `supplier-price-creep-checker` graduated.
 // +1: `lien-waiver-checker` graduated.
 // +1: `restaurant-tip-pool-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 776;
+const SWITCHES_IN_THE_CATALOGUE = 777;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
