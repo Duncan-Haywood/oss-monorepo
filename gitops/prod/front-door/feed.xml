@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 807 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 810 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -72,6 +72,14 @@
     <summary type="text">Free sales tax audit prep for wholesalers and distributors: paste your exempt sales and the certificates on file, and see which sales have no valid certificate, the tax at stake, and which customers to chase first. Runs in your browser; your sales data is never uploaded.</summary>
   </entry>
   <entry>
+    <title>Fishing Charter Trip Pricing Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fishing-charter-trip-pricing-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/fishing-charter-trip-pricing-calculator</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free pricing calculator for fishing charter captains: fuel, deckhand, fixed costs, weather cancellations and the profit you want become a break-even price, a target price per trip and per angler. Private, runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Fiverr Earnings to Xero and QuickBooks Journal</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fiverr-earnings-to-journal/"/>
     <id>tag:marisstella.dev,2026:tool/fiverr-earnings-to-journal</id>
@@ -136,6 +144,14 @@
     <summary type="text">Free injury settlement calculator: enter the gross amount, attorney fee, costs and medical liens and see what the client actually takes home, with Medicare&#39;s procurement-cost reduction and the effect of negotiating each lien. Private, runs in your browser.</summary>
   </entry>
   <entry>
+    <title>Installment Sale Tax Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/installment-sale-tax-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/installment-sale-tax-calculator</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free installment sale tax calculator: selling a business, rental or land for a note? See the gain taxed each year, the depreciation recapture due up front, the tax saved by spreading it and what the interest earns after tax. Private, runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Insurance Commission Reconciler</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/insurance-commission-reconciler/"/>
     <id>tag:marisstella.dev,2026:tool/insurance-commission-reconciler</id>
@@ -150,21 +166,5 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free KDP to QuickBooks and Xero journal converter: books Amazon KDP royalties gross by marketplace and format (eBook, paperback, hardcover, KENP), printing cost and tax withheld as expenses, checks row and report totals, splits by currency and month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Lien Waiver Checker</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/lien-waiver-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/lien-waiver-checker</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free lien waiver checker for contractors and suppliers: paste the waiver you were sent and see what to fix before you sign, such as an unconditional waiver before the check clears, a release of all claims or future work, a wrong amount or through-date, or retainage not excepted. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Med Spa Treatment Profit Calculator — Margin per Room Hour, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/med-spa-treatment-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/med-spa-treatment-profit-calculator</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free med spa treatment profit calculator: contribution margin per treatment after product, card fees, provider time and room overhead, ranked by profit per room hour, with the price that hits your target margin. Runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>

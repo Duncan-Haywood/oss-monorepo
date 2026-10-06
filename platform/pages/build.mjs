@@ -2989,6 +2989,10 @@ const CATEGORY_RULES = [
         // own job or forecasting their own cash is this section's earner.
         'cash-flow-risk-forecaster',
         'freelance-editor-quote-calculator',
+        // `installment-sale-tax-calculator` joined 2026-10-06 for the same reason: back-office was at the 3 MB
+        // gzipped bound, and what it answers is what one seller nets, year by year, from selling their own business or
+        // property for a note.
+        'installment-sale-tax-calculator',
         'indie-game-payout-calculator',
         'upwork-earnings-fee-analyzer',
         'patreon-members-churn-analyzer',
