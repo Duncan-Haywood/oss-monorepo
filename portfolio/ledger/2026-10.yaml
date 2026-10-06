@@ -2345,3 +2345,39 @@ entries:
         against a real export on the page. 35 calc, usage and page tests. Registered launch date, category rule,
         tree counts; regenerated the mirror; cross-linked from kdp-royalty-report-analyzer.
     mrr_end: 0
+  - venture: insurance-commission-reconciler
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built insurance-commission-reconciler: a browser-local tool for independent insurance agencies
+        that loads the policy book and one or more carrier commission statements (any CSV layout, title blocks
+        tolerated, columns alias-matched) and finds the money that did not arrive: policies with no commission once
+        they are due, commission paid below the book rate or a per-carrier rate table (or, with neither, below what
+        the same carrier pays the agency on the other lines of that kind), chargebacks on policies the book still shows
+        in force, identical lines paid twice, statement totals that differ from their lines, and statement lines for
+        policies the book lacks. Carrier-scoped tolerant policy-number match (punctuation, case, leading zeros, term
+        suffix), a due-date window so a new policy is not called missing, and one review request per carrier worded as
+        a question with a stated total. Screened with duplicate_check.py (top match 0.23; era-835-underpayment-finder
+        is the medical-remittance neighbour, not agency commissions). First visitor: the agency operations manager
+        or bookkeeper searching "reconcile carrier commission statements" or posting in an agency-owner group. 42
+        calc, usage and page tests plus a headless-browser run of the example and a real file flow. Column names are
+        unverified against a real AMS export or carrier statement and the page says so.
+    mrr_end: 0
+  - venture: rent-increase-notice-checker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built rent-increase-notice-checker: a browser-local tool for small landlords. A rent roll with
+        proposed rents is checked unit by unit against the state cap (California AB 1482, Oregon, Washington, New York
+        Good Cause; cap measured from the lowest rent in the last 12 months, to the cent), the notice period by
+        increase size and tenancy length, mailing days, Oregon's first-year and once-a-year limits, and the earliest
+        effective date; units over the cap show the most that can be asked, and units that can go out get a draft
+        notice. Text notices and a CSV report. Screened with duplicate_check.py (closest: security-deposit-return-
+        calculator 0.28, renewal-rent-optimizer, which picks a rent rather than checking it is lawful). First visitor:
+        a self-managing landlord searching "rent increase notice template" or "ab 1482 calculator" before the
+        yearly round. Rules were read from the statutes by the author on 2026-10-06 and are stated unreviewed on the
+        page; local rent control is listed as not decided. 30 calc, usage and page tests. Registered launch date and
+        category rule; cross-linked from security-deposit-return-calculator and renewal-rent-optimizer.
+    mrr_end: 0
