@@ -1332,7 +1332,8 @@ const RELATIVE_SELF = relative(
 // +1: `ko-fi-payout-to-journal` graduated.
 // +1: `music-distribution-fee-calculator` graduated.
 // +1: `microgreens-tray-planner` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 748;
+// +1: `wise-statement-to-journal` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 749;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
