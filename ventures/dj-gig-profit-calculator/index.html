@@ -89,6 +89,57 @@
     <p id="form-status" role="status" class="note">Add your packages, then click Calculate.</p>
   </section>
 
+  <section class="card" id="quote-builder">
+    <h2>Build a quote</h2>
+    <p>Price one gig from the bottom up: base package, add-ons, every unpaid hour, gear wear, mileage, fees and a second operator. You get your <strong>effective hourly</strong>, the <strong>break-even price</strong>, the price that hits your target, a <strong>deposit schedule</strong>, a <strong>good / better / best</strong> ladder and the <strong>price per gig that reaches an annual income goal</strong> with a peak and off-season split. Guide: <a href="how-much-should-a-wedding-dj-charge.html">how much should a wedding DJ charge</a>.</p>
+    <label for="addons">Add-ons: name, client price, your cost, extra hours, tier (good, better or best), one per line</label>
+    <textarea id="addons" spellcheck="false" placeholder="Uplighting,350,40,0.5,better"></textarea>
+    <div class="row3">
+      <div><label for="q_baseHours">Base package: hours you play</label><input id="q_baseHours" inputmode="decimal" value="5"></div>
+      <div><label for="q_basePrice">Base package price ($)</label><input id="q_basePrice" inputmode="decimal" value="1200"></div>
+      <div><label for="q_loadHours">Load-in, setup, teardown and load-out hours</label><input id="q_loadHours" inputmode="decimal" value="2"></div>
+      <div><label for="q_prepHours">Consultation, planning and music prep hours</label><input id="q_prepHours" inputmode="decimal" value="2"></div>
+      <div><label for="q_travelHours">Round-trip driving hours</label><input id="q_travelHours" inputmode="decimal" value="1"></div>
+      <div><label for="q_miles">Round-trip miles</label><input id="q_miles" inputmode="decimal" value="40"></div>
+      <div><label for="q_mileageRate">Vehicle cost per mile ($)</label><input id="q_mileageRate" inputmode="decimal" value="0.7"></div>
+      <div><label for="q_gearCost">Gear that goes on every gig: purchase price ($)</label><input id="q_gearCost" inputmode="decimal" value="6000"></div>
+      <div><label for="q_gearGigs">Gigs that gear should last</label><input id="q_gearGigs" inputmode="decimal" value="150"></div>
+      <div><label for="q_insuranceYear">Insurance per year ($)</label><input id="q_insuranceYear" inputmode="decimal" value="600"></div>
+      <div><label for="q_softwareYear">Software and music pool per year ($)</label><input id="q_softwareYear" inputmode="decimal" value="900"></div>
+      <div><label for="q_gigsPerYear">Gigs per year (spreads insurance and software)</label><input id="q_gigsPerYear" inputmode="decimal" value="60"></div>
+      <div><label for="q_cardFeePct">Card fee (%)</label><input id="q_cardFeePct" inputmode="decimal" value="3"></div>
+      <div><label for="q_leadFeePct">Marketplace lead fee on this booking (%, 0 if direct)</label><input id="q_leadFeePct" inputmode="decimal" value="0"></div>
+      <div><label for="q_secondOpHours">Second operator hours</label><input id="q_secondOpHours" inputmode="decimal" value="0"></div>
+      <div><label for="q_secondOpRate">Second operator pay per hour ($)</label><input id="q_secondOpRate" inputmode="decimal" value="35"></div>
+      <div><label for="q_overtimeHours">Overtime hours you expect</label><input id="q_overtimeHours" inputmode="decimal" value="0"></div>
+      <div><label for="q_overtimeRate">Overtime rate you charge per hour ($)</label><input id="q_overtimeRate" inputmode="decimal" value="150"></div>
+      <div><label for="q_targetHourly">Take-home target per hour worked ($)</label><input id="q_targetHourly" inputmode="decimal" value="60"></div>
+      <div><label for="q_depositPct">Deposit (%)</label><input id="q_depositPct" inputmode="decimal" value="30"></div>
+      <div><label for="q_balanceDaysBefore">Balance due this many days before</label><input id="q_balanceDaysBefore" inputmode="decimal" value="14"></div>
+      <div><label for="q_targetIncome">Annual take-home goal ($)</label><input id="q_targetIncome" inputmode="decimal" value="60000"></div>
+      <div><label for="q_peakGigs">Peak-season gigs per year</label><input id="q_peakGigs" inputmode="decimal" value="35"></div>
+      <div><label for="q_offGigs">Off-season gigs per year</label><input id="q_offGigs" inputmode="decimal" value="25"></div>
+      <div><label for="q_peakUpliftPct">Peak-season price premium (%)</label><input id="q_peakUpliftPct" inputmode="decimal" value="20"></div>
+    </div>
+    <p class="note">The add-ons ticked below are included in the quote price; the ladder prices each tier from its own hours and costs.</p>
+    <div id="addon-picks" class="note"></div>
+    <button type="button" id="quote-run">Build the quote</button>
+    <button type="button" class="secondary" id="quote-example">Load a quote example</button>
+    <p id="quote-status" role="status" class="note">Enter your numbers, then click Build the quote.</p>
+    <div id="quote-out" hidden>
+      <div class="big" id="quote-big"></div>
+      <p id="quote-verdict"></p>
+      <h3>Where the hours and money go</h3>
+      <div class="scroll"><table id="qt"><thead><tr><th>Line</th><th class="n">Amount</th></tr></thead><tbody></tbody></table></div>
+      <h3>Payment schedule</h3>
+      <div class="scroll"><table id="qs"><thead><tr><th>Payment</th><th class="n">Amount</th></tr></thead><tbody></tbody></table></div>
+      <h3>Good, better, best (price floors at your hourly target)</h3>
+      <div class="scroll"><table id="ql"><thead><tr><th>Tier</th><th>Includes</th><th class="n">Hours worked</th><th class="n">Price</th><th class="n">Profit</th><th class="n">Per hour</th></tr></thead><tbody></tbody></table></div>
+      <h3>Reaching your annual goal</h3>
+      <p id="qa"></p>
+    </div>
+  </section>
+
   <section id="report" class="card" hidden>
     <h2>Result</h2>
     <div id="notices"></div>
@@ -131,14 +182,16 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice and does not replace a qualified accountant. Results are arithmetic on the figures you type. Check them against your own books before you set a price.</p>
     <p><strong>Independent.</strong> Not affiliated with any DJ booking platform, agency, payment processor or trade association, and none is named or ranked here.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this page for anything you cannot afford to redo.</p>
-    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in this browser's local storage, never with any of your data, and never sent anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>quote_built</code>, <code>quote_example_loaded</code>) are counted only in this browser's local storage, never with any of your data, and never sent anywhere.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Guide: <a href="how-much-should-a-wedding-dj-charge.html">how much should a wedding DJ charge</a>.</p>
     <p>Related tools: the <a href="../photo-booth-event-quote/">photo booth event quote calculator</a>, the <a href="../wedding-florist-proposal-calculator/">wedding florist proposal calculator</a>, the <a href="../bounce-house-rental-calculator/">bounce house rental calculator</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
     import { parseGigs, analyze, reportCsv, sampleGigs, money, money2, pct } from "./calc.mjs";
+    import { quoteGig, tierLadder, annualPlan, overtimeFloor, parseAddons, sampleAddons, money as qmoney, money2 as qmoney2 } from "./quote.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -172,6 +225,50 @@
       report.scrollIntoView({ behavior: "smooth", block: "start" });
       return true;
     }
+
+
+    const QFIELDS = ["baseHours", "basePrice", "loadHours", "prepHours", "travelHours", "miles", "mileageRate", "gearCost", "gearGigs", "insuranceYear", "softwareYear", "gigsPerYear", "cardFeePct", "leadFeePct", "secondOpHours", "secondOpRate", "overtimeHours", "overtimeRate", "targetHourly", "depositPct", "balanceDaysBefore", "targetIncome", "peakGigs", "offGigs", "peakUpliftPct"];
+    const QSAMPLE = { addons: sampleAddons(), picks: ["Ceremony sound", "Cocktail hour music"] };
+    function renderPicks() {
+      const rows = parseAddons($("#addons").value).rows;
+      const old = new Set([...document.querySelectorAll("#addon-picks input:checked")].map((i) => i.dataset.name));
+      $("#addon-picks").innerHTML = rows.map((a, i) => `<label class="check"><input type="checkbox" id="pick${i}" aria-label="Include ${esc(a.name)}" data-name="${esc(a.name)}"${old.has(a.name) ? " checked" : ""}>${esc(a.name)} (+${qmoney(a.price)})</label>`).join("");
+    }
+    $("#addons").addEventListener("input", renderPicks);
+    function runQuote() {
+      const qs = $("#quote-status"), out = $("#quote-out");
+      const all = parseAddons($("#addons").value);
+      const picked = new Set([...document.querySelectorAll("#addon-picks input:checked")].map((i) => i.dataset.name));
+      const included = all.rows.filter((a) => picked.has(a.name));
+      const opts = {};
+      for (const k of QFIELDS) opts[k] = $("#q_" + k).value;
+      const q = quoteGig(opts, included);
+      if (q.error) { qs.textContent = q.error; out.hidden = true; return false; }
+      const ladder = tierLadder(opts, all.rows), plan = annualPlan(opts, included), ot = overtimeFloor(opts);
+      const big = [
+        [qmoney(q.price), "Quote price"],
+        [qmoney2(q.effectiveHourly), `Effective hourly over ${q.totalHours.toFixed(1)} hours worked`],
+        [qmoney(q.breakEvenPrice), "Break-even price"],
+        [qmoney(q.targetPrice), `Price for ${qmoney(q.options.targetHourly)}/hour`],
+      ];
+      $("#quote-big").innerHTML = big.map(([v, t]) => `<div><strong>${esc(v)}</strong>${esc(t)}</div>`).join("");
+      $("#quote-verdict").textContent = `${Math.round(q.unpaidShare * 100)}% of the hours you work are not on the dance floor. You are quoting ${qmoney2(q.quotedHourly)} per playing hour but earning ${qmoney2(q.effectiveHourly)} per hour worked.` + (ot.error ? "" : ` Overtime should be at least ${qmoney2(ot.rate)} per hour to cover your target.`);
+      const rows = [["Quote price (base + add-ons)", q.price], ["Overtime you expect to bill", q.overtimeRevenue], ["Card and lead fees", -q.fees], ["Add-on costs", -q.addonCost], ["Gear wear", -q.fixed.gear], ["Insurance share", -q.fixed.insurance], ["Software share", -q.fixed.software], ["Mileage", -q.fixed.mileage], ["Second operator", -q.fixed.secondOp], ["Take-home profit", q.profit]];
+      $("#qt tbody").innerHTML = rows.map(([l, v]) => `<tr><td>${esc(l)}</td><td class="n">${qmoney2(v)}</td></tr>`).join("") + `<tr><td>Unpaid hours (load, prep, travel)</td><td class="n">${q.unpaidHours.toFixed(1)} h</td></tr>`;
+      $("#qs tbody").innerHTML = q.schedule.map((s) => `<tr><td>${esc(s.label)}</td><td class="n">${qmoney2(s.amount)}</td></tr>`).join("");
+      $("#ql tbody").innerHTML = ladder.error ? "" : ladder.tiers.map((t) => `<tr><td>${esc(t.name)}</td><td>${t.addons.length ? esc(t.addons.join(", ")) : "base package only"}</td><td class="n">${t.totalHours.toFixed(1)}</td><td class="n">${qmoney(t.price)}</td><td class="n">${qmoney(t.profit)}</td><td class="n">${qmoney2(t.effectiveHourly)}</td></tr>`).join("");
+      $("#qa").textContent = plan.error ? plan.error : `To take home ${qmoney(q.options.targetIncome)} a year over ${plan.gigs} gigs (${q.options.peakGigs} peak, ${q.options.offGigs} off-season), charge about ${qmoney(plan.offPrice)} off-season and ${qmoney(plan.peakPrice)} at peak, which works out to ${qmoney2(plan.hourly)} per hour worked. At this quote's price you would take home ${qmoney(plan.incomeAtQuotePrice)} on the same bookings` + (plan.gigsNeededAtQuotePrice ? ` and need ${plan.gigsNeededAtQuotePrice} gigs a year to reach the goal.` : ".");
+      out.hidden = false;
+      qs.textContent = "Done. Scroll down for the quote.";
+      return true;
+    }
+    $("#quote-run").addEventListener("click", () => { if (runQuote()) record("quote_built"); });
+    $("#quote-example").addEventListener("click", () => {
+      $("#addons").value = QSAMPLE.addons;
+      renderPicks();
+      for (const i of document.querySelectorAll("#addon-picks input")) i.checked = QSAMPLE.picks.includes(i.dataset.name);
+      if (runQuote()) record("quote_example_loaded");
+    });
 
     $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
     $("#load-example").addEventListener("click", () => {
