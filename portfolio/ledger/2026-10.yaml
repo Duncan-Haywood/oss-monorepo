@@ -2210,3 +2210,17 @@ entries:
         page and in VENTURE.yaml. 25 tests. Registered score row, launch date, category rule, CI
         workflow and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: chiropractor-new-patient-roi-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built chiropractor-new-patient-roi-calculator: a browser-local new-patient acquisition calculator for chiropractic,
+        physical therapy and wellness clinics. From marketing spend, leads, booking and show rates and
+        per-segment visits, collected and cost per visit it gives cost to acquire a patient, patient value,
+        return, payback in visits, the most payable per patient and per lead, and monthly profit. New
+        niche: no clinic acquisition tool existed in the tree. Nothing is uploaded (a test asserts no
+        network calls); not-advice and margin-is-not-clinical-judgement clauses on the page. Model written
+        without review by a clinic owner, stated on the page and in VENTURE.yaml. 27 tests. Registered
+        score row, launch date, category rule, CI workflow and tree counts; regenerated the mirror.
+    mrr_end: 0
