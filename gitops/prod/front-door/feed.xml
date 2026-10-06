@@ -20,7 +20,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/app-listing-metadata-check/"/>
     <id>tag:marisstella.dev,2026:tool/app-listing-metadata-check</id>
     <updated>2026-10-06T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: paste your App Store or Google Play listing text and check it before you submit — character limits, wasted keyword-field characters, repeated words, promotional claims in the name, placeholder text and keyword stuffing. Runs in your browser; nothing is uploaded. A zero-dependency CLI lints a fastlane metadata folder in CI.</summary>
   </entry>
   <entry>
