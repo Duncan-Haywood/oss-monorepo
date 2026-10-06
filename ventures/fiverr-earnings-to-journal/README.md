@@ -1,0 +1,7 @@
+# Fiverr Earnings to Journal
+
+Free, private browser tool: paste a Fiverr transaction history and get balanced, month-split journals for Xero, QuickBooks Online and QuickBooks Desktop (IIF). Income is booked gross, Fiverr's service fees, withdrawal fees and Promoted Gigs as expenses, withdrawals as money moving to the bank, and the running Balance column is walked row by row to prove no row is missing. It also reports what Fiverr took as a share of what you billed.
+
+Open `index.html`. Tests: `node --test ventures/fiverr-earnings-to-journal/*.test.mjs`.
+
+The export layout is from memory of public help pages; nothing has run against a real Fiverr export yet. See `VENTURE.yaml`.
