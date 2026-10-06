@@ -2381,3 +2381,19 @@ entries:
         page; local rent control is listed as not decided. 30 calc, usage and page tests. Registered launch date and
         category rule; cross-linked from security-deposit-return-calculator and renewal-rent-optimizer.
     mrr_end: 0
+  - venture: supplier-price-creep-checker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built supplier-price-creep-checker: a browser-local tool for restaurants, cafes and small shops.
+        Supplier invoice lines (date, item, qty, unit price, optional contract price) are grouped per supplier and
+        item; items whose price stepped up past a threshold are flagged as creep and annualised at the observed
+        purchase pace (not shown under 28 days of data), single invoices priced well above agreeing neighbours are
+        separated as likely errors and left out of the annual figure, lines over a contract price are summed, a
+        per-supplier price index is weighted by typical order size, and a credit-request email is drafted per
+        supplier. Prices keep four decimals; unit-label mismatches are flagged. Screened with duplicate_check.py
+        (closest: pour-cost-calculator 0.51, which prices a menu from recipes and reads no invoices). First visitor:
+        an owner searching "supplier price increase tracker" or "food cost creep". Column names are guesses at common
+        exports and the page says so. 27 calc, usage and page tests.
+    mrr_end: 0
