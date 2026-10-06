@@ -1351,7 +1351,7 @@ const RELATIVE_SELF = relative(
 // +1: `exemption-certificate-audit-check` graduated.
 // +1: `rent-increase-notice-checker` graduated.
 // +1: `supplier-price-creep-checker` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 769;
+const SWITCHES_IN_THE_CATALOGUE = 770;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
