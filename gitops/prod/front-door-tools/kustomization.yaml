@@ -36,39 +36,39 @@
 #   portfolio-front-tools-0: 145 files, 547668 bytes
 #   portfolio-front-tools-1: 92 files, 555187 bytes
 #   portfolio-front-tools-2: 144 files, 553363 bytes
-#   portfolio-front-tools-3: 128 files, 549166 bytes
-#   portfolio-front-tools-4: 135 files, 553518 bytes
-#   portfolio-front-tools-5: 129 files, 553629 bytes
-#   portfolio-front-tools-6: 122 files, 555573 bytes
-#   portfolio-front-tools-7: 124 files, 555091 bytes
-#   portfolio-front-tools-8: 135 files, 554574 bytes
-#   portfolio-front-tools-9: 132 files, 549870 bytes
-#   portfolio-front-tools-10: 121 files, 554903 bytes
-#   portfolio-front-tools-11: 129 files, 556688 bytes
-#   portfolio-front-tools-12: 132 files, 556943 bytes
-#   portfolio-front-tools-13: 126 files, 553029 bytes
-#   portfolio-front-tools-14: 122 files, 556783 bytes
-#   portfolio-front-tools-15: 120 files, 553692 bytes
-#   portfolio-front-tools-16: 123 files, 557040 bytes
-#   portfolio-front-tools-17: 120 files, 556540 bytes
-#   portfolio-front-tools-18: 115 files, 552050 bytes
-#   portfolio-front-tools-19: 112 files, 549759 bytes
-#   portfolio-front-tools-20: 135 files, 552434 bytes
-#   portfolio-front-tools-21: 124 files, 555153 bytes
-#   portfolio-front-tools-22: 126 files, 552519 bytes
-#   portfolio-front-tools-23: 116 files, 546737 bytes
-#   portfolio-front-tools-24: 130 files, 550080 bytes
-#   portfolio-front-tools-25: 122 files, 557056 bytes
-#   portfolio-front-tools-26: 124 files, 553421 bytes
+#   portfolio-front-tools-3: 128 files, 549188 bytes
+#   portfolio-front-tools-4: 135 files, 553499 bytes
+#   portfolio-front-tools-5: 129 files, 553578 bytes
+#   portfolio-front-tools-6: 122 files, 555591 bytes
+#   portfolio-front-tools-7: 124 files, 555051 bytes
+#   portfolio-front-tools-8: 135 files, 554614 bytes
+#   portfolio-front-tools-9: 132 files, 549858 bytes
+#   portfolio-front-tools-10: 121 files, 554911 bytes
+#   portfolio-front-tools-11: 129 files, 556760 bytes
+#   portfolio-front-tools-12: 132 files, 556990 bytes
+#   portfolio-front-tools-13: 126 files, 552933 bytes
+#   portfolio-front-tools-14: 122 files, 556816 bytes
+#   portfolio-front-tools-15: 120 files, 553659 bytes
+#   portfolio-front-tools-16: 122 files, 548615 bytes
+#   portfolio-front-tools-17: 120 files, 557037 bytes
+#   portfolio-front-tools-18: 113 files, 550000 bytes
+#   portfolio-front-tools-19: 113 files, 556576 bytes
+#   portfolio-front-tools-20: 137 files, 555786 bytes
+#   portfolio-front-tools-21: 124 files, 555154 bytes
+#   portfolio-front-tools-22: 126 files, 552548 bytes
+#   portfolio-front-tools-23: 116 files, 546714 bytes
+#   portfolio-front-tools-24: 130 files, 549948 bytes
+#   portfolio-front-tools-25: 121 files, 554845 bytes
+#   portfolio-front-tools-26: 125 files, 555664 bytes
 #   portfolio-front-tools-27: 115 files, 553117 bytes
-#   portfolio-front-tools-28: 90 files, 541518 bytes
-#   portfolio-front-tools-29: 127 files, 556860 bytes
-#   portfolio-front-tools-30: 114 files, 549766 bytes
-#   portfolio-front-tools-31: 127 files, 556965 bytes
-#   portfolio-front-tools-32: 128 files, 555750 bytes
-#   portfolio-front-tools-33: 125 files, 552006 bytes
-#   portfolio-front-tools-34: 65 files, 340271 bytes
-#   portfolio-front-tools-35: 48 files, 269560 bytes
+#   portfolio-front-tools-28: 90 files, 541276 bytes
+#   portfolio-front-tools-29: 127 files, 556843 bytes
+#   portfolio-front-tools-30: 114 files, 549861 bytes
+#   portfolio-front-tools-31: 127 files, 556524 bytes
+#   portfolio-front-tools-32: 128 files, 555826 bytes
+#   portfolio-front-tools-33: 125 files, 552019 bytes
+#   portfolio-front-tools-34: 65 files, 340280 bytes
+#   portfolio-front-tools-35: 48 files, 269688 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2329,12 +2329,12 @@ configMapGenerator:
       - helm-values-schema-check__yaml.mjs.gz=helm-values-schema-check__yaml.mjs.gz
       - hidden-unicode-check__calc.mjs.gz=hidden-unicode-check__calc.mjs.gz
       - hidden-unicode-check__how-to-remove-hidden-unicode-characters.html.gz=hidden-unicode-check__how-to-remove-hidden-unicode-characters.html.gz
-      - hidden-unicode-check__index.html.gz=hidden-unicode-check__index.html.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - hidden-unicode-check__index.html.gz=hidden-unicode-check__index.html.gz
       - hidden-unicode-check__usage.mjs.gz=hidden-unicode-check__usage.mjs.gz
       - hidden-unicode-check__vs-mcp-scan.html.gz=hidden-unicode-check__vs-mcp-scan.html.gz
       - hidden-unicode-check__vs-reading-the-file-by-hand.html.gz=hidden-unicode-check__vs-reading-the-file-by-hand.html.gz
@@ -2454,12 +2454,12 @@ configMapGenerator:
       - incident-postmortem-timeline__postmortem.mjs.gz=incident-postmortem-timeline__postmortem.mjs.gz
       - incident-postmortem-timeline__usage.mjs.gz=incident-postmortem-timeline__usage.mjs.gz
       - indie-game-payout-calculator__calc.mjs.gz=indie-game-payout-calculator__calc.mjs.gz
-      - indie-game-payout-calculator__index.html.gz=indie-game-payout-calculator__index.html.gz
   - name: portfolio-front-tools-18
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - indie-game-payout-calculator__index.html.gz=indie-game-payout-calculator__index.html.gz
       - indie-game-payout-calculator__usage.mjs.gz=indie-game-payout-calculator__usage.mjs.gz
       - influencer-media-kit-generator__generator.mjs.gz=influencer-media-kit-generator__generator.mjs.gz
       - influencer-media-kit-generator__index.html.gz=influencer-media-kit-generator__index.html.gz
@@ -2572,14 +2572,14 @@ configMapGenerator:
       - k8s-requests-rightsizer__cli.mjs.gz=k8s-requests-rightsizer__cli.mjs.gz
       - k8s-requests-rightsizer__engine.mjs.gz=k8s-requests-rightsizer__engine.mjs.gz
       - k8s-requests-rightsizer__how-to-right-size-kubernetes-resource-requests.html.gz=k8s-requests-rightsizer__how-to-right-size-kubernetes-resource-requests.html.gz
-      - k8s-requests-rightsizer__index.html.gz=k8s-requests-rightsizer__index.html.gz
-      - k8s-requests-rightsizer__usage.mjs.gz=k8s-requests-rightsizer__usage.mjs.gz
-      - k8s-resource-limits-check__cli.mjs.gz=k8s-resource-limits-check__cli.mjs.gz
   - name: portfolio-front-tools-19
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - k8s-requests-rightsizer__index.html.gz=k8s-requests-rightsizer__index.html.gz
+      - k8s-requests-rightsizer__usage.mjs.gz=k8s-requests-rightsizer__usage.mjs.gz
+      - k8s-resource-limits-check__cli.mjs.gz=k8s-resource-limits-check__cli.mjs.gz
       - k8s-resource-limits-check__engine.mjs.gz=k8s-resource-limits-check__engine.mjs.gz
       - k8s-resource-limits-check__index.html.gz=k8s-resource-limits-check__index.html.gz
       - k8s-resource-limits-check__usage.mjs.gz=k8s-resource-limits-check__usage.mjs.gz
@@ -2690,13 +2690,13 @@ configMapGenerator:
       - like-kind-exchange-1031-calculator__usage.mjs.gz=like-kind-exchange-1031-calculator__usage.mjs.gz
       - liquidation-pallet-bid-calculator__calc.mjs.gz=liquidation-pallet-bid-calculator__calc.mjs.gz
       - liquidation-pallet-bid-calculator__index.html.gz=liquidation-pallet-bid-calculator__index.html.gz
-      - liquidation-pallet-bid-calculator__usage.mjs.gz=liquidation-pallet-bid-calculator__usage.mjs.gz
-      - llm-api-pricing-calculator__calc.mjs.gz=llm-api-pricing-calculator__calc.mjs.gz
   - name: portfolio-front-tools-20
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - liquidation-pallet-bid-calculator__usage.mjs.gz=liquidation-pallet-bid-calculator__usage.mjs.gz
+      - llm-api-pricing-calculator__calc.mjs.gz=llm-api-pricing-calculator__calc.mjs.gz
       - llm-api-pricing-calculator__index.html.gz=llm-api-pricing-calculator__index.html.gz
       - llm-api-pricing-calculator__usage.mjs.gz=llm-api-pricing-calculator__usage.mjs.gz
       - llm-api-pricing-calculator__vs-a-blended-per-token-rate.html.gz=llm-api-pricing-calculator__vs-a-blended-per-token-rate.html.gz
@@ -3474,12 +3474,12 @@ configMapGenerator:
       - required-checks-drift-check__vs-reading-every-workflow-file-by-hand.html.gz=required-checks-drift-check__vs-reading-every-workflow-file-by-hand.html.gz
       - requirements-pin-check__classify.mjs.gz=requirements-pin-check__classify.mjs.gz
       - requirements-pin-check__index.html.gz=requirements-pin-check__index.html.gz
-      - requirements-pin-check__pin-python-dependencies-guide.html.gz=requirements-pin-check__pin-python-dependencies-guide.html.gz
   - name: portfolio-front-tools-26
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - requirements-pin-check__pin-python-dependencies-guide.html.gz=requirements-pin-check__pin-python-dependencies-guide.html.gz
       - requirements-pin-check__requirements-check.mjs.gz=requirements-pin-check__requirements-check.mjs.gz
       - requirements-pin-check__usage.mjs.gz=requirements-pin-check__usage.mjs.gz
       - restaurant-delivery-commission-analyzer__calc.mjs.gz=restaurant-delivery-commission-analyzer__calc.mjs.gz
