@@ -2294,3 +2294,20 @@ entries:
         launch date, category rule, tree counts; regenerated the mirror; cross-linked from
         upwork-earnings-to-journal.
     mrr_end: 0
+  - venture: kdp-royalty-to-journal
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built kdp-royalty-to-journal: a browser-local Amazon KDP royalty report / payments CSV to
+        month-split Xero / QuickBooks Online / QuickBooks Desktop (IIF) / plain CSV journal tool, the
+        self-publishing end of the payout-to-journal family and a sibling of kdp-royalty-report-analyzer
+        (analysis) and kdp-royalty-calculator. Royalties are booked gross by marketplace and format (eBook,
+        paperback, hardcover, KENP page reads), printing cost and tax withheld are separate expenses, each
+        currency is journalled on its own with no conversion invented, rows no rule recognises go to an
+        uncategorised account, and a per-row Total column or a Total row is checked against the rows. A setting
+        covers royalty columns that are already after printing cost. First visitor: r/selfpublish and r/KDP
+        bookkeeping threads, "KDP to QuickBooks" searches. Column names are alias-matched and stated unverified
+        against a real export on the page. 35 calc, usage and page tests. Registered launch date, category rule,
+        tree counts; regenerated the mirror; cross-linked from kdp-royalty-report-analyzer.
+    mrr_end: 0
