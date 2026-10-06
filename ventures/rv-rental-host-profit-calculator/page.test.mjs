@@ -38,3 +38,9 @@ test("robots and sitemap let crawlers find the page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
 });
+
+// Closes an orphan pair: a crawler entering here reaches fishing-charter-trip-pricing-calculator in one hop.
+test("index links one hop to fishing-charter-trip-pricing-calculator", () => {
+  const page = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /href="\.\.\/fishing-charter-trip-pricing-calculator\/"/);
+});

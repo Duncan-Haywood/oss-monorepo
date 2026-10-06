@@ -61,7 +61,8 @@ test("the plan and booking-window <select> elements carry all documented options
   }
 });
 
-test("index links the RV rental host profit calculator so crawlers reach it in one hop", () => {
-  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
-  assert.match(html, /href="\.\.\/rv-rental-host-profit-calculator\/"/);
+// Closes an orphan pair: a crawler entering here reaches rv-rental-host-profit-calculator in one hop.
+test("index links one hop to rv-rental-host-profit-calculator", () => {
+  const page = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /href="\.\.\/rv-rental-host-profit-calculator\/"/);
 });
