@@ -1313,6 +1313,8 @@ const CATEGORY_RULES = [
       || slug === 'buymeacoffee-payout-to-journal'
       // `upwork-earnings-to-journal` joined 2026-10-06: the Upwork (freelancer) end of the same payout-to-journal set, filed beside it.
       || slug === 'upwork-earnings-to-journal'
+      // `kdp-royalty-to-journal` joined 2026-10-06: the Amazon KDP (self-publishing) end of the same payout-to-journal set, filed beside it.
+      || slug === 'kdp-royalty-to-journal'
       // `fiverr-earnings-to-journal` joined 2026-10-06: the Fiverr (freelancer marketplace) end of the same payout-to-journal set, filed beside it.
       || slug === 'fiverr-earnings-to-journal'
       // `teachable-payout-to-journal` joined 2026-10-06: the Teachable (course creator) end of the same payout-to-journal set, filed beside it.
