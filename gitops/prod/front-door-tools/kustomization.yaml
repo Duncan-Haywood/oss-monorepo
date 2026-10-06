@@ -33,41 +33,41 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547636 bytes
-#   portfolio-front-tools-1: 92 files, 555226 bytes
-#   portfolio-front-tools-2: 144 files, 553399 bytes
-#   portfolio-front-tools-3: 128 files, 549083 bytes
-#   portfolio-front-tools-4: 136 files, 554026 bytes
-#   portfolio-front-tools-5: 127 files, 553711 bytes
-#   portfolio-front-tools-6: 119 files, 549748 bytes
-#   portfolio-front-tools-7: 128 files, 556679 bytes
-#   portfolio-front-tools-8: 134 files, 556980 bytes
-#   portfolio-front-tools-9: 130 files, 555784 bytes
-#   portfolio-front-tools-10: 127 files, 556730 bytes
-#   portfolio-front-tools-11: 127 files, 548080 bytes
-#   portfolio-front-tools-12: 129 files, 554447 bytes
-#   portfolio-front-tools-13: 122 files, 545631 bytes
-#   portfolio-front-tools-14: 123 files, 555252 bytes
-#   portfolio-front-tools-15: 123 files, 556385 bytes
-#   portfolio-front-tools-16: 118 files, 547931 bytes
-#   portfolio-front-tools-17: 118 files, 549379 bytes
-#   portfolio-front-tools-18: 114 files, 549912 bytes
-#   portfolio-front-tools-19: 120 files, 555248 bytes
-#   portfolio-front-tools-20: 123 files, 556255 bytes
-#   portfolio-front-tools-21: 133 files, 555399 bytes
-#   portfolio-front-tools-22: 118 files, 553995 bytes
-#   portfolio-front-tools-23: 122 files, 553797 bytes
-#   portfolio-front-tools-24: 134 files, 556790 bytes
-#   portfolio-front-tools-25: 114 files, 549973 bytes
-#   portfolio-front-tools-26: 131 files, 553250 bytes
-#   portfolio-front-tools-27: 100 files, 544616 bytes
-#   portfolio-front-tools-28: 105 files, 554333 bytes
-#   portfolio-front-tools-29: 114 files, 552758 bytes
-#   portfolio-front-tools-30: 127 files, 556063 bytes
-#   portfolio-front-tools-31: 124 files, 549398 bytes
-#   portfolio-front-tools-32: 130 files, 554001 bytes
-#   portfolio-front-tools-33: 112 files, 550072 bytes
-#   portfolio-front-tools-34: 61 files, 338030 bytes
+#   portfolio-front-tools-0: 145 files, 547642 bytes
+#   portfolio-front-tools-1: 92 files, 555235 bytes
+#   portfolio-front-tools-2: 144 files, 553402 bytes
+#   portfolio-front-tools-3: 128 files, 549044 bytes
+#   portfolio-front-tools-4: 136 files, 554035 bytes
+#   portfolio-front-tools-5: 127 files, 553726 bytes
+#   portfolio-front-tools-6: 119 files, 549802 bytes
+#   portfolio-front-tools-7: 128 files, 556703 bytes
+#   portfolio-front-tools-8: 134 files, 556942 bytes
+#   portfolio-front-tools-9: 130 files, 555773 bytes
+#   portfolio-front-tools-10: 127 files, 556762 bytes
+#   portfolio-front-tools-11: 127 files, 548128 bytes
+#   portfolio-front-tools-12: 129 files, 554444 bytes
+#   portfolio-front-tools-13: 122 files, 545575 bytes
+#   portfolio-front-tools-14: 123 files, 555273 bytes
+#   portfolio-front-tools-15: 123 files, 556387 bytes
+#   portfolio-front-tools-16: 118 files, 547921 bytes
+#   portfolio-front-tools-17: 118 files, 549349 bytes
+#   portfolio-front-tools-18: 114 files, 549899 bytes
+#   portfolio-front-tools-19: 120 files, 555176 bytes
+#   portfolio-front-tools-20: 123 files, 556203 bytes
+#   portfolio-front-tools-21: 133 files, 555403 bytes
+#   portfolio-front-tools-22: 118 files, 553999 bytes
+#   portfolio-front-tools-23: 122 files, 553900 bytes
+#   portfolio-front-tools-24: 134 files, 556796 bytes
+#   portfolio-front-tools-25: 116 files, 554073 bytes
+#   portfolio-front-tools-26: 129 files, 552433 bytes
+#   portfolio-front-tools-27: 103 files, 555761 bytes
+#   portfolio-front-tools-28: 105 files, 554318 bytes
+#   portfolio-front-tools-29: 114 files, 552795 bytes
+#   portfolio-front-tools-30: 127 files, 556183 bytes
+#   portfolio-front-tools-31: 124 files, 549392 bytes
+#   portfolio-front-tools-32: 130 files, 554029 bytes
+#   portfolio-front-tools-33: 112 files, 550010 bytes
+#   portfolio-front-tools-34: 61 files, 338168 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3400,6 +3400,9 @@ configMapGenerator:
       - renewal-rent-optimizer__calc.mjs.gz=renewal-rent-optimizer__calc.mjs.gz
       - renewal-rent-optimizer__index.html.gz=renewal-rent-optimizer__index.html.gz
       - renewal-rent-optimizer__usage.mjs.gz=renewal-rent-optimizer__usage.mjs.gz
+      - rent-increase-notice-checker__calc.mjs.gz=rent-increase-notice-checker__calc.mjs.gz
+      - rent-increase-notice-checker__index.html.gz=rent-increase-notice-checker__index.html.gz
+      - rent-increase-notice-checker__usage.mjs.gz=rent-increase-notice-checker__usage.mjs.gz
       - rent-roll-delinquency-analyzer__calc.mjs.gz=rent-roll-delinquency-analyzer__calc.mjs.gz
       - rent-roll-delinquency-analyzer__index.html.gz=rent-roll-delinquency-analyzer__index.html.gz
       - rent-roll-delinquency-analyzer__usage.mjs.gz=rent-roll-delinquency-analyzer__usage.mjs.gz
@@ -3462,12 +3465,12 @@ configMapGenerator:
       - revenue-target-lead-planner__calc.mjs.gz=revenue-target-lead-planner__calc.mjs.gz
       - revenue-target-lead-planner__index.html.gz=revenue-target-lead-planner__index.html.gz
       - revenue-target-lead-planner__usage.mjs.gz=revenue-target-lead-planner__usage.mjs.gz
-      - revolut-business-statement-to-journal__calc.mjs.gz=revolut-business-statement-to-journal__calc.mjs.gz
   - name: portfolio-front-tools-26
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - revolut-business-statement-to-journal__calc.mjs.gz=revolut-business-statement-to-journal__calc.mjs.gz
       - revolut-business-statement-to-journal__index.html.gz=revolut-business-statement-to-journal__index.html.gz
       - revolut-business-statement-to-journal__usage.mjs.gz=revolut-business-statement-to-journal__usage.mjs.gz
       - rmd-calculator__calc.mjs.gz=rmd-calculator__calc.mjs.gz
@@ -3596,14 +3599,14 @@ configMapGenerator:
       - security-headers-check__analyze.mjs.gz=security-headers-check__analyze.mjs.gz
       - security-headers-check__check.mjs.gz=security-headers-check__check.mjs.gz
       - security-headers-check__clickjacking-and-csp-frame-ancestors.html.gz=security-headers-check__clickjacking-and-csp-frame-ancestors.html.gz
-      - security-headers-check__index.html.gz=security-headers-check__index.html.gz
-      - security-headers-check__probe.mjs.gz=security-headers-check__probe.mjs.gz
-      - security-headers-check__usage.mjs.gz=security-headers-check__usage.mjs.gz
   - name: portfolio-front-tools-27
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - security-headers-check__index.html.gz=security-headers-check__index.html.gz
+      - security-headers-check__probe.mjs.gz=security-headers-check__probe.mjs.gz
+      - security-headers-check__usage.mjs.gz=security-headers-check__usage.mjs.gz
       - security-headers-check__vs-checking-headers-by-eye-in-devtools.html.gz=security-headers-check__vs-checking-headers-by-eye-in-devtools.html.gz
       - security-headers-check__vs-securityheaders.html.gz=security-headers-check__vs-securityheaders.html.gz
       - security-txt-check__check.mjs.gz=security-txt-check__check.mjs.gz

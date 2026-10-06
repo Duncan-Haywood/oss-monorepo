@@ -1349,6 +1349,10 @@ const RELATIVE_SELF = relative(
 // +1: `grant-writer-proposal-price-calculator` graduated.
 // +1: `donor-acknowledgment-letter-generator` graduated.
 // +1: `exemption-certificate-audit-check` graduated.
+<<<<<<< HEAD
+=======
+// +1: `rent-increase-notice-checker` graduated.
+>>>>>>> origin/main
 const SWITCHES_IN_THE_CATALOGUE = 767;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
