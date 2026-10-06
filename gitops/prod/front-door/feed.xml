@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 801 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 802 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -78,6 +78,14 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free fractional executive rate calculator: convert a full-time salary into the day rate, hourly rate and monthly retainer that cover unsold days, benefits and payroll tax, then test a client mix against capacity. Runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Freelance Contract Checker</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freelance-contract-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/freelance-contract-checker</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free freelance contract checker: paste the client agreement or statement of work and see the red flags before you sign, such as net 60 payment, unlimited revisions, IP assigned before you are paid, non-compete, uncapped indemnity, or no kill fee. Private, runs in your browser.</summary>
   </entry>
   <entry>
     <title>Grant Writer Proposal Price Calculator — Flat Fee, Free</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free NUA calculator: compare taking employer stock out of your 401(k) with net unrealized appreciation treatment against rolling everything to an IRA, with the 10% additional tax, holding period and a basis-share sensitivity table. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Pay Application Generator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pay-application-generator/"/>
-    <id>tag:marisstella.dev,2026:tool/pay-application-generator</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free pay application generator for subcontractors and small general contractors: paste your schedule of values, set retainage, and get the contract sum, change orders, retainage, previous certificates and current payment due, plus a line-by-line table and CSV. Private, runs in your browser.</summary>
   </entry>
 </feed>
