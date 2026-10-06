@@ -33,42 +33,42 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547618 bytes
-#   portfolio-front-tools-1: 92 files, 555206 bytes
-#   portfolio-front-tools-2: 144 files, 553374 bytes
-#   portfolio-front-tools-3: 128 files, 549077 bytes
-#   portfolio-front-tools-4: 135 files, 553511 bytes
-#   portfolio-front-tools-5: 128 files, 551362 bytes
-#   portfolio-front-tools-6: 121 files, 553973 bytes
-#   portfolio-front-tools-7: 124 files, 550734 bytes
-#   portfolio-front-tools-8: 133 files, 545095 bytes
-#   portfolio-front-tools-9: 131 files, 554489 bytes
-#   portfolio-front-tools-10: 123 files, 553652 bytes
-#   portfolio-front-tools-11: 129 files, 553028 bytes
-#   portfolio-front-tools-12: 129 files, 551485 bytes
-#   portfolio-front-tools-13: 125 files, 549000 bytes
-#   portfolio-front-tools-14: 122 files, 556637 bytes
-#   portfolio-front-tools-15: 118 files, 550782 bytes
-#   portfolio-front-tools-16: 124 files, 554837 bytes
-#   portfolio-front-tools-17: 119 files, 552406 bytes
-#   portfolio-front-tools-18: 114 files, 553688 bytes
-#   portfolio-front-tools-19: 114 files, 553998 bytes
-#   portfolio-front-tools-20: 133 files, 552162 bytes
-#   portfolio-front-tools-21: 126 files, 554627 bytes
-#   portfolio-front-tools-22: 126 files, 552217 bytes
-#   portfolio-front-tools-23: 115 files, 553996 bytes
-#   portfolio-front-tools-24: 133 files, 556760 bytes
-#   portfolio-front-tools-25: 120 files, 548157 bytes
-#   portfolio-front-tools-26: 126 files, 555756 bytes
-#   portfolio-front-tools-27: 111 files, 554437 bytes
-#   portfolio-front-tools-28: 95 files, 556332 bytes
-#   portfolio-front-tools-29: 124 files, 553216 bytes
-#   portfolio-front-tools-30: 119 files, 549371 bytes
-#   portfolio-front-tools-31: 124 files, 554995 bytes
-#   portfolio-front-tools-32: 130 files, 555595 bytes
-#   portfolio-front-tools-33: 122 files, 556264 bytes
-#   portfolio-front-tools-34: 56 files, 290985 bytes
-#   portfolio-front-tools-35: 48 files, 269836 bytes
+#   portfolio-front-tools-0: 145 files, 547626 bytes
+#   portfolio-front-tools-1: 92 files, 555220 bytes
+#   portfolio-front-tools-2: 144 files, 553386 bytes
+#   portfolio-front-tools-3: 128 files, 549064 bytes
+#   portfolio-front-tools-4: 135 files, 553571 bytes
+#   portfolio-front-tools-5: 128 files, 551367 bytes
+#   portfolio-front-tools-6: 121 files, 553964 bytes
+#   portfolio-front-tools-7: 124 files, 550746 bytes
+#   portfolio-front-tools-8: 133 files, 545125 bytes
+#   portfolio-front-tools-9: 131 files, 554504 bytes
+#   portfolio-front-tools-10: 123 files, 553665 bytes
+#   portfolio-front-tools-11: 129 files, 553088 bytes
+#   portfolio-front-tools-12: 129 files, 551494 bytes
+#   portfolio-front-tools-13: 125 files, 548986 bytes
+#   portfolio-front-tools-14: 122 files, 556659 bytes
+#   portfolio-front-tools-15: 118 files, 550799 bytes
+#   portfolio-front-tools-16: 124 files, 554826 bytes
+#   portfolio-front-tools-17: 119 files, 552395 bytes
+#   portfolio-front-tools-18: 115 files, 556689 bytes
+#   portfolio-front-tools-19: 114 files, 556866 bytes
+#   portfolio-front-tools-20: 134 files, 557032 bytes
+#   portfolio-front-tools-21: 127 files, 555368 bytes
+#   portfolio-front-tools-22: 126 files, 552170 bytes
+#   portfolio-front-tools-23: 115 files, 553928 bytes
+#   portfolio-front-tools-24: 133 files, 556687 bytes
+#   portfolio-front-tools-25: 120 files, 548120 bytes
+#   portfolio-front-tools-26: 126 files, 555739 bytes
+#   portfolio-front-tools-27: 111 files, 554391 bytes
+#   portfolio-front-tools-28: 95 files, 556278 bytes
+#   portfolio-front-tools-29: 124 files, 553348 bytes
+#   portfolio-front-tools-30: 119 files, 549345 bytes
+#   portfolio-front-tools-31: 124 files, 554905 bytes
+#   portfolio-front-tools-32: 130 files, 555510 bytes
+#   portfolio-front-tools-33: 122 files, 556374 bytes
+#   portfolio-front-tools-34: 56 files, 291028 bytes
+#   portfolio-front-tools-35: 48 files, 269798 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2465,6 +2465,9 @@ configMapGenerator:
       - injury-settlement-net-proceeds-calculator__calc.mjs.gz=injury-settlement-net-proceeds-calculator__calc.mjs.gz
       - injury-settlement-net-proceeds-calculator__index.html.gz=injury-settlement-net-proceeds-calculator__index.html.gz
       - injury-settlement-net-proceeds-calculator__usage.mjs.gz=injury-settlement-net-proceeds-calculator__usage.mjs.gz
+      - installment-sale-tax-calculator__calc.mjs.gz=installment-sale-tax-calculator__calc.mjs.gz
+      - installment-sale-tax-calculator__index.html.gz=installment-sale-tax-calculator__index.html.gz
+      - installment-sale-tax-calculator__usage.mjs.gz=installment-sale-tax-calculator__usage.mjs.gz
       - insurance-agency-book-valuation-calculator__calc.mjs.gz=insurance-agency-book-valuation-calculator__calc.mjs.gz
       - insurance-agency-book-valuation-calculator__index.html.gz=insurance-agency-book-valuation-calculator__index.html.gz
       - insurance-agency-book-valuation-calculator__usage.mjs.gz=insurance-agency-book-valuation-calculator__usage.mjs.gz
@@ -2563,13 +2566,13 @@ configMapGenerator:
       - k8s-requests-rightsizer__usage.mjs.gz=k8s-requests-rightsizer__usage.mjs.gz
       - k8s-resource-limits-check__cli.mjs.gz=k8s-resource-limits-check__cli.mjs.gz
       - k8s-resource-limits-check__engine.mjs.gz=k8s-resource-limits-check__engine.mjs.gz
-      - k8s-resource-limits-check__index.html.gz=k8s-resource-limits-check__index.html.gz
-      - k8s-resource-limits-check__usage.mjs.gz=k8s-resource-limits-check__usage.mjs.gz
   - name: portfolio-front-tools-19
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - k8s-resource-limits-check__index.html.gz=k8s-resource-limits-check__index.html.gz
+      - k8s-resource-limits-check__usage.mjs.gz=k8s-resource-limits-check__usage.mjs.gz
       - k8s-resource-limits-check__vs-polaris.html.gz=k8s-resource-limits-check__vs-polaris.html.gz
       - k8s-resource-limits-check__vs-reading-the-manifest-by-eye.html.gz=k8s-resource-limits-check__vs-reading-the-manifest-by-eye.html.gz
       - k8s-resource-limits-check__why-a-missing-resource-limit-takes-down-a-node.html.gz=k8s-resource-limits-check__why-a-missing-resource-limit-takes-down-a-node.html.gz
@@ -2682,13 +2685,13 @@ configMapGenerator:
       - llm-api-pricing-calculator__index.html.gz=llm-api-pricing-calculator__index.html.gz
       - llm-api-pricing-calculator__usage.mjs.gz=llm-api-pricing-calculator__usage.mjs.gz
       - llm-api-pricing-calculator__vs-a-blended-per-token-rate.html.gz=llm-api-pricing-calculator__vs-a-blended-per-token-rate.html.gz
-      - llm-api-pricing-calculator__why-prompt-caching-changes-the-math.html.gz=llm-api-pricing-calculator__why-prompt-caching-changes-the-math.html.gz
-      - llm-call-cost-scan__cli.mjs.gz=llm-call-cost-scan__cli.mjs.gz
   - name: portfolio-front-tools-20
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - llm-api-pricing-calculator__why-prompt-caching-changes-the-math.html.gz=llm-api-pricing-calculator__why-prompt-caching-changes-the-math.html.gz
+      - llm-call-cost-scan__cli.mjs.gz=llm-call-cost-scan__cli.mjs.gz
       - llm-call-cost-scan__engine.mjs.gz=llm-call-cost-scan__engine.mjs.gz
       - llm-call-cost-scan__index.html.gz=llm-call-cost-scan__index.html.gz
       - llm-call-cost-scan__usage.mjs.gz=llm-call-cost-scan__usage.mjs.gz
@@ -2821,12 +2824,12 @@ configMapGenerator:
       - merchant-of-record-fee-calculator__usage.mjs.gz=merchant-of-record-fee-calculator__usage.mjs.gz
       - meta-ads-fatigue-analyzer__calc.mjs.gz=meta-ads-fatigue-analyzer__calc.mjs.gz
       - meta-ads-fatigue-analyzer__index.html.gz=meta-ads-fatigue-analyzer__index.html.gz
-      - meta-ads-fatigue-analyzer__usage.mjs.gz=meta-ads-fatigue-analyzer__usage.mjs.gz
   - name: portfolio-front-tools-21
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - meta-ads-fatigue-analyzer__usage.mjs.gz=meta-ads-fatigue-analyzer__usage.mjs.gz
       - meta-catalog-csv-check__calc.mjs.gz=meta-catalog-csv-check__calc.mjs.gz
       - meta-catalog-csv-check__index.html.gz=meta-catalog-csv-check__index.html.gz
       - meta-catalog-csv-check__usage.mjs.gz=meta-catalog-csv-check__usage.mjs.gz
