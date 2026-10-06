@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 767 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 769 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -152,19 +152,19 @@
     <summary type="text">Free iCalendar (.ics) checker: finds the missing UID, DTSTAMP and VERSION, events that end before they start, bad recurrence rules, time zones without definitions, duplicate UIDs and long lines that make Google Calendar, Outlook and Apple Calendar reject a file, and writes it back fixed. Runs in your browser; the file is never uploaded.</summary>
   </entry>
   <entry>
+    <title>Ko-fi Transactions to Xero and QuickBooks Journal</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ko-fi-payout-to-journal/"/>
+    <id>tag:marisstella.dev,2026:tool/ko-fi-payout-to-journal</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free Ko-fi to QuickBooks and Xero journal converter: books tips, memberships, shop orders and commissions to separate income accounts, derives the Ko-fi and PayPal or Stripe fee from Given minus Received, proves the rows add up to your deposit, splits by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Law Firm Realization Rate Calculator — Where Billable Time Leaks</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/law-firm-realization-rate-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/law-firm-realization-rate-calculator</id>
     <updated>2026-10-05T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free law firm realization calculator: realization, collection rate and yield per lawyer, dollars lost before and after billing, lockup days, and what a point of realization is worth. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Lemon Squeezy Payout Export to Xero and QuickBooks Journal</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/lemonsqueezy-payout-to-journal/"/>
-    <id>tag:marisstella.dev,2026:tool/lemonsqueezy-payout-to-journal</id>
-    <updated>2026-10-05T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free Lemon Squeezy payout to journal converter: proves the orders add up to your payout, splits product sales income, shipping, tax you collected, Lemon Squeezy platform and processing fees and refunds by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>

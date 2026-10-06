@@ -513,7 +513,7 @@ const CATEGORY_RULES = [
     // margin into the break-even ROAS and max CPA an ad campaign needs; the same reader as the fee tools here.
     // `used-car-lot-aging-planner` joined 2026-10-02 on its first commit: an independent dealer deciding when an
     // aged unit goes to auction is the same reseller as `auction-car-flip-calculator` here, and the two cross-link.
-    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|free-shipping-threshold|returns-policy|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-product-csv|shopify-customer-csv|bigcommerce-product-csv|squarespace-product-csv|wix-product-csv|teachers-pay-teachers|course-platform|shopify-to-woocommerce|woocommerce-product-csv|square-catalog-csv|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|auction-car-flip|used-car-lot|liquidation-pallet|stockx|twitch|freelance-platform-fee|upwork-connects|app-subscription|thumbtack-lead|mercari|kickstarter|depop|facebook-marketplace|ticket-resale|card-grading-submission|thrift-haul|price-increase-breakeven)/.test(slug),
+    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|free-shipping-threshold|returns-policy|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-product-csv|shopify-customer-csv|bigcommerce-product-csv|squarespace-product-csv|wix-product-csv|teachers-pay-teachers|course-platform|music-distribution|shopify-to-woocommerce|woocommerce-product-csv|square-catalog-csv|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|auction-car-flip|used-car-lot|liquidation-pallet|stockx|twitch|freelance-platform-fee|upwork-connects|app-subscription|thumbtack-lead|mercari|kickstarter|depop|facebook-marketplace|ticket-resale|card-grading-submission|thrift-haul|price-increase-breakeven)/.test(slug),
   },
   {
     id: 'trades',
@@ -1304,6 +1304,8 @@ const CATEGORY_RULES = [
       || slug === 'gumroad-sales-to-journal'
       // `patreon-payout-to-journal` joined 2026-10-05: the Patreon end of the same payout-to-journal set (platform and processing fees booked separately), filed beside it.
       || slug === 'patreon-payout-to-journal'
+      // `ko-fi-payout-to-journal` joined 2026-10-05: the Ko-fi end of the same payout-to-journal set (income split by transaction type, fee derived), filed beside it.
+      || slug === 'ko-fi-payout-to-journal'
       // `lemonsqueezy-payout-to-journal` joined 2026-10-05: the Lemon Squeezy end of the same payout-to-journal set, filed beside it.
       || slug === 'lemonsqueezy-payout-to-journal'
       // `paddle-payout-to-journal` joined 2026-10-05: the Paddle (merchant-of-record SaaS) end of the same payout-to-journal set, filed beside it.
