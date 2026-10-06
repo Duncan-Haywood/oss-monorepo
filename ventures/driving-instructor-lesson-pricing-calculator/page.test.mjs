@@ -91,3 +91,7 @@ test("the cancellation rate input is bounded below 100", () => {
   assert.match(inputTag, /min="0"/);
   assert.match(inputTag, /max="99"/);
 });
+
+test("page links the tutor hourly rate calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/tutor-effective-hourly-rate-calculator\/"/);
+});
