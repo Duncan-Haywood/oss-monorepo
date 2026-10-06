@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Exemption Certificate Audit Check</title>
+  <meta name="description" content="Free sales tax audit prep for wholesalers and distributors: paste your exempt sales and the certificates on file, and see which sales have no valid certificate, the tax at stake, and which customers to chase first. Runs in your browser; your sales data is never uploaded.">
+  <meta property="og:title" content="Which of your tax-exempt sales have no certificate? Find out before the auditor does">
+  <meta property="og:description" content="Paste your exempt sales and your certificate list. Get the tax at stake, the customers to chase, and the letters to send. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Exemption Certificate Audit Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Matches tax-exempt sales to the exemption certificates on file, flags missing, expired, late and wrong-state certificates, totals the tax at stake and lists the customers to chase. Runs in the browser."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What happens in a sales tax audit if I don't have an exemption certificate?", "acceptedAnswer": {"@type": "Answer", "text": "In most states the seller, not the buyer, owes the tax on an exempt sale it cannot support with a valid certificate. Auditors usually sample invoices, find the exempt ones, and ask for the certificate behind each; sales with none are assessed at the state and local rate, plus interest and often a penalty. This page finds those sales before an auditor does. It is not tax advice; your state's department of revenue sets the rules."}}, {"@type": "Question", "name": "Can I get a certificate after the sale?", "acceptedAnswer": {"@type": "Answer", "text": "Some states let a seller accept a certificate obtained within a set period after the sale or during an audit; others require it at the time of sale. The rule is the state's, and this page does not guess it: a certificate dated after the sale is flagged as late with the number of days, so you can check that state's rule."}}, {"@type": "Question", "name": "Do exemption certificates expire?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the state and the type of certificate. Some never lapse while the buyer keeps buying, some expire after a fixed period, and some must be renewed on a schedule. Enter an expiry for each certificate if it has one, or set a number of years to apply to every certificate that has none."}}, {"@type": "Question", "name": "What counts as a sale needing a certificate?", "acceptedAnswer": {"@type": "Answer", "text": "A sale you invoiced without tax on the buyer's claim of exemption, such as resale, manufacturing, government, nonprofit or agricultural use. A sale delivered outside the state is proved by shipping records rather than a buyer certificate, so it is listed as not needing one."}}, {"@type": "Question", "name": "How is the exposure figure worked out?", "acceptedAnswer": {"@type": "Answer", "text": "Each unsupported sale's amount times the combined state and local rate you enter for the state it shipped to, in whole cents. It is the tax at stake before interest and penalties, and it is only as good as the rates you enter."}}, {"@type": "Question", "name": "Is my sales data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Both lists are read in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f5f8; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f4e79; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #12324f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #12324f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5a6a; }
+    .card { background: #fff; border: 1px solid #d5dfe9; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #12324f10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b4c4d4; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f4e79; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e1ebf5; color: #12324f; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #e5ecf3; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5a6a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #e5ecf3; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e1e8ef; color: #12324f; }
+    .pill.ok { background: #dff3e6; color: #1f5c35; }
+    .stats { font-size: .95rem; color: #2b3844; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfe9; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #b4c4d4; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.letter { white-space: pre-wrap; font: 14px/1.5 Georgia, serif; background: #fcfdff; border: 1px solid #d5dfe9; border-radius: 8px; padding: 18px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">EXEMPTION CERTIFICATE AUDIT CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which of your tax-exempt sales have no certificate behind them?</h1>
+    <p>Paste your <strong>exempt invoices</strong> and the <strong>certificates you have on file</strong>. The page matches each sale to a certificate for that customer, that state and that reason, and tells you which sales are <strong>unsupported</strong> (no certificate, a certificate for another state, one that had expired, one signed after the sale, or one for a different reason), the <strong>tax at stake</strong> at your rates, the <strong>customers to chase first</strong>, and a request letter for each.</p>
+    <p class="note">Both lists are read in this browser tab and never leave your device. It helps you prepare; it does not decide what your state accepts. Check the rules of each state you sell into.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your exempt sales</h2>
+    <p class="note">A CSV or pasted spreadsheet range with a header row, one row per invoice. Columns recognised: invoice, date, customer, state (ship-to), amount, tax charged, exemption reason (blank for a taxable sale). Taxable sales are ignored.</p>
+    <label for="sales-file">Choose a CSV file</label>
+    <input type="file" id="sales-file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="sales-paste">…or paste the list</label>
+    <textarea id="sales-paste" spellcheck="false" wrap="off" placeholder="Invoice,Date,Customer,Ship to state,Amount,Tax charged,Exemption reason&#10;INV-1001,2026-01-12,Acme Supply,TX,12400,0,Resale"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>2. Certificates on file</h2>
+    <p class="note">Columns recognised: customer, state, certificate number, type (resale, manufacturing, government, nonprofit, agriculture), date signed, expires. Leave type blank for resale.</p>
+    <label for="cert-file">Choose a CSV file</label>
+    <input type="file" id="cert-file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="cert-paste">…or paste the list</label>
+    <textarea id="cert-paste" spellcheck="false" wrap="off" placeholder="Customer,State,Certificate number,Type,Date signed,Expires&#10;Acme Supply,TX,TX-1182200,Resale,2024-02-01,"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>3. Rates and rules</h2>
+    <div class="grid">
+      <div><label for="default-rate">Rate when a state is not listed (%)</label><input id="default-rate" inputmode="decimal" value="7"></div>
+      <div><label for="validity">Years a certificate lasts when it has no expiry (0 = never)</label><input id="validity" inputmode="numeric" value="0"></div>
+      <div><label for="as-of">Review date</label><input id="as-of" placeholder="YYYY-MM-DD"></div>
+      <div><label for="renewal-window">Flag certificates expiring within (days)</label><input id="renewal-window" inputmode="numeric" value="90"></div>
+    </div>
+    <label for="rates-paste">Combined state and local rate by state (optional, one per line: state, rate)</label>
+    <textarea id="rates-paste" spellcheck="false" wrap="off" placeholder="TX,8.25&#10;OH,7.25"></textarea>
+    <div class="grid">
+      <div><label for="seller-name">Your company (for the letters)</label><input id="seller-name" value="Example Supply Co."></div>
+      <div><label for="seller-signer">Signed by</label><input id="seller-signer" value="Accounts Receivable"></div>
+    </div>
+    <p>
+      <button type="button" id="validate">Check my certificates</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose files or paste the lists, then click Check my certificates.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <h3>Customers to chase, biggest tax first</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Customer</th><th scope="col">States</th><th scope="col" class="n">Unsupported sales</th><th scope="col" class="n">Tax at stake</th><th scope="col">Why</th></tr></thead><tbody id="customers"></tbody></table></div>
+    <h3>By state</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">State</th><th scope="col" class="n">Rate</th><th scope="col" class="n">Exempt sales</th><th scope="col" class="n">Unsupported</th><th scope="col" class="n">Tax at stake</th></tr></thead><tbody id="states"></tbody></table></div>
+    <h3>Every exempt sale</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Invoice</th><th scope="col">Date</th><th scope="col">Customer</th><th scope="col">State</th><th scope="col" class="n">Amount</th><th scope="col">Result</th><th scope="col" class="n">Tax at stake</th></tr></thead><tbody id="sales"></tbody></table></div>
+    <h3>Request letter</h3>
+    <label for="letter-pick">Customer</label>
+    <select id="letter-pick"></select>
+    <pre class="letter" id="letter"></pre>
+    <h3>Certificates close to lapsing</h3>
+    <div id="renewals"></div>
+    <h3>Findings</h3>
+    <div id="report-findings"></div>
+    <p><button type="button" id="dl-chase">Download chase list (CSV)</button> <button type="button" class="secondary" id="dl-letters">Download all request letters (text)</button> <button type="button" class="secondary" id="dl-sales">Download every sale with its result (CSV)</button> <button type="button" class="secondary" id="dl-renewals">Download renewals (CSV)</button> <button type="button" class="secondary" id="dl-findings">Download findings (CSV)</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The rules it applies, and what it leaves out</h2>
+    <ul>
+      <li><strong>An exempt sale is tested against a certificate for the same customer, the same state and the same reason.</strong> Customer names are matched ignoring Inc, LLC and punctuation; a near-miss is flagged for you to confirm, never silently merged.</li>
+      <li><strong>Results:</strong> covered; no certificate; certificate for a different state; certificate expired on the sale date; certificate signed after the sale; certificate for a different reason (a resale certificate does not support a manufacturing claim); certificate with no number (kept as on file, flagged).</li>
+      <li><strong>Out-of-state delivery</strong> is shown as not needing a buyer certificate, because shipping records support it.</li>
+      <li><strong>Tax at stake</strong> is the sale amount times the rate you give for the ship-to state. It excludes interest and penalties, and it is only as good as your rates.</li>
+      <li><strong>Not decided:</strong> whether a state accepts a certificate obtained after the sale, how long a certificate stays valid in each state, whether a buyer qualifies for the exemption claimed, whether a certificate is the right form, the look-back period of an audit, or whether you owe tax on a sale at all. Those are your state's rules and your adviser's call; this page applies the dates and rates you give it.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What happens in a sales tax audit if I don't have an exemption certificate?</h3>
+    <p>In most states the seller, not the buyer, owes the tax on an exempt sale it cannot support with a valid certificate. Auditors usually sample invoices, find the exempt ones, and ask for the certificate behind each; sales with none are assessed at the state and local rate, plus interest and often a penalty. This page finds those sales before an auditor does. It is not tax advice; your state's department of revenue sets the rules.</p>
+    <h3>Can I get a certificate after the sale?</h3>
+    <p>Some states let a seller accept a certificate obtained within a set period after the sale or during an audit; others require it at the time of sale. The rule is the state's, and this page does not guess it: a certificate dated after the sale is flagged as late with the number of days, so you can check that state's rule.</p>
+    <h3>Do exemption certificates expire?</h3>
+    <p>It depends on the state and the type of certificate. Some never lapse while the buyer keeps buying, some expire after a fixed period, and some must be renewed on a schedule. Enter an expiry for each certificate if it has one, or set a number of years to apply to every certificate that has none.</p>
+    <h3>What counts as a sale needing a certificate?</h3>
+    <p>A sale you invoiced without tax on the buyer's claim of exemption, such as resale, manufacturing, government, nonprofit or agricultural use. A sale delivered outside the state is proved by shipping records rather than a buyer certificate, so it is listed as not needing one.</p>
+    <h3>How is the exposure figure worked out?</h3>
+    <p>Each unsupported sale's amount times the combined state and local rate you enter for the state it shipped to, in whole cents. It is the tax at stake before interest and penalties, and it is only as good as the rates you enter.</p>
+    <h3>Is my sales data uploaded anywhere?</h3>
+    <p>No. Both lists are read in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a tax professional or your company's counsel. Results depend entirely on the lists, dates and rates you provide. <strong>You are responsible for reviewing and verifying every result</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with any tax authority.</strong> This tool is independent; it is not sponsored, endorsed or connected to any state department of revenue, the Streamlined Sales Tax Governing Board, or any tax-software vendor.</p>
+    <p><strong>Your data.</strong> A sales list holds customer names and amounts. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your lists. Closing the tab discards them; downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your lists are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>list_checked</code>, <code>example_loaded</code>, <code>chase_downloaded</code>, <code>letters_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../economic-nexus-threshold-tracker/">economic nexus threshold tracker</a> shows where you must collect tax in the first place, and the <a href="../faire-wholesale-calculator/">Faire wholesale calculator</a> is for brands selling to retailers.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { check, dollars, isoDay, parseDate, requestLetter, lettersText, salesCsv, chaseCsv, renewalsCsv, findingsCsv, STATUS_LABEL, SAMPLE_SALES, SAMPLE_CERTS, SAMPLE_RATES, SAMPLE_SELLER } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    $("#as-of").value = new Date().toISOString().slice(0, 10);
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const seller = () => ({ name: $("#seller-name").value.trim(), signer: $("#seller-signer").value.trim() });
+    const num = (sel, fallback) => { const n = parseFloat($(sel).value); return Number.isFinite(n) ? n : fallback; };
+    const options = () => {
+      const asOf = parseDate($("#as-of").value);
+      return { defaultRate: num("#default-rate", 7), validityYears: Math.max(0, Math.floor(num("#validity", 0))), renewalWindowDays: Math.max(0, Math.floor(num("#renewal-window", 90))), asOf: asOf === null || Number.isNaN(asOf) ? undefined : asOf };
+    };
+    const showLetter = () => {
+      const i = parseInt($("#letter-pick").value, 10);
+      const list = last ? last.customers.filter((c) => c.exposureCents > 0) : [];
+      $("#letter").textContent = list[i] ? requestLetter(list[i], seller()) : "";
+    };
+    const pill = (s) => `<span class="pill ${s === "covered" || s === "not-needed" ? "ok" : s === "incomplete" ? "info" : "high"}">${esc(STATUS_LABEL[s])}</span>`;
+
+    function run(sales, certs, rates) {
+      const r = check(sales, certs, rates, options());
+      last = r;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `<strong>${dollars(s.exposureCents)} of tax at stake</strong> on ${s.atRiskSales} of ${s.exemptSales} exempt sales (${dollars(s.atRiskCents)} of ${dollars(s.exemptCents)}) · ${s.coveredPct === null ? "no" : s.coveredPct + "%"} of exempt dollars covered · ${s.customersToChase} customer${s.customersToChase === 1 ? "" : "s"} to chase · ${s.certificates} certificates read, ${s.renewalsDue} lapsing soon, ${s.lapsed} already lapsed · ${s.errors} error${s.errors === 1 ? "" : "s"}, ${s.warnings} warning${s.warnings === 1 ? "" : "s"}`;
+      const chase = r.customers.filter((c) => c.exposureCents > 0);
+      $("#customers").innerHTML = chase.map((c) => `<tr><td>${esc(c.customer)}</td><td>${c.states.join(" ")}</td><td class="n">${c.rows.filter((x) => x.exposureCents > 0).length}</td><td class="n">${dollars(c.exposureCents)}</td><td>${[...new Set(c.rows.filter((x) => x.exposureCents > 0).map((x) => STATUS_LABEL[x.status]))].map(esc).join("; ")}</td></tr>`).join("") || `<tr><td colspan="5">No unsupported sales found.</td></tr>`;
+      $("#states").innerHTML = r.states.map((x) => `<tr><td>${x.state}</td><td class="n">${x.rate}%</td><td class="n">${dollars(x.salesCents)}</td><td class="n">${dollars(x.atRiskCents)}</td><td class="n">${dollars(x.exposureCents)}</td></tr>`).join("") || `<tr><td colspan="5">No exempt sales read.</td></tr>`;
+      $("#sales").innerHTML = r.rows.map((x) => `<tr><td>${esc(x.invoice)}</td><td>${isoDay(x.date)}</td><td>${esc(x.customer)}</td><td>${x.state}</td><td class="n">${dollars(x.amount)}</td><td>${pill(x.status)}</td><td class="n">${dollars(x.exposureCents)}</td></tr>`).join("") || `<tr><td colspan="7">No exempt sales read.</td></tr>`;
+      $("#letter-pick").innerHTML = chase.map((c, i) => `<option value="${i}">${esc(c.customer)}</option>`).join("");
+      showLetter();
+      $("#renewals").innerHTML = r.renewals.length ? `<ul>${r.renewals.map((c) => `<li>${esc(c.customer)} (${c.state}) expires ${isoDay(c.expires)}, ${c.expires - r.asOf} days</li>`).join("")}</ul>` : "<p>None in the window.</p>";
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.customer ? esc(f.customer) + ": " : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || "<p>No findings.</p>";
+      report.hidden = false;
+      status.textContent = `${dollars(s.exposureCents)} of tax at stake.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    const read = async (fileSel, pasteSel) => { const f = $(fileSel).files[0]; return f ? await f.text() : $(pasteSel).value; };
+    $("#validate").addEventListener("click", async () => {
+      const sales = await read("#sales-file", "#sales-paste");
+      if (!sales.trim()) { status.textContent = "Choose a sales file or paste the sales list first."; return; }
+      run(sales, await read("#cert-file", "#cert-paste"), $("#rates-paste").value); record("list_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#sales-paste").value = SAMPLE_SALES; $("#cert-paste").value = SAMPLE_CERTS; $("#rates-paste").value = SAMPLE_RATES;
+      $("#sales-file").value = ""; $("#cert-file").value = "";
+      $("#seller-name").value = SAMPLE_SELLER.name; $("#seller-signer").value = SAMPLE_SELLER.signer; $("#as-of").value = "2026-10-06";
+      run(SAMPLE_SALES, SAMPLE_CERTS, SAMPLE_RATES); record("example_loaded"); status.textContent = "Worked example: made-up customers and a made-up company.";
+    });
+    $("#letter-pick").addEventListener("change", showLetter);
+    for (const id of ["#seller-name", "#seller-signer"]) $(id).addEventListener("input", showLetter);
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#sales-paste", "#cert-paste", "#rates-paste", "#sales-file", "#cert-file"]) $(id).value = ""; report.hidden = true; last = null; status.textContent = "Choose files or paste the lists, then click Check my certificates."; });
+    $("#dl-chase").addEventListener("click", () => { if (last) { record("chase_downloaded"); download("certificate-chase-list.csv", chaseCsv(last), "text/csv"); } });
+    $("#dl-letters").addEventListener("click", () => { if (last) { record("letters_downloaded"); download("certificate-request-letters.txt", lettersText(last, seller()), "text/plain"); } });
+    $("#dl-sales").addEventListener("click", () => { if (last) download("exempt-sales-results.csv", salesCsv(last), "text/csv"); });
+    $("#dl-renewals").addEventListener("click", () => { if (last) download("certificate-renewals.csv", renewalsCsv(last), "text/csv"); });
+    $("#dl-findings").addEventListener("click", () => { if (last) download("certificate-findings.csv", findingsCsv(last), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
