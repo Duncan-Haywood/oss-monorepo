@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 788 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 789 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -62,6 +62,14 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free grant writer pricing calculator: turn your target hourly pay, unbillable time and tax into a flat fee per proposal, check fees you already quoted and test your month. Runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>H-1B Weighted Lottery Odds Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/h1b-weighted-lottery-odds-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/h1b-weighted-lottery-odds-calculator</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free H-1B weighted lottery odds calculator: enter registrations by wage level (I-IV) and your candidates, and see each person&#39;s selection chance under the weighted rule versus the old flat lottery, and what one wage level higher is worth. Private, runs in your browser.</summary>
   </entry>
   <entry>
     <title>Insurance Commission Reconciler</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free YouTube AdSense to Xero and QuickBooks journal converter: books AdSense payments to revenue, US tax withheld to a separate receivable, the bank deposit and the realised FX gain or loss, splits by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Airbnb Transaction History to Xero and QuickBooks Journal</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/airbnb-payout-to-journal/"/>
-    <id>tag:marisstella.dev,2026:tool/airbnb-payout-to-journal</id>
-    <updated>2026-10-05T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free Airbnb host earnings to journal converter: splits every reservation into rental income, cleaning fees, Airbnb host fees and cancellations, books pass-through occupancy tax as a liability, compares the rows to your payouts and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>

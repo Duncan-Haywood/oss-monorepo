@@ -2381,3 +2381,18 @@ entries:
         page; local rent control is listed as not decided. 30 calc, usage and page tests. Registered launch date and
         category rule; cross-linked from security-deposit-return-calculator and renewal-rent-optimizer.
     mrr_end: 0
+  - venture: h1b-weighted-lottery-odds-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built h1b-weighted-lottery-odds-calculator: a browser-local tool for employers and candidates.
+        A candidate list (wage level I-IV, US master's or higher) plus an estimated registration pool gives each
+        person's selection odds under the weighted H-1B draw (1-4 entries) versus the old flat lottery, the chance at
+        least one candidate is selected, the master's-cap second chance, and the probability gained by one wage level
+        higher. Continuous approximation of successive weighted draws, solved by bisection; the default pool is stated
+        as illustrative. Screened with duplicate_check.py (closest 0.18, unrelated). First visitor: an HR lead or
+        founder searching "h1b lottery odds by wage level" before the registration window. Rule read by the author, not
+        a lawyer, and stated unreviewed on the page. 22 calc, usage and page tests. Registered launch date and category
+        rule; cross-linked from startup-option-value-calculator and qsbs-exclusion-calculator.
+    mrr_end: 0
