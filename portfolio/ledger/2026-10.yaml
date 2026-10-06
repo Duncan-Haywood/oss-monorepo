@@ -2294,6 +2294,23 @@ entries:
         launch date, category rule, tree counts; regenerated the mirror; cross-linked from
         upwork-earnings-to-journal.
     mrr_end: 0
+  - venture: donor-acknowledgment-letter-generator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built donor-acknowledgment-letter-generator: a browser-local year-end donor letter tool for
+        small nonprofits. A gift list becomes one letter per donor carrying the IRC 170(f)(8) wording for gifts of
+        $250 or more (tested per gift, not per year) and the 6115 quid pro quo statement for a payment over $75 that
+        bought something; property is described and never valued, vehicles are pointed to Form 1098-C, and pledges,
+        refunds, services, wrong-year gifts, and a benefit with no stated value are left out with a reason rather
+        than written up as "no goods or services". Printable one-letter-per-page HTML, text, donor summary CSV and
+        findings CSV. Screened with duplicate_check.py (top match 0.24, donor-retention-analyzer, a different job).
+        First visitor: the volunteer treasurer searching "donation receipt template" in December, r/nonprofit and
+        PTA/church-admin groups; the season is December to January so it is timed for now. Wording follows IRS
+        Publication 1771 as read by the author and is stated unreviewed on the page. 36 calc, usage and page
+        tests. Registered launch date and category rule; cross-linked from donor-retention-analyzer.
+    mrr_end: 0
   - venture: kdp-royalty-to-journal
     agent_spend_usd: null
     human_hours: 0
