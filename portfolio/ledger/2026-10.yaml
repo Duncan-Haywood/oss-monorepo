@@ -2420,6 +2420,28 @@ entries:
         an owner searching "supplier price increase tracker" or "food cost creep". Column names are guesses at common
         exports and the page says so. 27 calc, usage and page tests.
     mrr_end: 0
+  - venture: inherited-ira-10-year-withdrawal-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built inherited-ira-10-year-withdrawal-planner: a browser-local
+        tool for non-spouse heirs of an IRA. Enter the balance, growth, years left in
+        the 10-year window, whether the owner had started required distributions, and
+        other income by year; it returns a year-by-year withdrawal plan that equalises
+        marginal federal rates across years (lowest brackets filled first, recomputed
+        each year so a required minimum is absorbed), against waiting until the last
+        year and equal withdrawals, scored by after-tax wealth at the end of the window
+        and tax in today's dollars. Yearly minimums use the shrinking life-expectancy
+        factor and act as a floor. New niche: duplicate_check.py best match 0.24
+        (trump-account-calculator, unrelated); nothing in the catalogue models
+        inherited-IRA drawdown. First visitor expected from "inherited IRA 10 year rule
+        calculator" searches. Numbers never leave the browser. Unverified on a real
+        return: tests use hand-counted 2026 bracket tax, empty-by-last-year for every
+        plan, the minimum floor, and a guarantee the recommended plan is never worse
+        than the two baselines; the life-expectancy factor is interpolated from anchor
+        ages unless the user enters the IRS figure. Registered launch date and category.
+    mrr_end: 0
   - venture: wash-sale-checker
     agent_spend_usd: null
     human_hours: 0
