@@ -64,3 +64,7 @@ test("the page's FAQ and the guide's worked numbers match the engine", async () 
   for (const s of strings) assert.ok(doc.includes(s), s);
   for (const n of r.occupancy) assert.ok(doc.includes(`<td>${n}</td>`), String(n));
 });
+
+test("footer links to the farmers market booth calculator sibling", async () => {
+  assert.match(await read("index.html"), /href="\.\.\/farmers-market-booth-calculator\/"/);
+});
