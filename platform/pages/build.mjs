@@ -1310,6 +1310,8 @@ const CATEGORY_RULES = [
       || slug === 'lemonsqueezy-payout-to-journal'
       // `paddle-payout-to-journal` joined 2026-10-05: the Paddle (merchant-of-record SaaS) end of the same payout-to-journal set, filed beside it.
       || slug === 'paddle-payout-to-journal'
+      // `wise-statement-to-journal` joined 2026-10-06: the multi-currency bank end of the same journal set (foreign balance valued in the books' currency, realised FX on its own line), filed beside it.
+      || slug === 'wise-statement-to-journal'
       // `sales-export-to-journal` joined 2026-10-05: the single front door to the eight platform tools above (drop any export, the page detects the platform), filed beside them.
       || slug === 'sales-export-to-journal'
       // `airbnb-payout-to-journal` joined 2026-10-05: the Airbnb host end of the same payout-to-journal set, filed beside it.
