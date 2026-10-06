@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 810 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 811 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -14,6 +14,14 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free ABA authorization tracker: paste your authorizations and see which units run out early, which expire unused, and when each reauthorization is due. Private, runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>App Store &amp; Google Play Listing Checker — Keyword Field, Character Limits and Rejection Risks</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/app-listing-metadata-check/"/>
+    <id>tag:marisstella.dev,2026:tool/app-listing-metadata-check</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: paste your App Store or Google Play listing text and check it before you submit — character limits, wasted keyword-field characters, repeated words, promotional claims in the name, placeholder text and keyword stuffing. Runs in your browser; nothing is uploaded. A zero-dependency CLI lints a fastlane metadata folder in CI.</summary>
   </entry>
   <entry>
     <title>Buy Me a Coffee Transactions to Xero and QuickBooks Journal</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free commission statement reconciler for independent insurance agencies: load your policy book and your carriers&#39; commission statements, find unpaid policies, short-paid rates, chargebacks on policies still in force and duplicate lines, and get a review request per carrier. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>KDP Royalty Report to Xero and QuickBooks Journal</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/kdp-royalty-to-journal/"/>
-    <id>tag:marisstella.dev,2026:tool/kdp-royalty-to-journal</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free KDP to QuickBooks and Xero journal converter: books Amazon KDP royalties gross by marketplace and format (eBook, paperback, hardcover, KENP), printing cost and tax withheld as expenses, checks row and report totals, splits by currency and month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
