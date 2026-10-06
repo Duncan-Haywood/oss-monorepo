@@ -1,0 +1,50 @@
+name: cash-flow-risk-forecaster
+description: >-
+  Free browser tool for small businesses, agencies and freelancers: paste expected invoices and bills (with weekly,
+  biweekly or monthly repeats), set how often customers pay on time, how late the rest are and how many never pay, and a
+  seeded Monte Carlo run shows the chance cash drops below a floor, the cushion that covers 9 in 10 outcomes, a
+  week-by-week balance band, and the single invoice or bill that moves the odds most. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session asked for a deeper, algorithmic tool aimed at businesses that
+# have money. duplicate_check.py: closest rows were business-loan-offer-comparator 0.46, support-staffing-planner 0.40
+# and sales-seasonality-forecaster 0.39 (a revenue forecast, no late-payment risk, no bills); none builds a cash
+# forecast that treats payment timing as uncertain. Searches by owners: "13 week cash flow forecast template",
+# "cash flow forecast late paying customers", "will I run out of cash".
+# Incumbents: Float, Pulse, Fathom, Futrli (paid, accounting-connected, deterministic), spreadsheet templates.
+#
+# Who: owners and bookkeepers of 2-50 person service businesses, agencies, contractors and freelancers with invoices out.
+# First visitor: an owner staring at overdue invoices and a payroll date.
+#
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. A QuickBooks/Xero CSV import and
+# a shareable lender-ready PDF are the likely paid versions, not built.
+#
+# Liability: arithmetic on the user's own figures with visible rules; carries the no-warranty and not-advice clauses and
+# lists what is not decided. Does not recommend financing.
+#
+# Unverified: defaults (35% on time, 18 days late, 3% never paid) are placeholders, not an industry statistic; delays are
+# modelled as independent exponentials, which understates correlated slow months. No benchmark is claimed.
+
+hypotheses:
+  - claim: >-
+      A small-business owner with overdue invoices and a payroll date will paste their invoices and bills to see the odds
+      of running short and which invoice to chase first, because deterministic forecasts and templates assume every
+      invoice is paid on its due date.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool by 2027-03-15.
+  - A report that the simulation output contradicts the stated rules on the same inputs.

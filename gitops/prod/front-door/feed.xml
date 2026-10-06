@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 809 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 810 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -22,6 +22,14 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free Buy Me a Coffee to QuickBooks and Xero journal converter: books tips, memberships, shop orders and commissions to separate income accounts, derives the Buy Me a Coffee and PayPal or Stripe fee from Given minus Received, proves the rows add up to your deposit, splits by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Cash Flow Risk Forecaster</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cash-flow-risk-forecaster/"/>
+    <id>tag:marisstella.dev,2026:tool/cash-flow-risk-forecaster</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free 13-week cash flow forecast that assumes invoices arrive late: paste your invoices and bills, and 2,000 simulated outcomes show the chance you run short, the cushion that would cover it and which invoice or bill to fix first. Private, runs in your browser.</summary>
   </entry>
   <entry>
     <title>Chiropractor New Patient ROI Calculator — Cost per Patient &amp; Lifetime Value, Free</title>
@@ -100,7 +108,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freelance-editor-quote-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/freelance-editor-quote-calculator</id>
     <updated>2026-10-06T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free quote calculator for freelance editors and proofreaders: word count, level of edit and your hourly target become a flat fee, a per-word rate, the days the job needs and what the fee pays if you edit slower than planned. Private, runs in your browser.</summary>
   </entry>
   <entry>
@@ -158,13 +166,5 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free KDP to QuickBooks and Xero journal converter: books Amazon KDP royalties gross by marketplace and format (eBook, paperback, hardcover, KENP), printing cost and tax withheld as expenses, checks row and report totals, splits by currency and month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Lien Waiver Checker</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/lien-waiver-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/lien-waiver-checker</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free lien waiver checker for contractors and suppliers: paste the waiver you were sent and see what to fix before you sign, such as an unconditional waiver before the check clears, a release of all claims or future work, a wrong amount or through-date, or retainage not excepted. Private, runs in your browser.</summary>
   </entry>
 </feed>
