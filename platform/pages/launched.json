@@ -39,6 +39,7 @@
     "amazon-seller-profit-analyzer": "2026-09-29",
     "amazon-settlement-to-journal": "2026-10-05",
     "android-data-safety-check": "2026-09-17",
+    "app-listing-metadata-check": "2026-10-06",
     "app-store-commission-calculator": "2026-10-03",
     "app-store-sales-report-analyzer": "2026-09-29",
     "app-store-screenshot-check": "2026-09-11",
@@ -116,6 +117,7 @@
     "carpet-cleaning-bid-calculator": "2026-08-26",
     "carpet-install-bid-calculator": "2026-08-26",
     "cash-balance-plan-calculator": "2026-09-30",
+    "cash-flow-risk-forecaster": "2026-10-06",
     "cash-runway-planner": "2026-08-26",
     "cat-adjuster-fee-calculator": "2026-09-11",
     "catering-quote-calculator": "2026-10-02",
@@ -593,6 +595,7 @@
     "route-stop-optimizer": "2026-09-30",
     "rsu-withholding-gap-calculator": "2026-09-29",
     "rule-72t-sepp-calculator": "2026-09-30",
+    "rv-rental-host-profit-calculator": "2026-10-06",
     "s-corp-reasonable-compensation-calculator": "2026-09-24",
     "s3-storage-class-advisor": "2026-10-02",
     "s3-storage-class-savings": "2026-10-01",
@@ -809,6 +812,5 @@
     "youtube-chapters-check": "2026-10-05",
     "youtube-revenue-rpm-analyzer": "2026-09-29",
     "zoho-crm-import-csv-check": "2026-10-04"
-  },
-  "rv-rental-host-profit-calculator": "2026-10-06"
+  }
 }

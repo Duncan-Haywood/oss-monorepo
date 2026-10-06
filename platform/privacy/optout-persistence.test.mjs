@@ -1361,9 +1361,12 @@ const RELATIVE_SELF = relative(
 // +1: `aba-authorization-tracker` graduated.
 // +1: `restaurant-tip-pool-calculator` graduated.
 // +1: `freelance-editor-quote-calculator` graduated.
+// +1: `cash-flow-risk-forecaster` graduated.
 // +1: `social-security-benefits-tax-calculator` graduated.
 // +1: `installment-sale-tax-calculator` graduated.
 const SWITCHES_IN_THE_CATALOGUE = 789;
+// +1: `app-listing-metadata-check` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 790;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
