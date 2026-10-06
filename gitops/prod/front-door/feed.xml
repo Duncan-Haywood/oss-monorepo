@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 813 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 814 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -144,6 +144,14 @@
     <summary type="text">Free H-1B weighted lottery odds calculator: enter registrations by wage level (I-IV) and your candidates, and see each person&#39;s selection chance under the weighted rule versus the old flat lottery, and what one wage level higher is worth. Private, runs in your browser.</summary>
   </entry>
   <entry>
+    <title>Horse Boarding Stall Profit Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/horse-boarding-stall-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/horse-boarding-stall-profit-calculator</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free profit calculator for horse boarding barns: stalls, occupancy, board price, feed, bedding, your own care time and fixed costs become monthly profit, break-even occupancy and the board price you need. Private, runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Inherited IRA 10-Year Rule Calculator 2026 — Withdrawal Plan, Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/inherited-ira-10-year-withdrawal-planner/"/>
     <id>tag:marisstella.dev,2026:tool/inherited-ira-10-year-withdrawal-planner</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free injury settlement calculator: enter the gross amount, attorney fee, costs and medical liens and see what the client actually takes home, with Medicare&#39;s procurement-cost reduction and the effect of negotiating each lien. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Installment Sale Tax Calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/installment-sale-tax-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/installment-sale-tax-calculator</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free installment sale tax calculator: selling a business, rental or land for a note? See the gain taxed each year, the depreciation recapture due up front, the tax saved by spreading it and what the interest earns after tax. Private, runs in your browser.</summary>
   </entry>
 </feed>
