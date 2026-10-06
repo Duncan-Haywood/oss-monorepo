@@ -2194,3 +2194,19 @@ entries:
         headless Chromium. Registered score row, launch date, category rule, CI workflow and tree counts;
         regenerated the mirror.
     mrr_end: 0
+  - venture: med-spa-treatment-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built med-spa-treatment-profit-calculator: a browser-local per-treatment profit calculator for med spas and
+        aesthetics clinics. From a pasted treatment menu (price, product cost, minutes, visits per
+        month) plus provider, room and card-fee cost it gives contribution per visit, margin, profit
+        per room hour, break-even and target-margin price, and monthly profit against fixed costs and
+        room capacity. New niche: no med spa or aesthetics tool existed in the tree. First visitor
+        expected from injector and med spa owner communities asking what to charge. Nothing is
+        uploaded (a test asserts no network calls); not-advice and margin-is-not-clinical-judgement
+        clauses on the page. Cost model written without review by a med spa operator, stated on the
+        page and in VENTURE.yaml. 25 tests. Registered score row, launch date, category rule, CI
+        workflow and tree counts; regenerated the mirror.
+    mrr_end: 0
