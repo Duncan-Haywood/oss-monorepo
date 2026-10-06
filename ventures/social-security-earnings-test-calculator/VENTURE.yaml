@@ -1,0 +1,54 @@
+name: social-security-earnings-test-calculator
+description: >-
+  Free browser tool for people who claim Social Security retirement benefits before full retirement age and keep working:
+  enter birth date, claim month, benefit at full retirement age and yearly earnings, and see the months of benefits
+  withheld each year under the earnings test, the net dollars held back, the recomputed benefit at full retirement age,
+  the month it repays the withholding, and a table of withholding at other earnings levels. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. Not in ventures/ (social-security-claiming-age-calculator lists
+# the earnings test as an omission), not in screened-out.md. High-intent searches by 62-66 year olds still working:
+# "social security earnings limit 2026", "how much can I earn and collect social security", "earnings test calculator".
+# Incumbents: SSA's own explainer pages and a few blog posts; the SSA tool does not show the FRA credit or payback.
+#
+# Who: pre-FRA claimants who work part time or run a business, and the financial planners and tax preparers advising
+# them. First visitor: someone searching the annual earnings limit each autumn when the new limits are announced.
+#
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. A planner-branded client report
+# is the possible paid version, not built.
+#
+# Liability: arithmetic on the user's own figures with visible rules; limits are editable inputs so a new year cannot
+# make it silently wrong; carries the no-warranty and not-advice clauses and lists what is not decided.
+#
+# Unverified: the 2026 limits ($24,480 / $65,160) were entered from memory of SSA's announcement and must be checked
+# against ssa.gov; the whole-month withholding and FRA recomputation follow 20 CFR 404.412-404.435 as understood, not
+# checked against an SSA determination. Benefit and earnings are held flat (no COLA); FRA-year earnings are assumed even
+# across the year. Spousal/child benefits on the same record are not modelled.
+
+hypotheses:
+  - claim: >-
+      A still-working 62-66 year old deciding whether to claim early will enter their earnings into a no-upload page to
+      see the withholding and the payback before filing, because the limit is widely quoted but the credit at full
+      retirement age is not.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool by 2027-03-15.
+  - A report that a result differs materially from SSA's own withholding on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/social-security-earnings-test-calculator/
+  analytics: null
