@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Grant Writer Proposal Price Calculator — Flat Fee, Free</title>
+  <meta name="description" content="Free grant writer pricing calculator: turn your target hourly pay, unbillable time and tax into a flat fee per proposal, check fees you already quoted and test your month. Runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Grant Writer Proposal Price Calculator — free">
+  <meta property="og:description" content="What should a freelance grant writer charge per proposal? Hours and target pay in, flat fee out. Runs in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Grant Writer Proposal Price Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free calculator for freelance grant writers: turn a target hourly pay, unbillable time, tax load and a revision buffer into a flat fee per proposal, check fees you already quoted, and test a pipeline against your monthly hours. Entirely client-side; nothing is uploaded.", "featureList": "flat fee per proposal, hourly fee floor, quoted-fee check, revision buffer, monthly capacity check"}
+  </script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I price a grant writing project?", "acceptedAnswer": {"@type": "Answer", "text": "Decide the hourly take-home you want, gross it up for the share of your time you cannot bill and for tax, then multiply by the hours the proposal will take plus a buffer for revisions. That is a flat fee. Quote the fee, not the hours, so a funder's extra template does not turn into unpaid work."}}, {"@type": "Question", "name": "Should I charge a percentage of the grant award?", "acceptedAnswer": {"@type": "Answer", "text": "Professional codes for fundraisers and grant writers, and many funders, object to paying a writer a percentage of money raised, and a funded proposal costs the same hours as an unfunded one. Price on hours of work. The calculator shows your fee as a share of the award only as a sense check."}}, {"@type": "Question", "name": "How many hours does a grant proposal take?", "acceptedAnswer": {"@type": "Answer", "text": "It varies enormously with the funder, the length and how much the client already has written. A small local foundation application can take a day; a federal proposal with a budget justification and attachments can take weeks. Enter your own estimate per proposal and the calculator prices it."}}, {"@type": "Question", "name": "Why add a revision buffer?", "acceptedAnswer": {"@type": "Answer", "text": "Almost every proposal gets funder questions, a new budget template or several rounds of client edits. A percentage buffer on the estimated hours pays for them without a separate negotiation."}}, {"@type": "Question", "name": "Is this tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does arithmetic on the numbers you enter. It is not tax, legal or financial advice, and it does not model income tax, travel or post-award reporting work."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5d7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .grid[hidden] { display: none; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5d7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .rank td:first-child { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">GRANT WRITER PROPOSAL PRICE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should a freelance grant writer charge per proposal?</h1>
+    <p>Enter the hourly pay you want and how you work. You get your <strong>fee floor per hour</strong>, a <strong>flat fee for each proposal</strong> with a revision buffer, a check on <strong>fees you already quoted</strong>, and whether a month of proposals fits your hours.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device — see the privacy note in the footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your rate and your time</h2>
+    <div class="grid">
+      <div><label for="target">Take-home you want per billable hour ($)</label>
+        <input type="number" id="target" min="0" step="1" placeholder="e.g. 60"></div>
+      <div><label for="billable">Share of paid time that is billable (%)</label>
+        <input type="number" id="billable" min="0" step="1" value="70" placeholder="70"></div>
+      <div><label for="se-tax">Self-employment and payroll tax share of revenue (%)</label>
+        <input type="number" id="se-tax" min="0" step="0.01" value="7.65" placeholder="7.65"></div>
+      <div><label for="overhead">Software, insurance and database costs per billable hour ($)</label>
+        <input type="number" id="overhead" min="0" step="0.5" value="4" placeholder="4"></div>
+      <div><label for="buffer">Revision buffer on every estimate (%)</label>
+        <input type="number" id="buffer" min="0" step="1" value="20" placeholder="20"></div>
+      <div><label for="monthly-hours">Billable hours you can fit in a month</label>
+        <input type="number" id="monthly-hours" min="0" step="1" value="100" placeholder="100"></div>
+    </div>
+    <p class="note">Unbillable time is finding clients, invoicing, learning a funder's portal and the unfunded hours between projects. The tax share is an average, not your tax return.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Your proposals (optional)</h2>
+    <label for="proposals">One per line: proposal, estimated hours, fee quoted (optional), award requested (optional)</label>
+    <textarea id="proposals" rows="5" placeholder="Riverside Arts, 30, 2400, 25000&#10;Food Bank capital ask, 55&#10;Youth literacy federal, 90, 6500, 300000"></textarea>
+    <p class="note">Leave the fee blank to see what to charge; enter it to see whether it clears your floor. Use plain numbers without commas.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter the hourly pay you want, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="proposal-block" hidden>
+      <h3>Flat fee per proposal</h3>
+      <table><thead><tr><th>Proposal</th><th>Hours (with buffer)</th><th>Floor fee</th><th>You quoted</th><th>Take-home per hour</th></tr></thead><tbody id="proposal-table"></tbody></table>
+    </div>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Income tax.</strong> The tax share is an average load on revenue, not a return.</li>
+      <li><strong>Win rate.</strong> An unfunded proposal costs the same hours, so the fee does not depend on whether the client is funded.</li>
+      <li><strong>Post-award work.</strong> Reporting, site visits and travel are priced separately.</li>
+      <li><strong>Market rates.</strong> The fee is what your own numbers need, not what a client will pay. Compare it with what comparable writers charge in your region.</li>
+      <li><strong>Contracts.</strong> Scope, ownership of drafts and what happens if a funder changes the deadline belong in a written agreement reviewed by a lawyer.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I price a grant writing project?</h3>
+    <p>Decide the hourly take-home you want, gross it up for the share of your time you cannot bill and for tax, then multiply by the hours the proposal will take plus a buffer for revisions. That is a flat fee. Quote the fee, not the hours, so a funder's extra template does not turn into unpaid work.</p>
+    <h3>Should I charge a percentage of the grant award?</h3>
+    <p>Professional codes for fundraisers and grant writers, and many funders, object to paying a writer a percentage of money raised, and a funded proposal costs the same hours as an unfunded one. Price on hours of work. The calculator shows your fee as a share of the award only as a sense check.</p>
+    <h3>How many hours does a grant proposal take?</h3>
+    <p>It varies enormously with the funder, the length and how much the client already has written. A small local foundation application can take a day; a federal proposal with a budget justification and attachments can take weeks. Enter your own estimate per proposal and the calculator prices it.</p>
+    <h3>Why add a revision buffer?</h3>
+    <p>Almost every proposal gets funder questions, a new budget template or several rounds of client edits. A percentage buffer on the estimated hours pays for them without a separate negotiation.</p>
+    <h3>Is this tax or financial advice?</h3>
+    <p>No. It does arithmetic on the numbers you enter. It is not tax, legal or financial advice, and it does not model income tax, travel or post-award reporting work.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it is not a substitute for your accountant or lawyer. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>fee_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Pricing other freelance work? See the <a href="../freelance-retainer-calculator/">freelance retainer calculator</a>, the <a href="../grant-indirect-cost-calculator/">grant indirect cost calculator</a> for the nonprofit side of a budget, and the <a href="../grant-deadline-tracker/">grant deadline tracker</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" id="sponsorLink">GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+    <script type="module">
+    import { analyse, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const MAP = { target: "targetHourly", billable: "billablePct", "se-tax": "seTaxPct", overhead: "overheadPerHour",
+      buffer: "bufferPct", "monthly-hours": "monthlyHours" };
+    const DEFAULTS = { billable: "70", "se-tax": "7.65", overhead: "4", buffer: "20", "monthly-hours": "100" };
+    const els = { status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
+      block: $("#proposal-block"), table: $("#proposal-table"), findings: $("#report-findings") };
+    const num = (id) => Number($("#" + id).value) || 0;
+    function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4>
+          <p>${esc(f.detail)}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const input = { proposalText: $("#proposals").value };
+      for (const [id, key] of Object.entries(MAP)) input[key] = num(id);
+      const a = analyse(input);
+      renderFindings(els.findings, a.findings);
+      els.report.hidden = false;
+      if (!a.result) {
+        els.stats.textContent = "";
+        els.block.hidden = true;
+        return;
+      }
+      const r = a.result;
+      els.stats.innerHTML = `Fee floor: <strong>${money(r.floor)}</strong> per hour of estimated writing time.` +
+        (r.rows.length ? ` ${r.rows.length} proposal${r.rows.length > 1 ? "s" : ""}, <strong>${r.totalHours}</strong> estimated hours, <strong>${money(r.totalFee)}</strong> of floor fees` +
+          (r.capacityUse === null ? "." : ` (${pct(r.capacityUse)} of your monthly hours).`) : "");
+      els.block.hidden = r.rows.length === 0;
+      els.table.innerHTML = r.rows.map((p) => `<tr><td>${esc(p.name)}</td><td>${p.paddedHours}</td><td>${money(p.fee)}</td><td>${p.quoted ? money(p.quoted) : "—"}</td><td>${p.quoted ? money(p.takeHomeHourly) : "—"}</td></tr>`).join("");
+      els.status.textContent = "";
+      record("fee_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      const ex = { ...DEFAULTS, target: "60" };
+      for (const [k, v] of Object.entries(ex)) $("#" + k).value = v;
+      $("#proposals").value = "Riverside Arts, 30, 2400, 25000\nFood Bank capital ask, 55\nYouth literacy federal, 90, 6500, 300000";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example with invented numbers: $60 an hour take-home, 70% billable time, a 20% revision buffer and three proposals.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of Object.keys(MAP)) $("#" + id).value = DEFAULTS[id] ?? "";
+      $("#proposals").value = "";
+      els.report.hidden = true;
+      els.status.textContent = "Enter the hourly pay you want, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

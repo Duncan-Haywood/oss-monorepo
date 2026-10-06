@@ -2973,7 +2973,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `youtube-adsense-payout-to-journal` graduated (browser AdSense payments export to month-split Xero/QuickBooks journals with US withholding receivable and realised FX).
     # +1: `revolut-business-statement-to-journal` graduated (browser Revolut Business currency statement to month-split Xero/QuickBooks journals with realised FX).
     # +1: `syndication-waterfall-calculator` graduated (browser-local GP/LP waterfall with preferred return and promote tiers).
-    total = 780  # `infra/OWNER_CHECKLIST.md`'s own "N of the 780 tools" wording.
+    total = 781  # `infra/OWNER_CHECKLIST.md`'s own "N of the 781 tools" wording.
     # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
     # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
     # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).

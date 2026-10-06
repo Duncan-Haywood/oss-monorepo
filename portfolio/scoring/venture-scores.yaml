@@ -27840,3 +27840,35 @@ ventures:
       legal or financial advice, no warranty. The model was written without review by a working
       fractional executive, stated in VENTURE.yaml. Ethics: helps independent professionals price
       their own work; nothing leaves the device.
+  - slug: grant-writer-proposal-price-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.3
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic arithmetic on numbers
+      the user types.
+    basis: >-
+      Screened 2026-10-06 per portfolio/pipeline/README.md's scoring process; full write-up in
+      this venture's own VENTURE.yaml comment. Freelance grant writers quote from a guessed hourly
+      rate and absorb revision rounds and unfunded hours; the common answers are forum threads or
+      a hand-built spreadsheet. Distribution 5: "grant writer rates", "how much to charge for a
+      grant proposal" are recurring queries; volume not measured with an external tool.
+      Defensibility 3: the arithmetic is simple; the edge is a free no-signup page that grosses up
+      for unbillable time and tax, pads for revisions and checks quoted fees. Time to revenue 4:
+      the paid layer (rate cards, engagement letters, pipeline tracking) is not built.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed numbers; the limits are listed on the page; not tax,
+      legal or financial advice, no warranty. The model was written without review by a working
+      grant writer, stated in VENTURE.yaml. Ethics: prices on hours and discourages percentage-of-award
+      pay; helps independent writers price their own work; nothing leaves the device.
