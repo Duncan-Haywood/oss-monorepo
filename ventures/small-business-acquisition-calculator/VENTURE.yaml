@@ -1,0 +1,58 @@
+name: small-business-acquisition-calculator
+description: >-
+  Free browser tool for people buying a small owner-operated business (the "entrepreneurship through acquisition" crowd
+  and the brokers and advisers who work with them): enter asking price, seller's discretionary earnings and a financing
+  structure and see DSCR, cash needed at close, take-home after debt, the highest price that still clears a lender's
+  coverage floor and how fast the deal breaks if earnings fall. Numbers are read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check.py: closest ventures at 0.26
+# (rental-dscr-calculator, business-loan-offer-comparator; online-business-valuation-calculator at 0.21 values an
+# online business but does not model the acquisition financing).
+# Search phrases: "buy a business calculator", "SBA 7(a) acquisition DSCR calculator", "business acquisition cash needed",
+# "SDE multiple calculator", "seller note standby DSCR".
+# Volume not measured with an external tool. Demand follows the growth of searcher/ETA content and SBA-backed
+# acquisition lending; BizBuySell-style listings carry asking price and cash flow, which is exactly the input here.
+#
+# Who: first-time buyers of $300k-$5M businesses, search funds and the brokers, CPAs and SBA lenders' loan officers who
+# run the same arithmetic by hand in spreadsheets. Paid alternatives are broker spreadsheets and lender-side underwriting
+# software; this is the free, private buyer-side version.
+#
+# Path to revenue (payment rails stay off): lead magnet for buyers and advisers. If usage appears, the deeper product is
+# a lender-ready deal package: add-back worksheet for SDE quality, multi-year projections with growth and working
+# capital, equity-injection rules per program, a printable one-page summary for a lender or partner. Not built.
+#
+# Liability: it does arithmetic on the user's own numbers, shows its model, does not value anything, does not claim to
+# know any lender's rules, carries the no-warranty and not-advice clauses and lists what it does not decide.
+#
+# Unverified: lender practice (DSCR floors, equity-injection treatment of standby notes, guarantee fees) was written
+# from general knowledge by the author, not checked with a lender; the page tells the user to confirm. The first report
+# of a wrong figure is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A prospective small-business buyer will use a no-signup page to test an asking price against DSCR, cash to close
+      and an earnings drop before spending money on an LOI, because the listing site gives price and cash flow but
+      none of the financing arithmetic.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or reported deal structures) engage with the tool by 2027-04-15.
+  - A user reports a DSCR or payment figure that differs from their lender's on a plain level-payment case, at which point the model needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/small-business-acquisition-calculator/
+  analytics: null
