@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 794 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 795 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -144,6 +144,14 @@
     <summary type="text">Free rent increase checker for small landlords: paste a rent roll, see which units are over the California, Oregon, Washington or New York cap, the notice days each needs, the earliest effective date, and a notice letter per unit. Private, runs in your browser.</summary>
   </entry>
   <entry>
+    <title>Restaurant Tip Pool Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/restaurant-tip-pool-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/restaurant-tip-pool-calculator</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free restaurant tip pool calculator: paste a shift list and split tips by hours, by role points or by server tip-out. Card fee, owner and manager exclusion, payroll CSV. Private, runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Revolut Business Statement to Xero and QuickBooks Journal with FX Gain and Loss</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/revolut-business-statement-to-journal/"/>
     <id>tag:marisstella.dev,2026:tool/revolut-business-statement-to-journal</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free supplier price creep checker for restaurants, cafes and shops: paste invoice lines, see which items crept up, which invoice was a one-off overcharge, what it costs a year, and a credit-request email. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Syndication Waterfall Calculator — Pref, Hurdles and Promote, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/syndication-waterfall-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/syndication-waterfall-calculator</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free real estate syndication waterfall calculator: preferred return, IRR hurdles and sponsor promote tiers, with LP and GP IRR, equity multiples and a year-by-year split. Entirely client-side, nothing uploaded.</summary>
   </entry>
 </feed>

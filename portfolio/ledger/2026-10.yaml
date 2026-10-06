@@ -2458,3 +2458,20 @@ entries:
         stated unreviewed on the page; substantially-identical securities listed as not decided. 23 calc, usage and
         page tests. Registered launch date and category rule.
     mrr_end: 0
+  - venture: restaurant-tip-pool-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built restaurant-tip-pool-calculator: a browser-local tool for restaurants, cafes and bars. A
+        shift list (name, role, hours, card tips, cash tips, sales) is split three ways -- one pool by hours, one pool
+        by hours times role points, or server tip-out as a percent of sales shared with support staff by weighted
+        hours. The card fee comes off card tips only, owners and managers receive nothing and their tips are shared
+        out, kitchen staff are flagged (harder when a tip credit is taken), and payouts equal the pool to the cent by
+        largest remainder. Payroll CSV and full report. Screened with duplicate_check.py (closest:
+        tip-pool-compliance-calculator 0.30, which checks whether a pool is lawful and prices the back-wage exposure;
+        it does not compute payouts, so the two are cross-linked). First visitor: a manager searching "tip pool
+        calculator" or "how to split tips between servers and bussers". Column names are guesses at common POS exports
+        and state law is listed as not decided. 29 calc, usage and page tests. Registered launch date, category rule,
+        tree counts; regenerated the mirror.
+    mrr_end: 0
