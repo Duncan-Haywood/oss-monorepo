@@ -2489,3 +2489,6 @@ gitops:
 - workflow: fractional-executive-rate-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: grant-writer-proposal-price-calculator-ci.yml
+  classification: none
+  publishes: []

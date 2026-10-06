@@ -2242,3 +2242,20 @@ entries:
         rule, CI workflow and tree counts; regenerated the mirror; linked from
         freelance-retainer-calculator so it is not an orphan.
     mrr_end: 0
+  - venture: grant-writer-proposal-price-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built grant-writer-proposal-price-calculator: a browser-local flat-fee calculator
+        for freelance grant writers. From a target hourly take-home, billable share, tax load, overhead and
+        a revision buffer it gives the fee floor per estimated hour and a flat fee per proposal, checks
+        fees already quoted against that floor (with the take-home per hour each implies), and tests a
+        month of proposals against capacity. New niche: the tree had nonprofit-side grant tools but no
+        pricing tool for the writer. Prices on hours only; a percentage of the award appears as a sense
+        check with a note on why codes and funders object to percentage pay. Nothing is uploaded (a test
+        asserts no network calls); not-advice clause on the page; model written without review by a
+        working grant writer, stated on the page and in VENTURE.yaml. 28 tests; smoke-tested in
+        headless Chromium. Registered score row, launch date, category rule, CI workflow and tree
+        counts; regenerated the mirror.
+    mrr_end: 0
