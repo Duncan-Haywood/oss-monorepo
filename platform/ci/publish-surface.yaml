@@ -59,6 +59,9 @@ workflows:
 - workflow: ab-test-significance-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: aba-authorization-tracker-ci.yml
+  classification: none
+  publishes: []
 - workflow: aca-subsidy-cliff-calculator-ci.yml
   classification: none
   publishes: []

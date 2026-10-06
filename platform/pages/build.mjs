@@ -725,6 +725,9 @@ const CATEGORY_RULES = [
       // `restaurant-tip-pool-calculator` joined 2026-10-06 on its first commit: the payroll side of the same owner, beside
       // `tip-pool-compliance-calculator` (may we pool) -- this one splits the pool.
       'restaurant-tip-pool-calculator',
+      // `aba-authorization-tracker` joined 2026-10-06 on its first commit: a therapy practice owner's
+      // revenue-leak check (units expiring unused), the same owner as the appointment and payer-mix tools.
+      'aba-authorization-tracker',
     ].includes(slug),
   },
   {
