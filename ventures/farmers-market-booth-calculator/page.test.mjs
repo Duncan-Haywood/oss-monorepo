@@ -61,3 +61,8 @@ test("the guide's worked numbers match the engine", async () => {
 test("index links one hop to the firewood-profit-calculator sibling", async () => {
   assert.match(await read("index.html"), /href="\.\.\/firewood-profit-calculator\/"/);
 });
+
+test("footer links to the microgreens tray planner sibling", async () => {
+  const { readFile } = await import("node:fs/promises");
+  assert.match(await readFile(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/microgreens-tray-planner\/"/);
+});
