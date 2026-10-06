@@ -2311,3 +2311,20 @@ entries:
         Publication 1771 as read by the author and is stated unreviewed on the page. 36 calc, usage and page
         tests. Registered launch date and category rule; cross-linked from donor-retention-analyzer.
     mrr_end: 0
+  - venture: exemption-certificate-audit-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built exemption-certificate-audit-check: a browser-local sales tax audit prep tool for
+        wholesalers, distributors and contractors. Exempt sales are matched to the certificates on file by customer,
+        state, reason and date; each failure has its own result (none, other state, expired, signed after the sale,
+        wrong reason, no certificate number) rather than one "missing" bucket, out-of-state delivery is not chased for a
+        buyer certificate, and exposure is whole cents at user-entered state rates, by customer and by state. Outputs a
+        ranked chase list with the exact ask per customer, a request letter per customer, a per-sale result file and a
+        renewals list. No state rules are encoded: validity periods and late-certificate acceptance are the user's to
+        enter, stated on the page. Screened with duplicate_check.py (top match 0.24, a different question). First
+        visitor: a controller or bookkeeper after a sales tax audit notice, or r/accounting and r/Bookkeeping. 34 calc,
+        usage and page tests. Registered launch date and category rule; cross-linked from
+        economic-nexus-threshold-tracker.
+    mrr_end: 0
