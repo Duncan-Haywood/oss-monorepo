@@ -60,3 +60,8 @@ test("the plan and booking-window <select> elements carry all documented options
     assert.match(html, new RegExp(`<option value="${value}"`));
   }
 });
+
+test("index links the RV rental host profit calculator so crawlers reach it in one hop", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /href="\.\.\/rv-rental-host-profit-calculator\/"/);
+});
