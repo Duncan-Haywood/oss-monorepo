@@ -722,6 +722,9 @@ const CATEGORY_RULES = [
       // `supplier-price-creep-checker` joined 2026-10-06 on its first commit: the invoice side of the restaurant
       // owner's food cost, beside `pour-cost-calculator` and `menu-engineering-calculator`.
       'supplier-price-creep-checker',
+      // `restaurant-tip-pool-calculator` joined 2026-10-06 on its first commit: the payroll side of the same owner, beside
+      // `tip-pool-compliance-calculator` (may we pool) -- this one splits the pool.
+      'restaurant-tip-pool-calculator',
     ].includes(slug),
   },
   {
