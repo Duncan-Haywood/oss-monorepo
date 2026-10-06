@@ -2420,3 +2420,19 @@ entries:
         an owner searching "supplier price increase tracker" or "food cost creep". Column names are guesses at common
         exports and the page says so. 27 calc, usage and page tests.
     mrr_end: 0
+  - venture: wash-sale-checker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built wash-sale-checker: a browser-local tool for multi-account retail traders and their
+        preparers. A trade list (date, symbol, buy/sell, quantity, price, optional account and basis) is matched with
+        FIFO lots; each loss sale is compared with same-ticker purchases in the 61-day window across every account,
+        the disallowed loss is split proportionally for partial replacement, losses whose replacement was bought in
+        an IRA are shown as permanently lost, disallowed loss is carried into replacement basis and later sales, and
+        a Form 8949 code W report and first safe re-buy date are produced. Screened with duplicate_check.py (closest
+        tax-loss-harvesting-calculator 0.16, which reads no trades). First visitor: a trader searching "wash sale
+        checker across accounts" in December or at filing time. Rule read by the author, not a tax professional, and
+        stated unreviewed on the page; substantially-identical securities listed as not decided. 23 calc, usage and
+        page tests. Registered launch date and category rule.
+    mrr_end: 0
