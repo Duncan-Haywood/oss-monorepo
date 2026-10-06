@@ -33,42 +33,42 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547669 bytes
-#   portfolio-front-tools-1: 92 files, 555196 bytes
-#   portfolio-front-tools-2: 144 files, 553361 bytes
-#   portfolio-front-tools-3: 128 files, 549209 bytes
-#   portfolio-front-tools-4: 135 files, 553491 bytes
-#   portfolio-front-tools-5: 129 files, 553612 bytes
-#   portfolio-front-tools-6: 122 files, 555586 bytes
-#   portfolio-front-tools-7: 124 files, 555043 bytes
-#   portfolio-front-tools-8: 135 files, 554624 bytes
-#   portfolio-front-tools-9: 132 files, 549863 bytes
-#   portfolio-front-tools-10: 121 files, 554928 bytes
-#   portfolio-front-tools-11: 129 files, 556733 bytes
-#   portfolio-front-tools-12: 132 files, 556915 bytes
-#   portfolio-front-tools-13: 126 files, 553022 bytes
-#   portfolio-front-tools-14: 121 files, 553177 bytes
-#   portfolio-front-tools-15: 121 files, 541178 bytes
-#   portfolio-front-tools-16: 120 files, 556860 bytes
-#   portfolio-front-tools-17: 118 files, 554724 bytes
-#   portfolio-front-tools-18: 116 files, 555054 bytes
-#   portfolio-front-tools-19: 115 files, 552963 bytes
-#   portfolio-front-tools-20: 133 files, 556634 bytes
-#   portfolio-front-tools-21: 125 files, 551263 bytes
-#   portfolio-front-tools-22: 125 files, 553902 bytes
-#   portfolio-front-tools-23: 119 files, 555846 bytes
-#   portfolio-front-tools-24: 132 files, 556578 bytes
-#   portfolio-front-tools-25: 121 files, 554100 bytes
-#   portfolio-front-tools-26: 123 files, 550444 bytes
-#   portfolio-front-tools-27: 116 files, 556169 bytes
-#   portfolio-front-tools-28: 92 files, 549992 bytes
-#   portfolio-front-tools-29: 127 files, 556815 bytes
-#   portfolio-front-tools-30: 114 files, 549932 bytes
-#   portfolio-front-tools-31: 127 files, 556461 bytes
-#   portfolio-front-tools-32: 128 files, 555793 bytes
-#   portfolio-front-tools-33: 125 files, 551979 bytes
-#   portfolio-front-tools-34: 65 files, 340294 bytes
-#   portfolio-front-tools-35: 48 files, 269631 bytes
+#   portfolio-front-tools-0: 145 files, 547679 bytes
+#   portfolio-front-tools-1: 92 files, 555202 bytes
+#   portfolio-front-tools-2: 144 files, 553379 bytes
+#   portfolio-front-tools-3: 128 files, 549233 bytes
+#   portfolio-front-tools-4: 135 files, 553500 bytes
+#   portfolio-front-tools-5: 129 files, 553592 bytes
+#   portfolio-front-tools-6: 122 files, 555585 bytes
+#   portfolio-front-tools-7: 124 files, 555018 bytes
+#   portfolio-front-tools-8: 135 files, 554585 bytes
+#   portfolio-front-tools-9: 132 files, 549824 bytes
+#   portfolio-front-tools-10: 121 files, 554964 bytes
+#   portfolio-front-tools-11: 129 files, 556809 bytes
+#   portfolio-front-tools-12: 132 files, 557012 bytes
+#   portfolio-front-tools-13: 126 files, 552972 bytes
+#   portfolio-front-tools-14: 121 files, 553246 bytes
+#   portfolio-front-tools-15: 121 files, 541191 bytes
+#   portfolio-front-tools-16: 120 files, 556856 bytes
+#   portfolio-front-tools-17: 118 files, 554718 bytes
+#   portfolio-front-tools-18: 116 files, 555119 bytes
+#   portfolio-front-tools-19: 115 files, 553004 bytes
+#   portfolio-front-tools-20: 133 files, 556585 bytes
+#   portfolio-front-tools-21: 126 files, 554787 bytes
+#   portfolio-front-tools-22: 126 files, 556543 bytes
+#   portfolio-front-tools-23: 119 files, 556002 bytes
+#   portfolio-front-tools-24: 131 files, 554495 bytes
+#   portfolio-front-tools-25: 121 files, 554139 bytes
+#   portfolio-front-tools-26: 124 files, 555716 bytes
+#   portfolio-front-tools-27: 116 files, 553710 bytes
+#   portfolio-front-tools-28: 93 files, 554169 bytes
+#   portfolio-front-tools-29: 127 files, 556869 bytes
+#   portfolio-front-tools-30: 114 files, 549857 bytes
+#   portfolio-front-tools-31: 127 files, 556600 bytes
+#   portfolio-front-tools-32: 128 files, 555750 bytes
+#   portfolio-front-tools-33: 125 files, 552016 bytes
+#   portfolio-front-tools-34: 65 files, 340297 bytes
+#   portfolio-front-tools-35: 48 files, 269642 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2881,6 +2881,9 @@ configMapGenerator:
       - mobile-detailing-bid-calculator__vs-a-flat-per-vehicle-price.html.gz=mobile-detailing-bid-calculator__vs-a-flat-per-vehicle-price.html.gz
       - mobile-detailing-bid-calculator__vs-mobiletechrx.html.gz=mobile-detailing-bid-calculator__vs-mobiletechrx.html.gz
       - mobile-detailing-bid-calculator__vs-urable.html.gz=mobile-detailing-bid-calculator__vs-urable.html.gz
+      - mobile-mechanic-visit-pricing-calculator__calc.mjs.gz=mobile-mechanic-visit-pricing-calculator__calc.mjs.gz
+      - mobile-mechanic-visit-pricing-calculator__index.html.gz=mobile-mechanic-visit-pricing-calculator__index.html.gz
+      - mobile-mechanic-visit-pricing-calculator__usage.mjs.gz=mobile-mechanic-visit-pricing-calculator__usage.mjs.gz
       - mobile-signing-agent-day-picker__cli.mjs.gz=mobile-signing-agent-day-picker__cli.mjs.gz
       - mobile-signing-agent-day-picker__engine.mjs.gz=mobile-signing-agent-day-picker__engine.mjs.gz
       - mobile-signing-agent-day-picker__index.html.gz=mobile-signing-agent-day-picker__index.html.gz
@@ -2957,13 +2960,13 @@ configMapGenerator:
       - no-tax-on-tips-overtime-calculator__index.html.gz=no-tax-on-tips-overtime-calculator__index.html.gz
       - no-tax-on-tips-overtime-calculator__usage.mjs.gz=no-tax-on-tips-overtime-calculator__usage.mjs.gz
       - no-tax-on-tips-overtime-calculator__vs-estimating-the-deduction-by-hand.html.gz=no-tax-on-tips-overtime-calculator__vs-estimating-the-deduction-by-hand.html.gz
-      - npm-lifecycle-script-check__cli.mjs.gz=npm-lifecycle-script-check__cli.mjs.gz
-      - npm-lifecycle-script-check__engine.mjs.gz=npm-lifecycle-script-check__engine.mjs.gz
   - name: portfolio-front-tools-22
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - npm-lifecycle-script-check__cli.mjs.gz=npm-lifecycle-script-check__cli.mjs.gz
+      - npm-lifecycle-script-check__engine.mjs.gz=npm-lifecycle-script-check__engine.mjs.gz
       - npm-lifecycle-script-check__index.html.gz=npm-lifecycle-script-check__index.html.gz
       - npm-lifecycle-script-check__usage.mjs.gz=npm-lifecycle-script-check__usage.mjs.gz
       - npm-lifecycle-script-check__vs-diffing-package-lock-by-hand.html.gz=npm-lifecycle-script-check__vs-diffing-package-lock-by-hand.html.gz
@@ -3088,12 +3091,12 @@ configMapGenerator:
       - paver-patio-bid-calculator__index.html.gz=paver-patio-bid-calculator__index.html.gz
       - paver-patio-bid-calculator__share.mjs.gz=paver-patio-bid-calculator__share.mjs.gz
       - paver-patio-bid-calculator__usage.mjs.gz=paver-patio-bid-calculator__usage.mjs.gz
-      - paver-patio-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=paver-patio-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
   - name: portfolio-front-tools-23
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - paver-patio-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=paver-patio-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
       - paver-patio-bid-calculator__vs-aspire.html.gz=paver-patio-bid-calculator__vs-aspire.html.gz
       - pay-application-generator__calc.mjs.gz=pay-application-generator__calc.mjs.gz
       - pay-application-generator__index.html.gz=pay-application-generator__index.html.gz
@@ -3212,12 +3215,12 @@ configMapGenerator:
       - pole-barn-bid-calculator__how-much-to-charge-to-build-a-pole-barn.html.gz=pole-barn-bid-calculator__how-much-to-charge-to-build-a-pole-barn.html.gz
       - pole-barn-bid-calculator__index.html.gz=pole-barn-bid-calculator__index.html.gz
       - pole-barn-bid-calculator__usage.mjs.gz=pole-barn-bid-calculator__usage.mjs.gz
-      - pole-barn-bid-calculator__vs-a-flat-price-per-square-foot.html.gz=pole-barn-bid-calculator__vs-a-flat-price-per-square-foot.html.gz
   - name: portfolio-front-tools-24
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - pole-barn-bid-calculator__vs-a-flat-price-per-square-foot.html.gz=pole-barn-bid-calculator__vs-a-flat-price-per-square-foot.html.gz
       - pole-barn-bid-calculator__vs-jobtread.html.gz=pole-barn-bid-calculator__vs-jobtread.html.gz
       - pool-plaster-bid-calculator__calc.mjs.gz=pool-plaster-bid-calculator__calc.mjs.gz
       - pool-plaster-bid-calculator__how-much-to-charge-to-replaster-a-pool.html.gz=pool-plaster-bid-calculator__how-much-to-charge-to-replaster-a-pool.html.gz
@@ -3348,13 +3351,13 @@ configMapGenerator:
       - qbi-deduction-calculator__calc.mjs.gz=qbi-deduction-calculator__calc.mjs.gz
       - qbi-deduction-calculator__index.html.gz=qbi-deduction-calculator__index.html.gz
       - qbi-deduction-calculator__usage.mjs.gz=qbi-deduction-calculator__usage.mjs.gz
-      - qbi-deduction-calculator__vs-doing-the-worksheet-by-hand.html.gz=qbi-deduction-calculator__vs-doing-the-worksheet-by-hand.html.gz
-      - qbi-deduction-calculator__why-is-my-qbi-deduction-0.html.gz=qbi-deduction-calculator__why-is-my-qbi-deduction-0.html.gz
   - name: portfolio-front-tools-25
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - qbi-deduction-calculator__vs-doing-the-worksheet-by-hand.html.gz=qbi-deduction-calculator__vs-doing-the-worksheet-by-hand.html.gz
+      - qbi-deduction-calculator__why-is-my-qbi-deduction-0.html.gz=qbi-deduction-calculator__why-is-my-qbi-deduction-0.html.gz
       - qif-file-check__calc.mjs.gz=qif-file-check__calc.mjs.gz
       - qif-file-check__index.html.gz=qif-file-check__index.html.gz
       - qif-file-check__usage.mjs.gz=qif-file-check__usage.mjs.gz
@@ -3474,13 +3477,13 @@ configMapGenerator:
       - required-checks-drift-check__how-required-status-checks-go-stale.html.gz=required-checks-drift-check__how-required-status-checks-go-stale.html.gz
       - required-checks-drift-check__index.html.gz=required-checks-drift-check__index.html.gz
       - required-checks-drift-check__usage.mjs.gz=required-checks-drift-check__usage.mjs.gz
-      - required-checks-drift-check__vs-reading-every-workflow-file-by-hand.html.gz=required-checks-drift-check__vs-reading-every-workflow-file-by-hand.html.gz
-      - requirements-pin-check__classify.mjs.gz=requirements-pin-check__classify.mjs.gz
   - name: portfolio-front-tools-26
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - required-checks-drift-check__vs-reading-every-workflow-file-by-hand.html.gz=required-checks-drift-check__vs-reading-every-workflow-file-by-hand.html.gz
+      - requirements-pin-check__classify.mjs.gz=requirements-pin-check__classify.mjs.gz
       - requirements-pin-check__index.html.gz=requirements-pin-check__index.html.gz
       - requirements-pin-check__pin-python-dependencies-guide.html.gz=requirements-pin-check__pin-python-dependencies-guide.html.gz
       - requirements-pin-check__requirements-check.mjs.gz=requirements-pin-check__requirements-check.mjs.gz
@@ -3603,12 +3606,12 @@ configMapGenerator:
       - salt-cap-calculator__is-the-salt-deduction-worth-itemizing-for.html.gz=salt-cap-calculator__is-the-salt-deduction-worth-itemizing-for.html.gz
       - salt-cap-calculator__usage.mjs.gz=salt-cap-calculator__usage.mjs.gz
       - salt-cap-calculator__vs-doing-the-math-by-hand.html.gz=salt-cap-calculator__vs-doing-the-math-by-hand.html.gz
-      - sbom-diff-check__diff.mjs.gz=sbom-diff-check__diff.mjs.gz
   - name: portfolio-front-tools-27
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sbom-diff-check__diff.mjs.gz=sbom-diff-check__diff.mjs.gz
       - sbom-diff-check__index.html.gz=sbom-diff-check__index.html.gz
       - sbom-diff-check__sbom_diff.py.gz=sbom-diff-check__sbom_diff.py.gz
       - sbom-diff-check__usage.mjs.gz=sbom-diff-check__usage.mjs.gz
@@ -3724,12 +3727,12 @@ configMapGenerator:
       - sewer-hydrojet-bid-calculator__share.mjs.gz=sewer-hydrojet-bid-calculator__share.mjs.gz
       - sewer-hydrojet-bid-calculator__usage.mjs.gz=sewer-hydrojet-bid-calculator__usage.mjs.gz
       - sewer-hydrojet-bid-calculator__vs-building-your-own-spreadsheet.html.gz=sewer-hydrojet-bid-calculator__vs-building-your-own-spreadsheet.html.gz
-      - sewer-hydrojet-bid-calculator__vs-jobber.html.gz=sewer-hydrojet-bid-calculator__vs-jobber.html.gz
   - name: portfolio-front-tools-28
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sewer-hydrojet-bid-calculator__vs-jobber.html.gz=sewer-hydrojet-bid-calculator__vs-jobber.html.gz
       - sewer-line-replace-bid-calculator__calc.mjs.gz=sewer-line-replace-bid-calculator__calc.mjs.gz
       - sewer-line-replace-bid-calculator__how-much-to-charge-to-replace-a-sewer-line.html.gz=sewer-line-replace-bid-calculator__how-much-to-charge-to-replace-a-sewer-line.html.gz
       - sewer-line-replace-bid-calculator__index.html.gz=sewer-line-replace-bid-calculator__index.html.gz
