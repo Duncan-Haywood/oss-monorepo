@@ -1354,12 +1354,13 @@ const RELATIVE_SELF = relative(
 // +1: `nua-employer-stock-calculator` graduated.
 // +1: `medicaid-lookback-penalty-calculator` graduated.
 // +1: `freelance-contract-checker` graduated.
+// +1: `injury-settlement-net-proceeds-calculator` graduated.
 // +1: `supplier-price-creep-checker` graduated.
 // +1: `lien-waiver-checker` graduated.
 // +1: `employment-contract-checker` graduated.
 // +1: `aba-authorization-tracker` graduated.
 // +1: `restaurant-tip-pool-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 781;
+const SWITCHES_IN_THE_CATALOGUE = 782;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
