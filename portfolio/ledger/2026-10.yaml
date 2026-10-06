@@ -2311,6 +2311,40 @@ entries:
         Publication 1771 as read by the author and is stated unreviewed on the page. 36 calc, usage and page
         tests. Registered launch date and category rule; cross-linked from donor-retention-analyzer.
     mrr_end: 0
+  - venture: exemption-certificate-audit-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built exemption-certificate-audit-check: a browser-local sales tax audit prep tool for
+        wholesalers, distributors and contractors. Exempt sales are matched to the certificates on file by customer,
+        state, reason and date; each failure has its own result (none, other state, expired, signed after the sale,
+        wrong reason, no certificate number) rather than one "missing" bucket, out-of-state delivery is not chased for a
+        buyer certificate, and exposure is whole cents at user-entered state rates, by customer and by state. Outputs a
+        ranked chase list with the exact ask per customer, a request letter per customer, a per-sale result file and a
+        renewals list. No state rules are encoded: validity periods and late-certificate acceptance are the user's to
+        enter, stated on the page. Screened with duplicate_check.py (top match 0.24, a different question). First
+        visitor: a controller or bookkeeper after a sales tax audit notice, or r/accounting and r/Bookkeeping. 34 calc,
+        usage and page tests. Registered launch date and category rule; cross-linked from
+        economic-nexus-threshold-tracker.
+    mrr_end: 0
+  - venture: kdp-royalty-to-journal
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built kdp-royalty-to-journal: a browser-local Amazon KDP royalty report / payments CSV to
+        month-split Xero / QuickBooks Online / QuickBooks Desktop (IIF) / plain CSV journal tool, the
+        self-publishing end of the payout-to-journal family and a sibling of kdp-royalty-report-analyzer
+        (analysis) and kdp-royalty-calculator. Royalties are booked gross by marketplace and format (eBook,
+        paperback, hardcover, KENP page reads), printing cost and tax withheld are separate expenses, each
+        currency is journalled on its own with no conversion invented, rows no rule recognises go to an
+        uncategorised account, and a per-row Total column or a Total row is checked against the rows. A setting
+        covers royalty columns that are already after printing cost. First visitor: r/selfpublish and r/KDP
+        bookkeeping threads, "KDP to QuickBooks" searches. Column names are alias-matched and stated unverified
+        against a real export on the page. 35 calc, usage and page tests. Registered launch date, category rule,
+        tree counts; regenerated the mirror; cross-linked from kdp-royalty-report-analyzer.
+    mrr_end: 0
   - venture: insurance-commission-reconciler
     agent_spend_usd: null
     human_hours: 0
