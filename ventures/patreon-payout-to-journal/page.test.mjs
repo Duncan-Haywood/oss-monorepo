@@ -72,3 +72,7 @@ test("the sample payouts load from the page and the account list defaults to the
   assert.match(html, /sampleReport/);
   assert.match(html, /mappingText\(\)/);
 });
+
+test("links to the Buy Me a Coffee journal tool, the same booking job for another creator platform", () => {
+  assert.match(page("index.html"), /href="\.\.\/buymeacoffee-payout-to-journal\/"/);
+});

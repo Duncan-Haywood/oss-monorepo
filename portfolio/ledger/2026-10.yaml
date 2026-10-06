@@ -2164,6 +2164,19 @@ entries:
       Liability: arithmetic on user-typed figures, no market data asserted, not legal, tax or
       financial advice, no warranty, independent of any pickleball brand. Ethics: free, nothing
       leaves the device.
+  - venture: dj-gig-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Extended dj-gig-profit-calculator (instead of a second DJ venture) with a quote builder and
+        annual-target planner (quote.mjs): bottom-up gig price from add-ons, unpaid hours, gear wear,
+        mileage, insurance/software share, card and lead fees, second operator and overtime; effective
+        hourly, break-even and target price, deposit schedule, good/better/best ladder, and the price
+        that reaches an annual income goal with peak/off-season split. Added the guide
+        how-much-should-a-wedding-dj-charge.html with worked numbers tied to the engine by tests.
+        Nothing leaves the browser; invented sample numbers, tested on hand calculations only.
+    mrr_end: 0
   - venture: syndication-waterfall-calculator
     agent_spend_usd: null
     human_hours: 0

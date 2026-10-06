@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 773 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 775 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-10-06T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Buy Me a Coffee Transactions to Xero and QuickBooks Journal</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/buymeacoffee-payout-to-journal/"/>
+    <id>tag:marisstella.dev,2026:tool/buymeacoffee-payout-to-journal</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free Buy Me a Coffee to QuickBooks and Xero journal converter: books tips, memberships, shop orders and commissions to separate income accounts, derives the Buy Me a Coffee and PayPal or Stripe fee from Given minus Received, proves the rows add up to your deposit, splits by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
   <entry>
     <title>Microgreens Tray Planner — What to Seed, Rack Space and the Best Crop Mix</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/microgreens-tray-planner/"/>
@@ -14,6 +22,14 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free planner for microgreens growers: what to seed on which day for your harvest days, how many rack spaces the busiest weekday needs, which crop earns the most per rack space, and the best mix when the rack is full. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Payoneer Statement to Xero and QuickBooks Journal with FX Gain and Loss</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/payoneer-statement-to-journal/"/>
+    <id>tag:marisstella.dev,2026:tool/payoneer-statement-to-journal</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free Payoneer to QuickBooks and Xero journal converter for multi-currency balances: values every row in your base currency at your rates, tracks average cost, books realised FX gain or loss separately, proves the running balance, and downloads a balanced month-split journal. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Revolut Business Statement to Xero and QuickBooks Journal with FX Gain and Loss</title>
@@ -150,21 +166,5 @@
     <updated>2026-10-05T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free GPX checker: finds why Strava, Garmin Connect or Komoot rejects a track file, with line numbers: missing creator, version and namespace, GPS jumps, points at 0,0, timestamps out of order, no times, bad elevations. Downloads a repaired copy. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>GTIN, UPC and EAN List Checker — Bulk Check Digits and Restore Excel-Damaged Barcodes</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/gtin-list-check/"/>
-    <id>tag:marisstella.dev,2026:tool/gtin-list-check</id>
-    <updated>2026-10-05T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free bulk barcode checker: validates a list of UPC, EAN, GTIN and ISBN codes, finds bad check digits, leading zeros lost to Excel, scientific notation, duplicates and reserved prefixes, and writes the list back fixed. Runs in your browser; the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Gumroad Sales Export to Xero and QuickBooks Journal</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/gumroad-sales-to-journal/"/>
-    <id>tag:marisstella.dev,2026:tool/gumroad-sales-to-journal</id>
-    <updated>2026-10-05T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free Gumroad sales to journal converter: proves the sales add up to your payout, splits product sales, shipping, tax you collected, Gumroad fees and refunds by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
