@@ -2164,3 +2164,20 @@ entries:
       Liability: arithmetic on user-typed figures, no market data asserted, not legal, tax or
       financial advice, no warranty, independent of any pickleball brand. Ethics: free, nothing
       leaves the device.
+  - venture: syndication-waterfall-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built syndication-waterfall-calculator: a browser-local real estate syndication
+        waterfall. From equity, an optional sponsor co-invest, yearly distributable cash and a preferred
+        return plus up to three IRR-hurdle promote tiers it gives LP IRR and multiple, sponsor IRR, the
+        promote in dollars and as a share of profit, and the split by tier and by year. New niche: no
+        GP/LP waterfall tool existed in the tree (the two other "waterfall" ventures are SaaS MRR and
+        startup exit). First visitor expected from BiggerPockets and r/CommercialRealEstate threads on how
+        the promote works. Nothing is uploaded (a test asserts no network calls); not-an-offer and
+        operating-agreement-controls clauses on the page. Convention written without review by a
+        securities professional, stated on the page and in VENTURE.yaml. 22 tests, page smoke-tested in
+        headless Chromium. Registered score row, launch date, category rule, CI workflow and tree counts;
+        regenerated the mirror.
+    mrr_end: 0
