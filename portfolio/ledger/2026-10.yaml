@@ -2345,3 +2345,22 @@ entries:
         against a real export on the page. 35 calc, usage and page tests. Registered launch date, category rule,
         tree counts; regenerated the mirror; cross-linked from kdp-royalty-report-analyzer.
     mrr_end: 0
+  - venture: insurance-commission-reconciler
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built insurance-commission-reconciler: a browser-local tool for independent insurance agencies
+        that loads the policy book and one or more carrier commission statements (any CSV layout, title blocks
+        tolerated, columns alias-matched) and finds the money that did not arrive: policies with no commission once
+        they are due, commission paid below the book rate or a per-carrier rate table (or, with neither, below what
+        the same carrier pays the agency on the other lines of that kind), chargebacks on policies the book still shows
+        in force, identical lines paid twice, statement totals that differ from their lines, and statement lines for
+        policies the book lacks. Carrier-scoped tolerant policy-number match (punctuation, case, leading zeros, term
+        suffix), a due-date window so a new policy is not called missing, and one review request per carrier worded as
+        a question with a stated total. Screened with duplicate_check.py (top match 0.23; era-835-underpayment-finder
+        is the medical-remittance neighbour, not agency commissions). First visitor: the agency operations manager
+        or bookkeeper searching "reconcile carrier commission statements" or posting in an agency-owner group. 42
+        calc, usage and page tests plus a headless-browser run of the example and a real file flow. Column names are
+        unverified against a real AMS export or carrier statement and the page says so.
+    mrr_end: 0

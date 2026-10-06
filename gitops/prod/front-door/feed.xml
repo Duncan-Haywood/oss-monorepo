@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 786 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 787 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -62,6 +62,14 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free grant writer pricing calculator: turn your target hourly pay, unbillable time and tax into a flat fee per proposal, check fees you already quoted and test your month. Runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Insurance Commission Reconciler</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/insurance-commission-reconciler/"/>
+    <id>tag:marisstella.dev,2026:tool/insurance-commission-reconciler</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free commission statement reconciler for independent insurance agencies: load your policy book and your carriers&#39; commission statements, find unpaid policies, short-paid rates, chargebacks on policies still in force and duplicate lines, and get a review request per carrier. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>KDP Royalty Report to Xero and QuickBooks Journal</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-05T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free Amazon settlement report to journal converter: proves the rows add up to the deposit, splits sales, fees, refunds and tax by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>BAI2 to OFX, QBO, QIF and Xero CSV Converter</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bai2-to-ofx-converter/"/>
-    <id>tag:marisstella.dev,2026:tool/bai2-to-ofx-converter</id>
-    <updated>2026-10-05T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free BAI2 converter: check the file&#39;s control totals and balances, then download OFX/QBO for QuickBooks and Quicken, QIF, or a Xero statement CSV, with stable transaction IDs. Runs in your browser; the file is never uploaded.</summary>
   </entry>
 </feed>
