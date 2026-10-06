@@ -33,42 +33,42 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547622 bytes
-#   portfolio-front-tools-1: 92 files, 555216 bytes
-#   portfolio-front-tools-2: 144 files, 553374 bytes
-#   portfolio-front-tools-3: 128 files, 549118 bytes
-#   portfolio-front-tools-4: 135 files, 553545 bytes
-#   portfolio-front-tools-5: 128 files, 551372 bytes
-#   portfolio-front-tools-6: 121 files, 553959 bytes
-#   portfolio-front-tools-7: 124 files, 550751 bytes
-#   portfolio-front-tools-8: 133 files, 545098 bytes
-#   portfolio-front-tools-9: 131 files, 554467 bytes
-#   portfolio-front-tools-10: 123 files, 553683 bytes
-#   portfolio-front-tools-11: 129 files, 553118 bytes
-#   portfolio-front-tools-12: 129 files, 551429 bytes
-#   portfolio-front-tools-13: 125 files, 548975 bytes
-#   portfolio-front-tools-14: 121 files, 553167 bytes
-#   portfolio-front-tools-15: 121 files, 540921 bytes
-#   portfolio-front-tools-16: 120 files, 557023 bytes
-#   portfolio-front-tools-17: 118 files, 554778 bytes
-#   portfolio-front-tools-18: 116 files, 555055 bytes
-#   portfolio-front-tools-19: 115 files, 553087 bytes
-#   portfolio-front-tools-20: 133 files, 556554 bytes
-#   portfolio-front-tools-21: 125 files, 551162 bytes
-#   portfolio-front-tools-22: 125 files, 553981 bytes
-#   portfolio-front-tools-23: 119 files, 555979 bytes
-#   portfolio-front-tools-24: 132 files, 556434 bytes
-#   portfolio-front-tools-25: 121 files, 554037 bytes
-#   portfolio-front-tools-26: 124 files, 556318 bytes
-#   portfolio-front-tools-27: 114 files, 548239 bytes
-#   portfolio-front-tools-28: 90 files, 541572 bytes
-#   portfolio-front-tools-29: 127 files, 556972 bytes
-#   portfolio-front-tools-30: 114 files, 549734 bytes
-#   portfolio-front-tools-31: 127 files, 556944 bytes
-#   portfolio-front-tools-32: 128 files, 555559 bytes
-#   portfolio-front-tools-33: 125 files, 551945 bytes
-#   portfolio-front-tools-34: 65 files, 340380 bytes
-#   portfolio-front-tools-35: 48 files, 269754 bytes
+#   portfolio-front-tools-0: 145 files, 547597 bytes
+#   portfolio-front-tools-1: 92 files, 555190 bytes
+#   portfolio-front-tools-2: 144 files, 553356 bytes
+#   portfolio-front-tools-3: 128 files, 549083 bytes
+#   portfolio-front-tools-4: 135 files, 553523 bytes
+#   portfolio-front-tools-5: 128 files, 551391 bytes
+#   portfolio-front-tools-6: 121 files, 553946 bytes
+#   portfolio-front-tools-7: 124 files, 550736 bytes
+#   portfolio-front-tools-8: 133 files, 545081 bytes
+#   portfolio-front-tools-9: 131 files, 554453 bytes
+#   portfolio-front-tools-10: 123 files, 553666 bytes
+#   portfolio-front-tools-11: 129 files, 553104 bytes
+#   portfolio-front-tools-12: 129 files, 551416 bytes
+#   portfolio-front-tools-13: 125 files, 548959 bytes
+#   portfolio-front-tools-14: 121 files, 553144 bytes
+#   portfolio-front-tools-15: 121 files, 540875 bytes
+#   portfolio-front-tools-16: 120 files, 557006 bytes
+#   portfolio-front-tools-17: 118 files, 554760 bytes
+#   portfolio-front-tools-18: 116 files, 555043 bytes
+#   portfolio-front-tools-19: 115 files, 553080 bytes
+#   portfolio-front-tools-20: 133 files, 556540 bytes
+#   portfolio-front-tools-21: 125 files, 551147 bytes
+#   portfolio-front-tools-22: 125 files, 553939 bytes
+#   portfolio-front-tools-23: 119 files, 555960 bytes
+#   portfolio-front-tools-24: 132 files, 556413 bytes
+#   portfolio-front-tools-25: 121 files, 554023 bytes
+#   portfolio-front-tools-26: 123 files, 550581 bytes
+#   portfolio-front-tools-27: 116 files, 556004 bytes
+#   portfolio-front-tools-28: 92 files, 550134 bytes
+#   portfolio-front-tools-29: 127 files, 556901 bytes
+#   portfolio-front-tools-30: 114 files, 549830 bytes
+#   portfolio-front-tools-31: 127 files, 556821 bytes
+#   portfolio-front-tools-32: 128 files, 555654 bytes
+#   portfolio-front-tools-33: 125 files, 552085 bytes
+#   portfolio-front-tools-34: 65 files, 340332 bytes
+#   portfolio-front-tools-35: 48 files, 269596 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3537,6 +3537,9 @@ configMapGenerator:
       - rule-72t-sepp-calculator__calc.mjs.gz=rule-72t-sepp-calculator__calc.mjs.gz
       - rule-72t-sepp-calculator__index.html.gz=rule-72t-sepp-calculator__index.html.gz
       - rule-72t-sepp-calculator__usage.mjs.gz=rule-72t-sepp-calculator__usage.mjs.gz
+      - rv-rental-host-profit-calculator__calc.mjs.gz=rv-rental-host-profit-calculator__calc.mjs.gz
+      - rv-rental-host-profit-calculator__index.html.gz=rv-rental-host-profit-calculator__index.html.gz
+      - rv-rental-host-profit-calculator__usage.mjs.gz=rv-rental-host-profit-calculator__usage.mjs.gz
       - s-corp-reasonable-compensation-calculator__calc.mjs.gz=s-corp-reasonable-compensation-calculator__calc.mjs.gz
       - s-corp-reasonable-compensation-calculator__index.html.gz=s-corp-reasonable-compensation-calculator__index.html.gz
       - s-corp-reasonable-compensation-calculator__vs-picking-a-round-number.html.gz=s-corp-reasonable-compensation-calculator__vs-picking-a-round-number.html.gz
@@ -3594,15 +3597,15 @@ configMapGenerator:
       - salt-cap-calculator__usage.mjs.gz=salt-cap-calculator__usage.mjs.gz
       - salt-cap-calculator__vs-doing-the-math-by-hand.html.gz=salt-cap-calculator__vs-doing-the-math-by-hand.html.gz
       - sbom-diff-check__diff.mjs.gz=sbom-diff-check__diff.mjs.gz
-      - sbom-diff-check__index.html.gz=sbom-diff-check__index.html.gz
-      - sbom-diff-check__sbom_diff.py.gz=sbom-diff-check__sbom_diff.py.gz
-      - sbom-diff-check__usage.mjs.gz=sbom-diff-check__usage.mjs.gz
-      - sbom-diff-check__vs-cyclonedx-cli-diff.html.gz=sbom-diff-check__vs-cyclonedx-cli-diff.html.gz
   - name: portfolio-front-tools-27
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sbom-diff-check__index.html.gz=sbom-diff-check__index.html.gz
+      - sbom-diff-check__sbom_diff.py.gz=sbom-diff-check__sbom_diff.py.gz
+      - sbom-diff-check__usage.mjs.gz=sbom-diff-check__usage.mjs.gz
+      - sbom-diff-check__vs-cyclonedx-cli-diff.html.gz=sbom-diff-check__vs-cyclonedx-cli-diff.html.gz
       - sbom-diff-check__vs-diffing-the-raw-json-files.html.gz=sbom-diff-check__vs-diffing-the-raw-json-files.html.gz
       - sbom-diff-check__why-did-one-version-bump-show-up-as-dozens-of-changes.html.gz=sbom-diff-check__why-did-one-version-bump-show-up-as-dozens-of-changes.html.gz
       - scope-creep-change-order-calculator__cli.mjs.gz=scope-creep-change-order-calculator__cli.mjs.gz
@@ -3715,13 +3718,13 @@ configMapGenerator:
       - sewer-hydrojet-bid-calculator__usage.mjs.gz=sewer-hydrojet-bid-calculator__usage.mjs.gz
       - sewer-hydrojet-bid-calculator__vs-building-your-own-spreadsheet.html.gz=sewer-hydrojet-bid-calculator__vs-building-your-own-spreadsheet.html.gz
       - sewer-hydrojet-bid-calculator__vs-jobber.html.gz=sewer-hydrojet-bid-calculator__vs-jobber.html.gz
-      - sewer-line-replace-bid-calculator__calc.mjs.gz=sewer-line-replace-bid-calculator__calc.mjs.gz
-      - sewer-line-replace-bid-calculator__how-much-to-charge-to-replace-a-sewer-line.html.gz=sewer-line-replace-bid-calculator__how-much-to-charge-to-replace-a-sewer-line.html.gz
   - name: portfolio-front-tools-28
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sewer-line-replace-bid-calculator__calc.mjs.gz=sewer-line-replace-bid-calculator__calc.mjs.gz
+      - sewer-line-replace-bid-calculator__how-much-to-charge-to-replace-a-sewer-line.html.gz=sewer-line-replace-bid-calculator__how-much-to-charge-to-replace-a-sewer-line.html.gz
       - sewer-line-replace-bid-calculator__index.html.gz=sewer-line-replace-bid-calculator__index.html.gz
       - sewer-line-replace-bid-calculator__usage.mjs.gz=sewer-line-replace-bid-calculator__usage.mjs.gz
       - sewer-line-replace-bid-calculator__vs-a-flat-per-foot-price.html.gz=sewer-line-replace-bid-calculator__vs-a-flat-per-foot-price.html.gz
