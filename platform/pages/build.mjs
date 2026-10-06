@@ -719,6 +719,9 @@ const CATEGORY_RULES = [
       // small food maker should bake when oven and labour hours run out; the
       // same owner as the menu and pour-cost tools above.
       'production-mix-optimizer',
+      // `supplier-price-creep-checker` joined 2026-10-06 on its first commit: the invoice side of the restaurant
+      // owner's food cost, beside `pour-cost-calculator` and `menu-engineering-calculator`.
+      'supplier-price-creep-checker',
     ].includes(slug),
   },
   {
