@@ -45,8 +45,8 @@
 #   portfolio-front-tools-9: 132 files, 549829 bytes
 #   portfolio-front-tools-10: 121 files, 554930 bytes
 #   portfolio-front-tools-11: 129 files, 556761 bytes
-#   portfolio-front-tools-12: 132 files, 557047 bytes
-#   portfolio-front-tools-13: 126 files, 552976 bytes
+#   portfolio-front-tools-12: 131 files, 553295 bytes
+#   portfolio-front-tools-13: 127 files, 556790 bytes
 #   portfolio-front-tools-14: 121 files, 553205 bytes
 #   portfolio-front-tools-15: 121 files, 541208 bytes
 #   portfolio-front-tools-16: 120 files, 556888 bytes
@@ -1818,12 +1818,12 @@ configMapGenerator:
       - einvoice-preflight__terms.mjs.gz=einvoice-preflight__terms.mjs.gz
       - einvoice-preflight__ubl.mjs.gz=einvoice-preflight__ubl.mjs.gz
       - einvoice-preflight__usage.mjs.gz=einvoice-preflight__usage.mjs.gz
-      - einvoice-preflight__vat.mjs.gz=einvoice-preflight__vat.mjs.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - einvoice-preflight__vat.mjs.gz=einvoice-preflight__vat.mjs.gz
       - einvoice-preflight__vs-avalara.html.gz=einvoice-preflight__vs-avalara.html.gz
       - einvoice-preflight__what-does-this-e-invoice-error-code-mean.html.gz=einvoice-preflight__what-does-this-e-invoice-error-code-mean.html.gz
       - eitc-calculator__calc.mjs.gz=eitc-calculator__calc.mjs.gz
