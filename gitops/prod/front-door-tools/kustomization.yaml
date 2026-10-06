@@ -33,42 +33,42 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547611 bytes
-#   portfolio-front-tools-1: 92 files, 555198 bytes
-#   portfolio-front-tools-2: 144 files, 553370 bytes
-#   portfolio-front-tools-3: 128 files, 549073 bytes
-#   portfolio-front-tools-4: 135 files, 553514 bytes
-#   portfolio-front-tools-5: 128 files, 551390 bytes
-#   portfolio-front-tools-6: 121 files, 553966 bytes
-#   portfolio-front-tools-7: 124 files, 550737 bytes
-#   portfolio-front-tools-8: 133 files, 545088 bytes
-#   portfolio-front-tools-9: 131 files, 554494 bytes
-#   portfolio-front-tools-10: 123 files, 553656 bytes
-#   portfolio-front-tools-11: 129 files, 553030 bytes
-#   portfolio-front-tools-12: 129 files, 551480 bytes
-#   portfolio-front-tools-13: 125 files, 548995 bytes
-#   portfolio-front-tools-14: 122 files, 556635 bytes
-#   portfolio-front-tools-15: 117 files, 550408 bytes
-#   portfolio-front-tools-16: 124 files, 552709 bytes
-#   portfolio-front-tools-17: 118 files, 549474 bytes
-#   portfolio-front-tools-18: 114 files, 552683 bytes
-#   portfolio-front-tools-19: 114 files, 553634 bytes
-#   portfolio-front-tools-20: 132 files, 548601 bytes
-#   portfolio-front-tools-21: 126 files, 554588 bytes
-#   portfolio-front-tools-22: 126 files, 552306 bytes
-#   portfolio-front-tools-23: 115 files, 553930 bytes
-#   portfolio-front-tools-24: 133 files, 556820 bytes
-#   portfolio-front-tools-25: 120 files, 548181 bytes
-#   portfolio-front-tools-26: 126 files, 555638 bytes
-#   portfolio-front-tools-27: 111 files, 554394 bytes
-#   portfolio-front-tools-28: 95 files, 556268 bytes
-#   portfolio-front-tools-29: 124 files, 553252 bytes
-#   portfolio-front-tools-30: 119 files, 549354 bytes
-#   portfolio-front-tools-31: 124 files, 555090 bytes
-#   portfolio-front-tools-32: 130 files, 555572 bytes
-#   portfolio-front-tools-33: 122 files, 556418 bytes
-#   portfolio-front-tools-34: 56 files, 290983 bytes
-#   portfolio-front-tools-35: 48 files, 269907 bytes
+#   portfolio-front-tools-0: 145 files, 547618 bytes
+#   portfolio-front-tools-1: 92 files, 555206 bytes
+#   portfolio-front-tools-2: 144 files, 553374 bytes
+#   portfolio-front-tools-3: 128 files, 549077 bytes
+#   portfolio-front-tools-4: 135 files, 553511 bytes
+#   portfolio-front-tools-5: 128 files, 551362 bytes
+#   portfolio-front-tools-6: 121 files, 553973 bytes
+#   portfolio-front-tools-7: 124 files, 550734 bytes
+#   portfolio-front-tools-8: 133 files, 545095 bytes
+#   portfolio-front-tools-9: 131 files, 554489 bytes
+#   portfolio-front-tools-10: 123 files, 553652 bytes
+#   portfolio-front-tools-11: 129 files, 553028 bytes
+#   portfolio-front-tools-12: 129 files, 551485 bytes
+#   portfolio-front-tools-13: 125 files, 549000 bytes
+#   portfolio-front-tools-14: 122 files, 556637 bytes
+#   portfolio-front-tools-15: 118 files, 550782 bytes
+#   portfolio-front-tools-16: 124 files, 554837 bytes
+#   portfolio-front-tools-17: 119 files, 552406 bytes
+#   portfolio-front-tools-18: 114 files, 553688 bytes
+#   portfolio-front-tools-19: 114 files, 553998 bytes
+#   portfolio-front-tools-20: 133 files, 552162 bytes
+#   portfolio-front-tools-21: 126 files, 554627 bytes
+#   portfolio-front-tools-22: 126 files, 552217 bytes
+#   portfolio-front-tools-23: 115 files, 553996 bytes
+#   portfolio-front-tools-24: 133 files, 556760 bytes
+#   portfolio-front-tools-25: 120 files, 548157 bytes
+#   portfolio-front-tools-26: 126 files, 555756 bytes
+#   portfolio-front-tools-27: 111 files, 554437 bytes
+#   portfolio-front-tools-28: 95 files, 556332 bytes
+#   portfolio-front-tools-29: 124 files, 553216 bytes
+#   portfolio-front-tools-30: 119 files, 549371 bytes
+#   portfolio-front-tools-31: 124 files, 554995 bytes
+#   portfolio-front-tools-32: 130 files, 555595 bytes
+#   portfolio-front-tools-33: 122 files, 556264 bytes
+#   portfolio-front-tools-34: 56 files, 290985 bytes
+#   portfolio-front-tools-35: 48 files, 269836 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2116,6 +2116,9 @@ configMapGenerator:
       - freelance-contract-checker__calc.mjs.gz=freelance-contract-checker__calc.mjs.gz
       - freelance-contract-checker__index.html.gz=freelance-contract-checker__index.html.gz
       - freelance-contract-checker__usage.mjs.gz=freelance-contract-checker__usage.mjs.gz
+      - freelance-editor-quote-calculator__calc.mjs.gz=freelance-editor-quote-calculator__calc.mjs.gz
+      - freelance-editor-quote-calculator__index.html.gz=freelance-editor-quote-calculator__index.html.gz
+      - freelance-editor-quote-calculator__usage.mjs.gz=freelance-editor-quote-calculator__usage.mjs.gz
       - freelance-platform-fee-calculator__calc.mjs.gz=freelance-platform-fee-calculator__calc.mjs.gz
       - freelance-platform-fee-calculator__how-much-does-fiverr-take.html.gz=freelance-platform-fee-calculator__how-much-does-fiverr-take.html.gz
       - freelance-platform-fee-calculator__how-much-does-upwork-take.html.gz=freelance-platform-fee-calculator__how-much-does-upwork-take.html.gz
@@ -2190,13 +2193,13 @@ configMapGenerator:
       - gbp-bulk-location-check__index.html.gz=gbp-bulk-location-check__index.html.gz
       - gbp-bulk-location-check__usage.mjs.gz=gbp-bulk-location-check__usage.mjs.gz
       - ghost-members-export-analyzer__calc.mjs.gz=ghost-members-export-analyzer__calc.mjs.gz
-      - ghost-members-export-analyzer__index.html.gz=ghost-members-export-analyzer__index.html.gz
-      - ghost-members-export-analyzer__usage.mjs.gz=ghost-members-export-analyzer__usage.mjs.gz
   - name: portfolio-front-tools-16
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - ghost-members-export-analyzer__index.html.gz=ghost-members-export-analyzer__index.html.gz
+      - ghost-members-export-analyzer__usage.mjs.gz=ghost-members-export-analyzer__usage.mjs.gz
       - gig-driver-earnings-report-analyzer__calc.mjs.gz=gig-driver-earnings-report-analyzer__calc.mjs.gz
       - gig-driver-earnings-report-analyzer__index.html.gz=gig-driver-earnings-report-analyzer__index.html.gz
       - gig-driver-earnings-report-analyzer__usage.mjs.gz=gig-driver-earnings-report-analyzer__usage.mjs.gz
@@ -2319,13 +2322,13 @@ configMapGenerator:
       - hidden-unicode-check__index.html.gz=hidden-unicode-check__index.html.gz
       - hidden-unicode-check__usage.mjs.gz=hidden-unicode-check__usage.mjs.gz
       - hidden-unicode-check__vs-mcp-scan.html.gz=hidden-unicode-check__vs-mcp-scan.html.gz
-      - hidden-unicode-check__vs-reading-the-file-by-hand.html.gz=hidden-unicode-check__vs-reading-the-file-by-hand.html.gz
-      - hoa-reserve-fund-calculator__calc.mjs.gz=hoa-reserve-fund-calculator__calc.mjs.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - hidden-unicode-check__vs-reading-the-file-by-hand.html.gz=hidden-unicode-check__vs-reading-the-file-by-hand.html.gz
+      - hoa-reserve-fund-calculator__calc.mjs.gz=hoa-reserve-fund-calculator__calc.mjs.gz
       - hoa-reserve-fund-calculator__index.html.gz=hoa-reserve-fund-calculator__index.html.gz
       - hoa-reserve-fund-calculator__usage.mjs.gz=hoa-reserve-fund-calculator__usage.mjs.gz
       - hoa-reserve-fund-calculator__vs-spreadsheet.html.gz=hoa-reserve-fund-calculator__vs-spreadsheet.html.gz
@@ -2443,12 +2446,12 @@ configMapGenerator:
       - indie-game-payout-calculator__calc.mjs.gz=indie-game-payout-calculator__calc.mjs.gz
       - indie-game-payout-calculator__index.html.gz=indie-game-payout-calculator__index.html.gz
       - indie-game-payout-calculator__usage.mjs.gz=indie-game-payout-calculator__usage.mjs.gz
-      - influencer-media-kit-generator__generator.mjs.gz=influencer-media-kit-generator__generator.mjs.gz
   - name: portfolio-front-tools-18
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - influencer-media-kit-generator__generator.mjs.gz=influencer-media-kit-generator__generator.mjs.gz
       - influencer-media-kit-generator__index.html.gz=influencer-media-kit-generator__index.html.gz
       - influencer-media-kit-generator__prefill.mjs.gz=influencer-media-kit-generator__prefill.mjs.gz
       - influencer-media-kit-generator__state.mjs.gz=influencer-media-kit-generator__state.mjs.gz
@@ -2562,12 +2565,12 @@ configMapGenerator:
       - k8s-resource-limits-check__engine.mjs.gz=k8s-resource-limits-check__engine.mjs.gz
       - k8s-resource-limits-check__index.html.gz=k8s-resource-limits-check__index.html.gz
       - k8s-resource-limits-check__usage.mjs.gz=k8s-resource-limits-check__usage.mjs.gz
-      - k8s-resource-limits-check__vs-polaris.html.gz=k8s-resource-limits-check__vs-polaris.html.gz
   - name: portfolio-front-tools-19
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - k8s-resource-limits-check__vs-polaris.html.gz=k8s-resource-limits-check__vs-polaris.html.gz
       - k8s-resource-limits-check__vs-reading-the-manifest-by-eye.html.gz=k8s-resource-limits-check__vs-reading-the-manifest-by-eye.html.gz
       - k8s-resource-limits-check__why-a-missing-resource-limit-takes-down-a-node.html.gz=k8s-resource-limits-check__why-a-missing-resource-limit-takes-down-a-node.html.gz
       - k8s-resource-limits-check__yaml.mjs.gz=k8s-resource-limits-check__yaml.mjs.gz
@@ -2681,12 +2684,12 @@ configMapGenerator:
       - llm-api-pricing-calculator__vs-a-blended-per-token-rate.html.gz=llm-api-pricing-calculator__vs-a-blended-per-token-rate.html.gz
       - llm-api-pricing-calculator__why-prompt-caching-changes-the-math.html.gz=llm-api-pricing-calculator__why-prompt-caching-changes-the-math.html.gz
       - llm-call-cost-scan__cli.mjs.gz=llm-call-cost-scan__cli.mjs.gz
-      - llm-call-cost-scan__engine.mjs.gz=llm-call-cost-scan__engine.mjs.gz
   - name: portfolio-front-tools-20
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - llm-call-cost-scan__engine.mjs.gz=llm-call-cost-scan__engine.mjs.gz
       - llm-call-cost-scan__index.html.gz=llm-call-cost-scan__index.html.gz
       - llm-call-cost-scan__usage.mjs.gz=llm-call-cost-scan__usage.mjs.gz
       - llm-call-cost-scan__why-llm-api-bills-surprise-teams-and-what-a-code-scan-can-catch.html.gz=llm-call-cost-scan__why-llm-api-bills-surprise-teams-and-what-a-code-scan-can-catch.html.gz
