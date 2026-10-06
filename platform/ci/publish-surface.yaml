@@ -2486,3 +2486,6 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
+- workflow: fractional-executive-rate-calculator-ci.yml
+  classification: none
+  publishes: []

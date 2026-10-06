@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Fractional Executive Rate Calculator — Day Rate and Retainer, Free</title>
+  <meta name="description" content="Free fractional executive rate calculator: convert a full-time salary into the day rate, hourly rate and monthly retainer that cover unsold days, benefits and payroll tax, then test a client mix against capacity. Runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Fractional Executive Rate Calculator — free">
+  <meta property="og:description" content="What should a fractional CFO, CMO or CTO charge? Salary in, day rate and retainer prices out. Runs in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Fractional Executive Rate Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free calculator for fractional CFOs, CMOs, CTOs and part-time executives: convert a full-time package into a day rate and monthly retainer prices, then test a client mix against capacity. Entirely client-side; nothing is uploaded.", "featureList": "day rate, hourly rate, retainer prices, capacity check, client mix income, employee-multiple check"}
+  </script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I price a fractional executive engagement?", "acceptedAnswer": {"@type": "Answer", "text": "Work out the revenue that replaces the full-time package: take-home pay, the benefits you now buy yourself and your business costs, grossed up for the payroll tax you now pay. Divide by the days you will actually sell in a year, not the days in the year. That is the day rate; a retainer is some number of days a month at that rate."}}, {"@type": "Question", "name": "How much should a fractional CFO charge per day?", "acceptedAnswer": {"@type": "Answer", "text": "There is no single number. A useful check is the multiple of an employee's daily pay: fractional work carries unsold days, admin, benefits and tax the employer used to carry, so a day rate under about 1.5 times a full-time employee's daily pay usually fails to cover them. The calculator shows your multiple."}}, {"@type": "Question", "name": "What share of my time is billable?", "acceptedAnswer": {"@type": "Answer", "text": "Most fractional executives lose a fifth or more of their working days to admin, proposals and finding the next client, plus time off. Enter your own figure; the calculator charges the cost of those days to the days you do sell."}}, {"@type": "Question", "name": "Should I discount a monthly retainer?", "acceptedAnswer": {"@type": "Answer", "text": "A discount for committed months can be worth it if it replaces gaps between clients, but it lowers your effective day rate. Enter a discount and the calculator shows the effective rate and what the client mix then earns."}}, {"@type": "Question", "name": "Is this tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does arithmetic on the numbers you enter. It is not tax, legal or financial advice, and it does not model income tax, equity or collection risk."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5d7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .grid[hidden] { display: none; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5d7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .rank td:first-child { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FRACTIONAL EXECUTIVE RATE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should a fractional executive charge to replace a full-time salary?</h1>
+    <p>Enter the package you are leaving or matching. You get the <strong>day rate</strong>, the <strong>hourly rate</strong>, <strong>monthly retainer prices</strong> for 2 to 10 days a month, and whether a given client mix covers your target — after unsold days, admin time, the benefits you now buy yourself and the payroll tax you now pay.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device — see the privacy note in the footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The package and your time</h2>
+    <div class="grid">
+      <div><label for="salary">Full-time base salary you are replacing ($/yr)</label>
+        <input type="number" id="salary" min="0" step="1" placeholder="e.g. 200000"></div>
+      <div><label for="bonus">Target bonus ($/yr)</label>
+        <input type="number" id="bonus" min="0" step="1" placeholder="e.g. 40000"></div>
+      <div><label for="benefits">Benefits you now buy yourself: health, retirement, insurance ($/yr)</label>
+        <input type="number" id="benefits" min="0" step="1" placeholder="e.g. 30000"></div>
+      <div><label for="biz-costs">Business costs: software, E&O insurance, accountant, travel ($/yr)</label>
+        <input type="number" id="biz-costs" min="0" step="1" placeholder="e.g. 10000"></div>
+      <div><label for="se-tax">Payroll tax you now pay as a share of revenue (%)</label>
+        <input type="number" id="se-tax" min="0" step="0.01" value="7.65" placeholder="7.65"></div>
+      <div><label for="working-days">Working days in a year</label>
+        <input type="number" id="working-days" min="0" step="1" value="260" placeholder="260"></div>
+      <div><label for="time-off">Vacation, holidays and sick days</label>
+        <input type="number" id="time-off" min="0" step="1" value="30" placeholder="e.g. 30"></div>
+      <div><label for="nonbillable">Share of remaining days not billable: admin, proposals, finding clients (%)</label>
+        <input type="number" id="nonbillable" min="0" step="1" value="20" placeholder="20"></div>
+      <div><label for="sold">Share of billable days you expect to sell (%)</label>
+        <input type="number" id="sold" min="0" step="1" value="80" placeholder="80"></div>
+      <div><label for="hours-day">Hours in a client day</label>
+        <input type="number" id="hours-day" min="0" step="1" value="8" placeholder="8"></div>
+      <div><label for="discount">Retainer discount (%)</label>
+        <input type="number" id="discount" min="0" step="1" value="0" placeholder="0"></div>
+    </div>
+    <p class="note">Payroll tax: as an employee the employer paid half of it; as a consultant you pay all of it, roughly 7.65 percent of revenue extra in the US. Time off and non-billable share come off 260 working days before any rate is set.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Your clients (optional)</h2>
+    <label for="clients">One per line: client name, days per month</label>
+    <textarea id="clients" rows="5" placeholder="Acme Robotics, 4&#10;Northwind Foods, 2&#10;Fabrikam, 3"></textarea>
+    <p class="note">Test whether a real or planned mix of retainers meets your target and fits your capacity. Leave empty to see rates only.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter a salary, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <h3>Retainer prices at your day rate</h3>
+    <table><thead><tr><th>Days per month</th><th>List price</th><th>Retainer price</th><th>Effective day rate</th></tr></thead><tbody id="retainer-table"></tbody></table>
+    <div id="client-block" hidden>
+      <h3>Your client mix</h3>
+      <table><thead><tr><th>Client</th><th>Days per month</th><th>Monthly</th><th>Annual</th></tr></thead><tbody id="client-table"></tbody></table>
+      <table><tbody id="mix-table"></tbody></table>
+    </div>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Income tax.</strong> Everything is before income tax; take-home means the pay you want after the costs listed.</li>
+      <li><strong>Equity and bonuses from the old job.</strong> Enter the cash you want to replace; equity upside is not valued.</li>
+      <li><strong>Slow or missed payment</strong> and gaps between engagements beyond the sold share you enter.</li>
+      <li><strong>Market rates.</strong> The rate is what your own numbers need, not what a client will pay. Check it against what comparable people charge.</li>
+      <li><strong>Contracts.</strong> Scope, termination and liability belong to a written agreement reviewed by a lawyer.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I price a fractional executive engagement?</h3>
+    <p>Work out the revenue that replaces the full-time package: take-home pay, the benefits you now buy yourself and your business costs, grossed up for the payroll tax you now pay. Divide by the days you will actually sell in a year, not the days in the year. That is the day rate; a retainer is some number of days a month at that rate.</p>
+    <h3>How much should a fractional CFO charge per day?</h3>
+    <p>There is no single number. A useful check is the multiple of an employee's daily pay: fractional work carries unsold days, admin, benefits and tax the employer used to carry, so a day rate under about 1.5 times a full-time employee's daily pay usually fails to cover them. The calculator shows your multiple.</p>
+    <h3>What share of my time is billable?</h3>
+    <p>Most fractional executives lose a fifth or more of their working days to admin, proposals and finding the next client, plus time off. Enter your own figure; the calculator charges the cost of those days to the days you do sell.</p>
+    <h3>Should I discount a monthly retainer?</h3>
+    <p>A discount for committed months can be worth it if it replaces gaps between clients, but it lowers your effective day rate. Enter a discount and the calculator shows the effective rate and what the client mix then earns.</p>
+    <h3>Is this tax or financial advice?</h3>
+    <p>No. It does arithmetic on the numbers you enter. It is not tax, legal or financial advice, and it does not model income tax, equity or collection risk.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it is not a substitute for your accountant or lawyer. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>rate_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Pricing hourly freelance work instead? See the <a href="../freelance-retainer-calculator/">freelance retainer calculator</a> and the <a href="../freelance-retainer-vs-hourly-calculator/">retainer vs hourly calculator</a>. Weighing an employee offer? The <a href="../job-offer-total-comp-calculator/">job offer total comp calculator</a> prices the package you are leaving.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" id="sponsorLink">GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyse, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const MAP = { salary: "salary", bonus: "bonus", benefits: "benefits", "biz-costs": "businessCosts", "se-tax": "seTaxPct",
+      "working-days": "workingDays", "time-off": "timeOffDays", nonbillable: "nonBillablePct", sold: "soldPct",
+      "hours-day": "hoursPerDay", discount: "retainerDiscountPct" };
+    const DEFAULTS = { "se-tax": "7.65", "working-days": "260", "time-off": "30", nonbillable: "20", sold: "80", "hours-day": "8", discount: "0" };
+    const els = { status: $("#form-status"), report: $("#report"), stats: $("#report-stats"), retainers: $("#retainer-table"),
+      clientBlock: $("#client-block"), clientTable: $("#client-table"), mix: $("#mix-table"), findings: $("#report-findings") };
+    const num = (id) => Number($("#" + id).value) || 0;
+    function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4>
+          <p>${esc(f.detail)}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const input = { clientText: $("#clients").value };
+      for (const [id, key] of Object.entries(MAP)) input[key] = num(id);
+      const a = analyse(input);
+      renderFindings(els.findings, a.findings);
+      els.report.hidden = false;
+      if (!a.result) {
+        els.stats.textContent = "";
+        els.retainers.innerHTML = "";
+        els.clientBlock.hidden = true;
+        return;
+      }
+      const r = a.result, rt = r.rate;
+      els.stats.innerHTML = `Day rate: <strong>${money(rt.dayRate)}</strong> (${money(rt.hourlyRate)} an hour). You need <strong>${money(rt.revenueNeeded)}</strong> of revenue over <strong>${rt.soldDays.toFixed(0)}</strong> sold days. Capacity is about <strong>${rt.capacityPerMonth.toFixed(1)}</strong> billable days a month.`;
+      els.retainers.innerHTML = r.retainers.map((x) => `<tr><td>${x.days}</td><td>${money(x.list)}</td><td>${money(x.price)}</td><td>${money(x.effectiveDayRate)}</td></tr>`).join("");
+      els.clientBlock.hidden = r.clients.length === 0;
+      els.clientTable.innerHTML = r.clients.map((c) => `<tr><td>${esc(c.name)}</td><td>${c.daysPerMonth}</td><td>${money(c.monthly)}</td><td>${money(c.annual)}</td></tr>`).join("");
+      els.mix.innerHTML = [
+        ["Days booked per month", `${r.bookedDays}` + (r.capacityUse === null ? "" : ` (${pct(r.capacityUse)} of capacity)`)],
+        ["Annual retainer revenue", money(r.annualRevenue)],
+        ["Left after payroll tax, benefits and costs", money(r.netEquivalent)],
+        [r.gap > 0 ? "Short of your take-home target by" : "Above your take-home target by", money(Math.abs(r.gap))],
+      ].map(([k, v]) => `<tr><th scope="row">${k}</th><td>${v}</td></tr>`).join("");
+      els.status.textContent = "";
+      record("rate_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      const ex = { salary: "200000", bonus: "40000", benefits: "30000", "biz-costs": "10000", ...DEFAULTS, discount: "10" };
+      for (const [k, v] of Object.entries(ex)) $("#" + k).value = v;
+      $("#clients").value = "Acme Robotics, 4\nNorthwind Foods, 3\nFabrikam, 5";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example with invented numbers: a $200,000 salary plus $40,000 bonus, 30 days off, 80% of billable days sold and a 10% retainer discount.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of Object.keys(MAP)) $("#" + id).value = DEFAULTS[id] ?? "";
+      $("#clients").value = "";
+      els.report.hidden = true;
+      els.status.textContent = "Enter a salary, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

@@ -2224,3 +2224,21 @@ entries:
         without review by a clinic owner, stated on the page and in VENTURE.yaml. 27 tests. Registered
         score row, launch date, category rule, CI workflow and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: fractional-executive-rate-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built fractional-executive-rate-calculator: a browser-local day-rate and retainer
+        calculator for fractional CFOs, CMOs, CTOs and other part-time executives. From the full-time
+        package being replaced (salary, bonus, benefits, business costs, payroll-tax share, time off,
+        non-billable and sold shares) it gives the day and hourly rate, the rate as a multiple of an
+        employee's daily pay, retainer prices for 2 to 10 days a month with an optional discount, and
+        tests a client mix against capacity, concentration and the take-home target. New niche: no
+        fractional-executive pricing tool existed in the tree. Nothing is uploaded (a test asserts no
+        network calls); not-advice clause on the page; model written without review by a working
+        fractional executive, stated on the page and in VENTURE.yaml. 17 calc and usage tests plus 8
+        page tests; smoke-tested in headless Chromium. Registered score row, launch date, category
+        rule, CI workflow and tree counts; regenerated the mirror; linked from
+        freelance-retainer-calculator so it is not an orphan.
+    mrr_end: 0

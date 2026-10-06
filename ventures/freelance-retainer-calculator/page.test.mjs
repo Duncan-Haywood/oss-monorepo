@@ -191,4 +191,10 @@ assert.match(
   'index must link ../freelance-writer-rate-calculator/ so crawlers reach the freelance writer rate calculator in one hop',
 );
 
+assert.match(
+  index,
+  /href="\.\.\/fractional-executive-rate-calculator\/"/,
+  'index must link ../fractional-executive-rate-calculator/ so crawlers reach the fractional executive rate calculator in one hop',
+);
+
 console.log('freelance retainer page tests passed');
