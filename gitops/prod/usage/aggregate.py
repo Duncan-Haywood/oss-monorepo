@@ -112,9 +112,9 @@ EMBED_PREFIX = "embed/"
 # path: that pod's nginx does `try_files /index.html =404`, so every request it
 # counts logs the same URI. A per-path split would be fiction." That was true
 <<<<<<< HEAD
-# and is not any more. `front-door-tools.mjs` mirrors 810 complete ventures onto
+# and is not any more. `front-door-tools.mjs` mirrors 812 complete ventures onto
 =======
-# and is not any more. `front-door-tools.mjs` mirrors 811 complete ventures onto
+# and is not any more. `front-door-tools.mjs` mirrors 812 complete ventures onto
 >>>>>>> origin/main
 # that same pod, so it now serves the front page *and* those tools, and folding
 # them all onto one key would recreate — inside this pod — exactly the
