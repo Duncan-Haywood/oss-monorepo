@@ -705,6 +705,9 @@ const CATEGORY_RULES = [
       // `christmas-tree-farm-profit-planner` joined 2026-10-07 on its first commit: land-based growers on the same farm
       // category, the longest-horizon sibling of `u-pick-farm-profit-planner`.
       'christmas-tree-farm-profit-planner',
+      // `pastured-poultry-profit-planner` joined 2026-10-07 on its first commit: meat-bird growers on the same farm
+      // category, a batch-based sibling of `sheep-goat-flock-profit-planner`.
+      'pastured-poultry-profit-planner',
       // `sheep-goat-flock-profit-planner` joined 2026-10-07 on its first commit: small livestock producers at the same
       // farm stands and markets, one hop from `apiary-profit-planner`.
       'sheep-goat-flock-profit-planner',
