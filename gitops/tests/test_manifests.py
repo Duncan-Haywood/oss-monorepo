@@ -2983,6 +2983,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `supplier-price-creep-checker` graduated (browser supplier invoice lines to per-item creep, one-off spikes, contract overcharges and credit requests).
     # +1: `restaurant-tip-pool-calculator` graduated (browser shift list to tip pool payouts by hours, points or tip-out).
     # +1: `greenhouse-bench-planner` graduated (browser crop list to sow dates, weekly bench and germination space, what does not fit and what extra space is worth).
+    # +1: `mushroom-fruiting-room-planner` graduated (browser flush, slot and cash planner for small mushroom farms).
     # +1: `lien-waiver-checker` graduated (browser pasted lien waiver to red flags and the change to ask for).
     # +1: `cash-flow-risk-forecaster` graduated (browser invoices and bills to the odds of a cash shortfall, cushion and biggest lever).
     # +1: `wholesale-line-sheet-maker` graduated (browser product list to wholesale prices, retailer and own margin, tiers, minimums, order simulator and a printable line sheet).
@@ -2991,7 +2992,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `craft-brewery-batch-margin-calculator` graduated (browser beers and sales channels to batch profit per barrel by channel, break-even prices and profit per fermenter day).
     # +1: `midterm-rental-calculator` graduated (furnished 30-day-plus rental against a long-term lease and nightly renting, with rate, vacancy and furnishing payback crossing points).
     # +1: `maple-syrup-sugarbush-profit-calculator` graduated (browser taps, sap and costs to maple profit per tap and per hour, poor and good seasons and a reverse osmosis payback).
-    total = 842  # `infra/OWNER_CHECKLIST.md`'s own "N of the 842 tools" wording.
+    total = 844  # `infra/OWNER_CHECKLIST.md`'s own "N of the 844 tools" wording.
     # +1: `freelance-dashboard` graduated (browser hub reading the four freelancer tools' saved data: owed, unbilled, pipeline, profit and a ranked do-this-next list).
     # +1: `horse-boarding-stall-profit-calculator` graduated (browser barn stalls, occupancy and costs to monthly profit, break-even occupancy and board price).
     # +1: `pet-waste-removal-route-calculator` graduated (browser pet waste route clients, price and drive time to monthly profit, hourly pay and break-even clients).
