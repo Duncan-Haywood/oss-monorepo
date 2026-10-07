@@ -119,6 +119,23 @@
     <p class="noprint"><button type="button" id="dl-sche">Download Schedule E (CSV)</button><button type="button" class="secondary" id="dl-entries">Download entries (CSV)</button><button type="button" class="secondary" id="print">Print</button></p>
   </section>
 
+  <section class="card" aria-label="Selling a rental" id="sale-card">
+    <h2>4. If you sell a property</h2>
+    <p class="note">Estimates the federal tax on a sale: depreciation you took is recaptured at up to 25%, the rest is long-term gain, and the 3.8% investment income tax applies over $200,000 ($250,000 joint) of MAGI. Uses the properties and improvements above and the MAGI and suspended losses from the top. Nothing here is filed or sent anywhere.</p>
+    <div class="grid">
+      <div><label for="x-prop">Property</label><select id="x-prop"></select></div>
+      <div><label for="x-date">Sale date</label><input id="x-date" type="date"></div>
+      <div><label for="x-price">Sale price ($)</label><input id="x-price" inputmode="decimal" placeholder="e.g. 400000"></div>
+      <div><label for="x-costs">Selling costs ($)</label><input id="x-costs" inputmode="decimal" placeholder="agent, title, transfer tax"></div>
+      <div><label for="x-mort">Mortgage payoff ($)</label><input id="x-mort" inputmode="decimal" placeholder="0"></div>
+      <div><label for="x-income">Taxable income this year before the sale ($)</label><input id="x-income" inputmode="decimal" placeholder="after the standard deduction"></div>
+      <div><label for="x-status">Filing status</label><select id="x-status"><option value="single">Single</option><option value="mfj">Married filing jointly</option></select></div>
+    </div>
+    <div class="kpis" id="sale-kpis" aria-live="polite"></div>
+    <ul class="issues" id="sale-notes"></ul>
+    <div class="scroll"><table id="sale-table"></table></div>
+  </section>
+
   <section class="card" aria-label="Back up and restore">
     <h2>Back up, restore</h2>
     <p id="storage-guard" class="note" aria-live="polite"></p>
@@ -168,20 +185,20 @@
   </footer>
 
   <script type="module">
-    import { TAX_YEAR, TYPES, EXPENSE_LINES, toCents, formatMoney, isDate, scheduleE, passiveLoss, collection, vendors1099, checks, scheduleECsv, importRows, toCsv } from "./calc.mjs";
+    import { TAX_YEAR, TYPES, EXPENSE_LINES, toCents, formatMoney, isDate, scheduleE, passiveLoss, saleOfRental, collection, vendors1099, checks, scheduleECsv, importRows, toCsv } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const KEY = "rental-ledger-data";
     const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
     const uid = () => Math.random().toString(36).slice(2, 10);
     const today = () => new Date().toISOString().slice(0, 10);
-    const BLANK = () => ({ properties: [], entries: [], settings: { year: TAX_YEAR, magi: "", prior: "", rate: "", active: true } });
+    const BLANK = () => ({ properties: [], entries: [], settings: { year: TAX_YEAR, magi: "", prior: "", rate: "", active: true }, sale: { property: "", date: "", price: "", costs: "", mort: "", income: "", status: "single" } });
     let data = load();
 
     function load() {
       try {
         const d = JSON.parse(localStorage.getItem(KEY) || "null");
-        if (d && Array.isArray(d.properties) && Array.isArray(d.entries)) return { ...BLANK(), ...d, settings: { ...BLANK().settings, ...(d.settings || {}) } };
+        if (d && Array.isArray(d.properties) && Array.isArray(d.entries)) return { ...BLANK(), ...d, settings: { ...BLANK().settings, ...(d.settings || {}) }, sale: { ...BLANK().sale, ...(d.sale || {}) } };
       } catch { /* storage is optional */ }
       return BLANK();
     }
@@ -292,7 +309,27 @@
       $("#v1099").innerHTML = v.length ? v.map((r) => `<li>${esc(r.vendor)}: ${esc(m(r.cents))} across ${r.count} payment${r.count > 1 ? "s" : ""}</li>`).join("") : "<li>None at or above $2,000.</li>";
     }
 
-    function render(full = true) { if (full) { renderProps(); renderEntries(); } else renderEntries(); renderResults(); }
+
+    // ---- sale of a rental ----
+    const X = { date: "#x-date", price: "#x-price", costs: "#x-costs", mort: "#x-mort", income: "#x-income", status: "#x-status", property: "#x-prop" };
+    function fillSale() {
+      $("#x-prop").innerHTML = '<option value="">Choose a property</option>' + data.properties.map((p) => `<option value="${esc(p.id)}">${esc(p.name || "(unnamed)")}</option>`).join("");
+      for (const [k, id] of Object.entries(X)) $(id).value = data.sale[k] ?? "";
+    }
+    for (const [k, id] of Object.entries(X)) $(id).addEventListener("input", () => { data.sale[k] = $(id).value; persist(); renderSale(); });
+    function renderSale() {
+      const m = formatMoney, s = data.sale;
+      const r = saleOfRental(data, { property: s.property, saleDate: s.date, salePriceCents: cents(s.price), sellingCostsCents: cents(s.costs), mortgageCents: cents(s.mort), taxableIncomeCents: cents(s.income), magiCents: cents(data.settings.magi), suspendedCents: cents(data.settings.prior), status: s.status });
+      if (!r.ok) { $("#sale-kpis").innerHTML = ""; $("#sale-table").innerHTML = ""; $("#sale-notes").innerHTML = (s.property || s.price || s.date ? r.problems : ["Choose a property and enter the sale date and price."]).map((t) => `<li>${esc(t)}</li>`).join(""); return; }
+      const k = [[m(r.gain), r.gain >= 0 ? "total gain" : "loss on sale"], [m(r.taxAfterNiit), r.taxAfterNiit >= 0 ? "estimated federal tax" : "estimated tax saved"], [m(r.cashAfterTax), "cash in hand after payoff and tax"]];
+      if (r.gain > 0) k.push([(r.effectiveRate * 100).toFixed(1) + "%", "of the gain goes to federal tax"]);
+      $("#sale-kpis").innerHTML = k.map(([b, l]) => `<div class="kpi"><b>${esc(b)}</b><span>${esc(l)}</span></div>`).join("");
+      const exch = r.gain > 0 ? ["A like-kind (1031) exchange can defer about " + m(r.deferredBy1031) + " of this; holding until death resets the basis. Both have strict rules; ask a preparer."] : [];
+      $("#sale-notes").innerHTML = r.notes.concat(exch).map((t) => `<li>${esc(t)}</li>`).join("");
+      const row = (a, b) => `<tr><td>${esc(a)}</td><td class="n">${esc(b)}</td></tr>`;
+      $("#sale-table").innerHTML = [row("Sale price less selling costs (amount realized)", m(r.amountRealized)), row("Cost plus closing costs plus improvements", m(r.costBasis)), row("Depreciation taken (building " + m(r.buildingDep) + ", improvements " + m(r.impDep) + ")", "− " + m(r.depTaken)), row("Adjusted basis", m(r.adjustedBasis)), row("Gain (loss)", m(r.gain)), row("Unrecaptured Section 1250 gain, taxed at up to 25%", m(r.unrecaptured)), row("Long-term capital gain, taxed at 0, 15 or 20%", m(r.capitalGain)), row("Ordinary gain (held one year or less)", m(r.ordinaryGain)), row("Federal income tax on the sale", m(r.tax)), row("Net investment income tax, 3.8%", m(r.niit)), row("Mortgage payoff", m(Math.max(0, cents(s.mort))))].join("");
+    }
+    function render(full = true) { if (full) { renderProps(); renderEntries(); fillSale(); } else renderEntries(); renderResults(); renderSale(); }
 
     // ---- files ----
     function download(name, body, type) {
@@ -321,7 +358,7 @@
       try {
         const d = JSON.parse(await ev.target.files[0].text());
         if (!d || !Array.isArray(d.properties) || !Array.isArray(d.entries)) throw new Error("shape");
-        data = { ...BLANK(), ...d, settings: { ...BLANK().settings, ...(d.settings || {}) } }; persist(); fillSettings(); render(); $("#io-status").textContent = "Backup restored.";
+        data = { ...BLANK(), ...d, settings: { ...BLANK().settings, ...(d.settings || {}) }, sale: { ...BLANK().sale, ...(d.sale || {}) } }; persist(); fillSettings(); render(); $("#io-status").textContent = "Backup restored.";
       } catch { $("#io-status").textContent = "That file is not a Rental Ledger backup."; }
       ev.target.value = "";
     };

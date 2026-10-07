@@ -163,3 +163,90 @@ test("the no-payee nag skips interest and taxes, which have no contractor to nam
   const t = checks(d).map((c) => c.text).join("\n");
   assert.match(t, /1 expense of \$75 or more has no payee/);
 });
+
+import { saleOfRental, monthsHeld, depreciationThroughSale, ordinaryTax } from "./calc.mjs";
+
+const old = { id: "p1", name: "12 Oak St", priceCents: 30000000, closingCents: 500000, landCents: 5500000, inService: "2020-01-15" };
+const sale = (o = {}, d = { properties: [old], entries: [] }) => saleOfRental(d, { property: "p1", saleDate: "2026-01-20", salePriceCents: 40000000, sellingCostsCents: 2400000, taxableIncomeCents: 6000000, magiCents: 8000000, status: "single", ...o });
+
+test("months held count the sale month as half, mid-month at both ends", () => {
+  assert.equal(monthsHeld("2020-01-15", "2026-01-20"), 72);
+  assert.equal(monthsHeld("2026-03-10", "2026-12-31"), 9);
+  assert.equal(depreciationThroughSale(25000000, "2020-01-15", "2026-01-20"), Math.round((25000000 * 72) / 330));
+  assert.equal(monthsHeld("", "2026-01-20"), 0);
+});
+
+test("sale splits the gain into depreciation recapture and capital gain", () => {
+  const r = sale({ magiCents: 5000000 });
+  const dep = Math.round((25000000 * 72) / 330);
+  assert.equal(r.depTaken, dep);
+  assert.equal(r.adjustedBasis, 30500000 - dep);
+  assert.equal(r.amountRealized, 37600000);
+  assert.equal(r.gain, 37600000 - (30500000 - dep));
+  assert.equal(r.unrecaptured, dep);
+  assert.equal(r.capitalGain, r.gain - dep);
+  assert.equal(r.longTerm, true);
+  assert.equal(r.niit, 0);
+  assert.ok(r.tax > 0 && r.tax < r.gain * 0.25);
+});
+
+test("improvements add basis and are depreciated from their own date", () => {
+  const d = { properties: [old], entries: [{ id: "x", date: "2023-07-10", property: "p1", type: "improvement", cents: 2000000 }, { id: "y", date: "2027-01-01", property: "p1", type: "improvement", cents: 999999 }] };
+  const r = sale({}, d);
+  assert.equal(r.costBasis, 32500000);
+  assert.equal(r.impDep, Math.round((2000000 * monthsHeld("2023-07-10", "2026-01-20")) / 330));
+});
+
+test("unrecaptured gain is taxed at no more than 25% and capital gain at 0/15/20", () => {
+  const low = sale({ taxableIncomeCents: 0 });
+  const high = sale({ taxableIncomeCents: 90000000 });
+  assert.ok(high.tax > low.tax);
+  // At very high income: 25% on recapture, 20% on the rest.
+  assert.equal(high.tax, Math.round(high.unrecaptured * 0.25 + high.capitalGain * 0.2));
+  // Gain entirely inside the 0% band is untaxed.
+  const tiny = sale({ salePriceCents: 30500000, sellingCostsCents: 0, taxableIncomeCents: 0 });
+  assert.equal(tiny.gain, tiny.depTaken);
+  assert.ok(tiny.tax < tiny.gain * 0.25);
+});
+
+test("net investment income tax applies over the MAGI threshold", () => {
+  const r = sale({ magiCents: 30000000 });
+  assert.equal(r.niit, Math.round(Math.min(r.gain, 30000000 + r.gain - 20000000) * 0.038));
+  assert.equal(sale({ magiCents: 30000000, status: "mfj" }).niit, Math.round(Math.min(r.gain, 30000000 + r.gain - 25000000) * 0.038));
+});
+
+test("a sale at a loss is an ordinary loss that saves tax", () => {
+  const r = sale({ salePriceCents: 20000000 });
+  assert.ok(r.gain < 0);
+  assert.ok(r.tax < 0);
+  assert.equal(r.unrecaptured, 0);
+});
+
+test("held a year or less is all ordinary income", () => {
+  const r = sale({ saleDate: "2020-09-01", salePriceCents: 36000000 });
+  assert.equal(r.longTerm, false);
+  assert.equal(r.ordinaryGain, r.gain);
+  assert.ok(r.tax > 0);
+});
+
+test("suspended losses are released against other income, and cash after tax subtracts the payoff", () => {
+  const a = sale(), b = sale({ suspendedCents: 3000000, mortgageCents: 15000000 });
+  assert.ok(b.tax < a.tax);
+  assert.equal(b.suspendedUsed, 3000000);
+  assert.equal(b.cashBeforeTax, a.amountRealized - 15000000);
+  assert.equal(b.cashAfterTax, b.cashBeforeTax - b.taxAfterNiit);
+});
+
+test("sale reports what is missing instead of guessing", () => {
+  assert.equal(sale({ property: "nope" }).ok, false);
+  assert.match(sale({ saleDate: "" }).problems[0], /sale date/);
+  assert.match(sale({ salePriceCents: 0 }).problems[0], /sale price/);
+  assert.match(sale({}, { properties: [{ ...old, inService: "" }], entries: [] }).problems.join(" "), /placed in service/);
+  assert.match(sale({ saleDate: "2019-01-01" }).problems[0], /before/);
+});
+
+test("ordinary tax uses the bracket table", () => {
+  assert.equal(ordinaryTax("single", 1240000), 124000);
+  assert.equal(ordinaryTax("single", 5040000), 124000 + Math.round(3800000 * 0.12));
+  assert.equal(ordinaryTax("single", 0), 0);
+});
