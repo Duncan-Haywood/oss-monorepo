@@ -22,6 +22,8 @@ export const DEFAULTS = {
   whyMe: "",
   assumptions: "",
   contact: "",
+  hours: "", // private: your hours estimate per option, one number per line, same order as options
+  targetRate: "", // private: the hourly rate you want each option to pay
 };
 
 export function parseCents(v) {
@@ -133,6 +135,20 @@ export function ladder(raw) {
   return sorted.map((o) => ({ name: o.name, cents: o.cents, vsMidPct: Math.round(((o.cents - mid.cents) / mid.cents) * 100) }));
 }
 
+// Private to the freelancer, never printed. Price over your own hours estimate
+// for each option, in the order the options were typed, against a target rate.
+export function rateCheck(raw) {
+  const inp = { ...DEFAULTS, ...raw };
+  const target = parseCents(inp.targetRate);
+  const hours = String(inp.hours ?? "").split("\n").map((l) => l.trim()).filter(Boolean).map((l) => parseNum(l.replace(/\s*h(ours?|rs?)?$/i, "")));
+  return parseOptions(inp.options).rows.map((o, i) => {
+    const h = hours[i] && hours[i] > 0 ? hours[i] : null;
+    const rate = h ? Math.round(o.cents / h) : null;
+    const below = rate !== null && target !== null && target > 0 && rate < target;
+    return { name: o.name, cents: o.cents, hours: h, rate, belowTarget: below, floorCents: h && target ? Math.round(h * target) : null };
+  });
+}
+
 export function check(raw) {
   const inp = { ...DEFAULTS, ...raw };
   const issues = [];
@@ -150,6 +166,7 @@ export function check(raw) {
   if (inp.proposalDate && !parseDate(inp.proposalDate)) issues.push("Proposal date should be a real date.");
   const dep = parseNum(inp.depositPct);
   if (dep !== null && dep > 100) issues.push("Deposit is more than 100%.");
+  if (String(inp.targetRate).trim() && parseCents(inp.targetRate) === null) issues.push("Target hourly rate should be a number.");
   return issues;
 }
 
@@ -170,6 +187,10 @@ export function reviewNotes(raw) {
   if (!String(inp.whyMe).trim()) notes.push("One or two lines on why you, ideally a similar past result, do more than a long bio.");
   if (!String(inp.assumptions).trim()) notes.push("List assumptions (for example, content supplied by the client, two revision rounds). They are where scope creep starts.");
   if ((parseNum(inp.depositPct) ?? 0) === 0) notes.push("No deposit: asking for one at acceptance filters out clients who were never going to start.");
+  const m = (c) => formatMoney(c, inp.currency);
+  for (const r of rateCheck(inp)) {
+    if (r.belowTarget) notes.push(`${r.name} works out to ${m(r.rate)} an hour on your own estimate, under your ${m(parseCents(inp.targetRate))} target. To reach the target it would need to cost at least ${m(r.floorCents)}. This check is private and is not in the proposal.`);
+  }
   return notes;
 }
 

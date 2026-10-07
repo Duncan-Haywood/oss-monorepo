@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseCents, formatMoney, parseDate, addDays, formatDate, parseOptions, parsePhases, validUntil, optionTerms, ladder, check, reviewNotes, buildProposal, proposalText, DEFAULTS } from "./calc.mjs";
+import { parseCents, formatMoney, parseDate, addDays, formatDate, parseOptions, parsePhases, validUntil, optionTerms, ladder, rateCheck, check, reviewNotes, buildProposal, proposalText, DEFAULTS } from "./calc.mjs";
 
 const full = {
   contractor: "Ada Dev", client: "Acme", title: "New website", proposalDate: "2026-10-01", validDays: "14",
@@ -86,4 +86,24 @@ test("a single option reads as an investment, and the output is deterministic", 
 test("an empty form still produces placeholders, not exceptions", () => {
   const s = buildProposal({});
   assert.match(s[0].body[0], /\[Client\] by \[Your name\]/);
+});
+
+test("rate check divides each option by your own hours, in order, and flags the ones under target", () => {
+  const r = rateCheck({ ...full, options: "A | 3000\nB | 6000\nC | 11000", hours: "30\n55 hours\n0", targetRate: "100" });
+  assert.deepEqual(r.map((x) => x.rate), [10000, 10909, null]);
+  assert.deepEqual(r.map((x) => x.belowTarget), [false, false, false]);
+  const low = rateCheck({ ...full, options: "A | 3000", hours: "40", targetRate: "100" })[0];
+  assert.equal(low.rate, 7500);
+  assert.equal(low.belowTarget, true);
+  assert.equal(low.floorCents, 400000);
+});
+
+test("rate check needs both hours and a target before it says anything, and stays out of the proposal", () => {
+  const input = { ...full, options: "A | 3000", hours: "40", targetRate: "" };
+  assert.equal(rateCheck(input)[0].belowTarget, false);
+  assert.equal(reviewNotes(input).some((n) => /an hour/.test(n)), false);
+  const flagged = { ...input, targetRate: "100" };
+  assert.ok(reviewNotes(flagged).some((n) => /\$75\.00 an hour/.test(n) && /at least \$4,000\.00/.test(n)));
+  assert.doesNotMatch(proposalText("t", buildProposal(flagged)), /target|an hour|75\.00/i);
+  assert.ok(check({ ...flagged, targetRate: "abc" }).some((n) => /Target hourly rate/.test(n)));
 });

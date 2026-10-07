@@ -78,3 +78,9 @@ test("the proposal prints by itself and records local events only", () => {
   assert.match(html, /@media print/);
   assert.match(html, /proposal_printed/);
 });
+
+test("the hours estimate and target rate are labelled private on the page", () => {
+  const html = page("index.html");
+  assert.match(html, /target hourly rate \(private, never printed\)/);
+  assert.match(html, /Your rate \(private\)/);
+});
