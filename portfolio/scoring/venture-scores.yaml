@@ -28054,3 +28054,41 @@ ventures:
       leave the browser (test asserts no network calls) and all user text is
       escaped before rendering. Ethics: no data capture; suggested categories
       are shown for review, never applied silently.
+  - slug: freelancer-desk
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+    composite: 5.8
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Owed, unbilled, income and set-aside
+      are deterministic sums over the user's own data; an optional BYO-key
+      weekly summary is a later upgrade, never the product.
+    basis: >-
+      Screened 2026-10-07 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. The hub of the
+      freelancer loop (estimate-maker -> time-tracker -> invoice-maker ->
+      expense-tracker -> freelancer-desk): no tool in the portfolio joined the
+      four into one "what do I do first" view. Distribution 7: each sibling now
+      links to it, so it inherits their visitors, and "freelancer dashboard"
+      and "how much do clients owe me" are searchable against a paid market
+      (FreshBooks, Bonsai, HoneyBook); volume not measured with an external
+      tool. Defensibility 2: the wedge is zero-signup and no import because the
+      data is already on the device, which is easy to copy.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: adds up figures the user's own tools recorded, states that the
+      set-aside and due dates are planning aids and not tax advice, and lists
+      what it does not model. Reads sibling stores read-only; the one write path
+      (restore) validates shape, accepts only the four known stores and asks
+      before replacing. Nothing leaves the browser (test asserts no network
+      calls) and all user text is escaped before rendering. Ethics: no data
+      capture; sample data is in memory only.

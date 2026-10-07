@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Freelancer Desk — Free, Private Dashboard for Money Owed, Unbilled Time and Taxes</title>
+  <meta name="description" content="Free freelancer dashboard that runs in your browser: see what clients owe you, time you have not billed, open quotes, your tax set-aside and the next quarterly date, with a ranked to-do list. No account, nothing uploaded.">
+  <meta property="og:title" content="Freelancer Desk — what you are owed and what to do first">
+  <meta property="og:description" content="Joins estimates, time, invoices and expenses on your device into one screen: money at stake, tax set-aside, who to chase. No signup, nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Freelancer Desk", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "A free, private dashboard for freelancers that joins estimates, tracked time, invoices and expenses in your browser: money owed, unbilled work, open quotes, tax set-aside, next quarterly date and what to do first."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is Freelancer Desk really free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. No account, no trial and no limit. It runs in your browser, so it costs nothing to serve, and it stays free."}}, {"@type": "Question", "name": "Where does the data come from?", "acceptedAnswer": {"@type": "Answer", "text": "From the four companion tools on this site: Estimate Maker, Time Tracker, Invoice Maker and Expense Tracker. Each keeps its data in your browser, and this page reads it on this device. It never writes to those tools unless you restore a backup, and nothing is uploaded."}}, {"@type": "Question", "name": "Do I need all four tools?", "acceptedAnswer": {"@type": "Answer", "text": "No. Each card says which tool feeds it and links to it. Use one tool or all four; the desk shows what it can see and tells you what is missing."}}, {"@type": "Question", "name": "What does the at-stake number mean?", "acceptedAnswer": {"@type": "Answer", "text": "The money that is yours if everything goes right: invoices sent but unpaid, time you have worked but not billed, and the value of estimates still open. Open estimates are valued at the lowest option, the one you can count on."}}, {"@type": "Question", "name": "How is income and the tax set-aside worked out?", "acceptedAnswer": {"@type": "Answer", "text": "Income is the paid share of each non-void invoice issued this year, without sales tax and shipping. Net profit is that income minus the deductible expenses in Expense Tracker. The set-aside is the rate you choose times net profit. It is a planning figure, not a tax calculation."}}, {"@type": "Question", "name": "Can I back everything up in one file?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Download one backup with all four tools' data, and restore it on any device. Restoring replaces the data in the tools that are in the file, after you confirm."}}, {"@type": "Question", "name": "Why does it say sample data?", "acceptedAnswer": {"@type": "Answer", "text": "If you have not used the other tools yet you can load a made-up freelancer to see what the desk shows. Sample data is held in memory only and is never saved."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f4fa; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #3a3fa8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #23277a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #23277a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a4f6a; }
+    .card { background: #fff; border: 1px solid #dcdcee; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #23277a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b3b5d3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3a3fa8; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e6e7f6; color: #23277a; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #ebebf5; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a4f6a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0; }
+    .kpi { background: #eeeffb; border-radius: 10px; padding: 12px; }
+    .kpi b { display: block; font-size: 1.3rem; color: #23277a; }
+    .kpi span { font-size: .8rem; color: #4a4f6a; }
+    .kpi.hot { background: #fdecc8; }
+    .kpi.hot b { color: #7c4a10; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: #e6e7f6; color: #23277a; }
+    .pill.off { background: #eee; color: #555; }
+    .pill.on { background: #d8f0e2; color: #14503a; }
+    .todo { list-style: none; padding: 0; margin: 0; }
+    .todo li { display: flex; gap: 10px; align-items: baseline; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid #ebebf5; }
+    .banner { background: #fdecc8; color: #5c3a08; border-radius: 10px; padding: 10px 14px; }
+    .bar { display: flex; height: 16px; border-radius: 8px; overflow: hidden; background: #eee; margin: 8px 0 4px; }
+    .bar i { display: block; height: 100%; }
+    .sr { position: absolute; left: -9999px; }
+    footer { margin-top: 28px; border-top: 1px solid #dcdcee; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Freelancer Desk: what you are owed, and what to do first</h1>
+    <p>One screen over your <a href="../estimate-maker/">estimates</a>, <a href="../time-tracker/">tracked time</a>, <a href="../invoice-maker/">invoices</a> and <a href="../expense-tracker/">expenses</a>: <strong>money owed</strong>, <strong>work not yet billed</strong>, <strong>quotes still open</strong>, a <strong>tax set-aside</strong> and the <strong>next quarterly date</strong>, with a to-do list ranked by dollars. No account, no subscription, and nothing leaves your device.</p>
+  </header>
+
+  <section class="card" aria-label="Your desk">
+    <div id="banner" class="banner" hidden></div>
+    <h2 id="at-stake-h">At stake</h2>
+    <div class="kpis" id="kpis"></div>
+    <div id="status" class="note" aria-live="polite"></div>
+    <p>
+      <button type="button" class="secondary" id="sample">Try it with sample data</button>
+      <button type="button" class="secondary" id="live" hidden>Back to my data</button>
+    </p>
+  </section>
+
+  <section class="card" aria-label="Do this first">
+    <h2>Do this first</h2>
+    <ul class="todo" id="todo"></ul>
+  </section>
+
+  <section class="card" aria-label="Taxes">
+    <h2>Taxes</h2>
+    <div class="grid">
+      <div><label for="rate">Set aside this share of net profit (%)</label><input id="rate" inputmode="decimal" value="25"></div>
+      <div><label for="paid">Estimated tax you have already paid this year</label><input id="paid" inputmode="decimal" placeholder="0.00"></div>
+    </div>
+    <div class="kpis" id="tax-kpis"></div>
+    <p class="note">A planning figure, not a tax calculation: it is the share you choose times income minus deductible expenses. Federal due dates shown; a date on a weekend or holiday moves to the next business day, and state dates differ.</p>
+  </section>
+
+  <section class="card" aria-label="Clients">
+    <h2>By client</h2>
+    <div class="scroll"><table id="clients"></table></div>
+    <p class="note">Effective rate is invoiced revenue this year divided by hours tracked this year for the client, so it is only shown where both exist. Match the client names across tools for the two to line up.</p>
+    <p><button type="button" class="secondary" id="csv">Download clients CSV</button></p>
+  </section>
+
+  <section class="card" aria-label="Where it comes from">
+    <h2>What the desk can see</h2>
+    <div class="scroll"><table id="sources"></table></div>
+  </section>
+
+  <section class="card" aria-label="Backup">
+    <h2>One backup for all four tools</h2>
+    <p>Each tool keeps its data in this browser only, so clearing site data erases it. Download one file with everything, and restore it on any device.</p>
+    <button type="button" class="secondary" id="backup">Download backup</button>
+    <label for="restore">Restore from a backup file</label><input id="restore" type="file" accept="application/json,.json">
+    <p class="note" id="io-status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" aria-label="Questions">
+    <h2>Questions</h2>
+    <h3>Is Freelancer Desk really free?</h3>
+    <p>Yes. No account, no trial and no limit. It runs in your browser, so it costs nothing to serve, and it stays free.</p>
+    <h3>Where does the data come from?</h3>
+    <p>From the four companion tools on this site: Estimate Maker, Time Tracker, Invoice Maker and Expense Tracker. Each keeps its data in your browser, and this page reads it on this device. It never writes to those tools unless you restore a backup, and nothing is uploaded.</p>
+    <h3>Do I need all four tools?</h3>
+    <p>No. Each card says which tool feeds it and links to it. Use one tool or all four; the desk shows what it can see and tells you what is missing.</p>
+    <h3>What does the at-stake number mean?</h3>
+    <p>The money that is yours if everything goes right: invoices sent but unpaid, time you have worked but not billed, and the value of estimates still open. Open estimates are valued at the lowest option, the one you can count on.</p>
+    <h3>How is income and the tax set-aside worked out?</h3>
+    <p>Income is the paid share of each non-void invoice issued this year, without sales tax and shipping. Net profit is that income minus the deductible expenses in Expense Tracker. The set-aside is the rate you choose times net profit. It is a planning figure, not a tax calculation.</p>
+    <h3>Can I back everything up in one file?</h3>
+    <p>Yes. Download one backup with all four tools' data, and restore it on any device. Restoring replaces the data in the tools that are in the file, after you confirm.</p>
+    <h3>Why does it say sample data?</h3>
+    <p>If you have not used the other tools yet you can load a made-up freelancer to see what the desk shows. Sample data is held in memory only and is never saved.</p>
+    <h3>What this does not model</h3>
+    <p class="note">Not modelled: sales tax owed, state and local taxes, self-employment tax and income tax rules (the set-aside is just your chosen share), multiple businesses, currencies other than a single total, invoices paid in instalments by date (income counts the paid share of invoices issued this year), and estimates or time kept in a different browser. Clearing site data removes the underlying tools' data, so download a backup now and then.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. It adds up figures that other tools on this site recorded on your device; the set-aside and due dates are planning aids, and what you owe and when is for you and your tax preparer to decide.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as your only record: download a backup.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>sample_loaded</code>, <code>backup_downloaded</code>, <code>backup_restored</code>, <code>csv_exported</code>) are counted only in local storage on your device, never the content. Turn it off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../quarterly-estimated-tax-calendar/">quarterly tax calendar</a>, <a href="../self-employment-tax-calculator/">self-employment tax calculator</a>, <a href="../freelance-rate-increase-calculator/">rate increase calculator</a>, <a href="../mileage-log/">mileage log</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+<script type="module">
+    import { STORES, readStore, buildDesk, formatMoney, toCents, makeBackup, checkBackup, deskToCsv } from "./calc.mjs";
+    import { sampleBoxes } from "./sample.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const money = (c) => esc(formatMoney(c));
+    const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+    let sample = false;
+
+    function rawText(name) { try { return localStorage.getItem(STORES[name].key); } catch { return null; } }
+    function boxes() {
+      if (sample) return sampleBoxes(today());
+      return Object.fromEntries(Object.keys(STORES).map((n) => [n, readStore(n, rawText(n))]));
+    }
+
+    function render() {
+      const b = boxes(), rate = $("#rate").value, paid = toCents($("#paid").value);
+      const d = buildDesk(b, { today: today(), ratePct: rate, taxPaid: paid });
+      const any = Object.values(d.present).some(Boolean);
+      $("#banner").hidden = !sample;
+      $("#banner").textContent = "Sample data: a made-up freelancer, held in memory only. Nothing here is saved or sent anywhere.";
+      $("#live").hidden = !sample;
+      $("#sample").hidden = sample;
+      $("#kpis").innerHTML = `<div class="kpi"><b>${money(d.atStake)}</b><span>at stake: owed + unbilled + open quotes</span></div>`
+        + `<div class="kpi${d.receivables.overdue ? " hot" : ""}"><b>${money(d.receivables.overdue)}</b><span>overdue (of ${money(d.receivables.outstanding)} owed)</span></div>`
+        + `<div class="kpi${d.time.unbilled ? " hot" : ""}"><b>${money(d.time.unbilled)}</b><span>worked, not yet billed (${esc(d.time.unbilledHours)} h)</span></div>`
+        + `<div class="kpi"><b>${money(d.pipeline.openValue)}</b><span>${esc(d.pipeline.open)} open quote${d.pipeline.open === 1 ? "" : "s"}${d.pipeline.winRate === null ? "" : `, ${Math.round(d.pipeline.winRate * 100)}% won`}</span></div>`;
+      $("#status").textContent = any || sample ? "" : "No data found on this device yet. Use the four tools linked above, or load the sample to see the desk working.";
+      $("#todo").innerHTML = d.actions.length
+        ? d.actions.map((a) => `<li><span>${esc(a.text)} <a href="${esc(STORES[a.tool].path)}">open ${esc(STORES[a.tool].label)}</a></span><b>${a.value ? money(a.value) : ""}</b></li>`).join("")
+        : `<li><span>${any || sample ? "Nothing needs you right now." : "Nothing yet: the list fills in as you use the tools."}</span></li>`;
+      const due = d.nextTaxDue;
+      $("#tax-kpis").innerHTML = `<div class="kpi"><b>${money(d.income.cents)}</b><span>income this year (paid share of invoices)</span></div>`
+        + `<div class="kpi"><b>${money(d.expenses.deductible)}</b><span>deductible expenses</span></div>`
+        + `<div class="kpi"><b>${money(d.net)}</b><span>net profit</span></div>`
+        + `<div class="kpi"><b>${money(d.setAside)}</b><span>to set aside at ${esc(rate || 0)}%</span></div>`
+        + `<div class="kpi${d.setAsideGap > 0 ? " hot" : ""}"><b>${money(Math.max(0, d.setAsideGap))}</b><span>still to put away after what you paid</span></div>`
+        + `<div class="kpi"><b>${due ? esc(due.date) : "—"}</b><span>${due ? `${esc(due.label)} estimated payment, ${esc(due.days)} day${due.days === 1 ? "" : "s"} away` : "next federal estimated date"}</span></div>`;
+      $("#clients").innerHTML = `<tr><th>Client</th><th class="n">Billed this year</th><th class="n">Owed</th><th class="n">Overdue</th><th class="n">Unbilled</th><th class="n">Hours</th><th class="n">Effective $/h</th></tr>`
+        + (d.clients.length ? d.clients.map((c) => `<tr><td>${esc(c.client)}</td><td class="n">${money(c.billedYtd)}</td><td class="n">${money(c.outstanding)}</td><td class="n">${money(c.overdue)}</td><td class="n">${money(c.unbilled)}</td><td class="n">${esc(c.hours)}</td><td class="n">${c.effectiveRate === null ? "—" : money(c.effectiveRate)}</td></tr>`).join("") : `<tr><td colspan="7">No clients yet.</td></tr>`);
+      $("#sources").innerHTML = `<tr><th>Tool</th><th>Found on this device</th></tr>` + Object.keys(STORES).map((n) => `<tr><td><a href="${esc(STORES[n].path)}">${esc(STORES[n].label)}</a></td><td><span class="pill ${d.present[n] ? "on" : "off"}">${d.present[n] ? "data found" : "nothing yet"}</span></td></tr>`).join("");
+      return d;
+    }
+
+    function download(name, text, type) {
+      const url = URL.createObjectURL(new Blob([text], { type }));
+      const a = Object.assign(document.createElement("a"), { href: url, download: name });
+      document.body.append(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+
+    $("#rate").addEventListener("input", render);
+    $("#paid").addEventListener("input", render);
+    $("#sample").addEventListener("click", () => { sample = true; record("sample_loaded"); render(); });
+    $("#live").addEventListener("click", () => { sample = false; render(); });
+    $("#csv").addEventListener("click", () => { download("clients.csv", deskToCsv(render()), "text/csv"); record("csv_exported"); });
+    $("#backup").addEventListener("click", () => {
+      const texts = Object.fromEntries(Object.keys(STORES).map((n) => [n, rawText(n)]));
+      const b = makeBackup(texts, today());
+      if (!Object.keys(b.stores).length) { $("#io-status").textContent = "There is nothing to back up yet: none of the four tools has saved data on this device."; return; }
+      download(`freelancer-desk-backup-${today()}.json`, JSON.stringify(b, null, 2), "application/json");
+      record("backup_downloaded");
+      $("#io-status").textContent = `Backup downloaded with ${Object.keys(b.stores).map((n) => STORES[n].label).join(", ")}.`;
+    });
+    $("#restore").addEventListener("change", async (ev) => {
+      const f = ev.target.files[0]; if (!f) return;
+      let parsed = null;
+      try { parsed = JSON.parse(await f.text()); } catch { /* reported below */ }
+      const r = checkBackup(parsed);
+      if (!r.ok) { $("#io-status").textContent = r.problem || "That file could not be read."; ev.target.value = ""; return; }
+      const names = Object.keys(r.stores).map((n) => STORES[n].label).join(", ");
+      if (!confirm(`Replace the data currently saved in ${names} on this device with the backup? This cannot be undone.`)) { ev.target.value = ""; return; }
+      try {
+        for (const [n, box] of Object.entries(r.stores)) localStorage.setItem(STORES[n].key, JSON.stringify(box));
+        record("backup_restored");
+        $("#io-status").textContent = `Restored ${names}.`;
+      } catch { $("#io-status").textContent = "Could not save: browser storage is full or blocked."; }
+      ev.target.value = ""; sample = false; render();
+    });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); $("#optout").textContent = usageOptedOut() ? "Turn usage counting on" : "Turn usage counting off"; });
+    $("#optout").textContent = usageOptedOut() ? "Turn usage counting on" : "Turn usage counting off";
+    render();
+</script>
+</body>
+</html>
