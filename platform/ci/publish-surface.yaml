@@ -2522,3 +2522,6 @@ gitops:
 - workflow: freelance-dashboard-ci.yml
   classification: none
   publishes: []
+- workflow: freelance-proposal-maker-ci.yml
+  classification: none
+  publishes: []
