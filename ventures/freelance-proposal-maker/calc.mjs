@@ -246,3 +246,34 @@ export function buildProposal(raw) {
 export function proposalText(title, sections) {
   return `${title}\n\n` + sections.map((s) => `${s.title}\n\n${s.body.join("\n\n")}`).join("\n\n\n") + "\n";
 }
+
+// Hand-off to the next steps in the suite: the chosen option becomes a fixed-fee
+// contract and a deposit invoice. Only text fields cross, in the URL fragment
+// (never sent to a server). The receiving tools whitelist every field.
+export function handoff(raw, index = 0) {
+  const inp = { ...DEFAULTS, ...raw };
+  const opt = optionTerms(inp)[index];
+  if (!opt) return null;
+  const title = String(inp.title).trim() || "Project";
+  const money = (c) => (c / 100).toFixed(2);
+  const dep = Math.min(parseNum(inp.depositPct) ?? 0, 100);
+  const lines = [];
+  if (opt.deposit > 0) lines.push({ desc: `${title}: ${opt.name}, ${dep}% deposit`, qty: 1, rate: money(opt.deposit) });
+  else lines.push({ desc: `${title}: ${opt.name}`, qty: 1, rate: money(opt.cents) });
+  const payDays = Math.max(0, Math.floor(parseNum(inp.payDays) ?? 14));
+  return {
+    v: 1,
+    from: "freelance-proposal-maker",
+    contract: {
+      contractor: inp.contractor, client: inp.client, effective: parseDate(inp.startDate) ? inp.startDate : inp.proposalDate,
+      project: title, deliverables: [opt.name + (opt.includes ? `: ${opt.includes}` : ""), ...String(inp.deliverables).split("\n").map((s) => s.trim()).filter(Boolean)].join("\n"),
+      feeType: "fixed", amount: money(opt.cents), currency: inp.currency, depositPct: String(dep), payDays: String(payDays),
+    },
+    invoice: { fromName: inp.contractor, clientName: inp.client, currency: inp.currency, terms: "custom", customDays: String(payDays), lines, notes: `Deposit for the accepted proposal "${title}", option ${opt.name}. Balance of ${(opt.balance / 100).toFixed(2)} ${inp.currency} is due on delivery.` },
+  };
+}
+
+export function handoffHash(raw, index = 0) {
+  const h = handoff(raw, index);
+  return h ? "#handoff=" + encodeURIComponent(JSON.stringify(h)) : "";
+}

@@ -107,3 +107,36 @@ test("rate check needs both hours and a target before it says anything, and stay
   assert.doesNotMatch(proposalText("t", buildProposal(flagged)), /target|an hour|75\.00/i);
   assert.ok(check({ ...flagged, targetRate: "abc" }).some((n) => /Target hourly rate/.test(n)));
 });
+
+import { handoff, handoffHash } from "./calc.mjs";
+import { parseHandoff } from "../freelance-contract-maker/calc.mjs";
+import { parseHandoff as parseInv } from "../invoice-maker/calc.mjs";
+
+test("hand-off turns the accepted option into a contract and a deposit invoice", () => {
+  const h = handoff(full, 1);
+  assert.equal(h.contract.amount, "6000.00");
+  assert.equal(h.contract.depositPct, "40");
+  assert.equal(h.contract.effective, "2026-11-02");
+  assert.match(h.contract.deliverables, /^Standard: Five pages/);
+  assert.equal(h.invoice.lines[0].rate, "2400.00");
+  assert.match(h.invoice.lines[0].desc, /Standard, 40% deposit/);
+  assert.match(h.invoice.notes, /3600\.00/);
+  assert.equal(handoff(full, 9), null);
+});
+
+test("hand-off survives the URL fragment and the receivers whitelist it", () => {
+  const hash = handoffHash(full, 2);
+  const c = parseHandoff(hash, "contract", ["client", "amount", "project"]);
+  assert.deepEqual(c, { client: "Acme", amount: "11000.00", project: "New website" });
+  const i = parseInv(hash, "invoice", ["clientName", "lines"]);
+  assert.equal(i.lines[0].rate, "4400.00");
+  assert.equal(parseHandoff("#handoff=%7Bbad", "contract", ["client"]), null);
+  assert.equal(parseHandoff("#other=1", "contract", ["client"]), null);
+  const evil = "#handoff=" + encodeURIComponent(JSON.stringify({ v: 1, from: "freelance-proposal-maker", contract: { client: "x", __proto__: { a: 1 }, evil: "y" } }));
+  assert.deepEqual(parseHandoff(evil, "contract", ["client"]), { client: "x" });
+});
+
+test("hand-off with no deposit invoices the whole option", () => {
+  const h = handoff({ ...full, depositPct: "0" }, 0);
+  assert.equal(h.invoice.lines[0].rate, "3000.00");
+});

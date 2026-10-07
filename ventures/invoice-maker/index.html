@@ -181,7 +181,7 @@
   </footer>
 
   <script type="module">
-    import { TERMS, toCents, computeTotals, formatMoney, dueDate, status, nextNumber, duplicateNumbers, receivables, invoicesToCsv, termsSentence, validate, lateFee, daysBetween } from "./calc.mjs";
+    import { TERMS, toCents, computeTotals, formatMoney, dueDate, status, nextNumber, duplicateNumbers, receivables, invoicesToCsv, termsSentence, validate, lateFee, daysBetween, parseHandoff } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const KEY = "invoice-maker-data";
@@ -366,6 +366,13 @@
     $("#optout").onclick = () => { setUsageOptOut(true); $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; };
     if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
     renderDash(); renderClients(); fill(blank());
+    const ho = parseHandoff(location.hash, "invoice", ["fromName", "clientName", "currency", "terms", "customDays", "notes", "lines"]);
+    if (ho) {
+      const b = blank();
+      fill({ ...b, ...ho, fromName: b.fromName || ho.fromName, terms: "custom", due: dueDate(b.issued, "custom", ho.customDays), lines: ho.lines.map((l) => ({ ...l, taxable: false })) });
+      record("handoff_received");
+      history.replaceState(null, "", location.pathname + location.search);
+    }
   </script>
 <script data-storage-guard>
 (function () {

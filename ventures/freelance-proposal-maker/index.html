@@ -24,6 +24,7 @@
     select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b3b5d3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
     button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3a3fa8; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    a.button { display: inline-block; border-radius: 8px; padding: 11px 15px; background: #3a3fa8; color: #fff; font-weight: 700; text-decoration: none; margin: 14px 8px 0 0; }
     button.secondary { background: #e6e7f6; color: #23277a; }
     button.danger { background: #fde8e8; color: #9a3412; }
     button.stop { background: #b42318; }
@@ -118,6 +119,8 @@
     <ul class="noprint" id="notes"></ul>
     <p class="noprint"><button type="button" id="print">Print / Save as PDF</button><button type="button" class="secondary" id="copy">Copy text</button><button type="button" class="secondary" id="dl-txt">Download .txt</button></p>
     <p class="note noprint" id="copy-status" aria-live="polite"></p>
+    <p class="noprint" id="next-step" hidden><strong>Client said yes?</strong> <label for="pick">Accepted option</label> <select id="pick" style="width:auto"></select>
+      <a id="to-contract" class="button" href="../freelance-contract-maker/">Draft the contract</a> <a id="to-invoice" class="button" href="../invoice-maker/">Make the deposit invoice</a></p>
     <div id="doc"></div>
   </section>
 
@@ -167,7 +170,7 @@
   </footer>
 
   <script type="module">
-    import { DEFAULTS, optionTerms, ladder, rateCheck, parsePhases, check, buildProposal, proposalText, reviewNotes, formatMoney, formatDate } from "./calc.mjs";
+    import { DEFAULTS, optionTerms, handoffHash, ladder, rateCheck, parsePhases, check, buildProposal, proposalText, reviewNotes, formatMoney, formatDate } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const KEY = "freelance-proposal-maker-data";
@@ -205,6 +208,11 @@
       const lt = $("#ladder");
       lt.innerHTML = rows ? `<caption class="sr">Options with deposit, balance and distance from the middle option</caption><thead><tr><th>Option</th><th class="n">Price</th><th class="n">Deposit</th><th class="n">Balance</th><th class="n">vs middle</th><th class="n">Your rate (private)</th></tr></thead><tbody></tbody>` : "";
       if (rows) lt.querySelector("tbody").innerHTML = rows;
+      const terms = optionTerms(data), pick = $("#pick"), prev = pick.value;
+      pick.innerHTML = terms.map((o, i) => `<option value="${esc(i)}">${esc(o.name)} (${esc(m(o.cents))})</option>`).join("");
+      if (prev && Number(prev) < terms.length) pick.value = prev;
+      $("#next-step").hidden = !terms.length;
+      if (terms.length) { const i = Number(pick.value) || 0; $("#to-contract").href = "../freelance-contract-maker/" + handoffHash(data, i); $("#to-invoice").href = "../invoice-maker/" + handoffHash(data, i); }
       $("#issues").innerHTML = check(data).map((w) => `<li>${esc(w)}</li>`).join("");
       $("#notes").innerHTML = reviewNotes(data).map((w) => `<li>${esc(w)}</li>`).join("");
       const doc = $("#doc");
@@ -221,6 +229,9 @@
       const a = Object.assign(document.createElement("a"), { href: url, download: name });
       document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
+    $("#pick").addEventListener("change", render);
+    $("#to-contract").addEventListener("click", () => record("handoff_to_contract"));
+    $("#to-invoice").addEventListener("click", () => record("handoff_to_invoice"));
     $("#print").onclick = () => { record("proposal_printed"); window.print(); };
     $("#dl-txt").onclick = () => { download("proposal.txt", text(), "text/plain"); record("proposal_downloaded"); };
     $("#copy").onclick = async () => {
