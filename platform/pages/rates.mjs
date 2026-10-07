@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'solar-panel-cleaning-quote-planner':
+    'overhead is a percentage of labour only (vehicle and consumables are added after it, not inside the base), unlike a percentage of direct cost, and the price floor is a minimum call-out charge; the target margin is a share of the quote',
   'childcare-center-break-even-calculator':
     'the wage is a classroom teacher\'s pay inside a staffing model driven by licensing ratios and burden is payroll tax and benefits on that wage; there is no job price, overhead percentage or quote to a customer',
   'hvac-repair-tier-price-calculator':
