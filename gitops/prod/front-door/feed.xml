@@ -16,6 +16,14 @@
     <summary type="text">Free ad slot sell-through planner for newsletter and podcast publishers. Paste past runs to see sell-through, unsold revenue, whether to raise or lower your price, booking pace for the next issue and last-minute floor math. Nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Beekeeping Profit Calculator — Hives, Honey, Nucs and Pollination Planner, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/apiary-profit-planner/"/>
+    <id>tag:marisstella.dev,2026:tool/apiary-profit-planner</id>
+    <updated>2026-10-07T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free beekeeping profit calculator. Project colonies, honey, nuc sales and pollination income year by year; see winter-loss sensitivity, break-even hives and payback. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Bakery Production Scheduler — Plan Bakes Backwards From Orders, Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bakery-production-scheduler/"/>
     <id>tag:marisstella.dev,2026:tool/bakery-production-scheduler</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free planner for shared and commissary kitchen owners. Enter rent, costs, stations, hourly rate and memberships; get break-even rate, break-even utilization, member effective rate and a profit grid. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>STR Turnover Scheduler</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/str-turnover-scheduler/"/>
-    <id>tag:marisstella.dev,2026:tool/str-turnover-scheduler</id>
-    <updated>2026-10-07T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free Airbnb and VRBO turnover cleaning scheduler: paste your iCal calendars and get a cleaner schedule, same-day turnover warnings, double-booking checks and the number of cleaners you need. Private, runs in your browser.</summary>
   </entry>
 </feed>
