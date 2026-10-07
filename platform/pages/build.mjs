@@ -3006,6 +3006,8 @@ const CATEGORY_RULES = [
         'expense-tracker',
         // `freelance-dashboard` joined 2026-10-07: one view over the four tools above, ranking what to chase, bill and set aside.
         'freelance-dashboard',
+        // `proposal-maker` joined 2026-10-07: the document that wins the project, ahead of the estimate, invoice and tax tools above.
+        'proposal-maker',
         // `freelancer-tax-pack` joined 2026-10-07: reads the three tools' records and answers what is owed and what to pay now.
         'freelancer-tax-pack',
         'indie-game-payout-calculator',

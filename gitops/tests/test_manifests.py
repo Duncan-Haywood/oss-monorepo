@@ -2985,8 +2985,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `lien-waiver-checker` graduated (browser pasted lien waiver to red flags and the change to ask for).
     # +1: `cash-flow-risk-forecaster` graduated (browser invoices and bills to the odds of a cash shortfall, cushion and biggest lever).
     # +1: `wholesale-line-sheet-maker` graduated (browser product list to wholesale prices, retailer and own margin, tiers, minimums, order simulator and a printable line sheet).
-    total = 827  # `infra/OWNER_CHECKLIST.md`'s own "N of the 827 tools" wording.
+    total = 828  # `infra/OWNER_CHECKLIST.md`'s own "N of the 828 tools" wording.
     # +1: `freelance-dashboard` graduated (browser hub reading the four freelancer tools' saved data: owed, unbilled, pipeline, profit and a ranked do-this-next list).
+    # +1: `proposal-maker` graduated (browser client proposal: scope with exclusions, dated phases, fixed / tiered / hourly-cap / retainer pricing, deposit and milestones, template clauses, printable acceptance block).
     # +1: `horse-boarding-stall-profit-calculator` graduated (browser barn stalls, occupancy and costs to monthly profit, break-even occupancy and board price).
     # +1: `pet-waste-removal-route-calculator` graduated (browser pet waste route clients, price and drive time to monthly profit, hourly pay and break-even clients).
     # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).

@@ -28130,3 +28130,41 @@ ventures:
       escaped before rendering, and a restore only accepts the four known keys
       after a confirmation. Ethics: read-only over the sibling tools, no data
       capture, no dark patterns.
+  - slug: proposal-maker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Prices, dates, the payment schedule and
+      the clause wording are deterministic functions of what the user typed.
+    basis: >-
+      Screened 2026-10-07 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Front of the freelancer
+      loop: estimate-maker prices a quote and freelance-contract-checker reads a
+      contract someone sends you, but nothing produced the scoped, dated, priced
+      document a freelancer sends to win the project. Distribution 6: "free proposal
+      template" and "project proposal generator" are real search phrases and the
+      sibling freelancer tools link to it, but volume is not measured with an
+      external tool. Defensibility 3: a template builder is easy to copy and the paid
+      platforms (Bonsai, PandaDoc, Proposify, HoneyBook) bundle signing and payment;
+      the wedge is free, private and no signup.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: the clause text is generic template wording, labelled on the page,
+      in the printed terms and in the footer as not legal advice with an instruction
+      to have a lawyer review any contract; it does not promise legal effect (a test
+      asserts that), and the page says what it does not model (e-signature, online
+      payment, multiple tax rates). Data never leaves the browser (test asserts no
+      network calls), all user text is escaped before rendering, and a restore
+      accepts only well-formed proposals. Ethics: no data capture, no dark
+      patterns, the hand-off writes only to Estimate Maker's own saved data.

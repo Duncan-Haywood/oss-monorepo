@@ -2573,3 +2573,22 @@ entries:
         run (example data, hostile client names escaped, no script errors). Registered launch date, category rule, tree
         counts, scores; regenerated the mirror; linked from all four sibling tools.
     mrr_end: 0
+  - venture: proposal-maker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built proposal-maker, the front of the freelancer loop: a browser page that turns a project into a
+        printable client proposal with a summary, problem and goals, scope with an included and an excluded list per
+        deliverable, phases with dates computed from a start date, one of four pricing models (fixed, good-better-best,
+        hourly with a cap, monthly retainer), a deposit and payment milestones whose schedule always adds up to the total,
+        assumptions, generic template clauses (change orders, revisions, client responsibilities, payment, ownership,
+        cancellation) flagged on the page as not legal advice, a validity date and a signature block. Saved proposals track
+        draft, sent, accepted and declined with a win rate, duplicate, JSON backup and restore, and an accepted proposal can be
+        sent to Estimate Maker on the same device. First visitor: freelancers and small agencies searching "free proposal
+        template" and "project proposal generator", plus users of the sibling tools, which now link to it; volume not measured.
+        Closest paid products are Bonsai, PandaDoc, Proposify and HoneyBook. No freelancer has used a printed proposal from it
+        with a real client, and the clause wording has not been reviewed by a lawyer. Calc, usage and page tests plus a
+        Chromium run. Registered launch date, category rule, tree counts, scores; regenerated the mirror; linked from
+        Estimate Maker, Invoice Maker and Freelance Dashboard.
+    mrr_end: 0
