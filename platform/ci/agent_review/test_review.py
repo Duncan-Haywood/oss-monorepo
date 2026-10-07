@@ -10,6 +10,7 @@ from review import (
     load_config,
     mergeable_state_ok,
     path_touches_ventures,
+    pr_from_same_repo,
     reviewer_already_approved,
 )
 
@@ -212,6 +213,34 @@ class MergeableStateTest(unittest.TestCase):
         # head; a merge must wait rather than proceed on a stale/absent verdict.
         self.assertFalse(mergeable_state_ok({"mergeable_state": None})[0])
         self.assertFalse(mergeable_state_ok({})[0])
+
+
+
+
+def _pr(head_repo, base_repo="owner/repo"):
+    return {
+        "head": {"repo": {"full_name": head_repo} if head_repo else None},
+        "base": {"repo": {"full_name": base_repo}},
+    }
+
+
+class SameRepoTest(unittest.TestCase):
+    def test_same_repo_branch_passes(self):
+        ok, _ = pr_from_same_repo(_pr("owner/repo"))
+        self.assertTrue(ok)
+
+    def test_fork_blocked(self):
+        ok, reason = pr_from_same_repo(_pr("stranger/repo"))
+        self.assertFalse(ok)
+        self.assertIn("fork", reason)
+
+    def test_deleted_fork_fails_closed(self):
+        ok, _ = pr_from_same_repo(_pr(None))
+        self.assertFalse(ok)
+
+    def test_missing_fields_fail_closed(self):
+        ok, _ = pr_from_same_repo({})
+        self.assertFalse(ok)
 
 
 if __name__ == "__main__":
