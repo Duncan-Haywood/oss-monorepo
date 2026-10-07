@@ -28456,3 +28456,33 @@ ventures:
       Liability: arithmetic on the visitor's file and margin, assumptions stated on the page,
       no advice, no warranty, not affiliated with Etsy. Ethics: nothing leaves the browser,
       no dark patterns, nothing is sold.
+  - slug: beef-cattle-ration-optimizer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. The ration comes from a linear program over feeds
+      and requirements the user types or edits.
+    basis: >-
+      Screened 2026-10-07 per portfolio/pipeline/README.md; write-up in this venture's own
+      VENTURE.yaml comment. A least-cost formulation solver (simplex) for cow-calf and
+      backgrounding operations, reusing the solver from cheap-meal-plan-optimizer. Distribution 5:
+      "least cost cattle ration" and "cattle feed ration calculator" are recurring producer
+      searches and extension-newsletter topics; volume not measured. Defensibility 4: the entry
+      prices for unused feeds and herd buying list go beyond extension spreadsheets.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed feed values, approximate starter figures and rounded
+      requirement presets labelled as such, not veterinary or nutritionist advice, unmodelled
+      items (trace minerals, ionophores, urea limits, mycotoxins) stated. Ethics: nothing leaves
+      the browser, no dark patterns, nothing is sold.

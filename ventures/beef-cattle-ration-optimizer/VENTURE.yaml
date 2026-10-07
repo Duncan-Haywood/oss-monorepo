@@ -1,0 +1,63 @@
+name: beef-cattle-ration-optimizer
+description: >-
+  Free browser tool: enter feeds with price per ton, dry matter, protein, TDN,
+  calcium and phosphorus, pick the beef animal class, and a simplex solver finds
+  the least-cost pounds per head per day, the herd cost, a buying list, what each
+  requirement costs and the price at which an unused feed would enter the
+  ration. Checked against exhaustive search. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture session asked for deeper, algorithmic
+# tools with real competitors. duplicate_check.py on "cattle livestock feed
+# ration cost optimizer": closest row backyard-egg-profit-calculator 0.15, far
+# below the 0.45 line. Reuses the simplex from cheap-meal-plan-optimizer.
+#
+# Why this niche: feed is the largest variable cost for cow-calf and
+# backgrounding operations, and producers shop hay, silage, byproduct feeds and
+# supplements on price per ton, not per pound of protein or energy. Paid
+# formulation software exists (NDS, CPM, Feedval-style tools) and extension
+# spreadsheets use a Pearson square or Solver; a private, free, browser LP that
+# also prices unused feeds is a lighter entry point and a lead magnet toward a
+# hosted version with saved feed libraries and lab-report import (not built).
+#
+# First visitor: people searching "least cost cattle ration", "cattle feed
+# ration calculator", "cheapest way to feed cows winter", "ration balancer
+# spreadsheet", and cattle forums/extension newsletters. Volume not measured
+# with an external tool.
+#
+# Liability boundary: animal feeding is a welfare domain, so: arithmetic on
+# user-typed numbers only; starter values approximate and prices labelled
+# EXAMPLE; presets are rounded rules of thumb; not veterinary or nutritionist
+# advice; trace minerals, ionophores, urea limits and mycotoxins stated as not
+# modelled; nothing stored.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a
+# hosted feed library, forage-test import and herd groups.
+
+hypotheses:
+  - claim: >-
+      Cow-calf and backgrounding producers will use a private least-cost ration
+      solver that prices their own feeds, and the price at which an unused feed
+      would pay changes what they buy.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a ration that breaks a stated requirement or feed maximum, or that is dearer than a simple alternative the solver should have found.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/beef-cattle-ration-optimizer/
+  analytics: null
