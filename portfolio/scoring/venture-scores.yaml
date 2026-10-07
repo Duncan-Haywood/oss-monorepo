@@ -28487,6 +28487,7 @@ ventures:
       items (trace minerals, ionophores, urea limits, mycotoxins) stated. Ethics: nothing leaves
       the browser, no dark patterns, nothing is sold.
   - slug: ball-python-morph-pairing-planner
+  - slug: fertilizer-blend-optimizer
     scores:
       ai_leverage: 1
       autonomous_ops: 10
@@ -28510,6 +28511,16 @@ ventures:
       r/ballpython and breeder Facebook groups are named channels; volume not measured.
       Defensibility 4: pricing every outcome and ranking all pairings goes beyond one-pairing
       genetics calculators.
+      No model in the product, deliberately. The blend comes from a linear program over products
+      and nutrient targets the user types or edits.
+    basis: >-
+      Screened 2026-10-07 per portfolio/pipeline/README.md; write-up in this venture's own
+      VENTURE.yaml comment. A least-cost fertilizer blend solver (simplex) for row-crop and hay
+      growers, reusing the solver from beef-cattle-ration-optimizer. Distribution 5: "cheapest
+      fertilizer blend" and "urea vs anhydrous cost per pound of nitrogen" are recurring grower
+      searches and extension-newsletter topics; volume not measured. Defensibility 4: nutrient
+      shadow prices, product entry prices and the saving against the obvious plan go beyond
+      one-nutrient-at-a-time extension spreadsheets.
     gates:
       liability_containment: pass
       ethical_robustness: pass
@@ -28517,3 +28528,7 @@ ventures:
       Liability: arithmetic on user-typed gene types and prices, gene types labelled as common
       convention to verify, allelic genes refused, probabilities not promises, not veterinary
       advice. Ethics: nothing leaves the browser, no dark patterns, nothing is sold.
+      Liability: arithmetic on user-typed product prices and grades, example prices and rounded crop
+      target presets labelled as such, not agronomic advice, unmodelled items (application method,
+      timing, N loss, salt and burn risk, lime, micronutrients) stated. Ethics: nothing leaves the
+      browser, no dark patterns, nothing is sold.
