@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CDL School Payback Calculator</title>
+  <meta name="description" content="Free CDL school payback calculator: tuition, fees, weeks out of work, weekly miles and pay per mile become the cost to get in, the monthly gain over your current job, months to pay it back and company-paid training versus paying yourself. Private, runs in your browser.">
+  <meta property="og:title" content="CDL school payback calculator: is truck driving school worth it? Free, private">
+  <meta property="og:description" content="Tuition, fees and weekly miles in; cost to get in, monthly gain, payback months and company-paid versus self-paid out.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "CDL School Payback Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is CDL school worth it?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the miles you are actually paid for. Add tuition, fees and the pay you give up while in school, then divide by how much more a month driving pays than your current job after the extra costs of the road. The page does that division and shows it at different weekly miles so you can see how much it depends on them."}}, {"@type": "Question", "name": "How long does it take to pay back CDL school?", "acceptedAnswer": {"@type": "Answer", "text": "Months of driving to recover what you spent getting in: entry cost divided by monthly gain over your current job. At low guaranteed miles it can take years, and at some pay rates it never does, which is why the page shows payback at 1,500 to 3,000 miles a week."}}, {"@type": "Question", "name": "Is company-paid CDL training cheaper than paying for school yourself?", "acceptedAnswer": {"@type": "Answer", "text": "Usually the school is free or cheap up front, in exchange for a commitment period at a lower rate and money owed if you leave early. The page compares your net position over a period you choose, using your own pay rates for each route. Read the contract for what you owe if you leave."}}, {"@type": "Question", "name": "Does this include taxes?", "acceptedAnswer": {"@type": "Answer", "text": "No. Pay and costs are before tax, and the extra weekly cost figure is yours to set. Treat the result as a worksheet and check the numbers with a tax professional."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CDL SCHOOL PAYBACK CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is CDL school worth it? What it costs to get in, and how many months of driving pay it back</h1>
+    <p>Enter tuition, fees, the weeks you will be out of work, and the miles and pay per mile you expect. You get the <strong>cost to get in</strong>, the <strong>monthly gain</strong> over your current job, the <strong>months to pay it back</strong>, payback at <strong>1,500 to 3,000 miles a week</strong>, and whether a <strong>company-paid school</strong> beats paying yourself.</p>
+    <p class="note">It works from your own figures. It does not know what any school or carrier pays or how many miles you will be given.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>Your plan</h2>
+    <div class="grid">
+      <div><label for="tuition">Tuition for CDL school, dollars</label><input id="tuition" inputmode="decimal" value="" placeholder="5000"></div>
+      <div><label for="fees">Permit, DOT medical, license and endorsement fees, dollars</label><input id="fees" inputmode="decimal" value="" placeholder="600"></div>
+      <div><label for="schoolweeks">Weeks in school</label><input id="schoolweeks" inputmode="decimal" value="" placeholder="6"></div>
+      <div><label for="currentweekly">Weekly pay at your current job, before tax, dollars</label><input id="currentweekly" inputmode="decimal" value="" placeholder="800"></div>
+      <div><label for="milesperweek">Miles you expect to be paid for each week</label><input id="milesperweek" inputmode="decimal" value="" placeholder="2200"></div>
+      <div><label for="centspermile">Pay per mile, dollars (for example 0.52)</label><input id="centspermile" inputmode="decimal" value="" placeholder="0.52"></div>
+      <div><label for="weeksworked">Weeks you expect to drive per year</label><input id="weeksworked" inputmode="decimal" value="" placeholder="48"></div>
+      <div><label for="extraweekly">Extra weekly cost of the road (food, gear), dollars</label><input id="extraweekly" inputmode="decimal" value="" placeholder="60"></div>
+      <div><label for="sponsoredcpm">Company-paid route: pay per mile, dollars (optional)</label><input id="sponsoredcpm" inputmode="decimal" value="" placeholder="0.46"></div>
+      <div><label for="sponsoredmonths">Company-paid route: commitment months (optional)</label><input id="sponsoredmonths" inputmode="decimal" value="" placeholder="12"></div>
+      <div><label for="sponsoredfees">Company-paid route: fees you still pay, dollars (optional)</label><input id="sponsoredfees" inputmode="decimal" value="" placeholder="300"></div>
+      <div><label for="horizon">Compare the two routes over how many months</label><input id="horizon" inputmode="decimal" value="" placeholder="36"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out the payback</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in your plan, then click Work out the payback.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>Payback by miles per week</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Miles per week</th><th scope="col" class="n">Gross a year</th><th scope="col" class="n">Gain a month</th><th scope="col" class="n">Payback (months)</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download payback table (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Counts:</strong> cost to get in = tuition + fees + weeks in school x current weekly pay; monthly gain = ((miles x pay per mile - extra weekly cost) x weeks driven - current weekly pay x weeks driven) / 12; payback months = cost to get in / monthly gain; company-paid route = fees + the same lost pay, earning the company rate for the commitment months and your own rate afterwards, compared with paying yourself over the period you choose.</li>
+      <li><strong>Rules used:</strong> a commercial driver's license is governed by 49 CFR Part 383. This page does not check eligibility, endorsements or medical qualification.</li>
+      <li><strong>Not decided:</strong> how many miles you will actually be given, taxes, per diem treatment, health insurance, what you owe if you leave a company-paid contract early, whether you pass, job availability where you live, and pay changes after your first year.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>Is CDL school worth it?</h3>
+    <p>It depends on the miles you are actually paid for. Add tuition, fees and the pay you give up while in school, then divide by how much more a month driving pays than your current job after the extra costs of the road. The page does that division and shows it at different weekly miles so you can see how much it depends on them.</p>
+    <h3>How long does it take to pay back CDL school?</h3>
+    <p>Months of driving to recover what you spent getting in: entry cost divided by monthly gain over your current job. At low guaranteed miles it can take years, and at some pay rates it never does, which is why the page shows payback at 1,500 to 3,000 miles a week.</p>
+    <h3>Is company-paid CDL training cheaper than paying for school yourself?</h3>
+    <p>Usually the school is free or cheap up front, in exchange for a commitment period at a lower rate and money owed if you leave early. The page compares your net position over a period you choose, using your own pay rates for each route. Read the contract for what you owe if you leave.</p>
+    <h3>Does this include taxes?</h3>
+    <p>No. Pay and costs are before tax, and the extra weekly cost figure is yours to set. Treat the result as a worksheet and check the numbers with a tax professional.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it is not career advice or an assessment of whether you qualify for a license. You are responsible for reviewing and verifying its output with the school, the carrier's contract and current regulations before spending money. Treat it as a worksheet to check, not a quote.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../owner-operator-cpm-calculator/">owner-operator cost per mile calculator</a>, for when you run your own truck.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, scenariosCsv, dollars } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { tuition: "tuition", fees: "fees", schoolweeks: "schoolWeeks", currentweekly: "currentWeekly", milesperweek: "milesPerWeek", centspermile: "centsPerMile", weeksworked: "weeksWorked", extraweekly: "extraWeekly", sponsoredcpm: "sponsoredCentsPerMile", sponsoredmonths: "sponsoredMonths", sponsoredfees: "sponsoredFees", horizon: "horizon" };
+    const IDLE = "Fill in your plan, then click Work out the payback.";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = r.paybackMonths === null ? `${dollars(r.entryCost)} to get in; driving never pays it back on these figures` : `${dollars(r.entryCost)} to get in; paid back in ${r.paybackMonths.toFixed(1)} months of driving (${dollars(r.monthlyGain)} a month gain)`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#rows").innerHTML = r.scenarios.map((x) => `<tr><td class="n">${x.milesPerWeek}</td><td class="n">${dollars(x.annualGross)}</td><td class="n">${dollars(x.monthlyGain)}</td><td class="n">${x.paybackMonths === null ? "never" : x.paybackMonths.toFixed(1)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Worked out. Change a figure and run it again to compare.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: $5,000 tuition, 2,200 miles a week at $0.52 a mile. Illustrative figures only.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("cdl-school-payback.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("cdl-school-payback-by-miles.csv", scenariosCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
