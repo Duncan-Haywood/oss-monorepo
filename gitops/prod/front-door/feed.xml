@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 856 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 857 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -30,6 +30,14 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free bakery production scheduler. Paste your products and orders with due times; get a backwards-planned prep, proof and bake timeline, the ovens and bakers you need, and which orders to drop when it does not fit. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Beef Cattle Ration Optimizer — least-cost feed ration for cows and calves</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/beef-cattle-ration-optimizer/"/>
+    <id>tag:marisstella.dev,2026:tool/beef-cattle-ration-optimizer</id>
+    <updated>2026-10-07T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free beef cattle ration optimizer. Enter your feeds with price per ton and nutrient content, choose cow, bull, stocker or finishing class, and get the least-cost ration per head per day, herd cost and a buying list. A least-cost feed formulation solver in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>CDL School Payback Calculator</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free mid-term rental calculator: compare a furnished 30-day-plus rental with a long-term lease and with Airbnb-style nightly renting. See the monthly rate, empty days and furnishing payback that make it worth it. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Mobile Detailing Day Planner — Which Jobs to Take, Free &amp; Private</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mobile-detailing-day-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/mobile-detailing-day-planner</id>
-    <updated>2026-10-07T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free day planner for mobile car detailers. List the jobs with price, time on site, drive and supplies; it picks the most profitable set that fits your hours, shows take-home per hour and names jobs that need a higher price. Nothing uploaded.</summary>
   </entry>
 </feed>
