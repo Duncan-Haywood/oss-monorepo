@@ -2998,6 +2998,8 @@ const CATEGORY_RULES = [
         'invoice-maker',
         // `estimate-maker` joined 2026-10-07 beside it: the quote a freelancer or trade sends before the invoice, with win-rate tracking.
         'estimate-maker',
+        // `time-tracker` joined 2026-10-07: the hours behind the invoice, handing unbilled time to Invoice Maker.
+        'time-tracker',
         'indie-game-payout-calculator',
         'upwork-earnings-fee-analyzer',
         'patreon-members-churn-analyzer',
