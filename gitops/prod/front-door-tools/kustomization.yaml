@@ -66,8 +66,8 @@
 #   portfolio-front-tools-30: 122 files, 548728 bytes
 #   portfolio-front-tools-31: 119 files, 548746 bytes
 #   portfolio-front-tools-32: 123 files, 554561 bytes
-#   portfolio-front-tools-33: 133 files, 556308 bytes
-#   portfolio-front-tools-34: 122 files, 552417 bytes
+#   portfolio-front-tools-33: 132 files, 553358 bytes
+#   portfolio-front-tools-34: 123 files, 556411 bytes
 #   portfolio-front-tools-35: 60 files, 322422 bytes
 #   portfolio-front-tools-36: 48 files, 264261 bytes
 #
@@ -4468,12 +4468,12 @@ configMapGenerator:
       - vendor-change-watch__store.mjs.gz=vendor-change-watch__store.mjs.gz
       - vendor-change-watch__usage.mjs.gz=vendor-change-watch__usage.mjs.gz
       - vendor-change-watch__vs-changedetection-io.html.gz=vendor-change-watch__vs-changedetection-io.html.gz
-      - vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz=vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz
   - name: portfolio-front-tools-34
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz=vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz
       - vercel-bill-estimator__cli.mjs.gz=vercel-bill-estimator__cli.mjs.gz
       - vercel-bill-estimator__engine.mjs.gz=vercel-bill-estimator__engine.mjs.gz
       - vercel-bill-estimator__how-to-reduce-your-vercel-bill.html.gz=vercel-bill-estimator__how-to-reduce-your-vercel-bill.html.gz

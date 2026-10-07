@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULTS, seasonFixed, effectiveDays, perVisitor, project, visitorsForProfit, admissionForProfit, rainoutRisk, sensitivity, analyze, num } from "./calc.mjs";
+import { DEFAULTS, seasonFixed, effectiveDays, perVisitor, project, visitorsForProfit, admissionForProfit, rainoutRisk, seasonOdds, sensitivity, analyze, num } from "./calc.mjs";
 
 const base = { ...DEFAULTS, openDays: 20, rainoutPct: 0, visitors: 100, admission: 10, pickLbs: 0, pickPrice: 0, cropCostPerLb: 0, addonSpend: 0, addonMarginPct: 0, laborPerDay: 500, rent: 1000, insurance: 1000, marketing: 500, setup: 500, feePct: 0, targetProfit: 5000 };
 
@@ -73,4 +73,32 @@ test("analyze warns when a washed-out season turns a profit into a loss", () => 
 test("analyze flags a visitor who loses money before labor", () => {
   const a = analyze({ ...base, admission: 0, pickLbs: 5, pickPrice: 1, cropCostPerLb: 2 });
   assert.match(a.findings[0].title, /loses you money/);
+});
+
+test("season odds: probabilities sum to one and, without a wet season, expected profit equals the point estimate", () => {
+  const o = { ...base, openDays: 24, rainoutPct: 0.2, wetChance: 0 };
+  const s = seasonOdds(o);
+  assert.ok(Math.abs(s.outcomes.reduce((a, x) => a + x.prob, 0) - 1) < 1e-9);
+  assert.ok(Math.abs(s.expected - project(o).profit) < 1e-6);
+});
+
+test("season odds: a wet-season chance widens the downside", () => {
+  const o = { ...base, visitors: 80, openDays: 24, rainoutPct: 0.2 };
+  const dry = seasonOdds({ ...o, wetChance: 0 });
+  const wet = seasonOdds({ ...o, wetChance: 0.3, wetLossPct: 0.6 });
+  assert.ok(wet.pLoss > dry.pLoss);
+  assert.ok(wet.p10 < dry.p10 || wet.p10 === dry.p10);
+  assert.ok(wet.expected < dry.expected);
+});
+
+test("season odds: no weather loss at all means a certain outcome", () => {
+  const s = seasonOdds({ ...base, rainoutPct: 0, wetChance: 0 });
+  assert.equal(s.p10, s.p90);
+  assert.equal(s.pLoss, project(base).profit < 0 ? 1 : 0);
+});
+
+test("season odds: every day lost is a certain loss of the season costs", () => {
+  const s = seasonOdds({ ...base, rainoutPct: 1, wetChance: 0 });
+  assert.equal(s.pLoss, 1);
+  assert.equal(Math.round(s.expected), -seasonFixed(base));
 });

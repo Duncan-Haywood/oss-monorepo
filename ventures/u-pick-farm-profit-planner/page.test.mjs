@@ -15,7 +15,7 @@ test("index page carries the disclaimer, privacy line and sponsor link", () => {
 
 test("inputs have labels and nothing can send the numbers anywhere", () => {
   const html = page("index.html");
-  for (const id of ["openDays", "rainoutPct", "visitors", "admission", "pickLbs", "pickPrice", "cropCostPerLb", "addonSpend", "addonMarginPct", "laborPerDay", "rent", "insurance", "marketing", "setup", "feePct", "targetProfit"]) assert.match(html, new RegExp(`<label for="${id}">`));
+  for (const id of ["openDays", "rainoutPct", "wetChance", "wetLossPct", "visitors", "admission", "pickLbs", "pickPrice", "cropCostPerLb", "addonSpend", "addonMarginPct", "laborPerDay", "rent", "insurance", "marketing", "setup", "feePct", "targetProfit"]) assert.match(html, new RegExp(`<label for="${id}">`));
   assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/);
   assert.doesNotMatch(page("calc.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/);
 });
