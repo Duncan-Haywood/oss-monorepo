@@ -28399,3 +28399,32 @@ ventures:
       Liability: arithmetic on the visitor's own numbers, no growing, sterilisation or
       food-safety advice, no warranty, per its own page. Nothing leaves the browser.
       Ethics: deterministic, no dark patterns; nothing is sold.
+  - slug: ebay-promoted-listings-roi-analyzer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic arithmetic on rows
+      of the user's own file and two numbers they type.
+    basis: >-
+      Screened 2026-10-07 per portfolio/pipeline/README.md; write-up in this venture's own
+      VENTURE.yaml comment. Same file-in-browser shape as stripe-churn-cohort-analyzer for a
+      different seller group. Distribution 6: "are ebay promoted listings worth it" and "ebay
+      promoted listings break even" are recurring reseller questions; volume not measured.
+      Defensibility 3: the edge is subtracting the seller's own margin, which eBay's report
+      cannot do.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the visitor's file and margin, assumptions stated on the page,
+      no advice, no warranty, not affiliated with eBay. Ethics: nothing leaves the browser,
+      no dark patterns, nothing is sold.

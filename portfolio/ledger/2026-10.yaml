@@ -2765,3 +2765,19 @@ entries:
         over days lost, giving P(loss) and 10/50/90th percentile profit. The duplicate venture built in this session was
         dropped rather than merged. 4 new calc tests; Chromium run on the example (no script errors); mirror regenerated.
     mrr_end: 0
+  - venture: ebay-promoted-listings-roi-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built ebay-promoted-listings-roi-analyzer: a browser-local tool for eBay sellers. Drop in the
+        Seller Hub Promoted Listings report (preamble lines and totals row tolerated, listing
+        rows summed) plus two inputs only the seller knows, profit margin before ads and the
+        share of credited sales that would have sold anyway. Per listing it shows profit after
+        ad fees and the share of credited sales the ad must have caused to break even
+        (fees / profit before ads; above 100% it loses even if the ad caused every sale),
+        with verdicts and findings. New niche versus the catalogue: no existing venture reads
+        a Promoted Listings report. Unverified on a real export: header aliases are from
+        eBay's documented columns, tests use hand-computed break-even cases and no-network
+        assertions. Registered score row, launch date, category rule and CI workflow.
+    mrr_end: 0
