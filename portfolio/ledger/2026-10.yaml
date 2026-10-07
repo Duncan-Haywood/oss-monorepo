@@ -2741,3 +2741,17 @@ entries:
         and a Chromium run on the example (no script errors). Registered launch date and category rule; tree counts
         synced; mirror regenerated.
     mrr_end: 0
+  - venture: u-pick-farm-profit-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built u-pick-farm-profit-planner: a browser page where a u-pick farm, pumpkin patch or small
+        agritourism owner enters open days, weather losses, daily visitors, admission, pounds picked and extras spend,
+        crew and season costs, and gets season profit, the visitors per day and admission that break even and reach a
+        goal, what each visitor leaves after crop and food cost, a rainy-season profit table and an attendance-by-admission
+        grid. Uniform visitors and one admission price are stated simplifications. duplicate_check closest 0.16
+        (custom-farm-rate-calculator). First visitor: searches for "pumpkin patch admission price" and "u-pick farm
+        business plan"; volume not measured. No farm owner has used it. 23 calc, page and usage tests. Registered launch
+        date and food-service category; tree counts synced; mirror regenerated.
+    mrr_end: 0
