@@ -2996,6 +2996,8 @@ const CATEGORY_RULES = [
         // `invoice-maker` joined 2026-10-06 for the same reason (back-office at its 3 MB bound): a freelancer or sole proprietor
         // making the invoice for their own job.
         'invoice-maker',
+        // `estimate-maker` joined 2026-10-07 beside it: the quote a freelancer or trade sends before the invoice, with win-rate tracking.
+        'estimate-maker',
         'indie-game-payout-calculator',
         'upwork-earnings-fee-analyzer',
         'patreon-members-churn-analyzer',
