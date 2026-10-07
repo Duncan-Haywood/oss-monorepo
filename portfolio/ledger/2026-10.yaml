@@ -2692,3 +2692,18 @@ entries:
         usage tests plus a Chromium run (example data, no script errors). Registered launch date and category rule; tree
         counts synced; mirror regenerated.
     mrr_end: 0
+  - venture: mushroom-fruiting-room-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built mushroom-fruiting-room-planner: a browser page where a small gourmet-mushroom grower enters
+        block cost, yield per flush, price, contamination and fruiting-room slots and gets profit per block and per
+        slot-week, the flush count that earns most (per block when the room has spare slots, per slot-week when it is
+        full), the most blocks the room can carry per week, a week-by-week harvest and cash simulation with the lowest
+        cash point and payback week, the contamination rate and price that break even, and a contamination-by-price
+        weekly-profit table. Exports a week CSV. New niche: duplicate_check.py "mushroom grower" found no lexical
+        overlap. First visitor: grower subreddits and "mushroom farm profit calculator" / "how many flushes per block"
+        searches; volume not measured. Only synthetic farms tested, no grower has used it; yields and prices are the
+        user's. Calc, page and usage tests; registered launch date, category rule, score row; regenerated the mirror.
+    mrr_end: 0
