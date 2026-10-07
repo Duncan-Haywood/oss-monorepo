@@ -590,7 +590,7 @@ const CATEGORY_RULES = [
     // billable-hour cost, same reader as `appliance-repair-quote-calculator` and the bid calculators here; slug names no `bid-calculator`.
     // `hvac-repair-tier-price-calculator` joined 2026-10-03 on its first commit: Good/Better/Best repair prices and an average-call model for an HVAC
     // shop, same reader as `plumber-flat-rate-price-calculator` just above; slug names no `bid-calculator`.
-    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|tender-bid-readiness|tender-radar|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|lead-response-time)/.test(slug),
+    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|tender-bid-readiness|tender-radar|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -3899,7 +3899,7 @@ const SUBCATEGORY_RULES = {
       // work -- but this tool prices vegetation removal by acres per
       // machine-hour, not excavation, grading or a poured product, and its
       // nearest neighbour by both buyer and job is the tree service beside it.
-      test: (slug) => /^(artificial-turf|sod-install|lawn-care|irrigation-|tree-service|forestry-mulching|landscape-lighting|holiday-light|snow-removal|snow-plow-contract|fence|deck-|deck-bid|pergola|hot-tub|pool-plaster|vinyl-liner)/.test(slug),
+      test: (slug) => /^(artificial-turf|sod-install|lawn-care|irrigation-|tree-service|stump-grinding|forestry-mulching|landscape-lighting|holiday-light|snow-removal|snow-plow-contract|fence|deck-|deck-bid|pergola|hot-tub|pool-plaster|vinyl-liner)/.test(slug),
     },
   ],
 };

@@ -1,0 +1,46 @@
+name: stump-grinding-price-calculator
+description: >-
+  Free browser tool for stump grinding contractors. Enter the stump diameters on a site, wood hardness, your grinder's
+  real cutting speed, setup and drive time, crew, machine and truck costs; get a bid with a price per stump, your
+  minimum charge, a check on your per-inch quote, and hardness, bundling, grinder-speed and wage sensitivity. Nothing
+  is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07. No stump grinding venture exists in ventures/ (tree-service-bid-calculator is the adjacent
+# tree-removal tool); not in screened-out.md.
+# Who: owner-operators and small crews who grind stumps, often as an add-on to a lawn or tree business. First visitor:
+# searches like "how much to charge for stump grinding", "stump grinding price per inch", "stump grinding business
+# pricing"; arborist and lawn-care forums. Volume not measured.
+#
+# Liability: arithmetic on the user's own numbers; no personal data, stores nothing, no-warranty and not-advice clauses.
+# Utility locates, insurance, licensing and tax are explicitly out of scope on the page.
+#
+# Unverified: no contractor has used it. Defaults (grinder speed especially) are placeholders. Path to revenue (payment
+# rails stay off): lead magnet and donations; if usage appears, saved rate cards and a printable customer estimate, then
+# a paid tier behind an env switch.
+
+hypotheses:
+  - claim: >-
+      Stump grinders will use a private cost model because flat per-inch quotes ignore setup, drive time and
+      hardness, which is the usual reason small jobs and hard stumps lose money.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/stump-grinding-price-calculator/
+  analytics: null
