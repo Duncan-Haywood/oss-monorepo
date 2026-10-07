@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 839 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 841 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -88,6 +88,22 @@
     <summary type="text">Free year-end tax pack for freelancers: pulls your invoices, expenses and mileage from this browser, then shows Schedule C net profit, self-employment tax, a 2026 federal estimate, quarterly payments still due and the 1099-NEC list. No account, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Greenhouse Bench Planner</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/greenhouse-bench-planner/"/>
+    <id>tag:marisstella.dev,2026:tool/greenhouse-bench-planner</id>
+    <updated>2026-10-07T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free greenhouse and nursery planner: enter what you promised to sell and when, and get sow dates, bench and germination space by week, what will not fit and what extra space is worth. Private, runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Maple Syrup Sugarbush Profit Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/maple-syrup-sugarbush-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/maple-syrup-sugarbush-profit-calculator</id>
+    <updated>2026-10-07T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free maple syrup profit calculator: taps and sap to syrup by the rule of 86, then fuel, supplies, equipment, fees and labour, profit per tap and per hour, poor and good seasons, and whether reverse osmosis pays back. Private, runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Mid-Term Rental Calculator</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/midterm-rental-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/midterm-rental-calculator</id>
@@ -150,21 +166,5 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free worker classification checker for small business owners. Screen a contractor against the IRS test, the DOL economic reality test and the ABC test, see which facts point to employee status and estimate back-tax and overtime exposure. Illustrative; nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>ABA Authorization Tracker</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/aba-authorization-tracker/"/>
-    <id>tag:marisstella.dev,2026:tool/aba-authorization-tracker</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free ABA authorization tracker: paste your authorizations and see which units run out early, which expire unused, and when each reauthorization is due. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>App Store &amp; Google Play Listing Checker — Keyword Field, Character Limits and Rejection Risks</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/app-listing-metadata-check/"/>
-    <id>tag:marisstella.dev,2026:tool/app-listing-metadata-check</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free tool: paste your App Store or Google Play listing text and check it before you submit — character limits, wasted keyword-field characters, repeated words, promotional claims in the name, placeholder text and keyword stuffing. Runs in your browser; nothing is uploaded. A zero-dependency CLI lints a fastlane metadata folder in CI.</summary>
   </entry>
 </feed>
