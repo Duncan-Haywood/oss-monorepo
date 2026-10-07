@@ -28092,3 +28092,41 @@ ventures:
       read-only and never leaves the browser (test asserts no network calls and
       no writes to the other tools' keys). Ethics: no data capture; unpaid
       invoices are shown as a warning rather than silently counted as income.
+  - slug: freelance-dashboard
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Receivables, unbilled time, pipeline
+      and profit are deterministic sums over the user's own saved data, and the
+      action list is ranked by amount at stake, never inferred.
+    basis: >-
+      Screened 2026-10-07 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Hub of the
+      freelancer loop (estimate-maker -> time-tracker -> invoice-maker ->
+      expense-tracker): the four tools each answer one question and none says
+      what to do first today or backs up all four at once. Distribution 6: a
+      retention and cross-sell surface linked from each of the four, with a
+      modest search tail ("freelance dashboard"); volume not measured with an
+      external tool. Defensibility 3: it is only as useful as the data in the
+      four tools, which is the lock-in, and the paid bundles (Bonsai, HoneyBook,
+      FreshBooks) do more.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: adds up numbers the user saved in other tools, states that it is
+      not legal, tax or financial advice, calls the tax set-aside a plain
+      percentage and not a tax calculation, and says what it does not model. Data
+      never leaves the browser (test asserts no network calls), all user text is
+      escaped before rendering, and a restore only accepts the four known keys
+      after a confirmation. Ethics: read-only over the sibling tools, no data
+      capture, no dark patterns.

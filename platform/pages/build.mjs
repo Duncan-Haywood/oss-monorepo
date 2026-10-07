@@ -3004,6 +3004,8 @@ const CATEGORY_RULES = [
         'time-tracker',
         // `expense-tracker` joined 2026-10-07: the costs beside the hours and the invoice, grouped by Schedule C line.
         'expense-tracker',
+        // `freelance-dashboard` joined 2026-10-07: one view over the four tools above, ranking what to chase, bill and set aside.
+        'freelance-dashboard',
         // `freelancer-tax-pack` joined 2026-10-07: reads the three tools' records and answers what is owed and what to pay now.
         'freelancer-tax-pack',
         'indie-game-payout-calculator',

@@ -2513,3 +2513,6 @@ gitops:
 - workflow: freelancer-tax-pack-ci.yml
   classification: none
   publishes: []
+- workflow: freelance-dashboard-ci.yml
+  classification: none
+  publishes: []

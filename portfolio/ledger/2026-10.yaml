@@ -2556,3 +2556,20 @@ entries:
         Chromium smoke run (cross-tool read, example data, escape check). Registered launch date, category rule, tree
         counts, scores; regenerated the mirror; linked from Expense Tracker and Invoice Maker.
     mrr_end: 0
+  - venture: freelance-dashboard
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built freelance-dashboard, the hub of the freelancer loop (estimate-maker, time-tracker,
+        invoice-maker, expense-tracker): a browser page that reads the four tools' saved data on the same device and
+        shows what is owed and overdue, unbilled hours by client, open quotes and win rate, paid income, deductible
+        costs, net profit and a tax set-aside at a chosen percentage, with a "do this next" list ranked by amount at
+        stake (chase, bill, follow up, receipts, client concentration, a tax date inside 30 days, a timer left
+        running). One JSON backup and restore for all four tools, accepting only the four known keys after a
+        confirmation. First visitor: users of the four sibling tools, who now get a link to it from each, plus
+        "freelance dashboard" searches; volume not measured. Closest paid products are Bonsai, HoneyBook and FreshBooks.
+        No freelancer has checked the figures against a real book of work. 24 calc, usage and page tests plus a Chromium
+        run (example data, hostile client names escaped, no script errors). Registered launch date, category rule, tree
+        counts, scores; regenerated the mirror; linked from all four sibling tools.
+    mrr_end: 0
