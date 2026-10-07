@@ -1,0 +1,66 @@
+name: freelance-proposal-maker
+description: >-
+  Free freelance proposal generator that runs in the browser with no account:
+  the client's problem, deliverables, a dated timeline, up to three priced
+  options with deposits and an expiry date, as a document to print, copy or
+  download. Answers stay on the device.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session, as the step in front of
+# freelance-contract-maker: pitch -> proposal -> contract -> estimate -> time ->
+# invoice. The suite could write the agreement and bill the work but had nothing
+# for the step that wins it.
+#
+# Paid market is real: Proposify, PandaDoc, Bonsai and HoneyBook charge roughly
+# $20-60 a month for proposals, and Notion/Canva templates sell for $15-60. The
+# wedge is private, no signup, no watermark, and the parts a template leaves
+# blank are computed: dates from a start date, an expiry date, per-option
+# deposits to the cent, and a check that the options are priced far enough
+# apart to be a real choice.
+#
+# First visitor: freelancers searching "freelance proposal template", "web
+# design proposal generator", "project proposal pricing options". Volume not
+# measured with an external tool.
+#
+# Honest limits, stated on the page: a template built from the answers; no
+# e-signature, no open tracking, no tax lines, no discounts.
+#
+# Path to revenue (payments stay off): free tool -> lead magnet for the freelancer
+# suite; donations via GitHub Sponsors. Natural next steps if it earns repeat
+# visitors: niche variants (web design, copywriting, video, consulting), a
+# one-click hand-off that drops the chosen option into Contract Maker and
+# Estimate Maker.
+
+hypotheses:
+  - claim: >-
+      Freelancers will use a free, private proposal generator that dates the
+      timeline and prices three options, because the Notion or Word template
+      they start from leaves dates, expiry and deposits as blanks.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Visitors continue from the proposal to Contract Maker on the same device
+      rather than leaving after the first download.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a generated section that is materially wrong or misleading about dates or money.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/freelance-proposal-maker/
+  analytics: null
