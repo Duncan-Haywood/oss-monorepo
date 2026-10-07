@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 858 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 859 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -160,11 +160,11 @@
     <summary type="text">Free greenhouse and nursery planner: enter what you promised to sell and when, and get sow dates, bench and germination space by week, what will not fit and what extra space is worth. Private, runs in your browser.</summary>
   </entry>
   <entry>
-    <title>Maple Syrup Sugarbush Profit Calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/maple-syrup-sugarbush-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/maple-syrup-sugarbush-profit-calculator</id>
+    <title>Hay Baling Own vs Hire Calculator — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hay-baling-own-vs-hire-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/hay-baling-own-vs-hire-calculator</id>
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free maple syrup profit calculator: taps and sap to syrup by the rule of 86, then fuel, supplies, equipment, fees and labour, profit per tap and per hour, poor and good seasons, and whether reverse osmosis pays back. Private, runs in your browser.</summary>
+    <summary type="text">Free hay baling calculator: should you own a baler or hire a custom baler? Acres, yield, equipment cost, labour and the custom price per bale in; own vs hire cost, break-even acres, cost per bale and what to charge neighbours out. Nothing uploaded.</summary>
   </entry>
 </feed>
