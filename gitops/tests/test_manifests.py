@@ -2994,7 +2994,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `maple-syrup-sugarbush-profit-calculator` graduated (browser taps, sap and costs to maple profit per tap and per hour, poor and good seasons and a reverse osmosis payback).
     # +1: `u-pick-farm-profit-planner` graduated (browser season days, visitors, admission, picking and extras to break-even attendance and admission and a rainy-season check).
     # +1: `sheep-goat-flock-profit-planner` graduated (browser ewes or does, weaning rate, prices and hay to a multi-year flock projection, break-even flock and weaning rate).
-    total = 850  # `infra/OWNER_CHECKLIST.md`'s own "N of the 850 tools" wording.
+    total = 851  # `infra/OWNER_CHECKLIST.md`'s own "N of the 851 tools" wording.
     # +1: `freelance-dashboard` graduated (browser hub reading the four freelancer tools' saved data: owed, unbilled, pipeline, profit and a ranked do-this-next list).
     # +1: `horse-boarding-stall-profit-calculator` graduated (browser barn stalls, occupancy and costs to monthly profit, break-even occupancy and board price).
     # +1: `pet-waste-removal-route-calculator` graduated (browser pet waste route clients, price and drive time to monthly profit, hourly pay and break-even clients).
