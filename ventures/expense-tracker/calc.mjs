@@ -232,3 +232,73 @@ export function warnings(entries, year) {
   if (personalish.length) w.push(`${personalish.length} meal or phone/internet expense(s) of $200 or more are at 100% business use. Mixed-use costs are only deductible for the business share.`);
   return w;
 }
+
+
+// Net profit = income - deductible expenses; the set-aside is a plain share of
+// positive net profit, a planning figure and never a tax computation.
+export function netProfit(incomeCents, deductibleTotal) {
+  return Math.round(incomeCents || 0) - Math.round(deductibleTotal || 0);
+}
+export function setAside(net, ratePct) {
+  const r = Number(ratePct);
+  if (!(net > 0) || !Number.isFinite(r) || r <= 0) return 0;
+  return Math.round((net * Math.min(r, 70)) / 100 + 1e-9);
+}
+
+// ---- Invoice Maker income (read-only) ---------------------------------
+// Invoice Maker keeps { invoices: [...] } under localStorage "invoice-maker-data".
+// Money fields there are dollar strings; this mirrors its arithmetic closely
+// enough for a rough income figure and never writes anything back.
+function dollars(v) {
+  if (v === null || v === undefined || v === "") return 0;
+  const n = typeof v === "number" ? v : Number(String(v).replace(/[$,\s]/g, ""));
+  return Number.isFinite(n) ? Math.round(n * 100 + (n < 0 ? -1e-9 : 1e-9)) : 0;
+}
+const pctOf = (cents, pct) => { const raw = (cents * (Number(pct) || 0)) / 100; return Math.sign(raw) * Math.round(Math.abs(raw) + 1e-9); };
+
+// Pre-sales-tax revenue of one invoice, and its full total (with tax and shipping).
+export function invoiceParts(inv) {
+  const lines = (inv.lines || []).map((l) => { const q = Number(l.qty), r = dollars(l.rate); return Number.isFinite(q) ? Math.round(q * r + (q * r < 0 ? -1e-9 : 1e-9)) : 0; });
+  const subtotal = lines.reduce((a, b) => a + b, 0);
+  let discount = 0;
+  if (inv.discountType === "percent") discount = pctOf(subtotal, inv.discountValue);
+  else if (inv.discountType === "amount") discount = Math.min(dollars(inv.discountValue), Math.max(subtotal, 0));
+  discount = Math.min(discount, Math.max(subtotal, 0));
+  const taxableLines = (inv.lines || []).reduce((a, l, i) => a + (l.taxable !== false ? lines[i] : 0), 0);
+  const base = subtotal > 0 ? Math.max(0, taxableLines - Math.round((discount * taxableLines) / subtotal)) : 0;
+  const tax = pctOf(base, inv.taxRate);
+  const shipping = dollars(inv.shipping);
+  const revenue = subtotal - discount;
+  return { revenue, total: revenue + tax + shipping, paid: Math.max(0, dollars(inv.paid)) };
+}
+
+// basis "invoiced": revenue of every sent, non-void invoice issued in `year`.
+// basis "paid": the paid share of each non-void invoice issued in `year`,
+// scaled to exclude sales tax and shipping. Returns { cents, count }.
+export function invoiceIncome(box, year, basis = "paid") {
+  const invoices = box && Array.isArray(box.invoices) ? box.invoices : [];
+  let cents = 0, count = 0;
+  for (const inv of invoices) {
+    if (!inv || inv.void || !parseDate(inv.issued) || yearOf({ date: inv.issued }) !== year) continue;
+    const p = invoiceParts(inv);
+    if (basis === "invoiced") {
+      if (!inv.sent && p.paid <= 0) continue;
+      cents += p.revenue; count += 1;
+    } else {
+      if (p.paid <= 0 || p.total <= 0) continue;
+      cents += Math.round((Math.min(p.paid, p.total) * p.revenue) / p.total); count += 1;
+    }
+  }
+  return { cents, count };
+}
+
+// Parse the raw localStorage text of Invoice Maker; null when absent or unreadable.
+export function readInvoiceBox(text) {
+  try {
+    const d = JSON.parse(text || "null");
+    return d && Array.isArray(d.invoices) ? d : null;
+  } catch {
+    return null;
+  }
+}
+
