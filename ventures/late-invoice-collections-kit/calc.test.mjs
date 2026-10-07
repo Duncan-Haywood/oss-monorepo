@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseDate, addDays, daysBetween, accrual, annualRatePct, buildPlan, worthSuing, verdictText, icsText, planText, sampleInputs, STATE_RATES, STEP_DEFAULTS, validate, warnings } from "./calc.mjs";
+import { overdueFromInvoiceMaker, invoiceBalanceCents, parseDate, addDays, daysBetween, accrual, annualRatePct, buildPlan, worthSuing, verdictText, icsText, planText, sampleInputs, STATE_RATES, STEP_DEFAULTS, validate, warnings } from "./calc.mjs";
 
 const base = () => sampleInputs("2026-09-29");
 
@@ -145,4 +145,26 @@ test("plan text carries the balance, the steps, the verdict and the state-rate c
   assert.match(t, /IS IT WORTH SUING/);
   assert.match(t, /Verify with your state statute/);
   assert.match(t, /Not legal advice/);
+});
+
+test("Invoice Maker handoff: only sent, unpaid, past-due invoices, most late first, with their own terms", () => {
+  const mk = (o) => ({ id: "x", number: "1", clientName: "A", sent: true, due: "2026-09-01", taxRate: 0, lines: [{ desc: "w", qty: 1, rate: "1000" }], ...o });
+  const text = JSON.stringify({ invoices: [
+    mk({ id: "a", number: "10", due: "2026-09-20", paid: "250", lateFlat: "25", lateMonthlyPct: "1.5", fromName: "Me", payInstructions: "Zelle" }),
+    mk({ id: "b", number: "11", due: "2026-08-01", taxRate: 10, discountType: "percent", discountValue: 10 }),
+    mk({ id: "c", sent: false }), mk({ id: "d", void: true }), mk({ id: "e", paid: "1000" }), mk({ id: "f", due: "2026-10-05" }), mk({ id: "g", due: "bad" }), null,
+  ] });
+  const r = overdueFromInvoiceMaker(text, "2026-10-05");
+  assert.deepEqual(r.map((x) => x.id), ["b", "a"]);
+  assert.equal(r[0].amount, 990); // 1000 - 10% discount = 900, +10% tax = 990
+  assert.equal(r[1].amount, 750);
+  assert.equal(r[1].daysLate, 15);
+  assert.equal(r[1].lateFlat, 25);
+  assert.equal(r[1].lateMonthlyPct, 1.5);
+  assert.equal(r[1].payInstructions, "Zelle");
+});
+
+test("Invoice Maker handoff: bad or missing storage is an empty list, never a throw", () => {
+  for (const t of [null, "", "{", "[]", '{"invoices":5}']) assert.deepEqual(overdueFromInvoiceMaker(t, "2026-10-05"), []);
+  assert.equal(invoiceBalanceCents({ lines: [], paid: "5" }), -500);
 });
