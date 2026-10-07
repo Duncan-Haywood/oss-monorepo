@@ -28016,3 +28016,41 @@ ventures:
       never leave the browser (test asserts no network calls) and all user text
       is escaped before rendering. Ethics: no activity monitoring, screenshots
       or data capture; a forgotten timer is flagged rather than silently billed.
+  - slug: expense-tracker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 8
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Deductible shares, Schedule C
+      grouping and bank-CSV category suggestions are deterministic rules on the
+      user's own entries, never an inference step.
+    basis: >-
+      Screened 2026-10-07 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Completes the
+      freelancer loop (estimate-maker -> time-tracker -> invoice-maker ->
+      expense-tracker): the portfolio categorises a statement once
+      (self-employed-schedule-c-categorizer) but has no running log of expenses
+      with receipt flags, per-line totals and estimated-tax payment periods.
+      Distribution 8: "free expense tracker for freelancers" and "schedule c
+      expense tracker" are large queries with a paid market (QuickBooks
+      Self-Employed, Expensify, Wave); volume not measured with an external
+      tool. Defensibility 2: private, free and bank-CSV import is the wedge, and
+      it is easy to copy.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: adds up the amounts and business-use percentages the user
+      enters, states that it is not legal, tax or financial advice, and says
+      what it does not model (depreciation, home office, vehicle). Entries never
+      leave the browser (test asserts no network calls) and all user text is
+      escaped before rendering. Ethics: no data capture; suggested categories
+      are shown for review, never applied silently.

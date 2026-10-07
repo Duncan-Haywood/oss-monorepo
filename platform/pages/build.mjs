@@ -3002,6 +3002,8 @@ const CATEGORY_RULES = [
         'estimate-maker',
         // `time-tracker` joined 2026-10-07: the hours behind the invoice, handing unbilled time to Invoice Maker.
         'time-tracker',
+        // `expense-tracker` joined 2026-10-07: the costs beside the hours and the invoice, grouped by Schedule C line.
+        'expense-tracker',
         'indie-game-payout-calculator',
         'upwork-earnings-fee-analyzer',
         'patreon-members-churn-analyzer',
