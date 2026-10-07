@@ -2520,3 +2520,20 @@ entries:
         fees and liens". No plaintiff attorney has checked it against a real closing statement. 19 calc, usage and page
         tests. Registered launch date, category rule, tree counts; regenerated the mirror; linked from a sibling page.
     mrr_end: 0
+  - venture: expense-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built expense-tracker, the fourth piece of the freelancer loop (estimate-maker, time-tracker,
+        invoice-maker, then the costs): a browser-local expense log with Schedule C categories, meals at 50 percent, a
+        business-use percentage per entry, monthly repeats for subscriptions and rent, and receipt-kept flags from $75.
+        Pasting a bank or card CSV imports money out only, suggests a category from keyword rules for the user to
+        review, skips credits and flags rows already logged. Totals by Schedule C line, by month and by IRS
+        estimated-tax payment period, a planning estimate of tax saved, a printable worksheet, formula-safe CSV and JSON
+        backup. First visitor: a freelancer searching "schedule c expense tracker" or "free expense tracker for
+        freelancers". Closest sibling self-employed-schedule-c-categorizer sorts one statement once and keeps no log.
+        No tax preparer has checked the line mapping against the current form. 31 calc, usage and page tests plus a
+        Chromium smoke run (add, repeat, import, escape check). Registered launch date, category rule, tree counts,
+        scores; regenerated the mirror; linked from Invoice Maker and Time Tracker.
+    mrr_end: 0
