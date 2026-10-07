@@ -3006,6 +3006,8 @@ const CATEGORY_RULES = [
         'freelance-contract-maker',
         // `freelance-proposal-maker` joined 2026-10-07: the priced proposal a freelancer sends before the contract.
         'freelance-proposal-maker',
+        // `freelance-lead-tracker` joined 2026-10-07: the prospects and follow-ups in front of the proposal.
+        'freelance-lead-tracker',
         // `rental-ledger` joined 2026-10-07: the records-and-Schedule-E home for the landlord calculators, which each answer one typed question and hold nothing.
         'rental-ledger',
         // `expense-tracker` joined 2026-10-07: the costs beside the hours and the invoice, grouped by Schedule C line.

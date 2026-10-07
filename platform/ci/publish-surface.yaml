@@ -929,6 +929,9 @@ workflows:
 - workflow: freelance-dashboard-ci.yml
   classification: none
   publishes: []
+- workflow: freelance-lead-tracker-ci.yml
+  classification: none
+  publishes: []
 - workflow: freelance-platform-fee-calculator-ci.yml
   classification: none
   publishes: []

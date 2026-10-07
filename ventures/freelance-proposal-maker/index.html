@@ -163,12 +163,12 @@
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as your only record: download a backup.</p>
     <p>Everything runs in your browser. What you type is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>proposal_printed</code>, <code>proposal_copied</code>, <code>proposal_downloaded</code>, <code>example_loaded</code>) are counted only in local storage on your device, never the content. Turn it off below.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
-    <p>When the client says yes, write the <a href="../freelance-contract-maker/">service agreement</a>, break the price down in <a href="../estimate-maker/">Estimate Maker</a>, track hours with <a href="../time-tracker/">Time Tracker</a>, bill with <a href="../invoice-maker/">Invoice Maker</a>, and see what to do next on the <a href="../freelance-dashboard/">Freelance Dashboard</a>. Check a contract a client sends with the <a href="../freelance-contract-checker/">Freelance Contract Checker</a>.</p>
+    <p>Keep prospects in the <a href="../freelance-lead-tracker/">Freelance Lead Tracker</a>. When the client says yes, write the <a href="../freelance-contract-maker/">service agreement</a>, break the price down in <a href="../estimate-maker/">Estimate Maker</a>, track hours with <a href="../time-tracker/">Time Tracker</a>, bill with <a href="../invoice-maker/">Invoice Maker</a>, and see what to do next on the <a href="../freelance-dashboard/">Freelance Dashboard</a>. Check a contract a client sends with the <a href="../freelance-contract-checker/">Freelance Contract Checker</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { contractHandoffHash, invoiceHandoffHash, DEFAULTS, optionTerms, ladder, rateCheck, parsePhases, check, buildProposal, proposalText, reviewNotes, formatMoney, formatDate } from "./calc.mjs";
+    import { parseLeadHandoff, contractHandoffHash, invoiceHandoffHash, DEFAULTS, optionTerms, ladder, rateCheck, parsePhases, check, buildProposal, proposalText, reviewNotes, formatMoney, formatDate } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const KEY = "freelance-proposal-maker-data";
@@ -256,6 +256,12 @@
     };
     $("#optout").onclick = () => { setUsageOptOut(true); $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; };
     if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
+    const lead = parseLeadHandoff(location.hash);
+    if (lead) {
+      data = { ...DEFAULTS, ...lead }; persist();
+      history.replaceState(null, "", location.pathname + location.search);
+      $("#io-status").textContent = "Filled in from your lead. Review every field before you send it.";
+    }
     fill(); render();
   </script>
 </body>
