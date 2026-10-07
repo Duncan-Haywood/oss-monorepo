@@ -2573,3 +2573,22 @@ entries:
         run (example data, hostile client names escaped, no script errors). Registered launch date, category rule, tree
         counts, scores; regenerated the mirror; linked from all four sibling tools.
     mrr_end: 0
+  - venture: freelance-lead-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built freelance-lead-tracker, the step in front of freelance-proposal-maker: a browser pipeline
+        (new lead, in conversation, proposal sent, negotiating, won, lost) that puts overdue and due-today follow-ups
+        first, flags proposals gone quiet, forecasts the open pipeline by stage (starting guesses of 10/25/40/70 percent
+        until eight leads have closed, then the user's own win rates, and it says which it is using), shows win rate and
+        won value by lead source, lost reasons and median days to win, and answers how many leads are needed for a
+        monthly income target. One click hands a lead into Freelance Proposal Maker (client, contact, notes, currency,
+        via the URL fragment, whitelisted on arrival). Formula-safe CSV, JSON backup. Screened with duplicate_check.py
+        (closest freelance-dashboard at 0.21; no CRM or pipeline venture existed). First visitor: a freelancer searching
+        "freelance CRM free" or "client pipeline spreadsheet", plus r/freelance "how do you track leads" threads; volume
+        not measured. Paid comparables are HoneyBook, Dubsado, Bonsai and 17hats. No freelancer has checked the figures
+        against a real pipeline. 33 calc, usage and page tests plus a Chromium run (example data, hostile lead name
+        escaped, persistence, hand-off, no horizontal overflow at 375px). Registered launch date, category rule, tree
+        counts; regenerated the mirror; linked from Proposal Maker, which now also accepts the hand-off.
+    mrr_end: 0

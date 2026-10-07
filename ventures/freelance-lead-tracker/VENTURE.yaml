@@ -1,0 +1,68 @@
+name: freelance-lead-tracker
+description: >-
+  Free freelance lead tracker that runs in the browser with no account: a
+  pipeline from new lead to won, follow-ups due today, quiet proposals, a
+  weighted income forecast, win rate by lead source and a hand-off into a
+  proposal. Leads stay on the device.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session, as the step in front of
+# freelance-proposal-maker: lead -> proposal -> contract -> estimate -> time ->
+# invoice. The suite could win, write and bill a job but had nowhere to keep the
+# prospects that come before it. duplicate_check.py top score 0.21 (freelance-
+# dashboard); no pipeline/CRM venture exists.
+#
+# Paid market is real: HoneyBook, Dubsado, Bonsai, Indy and 17hats charge
+# roughly $15-60 a month and bundle a lead pipeline with proposals and
+# invoices; Notion and Airtable CRM templates sell for $10-50. The wedge is
+# private, no signup, no per-seat pricing, and the numbers a spreadsheet makes
+# you build: who is due today, which proposals went quiet, a forecast that
+# switches from starting guesses to your own win rates once you have 8 closed
+# leads, and win rate by source.
+#
+# First visitor: freelancers searching "freelance CRM free", "lead tracker
+# template for freelancers", "client pipeline spreadsheet", plus r/freelance
+# and r/webdev "how do you track leads" threads. Volume not measured with an
+# external tool.
+#
+# Honest limits, stated on the page: a private notebook for one person; no
+# email sync, no emailed reminders, no calendar, no sharing.
+#
+# Path to revenue (payments stay off): free tool -> lead magnet for the
+# freelancer suite; donations via GitHub Sponsors. Next steps if it earns
+# repeat visitors: niche variants (designers, copywriters, consultants), a
+# .ics export of follow-up dates, a Dashboard tile.
+
+hypotheses:
+  - claim: >-
+      Freelancers will keep a lead list in a free, private tracker rather than
+      a spreadsheet if it tells them who to follow up with today and what the
+      pipeline is likely to be worth.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Visitors continue from a lead into Freelance Proposal Maker on the same
+      device rather than leaving after logging the lead.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a forecast, date or follow-up figure that is materially wrong or misleading.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/freelance-lead-tracker/
+  analytics: null

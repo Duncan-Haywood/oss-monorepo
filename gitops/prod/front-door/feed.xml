@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 832 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 834 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -46,6 +46,14 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free freelancer dashboard that runs in your browser: see overdue invoices, unbilled hours, your estimate pipeline, year-to-date profit and tax set-aside, plus a ranked list of what to do next. No account, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Freelance Lead Tracker — Free Pipeline, Follow-Up Reminders and Income Forecast, No Signup</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freelance-lead-tracker/"/>
+    <id>tag:marisstella.dev,2026:tool/freelance-lead-tracker</id>
+    <updated>2026-10-07T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free freelance lead tracker: a simple pipeline from new lead to won, who to follow up today, a weighted income forecast, win rate by lead source and a one-click hand-off into a proposal. No account, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Freelance Proposal Maker — Free Proposal Generator With Pricing Options, No Signup</title>
@@ -94,6 +102,14 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free wholesale line sheet maker for makers and small brands: set wholesale prices from MSRP or cost, check your margin and the retailer&#39;s margin, simulate boutique orders with tier discounts and minimums, and print a priced line sheet. No signup, works offline, data stays on your device.</summary>
+  </entry>
+  <entry>
+    <title>1099 vs W-2 Worker Classification Checker — Free, Private</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/worker-classification-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/worker-classification-checker</id>
+    <updated>2026-10-07T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free worker classification checker for small business owners. Screen a contractor against the IRS test, the DOL economic reality test and the ABC test, see which facts point to employee status and estimate back-tax and overtime exposure. Illustrative; nothing uploaded.</summary>
   </entry>
   <entry>
     <title>ABA Authorization Tracker</title>
@@ -150,21 +166,5 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free DistroKid to QuickBooks and Xero journal converter: books music earnings by store (streaming, downloads, TikTok and YouTube) and sale month, songwriter royalties withheld as a deduction, checks row and report totals, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Donor Acknowledgment Letter Generator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/donor-acknowledgment-letter-generator/"/>
-    <id>tag:marisstella.dev,2026:tool/donor-acknowledgment-letter-generator</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free year-end donation receipt generator for small nonprofits: paste a gift list, get one acknowledgment letter per donor with the IRS $250 and $75 quid pro quo wording, and a list of gifts that cannot be written up. Runs in your browser; donor data is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Employment Contract Checker</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/employment-contract-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/employment-contract-checker</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free employment contract and job offer checker: paste the offer letter or agreement and see the non-compete, invention assignment, signing-bonus repayment, equity buyback, forfeited bonus, arbitration and salary-mismatch red flags, each with the change to ask for. Private, runs in your browser.</summary>
   </entry>
 </feed>
