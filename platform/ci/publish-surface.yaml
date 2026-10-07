@@ -104,6 +104,9 @@ workflows:
 - workflow: ad-incrementality-test-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: ad-slot-sell-through-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: ad-spend-saturation-optimizer-ci.yml
   classification: none
   publishes: []
