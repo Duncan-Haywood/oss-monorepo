@@ -3027,6 +3027,7 @@ const CATEGORY_RULES = [
         'ats-resume-checker',
         'brand-deal-rate-calculator',
         'cat-adjuster-fee-calculator',
+        'ad-slot-sell-through-planner',
         'candle-batch-cost-calculator',
         'craft-fair-booth-calculator',
         'epk-generator',
