@@ -19639,6 +19639,44 @@ ventures:
       browser (test asserts no network calls) and all user text is escaped
       before rendering. Ethics: helps a sole proprietor get paid on time with a
       complete invoice; no dark patterns, no data capture.
+  - slug: wholesale-line-sheet-maker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Prices, margins, tier discounts and
+      order totals are deterministic arithmetic on the user's own numbers, never
+      an inference step.
+    basis: >-
+      Screened 2026-10-07 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment.
+      duplicate_check.py top score 0.39; no portfolio tool turns a product list
+      into wholesale prices, margins for both sides and a line sheet.
+      Distribution 7: "wholesale pricing for handmade" and "line sheet template"
+      are recurring maker questions in r/Etsy, r/smallbusiness and
+      r/CandleMakers, with a paid market (marketplace commission, line-sheet
+      apps and templates); volume not measured with an external tool.
+      Defensibility 2: free, private and no-watermark is the wedge, and it is
+      easy to copy.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the numbers the user enters; commission and
+      discount rates are user inputs, not claims about any marketplace; states
+      what it does not model and says it is not legal, tax or financial advice.
+      Products never leave the browser (test asserts no network calls) and all
+      user text is escaped before rendering. Ethics: helps a small maker price
+      sustainably and avoid selling below cost; no dark patterns, no data
+      capture.
   - slug: airbnb-earnings-report-analyzer
     scores:
       ai_leverage: 1
