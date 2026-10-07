@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 821 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 823 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -14,6 +14,22 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free CDL school payback calculator: tuition, fees, weeks out of work, weekly miles and pay per mile become the cost to get in, the monthly gain over your current job, months to pay it back and company-paid training versus paying yourself. Private, runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Estimate Maker — Free Quote &amp; Estimate Generator, No Signup, Works Offline</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/estimate-maker/"/>
+    <id>tag:marisstella.dev,2026:tool/estimate-maker</id>
+    <updated>2026-10-07T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free estimate and quote generator: good-better-best options, optional add-ons, tax, deposit, valid-until date, print to PDF, win-rate and follow-up tracking, one-click convert to invoice. No account, no watermark, works offline.</summary>
+  </entry>
+  <entry>
+    <title>Wedding Officiant Fee Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/wedding-officiant-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/wedding-officiant-fee-calculator</id>
+    <updated>2026-10-07T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free wedding officiant fee calculator: your fee, ceremonies a year, consultation, script writing, rehearsal, driving and yearly costs become real hourly pay, yearly net, break-even ceremonies and the fee that reaches your target. Private, runs in your browser.</summary>
   </entry>
   <entry>
     <title>Wholesale Line Sheet Maker — Free Line Sheet and Wholesale Pricing Tool</title>
@@ -150,21 +166,5 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free quote calculator for freelance editors and proofreaders: word count, level of edit and your hourly target become a flat fee, a per-word rate, the days the job needs and what the fee pays if you edit slower than planned. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Grant Writer Proposal Price Calculator — Flat Fee, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/grant-writer-proposal-price-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/grant-writer-proposal-price-calculator</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free grant writer pricing calculator: turn your target hourly pay, unbillable time and tax into a flat fee per proposal, check fees you already quoted and test your month. Runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>H-1B Weighted Lottery Odds Calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/h1b-weighted-lottery-odds-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/h1b-weighted-lottery-odds-calculator</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free H-1B weighted lottery odds calculator: enter registrations by wage level (I-IV) and your candidates, and see each person&#39;s selection chance under the weighted rule versus the old flat lottery, and what one wage level higher is worth. Private, runs in your browser.</summary>
   </entry>
 </feed>

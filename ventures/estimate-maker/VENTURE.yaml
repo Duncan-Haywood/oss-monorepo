@@ -1,0 +1,75 @@
+name: estimate-maker
+description: >-
+  Free estimate and quote generator that runs in the browser with no account or
+  watermark: good-better-best options, optional add-ons, tax, discount, deposit,
+  valid-until date, scope and acceptance block, print or save as PDF, a sales
+  view (win rate, open pipeline, quotes gone quiet) and one-click conversion of
+  a won estimate into an Invoice Maker draft. Data stays on the device.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session, as the front half of the
+# invoice-maker flow shipped the day before. Neither half existed as a maker in
+# the portfolio: quote-margin-check, quote-follow-up-timing and the ~140 trade bid
+# calculators price or time a quote, and none produces the document a client
+# receives, tracks whether it was won, or hands the win to an invoice.
+#
+# Paid market is real: Jobber, Housecall Pro, Joist, Square Estimates and
+# Invoice Simple charge roughly $10-60 a month, largely for the estimate ->
+# invoice -> paid loop. The free end is watermarked or capped. The wedge is the
+# same as invoice-maker (private, no signup, no watermark) plus the two things
+# a single-estimate template cannot do: tiers with add-ons, and win-rate /
+# follow-up tracking.
+#
+# First visitor: contractors, tradespeople, photographers and freelancers
+# searching "free estimate template", "quote generator", "contractor estimate
+# form" and asking in r/Construction, r/smallbusiness, r/freelance. Volume not
+# measured with an external tool.
+#
+# Honest limits, stated on the page: single browser storage (backup prompt),
+# one tax rate, no e-signature (printed signature block), no online payment, no
+# change orders, no statement of what a written estimate must contain locally.
+#
+# Path to revenue (payments stay off): free tool -> lead magnet; donations via
+# GitHub Sponsors. Natural next steps if it earns repeat visitors: shareable
+# accept-link via the Hetzner product box, trade-specific templates and price
+# books, recurring-estimate follow-up emails, a native wrapper.
+
+hypotheses:
+  - claim: >-
+      Small contractors and freelancers who currently send a single price will
+      send two or three tiers once the tool makes it a two-minute job, and
+      pick-the-middle-option lifts the average accepted value.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The win-rate and gone-quiet panel is what brings users back, because
+      nothing else they use tells them which quotes are worth a follow-up call.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Users who win an estimate carry it into Invoice Maker via the downloaded
+      file rather than retyping it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong total, or lost estimates to browser storage clearing, at which point the maths or the backup prompting needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/estimate-maker/
+  analytics: null
