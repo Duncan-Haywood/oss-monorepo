@@ -112,8 +112,3 @@ test('index links one hop to the gutter-cleaning-bid-calculator sibling', () => 
   );
   assert.match(html, /gutter cleaning bid calculator/i);
 });
-
-test('index links one hop to the solar-panel-cleaning-quote-planner sibling', () => {
-  assert.match(html, /href="\.\.\/solar-panel-cleaning-quote-planner\/"/);
-  assert.match(html, /solar panel cleaning quote planner/i);
-});

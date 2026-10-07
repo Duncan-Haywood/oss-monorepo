@@ -2755,3 +2755,13 @@ entries:
         business plan"; volume not measured. No farm owner has used it. 23 calc, page and usage tests. Registered launch
         date and food-service category; tree counts synced; mirror regenerated.
     mrr_end: 0
+  - venture: u-pick-farm-profit-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Extended u-pick-farm-profit-planner (merged by a parallel session minutes before this session's own near-identical
+        venture could land) with a chance-of-a-losing-season readout: exact binomial mixture of a normal and a wet season
+        over days lost, giving P(loss) and 10/50/90th percentile profit. The duplicate venture built in this session was
+        dropped rather than merged. 4 new calc tests; Chromium run on the example (no script errors); mirror regenerated.
+    mrr_end: 0
