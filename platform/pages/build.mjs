@@ -699,6 +699,9 @@ const CATEGORY_RULES = [
       // `backyard-honey-profit-calculator` joined 2026-10-03 on its first commit: hobby sellers at the same farm stands
       // and markets, one hop from `backyard-egg-profit-calculator`.
       'backyard-honey-profit-calculator',
+      // `apiary-profit-planner` joined 2026-10-07 on its first commit: beekeepers projecting colonies, nucs and pollination
+      // over several years, the sideline step up from `backyard-honey-profit-calculator`.
+      'apiary-profit-planner',
       // `microgreens-tray-planner` joined 2026-10-06 on its first commit: growers who sell at the same markets and
       // restaurants, one hop from `backyard-honey-profit-calculator`.
       'microgreens-tray-planner',

@@ -1,0 +1,45 @@
+name: apiary-profit-planner
+description: >-
+  Free browser tool for beekeepers who sell. Enter colonies, winter loss, honey yield, prices and costs; get a
+  year-by-year colony, honey, nuc and pollination projection, winter-loss sensitivity, a honey-only vs nucs vs
+  pollination comparison, break-even colonies and payback. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session. No beekeeping venture exists in ventures/; not in screened-out.md.
+# Who: hobby-to-sideline beekeepers (1-60 colonies) deciding whether to expand, sell nucs or rent colonies for
+# pollination. Where the first visitor comes from: searches such as "is beekeeping profitable", "how many hives to make
+# a living", "beekeeping profit calculator", "nuc vs honey income"; r/beekeeping and club forums. Volume not measured
+# with an external tool.
+#
+# Liability: arithmetic on the user's own numbers; no personal data, stores nothing, carries the no-warranty and
+# not-advice clauses. Colony health, disease, regulation and food-safety are explicitly out of scope and the page says so.
+#
+# Unverified: no beekeeper has used it. Defaults (30% loss, 50 lb per colony, $190 nuc) are placeholders. Path to revenue
+# (payment rails stay off): lead magnet and donations; if usage appears, saved yard plans and a printable lender summary
+# are the next build, then a paid-tier candidate behind an env switch.
+
+hypotheses:
+  - claim: >-
+      Beekeepers weighing expansion will use a private multi-year colony projection with winter-loss sensitivity,
+      because the honey-only arithmetic they do in their heads hides that losses, nucs and pollination decide the result.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/apiary-profit-planner/
+  analytics: null
