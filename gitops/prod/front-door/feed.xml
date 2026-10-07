@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 846 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 847 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -160,11 +160,11 @@
     <summary type="text">Free planner for shared and commissary kitchen owners. Enter rent, costs, stations, hourly rate and memberships; get break-even rate, break-even utilization, member effective rate and a profit grid. Nothing uploaded.</summary>
   </entry>
   <entry>
-    <title>STR Turnover Scheduler</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/str-turnover-scheduler/"/>
-    <id>tag:marisstella.dev,2026:tool/str-turnover-scheduler</id>
+    <title>Solar Panel Cleaning Pricing Calculator — Quote Per Job and Per Panel, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/solar-panel-cleaning-quote-planner/"/>
+    <id>tag:marisstella.dev,2026:tool/solar-panel-cleaning-quote-planner</id>
     <updated>2026-10-07T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free Airbnb and VRBO turnover cleaning scheduler: paste your iCal calendars and get a cleaner schedule, same-day turnover warnings, double-booking checks and the number of cleaners you need. Private, runs in your browser.</summary>
+    <category term="More free tools"/>
+    <summary type="text">Free solar panel cleaning quote calculator. Enter your rate, speed per panel and costs; get a price per job and per panel at your target margin, a day route pack, and a payback check for the homeowner. Nothing uploaded.</summary>
   </entry>
 </feed>
