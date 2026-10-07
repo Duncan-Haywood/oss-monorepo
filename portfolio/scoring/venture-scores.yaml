@@ -28277,3 +28277,34 @@ ventures:
       every finding message names its own confidence (a known token-prefix
       match vs. a generic shape match) rather than presenting a guess as a
       certainty.
+  - slug: worker-classification-checker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every result is deterministic
+      scoring and arithmetic on answers the visitor selects.
+    basis: >-
+      Scored from the write-up in its own VENTURE.yaml comment. Owners paying
+      people on 1099s screen the relationship in an employment-law intake call
+      or an HR-suite questionnaire behind a signup; this is the free private
+      first screen. Distribution 7: "1099 vs W-2 test" and "ABC test" are
+      evergreen searches and small-business forum threads; volume not measured
+      with an external tool. Defensibility 3: the tests are public; the edge is
+      a private answer with a cost range.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: screening checklist, not legal or tax advice, never phrased as a
+      determination, no warranty, per its own page and VENTURE.yaml. Answers never
+      leave the browser. Ethics: helps an owner find and fix a misclassification
+      before an audit; nothing is sold and no lawyer referral is made.
