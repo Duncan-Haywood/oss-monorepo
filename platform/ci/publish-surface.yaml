@@ -819,6 +819,7 @@ workflows:
   classification: none
   publishes: []
 - workflow: ball-python-morph-pairing-planner-ci.yml
+- workflow: fertilizer-blend-optimizer-ci.yml
   classification: none
   publishes: []
 - workflow: hay-baling-own-vs-hire-calculator-ci.yml

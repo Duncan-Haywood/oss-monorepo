@@ -2809,6 +2809,7 @@ entries:
         goat planner.
     mrr_end: 0
   - venture: ball-python-morph-pairing-planner
+  - venture: fertilizer-blend-optimizer
     agent_spend_usd: null
     human_hours: 0
     outcomes:
@@ -2822,6 +2823,16 @@ entries:
         unmeasured. Unverified on real clutches: gene types follow common breeder convention and are
         editable. Odds checked against an independent gamete-pair count; 40 tests pass. Registered score
         row, launch date, category rule, CI workflow.
+        Graduated and built fertilizer-blend-optimizer: a browser-local least-cost fertilizer program
+        solver for row-crop, hay and garden growers. Products with price per ton and N-P2O5-K2O-S grade
+        plus crop target presets give the cheapest pounds per acre (simplex), field cost and tons to
+        buy, the cost of one more pound of each nutrient, the price at which each unused product would
+        enter the blend, and the saving against buying each nutrient separately from its cheapest
+        source. First visitor: searches for "cheapest fertilizer blend" and "urea vs anhydrous cost
+        per pound of nitrogen"; volume unmeasured. Unverified on real farm programs: starter prices
+        are examples and crop targets are rounded rules of thumb. Checked against exhaustive vertex
+        enumeration on small lists. Registered score row, launch date, category rule, CI workflow;
+        linked from the beef cattle ration optimizer.
     mrr_end: 0
   - venture: hay-baling-own-vs-hire-calculator
     agent_spend_usd: null
