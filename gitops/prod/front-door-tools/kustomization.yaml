@@ -33,42 +33,42 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547794 bytes
+#   portfolio-front-tools-0: 145 files, 547795 bytes
 #   portfolio-front-tools-1: 92 files, 555196 bytes
-#   portfolio-front-tools-2: 144 files, 553365 bytes
-#   portfolio-front-tools-3: 128 files, 549165 bytes
-#   portfolio-front-tools-4: 135 files, 553450 bytes
-#   portfolio-front-tools-5: 129 files, 553602 bytes
-#   portfolio-front-tools-6: 122 files, 555456 bytes
-#   portfolio-front-tools-7: 124 files, 555029 bytes
-#   portfolio-front-tools-8: 135 files, 556892 bytes
-#   portfolio-front-tools-9: 134 files, 552591 bytes
-#   portfolio-front-tools-10: 121 files, 554964 bytes
-#   portfolio-front-tools-11: 129 files, 555383 bytes
-#   portfolio-front-tools-12: 127 files, 557026 bytes
-#   portfolio-front-tools-13: 132 files, 551402 bytes
-#   portfolio-front-tools-14: 122 files, 555299 bytes
-#   portfolio-front-tools-15: 122 files, 553493 bytes
-#   portfolio-front-tools-16: 120 files, 556899 bytes
-#   portfolio-front-tools-17: 118 files, 555260 bytes
-#   portfolio-front-tools-18: 117 files, 555657 bytes
-#   portfolio-front-tools-19: 115 files, 555256 bytes
-#   portfolio-front-tools-20: 131 files, 549418 bytes
-#   portfolio-front-tools-21: 125 files, 556473 bytes
-#   portfolio-front-tools-22: 128 files, 555423 bytes
-#   portfolio-front-tools-23: 119 files, 550797 bytes
-#   portfolio-front-tools-24: 129 files, 556855 bytes
-#   portfolio-front-tools-25: 125 files, 548369 bytes
-#   portfolio-front-tools-26: 122 files, 549551 bytes
-#   portfolio-front-tools-27: 117 files, 553011 bytes
-#   portfolio-front-tools-28: 89 files, 549853 bytes
-#   portfolio-front-tools-29: 124 files, 555252 bytes
-#   portfolio-front-tools-30: 117 files, 556950 bytes
-#   portfolio-front-tools-31: 129 files, 550233 bytes
-#   portfolio-front-tools-32: 125 files, 556562 bytes
-#   portfolio-front-tools-33: 124 files, 555734 bytes
-#   portfolio-front-tools-34: 86 files, 422118 bytes
-#   portfolio-front-tools-35: 48 files, 269671 bytes
+#   portfolio-front-tools-2: 144 files, 553363 bytes
+#   portfolio-front-tools-3: 128 files, 549168 bytes
+#   portfolio-front-tools-4: 135 files, 553454 bytes
+#   portfolio-front-tools-5: 129 files, 553596 bytes
+#   portfolio-front-tools-6: 122 files, 555457 bytes
+#   portfolio-front-tools-7: 124 files, 555072 bytes
+#   portfolio-front-tools-8: 135 files, 556901 bytes
+#   portfolio-front-tools-9: 134 files, 552617 bytes
+#   portfolio-front-tools-10: 121 files, 554966 bytes
+#   portfolio-front-tools-11: 129 files, 555373 bytes
+#   portfolio-front-tools-12: 127 files, 557037 bytes
+#   portfolio-front-tools-13: 132 files, 551449 bytes
+#   portfolio-front-tools-14: 122 files, 555330 bytes
+#   portfolio-front-tools-15: 122 files, 553514 bytes
+#   portfolio-front-tools-16: 120 files, 556885 bytes
+#   portfolio-front-tools-17: 118 files, 555196 bytes
+#   portfolio-front-tools-18: 117 files, 555641 bytes
+#   portfolio-front-tools-19: 115 files, 555342 bytes
+#   portfolio-front-tools-20: 131 files, 549397 bytes
+#   portfolio-front-tools-21: 125 files, 556552 bytes
+#   portfolio-front-tools-22: 128 files, 555432 bytes
+#   portfolio-front-tools-23: 119 files, 550733 bytes
+#   portfolio-front-tools-24: 129 files, 556847 bytes
+#   portfolio-front-tools-25: 125 files, 548293 bytes
+#   portfolio-front-tools-26: 122 files, 549560 bytes
+#   portfolio-front-tools-27: 117 files, 553019 bytes
+#   portfolio-front-tools-28: 89 files, 549856 bytes
+#   portfolio-front-tools-29: 124 files, 555262 bytes
+#   portfolio-front-tools-30: 117 files, 556941 bytes
+#   portfolio-front-tools-31: 129 files, 550205 bytes
+#   portfolio-front-tools-32: 125 files, 556547 bytes
+#   portfolio-front-tools-33: 124 files, 555741 bytes
+#   portfolio-front-tools-34: 89 files, 432966 bytes
+#   portfolio-front-tools-35: 48 files, 269659 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -4489,6 +4489,9 @@ configMapGenerator:
       - wedding-florist-proposal-calculator__share.mjs.gz=wedding-florist-proposal-calculator__share.mjs.gz
       - wedding-florist-proposal-calculator__usage.mjs.gz=wedding-florist-proposal-calculator__usage.mjs.gz
       - wedding-florist-proposal-calculator__vs-a-recipe-markup-spreadsheet.html.gz=wedding-florist-proposal-calculator__vs-a-recipe-markup-spreadsheet.html.gz
+      - wedding-officiant-fee-calculator__calc.mjs.gz=wedding-officiant-fee-calculator__calc.mjs.gz
+      - wedding-officiant-fee-calculator__index.html.gz=wedding-officiant-fee-calculator__index.html.gz
+      - wedding-officiant-fee-calculator__usage.mjs.gz=wedding-officiant-fee-calculator__usage.mjs.gz
       - wedding-photographer-profit-calculator__calc.mjs.gz=wedding-photographer-profit-calculator__calc.mjs.gz
       - wedding-photographer-profit-calculator__index.html.gz=wedding-photographer-profit-calculator__index.html.gz
       - wedding-photographer-profit-calculator__usage.mjs.gz=wedding-photographer-profit-calculator__usage.mjs.gz

@@ -1,0 +1,41 @@
+name: wedding-officiant-fee-calculator
+description: >-
+  Free browser tool for wedding officiants: enter your fee, ceremonies a year, consultation, script, rehearsal and
+  driving time and yearly costs, and see real hourly pay, net per ceremony, yearly net, the number of ceremonies
+  that covers your fixed costs, and the fee that reaches your target hourly pay. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check.py top hit was wedding-videographer-profit-calculator
+# at 0.38, a different vendor and job; no officiant tool exists and screened-out.md has no row for it.
+# First visitor: someone searching "how much should a wedding officiant charge", "wedding officiant business
+# calculator", "is being a wedding officiant worth it"; r/weddingplanning vendor threads and officiant Facebook groups.
+#
+# Who: independent and part-time wedding officiants, and people deciding whether to start.
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. Booking and script-template
+# software for officiants is the possible paid version, not built.
+# Liability: arithmetic on the user's own figures with visible rules; not legal, tax or licensing advice; carries the
+# no-warranty and not-advice clauses and lists what is not decided (market fee, tax, licensing, cancellations).
+# Unverified: no market fee is claimed; sample figures are illustrative only.
+
+hypotheses:
+  - claim: >-
+      Officiants will enter their own fee and hours to see real hourly pay, because they price by the ceremony and
+      rarely count consultation and writing time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool by 2027-03-15.
+  - A report that the pay arithmetic differs from the stated rules on the same inputs.
