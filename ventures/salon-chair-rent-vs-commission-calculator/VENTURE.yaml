@@ -1,0 +1,64 @@
+name: salon-chair-rent-vs-commission-calculator
+description: >-
+  Free browser tool for stylists, barbers, nail techs and estheticians choosing
+  between commission, chair or booth rent, and rent plus a smaller commission:
+  yearly take-home at the weekly services the visitor expects, rent charged for
+  weeks off, the weekly revenue needed to cover rent, the crossover where the two
+  pay the same, and the downside if bookings drop. No benchmark data is
+  embedded. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session (build-now pipeline empty).
+# No salon/barber/beauty venture exists in ventures/ and none of salon, booth rent
+# or chair rent appears in screened-out.md. Roughly a million US cosmetologists
+# and barbers make this exact decision at every job change, and rent-or-commission
+# is a recurring five-figure choice usually argued from a headline weekly rent.
+# The edge is the arithmetic the headline hides: rent keeps running through
+# vacation and slow weeks, supplies/card fees move to the renter, and the weekly
+# revenue where rent starts to win.
+#
+# First visitor: stylists and barbers in r/Hairdressers, r/Barber and booth-rent
+# threads; searches "booth rent vs commission calculator" and "chair rent vs
+# commission"; volume not measured with an external tool.
+#
+# Privacy: nothing leaves the browser (tests assert no network calls). No salon,
+# platform or market rate is named or asserted; the visitor supplies every number.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: illustrative estimates, not advice; no worker-classification
+# determination is made and the page says so.
+# Unverified: hand calculation and unit tests only.
+
+hypotheses:
+  - claim: >-
+      Stylists and barbers comparing a commission offer with chair rent will use a
+      calculator that counts rent for weeks off, supplies and card fees, because
+      the headline weekly rent hides those costs.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The weekly revenue at which rent starts to beat commission changes which
+      arrangement a stylist picks once they see it next to their own bookings.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the result contradicts their own arithmetic on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/salon-chair-rent-vs-commission-calculator/
+  analytics: null
