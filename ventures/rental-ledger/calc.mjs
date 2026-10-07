@@ -246,3 +246,108 @@ export function importRows(text, properties) {
   });
   return { entries, problems };
 }
+
+// ---- Sale of a rental (Form 4797 / Schedule D, simple case) -----------------------
+// Estimate only. Federal, residential 27.5-year property held for investment. Brackets
+// are the 2026 figures (Rev. Proc. 2025-32); check them against the IRS before filing.
+export const NIIT_RATE = 0.038;
+export const NIIT_THRESHOLD = { single: 20000000, mfj: 25000000 };
+export const UNRECAPTURED_1250_MAX_RATE = 0.25;
+const ORDINARY = {
+  single: [[1240000, 0.10], [5040000, 0.12], [10570000, 0.22], [20177500, 0.24], [25622500, 0.32], [64060000, 0.35], [Infinity, 0.37]],
+  mfj: [[2480000, 0.10], [10080000, 0.12], [21140000, 0.22], [40355000, 0.24], [51245000, 0.32], [76870000, 0.35], [Infinity, 0.37]],
+};
+const LTCG = { single: [4945000, 54550000], mfj: [9890000, 61370000] };
+
+// Tax on the slice of income from `from` to `to` (cents) using the ordinary brackets,
+// each slice capped at `cap` when given.
+function ordinarySlice(status, from, to, cap = 1) {
+  let tax = 0, lo = 0;
+  for (const [hi, rate] of ORDINARY[status]) {
+    const a = Math.max(from, lo), b = Math.min(to, hi);
+    if (b > a) tax += (b - a) * Math.min(rate, cap);
+    lo = hi;
+  }
+  return tax;
+}
+export function ordinaryTax(status, taxable) { return Math.round(ordinarySlice(status, 0, Math.max(0, int(taxable)))); }
+
+// Tax on `gain` stacked on `base` at the 0/15/20% rates.
+function ltcgSlice(status, base, gain) {
+  const [z, f] = LTCG[status];
+  const seg = (lo, hi, rate) => Math.max(0, Math.min(base + gain, hi) - Math.max(base, lo)) * rate;
+  return seg(0, z, 0) + seg(z, f, 0.15) + seg(f, Infinity, 0.2);
+}
+
+// Months of depreciation taken from placed in service through the sale month, mid-month
+// at both ends: the sale month counts as half.
+export function monthsHeld(inService, saleDate) {
+  if (!isDate(inService) || !isDate(saleDate)) return 0;
+  const sy = yearOf(inService), sm = monthOf(inService), ey = yearOf(saleDate), em = monthOf(saleDate);
+  return Math.max(0, (ey - sy) * 12 + (em - sm));
+}
+export function depreciationThroughSale(basis, inService, saleDate) {
+  return Math.min(Math.max(0, int(basis)), Math.round((Math.max(0, int(basis)) * monthsHeld(inService, saleDate)) / RECOVERY_MONTHS));
+}
+
+export function saleOfRental(data, o = {}) {
+  const status = o.status === "mfj" ? "mfj" : "single";
+  const prop = (Array.isArray(data.properties) ? data.properties : []).find((p) => p.id === o.property);
+  const out = { ok: false, problems: [], notes: [] };
+  if (!prop) { out.problems.push("Pick the property you are selling."); return out; }
+  if (!isDate(o.saleDate)) out.problems.push("Enter the sale date.");
+  const price = int(o.salePriceCents), costs = Math.max(0, int(o.sellingCostsCents));
+  if (!(price > 0)) out.problems.push("Enter the sale price.");
+  if (!isDate(prop.inService)) out.problems.push(`${prop.name || "This property"} has no date placed in service, so depreciation taken cannot be worked out.`);
+  if (out.problems.length) return out;
+  if (isDate(prop.inService) && o.saleDate < prop.inService) { out.problems.push("The sale date is before the date placed in service."); return out; }
+  const entries = Array.isArray(data.entries) ? data.entries : [];
+  const improvements = entries.filter((e) => e && e.property === prop.id && e.type === "improvement" && isDate(e.date) && e.date <= o.saleDate);
+  const buildingDep = depreciationThroughSale(buildingBasis(prop), prop.inService, o.saleDate);
+  let impBasis = 0, impDep = 0;
+  for (const e of improvements) { impBasis += int(e.cents); impDep += depreciationThroughSale(int(e.cents), e.date, o.saleDate); }
+  const share = Number.isFinite(Number(prop.ownershipPct)) && Number(prop.ownershipPct) > 0 ? Number(prop.ownershipPct) / 100 : 1;
+  const depTaken = buildingDep + impDep;
+  const costBasis = int(prop.priceCents) + int(prop.closingCents) + impBasis;
+  const adjustedBasis = costBasis - depTaken;
+  const amountRealized = price - costs;
+  const gain = amountRealized - adjustedBasis;
+  const longTerm = monthsHeld(prop.inService, o.saleDate) > 12;
+  const base = Math.max(0, int(o.taxableIncomeCents)) - Math.max(0, int(o.suspendedCents));
+  const T = Math.max(0, base);
+  const suspendedUsed = Math.min(Math.max(0, int(o.suspendedCents)), Math.max(0, int(o.taxableIncomeCents)));
+  const r = { ok: true, problems: [], notes: [], propertyName: prop.name || "(unnamed)", status, longTerm, costBasis, depTaken, adjustedBasis, amountRealized, gain, buildingDep, impDep, suspendedUsed };
+  const mortgage = Math.max(0, int(o.mortgageCents));
+  r.cashBeforeTax = amountRealized - mortgage;
+  const taxBefore = ordinaryTax(status, T);
+  if (gain <= 0) {
+    // Section 1231 loss: ordinary, offsets other income.
+    r.unrecaptured = 0; r.capitalGain = 0; r.ordinaryGain = 0;
+    r.tax = -Math.round(taxBefore - ordinaryTax(status, Math.max(0, T + gain)));
+    r.niit = 0;
+    r.notes.push("A loss on rental property used in a rental business is generally an ordinary loss (Section 1231), deductible against other income. Check Form 4797 with a preparer.");
+  } else if (!longTerm) {
+    r.unrecaptured = 0; r.capitalGain = 0; r.ordinaryGain = gain;
+    r.tax = Math.round(ordinaryTax(status, T + gain) - taxBefore);
+    r.niit = niit(status, int(o.magiCents), gain);
+    r.notes.push("Held a year or less: the whole gain is taxed as ordinary income. The holding period here counts from the date placed in service; use your purchase date.");
+  } else {
+    const U = Math.min(gain, depTaken), L = gain - U;
+    r.unrecaptured = U; r.capitalGain = L; r.ordinaryGain = 0;
+    const tax = ltcgSlice(status, T, L) + ordinarySlice(status, T, T + U, UNRECAPTURED_1250_MAX_RATE);
+    r.tax = Math.round(tax);
+    r.niit = niit(status, int(o.magiCents), gain);
+  }
+  r.taxAfterNiit = r.tax + r.niit;
+  r.cashAfterTax = r.cashBeforeTax - r.taxAfterNiit;
+  r.effectiveRate = gain > 0 ? r.taxAfterNiit / gain : 0;
+  r.deferredBy1031 = gain > 0 ? r.taxAfterNiit : 0;
+  if (share !== 1) r.notes.push(`This property is ${Math.round(share * 1000) / 10}% yours. Enter the sale price and costs for your share only.`);
+  if (suspendedUsed > 0) r.notes.push(`${formatMoney(suspendedUsed)} of suspended passive losses are released by a full sale and lower the tax above.`);
+  return r;
+}
+
+function niit(status, magi, gain) {
+  const over = Math.max(0, Math.max(0, int(magi)) + gain - NIIT_THRESHOLD[status]);
+  return Math.round(Math.min(gain, over) * NIIT_RATE);
+}
