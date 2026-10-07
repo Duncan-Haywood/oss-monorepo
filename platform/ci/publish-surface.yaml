@@ -822,6 +822,9 @@ workflows:
 - workflow: fertilizer-blend-optimizer-ci.yml
   classification: none
   publishes: []
+- workflow: hay-baling-own-vs-hire-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: etsy-ads-roi-analyzer-ci.yml
   classification: none
   publishes: []

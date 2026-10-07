@@ -28532,3 +28532,32 @@ ventures:
       target presets labelled as such, not agronomic advice, unmodelled items (application method,
       timing, N loss, salt and burn risk, lime, micronutrients) stated. Ethics: nothing leaves the
       browser, no dark patterns, nothing is sold.
+  - slug: hay-baling-own-vs-hire-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. The comparison is cost arithmetic over the
+      numbers the user types.
+    basis: >-
+      Screened 2026-10-07 per portfolio/pipeline/README.md; write-up in this venture's own
+      VENTURE.yaml comment. An own-vs-hire baler calculator: yearly fixed and running cost
+      against custom price per bale and delay loss, break-even acres, cost per bale and a
+      neighbour baling rate. Distribution 5: buy-or-hire baler searches and farm forums are
+      named channels; volume not measured. Defensibility 3: simple arithmetic, the
+      neighbour-rate and delay-loss framing is the differentiator.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed numbers, defaults labelled as placeholders, no tax,
+      financing or insurance advice. Ethics: nothing leaves the browser, no dark patterns,
+      nothing is sold.

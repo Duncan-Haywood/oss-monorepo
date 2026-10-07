@@ -2834,3 +2834,17 @@ entries:
         enumeration on small lists. Registered score row, launch date, category rule, CI workflow;
         linked from the beef cattle ration optimizer.
     mrr_end: 0
+  - venture: hay-baling-own-vs-hire-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built hay-baling-own-vs-hire-calculator: a browser-local buy-or-hire calculator for hay producers.
+        Acres, yield, bale weight, equipment cost, labour and the custom price per bale give own vs
+        hire cost for the year, break-even acres, cost per bale, the sale price for a target margin,
+        the value lost waiting on a contractor, and a per-bale rate for baling for neighbours.
+        First visitor: farm and homestead forums and "should I buy a baler" searches; volume
+        unmeasured. Defaults are placeholders, unverified against real farms. 24 tests pass.
+        Registered score row, launch date, category rule, CI workflow; linked from the custom farm
+        rate calculator.
+    mrr_end: 0
