@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Formulate a Low-Cost Cattle Ration — worked example</title>
+  <meta name="description" content="How to formulate the cheapest beef cattle ration that still meets protein, energy, calcium and phosphorus needs, with a worked example for cows, bulls, stockers and finishing cattle. Free solver in your browser.">
+  <link rel="canonical" href="./how-to-formulate-a-low-cost-cattle-ration.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do you formulate the cheapest cattle ration?", "acceptedAnswer": {"@type": "Answer", "text": "Write down every feed you can buy with its price per ton as-fed, its dry matter, and its protein, energy, calcium and phosphorus on a dry-matter basis. Set the animal's dry matter intake and nutrient requirements, then find the pounds of each feed that meet them at the lowest total price. By hand you can balance two or three feeds with a Pearson square; with six or more feeds and several requirements at once, a linear program does it exactly."}}, {"@type": "Question", "name": "Why compare feeds on a dry-matter basis?", "acceptedAnswer": {"@type": "Answer", "text": "Corn silage is about 35% dry matter and hay about 88%, so a ton of each carries very different amounts of nutrient. Price per pound of dry matter, and per pound of protein or TDN, is the fair comparison, and it is what the optimizer works with."}}, {"@type": "Question", "name": "What does the example show?", "acceptedAnswer": {"@type": "Answer", "text": "With the example prices, cheap silage and straw set most of the cost for a dry cow, a distillers grain supplement covers protein for a lactating cow, and a finishing steer needs a large share of grain for energy. Your prices will give different answers, which is the point of running it with your own quotes."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #2a2418; background: #f8f5ee; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #7a4a12; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #5a3608; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #5a3608; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5d4d33; }
+    .card { background: #fff; border: 1px solid #e3d6bd; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #5a360812; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #8a7551; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 190px; font-family: ui-monospace, monospace; font-size: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #7a4a12; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #f0e4cc; color: #5a3608; }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f3ead8; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #5a3608; }
+    table.t { border-collapse: collapse; width: 100%; font-size: .93rem; }
+    table.t th, table.t td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e3d6bd; }
+    table.t th { color: #5a3608; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .tables { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin: 10px 0; }
+    .tbl { border: 2px solid #d4b982; border-radius: 12px; padding: 10px 12px; background: #fdfaf3; }
+    .tbl h4 { margin: 0 0 6px; font-size: .95rem; color: #5a3608; }
+    .tbl ul { margin: 0; padding-left: 18px; }
+    .tbl li { line-height: 1.4; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .bad { background: #f8d9d6; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #6b1a12; }
+    footer { margin-top: 28px; border-top: 1px solid #e3d6bd; padding-top: 16px; }
+    .ghost { color: #5d4d33; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="./">← Beef Cattle Ration Optimizer</a></p>
+  <h1>How to formulate a low-cost cattle ration</h1>
+  <p>Feed is the biggest bill on a cow-calf or backgrounding operation, and the cheapest ration is rarely the one built from the cheapest feed per ton. This page walks through the method and shows what it produces for six animal classes. It is arithmetic on example numbers, not feeding advice.</p>
+  <h2>1. Put every feed on the same footing</h2>
+  <p>Silage is about 35% dry matter, hay about 88%. Convert each feed to cost per pound of dry matter, then to cost per pound of protein and of TDN. A $55 ton of silage is about $157 per ton of dry matter, which can beat a $180 ton of hay.</p>
+  <h2>2. State what the animal needs</h2>
+  <p>Dry matter intake is roughly 2 to 2.5% of body weight. The ration must also hold a minimum share of crude protein and TDN in that dry matter, enough calcium and phosphorus in a ratio between about 1.5:1 and 7:1, and enough forage to keep the rumen working.</p>
+  <h2>3. Let the solver trade the feeds off</h2>
+  <p>Each requirement is a linear inequality in the pounds of each feed, so the cheapest ration is a linear program. <a href="./">The optimizer</a> solves it, then re-solves to tell you what one more point of protein costs and the price at which a feed you are not using would start to pay.</p>
+  <h2>Worked example, with the starter feeds and example prices</h2>
+  <div style="overflow-x:auto"><table class="t"><thead><tr><th>Animal class</th><th class="n">Cost per head per day</th><th class="n">30 days</th></tr></thead><tbody>
+<tr><td>Beef cow, mid-gestation</td><td class="n">$1.84</td><td class="n">$55.12</td></tr>
+<tr><td>Beef cow, last third of gestation</td><td class="n">$2.02</td><td class="n">$60.61</td></tr>
+<tr><td>Beef cow, lactating</td><td class="n">$2.48</td><td class="n">$74.25</td></tr>
+<tr><td>Breeding bull, maintenance</td><td class="n">$2.73</td><td class="n">$81.99</td></tr>
+<tr><td>Growing calf or stocker (about 600 lb)</td><td class="n">$1.19</td><td class="n">$35.79</td></tr>
+<tr><td>Finishing steer or heifer (about 900 lb+)</td><td class="n">$1.99</td><td class="n">$59.63</td></tr>
+</tbody></table></div>
+  <p class="note">Computed by the same solver the test suite runs. The example prices are illustrative, not quotes.</p>
+  <h2>What to check before you feed it</h2>
+  <p>Test your forage, replace the book values and prices, use requirements from your nutritionist or extension office, and remember what the tool does not model: trace minerals, vitamins, ionophores, urea limits, mycotoxins, water and health.</p>
+  <h2>Common questions</h2>
+  <h3>How do you formulate the cheapest cattle ration?</h3>
+  <p>Write down every feed you can buy with its price per ton as-fed, its dry matter, and its protein, energy, calcium and phosphorus on a dry-matter basis. Set the animal's dry matter intake and nutrient requirements, then find the pounds of each feed that meet them at the lowest total price. By hand you can balance two or three feeds with a Pearson square; with six or more feeds and several requirements at once, a linear program does it exactly.</p>
+  <h3>Why compare feeds on a dry-matter basis?</h3>
+  <p>Corn silage is about 35% dry matter and hay about 88%, so a ton of each carries very different amounts of nutrient. Price per pound of dry matter, and per pound of protein or TDN, is the fair comparison, and it is what the optimizer works with.</p>
+  <h3>What does the example show?</h3>
+  <p>With the example prices, cheap silage and straw set most of the cost for a dry cow, a distillers grain supplement covers protein for a lactating cow, and a finishing steer needs a large share of grain for energy. Your prices will give different answers, which is the point of running it with your own quotes.</p>
+  <p><a href="./">Open the optimizer</a> — related: the <a href="../production-mix-optimizer/">production mix optimizer</a> and the <a href="../backyard-egg-profit-calculator/">backyard egg profit calculator</a>.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Not veterinary, animal nutrition, legal, tax or financial advice, and no substitute for a veterinarian or qualified animal nutritionist. Figures are approximate book values and example prices.</p>
+  <p><strong>Independent.</strong> Not affiliated with any feed company, university or software vendor. <strong>Best-effort hosting, no SLA.</strong> Everything runs in your browser; nothing is uploaded or stored.</p>
+  <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+</footer>
+</body>
+</html>

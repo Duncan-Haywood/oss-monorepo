@@ -2793,3 +2793,18 @@ entries:
         analyzer; no existing venture reads an Etsy Ads export. Unverified on a real export: header aliases are from
         Etsy's documented dashboard columns. 23 tests pass. Registered score row, launch date, category rule, CI workflow.
     mrr_end: 0
+  - venture: beef-cattle-ration-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built beef-cattle-ration-optimizer: a browser-local least-cost ration formulator for
+        cow-calf and backgrounding producers. Feeds with price per ton, dry matter, protein, TDN, Ca and P
+        plus an animal class preset give the cheapest pounds per head per day (simplex), herd cost and a
+        buying list, the cost of one more point of protein or energy, and the price at which each unused
+        feed would enter the ration. First visitor: searches for "least cost cattle ration" and extension
+        newsletters; volume unmeasured. Unverified on real herds or lab-tested forage: starter values are
+        approximate and presets are rounded rules of thumb. Checked against exhaustive search on a small
+        list. Registered score row, launch date, category rule, CI workflow; linked from the sheep and
+        goat planner.
+    mrr_end: 0
