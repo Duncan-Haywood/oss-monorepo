@@ -96,6 +96,14 @@
     <summary type="text">Free wholesale line sheet maker for makers and small brands: set wholesale prices from MSRP or cost, check your margin and the retailer&#39;s margin, simulate boutique orders with tier discounts and minimums, and print a priced line sheet. No signup, works offline, data stays on your device.</summary>
   </entry>
   <entry>
+    <title>1099 vs W-2 Worker Classification Checker — Free, Private</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/worker-classification-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/worker-classification-checker</id>
+    <updated>2026-10-07T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free worker classification checker for small business owners. Screen a contractor against the IRS test, the DOL economic reality test and the ABC test, see which facts point to employee status and estimate back-tax and overtime exposure. Illustrative; nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>ABA Authorization Tracker</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/aba-authorization-tracker/"/>
     <id>tag:marisstella.dev,2026:tool/aba-authorization-tracker</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free year-end donation receipt generator for small nonprofits: paste a gift list, get one acknowledgment letter per donor with the IRS $250 and $75 quid pro quo wording, and a list of gifts that cannot be written up. Runs in your browser; donor data is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Employment Contract Checker</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/employment-contract-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/employment-contract-checker</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free employment contract and job offer checker: paste the offer letter or agreement and see the non-compete, invention assignment, signing-bonus repayment, equity buyback, forfeited bonus, arbitration and salary-mismatch red flags, each with the change to ask for. Private, runs in your browser.</summary>
   </entry>
 </feed>
