@@ -2823,3 +2823,16 @@ entries:
         editable. Odds checked against an independent gamete-pair count; 40 tests pass. Registered score
         row, launch date, category rule, CI workflow.
     mrr_end: 0
+  - venture: ag-spray-drone-quote-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built ag-spray-drone-quote-calculator: a browser-local quote calculator for custom applicators
+        who spray crops with agricultural drones. Drone, battery and cost inputs plus a list of fields give the
+        flow-limited speed, tank-or-battery sortie limit, crew turnaround or charger-limited time on each field,
+        cost per acre, recommended quote under a minimum charge, a price ladder and season break-even. First
+        visitor: ag drone operator groups and "drone spraying cost per acre" searches; volume unmeasured.
+        Unverified on flown fields: starter values are examples. Time checked by an independent
+        sortie-by-sortie replay; 36 tests pass. Registered score row, launch date, category rule, CI workflow.
+    mrr_end: 0
