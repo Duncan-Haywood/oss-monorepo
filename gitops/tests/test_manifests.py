@@ -2985,7 +2985,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `lien-waiver-checker` graduated (browser pasted lien waiver to red flags and the change to ask for).
     # +1: `cash-flow-risk-forecaster` graduated (browser invoices and bills to the odds of a cash shortfall, cushion and biggest lever).
     # +1: `wholesale-line-sheet-maker` graduated (browser product list to wholesale prices, retailer and own margin, tiers, minimums, order simulator and a printable line sheet).
-    total = 833  # `infra/OWNER_CHECKLIST.md`'s own "N of the 833 tools" wording.
+    total = 834  # `infra/OWNER_CHECKLIST.md`'s own "N of the 834 tools" wording.
     # +1: `freelance-dashboard` graduated (browser hub reading the four freelancer tools' saved data: owed, unbilled, pipeline, profit and a ranked do-this-next list).
     # +1: `horse-boarding-stall-profit-calculator` graduated (browser barn stalls, occupancy and costs to monthly profit, break-even occupancy and board price).
     # +1: `pet-waste-removal-route-calculator` graduated (browser pet waste route clients, price and drive time to monthly profit, hourly pay and break-even clients).
@@ -3001,6 +3001,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `csa-share-pricing-calculator` graduated (browser + CLI CSA share price, wage price, break-even shares and price sweep).
     # +1: `support-staffing-planner` graduated (browser + CLI Erlang C agents per interval and exact cheapest shift cover).
     # +1: `embroidery-shop-quote-calculator` graduated (browser + CLI embroidery job quote, quantity breaks and per-1000-stitches rule check).
+    # +1: `worker-classification-checker` graduated (browser-local 1099-vs-W-2 screen: IRS, DOL and ABC tests, facts to fix, back-tax and overtime exposure range).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
