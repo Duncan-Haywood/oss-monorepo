@@ -33,42 +33,42 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547801 bytes
-#   portfolio-front-tools-1: 92 files, 555205 bytes
-#   portfolio-front-tools-2: 144 files, 553371 bytes
-#   portfolio-front-tools-3: 128 files, 549195 bytes
-#   portfolio-front-tools-4: 135 files, 553487 bytes
-#   portfolio-front-tools-5: 129 files, 553598 bytes
-#   portfolio-front-tools-6: 122 files, 555471 bytes
-#   portfolio-front-tools-7: 124 files, 555071 bytes
-#   portfolio-front-tools-8: 135 files, 556920 bytes
-#   portfolio-front-tools-9: 134 files, 552620 bytes
-#   portfolio-front-tools-10: 121 files, 554973 bytes
-#   portfolio-front-tools-11: 129 files, 555377 bytes
-#   portfolio-front-tools-12: 127 files, 557036 bytes
-#   portfolio-front-tools-13: 132 files, 552007 bytes
-#   portfolio-front-tools-14: 121 files, 545035 bytes
-#   portfolio-front-tools-15: 121 files, 556525 bytes
-#   portfolio-front-tools-16: 118 files, 556072 bytes
-#   portfolio-front-tools-17: 118 files, 556956 bytes
-#   portfolio-front-tools-18: 117 files, 557033 bytes
-#   portfolio-front-tools-19: 117 files, 556721 bytes
-#   portfolio-front-tools-20: 132 files, 556281 bytes
-#   portfolio-front-tools-21: 126 files, 549443 bytes
-#   portfolio-front-tools-22: 127 files, 550393 bytes
-#   portfolio-front-tools-23: 117 files, 557003 bytes
-#   portfolio-front-tools-24: 129 files, 553258 bytes
-#   portfolio-front-tools-25: 127 files, 550272 bytes
-#   portfolio-front-tools-26: 122 files, 556034 bytes
-#   portfolio-front-tools-27: 117 files, 556385 bytes
-#   portfolio-front-tools-28: 92 files, 553809 bytes
-#   portfolio-front-tools-29: 122 files, 556778 bytes
-#   portfolio-front-tools-30: 119 files, 554105 bytes
-#   portfolio-front-tools-31: 129 files, 555318 bytes
-#   portfolio-front-tools-32: 125 files, 555443 bytes
-#   portfolio-front-tools-33: 123 files, 555934 bytes
-#   portfolio-front-tools-34: 91 files, 438166 bytes
-#   portfolio-front-tools-35: 48 files, 269647 bytes
+#   portfolio-front-tools-0: 145 files, 547814 bytes
+#   portfolio-front-tools-1: 92 files, 555210 bytes
+#   portfolio-front-tools-2: 144 files, 553381 bytes
+#   portfolio-front-tools-3: 128 files, 549225 bytes
+#   portfolio-front-tools-4: 135 files, 553511 bytes
+#   portfolio-front-tools-5: 129 files, 553602 bytes
+#   portfolio-front-tools-6: 122 files, 555489 bytes
+#   portfolio-front-tools-7: 124 files, 555079 bytes
+#   portfolio-front-tools-8: 135 files, 556975 bytes
+#   portfolio-front-tools-9: 134 files, 552627 bytes
+#   portfolio-front-tools-10: 121 files, 555000 bytes
+#   portfolio-front-tools-11: 129 files, 555380 bytes
+#   portfolio-front-tools-12: 127 files, 557041 bytes
+#   portfolio-front-tools-13: 132 files, 552044 bytes
+#   portfolio-front-tools-14: 121 files, 545036 bytes
+#   portfolio-front-tools-15: 121 files, 556485 bytes
+#   portfolio-front-tools-16: 118 files, 556039 bytes
+#   portfolio-front-tools-17: 118 files, 556961 bytes
+#   portfolio-front-tools-18: 116 files, 549613 bytes
+#   portfolio-front-tools-19: 115 files, 556462 bytes
+#   portfolio-front-tools-20: 132 files, 551938 bytes
+#   portfolio-front-tools-21: 128 files, 556431 bytes
+#   portfolio-front-tools-22: 128 files, 555515 bytes
+#   portfolio-front-tools-23: 117 files, 557042 bytes
+#   portfolio-front-tools-24: 129 files, 553339 bytes
+#   portfolio-front-tools-25: 127 files, 550277 bytes
+#   portfolio-front-tools-26: 122 files, 556035 bytes
+#   portfolio-front-tools-27: 117 files, 556388 bytes
+#   portfolio-front-tools-28: 92 files, 553814 bytes
+#   portfolio-front-tools-29: 122 files, 556782 bytes
+#   portfolio-front-tools-30: 119 files, 554108 bytes
+#   portfolio-front-tools-31: 129 files, 555362 bytes
+#   portfolio-front-tools-32: 124 files, 555047 bytes
+#   portfolio-front-tools-33: 123 files, 549131 bytes
+#   portfolio-front-tools-34: 95 files, 461209 bytes
+#   portfolio-front-tools-35: 48 files, 269628 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2572,12 +2572,12 @@ configMapGenerator:
       - junk-removal-bid-calculator__vs-workiz.html.gz=junk-removal-bid-calculator__vs-workiz.html.gz
       - jwt-verification-misuse-check__check.py.gz=jwt-verification-misuse-check__check.py.gz
       - jwt-verification-misuse-check__classify.mjs.gz=jwt-verification-misuse-check__classify.mjs.gz
-      - jwt-verification-misuse-check__index.html.gz=jwt-verification-misuse-check__index.html.gz
   - name: portfolio-front-tools-19
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - jwt-verification-misuse-check__index.html.gz=jwt-verification-misuse-check__index.html.gz
       - jwt-verification-misuse-check__usage.mjs.gz=jwt-verification-misuse-check__usage.mjs.gz
       - jwt-verification-misuse-check__what-is-jwt-verification-misuse.html.gz=jwt-verification-misuse-check__what-is-jwt-verification-misuse.html.gz
       - k8s-deprecated-api-check__cli.mjs.gz=k8s-deprecated-api-check__cli.mjs.gz
@@ -2692,14 +2692,14 @@ configMapGenerator:
       - license-compat-check__cli.mjs.gz=license-compat-check__cli.mjs.gz
       - license-compat-check__engine.mjs.gz=license-compat-check__engine.mjs.gz
       - license-compat-check__index.html.gz=license-compat-check__index.html.gz
-      - license-compat-check__usage.mjs.gz=license-compat-check__usage.mjs.gz
-      - license-drift-check__cli.mjs.gz=license-drift-check__cli.mjs.gz
-      - license-drift-check__engine.mjs.gz=license-drift-check__engine.mjs.gz
   - name: portfolio-front-tools-20
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - license-compat-check__usage.mjs.gz=license-compat-check__usage.mjs.gz
+      - license-drift-check__cli.mjs.gz=license-drift-check__cli.mjs.gz
+      - license-drift-check__engine.mjs.gz=license-drift-check__engine.mjs.gz
       - license-drift-check__how-a-dependency-license-change-reaches-your-lockfile.html.gz=license-drift-check__how-a-dependency-license-change-reaches-your-lockfile.html.gz
       - license-drift-check__index.html.gz=license-drift-check__index.html.gz
       - license-drift-check__usage.mjs.gz=license-drift-check__usage.mjs.gz
@@ -2829,14 +2829,14 @@ configMapGenerator:
       - menu-engineering-calculator__vs-ranking-by-food-cost-percent.html.gz=menu-engineering-calculator__vs-ranking-by-food-cost-percent.html.gz
       - mercari-fee-calculator__calc.mjs.gz=mercari-fee-calculator__calc.mjs.gz
       - mercari-fee-calculator__how-much-does-mercari-take.html.gz=mercari-fee-calculator__how-much-does-mercari-take.html.gz
-      - mercari-fee-calculator__index.html.gz=mercari-fee-calculator__index.html.gz
-      - mercari-fee-calculator__share.mjs.gz=mercari-fee-calculator__share.mjs.gz
-      - mercari-fee-calculator__to-where-to-sell.mjs.gz=mercari-fee-calculator__to-where-to-sell.mjs.gz
   - name: portfolio-front-tools-21
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - mercari-fee-calculator__index.html.gz=mercari-fee-calculator__index.html.gz
+      - mercari-fee-calculator__share.mjs.gz=mercari-fee-calculator__share.mjs.gz
+      - mercari-fee-calculator__to-where-to-sell.mjs.gz=mercari-fee-calculator__to-where-to-sell.mjs.gz
       - mercari-fee-calculator__usage.mjs.gz=mercari-fee-calculator__usage.mjs.gz
       - mercari-fee-calculator__vs-doing-the-fee-math-yourself.html.gz=mercari-fee-calculator__vs-doing-the-fee-math-yourself.html.gz
       - mercari-fee-calculator__vs-poshmark.html.gz=mercari-fee-calculator__vs-poshmark.html.gz
@@ -2962,12 +2962,12 @@ configMapGenerator:
       - newsletter-sponsorship-rate-calculator__vs-guessing-a-flat-rate.html.gz=newsletter-sponsorship-rate-calculator__vs-guessing-a-flat-rate.html.gz
       - newsletter-sponsorship-rate-calculator__vs-paved.html.gz=newsletter-sponsorship-rate-calculator__vs-paved.html.gz
       - no-show-fee-calculator__24h-vs-48h-cancellation-notice.html.gz=no-show-fee-calculator__24h-vs-48h-cancellation-notice.html.gz
-      - no-show-fee-calculator__app.mjs.gz=no-show-fee-calculator__app.mjs.gz
   - name: portfolio-front-tools-22
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - no-show-fee-calculator__app.mjs.gz=no-show-fee-calculator__app.mjs.gz
       - no-show-fee-calculator__calc.mjs.gz=no-show-fee-calculator__calc.mjs.gz
       - no-show-fee-calculator__index.html.gz=no-show-fee-calculator__index.html.gz
       - no-show-fee-calculator__should-i-overbook-or-charge-a-no-show-fee.html.gz=no-show-fee-calculator__should-i-overbook-or-charge-a-no-show-fee.html.gz
@@ -4234,6 +4234,9 @@ configMapGenerator:
       - time-off-request-planner__how-to-approve-vacation-requests-fairly.html.gz=time-off-request-planner__how-to-approve-vacation-requests-fairly.html.gz
       - time-off-request-planner__index.html.gz=time-off-request-planner__index.html.gz
       - time-off-request-planner__usage.mjs.gz=time-off-request-planner__usage.mjs.gz
+      - time-tracker-to-invoice__calc.mjs.gz=time-tracker-to-invoice__calc.mjs.gz
+      - time-tracker-to-invoice__index.html.gz=time-tracker-to-invoice__index.html.gz
+      - time-tracker-to-invoice__usage.mjs.gz=time-tracker-to-invoice__usage.mjs.gz
       - tip-pool-compliance-calculator__calc.mjs.gz=tip-pool-compliance-calculator__calc.mjs.gz
       - tip-pool-compliance-calculator__can-managers-be-in-a-tip-pool.html.gz=tip-pool-compliance-calculator__can-managers-be-in-a-tip-pool.html.gz
       - tip-pool-compliance-calculator__index.html.gz=tip-pool-compliance-calculator__index.html.gz
@@ -4340,15 +4343,15 @@ configMapGenerator:
       - upwork-earnings-to-journal__calc.mjs.gz=upwork-earnings-to-journal__calc.mjs.gz
       - upwork-earnings-to-journal__index.html.gz=upwork-earnings-to-journal__index.html.gz
       - upwork-earnings-to-journal__usage.mjs.gz=upwork-earnings-to-journal__usage.mjs.gz
-      - usage-based-pricing-simulator__calc.mjs.gz=usage-based-pricing-simulator__calc.mjs.gz
-      - usage-based-pricing-simulator__index.html.gz=usage-based-pricing-simulator__index.html.gz
-      - usage-based-pricing-simulator__usage.mjs.gz=usage-based-pricing-simulator__usage.mjs.gz
-      - used-car-lot-aging-planner__cli.mjs.gz=used-car-lot-aging-planner__cli.mjs.gz
   - name: portfolio-front-tools-33
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - usage-based-pricing-simulator__calc.mjs.gz=usage-based-pricing-simulator__calc.mjs.gz
+      - usage-based-pricing-simulator__index.html.gz=usage-based-pricing-simulator__index.html.gz
+      - usage-based-pricing-simulator__usage.mjs.gz=usage-based-pricing-simulator__usage.mjs.gz
+      - used-car-lot-aging-planner__cli.mjs.gz=used-car-lot-aging-planner__cli.mjs.gz
       - used-car-lot-aging-planner__engine.mjs.gz=used-car-lot-aging-planner__engine.mjs.gz
       - used-car-lot-aging-planner__index.html.gz=used-car-lot-aging-planner__index.html.gz
       - used-car-lot-aging-planner__usage.mjs.gz=used-car-lot-aging-planner__usage.mjs.gz
@@ -4468,15 +4471,15 @@ configMapGenerator:
       - water-heater-bid-calculator__vs-servicetitan.html.gz=water-heater-bid-calculator__vs-servicetitan.html.gz
       - water-softener-bid-calculator__calc.mjs.gz=water-softener-bid-calculator__calc.mjs.gz
       - water-softener-bid-calculator__how-much-to-charge-to-install-a-water-softener.html.gz=water-softener-bid-calculator__how-much-to-charge-to-install-a-water-softener.html.gz
-      - water-softener-bid-calculator__index.html.gz=water-softener-bid-calculator__index.html.gz
-      - water-softener-bid-calculator__share.mjs.gz=water-softener-bid-calculator__share.mjs.gz
-      - water-softener-bid-calculator__usage.mjs.gz=water-softener-bid-calculator__usage.mjs.gz
-      - water-softener-bid-calculator__vs-a-flat-rate-water-softener-special.html.gz=water-softener-bid-calculator__vs-a-flat-rate-water-softener-special.html.gz
   - name: portfolio-front-tools-34
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - water-softener-bid-calculator__index.html.gz=water-softener-bid-calculator__index.html.gz
+      - water-softener-bid-calculator__share.mjs.gz=water-softener-bid-calculator__share.mjs.gz
+      - water-softener-bid-calculator__usage.mjs.gz=water-softener-bid-calculator__usage.mjs.gz
+      - water-softener-bid-calculator__vs-a-flat-rate-water-softener-special.html.gz=water-softener-bid-calculator__vs-a-flat-rate-water-softener-special.html.gz
       - water-softener-bid-calculator__vs-jobber.html.gz=water-softener-bid-calculator__vs-jobber.html.gz
       - webhook-signature-debugger__cli.mjs.gz=webhook-signature-debugger__cli.mjs.gz
       - webhook-signature-debugger__how-to-verify-webhook-signatures.html.gz=webhook-signature-debugger__how-to-verify-webhook-signatures.html.gz

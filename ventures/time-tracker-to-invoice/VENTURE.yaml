@@ -1,0 +1,75 @@
+name: time-tracker-to-invoice
+description: >-
+  Free billable-time tracker that runs in the browser with no account or
+  watermark: a timer that survives reloads, manual entries, an hourly rate per
+  client and per entry, rounding up to 5/6/10/15/30/60 minutes, unbilled time
+  by client, billable share and effective hourly rate, and one-click conversion
+  of unbilled time into an Invoice Maker draft that marks those entries
+  invoiced. Data stays on the device.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session, as the third piece of the
+# freelancer loop the portfolio already ships: estimate-maker (win the job) ->
+# this (track the hours) -> invoice-maker (get paid). The portfolio had
+# git-timesheet (git history only) and client-profitability-time-analyzer
+# (analysis of hours you already have); nothing that captures time and bills it.
+#
+# Paid market is real: Harvest, Toggl Track, Clockify, Hubstaff, Timely charge
+# roughly $5-20 per user per month, and the free tiers cap users, projects or
+# invoicing. The wedge is the same as the other two makers (private, no signup,
+# no watermark, no cap) plus the one thing a separate timer and invoice tool
+# cannot do: the tracker's hours and amounts are the invoice's, to the cent, and
+# the handoff to Invoice Maker is one click on the same device.
+#
+# First visitor: freelancers, consultants and contractors searching "free time
+# tracker for freelancers", "billable hours tracker", "timesheet to invoice",
+# asking in r/freelance and r/webdev. Volume not measured with an external tool.
+#
+# Honest limits, stated on the page: single browser storage (backup prompt), one
+# user, one tax rate, no fixed-price or retainer billing, no expenses, no
+# overtime multipliers. The timer is wall-clock from the device clock.
+#
+# Path to revenue (payments stay off): free tool -> lead magnet; donations via
+# GitHub Sponsors. Natural next steps if it earns repeat visitors: projects and
+# budgets with a burn-down, weekly timesheet PDF for clients, idle detection, a
+# PWA install, a mobile wrapper.
+
+hypotheses:
+  - claim: >-
+      Freelancers who invoice by the hour will use a tracker that hands unbilled
+      time straight to an invoice, because retyping hours from a separate timer
+      into an invoice is the step they skip and then under-bill.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Showing billable share and effective hourly rate brings users back weekly,
+      because no timer they already use puts a price on the unbilled hours.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Users who invoice from tracked time carry the draft into Invoice Maker on
+      the same device rather than retyping it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong total, a lost timer, or lost entries to browser storage clearing, at which point the maths or the backup prompting needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/time-tracker-to-invoice/
+  analytics: null

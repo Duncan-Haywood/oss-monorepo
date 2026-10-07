@@ -2498,6 +2498,9 @@ gitops:
 - workflow: estimate-maker-ci.yml
   classification: none
   publishes: []
+- workflow: time-tracker-to-invoice-ci.yml
+  classification: none
+  publishes: []
 - workflow: invoice-maker-ci.yml
   classification: none
   publishes: []

@@ -27943,3 +27943,38 @@ ventures:
       (test asserts no network calls) and all user text is escaped before
       rendering. Ethics: helps a small operator quote clearly and follow up; no
       dark patterns, no data capture.
+  - slug: time-tracker-to-invoice
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 8
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Rounding, hours and amounts are
+      deterministic arithmetic on the user's own time entries, never an
+      inference step.
+    basis: >-
+      Screened 2026-10-07 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. It is the front
+      of the estimate -> invoice loop the portfolio already ships: tracked hours
+      become an Invoice Maker draft. Distribution 8: "free time tracker",
+      "billable hours tracker" and "timesheet to invoice" are large freelancer
+      queries with a paid market (Harvest, Toggl, Clockify, Hubstaff); volume
+      not measured with an external tool. Defensibility 2: free, private and
+      no-account is the wedge, and it is easy to copy.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: adds up hours and rates the user enters, states what it does
+      not model and that it is not legal, tax or accounting advice. Time entries
+      never leave the browser (test asserts no network calls) and all user text
+      is escaped before rendering. Ethics: helps a freelancer bill the hours
+      they worked and no more, with an honest utilisation readout; no dark
+      patterns, no data capture.
