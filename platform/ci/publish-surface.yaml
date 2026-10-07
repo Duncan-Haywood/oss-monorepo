@@ -2507,6 +2507,9 @@ gitops:
 - workflow: time-tracker-ci.yml
   classification: none
   publishes: []
+- workflow: freelance-contract-maker-ci.yml
+  classification: none
+  publishes: []
 - workflow: expense-tracker-ci.yml
   classification: none
   publishes: []
