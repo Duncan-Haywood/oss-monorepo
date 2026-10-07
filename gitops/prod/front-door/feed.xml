@@ -48,6 +48,14 @@
     <summary type="text">Free freelancer dashboard that runs in your browser: see overdue invoices, unbilled hours, your estimate pipeline, year-to-date profit and tax set-aside, plus a ranked list of what to do next. No account, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Freelance Proposal Maker — Free Proposal Generator With Pricing Options, No Signup</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freelance-proposal-maker/"/>
+    <id>tag:marisstella.dev,2026:tool/freelance-proposal-maker</id>
+    <updated>2026-10-07T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free freelance proposal generator: state the client&#39;s problem, list deliverables, set a dated timeline and offer up to three priced options with deposits and an expiry date. Print, save as PDF or copy. No account, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Freelancer Tax Pack — Free 2026 Schedule C, SE Tax and Quarterly Estimate</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freelancer-tax-pack/"/>
     <id>tag:marisstella.dev,2026:tool/freelancer-tax-pack</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free sales tax audit prep for wholesalers and distributors: paste your exempt sales and the certificates on file, and see which sales have no valid certificate, the tax at stake, and which customers to chase first. Runs in your browser; your sales data is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Farrier Visit Pricing Calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/farrier-visit-pricing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/farrier-visit-pricing-calculator</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free pricing calculator for farriers: drive time, minutes per horse, materials, fixed costs and the income you want become a trip charge plus a per-horse rate, with a table by stop size. Private, runs in your browser.</summary>
   </entry>
 </feed>
