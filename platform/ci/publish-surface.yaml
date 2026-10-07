@@ -2504,3 +2504,6 @@ gitops:
 - workflow: wholesale-line-sheet-maker-ci.yml
   classification: none
   publishes: []
+- workflow: time-tracker-ci.yml
+  classification: none
+  publishes: []
