@@ -125,6 +125,9 @@ workflows:
 - workflow: agent-instructions-drift-check-ci.yml
   classification: none
   publishes: []
+- workflow: agent-permission-config-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: agent-permission-harness-ci.yml
   classification: none
   publishes: []
@@ -800,6 +803,9 @@ workflows:
 - workflow: estate-tax-exemption-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: estimate-maker-ci.yml
+  classification: none
+  publishes: []
 - workflow: estimated-tax-penalty-calculator-ci.yml
   classification: none
   publishes: []
@@ -828,6 +834,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: exempt-salary-threshold-checker-ci.yml
+  classification: none
+  publishes: []
+- workflow: expense-tracker-ci.yml
   classification: none
   publishes: []
 - workflow: exterior-painting-bid-calculator-ci.yml
@@ -908,13 +917,25 @@ workflows:
 - workflow: foundation-repair-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: fractional-executive-rate-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: free-shipping-threshold-optimizer-ci.yml
+  classification: none
+  publishes: []
+- workflow: freelance-contract-maker-ci.yml
+  classification: none
+  publishes: []
+- workflow: freelance-dashboard-ci.yml
   classification: none
   publishes: []
 - workflow: freelance-platform-fee-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: freelance-project-picker-ci.yml
+  classification: none
+  publishes: []
+- workflow: freelance-proposal-maker-ci.yml
   classification: none
   publishes: []
 - workflow: freelance-rate-increase-calculator-ci.yml
@@ -930,6 +951,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: freelancer-schedule-c-categorizer-ci.yml
+  classification: none
+  publishes: []
+- workflow: freelancer-tax-pack-ci.yml
   classification: none
   publishes: []
 - workflow: freight-accessorial-auditor-ci.yml
@@ -999,6 +1023,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: grant-reporting-tracker-ci.yml
+  classification: none
+  publishes: []
+- workflow: grant-writer-proposal-price-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: graphql-introspection-exposure-check-ci.yml
@@ -1125,6 +1152,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: invoice-aging-late-payer-analyzer-ci.yml
+  classification: none
+  publishes: []
+- workflow: invoice-maker-ci.yml
   classification: none
   publishes: []
 - workflow: invoice-payment-terms-calculator-ci.yml
@@ -1749,6 +1779,9 @@ workflows:
 - workflow: rental-fleet-size-optimizer-ci.yml
   classification: none
   publishes: []
+- workflow: rental-ledger-ci.yml
+  classification: none
+  publishes: []
 - workflow: rental-property-schedule-e-categorizer-ci.yml
   classification: none
   publishes: []
@@ -1827,6 +1860,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: s-corp-reasonable-compensation-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: s3-bucket-exposure-check-ci.yml
   classification: none
   publishes: []
 - workflow: s3-storage-class-advisor-ci.yml
@@ -2219,6 +2255,9 @@ workflows:
 - workflow: time-off-request-planner-ci.yml
   classification: none
   publishes: []
+- workflow: time-tracker-ci.yml
+  classification: none
+  publishes: []
 - workflow: tip-pool-compliance-calculator-ci.yml
   classification: none
   publishes: []
@@ -2396,6 +2435,9 @@ workflows:
 - workflow: which-job-first-ci.yml
   classification: none
   publishes: []
+- workflow: wholesale-line-sheet-maker-ci.yml
+  classification: none
+  publishes: []
 - workflow: wildlife-exclusion-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -2489,39 +2531,3 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
-- workflow: fractional-executive-rate-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: grant-writer-proposal-price-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: estimate-maker-ci.yml
-  classification: none
-  publishes: []
-- workflow: invoice-maker-ci.yml
-  classification: none
-  publishes: []
-- workflow: wholesale-line-sheet-maker-ci.yml
-  classification: none
-  publishes: []
-- workflow: time-tracker-ci.yml
-  classification: none
-  publishes: []
-- workflow: freelance-contract-maker-ci.yml
-  classification: none
-  publishes: []
-- workflow: rental-ledger-ci.yml
-  classification: none
-  publishes: []
-- workflow: expense-tracker-ci.yml
-  classification: none
-  publishes: []
-- workflow: freelancer-tax-pack-ci.yml
-  classification: none
-  publishes: []
-- workflow: freelance-dashboard-ci.yml
-  classification: none
-  publishes: []
-- workflow: freelance-proposal-maker-ci.yml
-  classification: none
-  publishes: []
