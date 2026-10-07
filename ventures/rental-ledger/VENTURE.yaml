@@ -1,0 +1,76 @@
+name: rental-ledger
+description: >-
+  Free private rental property ledger for small landlords that runs in the
+  browser with no account: log rent and expenses per property (or import a CSV)
+  and get Schedule E by property, 27.5-year mid-month depreciation with
+  improvements depreciated from their own dates, the $25,000 passive loss
+  allowance with the MAGI phase-out and suspended-loss carryforward, a
+  month-by-month rent collection grid with vacancy, cash flow against taxable
+  income, and the contractors owed a 1099-NEC. Data stays on the device.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session. The portfolio has landlord
+# calculators (Schedule E categorizer, rent roll delinquency, repair-or-replace,
+# DSCR, renewal rent) but no place a small landlord keeps the year's rent and
+# expenses and gets the Schedule E out of it. Each calculator answers one typed
+# question; none holds the records, so none can compute depreciation, which needs
+# the purchase date, price, land split and every improvement, or tell a landlord
+# that the roof they logged as a repair is an improvement.
+#
+# Paid market is real: Stessa (free tier, upsells), Baselane, Landlord Studio
+# (about $12-35 a month), TurboTenant, Buildium and DoorLoop for larger books, and
+# a CPA charges roughly $200-500 a year per return that has Schedule E. The wedge
+# is private, no bank link, no signup, and the arithmetic is shown rather than
+# hidden: the same tool a landlord can hand a preparer as a CSV.
+#
+# First visitor: landlords with one to ten units searching "rental property
+# depreciation calculator", "schedule E template", "rental income and expense
+# spreadsheet", "how to depreciate a rental property" and asking in r/landlord
+# and BiggerPockets. Volume not measured with an external tool.
+#
+# Honest limits, stated on the page: federal, residential 27.5-year only; no
+# commercial 39-year, short-term-rental material participation, cost
+# segregation, bonus depreciation, sale or depreciation recapture, state rules,
+# real-estate-professional status or at-risk limits; repair versus improvement is
+# flagged, not decided; no bank sync or rent collection.
+#
+# Path to revenue (payments stay off): free tool -> lead magnet for the other
+# landlord calculators; donations via GitHub Sponsors. Natural next steps if it
+# earns repeat visitors: a sale-year calculation (recapture and Form 4797), a
+# short-term-rental mode, bank CSV column mapping, a tenant-ledger statement per
+# unit, an accountant-export bundle, and a PWA/Android wrapper with a
+# rent-due reminder.
+
+hypotheses:
+  - claim: >-
+      Small landlords will keep their rent and expenses here rather than in a
+      spreadsheet because depreciation and the Schedule E columns come out
+      without a formula they have to trust or build.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The repair-versus-improvement flag and the suspended-loss tracking are what
+      a landlord could not get from a calculator and brings them back each year.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong depreciation or Schedule E figure, at which point the maths or the 2026 constants need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/rental-ledger/
+  analytics: null
