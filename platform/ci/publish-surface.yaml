@@ -2510,6 +2510,9 @@ gitops:
 - workflow: freelance-contract-maker-ci.yml
   classification: none
   publishes: []
+- workflow: rental-ledger-ci.yml
+  classification: none
+  publishes: []
 - workflow: expense-tracker-ci.yml
   classification: none
   publishes: []

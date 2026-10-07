@@ -3004,6 +3004,8 @@ const CATEGORY_RULES = [
         'time-tracker',
         // `freelance-contract-maker` joined 2026-10-07: the service agreement a freelancer sends before the estimate, time and invoice.
         'freelance-contract-maker',
+        // `rental-ledger` joined 2026-10-07: the records-and-Schedule-E home for the landlord calculators, which each answer one typed question and hold nothing.
+        'rental-ledger',
         // `expense-tracker` joined 2026-10-07: the costs beside the hours and the invoice, grouped by Schedule C line.
         'expense-tracker',
         // `freelance-dashboard` joined 2026-10-07: one view over the four tools above, ranking what to chase, bill and set aside.
