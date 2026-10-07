@@ -8,6 +8,7 @@ PDF or paste into an email.
 Free, no account, no watermark, works offline. Everything runs in your browser;
 your answers are stored in `localStorage` on your device and never uploaded.
 
+- Private rate check: enter your own hours per option and a target hourly rate and it shows what each option pays an hour and the price that would reach the target; never printed in the proposal
 - Phases chain from a start date into dated milestones and a finish date
 - Good / better / best options, each with deposit and balance exact to the cent
 - Shows how far apart the options are, and warns when they are priced too close, when there is only one, or when there is no expiry or timeline

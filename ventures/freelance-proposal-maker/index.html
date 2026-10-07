@@ -95,6 +95,10 @@
       <div><label for="f-depositPct">Deposit on acceptance (%)</label><input id="f-depositPct" inputmode="decimal"></div>
       <div><label for="f-payDays">Invoices due in (days, 0 = on receipt)</label><input id="f-payDays" inputmode="numeric"></div>
     </div>
+    <div class="grid">
+      <div><label for="f-targetRate">Your target hourly rate (private, never printed)</label><input id="f-targetRate" inputmode="decimal" placeholder="0.00"></div>
+      <div><label for="f-hours">Your hours estimate per option (private, one number per line, same order)</label><textarea id="f-hours" rows="3" placeholder="30&#10;55&#10;90"></textarea></div>
+    </div>
     <div class="scroll"><table id="ladder"><caption class="sr">Options with deposit, balance and distance from the middle option</caption></table></div>
   </section>
 
@@ -129,6 +133,7 @@
     <ul>
       <li><strong>Plain-language sections, fixed rules.</strong> The proposal is assembled from your answers by a template, not by a model, so the same answers always give the same text.</li>
       <li><strong>Dates and money to the cent.</strong> Phases chain from your start date, the expiry date is counted from the proposal date, and each option's deposit and balance add up to its price exactly.</li>
+      <li><strong>A private rate check.</strong> Enter your own hours for each option and a target hourly rate, and it shows what each option pays an hour and warns when one is under target. Neither number ever appears in the proposal.</li>
       <li><strong>Checks before you send.</strong> It tells you what is missing and flags what tends to lose or under-price a job: a single option, options priced too close together, no expiry, no timeline.</li>
       <li><strong>Not modelled:</strong> e-signature, tracking whether the client opened it, tax or VAT lines, discounts, and translation. A proposal is an offer, not a contract; use the contract maker once they say yes.</li>
     </ul>
@@ -162,12 +167,12 @@
   </footer>
 
   <script type="module">
-    import { DEFAULTS, optionTerms, ladder, parsePhases, check, buildProposal, proposalText, reviewNotes, formatMoney, formatDate } from "./calc.mjs";
+    import { DEFAULTS, optionTerms, ladder, rateCheck, parsePhases, check, buildProposal, proposalText, reviewNotes, formatMoney, formatDate } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const KEY = "freelance-proposal-maker-data";
     const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-    const TEXT = ["contractor", "client", "title", "proposalDate", "validDays", "problem", "approach", "deliverables", "phases", "startDate", "options", "currency", "depositPct", "payDays", "whyMe", "assumptions", "contact"];
+    const TEXT = ["contractor", "client", "title", "proposalDate", "validDays", "problem", "approach", "deliverables", "phases", "startDate", "options", "currency", "depositPct", "payDays", "whyMe", "assumptions", "contact", "hours", "targetRate"];
     const BOOL = [];
     let data = load();
 
@@ -190,12 +195,15 @@
       $("#timeline").innerHTML = tl.map(([b, l]) => `<div class="kpi"><b>${esc(b)}</b><span>${esc(l)}</span></div>`).join("");
       const lad = ladder(data);
       const vs = (name) => lad.find((x) => x.name === name)?.vsMidPct;
-      const rows = optionTerms(data).map((o) => {
+      const rc = rateCheck(data);
+      const rows = optionTerms(data).map((o, i) => {
         const v = vs(o.name);
-        return `<tr><td>${esc(o.name)}</td><td class="n">${esc(m(o.cents))}</td><td class="n">${esc(m(o.deposit))}</td><td class="n">${esc(m(o.balance))}</td><td class="n">${v === undefined ? "" : esc((v > 0 ? "+" : "") + v + "%")}</td></tr>`;
+        const r = rc[i];
+        const rate = r && r.rate !== null ? m(r.rate) + "/h" + (r.belowTarget ? " ⚠" : "") : "—";
+        return `<tr><td>${esc(o.name)}</td><td class="n">${esc(m(o.cents))}</td><td class="n">${esc(m(o.deposit))}</td><td class="n">${esc(m(o.balance))}</td><td class="n">${v === undefined ? "" : esc((v > 0 ? "+" : "") + v + "%")}</td><td class="n">${esc(rate)}</td></tr>`;
       }).join("");
       const lt = $("#ladder");
-      lt.innerHTML = rows ? `<caption class="sr">Options with deposit, balance and distance from the middle option</caption><thead><tr><th>Option</th><th class="n">Price</th><th class="n">Deposit</th><th class="n">Balance</th><th class="n">vs middle</th></tr></thead><tbody></tbody>` : "";
+      lt.innerHTML = rows ? `<caption class="sr">Options with deposit, balance and distance from the middle option</caption><thead><tr><th>Option</th><th class="n">Price</th><th class="n">Deposit</th><th class="n">Balance</th><th class="n">vs middle</th><th class="n">Your rate (private)</th></tr></thead><tbody></tbody>` : "";
       if (rows) lt.querySelector("tbody").innerHTML = rows;
       $("#issues").innerHTML = check(data).map((w) => `<li>${esc(w)}</li>`).join("");
       $("#notes").innerHTML = reviewNotes(data).map((w) => `<li>${esc(w)}</li>`).join("");
@@ -239,7 +247,7 @@
         phases: "Discovery | 1\nDesign | 2\nBuild | 3", startDate: "",
         options: "Essentials | 3000 | Three pages, one revision round\nStandard | 6000 | Five pages, two revision rounds, analytics setup\nPremium | 11000 | Ten pages, SEO setup, a month of support",
         depositPct: "40", whyMe: "I rebuilt a similar site for a local clinic and bookings doubled in two months.",
-        assumptions: "Client supplies all copy and images\nFeedback within 5 business days", contact: "ada@example.com" };
+        assumptions: "Client supplies all copy and images\nFeedback within 5 business days", contact: "ada@example.com", hours: "30\n55\n90", targetRate: "100" };
       persist(); fill(); render(); record("example_loaded");
     };
     $("#optout").onclick = () => { setUsageOptOut(true); $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; };
