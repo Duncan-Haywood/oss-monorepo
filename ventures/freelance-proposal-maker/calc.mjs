@@ -246,3 +246,31 @@ export function buildProposal(raw) {
 export function proposalText(title, sections) {
   return `${title}\n\n` + sections.map((s) => `${s.title}\n\n${s.body.join("\n\n")}`).join("\n\n\n") + "\n";
 }
+
+// Fields for Freelance Contract Maker once the client picks option `index`.
+// Carries only what the proposal already says; the private hours and target
+// rate never leave this page. Returns null when that option does not exist.
+export function contractHandoff(raw, index) {
+  const inp = { ...DEFAULTS, ...raw };
+  const o = optionTerms(inp)[index];
+  if (!o) return null;
+  const items = lines(inp.deliverables);
+  const chosen = `${o.name}${o.includes ? `: ${o.includes}` : ""}`;
+  return {
+    contractor: String(inp.contractor).trim(),
+    client: String(inp.client).trim(),
+    effective: parseDate(inp.startDate) ? String(inp.startDate).trim() : "",
+    project: String(inp.title).trim(),
+    deliverables: [chosen, ...items].join("\n"),
+    feeType: "fixed",
+    amount: o.cents % 100 === 0 ? String(o.cents / 100) : (o.cents / 100).toFixed(2),
+    currency: inp.currency,
+    depositPct: String(inp.depositPct),
+    payDays: String(inp.payDays),
+  };
+}
+
+export function contractHandoffHash(raw, index) {
+  const f = contractHandoff(raw, index);
+  return f ? "#handoff=" + encodeURIComponent(JSON.stringify(f)) : null;
+}

@@ -164,7 +164,7 @@
   </footer>
 
   <script type="module">
-    import { DEFAULTS, parseCents, paymentSchedule, lateFeeExample, killFee, check, buildAgreement, agreementText, reviewNotes, formatMoney } from "./calc.mjs";
+    import { DEFAULTS, parseHandoff, parseCents, paymentSchedule, lateFeeExample, killFee, check, buildAgreement, agreementText, reviewNotes, formatMoney } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const KEY = "freelance-contract-maker-data";
@@ -242,6 +242,12 @@
     };
     $("#optout").onclick = () => { setUsageOptOut(true); $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; };
     if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
+    const ho = parseHandoff(location.hash);
+    if (ho) {
+      data = { ...DEFAULTS, ...ho }; persist();
+      history.replaceState(null, "", location.pathname + location.search);
+      $("#io-status").textContent = "Filled in from your proposal. Review every field before you send it.";
+    }
     fill(); render();
   </script>
 </body>

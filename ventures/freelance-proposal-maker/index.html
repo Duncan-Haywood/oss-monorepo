@@ -117,6 +117,7 @@
     <ul class="issues noprint" id="issues" aria-live="polite"></ul>
     <ul class="noprint" id="notes"></ul>
     <p class="noprint"><button type="button" id="print">Print / Save as PDF</button><button type="button" class="secondary" id="copy">Copy text</button><button type="button" class="secondary" id="dl-txt">Download .txt</button></p>
+    <p class="noprint" id="handoff" hidden>The client said yes? Turn an option into a draft agreement: <span id="handoff-links"></span></p>
     <p class="note noprint" id="copy-status" aria-live="polite"></p>
     <div id="doc"></div>
   </section>
@@ -167,7 +168,7 @@
   </footer>
 
   <script type="module">
-    import { DEFAULTS, optionTerms, ladder, rateCheck, parsePhases, check, buildProposal, proposalText, reviewNotes, formatMoney, formatDate } from "./calc.mjs";
+    import { contractHandoffHash, DEFAULTS, optionTerms, ladder, rateCheck, parsePhases, check, buildProposal, proposalText, reviewNotes, formatMoney, formatDate } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const KEY = "freelance-proposal-maker-data";
@@ -214,6 +215,9 @@
         const h3 = document.createElement("h3"); h3.textContent = s.title; doc.append(h3);
         for (const para of s.body) { const p = document.createElement("p"); p.style.whiteSpace = "pre-wrap"; p.textContent = para; doc.append(p); }
       }
+      const opts = optionTerms(data);
+      $("#handoff").hidden = !opts.length;
+      $("#handoff-links").innerHTML = opts.map((o, i) => `<a href="../freelance-contract-maker/${esc(contractHandoffHash(data, i))}">${esc(o.name)}</a>`).join(" · ");
     }
     const text = () => proposalText(String(data.title).trim() || "Proposal", buildProposal(data));
     function download(name, body, type) {

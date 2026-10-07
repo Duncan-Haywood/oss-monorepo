@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseCents, formatMoney, parseDate, addDays, formatDate, parseOptions, parsePhases, validUntil, optionTerms, ladder, rateCheck, check, reviewNotes, buildProposal, proposalText, DEFAULTS } from "./calc.mjs";
+import { parseCents, formatMoney, parseDate, addDays, formatDate, parseOptions, parsePhases, validUntil, optionTerms, ladder, rateCheck, check, reviewNotes, buildProposal, proposalText, contractHandoff, contractHandoffHash, DEFAULTS } from "./calc.mjs";
 
 const full = {
   contractor: "Ada Dev", client: "Acme", title: "New website", proposalDate: "2026-10-01", validDays: "14",
@@ -106,4 +106,15 @@ test("rate check needs both hours and a target before it says anything, and stay
   assert.ok(reviewNotes(flagged).some((n) => /\$75\.00 an hour/.test(n) && /at least \$4,000\.00/.test(n)));
   assert.doesNotMatch(proposalText("t", buildProposal(flagged)), /target|an hour|75\.00/i);
   assert.ok(check({ ...flagged, targetRate: "abc" }).some((n) => /Target hourly rate/.test(n)));
+});
+
+test("contract hand-off carries the chosen option and never the private numbers", () => {
+  const f = contractHandoff({ ...full, hours: "30\n55\n90", targetRate: "120", contact: "x" }, 1);
+  assert.equal(f.amount, "6000");
+  assert.equal(f.depositPct, "40");
+  assert.equal(f.effective, "2026-11-02");
+  assert.equal(f.deliverables.split("\n")[0], "Standard: Five pages");
+  assert.ok(!JSON.stringify(f).includes("120"));
+  assert.equal(contractHandoff(full, 9), null);
+  assert.ok(contractHandoffHash(full, 0).startsWith("#handoff="));
 });

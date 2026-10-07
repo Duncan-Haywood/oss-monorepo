@@ -236,3 +236,20 @@ export function reviewNotes(inp) {
   if (!String(inp.law).trim()) notes.push("Pick the governing law. Courts and arbitrators look to it first in a dispute.");
   return notes;
 }
+
+// Reads "#handoff=<json>" as written by Freelance Proposal Maker. Only known
+// text fields are taken, as strings, capped in length; anything else in the
+// link is ignored. Returns null when the hash carries no usable hand-off.
+const HANDOFF_FIELDS = ["contractor", "client", "effective", "project", "deliverables", "feeType", "amount", "currency", "depositPct", "payDays"];
+export function parseHandoff(hash) {
+  const m = /^#?handoff=(.+)$/.exec(String(hash ?? ""));
+  if (!m) return null;
+  let obj;
+  try { obj = JSON.parse(decodeURIComponent(m[1])); } catch { return null; }
+  if (!obj || typeof obj !== "object" || Array.isArray(obj)) return null;
+  const out = {};
+  for (const k of HANDOFF_FIELDS) if (typeof obj[k] === "string") out[k] = obj[k].slice(0, 4000);
+  if (out.feeType !== undefined && out.feeType !== "fixed") delete out.feeType;
+  if (out.currency !== undefined && !(out.currency in CURRENCIES)) delete out.currency;
+  return Object.keys(out).length ? out : null;
+}

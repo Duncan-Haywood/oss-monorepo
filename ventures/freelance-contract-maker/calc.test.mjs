@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseCents, parseMilestones, splitByPercent, paymentSchedule, lateFeeExample, killFee, check, buildAgreement, agreementText, reviewNotes, formatMoney } from "./calc.mjs";
+import { parseHandoff, parseCents, parseMilestones, splitByPercent, paymentSchedule, lateFeeExample, killFee, check, buildAgreement, agreementText, reviewNotes, formatMoney } from "./calc.mjs";
 
 const base = { contractor: "Ada Dev", client: "Acme Co", project: "Build a marketing site", deliverables: "Home page\nPricing page", amount: "5,000", law: "Colorado, USA" };
 
@@ -108,4 +108,12 @@ test("review notes flag risky choices", () => {
 test("money format", () => {
   assert.equal(formatMoney(123456, "USD"), "$1,234.56");
   assert.equal(formatMoney(150000, "JPY"), "¥1,500");
+});
+
+test("hand-off hash fills known text fields only", () => {
+  const h = "#handoff=" + encodeURIComponent(JSON.stringify({ client: "Acme", amount: "6000", currency: "EUR", feeType: "hourly", evil: "x", payDays: 7 }));
+  assert.deepEqual(parseHandoff(h), { client: "Acme", amount: "6000", currency: "EUR" });
+  assert.equal(parseHandoff("#handoff=%7Bbad"), null);
+  assert.equal(parseHandoff(""), null);
+  assert.equal(parseHandoff("#handoff=" + encodeURIComponent('{"currency":"XXX"}')), null);
 });
