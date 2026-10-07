@@ -2692,3 +2692,18 @@ entries:
         usage tests plus a Chromium run (example data, no script errors). Registered launch date and category rule; tree
         counts synced; mirror regenerated.
     mrr_end: 0
+  - venture: fishing-crew-share-settlement-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built fishing-crew-share-settlement-calculator: a browser page where a commercial fishing captain
+        enters the catch (species, pounds, price), commission and shared trip costs, the boat percentage and each crew
+        member's shares, and gets every payout, day rates, the boat's trip profit after its own daily cost, break-even
+        gross for the boat and for a target hand day rate, and a price-sensitivity table. A losing trip falls on the boat
+        (stated). duplicate_check closest 0.30 (fishing-charter-trip-pricing-calculator, passenger charters, a different
+        buyer; cross-linked). First visitor: searches for "fishing boat crew share calculator" and "commercial fishing lay
+        system"; volume not measured. No captain has used it. 10 calc plus 12 page and usage tests, and a Chromium run on
+        the example (hand-checked arithmetic, no script errors; found and fixed quoted-comma parsing). Registered launch
+        date and category rule; tree counts synced; mirror regenerated.
+    mrr_end: 0
