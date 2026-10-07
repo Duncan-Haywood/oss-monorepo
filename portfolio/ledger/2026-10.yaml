@@ -2808,3 +2808,18 @@ entries:
         list. Registered score row, launch date, category rule, CI workflow; linked from the sheep and
         goat planner.
     mrr_end: 0
+  - venture: ball-python-morph-pairing-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built ball-python-morph-pairing-planner: a browser-local pairing planner for ball
+        python breeders. Females and males with morphs and hets (recessive, incomplete dominant with Super
+        forms, dominant, lethal-when-doubled) plus a price list give the Mendelian odds of every offspring
+        for every pairing, expected hatchlings, revenue after fees and raising cost, a ranking by expected
+        profit or by the chance of a target morph, and refuses allelic gene pairs it cannot model. First
+        visitor: r/ballpython, breeder Facebook groups and "ball python genetic calculator" searches; volume
+        unmeasured. Unverified on real clutches: gene types follow common breeder convention and are
+        editable. Odds checked against an independent gamete-pair count; 40 tests pass. Registered score
+        row, launch date, category rule, CI workflow.
+    mrr_end: 0

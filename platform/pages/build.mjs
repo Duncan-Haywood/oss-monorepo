@@ -714,6 +714,9 @@ const CATEGORY_RULES = [
       // `beef-cattle-ration-optimizer` joined 2026-10-07 on its first commit: cattle producers on the same farm category,
       // the feed-cost step after `sheep-goat-flock-profit-planner`.
       'beef-cattle-ration-optimizer',
+      // `ball-python-morph-pairing-planner` joined 2026-10-07 on its first commit: small livestock breeders selling hatchlings,
+      // one hop from `backyard-egg-profit-calculator`.
+      'ball-python-morph-pairing-planner',
       // `sba-loan-capacity-calculator` joined 2026-10-07 on its first commit: owners sizing a bank or SBA term loan from cash
       // flow, the pre-application step before `business-loan-offer-comparator`.
       'sba-loan-capacity-calculator',
