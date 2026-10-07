@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pottery Pricing Calculator — Cost per Piece, Kiln Firing Cost, Free</title>
+  <meta name="description" content="Free pottery pricing calculator. Clay, glaze, kiln firing cost, breakage, your hours and studio rent in; true cost per sellable piece, the retail and wholesale price for your target margin and your hourly return out. Nothing uploaded.">
+  <meta property="og:title" content="How much should I charge for my pottery? Free cost-per-piece calculator">
+  <meta property="og:description" content="Clay, glaze, kiln firings, breakage and your time in; cost per sellable piece, retail and wholesale price and hourly return out. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%239a3412'/%3E%3Cpath d='M11 8h10l-1 4c3 2 4 5 4 8 0 3-3 5-8 5s-8-2-8-5c0-3 1-6 4-8z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Pottery Piece Pricing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Work out the true cost of a sellable ceramic piece, including shared kiln firings, breakage, your time and studio rent, and the retail and wholesale price for a target margin. Runs in your browser; nothing is uploaded.","featureList":"Cost per sellable piece, kiln firing cost per piece, retail and wholesale price for a target margin, hourly return, breakage and kiln-load sensitivity"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price handmade pottery?","acceptedAnswer":{"@type":"Answer","text":"Start from cost: clay, glaze, your share of the bisque and glaze firings, your time and studio rent, all divided by the pieces that survive. Then divide by one minus your target margin and any selling fees. The calculator does that and shows the wholesale price too."}},{"@type":"Question","name":"How much does a kiln firing cost per piece?","acceptedAnswer":{"@type":"Answer","text":"Kilowatt-hours times your electricity rate, plus wear on elements and furniture, divided by the pieces in the load. A half-empty kiln roughly doubles the firing cost of every piece in it, which the load table shows."}},{"@type":"Question","name":"Should I include breakage in my prices?","acceptedAnswer":{"@type":"Answer","text":"Yes. A cracked or crawled piece has already used clay, two firings and your hours. The calculator charges that loss to the pieces that survive."}},{"@type":"Question","name":"Is this accounting or tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type in. Sales tax, business structure, insurance and income tax are out of scope."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1b18; background: #faf4ef; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #9a3412; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #7c2d12; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #7c2d12; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #57534e; }
+    .card { background: #fff; border: 1px solid #ead7c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #7c2d1210; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #d9b9a3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a3412; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #f5e3d6; color: #7c2d12; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #f1e3d8; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #57534e; }
+    .finding { border-bottom: 1px solid #f1e3d8; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #fde8e8; color: #9a3412; }
+    .stats { font-size: 1rem; color: #2f2a26; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #ead7c8; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">POTTERY PIECE PRICING CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does one mug really cost you, and what should it sell for?</h1>
+    <p>Enter your clay, glaze, kiln loads, breakage, hours and studio rent. The calculator works out the true cost of a <em>sellable</em> piece, the retail and wholesale price that hits your target margin, your hourly return, and how breakage, half-empty kilns and electricity prices move it.</p>
+    <p class="note">Planning arithmetic on your own numbers and stated assumptions.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-mat">
+      <h2 id="h-mat">1. Materials</h2>
+      <div class="grid">
+        <div><label for="clayLb">Clay per piece (lb, wet)</label><input id="clayLb" type="number" step="any" value="2"></div>
+        <div><label for="clayPerLb">Clay price per lb ($)</label><input id="clayPerLb" type="number" step="any" value="0.9"></div>
+        <div><label for="glazePerPiece">Glaze and underglaze per piece ($)</label><input id="glazePerPiece" type="number" step="any" value="0.8"></div>
+        <div><label for="lossPct">Pieces lost to cracks, glaze defects, kiln accidents (%)</label><input id="lossPct" type="number" step="any" value="10"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-kiln">
+      <h2 id="h-kiln">2. Kiln</h2>
+      <div class="grid">
+        <div><label for="bisqueKwh">kWh per bisque firing</label><input id="bisqueKwh" type="number" step="any" value="60"></div>
+        <div><label for="glazeKwh">kWh per glaze firing</label><input id="glazeKwh" type="number" step="any" value="85"></div>
+        <div><label for="kwhPrice">Electricity ($ per kWh)</label><input id="kwhPrice" type="number" step="any" value="0.16"></div>
+        <div><label for="wearPerFiring">Elements, shelves, cones per firing ($)</label><input id="wearPerFiring" type="number" step="any" value="12"></div>
+        <div><label for="piecesPerBisque">Pieces in a typical bisque load</label><input id="piecesPerBisque" type="number" step="any" value="40"></div>
+        <div><label for="piecesPerGlaze">Pieces in a typical glaze load</label><input id="piecesPerGlaze" type="number" step="any" value="30"></div>
+      </div>
+      <p class="note">Gas, shared-studio firing fees or a per-shelf rate? Put the firing’s total dollar cost into “elements, shelves, cones” and set kWh to 0.</p>
+    </section>
+    <section class="card" aria-labelledby="h-time">
+      <h2 id="h-time">3. Your time and studio</h2>
+      <div class="grid">
+        <div><label for="minutesMake">Minutes to throw or build</label><input id="minutesMake" type="number" step="any" value="25"></div>
+        <div><label for="minutesFinish">Minutes trimming, handles, finishing</label><input id="minutesFinish" type="number" step="any" value="12"></div>
+        <div><label for="minutesGlaze">Minutes glazing</label><input id="minutesGlaze" type="number" step="any" value="10"></div>
+        <div><label for="minutesHandling">Minutes loading, unloading, photos, packing</label><input id="minutesHandling" type="number" step="any" value="6"></div>
+        <div><label for="wage">What your hour is worth ($)</label><input id="wage" type="number" step="any" value="25"></div>
+        <div><label for="studioPerMonth">Studio rent, wheel, insurance ($/month)</label><input id="studioPerMonth" type="number" step="any" value="350"></div>
+        <div><label for="piecesPerMonth">Pieces you make per month</label><input id="piecesPerMonth" type="number" step="any" value="120"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-sell">
+      <h2 id="h-sell">4. Selling</h2>
+      <div class="grid">
+        <div><label for="retailPrice">Retail price you charge ($)</label><input id="retailPrice" type="number" step="any" value="38"></div>
+        <div><label for="feePct">Fees on retail sales: marketplace, card, booth (%)</label><input id="feePct" type="number" step="any" value="10"></div>
+        <div><label for="wholesalePct">Wholesale price as % of retail</label><input id="wholesalePct" type="number" step="any" value="50"></div>
+        <div><label for="targetMarginPct">Profit margin you want (%)</label><input id="targetMarginPct" type="number" step="any" value="40"></div>
+      </div>
+      <button type="button" id="run">Price my pottery</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>How do I price handmade pottery?</h3>
+      <p>Start from cost: clay, glaze, your share of the bisque and glaze firings, your time and studio rent, all divided by the pieces that survive. Then divide by one minus your target margin and any selling fees. The calculator does that and shows the wholesale price too.</p>
+      <h3>How much does a kiln firing cost per piece?</h3>
+      <p>Kilowatt-hours times your electricity rate, plus wear on elements and furniture, divided by the pieces in the load. A half-empty kiln roughly doubles the firing cost of every piece in it, which the load table shows.</p>
+      <h3>Should I include breakage in my prices?</h3>
+      <p>Yes. A cracked or crawled piece has already used clay, two firings and your hours. The calculator charges that loss to the pieces that survive.</p>
+      <h3>Is this accounting or tax advice?</h3>
+      <p>No. It is arithmetic on the numbers you type in. Sales tax, business structure, insurance and income tax are out of scope.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>What buyers in your market will pay, sales tax and business licensing, whether a gallery or wholesale account is worth its terms, studio safety and insurance, equipment replacement beyond the per-firing wear you enter, and tax treatment of craft income. Kiln, clay and electricity costs vary widely; the defaults are placeholders, not forecasts.</p>
+    </section>
+    <section class="card">
+      <p>Making other things to sell? See the <a href="../candle-batch-cost-calculator/">candle batch cost calculator</a>, the <a href="../farmers-market-booth-calculator/">farmers market booth calculator</a> and the <a href="../etsy-profit-calculator/">Etsy profit calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any licence, sales-tax or insurance obligation it helps you think about. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>pricing_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this fixed a price that was losing you money, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { costPerSellable, channel, priceForMargin, monthly, lossSensitivity, loadSensitivity, electricitySensitivity, DEFAULTS, num, money, money2 } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const hr = (x) => (x === null ? "n/a" : money2(x) + "/hr");
+    const pct = (x) => (x === null ? "n/a" : x.toFixed(0) + "%");
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    function run() {
+      const o = opts();
+      const c = costPerSellable(o);
+      const r = channel(o, "retail");
+      const w = channel(o, "wholesale");
+      const p = priceForMargin(o);
+      const m = monthly(o);
+      let h = `<div class="finding"><h4>Headline</h4><p class="stats">True cost per sellable piece <strong>${money2(c.total)}</strong> · retail ${money2(r.price)} nets ${money2(r.profit)} profit (${pct(r.marginPct)}) · ${hr(r.perHour)} for your time · about ${money(m.profit)} profit per month after paying yourself</p></div>`;
+      h += `<div class="finding"><h4>Where the cost goes (per sellable piece)</h4>${table(["Line", "Cost"], [["Clay", money2(c.clay)], ["Glaze", money2(c.glaze)], ["Bisque firing share", money2(c.bisque)], ["Glaze firing share", money2(c.glazeFire)], ["Your time (" + c.hoursPerSellable.toFixed(2) + " h)", money2(c.labour)], ["Studio share", money2(c.studio)], ["Total", money2(c.total)]])}<p class="note">${Math.round((1 - c.keep) * 100)}% of pieces lost; each lost piece’s whole cost is spread over the ones that sell.</p></div>`;
+      h += `<div class="finding"><h4>Prices for a ${o.targetMarginPct}% margin</h4>${p.retail === null ? '<span class="pill">No price</span> Margin plus fees is 100% or more; lower one of them.' : `<p>Retail <strong>${money2(p.retail)}</strong> (after ${o.feePct}% fees) · wholesale <strong>${money2(p.wholesale)}</strong> · retail break-even ${money2(p.breakEvenRetail)}.</p>`}<p class="note">${p.retail !== null && p.retail > r.price ? "Your retail price is below the target price." : "Your retail price meets the target."} At ${o.wholesalePct}% of retail, wholesale is ${money2(w.price)} and ${w.profit >= 0 ? "profits " : "loses "}${money2(Math.abs(w.profit))} a piece.</p></div>`;
+      h += `<div class="finding"><h4>Retail vs wholesale</h4>${table(["Channel", "Price", "Fees", "Profit / piece", "Margin", "Hourly return"], [r, w].map((x) => [x.kind === "retail" ? "Retail" : "Wholesale", money2(x.price), money2(x.fee), money2(x.profit), pct(x.marginPct), hr(x.perHour)]))}</div>`;
+      h += `<div class="finding"><h4>Breakage</h4>${table(["Pieces lost", "Cost / sellable", "Profit / piece", "Margin"], lossSensitivity(o).map((x) => [x.lossPct + "%", money2(x.cost), money2(x.profit), pct(x.marginPct)]))}</div>`;
+      h += `<div class="finding"><h4>How full is the kiln?</h4>${table(["Load vs entered", "Kiln cost / piece", "Cost / sellable", "Profit / piece"], loadSensitivity(o).map((x) => [x.fill + "%", money2(x.kilnPerPiece), money2(x.cost), money2(x.profit)]))}</div>`;
+      h += `<div class="finding"><h4>Electricity price</h4>${table(["Rate", "$/kWh", "Cost / sellable", "Profit / piece"], electricitySensitivity(o).map((x) => [Math.round(x.mult * 100) + "%", money2(x.kwhPrice), money2(x.cost), money2(x.profit)]))}</div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("pricing_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>
