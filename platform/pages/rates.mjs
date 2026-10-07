@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'pottery-piece-pricing-calculator':
+    'the wage is the potter\'s own hourly value applied to the minutes one piece takes, there is no burden or overhead percentage (studio rent is a monthly dollar figure spread over pieces), and the target margin is a share of the sale price after selling fees; the tool prices a made piece from clay, kiln loads and breakage rather than being quoted a shop rate',
   'solar-panel-cleaning-quote-planner':
     'overhead is a percentage of labour only, not of direct cost (vehicle and consumables sit outside it), and the target margin is applied to a per-panel and per-job quote floored at a minimum call-out charge, so neither shop rate means what the shared bar would carry',
   'childcare-center-break-even-calculator':

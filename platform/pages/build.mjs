@@ -2869,6 +2869,8 @@ const CATEGORY_RULES = [
     //
     // `candle-batch-cost-calculator` joined 2026-10-01: a candle or soap maker costing wax, fragrance and
     // their own hours across online, fair and wholesale sales is the same person as the maker above.
+    // `pottery-piece-pricing-calculator` joined 2026-10-07 on its first commit: a potter costing clay, kiln firings and
+    // breakage is the same maker as the candle or soap maker above.
     // `craft-fair-booth-calculator` joined 2026-09-10, and it is the clearest
     // member yet: a maker deciding whether one market booth is worth their
     // weekend is the same person as `3d-print-price-calculator`'s maker
@@ -3065,6 +3067,7 @@ const CATEGORY_RULES = [
         'cat-adjuster-fee-calculator',
         'ad-slot-sell-through-planner',
         'candle-batch-cost-calculator',
+        'pottery-piece-pricing-calculator',
         'craft-fair-booth-calculator',
         'epk-generator',
         'freelance-writer-rate-calculator',
