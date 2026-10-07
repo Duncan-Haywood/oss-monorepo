@@ -40,3 +40,10 @@ Track.
 ```
 node --test
 ```
+
+## Chance of a losing season
+
+`seasonOdds` in `calc.mjs` mixes a normal season (each open day lost with the weather-loss share) with a wet one
+(chance and loss share are inputs), exactly over the number of days lost, and reports the chance the season loses
+money plus 10th, 50th and 90th percentile profit. Weather arriving in streaks, not one day at a time, is what
+actually sinks a season.

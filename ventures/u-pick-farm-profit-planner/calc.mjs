@@ -21,6 +21,7 @@ export const DEFAULTS = {
   addonSpend: 7, addonMarginPct: 0.55,
   laborPerDay: 650, rent: 3000, insurance: 2200, marketing: 1500, setup: 2500,
   feePct: 0.03, targetProfit: 8000,
+  wetChance: 0.2, wetLossPct: 0.45, // chance the whole season runs wet, and the share of open days lost when it does
 };
 
 export const seasonFixed = (o) => ["rent", "insurance", "marketing", "setup"].reduce((a, k) => a + (o[k] || 0), 0);
@@ -72,6 +73,35 @@ export function rainoutRisk(input, shares = [0, 0.1, 0.2, 0.3, 0.4, 0.5]) {
   return shares.map((s) => ({ share: s, profit: project(input, { rainoutPct: s }).profit }));
 }
 
+// Chance of a losing season. Weather arrives in streaks, so days are not independent: with chance `wetChance` the
+// whole season is a wet one and each open day is lost with probability `wetLossPct`; otherwise each is lost with
+// probability `rainoutPct`. Exact binomial mixture over the number of days lost, no random sampling. With
+// `wetChance` 0 the expected profit equals `project`'s, because profit is linear in open days.
+export function seasonOdds(input) {
+  const o = { ...DEFAULTS, ...input };
+  const n = Math.max(0, Math.round(o.openDays));
+  const clamp = (x) => Math.min(1, Math.max(0, x));
+  const regimes = [{ w: 1 - clamp(o.wetChance), p: clamp(o.rainoutPct) }, { w: clamp(o.wetChance), p: clamp(o.wetLossPct) }].filter((r) => r.w > 0);
+  const probLost = new Array(n + 1).fill(0);
+  for (const { w, p } of regimes) {
+    for (let k = 0; k <= n; k++) {
+      let lc = 0;
+      for (let j = 1; j <= k; j++) lc += Math.log(n - k + j) - Math.log(j);
+      const lp = lc + (k ? k * Math.log(p) : 0) + (n - k ? (n - k) * Math.log(1 - p) : 0);
+      probLost[k] += p === 0 ? (k === 0 ? w : 0) : p === 1 ? (k === n ? w : 0) : w * Math.exp(lp);
+    }
+  }
+  const outcomes = probLost.map((prob, lost) => ({ lost, prob, profit: project(o, { openDays: n - lost, rainoutPct: 0 }).profit })).sort((a, b) => a.profit - b.profit);
+  const total = outcomes.reduce((a, x) => a + x.prob, 0);
+  let cum = 0;
+  const q = {};
+  for (const x of outcomes) {
+    cum += x.prob / total;
+    for (const [k, t] of [["p10", 0.1], ["p50", 0.5], ["p90", 0.9]]) if (q[k] === undefined && cum >= t - 1e-12) q[k] = x.profit;
+  }
+  return { expected: outcomes.reduce((a, x) => a + x.profit * x.prob, 0) / total, pLoss: outcomes.reduce((a, x) => a + (x.profit < 0 ? x.prob : 0), 0) / total, ...q, outcomes };
+}
+
 // Profit grid: visitors per day down, admission across.
 export function sensitivity(input, visitors, admissions) {
   const o = { ...DEFAULTS, ...input };
@@ -89,6 +119,7 @@ export function analyze(input) {
   const beAdmission = admissionForProfit(o, 0);
   const goalAdmission = admissionForProfit(o, o.targetProfit);
   const risk = rainoutRisk(o);
+  const odds = seasonOdds(o);
   const findings = [];
   if (pv.net <= 0) findings.push({ level: "high", title: "Every visitor loses you money", text: `After card fees, crop cost and food cost each visitor leaves ${money2(pv.net)} before a single worker is paid. More visitors makes it worse. Raise the per-pound price or the admission, or cut what a pound costs you to grow and lose.` });
   else if (now.profit < 0) findings.push({ level: "high", title: `The season loses ${money(-now.profit)} at ${Math.round(o.visitors)} visitors a day`, text: `Each visitor leaves ${money2(pv.net)}. You need about ${be === null ? "more than is possible" : Math.ceil(be)} visitors on every open day to break even, or about ${beAdmission === null ? "a higher" : money2(beAdmission)} admission at today's attendance.` });
@@ -101,5 +132,5 @@ export function analyze(input) {
   const laborPerVisitor = o.visitors > 0 ? o.laborPerDay / o.visitors : 0;
   if (o.visitors > 0 && laborPerVisitor > pv.net * 0.6) findings.push({ level: "medium", title: "Labor eats most of each visitor's margin", text: `Staffing a day costs ${money2(laborPerVisitor)} a visitor at this attendance against ${money2(pv.net)} kept per visitor. Slow days at full staffing are where u-pick farms lose money. Plan a lighter crew for weekdays.` });
   if (goal !== null && now.profit < o.targetProfit) findings.push({ level: "info", title: `To make ${money(o.targetProfit)}`, text: `You need about ${Math.ceil(goal)} visitors a day, or ${goalAdmission === null ? "a higher" : money2(goalAdmission)} admission at today's attendance.` });
-  return { now, be, goal, beAdmission, goalAdmission, risk, findings };
+  return { now, be, goal, beAdmission, goalAdmission, risk, odds, findings };
 }

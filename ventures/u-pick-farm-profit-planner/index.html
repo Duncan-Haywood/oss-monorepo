@@ -57,6 +57,8 @@
       <div class="grid">
         <div><label for="openDays">Open days in the season</label><input id="openDays" type="number" min="0" step="any" value="24"></div>
         <div><label for="rainoutPct">Days lost to weather (%)</label><input id="rainoutPct" type="number" min="0" step="any" value="20"></div>
+        <div><label for="wetChance">Chance the whole season runs wet (%)</label><input id="wetChance" type="number" min="0" step="any" value="20"></div>
+        <div><label for="wetLossPct">Days lost if it does (%)</label><input id="wetLossPct" type="number" min="0" step="any" value="45"></div>
         <div><label for="visitors">Paying visitors per open day</label><input id="visitors" type="number" min="0" step="any" value="90"></div>
         <div><label for="admission">Admission per person ($)</label><input id="admission" type="number" min="0" step="any" value="5"></div>
         <div><label for="pickLbs">Pounds picked per visitor</label><input id="pickLbs" type="number" min="0" step="any" value="5"></div>
@@ -110,8 +112,8 @@
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
     const $ = (id) => document.getElementById(id);
-    const IDS = ["openDays", "rainoutPct", "visitors", "admission", "pickLbs", "pickPrice", "cropCostPerLb", "addonSpend", "addonMarginPct", "laborPerDay", "rent", "insurance", "marketing", "setup", "feePct", "targetProfit"];
-    const PCT = ["rainoutPct", "addonMarginPct", "feePct"];
+    const IDS = ["openDays", "rainoutPct", "wetChance", "wetLossPct", "visitors", "admission", "pickLbs", "pickPrice", "cropCostPerLb", "addonSpend", "addonMarginPct", "laborPerDay", "rent", "insurance", "marketing", "setup", "feePct", "targetProfit"];
+    const PCT = ["rainoutPct", "wetChance", "wetLossPct", "addonMarginPct", "feePct"];
     const LABEL = { high: "Act", medium: "Watch", info: "Note" };
     function read() {
       const o = {};
@@ -124,6 +126,8 @@
       const p = a.now;
       let h = `<div class="finding"><h4>${money(p.profit)} for the season at ${Math.round(o.visitors)} visitors a day</h4><p class="stats">${money(p.gross)} billed over ${p.days.toFixed(1)} open days (${Math.round(p.visits)} visits) − ${money(p.fees)} fees − ${money(p.variable)} crop and food cost − ${money(p.labor)} crew − ${money(p.fixed)} season costs · each visitor leaves ${money2(p.pv.net)} before crew</p></div>`;
       h += `<div class="finding"><h4>What gets you there</h4><p>Break-even attendance: ${a.be === null ? "not reachable, visitors lose money" : Math.ceil(a.be) + " visitors per open day"}. Attendance for your goal: ${a.goal === null ? "not reachable" : Math.ceil(a.goal) + " per open day"}. Admission to break even at ${Math.round(o.visitors)} a day: ${a.beAdmission === null ? "n/a" : money2(a.beAdmission)}. Admission for your goal: ${a.goalAdmission === null ? "n/a" : money2(a.goalAdmission)}.</p></div>`;
+      const od = a.odds;
+      h += `<div class="finding"><h4><span class="pill ${od.pLoss > 0.25 ? "high" : od.pLoss > 0.1 ? "medium" : "info"}">Risk</span>${od.pLoss < 0.005 && od.pLoss > 0 ? "Under 1%" : percent(od.pLoss)} chance the season loses money</h4><p>Weather comes in streaks, so this mixes a normal season (each open day lost ${percent(o.rainoutPct)} of the time) with a wet one (${percent(o.wetChance)} chance, ${percent(o.wetLossPct)} of days lost). Expected season profit ${money(od.expected)}; a good season (90th percentile) ${money(od.p90)}, a typical one ${money(od.p50)}, a bad one (10th percentile) ${money(od.p10)}.</p></div>`;
       for (const f of a.findings) h += `<div class="finding"><h4><span class="pill ${f.level}">${LABEL[f.level]}</span>${esc(f.title)}</h4><p>${esc(f.text)}</p></div>`;
       h += `<div class="finding"><h4>Season profit if the weather takes more days</h4><div class="scroll"><table><thead><tr><th>Days lost</th><th class="n">Season profit</th></tr></thead><tbody>${a.risk.map((r) => `<tr><td>${percent(r.share)}</td><td class="n">${money(r.profit)}</td></tr>`).join("")}</tbody></table></div></div>`;
       const s = sensitivity(o);
