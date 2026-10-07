@@ -33,42 +33,42 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547814 bytes
-#   portfolio-front-tools-1: 92 files, 555292 bytes
-#   portfolio-front-tools-2: 144 files, 553323 bytes
-#   portfolio-front-tools-3: 128 files, 549071 bytes
-#   portfolio-front-tools-4: 136 files, 553792 bytes
-#   portfolio-front-tools-5: 130 files, 549263 bytes
-#   portfolio-front-tools-6: 120 files, 549344 bytes
+#   portfolio-front-tools-0: 145 files, 547821 bytes
+#   portfolio-front-tools-1: 92 files, 555297 bytes
+#   portfolio-front-tools-2: 144 files, 553333 bytes
+#   portfolio-front-tools-3: 128 files, 549077 bytes
+#   portfolio-front-tools-4: 136 files, 553796 bytes
+#   portfolio-front-tools-5: 130 files, 549290 bytes
+#   portfolio-front-tools-6: 120 files, 549349 bytes
 #   portfolio-front-tools-7: 122 files, 554827 bytes
-#   portfolio-front-tools-8: 134 files, 554551 bytes
-#   portfolio-front-tools-9: 130 files, 553480 bytes
-#   portfolio-front-tools-10: 127 files, 552854 bytes
-#   portfolio-front-tools-11: 126 files, 555712 bytes
-#   portfolio-front-tools-12: 122 files, 554136 bytes
-#   portfolio-front-tools-13: 139 files, 556453 bytes
-#   portfolio-front-tools-14: 121 files, 554127 bytes
-#   portfolio-front-tools-15: 120 files, 556438 bytes
-#   portfolio-front-tools-16: 117 files, 546408 bytes
-#   portfolio-front-tools-17: 119 files, 548940 bytes
-#   portfolio-front-tools-18: 117 files, 556370 bytes
+#   portfolio-front-tools-8: 134 files, 554555 bytes
+#   portfolio-front-tools-9: 130 files, 553486 bytes
+#   portfolio-front-tools-10: 127 files, 552855 bytes
+#   portfolio-front-tools-11: 126 files, 555717 bytes
+#   portfolio-front-tools-12: 122 files, 554141 bytes
+#   portfolio-front-tools-13: 139 files, 556463 bytes
+#   portfolio-front-tools-14: 121 files, 554132 bytes
+#   portfolio-front-tools-15: 120 files, 556440 bytes
+#   portfolio-front-tools-16: 117 files, 546412 bytes
+#   portfolio-front-tools-17: 119 files, 548943 bytes
+#   portfolio-front-tools-18: 117 files, 556374 bytes
 #   portfolio-front-tools-19: 114 files, 555595 bytes
-#   portfolio-front-tools-20: 129 files, 554815 bytes
-#   portfolio-front-tools-21: 123 files, 553581 bytes
-#   portfolio-front-tools-22: 134 files, 553395 bytes
-#   portfolio-front-tools-23: 116 files, 553377 bytes
-#   portfolio-front-tools-24: 123 files, 555924 bytes
-#   portfolio-front-tools-25: 133 files, 554493 bytes
-#   portfolio-front-tools-26: 113 files, 553048 bytes
-#   portfolio-front-tools-27: 132 files, 554528 bytes
-#   portfolio-front-tools-28: 93 files, 553222 bytes
+#   portfolio-front-tools-20: 129 files, 554819 bytes
+#   portfolio-front-tools-21: 123 files, 553588 bytes
+#   portfolio-front-tools-22: 134 files, 553399 bytes
+#   portfolio-front-tools-23: 116 files, 553366 bytes
+#   portfolio-front-tools-24: 123 files, 555927 bytes
+#   portfolio-front-tools-25: 133 files, 554499 bytes
+#   portfolio-front-tools-26: 113 files, 553051 bytes
+#   portfolio-front-tools-27: 132 files, 554533 bytes
+#   portfolio-front-tools-28: 93 files, 553226 bytes
 #   portfolio-front-tools-29: 115 files, 555014 bytes
-#   portfolio-front-tools-30: 114 files, 548492 bytes
-#   portfolio-front-tools-31: 128 files, 556254 bytes
-#   portfolio-front-tools-32: 121 files, 545017 bytes
-#   portfolio-front-tools-33: 131 files, 554063 bytes
-#   portfolio-front-tools-34: 114 files, 556544 bytes
-#   portfolio-front-tools-35: 70 files, 384892 bytes
+#   portfolio-front-tools-30: 114 files, 548513 bytes
+#   portfolio-front-tools-31: 128 files, 556253 bytes
+#   portfolio-front-tools-32: 121 files, 545025 bytes
+#   portfolio-front-tools-33: 131 files, 554067 bytes
+#   portfolio-front-tools-34: 114 files, 556554 bytes
+#   portfolio-front-tools-35: 73 files, 396946 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -4629,6 +4629,9 @@ configMapGenerator:
       - wordpress-plugin-review-check__usage.mjs.gz=wordpress-plugin-review-check__usage.mjs.gz
       - wordpress-plugin-review-check__vs-manually-checking-against-the-guidelines.html.gz=wordpress-plugin-review-check__vs-manually-checking-against-the-guidelines.html.gz
       - wordpress-plugin-review-check__vs-plugin-check.html.gz=wordpress-plugin-review-check__vs-plugin-check.html.gz
+      - worker-classification-checker__calc.mjs.gz=worker-classification-checker__calc.mjs.gz
+      - worker-classification-checker__index.html.gz=worker-classification-checker__index.html.gz
+      - worker-classification-checker__usage.mjs.gz=worker-classification-checker__usage.mjs.gz
       - workers-comp-premium-calculator__calc.mjs.gz=workers-comp-premium-calculator__calc.mjs.gz
       - workers-comp-premium-calculator__index.html.gz=workers-comp-premium-calculator__index.html.gz
       - workers-comp-premium-calculator__usage.mjs.gz=workers-comp-premium-calculator__usage.mjs.gz
