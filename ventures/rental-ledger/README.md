@@ -11,6 +11,7 @@ Free, no account, no watermark, works offline. Everything runs in your browser; 
 - Rental loss rules: $25,000 special allowance for active participation, 50% phase-out from $100,000 to $150,000 MAGI, suspended losses carried in and out
 - Rent collection by month against target rent, vacancy, and short months
 - Flags: large "repairs" that look like improvements, the $2,500 de minimis safe harbor, deposits, missing land value or in-service date, orphaned or undated rows
+- Sale of a property: depreciation recaptured at up to 25%, long-term gain at 0/15/20% stacked on your income, the 3.8% investment income tax, suspended losses released, ordinary loss on a sale at a loss, cash in hand after payoff and tax
 - 1099-NEC list at the $2,000 threshold, by payee
 - CSV import (rows that cannot be read are listed with the reason), formula-safe CSV export of Schedule E and of all entries, JSON backup, storage protection and backup-age line
 - Money in whole cents (`calc.mjs`), no model
