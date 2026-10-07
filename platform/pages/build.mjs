@@ -681,6 +681,9 @@ const CATEGORY_RULES = [
       // `catering-quote-calculator` joined 2026-10-02 on its first commit: per-guest event pricing for the
       // operator who sells food, one hop from `food-truck-event-margin-calculator`.
       'catering-quote-calculator',
+      // `shared-kitchen-rate-planner` joined 2026-10-07 on its first commit: commissary and shared-kitchen owners pricing
+      // station-hours and memberships; the renters are the food-truck and catering operators served here, one hop away.
+      'shared-kitchen-rate-planner',
       // `farmers-market-booth-calculator` joined 2026-10-03 on its first commit: market vendors who sell food,
       // one hop from `food-truck-event-margin-calculator`.
       'farmers-market-booth-calculator',

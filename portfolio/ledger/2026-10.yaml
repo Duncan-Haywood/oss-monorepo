@@ -2692,12 +2692,20 @@ entries:
         usage tests plus a Chromium run (example data, no script errors). Registered launch date and category rule; tree
         counts synced; mirror regenerated.
     mrr_end: 0
+  - venture: shared-kitchen-rate-planner
   - venture: mushroom-fruiting-room-planner
   - venture: fishing-crew-share-settlement-calculator
     agent_spend_usd: null
     human_hours: 0
     outcomes:
       - >-
+        Graduated and built shared-kitchen-rate-planner: a browser page where a shared or commissary kitchen owner enters
+        monthly costs, stations, open hours, hourly rate and memberships and gets profit, break-even utilization, the
+        utilization and hourly rate that reach a profit goal, the effective hourly price of a membership against cost per
+        used hour, and a rate-by-utilization profit grid. Flat hourly rate and capped member use are stated simplifications.
+        duplicate_check closest 0.37 (rental-dscr-calculator). First visitor: searches for "commissary kitchen hourly
+        rate"; volume not measured. No kitchen owner has used it. 21 calc, page and usage tests. Registered launch date and
+        food-service category; tree counts synced; mirror regenerated.
         Graduated and built mushroom-fruiting-room-planner: a browser page where a small gourmet-mushroom grower enters
         block cost, yield per flush, price, contamination and fruiting-room slots and gets profit per block and per
         slot-week, the flush count that earns most (per block when the room has spare slots, per slot-week when it is
