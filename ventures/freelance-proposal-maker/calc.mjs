@@ -247,33 +247,48 @@ export function proposalText(title, sections) {
   return `${title}\n\n` + sections.map((s) => `${s.title}\n\n${s.body.join("\n\n")}`).join("\n\n\n") + "\n";
 }
 
-// Hand-off to the next steps in the suite: the chosen option becomes a fixed-fee
-// contract and a deposit invoice. Only text fields cross, in the URL fragment
-// (never sent to a server). The receiving tools whitelist every field.
-export function handoff(raw, index = 0) {
+// Fields for Freelance Contract Maker once the client picks option `index`.
+// Carries only what the proposal already says; the private hours and target
+// rate never leave this page. Returns null when that option does not exist.
+export function contractHandoff(raw, index) {
+  const inp = { ...DEFAULTS, ...raw };
+  const o = optionTerms(inp)[index];
+  if (!o) return null;
+  const items = lines(inp.deliverables);
+  const chosen = `${o.name}${o.includes ? `: ${o.includes}` : ""}`;
+  return {
+    contractor: String(inp.contractor).trim(),
+    client: String(inp.client).trim(),
+    effective: parseDate(inp.startDate) ? String(inp.startDate).trim() : "",
+    project: String(inp.title).trim(),
+    deliverables: [chosen, ...items].join("\n"),
+    feeType: "fixed",
+    amount: o.cents % 100 === 0 ? String(o.cents / 100) : (o.cents / 100).toFixed(2),
+    currency: inp.currency,
+    depositPct: String(inp.depositPct),
+    payDays: String(inp.payDays),
+  };
+}
+
+export function contractHandoffHash(raw, index) {
+  const f = contractHandoff(raw, index);
+  return f ? "#handoff=" + encodeURIComponent(JSON.stringify(f)) : null;
+}
+
+// The deposit invoice for an accepted option, for Invoice Maker. Same rules as
+// the contract hand-off: text only, in the URL fragment, whitelisted on arrival.
+export function invoiceHandoffHash(raw, index = 0) {
   const inp = { ...DEFAULTS, ...raw };
   const opt = optionTerms(inp)[index];
   if (!opt) return null;
   const title = String(inp.title).trim() || "Project";
-  const money = (c) => (c / 100).toFixed(2);
   const dep = Math.min(parseNum(inp.depositPct) ?? 0, 100);
-  const lines = [];
-  if (opt.deposit > 0) lines.push({ desc: `${title}: ${opt.name}, ${dep}% deposit`, qty: 1, rate: money(opt.deposit) });
-  else lines.push({ desc: `${title}: ${opt.name}`, qty: 1, rate: money(opt.cents) });
   const payDays = Math.max(0, Math.floor(parseNum(inp.payDays) ?? 14));
-  return {
-    v: 1,
-    from: "freelance-proposal-maker",
-    contract: {
-      contractor: inp.contractor, client: inp.client, effective: parseDate(inp.startDate) ? inp.startDate : inp.proposalDate,
-      project: title, deliverables: [opt.name + (opt.includes ? `: ${opt.includes}` : ""), ...String(inp.deliverables).split("\n").map((s) => s.trim()).filter(Boolean)].join("\n"),
-      feeType: "fixed", amount: money(opt.cents), currency: inp.currency, depositPct: String(dep), payDays: String(payDays),
-    },
-    invoice: { fromName: inp.contractor, clientName: inp.client, currency: inp.currency, terms: "custom", customDays: String(payDays), lines, notes: `Deposit for the accepted proposal "${title}", option ${opt.name}. Balance of ${(opt.balance / 100).toFixed(2)} ${inp.currency} is due on delivery.` },
+  const cents = opt.deposit > 0 ? opt.deposit : opt.cents;
+  const invoice = {
+    fromName: inp.contractor, clientName: inp.client, currency: inp.currency, terms: "custom", customDays: String(payDays),
+    lines: [{ desc: `${title}: ${opt.name}${opt.deposit > 0 ? `, ${dep}% deposit` : ""}`, qty: 1, rate: (cents / 100).toFixed(2) }],
+    notes: opt.deposit > 0 ? `Deposit for the accepted proposal "${title}", option ${opt.name}. Balance of ${(opt.balance / 100).toFixed(2)} ${inp.currency} is due on delivery.` : `Accepted proposal "${title}", option ${opt.name}.`,
   };
-}
-
-export function handoffHash(raw, index = 0) {
-  const h = handoff(raw, index);
-  return h ? "#handoff=" + encodeURIComponent(JSON.stringify(h)) : "";
+  return "#handoff=" + encodeURIComponent(JSON.stringify({ v: 1, from: "freelance-proposal-maker", invoice }));
 }

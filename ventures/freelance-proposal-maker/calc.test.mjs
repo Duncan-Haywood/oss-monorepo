@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseCents, formatMoney, parseDate, addDays, formatDate, parseOptions, parsePhases, validUntil, optionTerms, ladder, rateCheck, check, reviewNotes, buildProposal, proposalText, DEFAULTS } from "./calc.mjs";
+import { parseCents, formatMoney, parseDate, addDays, formatDate, parseOptions, parsePhases, validUntil, optionTerms, ladder, rateCheck, check, reviewNotes, buildProposal, proposalText, contractHandoff, contractHandoffHash, DEFAULTS } from "./calc.mjs";
 
 const full = {
   contractor: "Ada Dev", client: "Acme", title: "New website", proposalDate: "2026-10-01", validDays: "14",
@@ -108,35 +108,25 @@ test("rate check needs both hours and a target before it says anything, and stay
   assert.ok(check({ ...flagged, targetRate: "abc" }).some((n) => /Target hourly rate/.test(n)));
 });
 
-import { handoff, handoffHash } from "./calc.mjs";
-import { parseHandoff } from "../freelance-contract-maker/calc.mjs";
-import { parseHandoff as parseInv } from "../invoice-maker/calc.mjs";
-
-test("hand-off turns the accepted option into a contract and a deposit invoice", () => {
-  const h = handoff(full, 1);
-  assert.equal(h.contract.amount, "6000.00");
-  assert.equal(h.contract.depositPct, "40");
-  assert.equal(h.contract.effective, "2026-11-02");
-  assert.match(h.contract.deliverables, /^Standard: Five pages/);
-  assert.equal(h.invoice.lines[0].rate, "2400.00");
-  assert.match(h.invoice.lines[0].desc, /Standard, 40% deposit/);
-  assert.match(h.invoice.notes, /3600\.00/);
-  assert.equal(handoff(full, 9), null);
+test("contract hand-off carries the chosen option and never the private numbers", () => {
+  const f = contractHandoff({ ...full, hours: "30\n55\n90", targetRate: "120", contact: "x" }, 1);
+  assert.equal(f.amount, "6000");
+  assert.equal(f.depositPct, "40");
+  assert.equal(f.effective, "2026-11-02");
+  assert.equal(f.deliverables.split("\n")[0], "Standard: Five pages");
+  assert.ok(!JSON.stringify(f).includes("120"));
+  assert.equal(contractHandoff(full, 9), null);
+  assert.ok(contractHandoffHash(full, 0).startsWith("#handoff="));
 });
 
-test("hand-off survives the URL fragment and the receivers whitelist it", () => {
-  const hash = handoffHash(full, 2);
-  const c = parseHandoff(hash, "contract", ["client", "amount", "project"]);
-  assert.deepEqual(c, { client: "Acme", amount: "11000.00", project: "New website" });
-  const i = parseInv(hash, "invoice", ["clientName", "lines"]);
-  assert.equal(i.lines[0].rate, "4400.00");
-  assert.equal(parseHandoff("#handoff=%7Bbad", "contract", ["client"]), null);
-  assert.equal(parseHandoff("#other=1", "contract", ["client"]), null);
-  const evil = "#handoff=" + encodeURIComponent(JSON.stringify({ v: 1, from: "freelance-proposal-maker", contract: { client: "x", __proto__: { a: 1 }, evil: "y" } }));
-  assert.deepEqual(parseHandoff(evil, "contract", ["client"]), { client: "x" });
-});
+import { invoiceHandoffHash } from "./calc.mjs";
+import { parseHandoff as parseInvoiceHandoff } from "../invoice-maker/calc.mjs";
 
-test("hand-off with no deposit invoices the whole option", () => {
-  const h = handoff({ ...full, depositPct: "0" }, 0);
-  assert.equal(h.invoice.lines[0].rate, "3000.00");
+test("deposit invoice hand-off carries the deposit line and survives the receiver's whitelist", () => {
+  const i = parseInvoiceHandoff(invoiceHandoffHash(full, 1), "invoice", ["clientName", "terms", "customDays", "notes", "lines"]);
+  assert.equal(i.lines[0].rate, "2400.00");
+  assert.match(i.lines[0].desc, /Standard, 40% deposit/);
+  assert.match(i.notes, /3600\.00/);
+  assert.equal(invoiceHandoffHash(full, 9), null);
+  assert.equal(parseInvoiceHandoff(invoiceHandoffHash({ ...full, depositPct: "0" }, 0), "invoice", ["lines"]).lines[0].rate, "3000.00");
 });

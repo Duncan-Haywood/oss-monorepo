@@ -237,17 +237,19 @@ export function reviewNotes(inp) {
   return notes;
 }
 
-// Reads a #handoff=... fragment written by Freelance Proposal Maker. Returns
-// only whitelisted, string-typed fields, or null if the fragment is not ours.
-export function parseHandoff(hash, section, fields) {
+// Reads "#handoff=<json>" as written by Freelance Proposal Maker. Only known
+// text fields are taken, as strings, capped in length; anything else in the
+// link is ignored. Returns null when the hash carries no usable hand-off.
+const HANDOFF_FIELDS = ["contractor", "client", "effective", "project", "deliverables", "feeType", "amount", "currency", "depositPct", "payDays"];
+export function parseHandoff(hash) {
   const m = /^#?handoff=(.+)$/.exec(String(hash ?? ""));
   if (!m) return null;
   let obj;
   try { obj = JSON.parse(decodeURIComponent(m[1])); } catch { return null; }
-  if (!obj || obj.v !== 1 || obj.from !== "freelance-proposal-maker" || !obj[section] || typeof obj[section] !== "object") return null;
+  if (!obj || typeof obj !== "object" || Array.isArray(obj)) return null;
   const out = {};
-  for (const k of fields) if (obj[section][k] !== undefined && obj[section][k] !== null) out[k] = String(obj[section][k]).slice(0, 4000);
-  const lines = Array.isArray(obj[section].lines) ? obj[section].lines.slice(0, 20).map((l) => ({ desc: String(l?.desc ?? "").slice(0, 300), qty: String(l?.qty ?? 1).slice(0, 12), rate: String(l?.rate ?? "").slice(0, 20) })) : null;
-  if (lines && fields.includes("lines")) out.lines = lines;
+  for (const k of HANDOFF_FIELDS) if (typeof obj[k] === "string") out[k] = obj[k].slice(0, 4000);
+  if (out.feeType !== undefined && out.feeType !== "fixed") delete out.feeType;
+  if (out.currency !== undefined && !(out.currency in CURRENCIES)) delete out.currency;
   return Object.keys(out).length ? out : null;
 }
