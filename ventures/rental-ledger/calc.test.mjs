@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { toCents, formatMoney, buildingBasis, depreciation, propertyDepreciation, scheduleE, passiveLoss, collection, vendors1099, checks, scheduleECsv, importRows, csvEscape, parseCsv } from "./calc.mjs";
+import { toCents, formatMoney, buildingBasis, depreciation, propertyDepreciation, scheduleE, passiveLoss, collection, saleYear, vendors1099, checks, scheduleECsv, importRows, csvEscape, parseCsv } from "./calc.mjs";
 
 const house = { id: "p1", name: "12 Oak St", priceCents: 30000000, closingCents: 500000, landCents: 5500000, inService: "2026-03-10", monthlyRentCents: 200000 };
 const data = () => ({
@@ -162,4 +162,28 @@ test("the no-payee nag skips interest and taxes, which have no contractor to nam
   ] };
   const t = checks(d).map((c) => c.text).join("\n");
   assert.match(t, /1 expense of \$75 or more has no payee/);
+});
+
+test("sale year: depreciation through the sale month, unrecaptured 1250 gain, suspended loss release", () => {
+  const p = { id: "p1", priceCents: 30000000, closingCents: 0, landCents: 5000000, inService: "2020-01-15" };
+  const s = saleYear(p, [], { saleDate: "2026-07-20", salePriceCents: 40000000, sellingCostsCents: 2400000, ordinaryRatePct: 32, gainRatePct: 15, suspendedCents: 1000000 });
+  // 78 months of 27.5-year straight line on 250,000.00
+  assert.equal(s.depreciationTaken, Math.round((25000000 * 78) / 330));
+  assert.equal(s.adjustedBasis, 30000000 - s.depreciationTaken);
+  assert.equal(s.gain, 37600000 - s.adjustedBasis);
+  assert.equal(s.unrecaptured, s.depreciationTaken);
+  assert.equal(s.longTerm, s.gain - s.depreciationTaken);
+  assert.equal(s.tax, Math.round(s.unrecaptured * 0.25 + s.longTerm * 0.15 - 1000000 * 0.32));
+  assert.equal(s.shortTerm, false);
+});
+
+test("sale year: improvements add basis and depreciation; a loss has no recapture; bad dates return null", () => {
+  const p = { id: "p1", priceCents: 10000000, closingCents: 0, landCents: 2000000, inService: "2022-06-01" };
+  const imp = [{ property: "p1", type: "improvement", date: "2024-06-01", cents: 3300000 }, { property: "p1", type: "improvement", date: "2030-01-01", cents: 999 }];
+  const s = saleYear(p, imp, { saleDate: "2026-06-01", salePriceCents: 9000000 });
+  assert.equal(s.cost, 13300000);
+  assert.equal(s.gain < 0, true);
+  assert.equal(s.unrecaptured, 0);
+  assert.equal(saleYear(p, [], { saleDate: "nope" }), null);
+  assert.equal(saleYear(p, [], { saleDate: "2022-12-01", salePriceCents: 1 }).shortTerm, true);
 });

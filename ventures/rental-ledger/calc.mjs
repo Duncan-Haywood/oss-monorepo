@@ -125,6 +125,39 @@ export function passiveLoss({ net = 0, magi = 0, active = true, priorSuspended =
   return { allowed, suspended: loss - allowed, taxableNet: -allowed, allowance, usedPrior: 0, note };
 }
 
+// ---- Sale year (Form 4797 / Schedule D, simple case) --------------------------
+// Depreciation allowed through the sale month (mid-month: the sale month counts as
+// half), adjusted basis, gain, the part of the gain taxed as unrecaptured section
+// 1250 gain (the lesser of the gain and the depreciation taken, capped at 25%), the
+// rest at the long-term rate, and suspended passive losses released on a full
+// taxable sale. Residential 27.5-year property held more than a year only.
+function cumulativeToSale(basis, inService, saleDate) {
+  const sy = yearOf(inService), sm = monthOf(inService), ey = yearOf(saleDate), em = monthOf(saleDate);
+  if (!(basis > 0) || [sy, sm, ey, em].some(Number.isNaN) || saleDate < inService) return 0;
+  const months = 12 * (ey - sy) + (em - sm);
+  return Math.min(basis, Math.round((basis * months) / RECOVERY_MONTHS));
+}
+
+export function saleYear(prop, entries, { saleDate, salePriceCents = 0, sellingCostsCents = 0, ordinaryRatePct = 0, gainRatePct = 15, suspendedCents = 0 } = {}) {
+  if (!isDate(saleDate) || !isDate(prop.inService)) return null;
+  const improvements = (entries || []).filter((e) => e && e.property === prop.id && e.type === "improvement" && isDate(e.date) && e.date <= saleDate);
+  const impCost = improvements.reduce((a, e) => a + int(e.cents), 0);
+  const depreciationTaken = cumulativeToSale(buildingBasis(prop), prop.inService, saleDate) + improvements.reduce((a, e) => a + cumulativeToSale(int(e.cents), e.date, saleDate), 0);
+  const cost = int(prop.priceCents) + int(prop.closingCents) + impCost;
+  const adjustedBasis = cost - depreciationTaken;
+  const amountRealized = int(salePriceCents) - int(sellingCostsCents);
+  const gain = amountRealized - adjustedBasis;
+  const heldMonths = 12 * (yearOf(saleDate) - yearOf(prop.inService)) + monthOf(saleDate) - monthOf(prop.inService);
+  const ord = Math.min(Math.max(Number(ordinaryRatePct) || 0, 0), 100) / 100, lt = Math.min(Math.max(Number(gainRatePct) || 0, 0), 100) / 100;
+  const susp = Math.max(0, int(suspendedCents));
+  const unrecaptured = gain > 0 ? Math.min(gain, depreciationTaken) : 0;
+  const longTerm = gain > 0 ? gain - unrecaptured : 0;
+  const rate1250 = Math.min(ord, 0.25);
+  const tax = Math.round(unrecaptured * rate1250 + longTerm * lt - (gain > 0 ? susp * ord : 0) + (gain < 0 ? gain * ord : 0));
+  const niit = gain > 0 ? Math.round(gain * 0.038) : 0;
+  return { depreciationTaken, cost, adjustedBasis, amountRealized, gain, unrecaptured, longTerm, tax, niitIfApplies: niit, suspendedReleased: susp, cashBeforeTax: amountRealized, heldMonths, shortTerm: heldMonths < 12 };
+}
+
 // ---- Monthly collection (rent roll) ------------------------------------------
 export function collection(data, year = TAX_YEAR) {
   const props = Array.isArray(data.properties) ? data.properties : [];

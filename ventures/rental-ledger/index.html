@@ -119,6 +119,19 @@
     <p class="noprint"><button type="button" id="dl-sche">Download Schedule E (CSV)</button><button type="button" class="secondary" id="dl-entries">Download entries (CSV)</button><button type="button" class="secondary" id="print">Print</button></p>
   </section>
 
+  <section class="card" aria-label="If you sell a property" id="sale-card">
+    <h2>4. If you sell a property</h2>
+    <p class="note">Estimates the gain, the depreciation recapture taxed at up to 25%, and the suspended losses a full sale releases. Federal, residential 27.5-year property held more than a year; no 1031 exchange, installment sale or state tax.</p>
+    <div class="grid">
+      <div><label for="x-prop">Property</label><select id="x-prop"></select></div>
+      <div><label for="x-date">Sale date</label><input id="x-date" type="date"></div>
+      <div><label for="x-price">Sale price ($)</label><input id="x-price" inputmode="decimal" placeholder="e.g. 400000"></div>
+      <div><label for="x-costs">Selling costs ($)</label><input id="x-costs" inputmode="decimal" placeholder="agent, closing, transfer tax"></div>
+      <div><label for="x-gain-rate">Long-term gain rate (%)</label><input id="x-gain-rate" inputmode="decimal" value="15"></div>
+    </div>
+    <p id="sale-out" aria-live="polite"></p>
+  </section>
+
   <section class="card" aria-label="Back up and restore">
     <h2>Back up, restore</h2>
     <p id="storage-guard" class="note" aria-live="polite"></p>
@@ -168,7 +181,7 @@
   </footer>
 
   <script type="module">
-    import { TAX_YEAR, TYPES, EXPENSE_LINES, toCents, formatMoney, isDate, scheduleE, passiveLoss, collection, vendors1099, checks, scheduleECsv, importRows, toCsv } from "./calc.mjs";
+    import { TAX_YEAR, TYPES, EXPENSE_LINES, toCents, formatMoney, isDate, scheduleE, passiveLoss, saleYear, collection, vendors1099, checks, scheduleECsv, importRows, toCsv } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const KEY = "rental-ledger-data";
@@ -292,7 +305,22 @@
       $("#v1099").innerHTML = v.length ? v.map((r) => `<li>${esc(r.vendor)}: ${esc(m(r.cents))} across ${r.count} payment${r.count > 1 ? "s" : ""}</li>`).join("") : "<li>None at or above $2,000.</li>";
     }
 
-    function render(full = true) { if (full) { renderProps(); renderEntries(); } else renderEntries(); renderResults(); }
+
+    // ---- sale year ----
+    function renderSale() {
+      const sel = $("#x-prop"), keep = sel.value;
+      sel.innerHTML = data.properties.map((p) => `<option value="${esc(p.id)}">${esc(p.name || "(unnamed)")}</option>`).join("");
+      if (keep) sel.value = keep;
+      const p = data.properties.find((q) => q.id === sel.value), out = $("#sale-out"), m = formatMoney;
+      const price = cents($("#x-price").value);
+      if (!p || !price || !isDate($("#x-date").value)) { out.textContent = "Pick a property, a sale date and a sale price."; return; }
+      const r = saleYear(p, data.entries, { saleDate: $("#x-date").value, salePriceCents: price, sellingCostsCents: cents($("#x-costs").value), ordinaryRatePct: data.settings.rate, gainRatePct: $("#x-gain-rate").value, suspendedCents: cents(data.settings.prior) });
+      if (!r) { out.textContent = "Set the property's in-service date first."; return; }
+      out.textContent = `Depreciation taken through the sale: ${m(r.depreciationTaken)}. Adjusted basis ${m(r.adjustedBasis)} (cost ${m(r.cost)} less depreciation). Amount realized ${m(r.amountRealized)}. ` + (r.gain > 0 ? `Gain ${m(r.gain)}: ${m(r.unrecaptured)} is unrecaptured section 1250 gain (taxed at your rate, up to 25%) and ${m(r.longTerm)} is long-term gain. Estimated federal tax ${m(r.tax)}${r.suspendedReleased ? ", after " + m(r.suspendedReleased) + " of suspended losses released" : ""}. If your income is high, add up to ${m(r.niitIfApplies)} of net investment income tax.` : `Loss ${m(-r.gain)}, generally an ordinary loss on rental property held over a year. No recapture.`) + (r.shortTerm ? " Held under a year: the gain is ordinary income, not long-term." : "") + " Enter your tax rate and suspended losses in the settings above.";
+    }
+    for (const id of ["#x-prop", "#x-date", "#x-price", "#x-costs", "#x-gain-rate"]) $(id).addEventListener("input", renderSale);
+
+    function render(full = true) { if (full) { renderProps(); renderEntries(); } else renderEntries(); renderResults(); renderSale(); }
 
     // ---- files ----
     function download(name, body, type) {
