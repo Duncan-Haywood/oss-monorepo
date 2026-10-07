@@ -639,6 +639,7 @@
     "sales-seasonality-forecaster": "2026-09-30",
     "salesforce-lead-import-csv-check": "2026-10-04",
     "salt-cap-calculator": "2026-09-25",
+    "sba-loan-capacity-calculator": "2026-10-07",
     "sbom-diff-check": "2026-09-16",
     "scope-creep-change-order-calculator": "2026-10-03",
     "screened-porch-bid-calculator": "2026-08-26",
