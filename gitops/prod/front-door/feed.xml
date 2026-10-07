@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 836 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 837 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -78,6 +78,14 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free year-end tax pack for freelancers: pulls your invoices, expenses and mileage from this browser, then shows Schedule C net profit, self-employment tax, a 2026 federal estimate, quarterly payments still due and the 1099-NEC list. No account, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Mid-Term Rental Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/midterm-rental-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/midterm-rental-calculator</id>
+    <updated>2026-10-07T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free mid-term rental calculator: compare a furnished 30-day-plus rental with a long-term lease and with Airbnb-style nightly renting. See the monthly rate, empty days and furnishing payback that make it worth it. Private, runs in your browser.</summary>
   </entry>
   <entry>
     <title>Rental Ledger — Free Landlord Schedule E, Depreciation and Rent Roll, No Signup</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free profit calculator for campgrounds and RV parks: sites, months open, occupancy, nightly rate, booking commission, turnover labour and fixed costs become yearly profit, break-even occupancy and the nightly rate you need. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Cash Flow Risk Forecaster</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cash-flow-risk-forecaster/"/>
-    <id>tag:marisstella.dev,2026:tool/cash-flow-risk-forecaster</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free 13-week cash flow forecast that assumes invoices arrive late: paste your invoices and bills, and 2,000 simulated outcomes show the chance you run short, the cushion that would cover it and which invoice or bill to fix first. Private, runs in your browser.</summary>
   </entry>
 </feed>

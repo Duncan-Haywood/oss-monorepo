@@ -1,0 +1,59 @@
+name: midterm-rental-calculator
+description: >-
+  Free browser tool for landlords and short-term-rental hosts deciding whether to furnish a unit for 30-day-plus stays
+  (travel nurses, relocations, insurance displacement): puts a furnished monthly rate, empty days between stays,
+  utilities, cleaning, furniture wear and platform fees next to a plain long-term lease and next to nightly renting.
+  Reports the monthly rate, the empty-day limit and the furnishing payback that decide it, the occupancy a nightly rental
+  needs to match, and whether the rate fits a guest's fixed housing budget. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session. duplicate_check.py: str-turnover-scheduler 0.36 (a different
+# venture on the same property, the cleaning rota), no mid-term, furnished-rental or 30-day-stay venture exists
+# (grep of ventures/ and screened-out.md). travel-nurse-contract-comparison-calculator is the guest side of the same
+# market; cross-linked, neither reads the other.
+# Search phrases: "mid term rental calculator", "furnished finder vs airbnb", "mid term rental vs long term rental",
+# "travel nurse housing rental income", "is a mid term rental worth it", "30 day rental vacancy break even".
+# Volume not measured with an external tool.
+#
+# Who: owners of one to ten units, and Airbnb hosts squeezed by regulation or soft nightly demand, who are weighing
+# the move to 30-day-plus furnished stays. The decision costs real money up front (a furniture outlay of thousands of
+# dollars) and the numbers are usually run on a napkin that ignores empty days between stays and who pays the
+# utilities. Paying buyer, if any: property managers and coaches serving this audience.
+#
+# What makes it more than a rent comparison: the crossing points. It solves for the monthly rate, the vacancy limit
+# and the nightly occupancy at which the answer flips, not just the net at one set of inputs.
+#
+# Path to revenue (payment rails stay off): lead magnet for the furnished-rental landlord audience, and a source of
+# links to the sibling STR tools. If usage appears, a market-comp import (rates by city) behind an env-var switch.
+# Not built.
+#
+# Liability: arithmetic on numbers the user types. It carries the no-warranty and not-advice clauses and says plainly
+# that tax, lodging tax, zoning, HOA and tenant-rights rules are not decided here. It hard-codes no market rate,
+# no tax rate and no legal threshold; every default is labelled as made up.
+#
+# Unverified: the arithmetic is tested; the defaults are a made-up two-bedroom and no real landlord has used it.
+
+hypotheses:
+  - claim: >-
+      Landlords and hosts weighing a furnished 30-day-plus rental will use a calculator that shows the vacancy and
+      rate crossing points, because the napkin version ignores empty days between stays and the owner-paid utilities.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Searchers for "mid term rental calculator" and "furnished finder vs airbnb" prefer a tool that shows
+      long-term, mid-term and nightly side by side to a blog post with one example.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true

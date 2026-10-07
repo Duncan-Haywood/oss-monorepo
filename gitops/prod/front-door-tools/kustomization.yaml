@@ -33,42 +33,42 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547825 bytes
-#   portfolio-front-tools-1: 92 files, 555299 bytes
-#   portfolio-front-tools-2: 144 files, 553331 bytes
-#   portfolio-front-tools-3: 128 files, 549132 bytes
-#   portfolio-front-tools-4: 136 files, 553369 bytes
-#   portfolio-front-tools-5: 131 files, 553718 bytes
-#   portfolio-front-tools-6: 121 files, 545901 bytes
-#   portfolio-front-tools-7: 120 files, 555671 bytes
-#   portfolio-front-tools-8: 135 files, 556149 bytes
-#   portfolio-front-tools-9: 130 files, 556989 bytes
-#   portfolio-front-tools-10: 128 files, 550624 bytes
-#   portfolio-front-tools-11: 125 files, 553619 bytes
-#   portfolio-front-tools-12: 121 files, 554853 bytes
-#   portfolio-front-tools-13: 141 files, 552177 bytes
-#   portfolio-front-tools-14: 119 files, 554427 bytes
-#   portfolio-front-tools-15: 119 files, 553742 bytes
-#   portfolio-front-tools-16: 116 files, 543906 bytes
+#   portfolio-front-tools-0: 145 files, 547838 bytes
+#   portfolio-front-tools-1: 92 files, 555308 bytes
+#   portfolio-front-tools-2: 144 files, 553346 bytes
+#   portfolio-front-tools-3: 128 files, 549130 bytes
+#   portfolio-front-tools-4: 136 files, 553371 bytes
+#   portfolio-front-tools-5: 131 files, 553667 bytes
+#   portfolio-front-tools-6: 121 files, 545894 bytes
+#   portfolio-front-tools-7: 120 files, 555686 bytes
+#   portfolio-front-tools-8: 135 files, 556154 bytes
+#   portfolio-front-tools-9: 130 files, 556995 bytes
+#   portfolio-front-tools-10: 128 files, 550689 bytes
+#   portfolio-front-tools-11: 125 files, 553655 bytes
+#   portfolio-front-tools-12: 121 files, 554817 bytes
+#   portfolio-front-tools-13: 141 files, 552176 bytes
+#   portfolio-front-tools-14: 119 files, 554553 bytes
+#   portfolio-front-tools-15: 119 files, 553759 bytes
+#   portfolio-front-tools-16: 116 files, 543918 bytes
 #   portfolio-front-tools-17: 119 files, 550134 bytes
-#   portfolio-front-tools-18: 117 files, 554297 bytes
-#   portfolio-front-tools-19: 115 files, 551596 bytes
-#   portfolio-front-tools-20: 126 files, 554358 bytes
-#   portfolio-front-tools-21: 124 files, 550753 bytes
-#   portfolio-front-tools-22: 133 files, 549928 bytes
-#   portfolio-front-tools-23: 115 files, 554076 bytes
-#   portfolio-front-tools-24: 121 files, 549351 bytes
-#   portfolio-front-tools-25: 133 files, 554233 bytes
-#   portfolio-front-tools-26: 114 files, 552424 bytes
-#   portfolio-front-tools-27: 134 files, 556935 bytes
-#   portfolio-front-tools-28: 98 files, 535908 bytes
-#   portfolio-front-tools-29: 106 files, 556778 bytes
-#   portfolio-front-tools-30: 114 files, 556699 bytes
-#   portfolio-front-tools-31: 127 files, 556901 bytes
-#   portfolio-front-tools-32: 124 files, 544379 bytes
-#   portfolio-front-tools-33: 131 files, 554855 bytes
-#   portfolio-front-tools-34: 115 files, 537925 bytes
-#   portfolio-front-tools-35: 89 files, 495868 bytes
+#   portfolio-front-tools-18: 117 files, 554306 bytes
+#   portfolio-front-tools-19: 115 files, 551562 bytes
+#   portfolio-front-tools-20: 126 files, 554388 bytes
+#   portfolio-front-tools-21: 124 files, 556820 bytes
+#   portfolio-front-tools-22: 136 files, 556882 bytes
+#   portfolio-front-tools-23: 115 files, 554003 bytes
+#   portfolio-front-tools-24: 121 files, 549271 bytes
+#   portfolio-front-tools-25: 133 files, 554122 bytes
+#   portfolio-front-tools-26: 114 files, 552461 bytes
+#   portfolio-front-tools-27: 134 files, 556921 bytes
+#   portfolio-front-tools-28: 98 files, 535769 bytes
+#   portfolio-front-tools-29: 106 files, 556370 bytes
+#   portfolio-front-tools-30: 114 files, 556617 bytes
+#   portfolio-front-tools-31: 127 files, 556964 bytes
+#   portfolio-front-tools-32: 124 files, 544346 bytes
+#   portfolio-front-tools-33: 131 files, 554732 bytes
+#   portfolio-front-tools-34: 115 files, 537961 bytes
+#   portfolio-front-tools-35: 89 files, 495970 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2898,6 +2898,9 @@ configMapGenerator:
       - microgreens-tray-planner__how-many-microgreen-trays-per-week.html.gz=microgreens-tray-planner__how-many-microgreen-trays-per-week.html.gz
       - microgreens-tray-planner__index.html.gz=microgreens-tray-planner__index.html.gz
       - microgreens-tray-planner__usage.mjs.gz=microgreens-tray-planner__usage.mjs.gz
+      - midterm-rental-calculator__calc.mjs.gz=midterm-rental-calculator__calc.mjs.gz
+      - midterm-rental-calculator__index.html.gz=midterm-rental-calculator__index.html.gz
+      - midterm-rental-calculator__usage.mjs.gz=midterm-rental-calculator__usage.mjs.gz
       - mileage-deduction-method-calculator__calc.mjs.gz=mileage-deduction-method-calculator__calc.mjs.gz
       - mileage-deduction-method-calculator__index.html.gz=mileage-deduction-method-calculator__index.html.gz
       - mileage-deduction-method-calculator__usage.mjs.gz=mileage-deduction-method-calculator__usage.mjs.gz
@@ -2945,14 +2948,14 @@ configMapGenerator:
       - mold-remediation-bid-calculator__vs-xactimate.html.gz=mold-remediation-bid-calculator__vs-xactimate.html.gz
       - mortgage-escrow-analysis-checker__calc.mjs.gz=mortgage-escrow-analysis-checker__calc.mjs.gz
       - mortgage-escrow-analysis-checker__index.html.gz=mortgage-escrow-analysis-checker__index.html.gz
-      - mortgage-escrow-analysis-checker__usage.mjs.gz=mortgage-escrow-analysis-checker__usage.mjs.gz
-      - moving-bid-calculator__calc.mjs.gz=moving-bid-calculator__calc.mjs.gz
-      - moving-bid-calculator__how-much-to-charge.html.gz=moving-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-22
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - mortgage-escrow-analysis-checker__usage.mjs.gz=mortgage-escrow-analysis-checker__usage.mjs.gz
+      - moving-bid-calculator__calc.mjs.gz=moving-bid-calculator__calc.mjs.gz
+      - moving-bid-calculator__how-much-to-charge.html.gz=moving-bid-calculator__how-much-to-charge.html.gz
       - moving-bid-calculator__index.html.gz=moving-bid-calculator__index.html.gz
       - moving-bid-calculator__usage.mjs.gz=moving-bid-calculator__usage.mjs.gz
       - moving-bid-calculator__vs-a-bedroom-count-quote.html.gz=moving-bid-calculator__vs-a-bedroom-count-quote.html.gz
