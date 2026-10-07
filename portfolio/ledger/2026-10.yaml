@@ -2605,3 +2605,22 @@ entries:
         escaped, persistence, hand-off, no horizontal overflow at 375px). Registered launch date, category rule, tree
         counts; regenerated the mirror; linked from Proposal Maker, which now also accepts the hand-off.
     mrr_end: 0
+  - venture: craft-brewery-batch-margin-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built craft-brewery-batch-margin-calculator, the portfolio's first brewery tool: a browser page
+        where a craft brewer enters beers (batch barrels, fermenter days, ingredient cost, channel mix) and sales
+        channels (taproom pints, self-distributed and distributor kegs, distributor cans, cans to go) and gets each
+        batch costed after yield loss, labour, utilities, federal craft excise (the CBMA $3.50 and $16 per barrel tiers
+        averaged over the year) plus state excise and a volume share of overhead. It shows profit per barrel in every
+        channel with break-even prices, flags any channel that loses money, and ranks beers by profit per barrel of
+        fermenter per day. In the worked example a self-distributed keg barrel earns about $80 against about $940 as
+        taproom pints. Screened with duplicate_check.py (top hit 0.20; no brewery, winery or distillery venture
+        existed). First visitor: brewery owners searching "brewery profit per barrel" or "taproom vs distribution
+        margin"; volume not measured. Paid comparables are Ekos and Beer30, which are production suites. No brewer has
+        used it; defaults are illustrative and excise rates must be confirmed with TTB. 25 calc, usage and page tests
+        plus a Chromium run (example loads, no script errors). Registered launch date, category rule, tree counts;
+        regenerated the mirror.
+    mrr_end: 0

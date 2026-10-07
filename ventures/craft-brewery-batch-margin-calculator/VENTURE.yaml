@@ -1,0 +1,54 @@
+name: craft-brewery-batch-margin-calculator
+description: >-
+  Free browser tool for craft breweries and nano-breweries: enter beers (batch size, fermenter days, ingredient cost,
+  where it is sold) and sales channels (taproom pints, self-distributed kegs, distributor kegs and cans, cans to go)
+  and it costs every batch after yield loss, labour, federal craft excise and state excise, then shows profit per
+  barrel in each channel with break-even prices, flags channels that lose money, and ranks beers by profit per barrel
+  of fermenter per day. Downloads a CSV and a summary. Recipes and prices are never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session. duplicate_check.py: top hit rmd-calculator 0.20, candle-batch-cost
+# 0.10, cottage-food-pricing 0.10. Nothing near 0.45. No brewery, winery or distillery venture exists in ventures/.
+# Search phrases: "brewery profit per barrel", "taproom vs distribution margin", "how much does it cost to brew a barrel
+# of beer", "brewery excise tax per barrel CBMA", "brewery fermenter utilization profit".
+# Volume not measured with an external tool.
+#
+# Who: roughly 9,500 US craft breweries, most of them under 5,000 barrels a year, run by owners who price from a
+# spreadsheet and gut feel. Real money: a brewery's revenue is $0.5M-$5M and the gap between a taproom barrel and a
+# distributor keg barrel is several hundred dollars. Existing brewery software (Ekos, Beer30, Orchestrated Beer) is
+# a paid production/inventory suite; none of the free tools answers "which beer and which channel earn the tank".
+#
+# Path to revenue (payment rails stay off): lead magnet for brewery owners and the consultants/fractional CFOs who
+# serve them. A paid tier, if usage appears, is saved scenarios and a TTB excise worksheet; not built.
+#
+# Liability: arithmetic on the user's own inputs. States excise rates are inputs, not data; federal rates are the
+# published CBMA tiers and the page says to confirm with TTB. No alcohol sales, no filing, nothing stored.
+#
+# Unverified: no brewer has used it. Default prices and costs are illustrative. Overhead is allocated per barrel by
+# volume, a simplification (taproom space cost really belongs to taproom channels). Federal excise tiers are modelled
+# as an annual average and do not model controlled-group or contract-brewing rules.
+
+hypotheses:
+  - claim: >-
+      A craft brewery owner will enter their own beers and channel prices into a no-upload page to see which channel and
+      which beer earn most per barrel and per fermenter day, because their spreadsheet shows revenue but not tank time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Searchers for "brewery profit per barrel" and "taproom vs distribution" prefer a tool that shows profit by channel
+      to a blog post of averages.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true

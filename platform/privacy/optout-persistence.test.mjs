@@ -1380,7 +1380,8 @@ const RELATIVE_SELF = relative(
 // +1: `freelance-proposal-maker` graduated (its own PR left this out; counted here).
 // +1: `rental-ledger` graduated.
 // +1: `freelance-lead-tracker` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 815;
+// +1: `craft-brewery-batch-margin-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 816;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
