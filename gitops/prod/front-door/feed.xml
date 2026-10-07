@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 834 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 835 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -78,6 +78,14 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free private rental property ledger: log rent and expenses per property, get Schedule E by property, 27.5-year depreciation, the $25,000 passive loss allowance, a monthly rent collection grid and the 1099-NEC list. No account, no bank link, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>STR Turnover Scheduler</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/str-turnover-scheduler/"/>
+    <id>tag:marisstella.dev,2026:tool/str-turnover-scheduler</id>
+    <updated>2026-10-07T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free Airbnb and VRBO turnover cleaning scheduler: paste your iCal calendars and get a cleaner schedule, same-day turnover warnings, double-booking checks and the number of cleaners you need. Private, runs in your browser.</summary>
   </entry>
   <entry>
     <title>Time Tracker — Free Billable Hours Timer, No Signup, Invoices From Your Hours</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free chiropractor new patient ROI calculator: cost to acquire a patient, patient lifetime value by segment, payback in visits, and the most you can spend per lead. Works for physical therapy and wellness clinics. Runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>DistroKid Earnings Report to Xero and QuickBooks Journal</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/distrokid-royalty-to-journal/"/>
-    <id>tag:marisstella.dev,2026:tool/distrokid-royalty-to-journal</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free DistroKid to QuickBooks and Xero journal converter: books music earnings by store (streaming, downloads, TikTok and YouTube) and sale month, songwriter royalties withheld as a deduction, checks row and report totals, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
