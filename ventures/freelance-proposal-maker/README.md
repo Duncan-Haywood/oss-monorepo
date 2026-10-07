@@ -22,3 +22,12 @@ Front of the proposal -> [Freelance Contract Maker](../freelance-contract-maker/
 [Freelance Dashboard](../freelance-dashboard/).
 
 An offer template, not legal advice; see the disclaimer on the page. MIT licensed.
+
+## Hand-off (added 2026-10-07)
+
+After a client says yes, pick the accepted option under the proposal and press
+**Draft the contract** (opens Freelance Contract Maker pre-filled with parties,
+fee, deposit, dates and deliverables) or **Make the deposit invoice** (opens
+Invoice Maker with the deposit line and terms). The data travels in the URL
+fragment, which browsers never send to a server; receiving tools whitelist the
+fields.

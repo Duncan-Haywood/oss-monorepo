@@ -182,3 +182,18 @@ export function validate(inv) {
   if (!inv.payInstructions) out.push("Add payment instructions (bank transfer, Zelle, check payee, payment link): invoices without them are paid later.");
   return out;
 }
+
+// Reads a #handoff=... fragment written by Freelance Proposal Maker. Returns
+// only whitelisted, string-typed fields, or null if the fragment is not ours.
+export function parseHandoff(hash, section, fields) {
+  const m = /^#?handoff=(.+)$/.exec(String(hash ?? ""));
+  if (!m) return null;
+  let obj;
+  try { obj = JSON.parse(decodeURIComponent(m[1])); } catch { return null; }
+  if (!obj || obj.v !== 1 || obj.from !== "freelance-proposal-maker" || !obj[section] || typeof obj[section] !== "object") return null;
+  const out = {};
+  for (const k of fields) if (obj[section][k] !== undefined && obj[section][k] !== null) out[k] = String(obj[section][k]).slice(0, 4000);
+  const lines = Array.isArray(obj[section].lines) ? obj[section].lines.slice(0, 20).map((l) => ({ desc: String(l?.desc ?? "").slice(0, 300), qty: String(l?.qty ?? 1).slice(0, 12), rate: String(l?.rate ?? "").slice(0, 20) })) : null;
+  if (lines && fields.includes("lines")) out.lines = lines;
+  return Object.keys(out).length ? out : null;
+}

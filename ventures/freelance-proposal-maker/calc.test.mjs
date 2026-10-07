@@ -118,3 +118,15 @@ test("contract hand-off carries the chosen option and never the private numbers"
   assert.equal(contractHandoff(full, 9), null);
   assert.ok(contractHandoffHash(full, 0).startsWith("#handoff="));
 });
+
+import { invoiceHandoffHash } from "./calc.mjs";
+import { parseHandoff as parseInvoiceHandoff } from "../invoice-maker/calc.mjs";
+
+test("deposit invoice hand-off carries the deposit line and survives the receiver's whitelist", () => {
+  const i = parseInvoiceHandoff(invoiceHandoffHash(full, 1), "invoice", ["clientName", "terms", "customDays", "notes", "lines"]);
+  assert.equal(i.lines[0].rate, "2400.00");
+  assert.match(i.lines[0].desc, /Standard, 40% deposit/);
+  assert.match(i.notes, /3600\.00/);
+  assert.equal(invoiceHandoffHash(full, 9), null);
+  assert.equal(parseInvoiceHandoff(invoiceHandoffHash({ ...full, depositPct: "0" }, 0), "invoice", ["lines"]).lines[0].rate, "3000.00");
+});

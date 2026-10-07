@@ -274,3 +274,21 @@ export function contractHandoffHash(raw, index) {
   const f = contractHandoff(raw, index);
   return f ? "#handoff=" + encodeURIComponent(JSON.stringify(f)) : null;
 }
+
+// The deposit invoice for an accepted option, for Invoice Maker. Same rules as
+// the contract hand-off: text only, in the URL fragment, whitelisted on arrival.
+export function invoiceHandoffHash(raw, index = 0) {
+  const inp = { ...DEFAULTS, ...raw };
+  const opt = optionTerms(inp)[index];
+  if (!opt) return null;
+  const title = String(inp.title).trim() || "Project";
+  const dep = Math.min(parseNum(inp.depositPct) ?? 0, 100);
+  const payDays = Math.max(0, Math.floor(parseNum(inp.payDays) ?? 14));
+  const cents = opt.deposit > 0 ? opt.deposit : opt.cents;
+  const invoice = {
+    fromName: inp.contractor, clientName: inp.client, currency: inp.currency, terms: "custom", customDays: String(payDays),
+    lines: [{ desc: `${title}: ${opt.name}${opt.deposit > 0 ? `, ${dep}% deposit` : ""}`, qty: 1, rate: (cents / 100).toFixed(2) }],
+    notes: opt.deposit > 0 ? `Deposit for the accepted proposal "${title}", option ${opt.name}. Balance of ${(opt.balance / 100).toFixed(2)} ${inp.currency} is due on delivery.` : `Accepted proposal "${title}", option ${opt.name}.`,
+  };
+  return "#handoff=" + encodeURIComponent(JSON.stringify({ v: 1, from: "freelance-proposal-maker", invoice }));
+}
