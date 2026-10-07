@@ -1363,6 +1363,7 @@ const RELATIVE_SELF = relative(
 // +1: `str-turnover-scheduler` graduated.
 // +1: `mobile-detailing-day-planner` graduated.
 // +1: `shared-kitchen-rate-planner` graduated.
+// +1: `bakery-production-scheduler` graduated.
 // +1: `greenhouse-bench-planner` graduated.
 // +1: `mushroom-fruiting-room-planner` graduated.
 // +1: `midterm-rental-calculator` graduated.
@@ -1389,7 +1390,7 @@ const RELATIVE_SELF = relative(
 // +1: `maple-syrup-sugarbush-profit-calculator` graduated.
 // +1: `fishing-crew-share-settlement-calculator` graduated.
 // +1: `u-pick-farm-profit-planner` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 824;
+const SWITCHES_IN_THE_CATALOGUE = 825;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.

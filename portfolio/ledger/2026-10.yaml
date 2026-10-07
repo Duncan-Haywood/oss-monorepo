@@ -2725,6 +2725,22 @@ entries:
         the example (hand-checked arithmetic, no script errors; found and fixed quoted-comma parsing). Registered launch
         date and category rule; tree counts synced; mirror regenerated.
     mrr_end: 0
+  - venture: bakery-production-scheduler
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built bakery-production-scheduler: a browser page where a small or wholesale baker pastes products
+        (batch size, prep, proof, bake minutes, price, cost) and orders with due times and gets a backwards-planned
+        prep/proof/bake timeline across a set number of ovens and bakers, the earliest start, the smallest extra oven or
+        baker that makes it fit before opening (searched jointly), and, when nothing can be added, the orders to turn down
+        by profit per oven hour (kept best-first, so a small order that still squeezes in is kept). Every batch fitting any
+        oven slot and one baker per prep are stated simplifications. duplicate_check closest 0.17 (candle-batch-cost-
+        calculator). First visitor: searches for "bakery production schedule" and "plan bakery production"; volume not
+        measured. No baker has used it. 17 calc tests plus page and usage tests, a randomized no-overbooking property test,
+        and a Chromium run on the example (no script errors). Registered launch date and category rule; tree counts
+        synced; mirror regenerated.
+    mrr_end: 0
   - venture: u-pick-farm-profit-planner
     agent_spend_usd: null
     human_hours: 0
