@@ -130,3 +130,17 @@ test("deposit invoice hand-off carries the deposit line and survives the receive
   assert.equal(invoiceHandoffHash(full, 9), null);
   assert.equal(parseInvoiceHandoff(invoiceHandoffHash({ ...full, depositPct: "0" }, 0), "invoice", ["lines"]).lines[0].rate, "3000.00");
 });
+
+import { parseLeadHandoff } from "./calc.mjs";
+test("a lead-tracker hand-off fills only whitelisted text fields", () => {
+  const h = "#handoff=" + encodeURIComponent(JSON.stringify({ v: 1, from: "freelance-lead-tracker", proposal: { client: "Acme", contact: "a@b.c", problem: "Needs a site", currency: "EUR", budget: "2500", title: "ignored", __proto__: { x: 1 } } }));
+  assert.deepEqual(parseLeadHandoff(h), { client: "Acme", contact: "a@b.c", problem: "Needs a site", currency: "EUR" });
+});
+test("a lead hand-off from another source, malformed or empty is ignored", () => {
+  const enc = (o) => "#handoff=" + encodeURIComponent(JSON.stringify(o));
+  assert.equal(parseLeadHandoff(enc({ from: "other", proposal: { client: "x" } })), null);
+  assert.equal(parseLeadHandoff("#handoff=%7Bnot"), null);
+  assert.equal(parseLeadHandoff(enc({ from: "freelance-lead-tracker", proposal: { client: "  ", currency: "ZZZ" } })), null);
+  assert.equal(parseLeadHandoff(""), null);
+  assert.deepEqual(parseLeadHandoff(enc({ from: "freelance-lead-tracker", proposal: { client: "A", currency: "ZZZ" } })), { client: "A" });
+});

@@ -292,3 +292,21 @@ export function invoiceHandoffHash(raw, index = 0) {
   };
   return "#handoff=" + encodeURIComponent(JSON.stringify({ v: 1, from: "freelance-proposal-maker", invoice }));
 }
+
+// Reads "#handoff=<json>" as written by Freelance Lead Tracker. Only known text
+// fields are taken, as capped strings; anything else in the link is ignored.
+// Returns null when the hash carries no usable lead hand-off.
+const LEAD_FIELDS = ["client", "contact", "problem", "currency"];
+export function parseLeadHandoff(hash) {
+  const m = /^#?handoff=(.+)$/.exec(String(hash ?? ""));
+  if (!m) return null;
+  let obj;
+  try { obj = JSON.parse(decodeURIComponent(m[1])); } catch { return null; }
+  if (!obj || typeof obj !== "object" || Array.isArray(obj) || obj.from !== "freelance-lead-tracker") return null;
+  const src = obj.proposal;
+  if (!src || typeof src !== "object" || Array.isArray(src)) return null;
+  const out = {};
+  for (const k of LEAD_FIELDS) if (typeof src[k] === "string" && src[k].trim()) out[k] = src[k].slice(0, 4000);
+  if (out.currency !== undefined && !(out.currency in CURRENCIES)) delete out.currency;
+  return Object.keys(out).length ? out : null;
+}
