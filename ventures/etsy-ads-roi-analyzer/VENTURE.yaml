@@ -1,0 +1,61 @@
+name: etsy-ads-roi-analyzer
+description: >-
+  Free browser tool that turns an Etsy Ads listing-performance CSV into
+  per-listing ROAS, profit after ad spend and Etsy fees, break-even ROAS, cost
+  per order, and a ranked pause / lower / keep list. The file is read locally
+  and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07. Sibling of ebay-promoted-listings-roi-analyzer (same
+# file-in-browser shape, different seller group and fee model).
+# duplicate_check: etsy-statement-profit-analyzer reads the payment/fee
+# statement and etsy-profit-calculator prices one order; nothing reads the
+# Etsy Ads listing table.
+#
+# Market: Etsy sellers who run Etsy Ads see revenue and spend per listing and a
+# ROAS figure that ignores Etsy's own fees and the seller's item cost, so "is
+# this ad paying?" is not answerable from the dashboard. Paid incumbents sell
+# this inside shop-analytics subscriptions; this is the no-signup, file-stays-
+# local version for one question.
+#
+# First visitor: sellers on r/EtsySellers and Etsy forums asking whether Etsy
+# Ads are worth it; search phrases "etsy ads roas break even", "are etsy ads
+# worth it". Volume not measured with an external tool.
+#
+# Liability: arithmetic on the user's file, margin and editable fee
+# approximations; assumptions and omissions stated on the page, no advice, no
+# warranty, not affiliated with Etsy, Inc.
+
+hypotheses:
+  - claim: >-
+      Etsy sellers will prefer a no-signup tool that reads their exported Etsy
+      Ads table locally and subtracts their own margin and Etsy fees over
+      judging ads by the dashboard ROAS alone.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A ranked pause / lower / keep list changes which listings a seller
+      stops advertising, which is the reason to return after each period's export.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in file) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure from a real Etsy Ads export, or a column layout the parser cannot read, at which point the aliases need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/etsy-ads-roi-analyzer/
+  analytics: null

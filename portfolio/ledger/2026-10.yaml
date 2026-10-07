@@ -2781,3 +2781,18 @@ entries:
         eBay's documented columns, tests use hand-computed break-even cases and no-network
         assertions. Registered score row, launch date, category rule and CI workflow.
     mrr_end: 0
+  - venture: etsy-ads-roi-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built etsy-ads-roi-analyzer: a browser-local tool for Etsy sellers. Drop in the Etsy Ads
+        listing table (flexible header aliases, preamble and totals row tolerated, rows per listing summed) plus
+        item margin, editable Etsy fee approximations (transaction ~6.5%, processing ~3% + $0.25/order) and the
+        share of orders that would have sold anyway. Per listing it shows ROAS, profit after ad spend and fees,
+        break-even ROAS, cost per order and a ranked pause / lower / keep list. Sibling of
+        ebay-promoted-listings-roi-analyzer for a different seller group; no existing venture reads the Etsy Ads
+        table. Unverified on a real export: aliases are from Etsy's documented table columns, tests use
+        hand-computed cases. Registered score row, launch date, category rule, CI workflow and an inbound link
+        from etsy-statement-profit-analyzer.
+    mrr_end: 0
