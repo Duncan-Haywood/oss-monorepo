@@ -702,6 +702,9 @@ const CATEGORY_RULES = [
       // `apiary-profit-planner` joined 2026-10-07 on its first commit: beekeepers projecting colonies, nucs and pollination
       // over several years, the sideline step up from `backyard-honey-profit-calculator`.
       'apiary-profit-planner',
+      // `sheep-goat-flock-profit-planner` joined 2026-10-07 on its first commit: small livestock producers at the same
+      // farm stands and markets, one hop from `apiary-profit-planner`.
+      'sheep-goat-flock-profit-planner',
       // `microgreens-tray-planner` joined 2026-10-06 on its first commit: growers who sell at the same markets and
       // restaurants, one hop from `backyard-honey-profit-calculator`.
       'microgreens-tray-planner',
