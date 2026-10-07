@@ -2573,3 +2573,21 @@ entries:
         run (example data, hostile client names escaped, no script errors). Registered launch date, category rule, tree
         counts, scores; regenerated the mirror; linked from all four sibling tools.
     mrr_end: 0
+  - venture: str-turnover-scheduler
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built str-turnover-scheduler: a browser page where a short-term-rental host, co-host or small
+        cleaning company pastes Airbnb/VRBO/Booking.com iCal feeds (or property, check-in, check-out lines) and gets one
+        clean per checkout assigned to cleaners day by day with travel time, every same-day window checked against the
+        clean length (stays no crew size can fix are named), double bookings across feeds flagged, duplicates and
+        "not available" blocks dropped, the smallest crew that clears every deadline found by simulation, and the
+        margin on each property's cleaning fee. Exports a schedule CSV, a message per cleaner and a .ics file. Closest
+        sibling str-turnover-crew-planner (found after the duplicate check missed it by name) picks which of one day's
+        typed turnovers to take; this one starts from the feeds and plans the horizon; cross-linked. First visitor:
+        searches for "airbnb cleaning schedule" and "same day turnover"; volume not measured. Scheduler is a greedy
+        earliest-deadline heuristic, only synthetic feeds tested, no host has used it. 27 calc, page and usage tests.
+        Registered launch date, category rule, tree counts; regenerated the mirror (which also refreshed pages that
+        were stale on main) and the runs-on README count.
+    mrr_end: 0

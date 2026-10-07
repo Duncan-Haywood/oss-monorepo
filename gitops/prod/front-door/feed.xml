@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 832 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 833 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -70,6 +70,14 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free private rental property ledger: log rent and expenses per property, get Schedule E by property, 27.5-year depreciation, the $25,000 passive loss allowance, a monthly rent collection grid and the 1099-NEC list. No account, no bank link, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>STR Turnover Scheduler</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/str-turnover-scheduler/"/>
+    <id>tag:marisstella.dev,2026:tool/str-turnover-scheduler</id>
+    <updated>2026-10-07T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free Airbnb and VRBO turnover cleaning scheduler: paste your iCal calendars and get a cleaner schedule, same-day turnover warnings, double-booking checks and the number of cleaners you need. Private, runs in your browser.</summary>
   </entry>
   <entry>
     <title>Time Tracker — Free Billable Hours Timer, No Signup, Invoices From Your Hours</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free year-end donation receipt generator for small nonprofits: paste a gift list, get one acknowledgment letter per donor with the IRS $250 and $75 quid pro quo wording, and a list of gifts that cannot be written up. Runs in your browser; donor data is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Employment Contract Checker</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/employment-contract-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/employment-contract-checker</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free employment contract and job offer checker: paste the offer letter or agreement and see the non-compete, invention assignment, signing-bonus repayment, equity buyback, forfeited bonus, arbitration and salary-mismatch red flags, each with the change to ask for. Private, runs in your browser.</summary>
   </entry>
 </feed>

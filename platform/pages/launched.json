@@ -714,6 +714,7 @@
     "str-occupancy-tax-calculator": "2026-09-24",
     "str-tax-loophole-calculator": "2026-09-29",
     "str-turnover-crew-planner": "2026-10-02",
+    "str-turnover-scheduler": "2026-10-07",
     "stripe-churn-cohort-analyzer": "2026-09-29",
     "stripe-failed-payment-recovery-analyzer": "2026-09-29",
     "stripe-payout-to-journal": "2026-10-05",
