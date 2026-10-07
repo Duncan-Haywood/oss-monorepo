@@ -33,42 +33,42 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547814 bytes
-#   portfolio-front-tools-1: 92 files, 555210 bytes
-#   portfolio-front-tools-2: 144 files, 553381 bytes
-#   portfolio-front-tools-3: 128 files, 549210 bytes
-#   portfolio-front-tools-4: 135 files, 553516 bytes
-#   portfolio-front-tools-5: 129 files, 553612 bytes
-#   portfolio-front-tools-6: 122 files, 555508 bytes
-#   portfolio-front-tools-7: 124 files, 555114 bytes
-#   portfolio-front-tools-8: 135 files, 556956 bytes
-#   portfolio-front-tools-9: 134 files, 552611 bytes
-#   portfolio-front-tools-10: 121 files, 555016 bytes
-#   portfolio-front-tools-11: 129 files, 555350 bytes
-#   portfolio-front-tools-12: 126 files, 556070 bytes
-#   portfolio-front-tools-13: 133 files, 553014 bytes
-#   portfolio-front-tools-14: 121 files, 545018 bytes
-#   portfolio-front-tools-15: 121 files, 556531 bytes
-#   portfolio-front-tools-16: 118 files, 556009 bytes
-#   portfolio-front-tools-17: 118 files, 556919 bytes
-#   portfolio-front-tools-18: 116 files, 549613 bytes
-#   portfolio-front-tools-19: 115 files, 556502 bytes
-#   portfolio-front-tools-20: 132 files, 552081 bytes
-#   portfolio-front-tools-21: 128 files, 556315 bytes
-#   portfolio-front-tools-22: 128 files, 555541 bytes
+#   portfolio-front-tools-0: 145 files, 547811 bytes
+#   portfolio-front-tools-1: 92 files, 555293 bytes
+#   portfolio-front-tools-2: 144 files, 553383 bytes
+#   portfolio-front-tools-3: 128 files, 549212 bytes
+#   portfolio-front-tools-4: 135 files, 553517 bytes
+#   portfolio-front-tools-5: 129 files, 553559 bytes
+#   portfolio-front-tools-6: 122 files, 555495 bytes
+#   portfolio-front-tools-7: 124 files, 555084 bytes
+#   portfolio-front-tools-8: 135 files, 556991 bytes
+#   portfolio-front-tools-9: 134 files, 552629 bytes
+#   portfolio-front-tools-10: 121 files, 555055 bytes
+#   portfolio-front-tools-11: 129 files, 555332 bytes
+#   portfolio-front-tools-12: 126 files, 556199 bytes
+#   portfolio-front-tools-13: 133 files, 553001 bytes
+#   portfolio-front-tools-14: 121 files, 544948 bytes
+#   portfolio-front-tools-15: 121 files, 556415 bytes
+#   portfolio-front-tools-16: 118 files, 556012 bytes
+#   portfolio-front-tools-17: 118 files, 556921 bytes
+#   portfolio-front-tools-18: 116 files, 549617 bytes
+#   portfolio-front-tools-19: 115 files, 556629 bytes
+#   portfolio-front-tools-20: 132 files, 552089 bytes
+#   portfolio-front-tools-21: 128 files, 556356 bytes
+#   portfolio-front-tools-22: 128 files, 555534 bytes
 #   portfolio-front-tools-23: 117 files, 556801 bytes
-#   portfolio-front-tools-24: 129 files, 553244 bytes
-#   portfolio-front-tools-25: 127 files, 550240 bytes
-#   portfolio-front-tools-26: 122 files, 556087 bytes
+#   portfolio-front-tools-24: 129 files, 553260 bytes
+#   portfolio-front-tools-25: 127 files, 550242 bytes
+#   portfolio-front-tools-26: 122 files, 556133 bytes
 #   portfolio-front-tools-27: 117 files, 556540 bytes
-#   portfolio-front-tools-28: 92 files, 553814 bytes
-#   portfolio-front-tools-29: 122 files, 556775 bytes
-#   portfolio-front-tools-30: 119 files, 554186 bytes
-#   portfolio-front-tools-31: 129 files, 555212 bytes
-#   portfolio-front-tools-32: 124 files, 555156 bytes
-#   portfolio-front-tools-33: 123 files, 549121 bytes
-#   portfolio-front-tools-34: 95 files, 461209 bytes
-#   portfolio-front-tools-35: 48 files, 269575 bytes
+#   portfolio-front-tools-28: 92 files, 553685 bytes
+#   portfolio-front-tools-29: 122 files, 556826 bytes
+#   portfolio-front-tools-30: 119 files, 554302 bytes
+#   portfolio-front-tools-31: 129 files, 554998 bytes
+#   portfolio-front-tools-32: 124 files, 555121 bytes
+#   portfolio-front-tools-33: 123 files, 549066 bytes
+#   portfolio-front-tools-34: 98 files, 480989 bytes
+#   portfolio-front-tools-35: 48 files, 269783 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -4550,6 +4550,9 @@ configMapGenerator:
       - which-job-first__rank.mjs.gz=which-job-first__rank.mjs.gz
       - which-job-first__vs-jobber.html.gz=which-job-first__vs-jobber.html.gz
       - which-job-first__vs-scoring-every-job-out-of-ten.html.gz=which-job-first__vs-scoring-every-job-out-of-ten.html.gz
+      - wholesale-line-sheet-maker__calc.mjs.gz=wholesale-line-sheet-maker__calc.mjs.gz
+      - wholesale-line-sheet-maker__index.html.gz=wholesale-line-sheet-maker__index.html.gz
+      - wholesale-line-sheet-maker__usage.mjs.gz=wholesale-line-sheet-maker__usage.mjs.gz
       - wildlife-exclusion-bid-calculator__calc.mjs.gz=wildlife-exclusion-bid-calculator__calc.mjs.gz
       - wildlife-exclusion-bid-calculator__index.html.gz=wildlife-exclusion-bid-calculator__index.html.gz
       - wildlife-exclusion-bid-calculator__usage.mjs.gz=wildlife-exclusion-bid-calculator__usage.mjs.gz

@@ -1369,9 +1369,10 @@ const RELATIVE_SELF = relative(
 // +1: `invoice-maker` graduated.
 // +1: `wedding-officiant-fee-calculator` graduated.
 // +1: `cdl-school-payback-calculator` graduated.
+// +1: `wholesale-line-sheet-maker` graduated.
 // +1: `estimate-maker` graduated.
 // +1: `time-tracker` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 802;
+const SWITCHES_IN_THE_CATALOGUE = 803;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.

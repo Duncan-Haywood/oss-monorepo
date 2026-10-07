@@ -2501,6 +2501,9 @@ gitops:
 - workflow: invoice-maker-ci.yml
   classification: none
   publishes: []
+- workflow: wholesale-line-sheet-maker-ci.yml
+  classification: none
+  publishes: []
 - workflow: time-tracker-ci.yml
   classification: none
   publishes: []
