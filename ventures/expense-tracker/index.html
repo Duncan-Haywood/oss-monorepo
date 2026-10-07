@@ -94,6 +94,13 @@
       <div><label for="r-rate">Your combined tax rate % (for the estimate)</label><input id="r-rate" inputmode="numeric" value="30"></div>
     </div>
     <div class="kpis" id="kpis"></div>
+    <h3>Income, profit and set-aside <span class="note">(from <a href="../invoice-maker/">Invoice Maker</a> on this device)</span></h3>
+    <div class="grid">
+      <div><label for="n-basis">Count income when</label><select id="n-basis"><option value="paid">money is received (paid)</option><option value="invoiced">invoice is sent</option></select></div>
+      <div><label for="n-manual">Extra income to add (optional)</label><input id="n-manual" inputmode="decimal" placeholder="0.00"></div>
+    </div>
+    <div class="kpis" id="income-kpis"></div>
+    <p class="note" id="income-note">A rough planning figure, not a tax return. See <a href="../self-employment-tax-calculator/">the self-employment tax calculator</a> for a real estimate. The set-aside uses the rate above. Invoice Maker data is only read, never changed or uploaded.</p>
     <ul class="issues" id="warn" aria-live="polite"></ul>
     <h3>By Schedule C line</h3>
     <div class="scroll"><table id="sc-table"></table></div>
@@ -155,7 +162,7 @@
   </footer>
 
 <script type="module">
-    import { CATEGORIES, PERIOD_LABELS, toCents, parseDate, monthlySeries, deductibleCents, needsReceipt, summarize, taxSaved, scheduleCRows, importBankCsv, findDuplicates, entriesToCsv, warnings, formatMoney, yearOf } from "./calc.mjs";
+    import { CATEGORIES, PERIOD_LABELS, toCents, parseDate, monthlySeries, deductibleCents, needsReceipt, summarize, taxSaved, scheduleCRows, importBankCsv, findDuplicates, entriesToCsv, warnings, formatMoney, yearOf, netProfit, setAside, invoiceIncome, readInvoiceBox } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const KEY = "expense-tracker-data";
@@ -215,6 +222,10 @@
     function renderSummary() {
       const y = curYear(), s = summarize(data.entries, y), rate = $("#r-rate").value;
       $("#kpis").innerHTML = `<div class="kpi"><b>${money(s.spent)}</b><span>spent, ${y}</span></div><div class="kpi"><b>${money(s.deductible)}</b><span>deductible</span></div><div class="kpi"><b>${money(taxSaved(s.deductible, rate))}</b><span>est. tax saved at ${esc(rate || 0)}%</span></div><div class="kpi"><b>${s.missing}</b><span>missing receipt(s)</span></div>`;
+      let box = null; try { box = readInvoiceBox(localStorage.getItem("invoice-maker-data")); } catch { /* storage is optional */ }
+      const inc = invoiceIncome(box, y, $("#n-basis").value), extra = toCents($("#n-manual").value) || 0, income = inc.cents + extra, net = netProfit(income, s.deductible);
+      const incLabel = `income, ${y}` + (box ? ` (${inc.count} invoice${inc.count === 1 ? "" : "s"})` : " (no Invoice Maker data found)");
+      $("#income-kpis").innerHTML = `<div class="kpi"><b>${money(income)}</b><span>${esc(incLabel)}</span></div><div class="kpi"><b>${money(net)}</b><span>net profit after deductions</span></div><div class="kpi"><b>${money(setAside(net, rate))}</b><span>suggested set-aside at ${esc(rate || 0)}%</span></div>`;
       $("#warn").innerHTML = warnings(data.entries, y).map((m) => `<li>${esc(m)}</li>`).join("");
       const rows = scheduleCRows(s);
       $("#sc-table").innerHTML = `<tr><th>Line</th><th>Category</th><th class="n">Spent</th><th class="n">Deductible</th></tr>` + (rows.length ? rows.map((r) => `<tr><td>${esc(r.line)}</td><td>${esc(r.label)}</td><td class="n">${money(r.spent)}</td><td class="n">${money(r.deductible)}</td></tr>`).join("") : `<tr><td colspan="4">No expenses for ${y} yet.</td></tr>`);
@@ -259,6 +270,7 @@
     $("#i-file").addEventListener("change", async (ev) => { const f = ev.target.files[0]; if (f) { const t = await f.text(); $("#i-text").value = t; previewImport(t); } });
     for (const id of ["#r-year", "#f-cat", "#f-q"]) $(id).addEventListener("input", () => { renderSummary(); renderList(); });
     $("#r-rate").addEventListener("input", () => { persist(); renderSummary(); });
+    $("#n-basis").addEventListener("change", renderSummary); $("#n-manual").addEventListener("input", renderSummary);
     $("#list").addEventListener("click", (ev) => {
       const b = ev.target.closest("button[data-act]"); if (!b) return;
       const e = data.entries.find((x) => x.id === b.dataset.id); if (!e) return;

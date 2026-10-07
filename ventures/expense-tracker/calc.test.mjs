@@ -130,3 +130,22 @@ test("formatMoney falls back on a bad currency code", () => {
   assert.equal(formatMoney(12345, "USD"), "$123.45");
   assert.equal(formatMoney(12345, "??"), "123.45");
 });
+
+import { invoiceIncome, readInvoiceBox, netProfit, setAside } from "./calc.mjs";
+test("invoice income excludes sales tax and counts paid share", () => {
+  const box = readInvoiceBox(JSON.stringify({ invoices: [
+    { issued: "2026-02-01", sent: true, lines: [{ qty: 1, rate: "1000" }], taxRate: 10, paid: "550" },
+    { issued: "2026-03-01", void: true, lines: [{ qty: 1, rate: "999" }], paid: "999" },
+    { issued: "2025-03-01", sent: true, lines: [{ qty: 1, rate: "500" }], paid: "500" },
+  ] }));
+  assert.equal(invoiceIncome(box, 2026, "paid").cents, 50000);
+  assert.equal(invoiceIncome(box, 2026, "invoiced").cents, 100000);
+  assert.equal(invoiceIncome(null, 2026).cents, 0);
+  assert.equal(readInvoiceBox("garbage"), null);
+});
+test("net profit and set-aside", () => {
+  assert.equal(netProfit(100000, 30000), 70000);
+  assert.equal(setAside(70000, 25), 17500);
+  assert.equal(setAside(-5, 25), 0);
+  assert.equal(setAside(70000, "x"), 0);
+});
