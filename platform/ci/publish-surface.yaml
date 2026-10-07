@@ -815,6 +815,9 @@ workflows:
 - workflow: estimated-tax-penalty-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: etsy-ads-roi-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: etsy-listing-csv-check-ci.yml
   classification: none
   publishes: []
