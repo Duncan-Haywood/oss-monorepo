@@ -119,6 +119,9 @@ workflows:
 - workflow: affiliate-disclosure-checker-ci.yml
   classification: none
   publishes: []
+- workflow: ag-spray-drone-quote-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: agent-brokerage-split-calculator-ci.yml
   classification: none
   publishes: []

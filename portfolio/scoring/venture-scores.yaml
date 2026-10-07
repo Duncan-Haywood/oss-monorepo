@@ -28561,3 +28561,33 @@ ventures:
       Liability: arithmetic on user-typed numbers, defaults labelled as placeholders, no tax,
       financing or insurance advice. Ethics: nothing leaves the browser, no dark patterns,
       nothing is sold.
+  - slug: ag-spray-drone-quote-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Times and costs come from arithmetic over the drone
+      specifications and costs the user types.
+    basis: >-
+      Screened 2026-10-07 per portfolio/pipeline/README.md; write-up in this venture's own
+      VENTURE.yaml comment. A quote calculator for custom applicators spraying crops with
+      agricultural drones: flow-limited speed, tank vs battery sortie limits, crew turnaround vs
+      battery charging, cost per acre, recommended quote with a minimum charge, price ladder and
+      break-even acres. Distribution 5: "drone spraying cost per acre" is a recurring operator
+      and farmer search and ag-drone operator groups are named channels; volume not measured.
+      Defensibility 4: modelling the sortie bottleneck goes beyond a per-acre rule of thumb.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed specifications and costs only, no product, rate or
+      label advice, licence and aviation compliance left to the user and said so. Ethics: nothing
+      leaves the browser, no dark patterns, nothing is sold.
