@@ -95,6 +95,12 @@
   </section>
 
   <section class="card">
+    <h2>By client</h2>
+    <div class="scroll" id="clients"></div>
+    <p class="note">Effective rate is invoiced revenue this year divided by hours tracked this year for that client, shown only where both exist. Use the same client name in each tool so they line up.</p>
+  </section>
+
+  <section class="card">
     <h2>Who owes you</h2>
     <div class="scroll" id="owed"></div>
   </section>
@@ -181,6 +187,9 @@
       $("#owed").innerHTML = o.receivables.open.length
         ? `<table><tr><th>Client</th><th>Invoice</th><th>Due</th><th class="n">Days late</th><th class="n">Balance</th></tr>${o.receivables.open.slice(0, 15).map((r) => `<tr><td>${esc(r.client)}</td><td>${esc(r.number)}</td><td>${esc(r.due)}</td><td class="n">${r.overdue ? esc(r.daysLate) : "—"}</td><td class="n">${esc(money(r.balance))}</td></tr>`).join("")}</table>`
         : "<p class=\"note\">No unpaid sent invoices found.</p>";
+      $("#clients").innerHTML = o.clientRows.length
+        ? `<table><tr><th>Client</th><th class="n">Billed this year</th><th class="n">Owed</th><th class="n">Hours</th><th class="n">Effective rate per hour</th></tr>${o.clientRows.map((r) => `<tr><td>${esc(r.client)}</td><td class="n">${esc(money(r.billed))}</td><td class="n">${esc(money(r.owed))}</td><td class="n">${esc(r.hours)}</td><td class="n">${r.rate === null ? "—" : esc(money(r.rate))}</td></tr>`).join("")}</table>`
+        : "<p class=\"note\">No clients yet.</p>";
       $("#tools").innerHTML = TOOLS.map(([key, slug, name]) => `<li><a href="../${esc(slug)}/">${esc(name)}</a>: ${s.found[key] ? "data found on this device" : "no data yet"}</li>`).join("");
     }
 

@@ -201,13 +201,20 @@ export function entrySeconds(e, now) {
   return Math.max(0, Math.round((end - e.start) / 1000));
 }
 
+// An entry matches a project by id or by name, but only when it carries one:
+// `undefined === undefined` would otherwise attach every project-less entry to
+// the first project that lacks an id.
+function projectOf(e, t) {
+  return t.projects.find((x) => x && ((e.projectId && x.id === e.projectId) || (e.project && x.name === e.project)));
+}
+
 function entryCents(e, t, now) {
   if (e.billable === false) return 0;
   const step = (ROUND_STEP[t.settings.rounding] || 0) * 60;
   let sec = entrySeconds(e, now);
   if (step && sec > 0) sec = Math.ceil(sec / step) * step;
   const hours = Math.round((sec / 3600) * 100) / 100;
-  const p = t.projects.find((x) => x && (x.id === e.projectId || x.name === e.project));
+  const p = projectOf(e, t);
   const rate = toCents(e.rate) || (p && toCents(p.rate)) || toCents(t.settings.defaultRate);
   return Math.round(hours * rate);
 }
@@ -217,8 +224,13 @@ export function timeSummary(t, now) {
   let unbilled = 0, seconds = 0, billable = 0, earned = 0, running = null;
   const weekAgo = now - 7 * 864e5;
   let weekSeconds = 0;
+  const hoursByClient = {}, thisYear = new Date(now).getFullYear();
   for (const e of t.entries) {
     const sec = entrySeconds(e, now);
+    if (Number.isFinite(e.start) && new Date(e.start).getFullYear() === thisYear) {
+      const own = projectOf(e, t), who = e.client || (own && own.client) || "(no client)";
+      hoursByClient[who] = (hoursByClient[who] || 0) + sec / 3600;
+    }
     const cents = entryCents(e, t, now);
     seconds += sec;
     earned += cents;
@@ -229,12 +241,12 @@ export function timeSummary(t, now) {
     // A timer still running is not finished work, so it is not yet billable.
     if (isRunning || e.billed || cents <= 0) continue;
     unbilled += cents;
-    const p = t.projects.find((x) => x && (x.id === e.projectId || x.name === e.project));
+    const p = projectOf(e, t);
     const c = e.client || (p && p.client) || "(no client)";
     unbilledByClient.set(c, (unbilledByClient.get(c) || 0) + cents);
   }
   const clients = [...unbilledByClient].map(([client, cents]) => ({ client, cents })).sort((a, b) => b.cents - a.cents);
-  return { unbilled, clients, seconds, weekHours: weekSeconds / 3600, utilisation: seconds ? billable / seconds : null, effectiveRate: seconds ? Math.round((earned * 3600) / seconds) : 0, running };
+  return { unbilled, clients, hoursByClient, seconds, weekHours: weekSeconds / 3600, utilisation: seconds ? billable / seconds : null, effectiveRate: seconds ? Math.round((earned * 3600) / seconds) : 0, running };
 }
 
 // ---- expenses ----------------------------------------------------------
@@ -321,6 +333,21 @@ export function actions(s, ctx) {
   return out;
 }
 
+// One row per client: invoiced revenue this year, what they still owe, hours
+// tracked this year and the effective rate (revenue / hours). The rate is only
+// given where both sides exist, so a client with no tracked time is not shown
+// as infinitely profitable.
+export function clientRows(inc, rec, time) {
+  const rows = new Map();
+  const row = (c) => rows.get(c) || rows.set(c, { client: c, billed: 0, owed: 0, hours: 0 }).get(c);
+  for (const c of inc.clients) row(c.client).billed = c.cents;
+  for (const r of rec.open) row(r.client).owed += r.balance;
+  for (const [c, h] of Object.entries(time.hoursByClient || {})) row(c).hours = Math.round(h * 100) / 100;
+  return [...rows.values()]
+    .map((r) => ({ ...r, rate: r.hours > 0 && r.billed > 0 ? Math.round(r.billed / r.hours) : null }))
+    .sort((a, b) => b.billed + b.owed - (a.billed + a.owed));
+}
+
 // A single object with everything the page draws.
 export function overview(s, ctx) {
   const y = Number(ctx.today.slice(0, 4));
@@ -337,6 +364,7 @@ export function overview(s, ctx) {
     setAside: setAside(net, ctx.ratePct),
     pipeline: pipeline(s.estimates, ctx.today),
     time: timeSummary(s.time, ctx.now),
+    clientRows: clientRows(inc, rec, timeSummary(s.time, ctx.now)),
     nextTax: nextEstimatedTaxDate(ctx.today),
     months: monthlyRows(inc.byMonth, ex.byMonth),
     actions: actions(s, ctx),
