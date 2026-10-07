@@ -2537,6 +2537,25 @@ entries:
         Chromium smoke run (add, repeat, import, escape check). Registered launch date, category rule, tree counts,
         scores; regenerated the mirror; linked from Invoice Maker and Time Tracker.
     mrr_end: 0
+  - venture: freelancer-tax-pack
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built freelancer-tax-pack, the fifth piece of the freelancer loop (estimate-maker, time-tracker,
+        invoice-maker, expense-tracker, then the answer they all feed): a browser-local page that reads, read-only,
+        the invoices, expenses and business mileage the sibling tools keep on the same device (or their JSON backups)
+        and shows Schedule C by line, Schedule SE tax with the wage base and W-2 wages, a 2026 federal estimate for
+        single or joint filers with the standard deduction and a QBI deduction only below the phase-in, the quarterly
+        1040-ES plan against the 90 percent and prior-year safe harbors minus payments already made, the clients to
+        expect a 1099-NEC from at the $2,000 threshold, and record-gap warnings (unpaid invoices, missing receipts,
+        trips without a purpose, car costs and mileage both claimed). Printable worksheet and formula-safe CSV. First
+        visitor: a freelancer searching "quarterly tax estimate for freelancers" or "how much to set aside for taxes".
+        Closest siblings self-employment-tax-calculator and quarterly-estimated-tax-calendar answer from typed numbers;
+        this one needs none. No tax preparer has checked the 2026 constants. 26 calc, usage and page tests plus a
+        Chromium smoke run (cross-tool read, example data, escape check). Registered launch date, category rule, tree
+        counts, scores; regenerated the mirror; linked from Expense Tracker and Invoice Maker.
+    mrr_end: 0
   - venture: freelance-dashboard
     agent_spend_usd: null
     human_hours: 0
