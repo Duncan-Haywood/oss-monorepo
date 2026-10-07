@@ -28167,3 +28167,42 @@ ventures:
       with textContent. Ethics: no dark patterns, no data capture; the default
       terms are balanced (ownership passes on payment, either side may end the
       agreement with notice) rather than one-sided.
+  - slug: rental-ledger
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 8
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Depreciation and the Schedule E
+      columns are fixed arithmetic on the user's own rows, so the same inputs
+      always give the same figures and nothing is invented.
+    basis: >-
+      Screened 2026-10-07 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. The portfolio had
+      five landlord calculators that each answer one typed question and none that
+      holds a year of rent and expense records, so none could compute
+      depreciation or flag a roof logged as a repair. Distribution 8: "rental
+      property depreciation calculator", "schedule E template" and "rental
+      income expense spreadsheet" are large queries with a paid market (Stessa,
+      Baselane, Landlord Studio, CPAs); volume not measured with an external
+      tool. Defensibility 3: free, private, no bank link is the wedge, plus
+      records that accumulate in the browser; the arithmetic itself is easy to
+      copy.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: states on the page and in the footer that the figures are
+      planning estimates and not tax advice, lists what it does not model (state
+      rules, commercial property, short-term rentals, sales and recapture), and
+      flags repair-versus-improvement and deposits rather than deciding them.
+      Data never leaves the browser (test asserts no network calls) and every
+      innerHTML value is escaped. Ethics: no dark patterns, no data capture, no
+      bank credentials requested.
