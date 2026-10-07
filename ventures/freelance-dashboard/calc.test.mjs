@@ -160,3 +160,27 @@ test("formatMoney handles zero and undefined", () => {
   assert.equal(formatMoney(0), "$0.00");
   assert.equal(formatMoney(undefined), "$0.00");
 });
+
+test("an entry with no project is not attached to a project that has no id", async () => {
+  const { timeSummary } = await import("./calc.mjs");
+  const now = Date.UTC(2026, 9, 7);
+  const t = { projects: [{ name: "P", client: "Acme", rate: "100" }], settings: { rounding: "none", defaultRate: "50" }, entries: [{ start: now - 1e6, manualSec: 3600, client: "Zed" }] };
+  const r = timeSummary(t, now);
+  assert.equal(r.unbilled, 5000);
+  assert.equal(r.clients[0].client, "Zed");
+});
+
+test("client rows: effective rate only where revenue and hours both exist", async () => {
+  const { clientRows } = await import("./calc.mjs");
+  const rows = clientRows(
+    { clients: [{ client: "A", cents: 100000 }, { client: "B", cents: 50000 }] },
+    { open: [{ client: "B", balance: 20000 }, { client: "C", balance: 5000 }] },
+    { hoursByClient: { A: 10, C: 3 } },
+  );
+  const by = Object.fromEntries(rows.map((r) => [r.client, r]));
+  assert.equal(by.A.rate, 10000);
+  assert.equal(by.B.rate, null);
+  assert.equal(by.C.rate, null);
+  assert.equal(by.B.owed, 20000);
+  assert.deepEqual(rows.map((r) => r.client), ["A", "B", "C"]);
+});

@@ -36,7 +36,7 @@ test("user-typed text is escaped before it reaches innerHTML", () => {
   const script = html.slice(html.indexOf('<script type="module">'));
   const stmts = script.split(/\.innerHTML\s*=/).slice(1).map((t) => t.slice(0, t.search(/;\n/)));
   assert.ok(stmts.length >= 5);
-  const safe = /^(esc\(|MONTHS|TOOLS|o\.months|o\.actions|o\.receivables|k\.map|m\b|\[)/;
+  const safe = /^(esc\(|MONTHS|TOOLS|o\.months|o\.actions|o\.receivables|o\.clientRows|r\.rate === null|k\.map|m\b|\[)/;
   const raw = stmts.flatMap((t) => [...t.matchAll(/\$\{([^}]*)\}/g)].map((m) => m[1])).filter((x) => !safe.test(x.trim()));
   // Everything interpolated must go through esc(), or be a number built from our own arithmetic.
   for (const x of raw) assert.match(x, /Math\.round\(|o\.pipeline\.open|\? "|r\.overdue|o\.actions/, x);
