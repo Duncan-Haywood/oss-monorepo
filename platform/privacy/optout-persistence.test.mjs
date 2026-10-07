@@ -1379,7 +1379,8 @@ const RELATIVE_SELF = relative(
 // +1: `freelance-contract-maker` graduated.
 // +1: `freelance-proposal-maker` graduated (its own PR left this out; counted here).
 // +1: `rental-ledger` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 812;
+// +1: `freelance-lead-tracker` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 814;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
@@ -1391,6 +1392,7 @@ const SWITCHES_IN_THE_CATALOGUE = 812;
 // +1: `horse-boarding-stall-profit-calculator` graduated.
 // +1: `pet-waste-removal-route-calculator` graduated.
 // +1: `campground-site-profit-calculator` graduated.
+// +1: `worker-classification-checker` graduated.
 
 let counter = 0;
 function fixture(source) {

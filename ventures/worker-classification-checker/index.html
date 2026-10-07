@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>1099 vs W-2 Worker Classification Checker — Free, Private</title>
+  <meta name="description" content="Free worker classification checker for small business owners. Screen a contractor against the IRS test, the DOL economic reality test and the ABC test, see which facts point to employee status and estimate back-tax and overtime exposure. Illustrative; nothing uploaded.">
+  <meta property="og:title" content="Is your 1099 contractor really an employee? Free checker">
+  <meta property="og:description" content="Answer sixteen questions about how you work with someone and see how the IRS, DOL and ABC tests read it, what to change, and what a misclassification could cost. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234a3aa8'/%3E%3Cpath d='M9 17l5 5 9-12' stroke='%23fff' stroke-width='3.5' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Worker Classification Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Screens a working relationship against the IRS common-law test, the DOL economic reality test and the ABC test, shows which facts point to employee status, and estimates back payroll tax and overtime exposure as a range. Illustrative only. Runs in your browser.", "featureList": "IRS common-law test, DOL economic reality test, ABC test by prong, back-tax and overtime exposure range, what to change list"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is a worker a contractor if they signed a contractor agreement?", "acceptedAnswer": {"@type": "Answer", "text": "No. The label in the contract does not decide it. The IRS, the Department of Labor and state agencies look at how the relationship works in practice: who controls the work, who carries the financial risk, and whether the worker runs an independent business."}}, {"@type": "Question", "name": "What is the ABC test?", "acceptedAnswer": {"@type": "Answer", "text": "Several states, including California, Massachusetts and New Jersey, presume a worker is an employee unless the hiring business shows three things: the worker is free from its control (A), the work is outside its usual course of business (B), and the worker is independently established in that trade (C). Failing any one prong makes the worker an employee for those laws."}}, {"@type": "Question", "name": "What does misclassifying a worker cost?", "acceptedAnswer": {"@type": "Answer", "text": "Back payroll taxes, usually the employer share of Social Security and Medicare plus a share of the amounts that should have been withheld, unpaid overtime if hours went over 40 a week and sometimes an equal amount in liquidated damages, plus state taxes, interest and penalties. This tool estimates the federal tax and overtime pieces as a range."}}, {"@type": "Question", "name": "Is this legal advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is an illustrative screening checklist. Whether a particular worker is an employee depends on the facts and on the law of your state, so check the answer with an employment lawyer or a tax professional before you rely on it or change how you pay anyone."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f3f9; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #4a3aa8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #2b2266; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2b2266; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5268; }
+    .card { background: #fff; border: 1px solid #dcd9ea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2b226610; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b3d6; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .rowline { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; align-items: end; border-top: 1px solid #ece9f5; padding: 8px 0 12px; }
+    .rowline label { margin: 4px 0 2px; font-size: .82rem; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #4a3aa8; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e8e5f6; color: #2b2266; }
+    button.small { padding: 7px 10px; margin: 0; font-size: .85rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #ece9f5; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5268; }
+    .finding { border-bottom: 1px solid #ece9f5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e6e3f4; color: #2b2266; }
+    .stats { font-size: 1rem; color: #2f3348; margin-bottom: 10px; }
+    .bar { display: flex; height: 26px; border-radius: 6px; overflow: hidden; margin: 10px 0 4px; border: 1px solid #dcd9ea; }
+    .bar span { display: block; height: 100%; }
+    .legend { font-size: .82rem; color: #4c5268; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+    .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd9ea; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .error { color: #9a3412; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">WORKER CLASSIFICATION CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is your 1099 contractor legally an employee?</h1>
+    <p>Answer sixteen yes/no questions about how you actually work with someone. You get a read on the IRS test, the Department of Labor test and the state ABC test, the facts that push toward employee status, and a range for what a misclassification could cost in back payroll tax and unpaid overtime.</p>
+    <p class="note">Screening checklist, not a ruling. Use "Not sure" when you do not know: it is never counted in your favour.</p>
+  </header>
+
+  <main>
+    <section class="card" aria-labelledby="h-facts">
+      <h2 id="h-facts">1. How the work really happens</h2>
+      <div id="questions"></div>
+      <button type="button" id="run">Check classification</button>
+      <button type="button" class="secondary" id="example">Load an example</button>
+      <button type="button" class="secondary" id="reset">Clear</button>
+    </section>
+
+    <section class="card" aria-labelledby="h-exposure">
+      <h2 id="h-exposure">2. What a misclassification could cost</h2>
+      <div class="grid">
+        <div><label for="annual-pay">Annual pay to one worker ($)</label><input id="annual-pay" type="number" min="0" step="1000" value="60000"></div>
+        <div><label for="hours">Hours worked per week</label><input id="hours" type="number" min="1" max="100" step="1" value="45"></div>
+        <div><label for="years">Years classified this way</label><input id="years" type="number" min="0" max="10" step="1" value="2"></div>
+        <div><label for="workers">Workers in the same situation</label><input id="workers" type="number" min="1" max="500" step="1" value="1"></div>
+      </div>
+      <div class="checkbox-row"><input type="checkbox" id="filed" checked><label for="filed">I filed 1099s for this pay</label></div>
+      <div class="checkbox-row"><input type="checkbox" id="flat" checked><label for="flat">Pay was the same no matter how many hours (no overtime premium paid)</label></div>
+      <div class="checkbox-row"><input type="checkbox" id="willful"><label for="willful">An agency could call it willful (three-year look-back)</label></div>
+    </section>
+
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Is a worker a contractor if they signed a contractor agreement?</h3>
+      <p>No. The label in the contract does not decide it. The IRS, the Department of Labor and state agencies look at how the relationship works in practice: who controls the work, who carries the financial risk, and whether the worker runs an independent business.</p>
+      <h3>What is the ABC test?</h3>
+      <p>Several states, including California, Massachusetts and New Jersey, presume a worker is an employee unless the hiring business shows three things: the worker is free from its control (A), the work is outside its usual course of business (B), and the worker is independently established in that trade (C). Failing any one prong makes the worker an employee for those laws.</p>
+      <h3>What does misclassifying a worker cost?</h3>
+      <p>Back payroll taxes, usually the employer share of Social Security and Medicare plus a share of the amounts that should have been withheld, unpaid overtime if hours went over 40 a week and sometimes an equal amount in liquidated damages, plus state taxes, interest and penalties. This tool estimates the federal tax and overtime pieces as a range.</p>
+      <h3>Is this legal advice?</h3>
+      <p>No. It is an illustrative screening checklist. Whether a particular worker is an employee depends on the facts and on the law of your state, so check the answer with an employment lawyer or a tax professional before you rely on it or change how you pay anyone.</p>
+    </section>
+
+    <section class="card">
+      <h2>What this does not cover</h2>
+      <p>State-specific tests beyond ABC, industry carve-outs (for example the many statutory exemptions in California's AB 5), the IRS Voluntary Classification Settlement Program, the Section 530 safe harbor, state unemployment and workers' compensation, penalties and interest, the Social Security wage base, minimum wage and meal-break claims, and joint-employer questions. A lawyer or tax professional can tell you which of these apply to you.</p>
+      <p>Related tools: the <a href="../employment-contract-checker/">employment contract checker</a>, the <a href="../freelance-contract-checker/">freelance contract checker</a> and the <a href="../employee-cost-calculator/">employee cost calculator</a>, for what a reclassified worker costs on payroll.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace an employment lawyer or a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you think about. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this saved you an hour, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+
+  <script type="module">
+    import { QUESTIONS, evaluate, topFlags, exposure, money, percent } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const $ = (id) => document.getElementById(id);
+    const VERDICT = { employee: ["high", "Leans employee"], contractor: ["info", "Leans contractor"], mixed: ["medium", "Mixed"], insufficient: ["medium", "Not enough answers"] };
+
+    let group = "";
+    $("questions").innerHTML = QUESTIONS.map((q) => {
+      const head = q.group !== group ? `<h3>${esc(q.group)}</h3>` : "";
+      group = q.group;
+      return `${head}<div class="rowline"><div style="grid-column:1/-1"><label for="q-${q.id}">${esc(q.text)}</label>
+        <select id="q-${q.id}"><option value="unsure">Not sure</option><option value="yes">Yes</option><option value="no">No</option></select></div></div>`;
+    }).join("");
+
+    const answers = () => Object.fromEntries(QUESTIONS.map((q) => [q.id, $("q-" + q.id).value]));
+
+    const EXAMPLE = { sets_how: "yes", sets_hours: "yes", trains: "no", supervises: "no", can_subcontract: "no", own_tools: "yes", own_expenses: "yes", profit_loss: "no", paid_time: "yes", benefits: "no", indefinite: "yes", exclusive: "yes", other_clients: "no", core_work: "yes", business_entity: "no", skill_initiative: "yes" };
+
+    function run() {
+      const a = answers();
+      const ev = evaluate(a);
+      const ex = exposure({ annualPay: $("annual-pay").value, hoursPerWeek: $("hours").value, years: $("years").value, workers: $("workers").value, filed1099: $("filed").checked, paidFlatNoOvertime: $("flat").checked, willful: $("willful").checked });
+      let h = "";
+      for (const k of ["irs", "dol", "abc"]) {
+        const r = ev.results[k];
+        const [cls, label] = VERDICT[r.verdict];
+        h += `<div class="finding"><h4><span class="pill ${cls}">${label}</span>${esc(r.name)}</h4><p class="note">${esc(r.scope)}. ${esc(r.note)}</p>`;
+        if (r.share !== null && r.share !== undefined) h += `<p>Weight of the facts pointing to employee: ${percent(r.share)} (${r.answered} of ${r.count} questions answered).</p>`;
+        if (k === "abc") h += "<ul>" + Object.values(r.prongs).map((p) => `<li>${p.shown ? "Shown" : p.blockers.length ? "Not met" : "Not shown (unanswered)"} — ${esc(p.label)}</li>`).join("") + "</ul>";
+        h += "</div>";
+      }
+      const flags = topFlags(a);
+      h += `<div class="finding"><h4>Facts doing the most damage</h4>` + (flags.length ? "<ol>" + flags.map((q) => `<li>${esc(q.text)}</li>`).join("") + "</ol><p class=\"note\">Changing the real working arrangement, not the paperwork, is what moves these. Ask a lawyer before restructuring.</p>" : "<p>No answer points to employee status.</p>") + "</div>";
+      if (ex.error) h += `<p class="error">${esc(ex.error)}</p>`;
+      else h += `<div class="finding"><h4>Illustrative exposure</h4><p class="stats">${money(ex.low)} to ${money(ex.high)}</p><table><tbody>
+        <tr><th>Back payroll tax (reduced §3509 rates, ${percent(ex.taxRate)} of pay)</th><td class="n">${money(ex.payrollTax)}</td></tr>
+        <tr><th>Federal unemployment tax</th><td class="n">${money(ex.futa)}</td></tr>
+        <tr><th>Unpaid overtime (${ex.otHours} h/week over 40, ${ex.flsaYears} yr look-back)</th><td class="n">${money(ex.owedOvertime)}</td></tr>
+        <tr><th>Liquidated damages (high case)</th><td class="n">${money(ex.liquidated)}</td></tr>
+        <tr><th>Full-rate FICA instead of §3509 (high case)</th><td class="n">${money(ex.fullFica)}</td></tr></tbody></table>
+        <p class="note">A range, not a prediction. State taxes, penalties, interest and state wage law are not included.</p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("check_run");
+    }
+
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { for (const [k, v] of Object.entries(EXAMPLE)) $("q-" + k).value = v; record("example_loaded"); run(); });
+    $("reset").addEventListener("click", () => { for (const q of QUESTIONS) $("q-" + q.id).value = "unsure"; $("out").hidden = true; });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>
