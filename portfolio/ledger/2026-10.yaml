@@ -2605,6 +2605,23 @@ entries:
         escaped, persistence, hand-off, no horizontal overflow at 375px). Registered launch date, category rule, tree
         counts; regenerated the mirror; linked from Proposal Maker, which now also accepts the hand-off.
     mrr_end: 0
+  - venture: midterm-rental-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built midterm-rental-calculator: a browser page where a landlord or short-term-rental host weighs
+        furnishing a unit for 30-day-plus stays (travel nurses, relocations, insurance displacement) against a plain
+        long-term lease and against nightly renting. It nets each per month (empty days between stays, owner-paid
+        utilities, a clean per stay, platform fees, furniture wear) and solves the crossing points: the monthly rate that
+        matches the lease, the longest empty gap that still matches it, the furnishing payback in months, the nightly
+        occupancy and rate that match the mid-term, and a grid by stay length and empty days; optionally checks the rate
+        against a guest's fixed housing budget. No market rates or tax rules hard-coded; defaults are labelled made up.
+        Screened with duplicate_check.py (closest str-turnover-scheduler at 0.36, a different job; no mid-term venture
+        existed). First visitor: searches for "mid term rental calculator" and "furnished finder vs airbnb"; volume not
+        measured. No landlord has checked it against a real unit. Registered launch date, category rule, tree counts;
+        regenerated the mirror.
+    mrr_end: 0
   - venture: craft-brewery-batch-margin-calculator
     agent_spend_usd: null
     human_hours: 0
