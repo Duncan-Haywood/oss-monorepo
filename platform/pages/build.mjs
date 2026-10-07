@@ -714,6 +714,9 @@ const CATEGORY_RULES = [
       // `beef-cattle-ration-optimizer` joined 2026-10-07 on its first commit: cattle producers on the same farm category,
       // the feed-cost step after `sheep-goat-flock-profit-planner`.
       'beef-cattle-ration-optimizer',
+      // `hay-baling-own-vs-hire-calculator` joined 2026-10-07 on its first commit: hay producers on the same farm category,
+      // the buy-or-hire step beside `custom-farm-rate-calculator`.
+      'hay-baling-own-vs-hire-calculator',
       // `ball-python-morph-pairing-planner` joined 2026-10-07 on its first commit: small livestock breeders selling hatchlings,
       // one hop from `backyard-egg-profit-calculator`.
       'ball-python-morph-pairing-planner',

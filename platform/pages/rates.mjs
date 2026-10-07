@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'hay-baling-own-vs-hire-calculator':
+    'the wage is the producer\'s own value of an hour of mowing, raking and baling per acre, there is no burden or overhead percentage (equipment ownership is a yearly depreciation, interest and insurance total), and the target margin is a share of the hay sale price; the tool compares owning with hiring custom baling rather than being quoted a shop rate',
   'stump-grinding-price-calculator':
     'the loaded crew cost is an hourly figure per person with a separate machine cost per cutting hour, overhead and the target margin are both shares of the final price rather than a shop-rate markup on labour, and the price is floored at a minimum charge; the tool derives grinding time from stump volume rather than being quoted a shop rate',
   'pottery-piece-pricing-calculator':

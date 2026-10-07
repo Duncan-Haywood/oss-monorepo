@@ -822,7 +822,7 @@ workflows:
 - workflow: fertilizer-blend-optimizer-ci.yml
   classification: none
   publishes: []
-- workflow: ag-spray-drone-quote-calculator-ci.yml
+- workflow: hay-baling-own-vs-hire-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: etsy-ads-roi-analyzer-ci.yml
@@ -2556,3 +2556,6 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
+- workflow: ag-spray-drone-quote-calculator-ci.yml
+  classification: none
+  publishes: []
