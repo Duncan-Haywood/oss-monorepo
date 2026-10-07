@@ -684,6 +684,9 @@ const CATEGORY_RULES = [
       // `shared-kitchen-rate-planner` joined 2026-10-07 on its first commit: commissary and shared-kitchen owners pricing
       // station-hours and memberships; the renters are the food-truck and catering operators served here, one hop away.
       'shared-kitchen-rate-planner',
+      // `bakery-production-scheduler` joined 2026-10-07 on its first commit: bakers planning oven and prep time from
+      // wholesale orders, one hop from the other food-service tools here.
+      'bakery-production-scheduler',
       // `farmers-market-booth-calculator` joined 2026-10-03 on its first commit: market vendors who sell food,
       // one hop from `food-truck-event-margin-calculator`.
       'farmers-market-booth-calculator',
