@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 851 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 852 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -54,6 +54,14 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free craft brewery batch margin calculator: cost each beer after yield loss, labour, federal and state excise and overhead, see profit per barrel by channel (taproom, kegs, distributor cans) and which beer earns most per fermenter day. Private, runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>eBay Promoted Listings ROI Analyzer — Are Your Ads Paying? Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ebay-promoted-listings-roi-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/ebay-promoted-listings-roi-analyzer</id>
+    <updated>2026-10-07T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free eBay Promoted Listings ROI analyzer: drop in your Seller Hub ad report and see which listings lose money after ad fees and what share of sales the ad must cause to break even. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Estimate Maker — Free Quote &amp; Estimate Generator, No Signup, Works Offline</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free planner for small mushroom farms: profit per block and per fruiting-room slot-week, how many flushes to run, how many blocks the room can carry, the cash you need before the first sale, and the contamination rate and price that break even. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Rental Ledger — Free Landlord Schedule E, Depreciation and Rent Roll, No Signup</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rental-ledger/"/>
-    <id>tag:marisstella.dev,2026:tool/rental-ledger</id>
-    <updated>2026-10-07T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free private rental property ledger: log rent and expenses per property, get Schedule E by property, 27.5-year depreciation, the $25,000 passive loss allowance, a monthly rent collection grid and the 1099-NEC list. No account, no bank link, nothing uploaded.</summary>
   </entry>
 </feed>
