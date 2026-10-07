@@ -720,6 +720,9 @@ const CATEGORY_RULES = [
       // `ag-spray-drone-quote-calculator` joined 2026-10-07 on its first commit: custom applicators pricing crop spraying by the acre,
       // the farm-services step next to `beef-cattle-ration-optimizer`.
       'ag-spray-drone-quote-calculator',
+      // `fertilizer-blend-optimizer` joined 2026-10-07 on its first commit: row-crop, hay and garden growers on the same farm
+      // category, the input-cost step beside `beef-cattle-ration-optimizer`.
+      'fertilizer-blend-optimizer',
       // `sba-loan-capacity-calculator` joined 2026-10-07 on its first commit: owners sizing a bank or SBA term loan from cash
       // flow, the pre-application step before `business-loan-offer-comparator`.
       'sba-loan-capacity-calculator',
