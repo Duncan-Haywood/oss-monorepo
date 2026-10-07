@@ -693,6 +693,9 @@ const CATEGORY_RULES = [
       // `microgreens-tray-planner` joined 2026-10-06 on its first commit: growers who sell at the same markets and
       // restaurants, one hop from `backyard-honey-profit-calculator`.
       'microgreens-tray-planner',
+      // `craft-brewery-batch-margin-calculator` joined 2026-10-07 on its first commit: a brewery sells drink by the
+      // pint, keg and can; the same operator reader as `pour-cost-calculator`, one hop away.
+      'craft-brewery-batch-margin-calculator',
       // `mobile-bartender-event-quote` joined 2026-10-03 on its first commit: per-event bar service pricing,
       // one hop from `pour-cost-calculator` and `catering-quote-calculator`.
       'mobile-bartender-event-quote',
