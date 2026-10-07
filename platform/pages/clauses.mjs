@@ -264,6 +264,9 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // payroll admin already has, not a company or product this could be
   // mistaken for. Same reasoning as the other vs-spreadsheet pages above.
   'overtime-pay-calculator/vs-spreadsheet.html',
+  // Compares against a landlord keeping rent and expenses in a spreadsheet --
+  // a generic method, not a company or product this could be mistaken for.
+  'rental-ledger/vs-spreadsheet.html',
   // Compares against "comparing effective rates" -- the standard rate-
   // shopping advice every merchant-services guide recommends, not a company
   // or product this could be mistaken for. The page names no processor and
