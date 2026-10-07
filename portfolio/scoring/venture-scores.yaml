@@ -27908,3 +27908,38 @@ ventures:
       legal or financial advice, no warranty. The model was written without review by a working
       grant writer, stated in VENTURE.yaml. Ethics: prices on hours and discourages percentage-of-award
       pay; helps independent writers price their own work; nothing leaves the device.
+  - slug: estimate-maker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 8
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Option totals, deposits, expiry
+      and win-rate are deterministic arithmetic on the user's own estimates,
+      never an inference step.
+    basis: >-
+      Screened 2026-10-07 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. The portfolio's
+      quote tools price or time a quote; none produces the document, tracks the
+      win, or hands it to an invoice. Distribution 8: "free estimate template"
+      and "quote generator" are large small-business queries with a paid market
+      (Jobber, Housecall Pro, Joist, Square); volume not measured with an
+      external tool. Defensibility 2: free, private and no-watermark is the
+      wedge, and it is easy to copy.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: formats the numbers the user enters, prints that an estimate is
+      not a fixed-price contract, states what it does not model and says it is
+      not legal, tax or accounting advice. Estimates never leave the browser
+      (test asserts no network calls) and all user text is escaped before
+      rendering. Ethics: helps a small operator quote clearly and follow up; no
+      dark patterns, no data capture.

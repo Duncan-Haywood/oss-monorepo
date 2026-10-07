@@ -2984,7 +2984,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `restaurant-tip-pool-calculator` graduated (browser shift list to tip pool payouts by hours, points or tip-out).
     # +1: `lien-waiver-checker` graduated (browser pasted lien waiver to red flags and the change to ask for).
     # +1: `cash-flow-risk-forecaster` graduated (browser invoices and bills to the odds of a cash shortfall, cushion and biggest lever).
-    total = 820  # `infra/OWNER_CHECKLIST.md`'s own "N of the 820 tools" wording.
+    total = 822  # `infra/OWNER_CHECKLIST.md`'s own "N of the 822 tools" wording.
     # +1: `horse-boarding-stall-profit-calculator` graduated (browser barn stalls, occupancy and costs to monthly profit, break-even occupancy and board price).
     # +1: `pet-waste-removal-route-calculator` graduated (browser pet waste route clients, price and drive time to monthly profit, hourly pay and break-even clients).
     # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
