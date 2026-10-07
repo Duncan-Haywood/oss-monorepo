@@ -708,6 +708,9 @@ const CATEGORY_RULES = [
       // `sheep-goat-flock-profit-planner` joined 2026-10-07 on its first commit: small livestock producers at the same
       // farm stands and markets, one hop from `apiary-profit-planner`.
       'sheep-goat-flock-profit-planner',
+      // `sba-loan-capacity-calculator` joined 2026-10-07 on its first commit: owners sizing a bank or SBA term loan from cash
+      // flow, the pre-application step before `business-loan-offer-comparator`.
+      'sba-loan-capacity-calculator',
       // `microgreens-tray-planner` joined 2026-10-06 on its first commit: growers who sell at the same markets and
       // restaurants, one hop from `backyard-honey-profit-calculator`.
       'microgreens-tray-planner',
