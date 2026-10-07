@@ -28368,3 +28368,34 @@ ventures:
       Liability: planning arithmetic on the visitor's own numbers, no growing or
       chemical advice, no warranty, per its own page. Nothing leaves the browser.
       Ethics: deterministic, no dark patterns; nothing is sold.
+  - slug: mushroom-fruiting-room-planner
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Slot-capacity arithmetic and a weekly cash
+      simulation on numbers the visitor types in.
+    basis: >-
+      Scored from the write-up in its own VENTURE.yaml comment. duplicate_check.py found
+      no lexical overlap for "mushroom grower". Small gourmet-mushroom growers plan on a
+      spreadsheet and learn contamination and slot economics the expensive way; this is
+      the free private version that picks the flush count by room fullness and shows the
+      pre-revenue cash gap. Distribution 5: "mushroom farm profit calculator" and "how
+      many flushes per block" are niche searches and grower subreddits; volume not
+      measured. Defensibility 4: farm-software sells records; the edge is a no-signup
+      planner that prices slots.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the visitor's own numbers, no growing, sterilisation or
+      food-safety advice, no warranty, per its own page. Nothing leaves the browser.
+      Ethics: deterministic, no dark patterns; nothing is sold.

@@ -2990,6 +2990,9 @@ const CATEGORY_RULES = [
         // `greenhouse-bench-planner` joined 2026-10-07 on its first commit. Back-office was at its 3 MB offline bound; a
         // grower selling transplants on fixed dates is one person pricing their own season's space.
         'greenhouse-bench-planner',
+        // `mushroom-fruiting-room-planner` joined 2026-10-07 on its first commit, same reason: back-office is at its bound,
+        // and a grower deciding flushes, slots and starting cash for their own room is one person pricing their own farm.
+        'mushroom-fruiting-room-planner',
         // `small-business-acquisition-calculator` joined 2026-10-06 on its first
         // commit. Its natural home, back-office, was already over the 3 MB
         // gzipped offline bound; what it answers is what one owner-operator

@@ -68,3 +68,7 @@ test("the page's FAQ and the guide's worked numbers match the engine", async () 
 test("footer links to the farmers market booth calculator sibling", async () => {
   assert.match(await read("index.html"), /href="\.\.\/farmers-market-booth-calculator\/"/);
 });
+
+test("footer links to the mushroom fruiting room planner sibling", async () => {
+  assert.match(await read("index.html"), /href="\.\.\/mushroom-fruiting-room-planner\/"/);
+});
