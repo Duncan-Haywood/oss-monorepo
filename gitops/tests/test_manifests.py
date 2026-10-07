@@ -2989,7 +2989,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `str-turnover-scheduler` graduated (browser iCal feeds to turnover cleaning schedule, same-day window checks, double bookings and minimum crew).
     # +1: `craft-brewery-batch-margin-calculator` graduated (browser beers and sales channels to batch profit per barrel by channel, break-even prices and profit per fermenter day).
     # +1: `midterm-rental-calculator` graduated (furnished 30-day-plus rental against a long-term lease and nightly renting, with rate, vacancy and furnishing payback crossing points).
-    total = 839  # `infra/OWNER_CHECKLIST.md`'s own "N of the 839 tools" wording.
+    # +1: `maple-syrup-sugarbush-profit-calculator` graduated (browser taps, sap and costs to maple profit per tap and per hour, poor and good seasons and a reverse osmosis payback).
+    total = 840  # `infra/OWNER_CHECKLIST.md`'s own "N of the 840 tools" wording.
     # +1: `freelance-dashboard` graduated (browser hub reading the four freelancer tools' saved data: owed, unbilled, pipeline, profit and a ranked do-this-next list).
     # +1: `horse-boarding-stall-profit-calculator` graduated (browser barn stalls, occupancy and costs to monthly profit, break-even occupancy and board price).
     # +1: `pet-waste-removal-route-calculator` graduated (browser pet waste route clients, price and drive time to monthly profit, hourly pay and break-even clients).

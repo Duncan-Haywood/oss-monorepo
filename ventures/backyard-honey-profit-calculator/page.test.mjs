@@ -57,3 +57,8 @@ test("the guide's worked numbers match the engine", async () => {
   const idx = await read("index.html");
   assert.ok(idx.includes('$("#price").value = 8; $("#yieldlbs").value = 25; $("#winterlosspct").value = 50; $("#losspct").value = 15;'));
 });
+
+test('links to the maple syrup sugarbush profit calculator', async () => {
+  const { readFileSync } = await import('node:fs');
+  assert.match(readFileSync(new URL('./index.html', import.meta.url), 'utf8'), /href="\.\.\/maple-syrup-sugarbush-profit-calculator\/"/);
+});

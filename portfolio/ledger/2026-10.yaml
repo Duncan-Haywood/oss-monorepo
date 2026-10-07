@@ -2658,3 +2658,22 @@ entries:
         synthetic crop lists tested, no grower has used it. 26 calc, page and usage tests plus a Chromium run of the
         worked example. Registered launch date, category rule, score row, tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: maple-syrup-sugarbush-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built maple-syrup-sugarbush-profit-calculator, the portfolio's first maple tool: a browser page
+        where a sugarmaker enters taps, sap per tap, Brix, fuel, labour and sales channels and gets sap turned into
+        syrup by the rule of 86, fuel from the heat to evaporate the water, supplies, equipment wear, fees and labour,
+        then profit per tap, per hour and per gallon, poor, average and good seasons, a by-channel breakdown, and a
+        with-and-without reverse osmosis comparison with payback in years. In the worked example 1,000 taps earn about
+        $9,300 before labour and about -$400 after paying labour at $18 an hour, and a $9,000 reverse osmosis unit
+        pays back in about two years. Screened with duplicate_check.py (top hit 0.19; no maple venture existed). A
+        greenhouse crop-profit venture built first this session was dropped unmerged when greenhouse-bench-planner
+        landed in the same niche (#6512). First visitor: producers searching "maple syrup profit per tap" or "is
+        reverse osmosis worth it maple syrup"; volume not measured. No sugarmaker has used it; defaults are
+        illustrative. 25 calc, usage and page tests plus a Chromium run (calculates, toggles reverse osmosis, no script
+        errors). Registered launch date, category rule, tree counts; linked from backyard-honey-profit-calculator;
+        regenerated the mirror.
+    mrr_end: 0
