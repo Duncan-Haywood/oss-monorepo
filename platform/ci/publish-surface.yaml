@@ -2510,3 +2510,6 @@ gitops:
 - workflow: expense-tracker-ci.yml
   classification: none
   publishes: []
+- workflow: freelance-dashboard-ci.yml
+  classification: none
+  publishes: []
