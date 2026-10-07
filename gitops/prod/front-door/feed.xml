@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 826 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 827 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -30,6 +30,22 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free expense tracker for freelancers and the self-employed: log expenses, import a bank CSV, see deductible totals by Schedule C line and by quarterly payment period, flag missing receipts. No account, works offline, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Freelancer Desk — Free, Private Dashboard for Money Owed, Unbilled Time and Taxes</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freelancer-desk/"/>
+    <id>tag:marisstella.dev,2026:tool/freelancer-desk</id>
+    <updated>2026-10-07T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free freelancer dashboard that runs in your browser: see what clients owe you, time you have not billed, open quotes, your tax set-aside and the next quarterly date, with a ranked to-do list. No account, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Freelancer Tax Pack — Free 2026 Schedule C, SE Tax and Quarterly Estimate</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freelancer-tax-pack/"/>
+    <id>tag:marisstella.dev,2026:tool/freelancer-tax-pack</id>
+    <updated>2026-10-07T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free year-end tax pack for freelancers: pulls your invoices, expenses and mileage from this browser, then shows Schedule C net profit, self-employment tax, a 2026 federal estimate, quarterly payments still due and the 1099-NEC list. No account, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Time Tracker — Free Billable Hours Timer, No Signup, Invoices From Your Hours</title>
@@ -150,21 +166,5 @@
     <updated>2026-10-06T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free pricing calculator for fishing charter captains: fuel, deckhand, fixed costs, weather cancellations and the profit you want become a break-even price, a target price per trip and per angler. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Fiverr Earnings to Xero and QuickBooks Journal</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fiverr-earnings-to-journal/"/>
-    <id>tag:marisstella.dev,2026:tool/fiverr-earnings-to-journal</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free Fiverr to QuickBooks and Xero journal converter: books order revenue and tips gross, the Fiverr 20% service fee and withdrawal fees as expenses, refunds and cancellations as reversals, checks the running balance for missing rows, splits by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Fractional Executive Rate Calculator — Day Rate and Retainer, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fractional-executive-rate-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/fractional-executive-rate-calculator</id>
-    <updated>2026-10-06T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free fractional executive rate calculator: convert a full-time salary into the day rate, hourly rate and monthly retainer that cover unsold days, benefits and payroll tax, then test a client mix against capacity. Runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>
