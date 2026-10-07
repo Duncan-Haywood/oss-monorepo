@@ -2981,6 +2981,9 @@ const CATEGORY_RULES = [
     // moved here (exact slugs, as the rest of this list) rather than the bound being raised.
     test: (slug) =>
       [
+        // `greenhouse-bench-planner` joined 2026-10-07 on its first commit. Back-office was at its 3 MB offline bound; a
+        // grower selling transplants on fixed dates is one person pricing their own season's space.
+        'greenhouse-bench-planner',
         // `small-business-acquisition-calculator` joined 2026-10-06 on its first
         // commit. Its natural home, back-office, was already over the 3 MB
         // gzipped offline bound; what it answers is what one owner-operator

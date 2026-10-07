@@ -2605,3 +2605,20 @@ entries:
         escaped, persistence, hand-off, no horizontal overflow at 375px). Registered launch date, category rule, tree
         counts; regenerated the mirror; linked from Proposal Maker, which now also accepts the hand-off.
     mrr_end: 0
+  - venture: greenhouse-bench-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built greenhouse-bench-planner: a browser page where a greenhouse grower, small nursery or market
+        gardener lists each crop with its sale date, quantity, germination and growing weeks, bench density and
+        survival rate, and gets back sow dates, germination and bench space week by week, orders held early or slipped
+        late within the user's limits, what does not fit by crop, margin per square foot-week, the bench space needed to
+        grow everything on its date, and what 50 to 400 extra square feet would recover. Exports a plan CSV and a
+        sowing list. New niche: duplicate_check.py best match 0.24 (market-garden-bed-planner, a field-bed crop mix with
+        no calendar); cross-linked from it. First visitor: searches for "greenhouse bench space planning" and "bedding
+        plant production schedule"; volume not measured. Placement is a greedy heuristic by margin per space-week; the
+        extra-space table keeps the best plan at or below each size so it never shows more space doing worse. Only
+        synthetic crop lists tested, no grower has used it. 26 calc, page and usage tests plus a Chromium run of the
+        worked example. Registered launch date, category rule, score row, tree counts; regenerated the mirror.
+    mrr_end: 0
