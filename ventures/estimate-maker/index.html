@@ -140,6 +140,7 @@
     <h2>Export, back up, restore</h2>
     <p>
       <button type="button" id="export-csv">Export all estimates as CSV</button>
+      <p class="note" id="storage-guard" aria-live="polite"></p>
       <button type="button" class="secondary" id="export-json">Download backup</button>
       <button type="button" class="secondary" id="import-btn">Restore from backup</button>
       <button type="button" class="secondary" id="load-example">Load an example</button>
@@ -438,5 +439,45 @@
     if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
     renderDash(); renderClients(); fill(blank());
   </script>
+<script data-storage-guard>
+(function () {
+  var KEY = "freelance-suite-last-backup", el = document.getElementById("storage-guard");
+  if (!el) return;
+  var persisted = null;
+  function days() {
+    try {
+      var t = Number(localStorage.getItem(KEY));
+      return t > 0 ? Math.floor((Date.now() - t) / 86400000) : null;
+    } catch (e) { return null; }
+  }
+  function render() {
+    var d = days(), parts = [];
+    parts.push(persisted === true
+      ? "Storage protection: on, so this browser will not clear your data to free space."
+      : persisted === false
+        ? "Storage protection: not granted. This browser may erase your data after a stretch of not visiting, or when it is low on space."
+        : "Storage protection: not supported here, so a backup file is your only safety copy.");
+    parts.push(d === null
+      ? "No backup downloaded from this device yet."
+      : d === 0 ? "Last backup: today."
+      : "Last backup: " + d + (d === 1 ? " day" : " days") + " ago" + (d > 30 ? " - download a new one." : "."));
+    el.textContent = parts.join(" ");
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target && e.target.closest ? e.target.closest("#export-json, #backup") : null;
+    if (!b) return;
+    try { localStorage.setItem(KEY, String(Date.now())); } catch (x) {}
+    render();
+  });
+  render();
+  try {
+    if (navigator.storage && navigator.storage.persist) {
+      navigator.storage.persisted().then(function (p) {
+        return p ? true : navigator.storage.persist();
+      }).then(function (p) { persisted = Boolean(p); render(); }, function () {});
+    }
+  } catch (e) {}
+})();
+</script>
 </body>
 </html>
