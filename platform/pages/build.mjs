@@ -3004,6 +3004,8 @@ const CATEGORY_RULES = [
         'time-tracker',
         // `freelance-contract-maker` joined 2026-10-07: the service agreement a freelancer sends before the estimate, time and invoice.
         'freelance-contract-maker',
+        // `freelance-proposal-maker` joined 2026-10-07: the proposal that comes before the contract, with dated timeline and priced options.
+        'freelance-proposal-maker',
         // `expense-tracker` joined 2026-10-07: the costs beside the hours and the invoice, grouped by Schedule C line.
         'expense-tracker',
         // `freelance-dashboard` joined 2026-10-07: one view over the four tools above, ranking what to chase, bill and set aside.
