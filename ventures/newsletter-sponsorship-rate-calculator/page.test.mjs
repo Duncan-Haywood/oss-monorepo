@@ -134,3 +134,8 @@ test("repricing on input or change never records a usage event", () => {
     'record("calculate_run") must stay on the explicit "Calculate my rates" click handler',
   );
 });
+
+test("footer links the ad slot sell-through planner, which links back", () => {
+  assert.match(page("index.html"), /href="\.\.\/ad-slot-sell-through-planner\/"/);
+  assert.match(readFileSync(new URL("../ad-slot-sell-through-planner/index.html", import.meta.url), "utf8"), /href="\.\.\/newsletter-sponsorship-rate-calculator\/"/);
+});

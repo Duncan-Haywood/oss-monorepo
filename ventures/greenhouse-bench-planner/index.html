@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Greenhouse Bench Planner</title>
+  <meta name="description" content="Free greenhouse and nursery planner: enter what you promised to sell and when, and get sow dates, bench and germination space by week, what will not fit and what extra space is worth. Private, runs in your browser.">
+  <meta property="og:title" content="Greenhouse bench planner: sow dates and bench space by week — free, private">
+  <meta property="og:description" content="Plant sales on fixed dates, a bench that only holds so much. See when to sow, which weeks overflow and what a bigger bench would earn. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Greenhouse Bench Planner", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How far ahead do I sow plants to be ready for a sale date?", "acceptedAnswer": {"@type": "Answer", "text": "Count back from the sale date by the weeks in the flat or germination chamber plus the weeks on the bench. A 4-inch tomato that spends 2 weeks germinating and 6 weeks growing is sown 8 weeks before the sale. This page does that for every crop and then checks that the bench has room in each of those weeks."}}, {"@type": "Question", "name": "How much bench space do I need in spring?", "acceptedAnswer": {"@type": "Answer", "text": "Not the sum of your crops, but the busiest week: every crop that has been transplanted and not yet sold occupies bench at once. The page prints the peak week, the square feet needed to grow everything on its date, and what each extra 50 to 400 square feet would recover."}}, {"@type": "Question", "name": "What happens when the orders do not fit?", "acceptedAnswer": {"@type": "Answer", "text": "Orders are placed in order of margin per square foot-week of space. Each one may be held early on the bench (costing space) or sold up to the weeks you allow late (costing margin). Whatever still does not fit is shown as a shortfall by crop, so you can raise a price, cut a crop or add a bench."}}, {"@type": "Question", "name": "Does survival rate matter?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. If 90 percent of seeds make a sellable plant, 100 plants need about 111 sown. The page sows enough to sell the quantity you enter and uses the extra seedlings in germination space only."}}, {"@type": "Question", "name": "Does it store my crop list or contact anyone?", "acceptedAnswer": {"@type": "Answer", "text": "No. It runs in this browser tab, saves nothing and sends nothing. You download the plan as a CSV or a sowing list."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f5f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d4f6e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14384f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14384f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5963; }
+    .card { background: #fff; border: 1px solid #d3dde3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14384f10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebfca; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f6e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dfeaf1; color: #14384f; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #e3eaee; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5963; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #e3eaee; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3eaee; color: #14384f; }
+    .pill.ok { background: #dff3e6; color: #1f5c35; }
+    .stats { font-size: .95rem; color: #2b363d; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dde3; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #aebfca; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.letter { white-space: pre-wrap; font: 14px/1.5 Georgia, serif; background: #fbfdfe; border: 1px solid #d3dde3; border-radius: 8px; padding: 18px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">GREENHOUSE BENCH PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Know when to sow, which weeks overflow the bench, and what more space would earn.</h1>
+    <p>Enter the plants you have promised to sell and the dates. The page counts back <strong>sow dates</strong> from each sale, checks <strong>germination and bench space week by week</strong>, holds or slips orders within the limits you set, shows what <strong>does not fit</strong>, and prices <strong>extra bench space</strong>.</p>
+    <p class="note">Your crop list is read in this browser tab and never leaves your device. It plans; it does not order seed or tell you how to grow anything.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. What you are selling</h2>
+    <p class="note">One crop per line: <code>crop, sale date, units, germination weeks, growing weeks, units per sq ft on the bench, survival %, price, cost per unit, weeks you could sell late</code>. Dates are YYYY-MM-DD. Only the first six are required. Put a name containing a comma in quotes.</p>
+    <label for="file">Choose a file</label>
+    <input type="file" id="file" accept=".csv,.txt,text/csv,text/plain">
+    <label for="paste">…or paste or edit the list</label>
+    <textarea id="paste" spellcheck="false" wrap="off"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>2. Your space and rules</h2>
+    <div class="grid">
+      <div><label for="bench">Bench space (sq ft)</label><input id="bench" inputmode="decimal" value="400"></div>
+      <div><label for="germ">Germination space (sq ft)</label><input id="germ" inputmode="decimal" value="30"></div>
+      <div><label for="gdens">Seeds per sq ft while germinating</label><input id="gdens" inputmode="decimal" value="60"></div>
+      <div><label for="hold">Most weeks you will hold a finished crop</label><input id="hold" inputmode="numeric" value="2"></div>
+      <div><label for="holdcost">Cost of holding, per sq ft per week</label><input id="holdcost" inputmode="decimal" value="0.50"></div>
+      <div><label for="late">Margin lost per week sold late (%)</label><input id="late" inputmode="decimal" value="10"></div>
+      <div><label for="today">Today (optional, flags sow dates already gone)</label><input id="today" placeholder="YYYY-MM-DD"></div>
+    </div>
+    <p>
+      <button type="button" id="validate">Build the plan</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the crop list, then click Build the plan.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <p class="note" id="report-note"></p>
+    <div id="report-findings"></div>
+    <h3>Sowing plan</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Sow</th><th scope="col">Crop</th><th scope="col" class="n">Sown</th><th scope="col">Sale</th><th scope="col" class="n">Sold</th><th scope="col" class="n">Short</th><th scope="col">Timing</th><th scope="col" class="n">Margin</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <h3>Space by week</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Week of</th><th scope="col" class="n">Germination sq ft</th><th scope="col" class="n">Bench sq ft</th><th scope="col" class="n">Bench used</th></tr></thead><tbody id="weeks"></tbody></table></div>
+    <h3>What more bench space would earn</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Extra sq ft</th><th scope="col" class="n">Units sold</th><th scope="col" class="n">Units short</th><th scope="col" class="n">Margin</th></tr></thead><tbody id="sweep"></tbody></table></div>
+    <h3>Margin per square foot of space-week</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Crop</th><th scope="col" class="n">Margin</th><th scope="col" class="n">Per sq ft-week</th></tr></thead><tbody id="econ"></tbody></table></div>
+    <p><button type="button" id="dl-csv">Download plan (CSV)</button> <button type="button" class="secondary" id="dl-text">Download sowing list</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How it decides, and what it leaves out</h2>
+    <ul>
+      <li><strong>Sow date:</strong> the sale date minus germination weeks, growing weeks and any weeks held. Plants sit in germination space first and then on the bench until sold.</li>
+      <li><strong>Space:</strong> bench use is units sold divided by units per sq ft; germination use is seeds sown (units over survival) divided by seeds per sq ft. Each week's total must stay inside what you entered.</li>
+      <li><strong>Priority:</strong> orders are placed in order of margin per sq ft-week of space they use. Each tries on time, then held early up to your limit, then late up to the weeks you allow, and keeps the cheapest option that fits in full or, failing that, the one that sells the most. This is a fast heuristic, not a proof of the optimum, so the space table shows the best plan found at each size and never reports a bigger bench doing worse.</li>
+      <li><strong>Not decided:</strong> light, temperature and crop timing (weeks come from you and your own records), pot or flat sizes beyond the density you give, labor, heating cost, disease and weather losses beyond the survival rate, customer demand and pre-order terms, and anything not in the list. Treat the plan as a check on your own numbers.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How far ahead do I sow plants to be ready for a sale date?</h3>
+    <p>Count back from the sale date by the weeks in the flat or germination chamber plus the weeks on the bench. A 4-inch tomato that spends 2 weeks germinating and 6 weeks growing is sown 8 weeks before the sale. This page does that for every crop and then checks that the bench has room in each of those weeks.</p>
+    <h3>How much bench space do I need in spring?</h3>
+    <p>Not the sum of your crops, but the busiest week: every crop that has been transplanted and not yet sold occupies bench at once. The page prints the peak week, the square feet needed to grow everything on its date, and what each extra 50 to 400 square feet would recover.</p>
+    <h3>What happens when the orders do not fit?</h3>
+    <p>Orders are placed in order of margin per square foot-week of space. Each one may be held early on the bench (costing space) or sold up to the weeks you allow late (costing margin). Whatever still does not fit is shown as a shortfall by crop, so you can raise a price, cut a crop or add a bench.</p>
+    <h3>Does survival rate matter?</h3>
+    <p>Yes. If 90 percent of seeds make a sellable plant, 100 plants need about 111 sown. The page sows enough to sell the quantity you enter and uses the extra seedlings in germination space only.</p>
+    <h3>Does it store my crop list or contact anyone?</h3>
+    <p>No. It runs in this browser tab, saves nothing and sends nothing. You download the plan as a CSV or a sowing list.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, agronomic, or financial advice, and it does not replace your growing experience, your extension agent, or your own judgment. Check every date against your own crop records before sowing.</p>
+    <p><strong>Not affiliated.</strong> This tool is independent; it is not sponsored, endorsed or connected to any seed company, grower association or software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your crop list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_built</code>, <code>example_loaded</code>, <code>plan_downloaded</code>, <code>sowlist_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../market-garden-bed-planner/">market garden bed planner</a> picks the crop mix for field beds, the <a href="../farmers-market-booth-calculator/">farmers market booth calculator</a> and the <a href="../csa-share-pricing-calculator/">CSA share pricing calculator</a> cover the selling side, and the <a href="../cottage-food-pricing-calculator/">cottage food pricing calculator</a> prices what you make from the harvest.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, DEFAULT_CROPS, planCsv, sowList, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const num = (id) => parseFloat($(id).value);
+    let last = null;
+    $("#paste").value = DEFAULT_CROPS;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const r = analyze(text, { benchSqft: num("#bench"), germSqft: num("#germ"), germDensity: num("#gdens"), maxHoldWeeks: Math.floor(num("#hold")), holdCost: num("#holdcost"), latePenaltyPct: num("#late"), today: $("#today").value.trim() });
+      last = r;
+      if (!r.summary) { status.textContent = r.errors[0]; report.hidden = true; return; }
+      const s = r.summary;
+      const fit = s.short === 0 ? "everything fits" : `${s.short} of ${s.requested} units do not fit`;
+      $("#report-stats").innerHTML = `<strong>${s.crops} crops</strong>, ${s.from} to ${s.to} · <strong>${fit}</strong> · peak bench ${s.peakBench.toFixed(0)} of ${s.benchSqft} sq ft (week of ${s.peakWeek}) · margin ${money(s.margin)} of ${money(s.fullMargin)} if everything fit · growing all on its date needs ${Math.ceil(s.needBench)} sq ft of bench`;
+      $("#report-note").textContent = r.errors.length ? `${r.errors.length} line${r.errors.length === 1 ? "" : "s"} skipped: ${r.errors.slice(0, 3).join(" ")}` : "";
+      $("#report-findings").innerHTML = r.warnings.map((w) => `<div class="finding"><h4><span class="pill ${w.level === "high" ? "high" : w.level === "medium" ? "medium" : "info"}">${w.level === "info" ? "note" : "check"}</span></h4><p>${esc(w.text)}</p></div>`).join("") || `<div class="finding"><h4><span class="pill ok">ok</span></h4><p>Every order fits on its date.</p></div>`;
+      $("#rows").innerHTML = r.rows.map((x) => `<tr><td>${esc(x.sow)}</td><td>${esc(x.crop)}</td><td class="n">${x.sown}</td><td>${esc(x.sale)}</td><td class="n">${x.sold}</td><td class="n">${x.short}</td><td>${esc(x.shift)}</td><td class="n">${money(x.margin)}</td></tr>`).join("");
+      $("#weeks").innerHTML = r.weeks.map((w) => `<tr><td>${esc(w.week)}</td><td class="n">${w.germ.toFixed(1)} / ${w.germCap}</td><td class="n">${w.bench.toFixed(0)} / ${w.benchCap}</td><td class="n">${Math.round(w.util * 100)}%</td></tr>`).join("");
+      $("#sweep").innerHTML = r.sweep.map((x) => `<tr><td class="n">+${x.extra}</td><td class="n">${x.sold}</td><td class="n">${x.short}</td><td class="n">${money(x.margin)}</td></tr>`).join("");
+      $("#econ").innerHTML = r.economics.map((x) => `<tr><td>${esc(x.crop)}</td><td class="n">${money(x.margin)}</td><td class="n">${money(x.perSqftWeek)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `${s.crops} crops planned.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the crop list first."; return; }
+      run(text); record("plan_built");
+    });
+    $("#load-ok").addEventListener("click", () => {
+      $("#paste").value = DEFAULT_CROPS; $("#file").value = ""; $("#today").value = "2027-03-01";
+      run(DEFAULT_CROPS); record("example_loaded"); status.textContent = "Worked example: seven made-up spring crops on a 400 sq ft bench, planned from 1 March 2027. The long hanging baskets and geraniums do not fit, and the extra-space table shows what a bigger bench would recover.";
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the crop list, then click Build the plan."; });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("plan_downloaded"); download("bench-plan.csv", planCsv(last), "text/csv"); } });
+    $("#dl-text").addEventListener("click", () => { if (last) { record("sowlist_downloaded"); download("sowing-list.txt", sowList(last), "text/plain"); } });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

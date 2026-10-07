@@ -28337,3 +28337,34 @@ ventures:
       forecast, no warranty, per its own page and VENTURE.yaml. Pasted history
       never leaves the browser. Ethics: deterministic, no dark patterns; nothing
       is sold and no buyer is contacted.
+  - slug: greenhouse-bench-planner
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Capacity-over-time placement by a
+      greedy heuristic on numbers the visitor types in.
+    basis: >-
+      Scored from the write-up in its own VENTURE.yaml comment. duplicate_check.py
+      best match 0.24 (market-garden-bed-planner, a field-bed crop mix with no
+      calendar). Growers who sell on fixed spring dates plan on a wall calendar;
+      this is the free private version that treats bench space as a weekly
+      capacity. Distribution 5: "greenhouse bench space planning" and "bedding
+      plant production schedule" are niche searches; volume not measured.
+      Defensibility 4: paid grower software sells production records; the edge is
+      a no-signup planner that prices extra space.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: planning arithmetic on the visitor's own numbers, no growing or
+      chemical advice, no warranty, per its own page. Nothing leaves the browser.
+      Ethics: deterministic, no dark patterns; nothing is sold.
