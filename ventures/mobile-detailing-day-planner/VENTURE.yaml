@@ -1,0 +1,47 @@
+name: mobile-detailing-day-planner
+description: >-
+  Free browser tool for mobile car detailers. List a day's jobs with price, hours on site, drive minutes and supplies;
+  it picks the most profitable set that fits your hours, shows take-home per hour including the drive, and names the
+  price each job needs to hit your target. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session. duplicate_check.py "mobile car detailing package pricing and
+# route day planner": closest 0.27 (dog-grooming-day-planner), no detailing venture exists. Not in screened-out.md.
+# Closest sibling, found after the check by listing ventures: mobile-detailing-bid-calculator prices ONE job from labor,
+# travel, supplies and margin. This one starts from several pending jobs and chooses which to take in a day. Cross-linked.
+# Who: solo and two-person mobile detailers who fill the calendar in booking order and never see that a far job
+# at a package price pays less per hour than a near one. Search phrases: "mobile detailing pricing",
+# "how much to charge mobile detailing", "mobile detailing profit per hour". Volume not measured.
+#
+# Liability: arithmetic on the user's own numbers; no personal data, no bookings made, stores nothing, carries the
+# no-warranty and not-advice clauses.
+#
+# Unverified: no detailer has used it. The drive model is a stated simplification (one road out, one trip back).
+# Path to revenue (payment rails stay off): lead magnet and donations; if usage appears, booking-link integration
+# behind an env-var switch is the next build.
+
+hypotheses:
+  - claim: >-
+      Solo mobile detailers will list their pending jobs into a private tool to choose which to take, because
+      booking-order scheduling hides the drive cost of far jobs.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mobile-detailing-day-planner/
+  analytics: null

@@ -2677,3 +2677,18 @@ entries:
         errors). Registered launch date, category rule, tree counts; linked from backyard-honey-profit-calculator;
         regenerated the mirror.
     mrr_end: 0
+  - venture: mobile-detailing-day-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built mobile-detailing-day-planner: a browser page where a mobile car detailer lists pending jobs
+        (price, hours on site, drive minutes from the shop, supplies) and gets the most profitable set that fits the day
+        (every subset of up to 14 jobs searched), take-home per hour including the drive, what each job adds, the price
+        each would need to hit the target hourly, and which jobs to move to another day. Drive is a stated simplification
+        (round trip to the farthest job). Closest sibling mobile-detailing-bid-calculator prices one job; found only after
+        the duplicate check missed it by name; cross-linked both ways. First visitor: searches for "mobile detailing
+        pricing" and "mobile detailing profit per hour"; volume not measured. No detailer has used it. 27 calc, page and
+        usage tests plus a Chromium run (example data, no script errors). Registered launch date and category rule; tree
+        counts synced; mirror regenerated.
+    mrr_end: 0
