@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 856 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 857 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -30,6 +30,14 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free bakery production scheduler. Paste your products and orders with due times; get a backwards-planned prep, proof and bake timeline, the ovens and bakers you need, and which orders to drop when it does not fit. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Ball Python Morph Pairing Planner — odds, clutch profit and best pairing</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ball-python-morph-pairing-planner/"/>
+    <id>tag:marisstella.dev,2026:tool/ball-python-morph-pairing-planner</id>
+    <updated>2026-10-07T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free ball python morph pairing planner. Enter your females and males with their morphs and hets and what each morph sells for; get the genetics odds for every pairing, expected hatchlings, clutch profit and the best pairing. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Beef Cattle Ration Optimizer — least-cost feed ration for cows and calves</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free maple syrup profit calculator: taps and sap to syrup by the rule of 86, then fuel, supplies, equipment, fees and labour, profit per tap and per hour, poor and good seasons, and whether reverse osmosis pays back. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Mid-Term Rental Calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/midterm-rental-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/midterm-rental-calculator</id>
-    <updated>2026-10-07T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free mid-term rental calculator: compare a furnished 30-day-plus rental with a long-term lease and with Airbnb-style nightly renting. See the monthly rate, empty days and furnishing payback that make it worth it. Private, runs in your browser.</summary>
   </entry>
 </feed>

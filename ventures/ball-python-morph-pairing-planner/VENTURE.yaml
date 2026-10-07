@@ -1,0 +1,64 @@
+name: ball-python-morph-pairing-planner
+description: >-
+  Free browser tool for ball python breeders: list females and males with their
+  morphs and hets, add what each morph sells for, and it computes the Mendelian
+  odds for every pairing, expected hatchlings, revenue after fees and raising
+  cost, ranks pairings by expected profit or by the chance of a target morph, and
+  shows the odds of every offspring. Checked against an independent gamete count.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture session asked for deeper, algorithmic
+# tools with real competitors. duplicate_check.py on "reptile breeder clutch
+# profit morph pricing": closest row csa-share-pricing-calculator 0.13, far below
+# the 0.45 line. No existing venture touches reptile or exotic-pet breeding.
+#
+# Why this niche: ball python breeding is a large hobby-to-income market where
+# a single hatchling sells for tens to thousands of dollars depending on the
+# morph, and the pairing decision (which male to which female) is made from
+# gene-odds calculators and breeder forums. Free calculators show the odds;
+# none we know of also prices every outcome and ranks all your pairings by
+# expected profit and by the chance of the morph you want.
+#
+# First visitor: ball python breeders in r/ballpython and r/snakes, the many
+# morph-breeding Facebook groups, MorphMarket community forums, and searches
+# for "ball python genetic calculator", "ball python morph calculator", "ball
+# python pairing calculator". Volume not measured with an external tool.
+#
+# Liability boundary: animal husbandry, so: arithmetic on user-typed gene types
+# and prices only; gene types follow common convention and the page says to
+# verify each with the producing project; allelic genes refused; probabilities
+# not promises; not veterinary advice; nothing stored.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a
+# hosted collection with saved clutches and MorphMarket-style inventory import
+# (not built).
+
+hypotheses:
+  - claim: >-
+      Ball python breeders will use a private pairing planner that prices every
+      outcome and ranks all their male-female pairings, because genetics
+      calculators show odds for one pairing at a time and never say which
+      pairing is worth making.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A breeder reports a gene type or an odds result that disagrees with the accepted inheritance of a common morph.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ball-python-morph-pairing-planner/
+  analytics: null
