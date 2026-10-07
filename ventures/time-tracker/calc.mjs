@@ -223,3 +223,25 @@ export function entriesToCsv(entries, projects, settings, now = Date.now()) {
   });
   return [head, ...rows].map((r) => r.map(csvCell).join(",")).join("\n") + "\n";
 }
+
+// Cents earned per *tracked* hour once non-billable time is counted: the
+// number that says what an hour of the whole working week is worth, which is
+// always below the quoted rate when admin and sales time exist.
+export function effectiveRate(summary) {
+  return summary.seconds > 0 ? Math.round((summary.amount * 3600) / summary.seconds) : 0;
+}
+
+// Rows for a printable client timesheet, oldest first. Billed seconds are the
+// rounded seconds a client is charged for, so the sheet matches the invoice.
+export function timesheetRows(entries, projects, settings, { client = "", range = null } = {}, now = Date.now()) {
+  const rows = entries
+    .filter((e) => (!client || clientOf(e, projects) === client) && (!range || inRange(e, range)) && !(!Number.isFinite(e.end) && !Number.isFinite(e.manualSec)))
+    .sort((a, b) => (a.start || 0) - (b.start || 0))
+    .map((e) => {
+      const sec = entrySeconds(e, now);
+      const billable = e.billable !== false;
+      return { date: dayKey(e.start || 0), project: e.project || "", desc: e.desc || "", seconds: sec, billable, billSeconds: billable ? roundSeconds(sec, settings.rounding) : 0, amount: entryAmount(e, projects, settings, now) };
+    });
+  const totals = rows.reduce((t, r) => ({ seconds: t.seconds + r.seconds, billSeconds: t.billSeconds + r.billSeconds, amount: t.amount + r.amount }), { seconds: 0, billSeconds: 0, amount: 0 });
+  return { rows, totals };
+}

@@ -39,7 +39,7 @@ test("user-typed text is escaped before it reaches innerHTML", () => {
   // every ${...} inside an innerHTML assignment must be escaped, a money/hours formatter, or arithmetic/flags
   const stmts = script.split(/\.innerHTML\s*=/).slice(1).map((t) => t.slice(0, t.search(/;\n/)));
   assert.ok(stmts.length >= 6);
-  const safe = /^(esc\(|money\(|hours\(|Math\.round\(|c\.unbilled > 0|e\.billed \?|e\.billable === false \?|run \?|\["Mon")/;
+  const safe = /^(esc\(|money\(|hours\(|Math\.round\(|c\.unbilled > 0|e\.billed \?|e\.billable === false \?|run \?|\["Mon"|data\.settings\.name \?|sel\.value \?|inc$|t\.rows\.map\(|r\.billable \?)/;
   const raw = stmts.flatMap((t) => [...t.matchAll(/\$\{([^}]*)\}/g)].map((m) => m[1])).filter((x) => !safe.test(x.trim()) && !/^(ids\.size)$/.test(x.trim()));
   assert.deepEqual(raw, []);
 });
@@ -61,4 +61,12 @@ test("footer links the invoice and estimate siblings that exist", () => {
 test("robots and sitemap let crawlers find the page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
+});
+
+test("printable timesheet prints only itself and records a local event", () => {
+  const html = page("index.html");
+  assert.match(html, /id="timesheet-card"/);
+  assert.match(html, /@media print/);
+  assert.match(html, /<label for="ts-client"/);
+  assert.match(html, /timesheet_printed/);
 });

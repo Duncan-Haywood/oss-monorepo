@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseDuration, formatDuration, formatClock, roundSeconds, billableHours, entrySeconds, rateFor, entryAmount, summarize, weekDays, weekStart, invoiceLines, toInvoiceDraft, nextInvoiceNumber, warnings, entriesToCsv, utilisation, rangeFor, inRange, clientOf, toCents } from "./calc.mjs";
+import { parseDuration, formatDuration, formatClock, roundSeconds, billableHours, entrySeconds, rateFor, entryAmount, summarize, weekDays, weekStart, invoiceLines, toInvoiceDraft, nextInvoiceNumber, warnings, entriesToCsv, utilisation, rangeFor, inRange, clientOf, toCents, effectiveRate, timesheetRows } from "./calc.mjs";
 
 const projects = [{ id: "p1", name: "Site redesign", client: "Acme", rate: "100" }, { id: "p2", name: "Retainer", client: "Beta", rate: "" }];
 const S = { rounding: "none", defaultRate: "50" };
@@ -139,4 +139,25 @@ test("CSV neutralises formulas and quotes commas", () => {
   assert.match(csv, /"'=HYPERLINK\(""x""\), hi"/);
   assert.match(csv.split("\n")[0], /^Date,Client,Project/);
   assert.match(csv.split("\n")[1], /,1\.00,1\.00,100\.00,100\.00,yes,no$/);
+});
+
+test("effective rate counts non-billable time against the hour", () => {
+  assert.equal(effectiveRate({ seconds: 7200, amount: 10000 }), 5000);
+  assert.equal(effectiveRate({ seconds: 0, amount: 0 }), 0);
+});
+
+test("timesheet rows are oldest first, follow rounding, and skip running timers", () => {
+  const day = (d) => new Date(`2026-10-${d}T10:00:00`).getTime();
+  const projects = [{ id: "p1", name: "Site", client: "Acme", rate: "100" }];
+  const entries = [
+    { id: "b", project: "Site", projectId: "p1", start: day("06"), manualSec: 600 },
+    { id: "a", project: "Site", projectId: "p1", start: day("05"), manualSec: 3600, desc: "build" },
+    { id: "n", project: "Site", projectId: "p1", start: day("05"), manualSec: 1800, billable: false },
+    { id: "r", project: "Site", projectId: "p1", start: day("07") },
+    { id: "o", project: "Other", start: day("05"), manualSec: 60 },
+  ];
+  const t = timesheetRows(entries, projects, { rounding: "15", defaultRate: "" }, { client: "Acme" });
+  assert.deepEqual(t.rows.map((r) => [r.date, r.seconds, r.billSeconds, r.amount]), [["2026-10-05", 3600, 3600, 10000], ["2026-10-05", 1800, 0, 0], ["2026-10-06", 600, 900, 2500]]);
+  assert.equal(t.totals.amount, 12500);
+  assert.equal(t.totals.billSeconds, 4500);
 });

@@ -12,6 +12,8 @@ entries are stored in `localStorage` on your device and never uploaded.
 - Billing increments of 6, 15, 30 or 60 minutes, applied per entry so invoice lines match the report
 - Report by client and project for this week, this month, last month or all time, with tracked, billable and not-yet-invoiced totals
 - "Invoice unbilled" adds a draft to [Invoice Maker](../invoice-maker/) on the same device and marks those entries billed (a file download is the fallback when storage is blocked)
+- Effective rate per tracked hour (non-billable time counted) beside the billable share
+- Printable client timesheet for the chosen range, with billed hours after the increment matching the invoice
 - A timer left running for over twelve hours is flagged
 - Time in whole seconds, money in whole cents (`calc.mjs`); CSV (formula-safe) and JSON export
 

@@ -9,7 +9,7 @@
   <meta property="og:description" content="Track time by project, see what you have not billed yet, and turn hours into an invoice. No account, no subscription, nothing uploaded.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Time Tracker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "A free billable-time tracker that runs in your browser: timer and manual entries, rate per project, billing increments, unbilled totals by client, and one-click draft invoices. No account; data stays on your device."}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is this time tracker really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. There is no account, no trial, no entry limit and no paywall on exports. It runs in your browser, so it costs nothing to serve, and it stays free."}},{"@type":"Question","name":"Does the timer keep running if I close the tab?","acceptedAnswer":{"@type":"Answer","text":"Yes. A running timer is saved with its start time, so reopening the page shows the correct elapsed time. If you forget to stop it, the page flags a timer that has run more than twelve hours so you can correct the entry."}},{"@type":"Question","name":"How does rounding to 6, 15 or 30 minutes work?","acceptedAnswer":{"@type":"Answer","text":"Each entry is rounded up to your increment before it is priced, and never rounded down to zero. Because the rounding happens per entry, the hours on an invoice line add up to the totals in the report. Tell clients your increment up front."}},{"@type":"Question","name":"How do I turn tracked hours into an invoice?","acceptedAnswer":{"@type":"Answer","text":"Give each project a client and a rate, then press Invoice unbilled on a client. A draft invoice with one line per project and rate is added to Invoice Maker on this device, and those entries are marked billed so you cannot charge them twice. If your browser blocks that, you get a file to restore instead."}},{"@type":"Question","name":"Can I mark time as non-billable?","acceptedAnswer":{"@type":"Answer","text":"Yes. Non-billable entries count toward your tracked hours and your billable share, but not toward money and never appear on an invoice."}},{"@type":"Question","name":"Where is my time data stored?","acceptedAnswer":{"@type":"Answer","text":"In your browser on this device only. Clearing site data removes it, so use Download backup now and then; the file restores on any device. Nothing is uploaded."}},{"@type":"Question","name":"Is this a timesheet I can use for payroll or legal billing?","acceptedAnswer":{"@type":"Answer","text":"No advice is given. It adds up the times and rates you enter. Payroll rules, overtime and contract billing terms vary by place and agreement, so check them before you rely on a report for either."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is this time tracker really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. There is no account, no trial, no entry limit and no paywall on exports. It runs in your browser, so it costs nothing to serve, and it stays free."}},{"@type":"Question","name":"Does the timer keep running if I close the tab?","acceptedAnswer":{"@type":"Answer","text":"Yes. A running timer is saved with its start time, so reopening the page shows the correct elapsed time. If you forget to stop it, the page flags a timer that has run more than twelve hours so you can correct the entry."}},{"@type":"Question","name":"How does rounding to 6, 15 or 30 minutes work?","acceptedAnswer":{"@type":"Answer","text":"Each entry is rounded up to your increment before it is priced, and never rounded down to zero. Because the rounding happens per entry, the hours on an invoice line add up to the totals in the report. Tell clients your increment up front."}},{"@type":"Question","name":"How do I turn tracked hours into an invoice?","acceptedAnswer":{"@type":"Answer","text":"Give each project a client and a rate, then press Invoice unbilled on a client. A draft invoice with one line per project and rate is added to Invoice Maker on this device, and those entries are marked billed so you cannot charge them twice. If your browser blocks that, you get a file to restore instead."}},{"@type":"Question","name":"Can I mark time as non-billable?","acceptedAnswer":{"@type":"Answer","text":"Yes. Non-billable entries count toward your tracked hours and your billable share, but not toward money and never appear on an invoice."}},{"@type":"Question","name":"Where is my time data stored?","acceptedAnswer":{"@type":"Answer","text":"In your browser on this device only. Clearing site data removes it, so use Download backup now and then; the file restores on any device. Nothing is uploaded."}},{"@type":"Question","name":"Is this a timesheet I can use for payroll or legal billing?","acceptedAnswer":{"@type":"Answer","text":"No advice is given. It adds up the times and rates you enter. Payroll rules, overtime and contract billing terms vary by place and agreement, so check them before you rely on a report for either."}},{"@type":"Question","name":"Can I give a client a timesheet to go with the invoice?","acceptedAnswer":{"@type":"Answer","text":"Yes. Pick the client and the range under Report, then press Print / Save as PDF in the Printable timesheet panel. It lists each entry with the time you worked and the time you billed after your billing increment, plus totals that match the invoice, and prints without the rest of the page."}}]}</script>
 <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f4fa; }
     body { max-width: 1040px; margin: auto; padding: 28px; }
@@ -49,6 +49,9 @@
     .barlabels span { flex: 1; }
     .sr { position: absolute; left: -9999px; }
     .running { outline: 3px solid #b42318; }
+    #sheet { background: #fff; color: #111; padding: 18px; border: 1px solid #dcdcee; border-radius: 6px; margin-top: 12px; }
+    #sheet h2 { margin: 0 0 6px; color: #111; }
+    @media print { body > :not(#timesheet-card) { display: none !important; } body { background: #fff; padding: 0; max-width: none; } #timesheet-card { box-shadow: none; border: 0; padding: 0; margin: 0; } #timesheet-card .noprint { display: none !important; } #sheet { border: 0; padding: 0; } }
     footer { margin-top: 28px; border-top: 1px solid #dcdcee; padding-top: 16px; }
   </style>
 </head>
@@ -98,6 +101,13 @@
     <div class="scroll"><table><thead><tr><th scope="col">Client / project</th><th class="n" scope="col">Hours</th><th class="n" scope="col">Amount</th><th class="n" scope="col">Unbilled</th><th scope="col"><span class="sr">Actions</span></th></tr></thead><tbody id="by-client"></tbody></table></div>
     <p class="note" id="empty" hidden>No time tracked in this range yet. Start the timer, add an entry, or load the example.</p>
     <p class="note" id="invoice-status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="timesheet-card" aria-label="Timesheet">
+    <h2 class="noprint">Printable timesheet</h2>
+    <p class="note noprint">Give a client the hours behind an invoice. Uses the range chosen under Report above and your billing increment, so it matches what you charged. Print or save as PDF.</p>
+    <p class="noprint"><label for="ts-client" style="display:inline">Client</label> <select id="ts-client" style="width:auto"></select> <button type="button" id="print-sheet">Print / Save as PDF</button></p>
+    <div id="sheet"></div>
   </section>
 
   <section class="card" aria-label="Entries">
@@ -159,19 +169,21 @@
     <p>In your browser on this device only. Clearing site data removes it, so use Download backup now and then; the file restores on any device. Nothing is uploaded.</p>
     <h3>Is this a timesheet I can use for payroll or legal billing?</h3>
     <p>No advice is given. It adds up the times and rates you enter. Payroll rules, overtime and contract billing terms vary by place and agreement, so check them before you rely on a report for either.</p>
+    <h3>Can I give a client a timesheet to go with the invoice?</h3>
+    <p>Yes. Pick the client and the range under Report, then press Print / Save as PDF in the Printable timesheet panel. It lists each entry with the time you worked and the time you billed after your billing increment, plus totals that match the invoice, and prints without the rest of the page.</p>
   </section>
 
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. It adds up the time and rates you enter; whether your billing increment, your rate or the hours you invoice are permitted by your contract or local law is for you and your client to confirm.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as your only record: download a backup.</p>
-    <p>Everything runs in your browser. Your time entries are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>timer_started</code>, <code>entry_added</code>, <code>invoice_created</code>, <code>csv_exported</code>, <code>example_loaded</code>) are counted only in local storage on your device, never the content. Turn it off below.</p>
+    <p>Everything runs in your browser. Your time entries are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>timer_started</code>, <code>entry_added</code>, <code>invoice_created</code>, <code>csv_exported</code>, <code>example_loaded</code>, <code>timesheet_printed</code>) are counted only in local storage on your device, never the content. Turn it off below.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Quote the job with <a href="../estimate-maker/">Estimate Maker</a>, bill the hours with <a href="../invoice-maker/">Invoice Maker</a>, and see which clients are worth the time with the <a href="../client-profitability-time-analyzer/">client profitability time analyzer</a>. Setting your rate? Try the <a href="../quote-margin-check/">quote margin check</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { parseDuration, formatDuration, formatClock, formatMoney, entrySeconds, entryAmount, rateFor, clientOf, dayKey, weekStart, rangeFor, inRange, summarize, weekDays, utilisation, invoiceLines, nextInvoiceNumber, toInvoiceDraft, warnings, entriesToCsv, toCents } from "./calc.mjs";
+    import { parseDuration, formatDuration, formatClock, formatMoney, entrySeconds, entryAmount, rateFor, clientOf, dayKey, weekStart, rangeFor, inRange, summarize, weekDays, utilisation, effectiveRate, timesheetRows, invoiceLines, nextInvoiceNumber, toInvoiceDraft, warnings, entriesToCsv, toCents } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const KEY = "time-tracker-data";
@@ -283,6 +295,7 @@
         [money(s.amount), "billable value"],
         [money(s.unbilledAmount), "not yet invoiced"],
         [u === null ? "–" : Math.round(u * 100) + "%", "billable share of time"],
+        [s.seconds ? money(effectiveRate(s)) + "/h" : "–", "effective rate per tracked hour"],
       ].map(([b, l]) => `<div class="kpi"><b>${esc(b)}</b><span>${esc(l)}</span></div>`).join("");
       $("#empty").hidden = list.length > 0;
       const wk = weekDays(data.entries, weekStart(now), now);
@@ -294,7 +307,20 @@
         <td>${c.unbilled > 0 && c.client !== "(no client)" ? `<button type="button" class="small inv" data-client="${esc(c.client)}">Invoice unbilled</button>` : ""}</td></tr>` +
         c.projects.map((p) => `<tr><td>&nbsp;&nbsp;${esc(p.project)}</td><td class="n">${hours(p.seconds)}</td><td class="n">${money(p.amount)}</td><td></td><td></td></tr>`).join("")).join("");
     }
-    $("#r-range").onchange = renderReport;
+    $("#r-range").onchange = () => { renderReport(); renderSheet(); };
+    function renderSheet() {
+      const sel = $("#ts-client"), prev = sel.value;
+      const clients = [...new Set(data.entries.map((e) => clientOf(e, data.projects)).filter(Boolean))].sort();
+      sel.innerHTML = '<option value="">All clients</option>' + clients.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+      if (clients.includes(prev)) sel.value = prev;
+      const range = rangeFor($("#r-range").value);
+      const t = timesheetRows(data.entries, data.projects, data.settings, { client: sel.value, range });
+      const inc = data.settings.rounding !== "none" ? `<br><span class="note">Billed in ${esc(data.settings.rounding)}-minute blocks, rounded up.</span>` : "";
+      $("#sheet").innerHTML = `<h2>Timesheet</h2><p>${data.settings.name ? esc(data.settings.name) + "<br>" : ""}${sel.value ? "Client: " + esc(sel.value) : "All clients"} · ${esc($("#r-range").selectedOptions[0].textContent)}${inc}</p>` +
+        (t.rows.length ? `<table><thead><tr><th scope="col">Date</th><th scope="col">Project</th><th scope="col">Description</th><th class="n" scope="col">Time</th><th class="n" scope="col">Billed</th><th class="n" scope="col">Amount</th></tr></thead><tbody>${t.rows.map((r) => `<tr><td>${esc(r.date)}</td><td>${esc(r.project)}</td><td>${esc(r.desc)}</td><td class="n">${hours(r.seconds)}</td><td class="n">${r.billable ? hours(r.billSeconds) : "–"}</td><td class="n">${r.billable ? esc(money(r.amount)) : "–"}</td></tr>`).join("")}<tr><th scope="row" colspan="3">Total</th><th class="n">${hours(t.totals.seconds)}</th><th class="n">${hours(t.totals.billSeconds)}</th><th class="n">${esc(money(t.totals.amount))}</th></tr></tbody></table>` : '<p class="note">No finished entries for this selection.</p>');
+    }
+    $("#ts-client").onchange = renderSheet;
+    $("#print-sheet").onclick = () => { record("timesheet_printed"); window.print(); };
 
     $("#by-client").addEventListener("click", (ev) => {
       const b = ev.target.closest(".inv"); if (!b) return;
@@ -362,7 +388,7 @@
 
     function renderWarn() { $("#warn").innerHTML = warnings(data.entries).map((w) => `<li>${esc(w)}</li>`).join(""); }
     function renderAll(keepInputs) {
-      renderClock(); renderWarn(); renderReport(); renderEntries();
+      renderClock(); renderWarn(); renderReport(); renderSheet(); renderEntries();
       if (!keepInputs || !document.activeElement || !document.activeElement.closest("#projects")) renderProjects();
       fillSettings();
     }
