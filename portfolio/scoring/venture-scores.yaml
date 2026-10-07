@@ -28277,3 +28277,37 @@ ventures:
       every finding message names its own confidence (a known token-prefix
       match vs. a generic shape match) rather than presenting a guess as a
       certainty.
+  - slug: salon-chair-rent-vs-commission-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types.
+    basis: >-
+      Screened 2026-10-07 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Stylists and
+      barbers choosing between commission and chair rent argue from a headline
+      weekly rent; the tool counts rent for weeks off, supplies and card fees,
+      and shows the weekly revenue where rent starts to win. Distribution 6:
+      "booth rent vs commission" is a recurring query in stylist and barber
+      communities; volume not measured with an external tool. Defensibility 3:
+      the arithmetic is simple; the edge is a private, no-signup answer with no
+      benchmark claims.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimates not advice, no warranty, independence
+      from salons, platforms and licensing boards stated, no market rate or
+      benchmark asserted, no worker-classification determination made, omissions
+      stated. Numbers never leave the browser. Ethics: helps a service worker
+      check a recurring financial choice; nothing is sold and no referral is made.

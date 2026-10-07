@@ -38,3 +38,7 @@ test("robots and sitemap let crawlers find the page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
 });
+
+test("footer links the salon chair rent vs commission calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/salon-chair-rent-vs-commission-calculator\/"/);
+});

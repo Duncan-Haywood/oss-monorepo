@@ -1901,6 +1901,9 @@ workflows:
 - workflow: salesforce-lead-import-csv-check-ci.yml
   classification: none
   publishes: []
+- workflow: salon-chair-rent-vs-commission-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: salt-cap-calculator-ci.yml
   classification: none
   publishes: []
