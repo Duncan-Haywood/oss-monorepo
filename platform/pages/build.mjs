@@ -705,6 +705,9 @@ const CATEGORY_RULES = [
       // `christmas-tree-farm-profit-planner` joined 2026-10-07 on its first commit: land-based growers on the same farm
       // category, the longest-horizon sibling of `u-pick-farm-profit-planner`.
       'christmas-tree-farm-profit-planner',
+      // `sheep-goat-flock-profit-planner` joined 2026-10-07 on its first commit: small livestock producers at the same
+      // farm stands and markets, one hop from `apiary-profit-planner`.
+      'sheep-goat-flock-profit-planner',
       // `microgreens-tray-planner` joined 2026-10-06 on its first commit: growers who sell at the same markets and
       // restaurants, one hop from `backyard-honey-profit-calculator`.
       'microgreens-tray-planner',
