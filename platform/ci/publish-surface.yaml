@@ -125,6 +125,9 @@ workflows:
 - workflow: agent-instructions-drift-check-ci.yml
   classification: none
   publishes: []
+- workflow: agent-permission-config-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: agent-permission-harness-ci.yml
   classification: none
   publishes: []

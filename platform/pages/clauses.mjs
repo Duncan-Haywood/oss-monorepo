@@ -429,6 +429,7 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // and reviewer already has access to, not a company or product this could
   // be mistaken for. Same reasoning as the other manual-method pages above.
   'agent-instructions-drift-check/vs-checking-it-by-hand.html',
+  'agent-permission-config-check/vs-manual-config-review.html',
   // Compares against "looking up each state's statute by hand" (a one-off
   // web search) -- a generic manual method anyone can do with a search
   // engine, not a company or product this could be mistaken for. The
