@@ -1373,7 +1373,8 @@ const RELATIVE_SELF = relative(
 // +1: `estimate-maker` graduated.
 // +1: `time-tracker` graduated.
 // +1: `expense-tracker` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 804;
+// +1: `freelancer-tax-pack` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 805;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
