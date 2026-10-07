@@ -107,3 +107,8 @@ test("footer links to the related tools", () => {
 test("links to the pickleball facility pro forma", () => {
   assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/pickleball-facility-pro-forma\/"/);
 });
+
+test("links to the ad slot sell-through planner", async () => {
+  const { readFileSync } = await import("node:fs");
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/ad-slot-sell-through-planner\/"/);
+});
