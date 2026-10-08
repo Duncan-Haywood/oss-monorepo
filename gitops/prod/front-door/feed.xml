@@ -112,6 +112,14 @@
     <summary type="text">Free home inspection report builder: pick findings from a library of plain-language comments, edit them, add notes and your own repair cost ranges, and print a clean report sorted by severity. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Mobile Home Park Valuation Calculator (NOI, Cap Rate, Lot Rent Increase) — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mobile-home-park-valuation-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/mobile-home-park-valuation-calculator</id>
+    <updated>2026-10-08T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free mobile home park valuation calculator: type lots, occupancy, lot rent and expenses from a T-12 to see NOI, value at your cap rate, implied cap rate on the asking price, DSCR, and what a lot rent increase is worth after move-outs. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Mobile Welding Job Price Calculator — Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mobile-welding-job-price-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/mobile-welding-job-price-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-08T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free roofing insurance supplement calculator: compare your measurement report with the adjuster&#39;s estimate, price missing drip edge, starter, steep-slope, waste and permit lines, add O&amp;P, and see what the claim pays now and after depreciation. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Sauna &amp; Cold Plunge Install Bid Calculator — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sauna-cold-plunge-install-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/sauna-cold-plunge-install-bid-calculator</id>
-    <updated>2026-10-08T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free sauna and cold plunge install bid calculator: build and prep hours, crew pay, equipment and materials, electrician subcontract, drive and target margin in; a bid price, distance table, overrun check and break-even installs per month out. Nothing uploaded.</summary>
   </entry>
 </feed>
