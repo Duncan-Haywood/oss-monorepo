@@ -3075,6 +3075,8 @@ const CATEGORY_RULES = [
         'mobile-home-park-valuation-calculator',
         // `cell-tower-lease-buyout-calculator` joined 2026-10-08 on its first commit, same reason: one landowner weighing a buyout of their own lease income.
         'cell-tower-lease-buyout-calculator',
+        // `mineral-royalty-offer-calculator` joined 2026-10-08 on its first commit, same reason: one owner weighing a buyout of their own royalty income.
+        'mineral-royalty-offer-calculator',
         // `tax-lien-certificate-yield-calculator` joined 2026-10-08: the catch-all hit its bound of 5 when it graduated; one investor working out the yield on their own certificate.
         'tax-lien-certificate-yield-calculator',
         'greenhouse-bench-planner',

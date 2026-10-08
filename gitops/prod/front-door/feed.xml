@@ -120,6 +120,14 @@
     <summary type="text">Free home inspection report builder: pick findings from a library of plain-language comments, edit them, add notes and your own repair cost ranges, and print a clean report sorted by severity. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Mineral Rights Offer Calculator (Is the Royalty Buyout Fair?) — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mineral-royalty-offer-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/mineral-royalty-offer-calculator</id>
+    <updated>2026-10-08T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free oil and gas mineral rights offer calculator: compare a lump-sum buyout with the royalty checks you would keep receiving. Decline-curve present value at your discount rate, the buyer&#39;s implied return, new-well upside, price sensitivity and an after-tax comparison. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Mobile Home Park Valuation Calculator (NOI, Cap Rate, Lot Rent Increase) — Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mobile-home-park-valuation-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/mobile-home-park-valuation-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-08T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator: do your hours pass the real estate professional 750-hour and more-than-half tests, are your rentals materially participated in, and what is turning a rental loss non-passive worth against the $25,000 allowance? Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Recipe Costing Calculator — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/recipe-costing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/recipe-costing-calculator</id>
-    <updated>2026-10-08T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free recipe costing: type your pantry prices and recipes, get cost per portion, food cost percentage and the menu price that hits your target. Handles trim yield, sub-recipes, labor and packaging. Nothing uploaded.</summary>
   </entry>
 </feed>

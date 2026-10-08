@@ -47,3 +47,7 @@ test("usage events named on the page are the ones the code records", () => {
 test("page says its defaults are placeholders", () => {
   assert.match(page("index.html"), /placeholders, not/i);
 });
+
+test("page links the mineral royalty offer calculator, the same buyout question for royalty income", () => {
+  assert.match(page("index.html"), /href="\.\.\/mineral-royalty-offer-calculator\/"/);
+});

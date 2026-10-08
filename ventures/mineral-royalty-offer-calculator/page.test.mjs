@@ -47,3 +47,7 @@ test("usage events named on the page are the ones the code records", () => {
 test("page says its defaults are placeholders", () => {
   assert.match(page("index.html"), /placeholders, not/i);
 });
+
+test("page links the cell tower lease buyout calculator, the same buyout question for lease income", () => {
+  assert.match(page("index.html"), /href="\.\.\/cell-tower-lease-buyout-calculator\/"/);
+});
