@@ -29182,6 +29182,7 @@ ventures:
       no determination of eligibility, no taxpayer identifiers requested. Ethics: nothing leaves the
       browser, no dark patterns, nothing is sold.
   - slug: contract-vs-fte-rate-calculator
+  - slug: crop-insurance-coverage-calculator
     scores:
       ai_leverage: 2
       autonomous_ops: 10
@@ -29201,6 +29202,14 @@ ventures:
       same cash, with each gap (self-employment tax, health, time off, bench, match, expenses) shown
       as a step. Distribution 6: "is $X/hr contract better than $Y salary" is a recurring question in
       career subreddits and a W2 vs 1099 rate search; volume not measured. Defensibility 3: the arithmetic is open.
+      No model in the product, deliberately. RP, RP-HPE and YP indemnities are plain functions of APH, prices and yield.
+    basis: >-
+      Screened 2026-10-08 per portfolio/pipeline/README.md; write-up in this venture's own
+      VENTURE.yaml comment. Crop insurance coverage-level comparison for row-crop farmers from an
+      agent's quoted premiums: guarantee, break-even yield, marginal cost per step and scenario net.
+      Distribution 6: "85 percent vs 80 percent crop insurance" is a seasonal farmer search served
+      today by extension articles without a calculator; volume not measured. Defensibility 3: the
+      arithmetic is open.
     gates:
       liability_containment: pass
       ethical_robustness: pass
@@ -29208,3 +29217,6 @@ ventures:
       Liability: arithmetic on user-typed numbers, editable rates, defaults labelled as placeholders,
       no income-tax or worker-classification advice. Ethics: nothing leaves the browser, no dark
       patterns, nothing is sold.
+      Liability: arithmetic on user-typed numbers, defaults labelled as placeholders, sells and quotes
+      no insurance and picks no level, no county rate data embedded. Ethics: nothing leaves the
+      browser, no dark patterns, nothing is sold.
