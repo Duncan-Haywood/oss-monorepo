@@ -834,6 +834,9 @@ workflows:
 - workflow: property-management-profit-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: good-faith-estimate-generator-ci.yml
+  classification: none
+  publishes: []
 - workflow: waterfront-rental-season-planner-ci.yml
   classification: none
   publishes: []
