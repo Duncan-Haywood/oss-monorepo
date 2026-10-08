@@ -2959,3 +2959,18 @@ entries:
         logic run end to end against a DOM stub. Registered score row, launch date, CI workflow, inbound
         link from a related venture.
     mrr_end: 0
+  - venture: volunteer-shift-scheduler
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built volunteer-shift-scheduler: a browser-local volunteer roster maker for church, PTA, food
+        bank and youth sports coordinators. Volunteers with availability, max shifts and excluded roles, plus shifts
+        with headcounts, give a deterministic roster (hardest shifts first, fewest-shifts-so-far picking, a repair
+        pass and a balance pass), unfilled places with reasons, over- and under-loaded flags, CSV, per-volunteer
+        calendar files, reminder messages and a fragment-only share link. First visitor: "volunteer schedule maker"
+        searches and r/nonprofit, r/churchtech; volume unmeasured. duplicate_check closest was
+        league-schedule-generator at about 0.12. Tests cover no double-booking, availability, max, determinism and
+        fairness spread on 300 seeded random rosters; page logic run end to end against a DOM stub. Registered score
+        row, launch date, category rule, CI workflow, inbound link from a related venture.
+    mrr_end: 0
