@@ -1,0 +1,53 @@
+name: farmland-lease-cash-rent-vs-crop-share-calculator
+description: >-
+  Free browser tool for farmland owners and farm operators: expected yield, price, input costs
+  and lease terms in; landlord and operator results per acre and per field under cash rent, crop
+  share and flexible cash rent, the yield where a share beats the cash rent, the range of cash
+  rents both sides could accept, and a yield-by-price grid of who carries the risk. Nothing
+  leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "farmland lease cash
+# rent versus crop share landlord tenant farmer" scored 0.22 against the nearest venture
+# (rent-roll-delinquency-analyzer, a different subject). No farmland lease tool in the tree.
+#
+# Why this niche: US farmland rents run hundreds of dollars an acre and a typical operator rents
+# a large share of the land they farm, so the lease form is a five- or six-figure annual decision
+# for both sides. Extension offices publish Excel worksheets for it, but they are per-university,
+# hard to find and one-lease-at-a-time. A private page that puts cash, share and flex side by
+# side, with the break-even yield and the negotiation overlap, is the question people search
+# every renewal season ("cash rent vs crop share"). Comparable paid tools are farm-management
+# suites; the lease arithmetic is free to give away as a lead magnet.
+#
+# Liability boundary: arithmetic on user-typed numbers; defaults are labelled placeholders, not any
+# county's figures; no legal, tax or agronomic advice; no lease drafted; nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Landowners and operators will use a private page that compares cash rent, crop share and
+      flex leases at their own numbers, because the break-even yield and the negotiation overlap
+      are the two numbers the lease conversation turns on and no free tool shows them together.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A farm-management extension specialist reports that the arithmetic disagrees with a standard lease-comparison worksheet fed the same numbers.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/farmland-lease-cash-rent-vs-crop-share-calculator/
+  analytics: null

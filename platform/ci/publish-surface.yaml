@@ -890,6 +890,9 @@ workflows:
 - workflow: farmers-market-booth-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: farmland-lease-cash-rent-vs-crop-share-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: fba-aged-inventory-fee-analyzer-ci.yml
   classification: none
   publishes: []
