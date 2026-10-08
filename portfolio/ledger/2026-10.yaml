@@ -2959,3 +2959,19 @@ entries:
         logic run end to end against a DOM stub. Registered score row, launch date, CI workflow, inbound
         link from a related venture.
     mrr_end: 0
+  - venture: fleet-ev-vs-diesel-tco-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built fleet-ev-vs-diesel-tco-calculator: a browser-local total-cost tool for
+        small fleets weighing electric against gas or diesel. Purchase, chargers, fuel, electricity
+        with demand charges, maintenance, insurance, resale, escalation and a discount rate give
+        year-by-year cost, present-value savings, payback year, exact break-even fuel price,
+        electricity rate and mileage, a price sensitivity grid and a range and overnight-charging
+        check. First visitor: small-fleet and contractor owners asking whether electric vans are
+        worth it; volume unmeasured. Defaults are placeholders; incentives default to zero. 28 tests
+        pass; page run end to end in Chromium with no console errors. Also fixed a print-rule bug
+        in good-faith-estimate-generator that blocked the Pages publish check. Registered score
+        row, launch date, category rule, CI workflow.
+    mrr_end: 0
