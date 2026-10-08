@@ -28591,3 +28591,33 @@ ventures:
       Liability: arithmetic on user-typed specifications and costs only, no product, rate or
       label advice, licence and aviation compliance left to the user and said so. Ethics: nothing
       leaves the browser, no dark patterns, nothing is sold.
+  - slug: escape-room-pricing-capacity-planner
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Slot counting, cost arithmetic and a price search over
+      a user-set demand curve are plain functions of the numbers typed in.
+    basis: >-
+      Screened 2026-10-08 per portfolio/pipeline/README.md; write-up in this venture's own
+      VENTURE.yaml comment. A pricing and capacity planner for escape rooms and similar timed-slot
+      venues: slots from hours, game and reset time, monthly profit, break-even occupancy, a best-price
+      search under a linear demand curve, reset-time and group-minimum sensitivity, build-cost payback.
+      Distribution 5: owner groups and "escape room pricing" searches are named channels; volume not
+      measured. Defensibility 4: the price search and capacity framing go beyond the generic venue
+      P&L, but the arithmetic is simple.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed numbers and a stated demand assumption, defaults labelled as
+      placeholders, no lease, insurance, safety or tax advice. Ethics: nothing leaves the browser, no
+      dark patterns, nothing is sold.

@@ -1400,7 +1400,8 @@ const RELATIVE_SELF = relative(
 // +1: `ball-python-morph-pairing-planner` graduated.
 // +1: `stump-grinding-price-calculator` graduated.
 // +1: `hay-baling-own-vs-hire-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 840;
+// +1: `escape-room-pricing-capacity-planner` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 841;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
