@@ -956,6 +956,9 @@ workflows:
 - workflow: fractional-executive-rate-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: bonus-take-home-gross-up-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: franchise-unit-economics-calculator-ci.yml
   classification: none
   publishes: []
