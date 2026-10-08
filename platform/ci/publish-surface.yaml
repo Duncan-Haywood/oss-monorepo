@@ -848,6 +848,9 @@ workflows:
 - workflow: mobile-welding-job-price-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: sauna-cold-plunge-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: property-management-profit-calculator-ci.yml
   classification: none
   publishes: []
