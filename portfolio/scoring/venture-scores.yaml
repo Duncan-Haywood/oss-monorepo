@@ -29220,3 +29220,29 @@ ventures:
       Liability: arithmetic on user-typed numbers, defaults labelled as placeholders, sells and quotes
       no insurance and picks no level, no county rate data embedded. Ethics: nothing leaves the
       browser, no dark patterns, nothing is sold.
+  - slug: tax-lien-certificate-yield-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Certificate interest and foreclosure break-even are plain functions of the county's rule and the amounts typed.
+    basis: >-
+      Screened 2026-10-08 per portfolio/pipeline/README.md; write-up in this venture's own
+      VENTURE.yaml comment. Tax lien certificate yield by redemption month with premium, fees,
+      subsequent taxes and foreclosure break-even. Distribution 6: "tax lien certificate
+      calculator" is a standing search served by generic interest calculators and investor-forum
+      spreadsheets; volume not measured. Defensibility 3: the arithmetic is open.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed numbers, defaults labelled as placeholders, no state or county data embedded,
+      no valuation and no recommendation to buy. Ethics: nothing leaves the browser, no dark patterns, nothing is sold.
