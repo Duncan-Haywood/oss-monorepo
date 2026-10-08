@@ -1,0 +1,55 @@
+name: heloc-vs-cash-out-refinance-calculator
+description: >-
+  Free browser tool for homeowners who need cash: type the amount, your current mortgage and the two
+  offers, and see which costs less over the years you expect to keep the debt (a HELOC beside your
+  existing mortgage or a cash-out refinance of everything), the repricing cost of refinancing the balance
+  you already had, the HELOC rate at which the routes tie, and what happens if the HELOC rate rises.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "HELOC vs cash-out
+# refinance" scored 0.54 at best (brrrr-calculator, an investor refinance model, not a homeowner choice
+# between two loans). No venture compares a HELOC beside an existing mortgage against one bigger loan.
+#
+# Why this niche: millions of owners hold a mortgage at 3-4% and are sitting on large equity; renovation,
+# debt consolidation and tuition are the usual reasons to tap it, and the decision is worth tens of
+# thousands of dollars over a few years. The lender sells whichever product it makes money on, and the
+# comparison that matters, repricing the old balance, is rarely shown. "HELOC vs cash-out refinance" is
+# a high-volume evergreen search.
+#
+# First visitor: a homeowner in r/personalfinance, r/HomeImprovement or r/Mortgages holding a HELOC
+# quote and a refinance quote. Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed figures; not lending, tax or financial advice; embeds no
+# rates, lender names or market data; says to check Loan Estimates; nothing stored or uploaded.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a printable one-page
+# comparison for a spouse or loan officer, a floating-rate HELOC path, and a fixed-rate home equity loan
+# as a third route (not built).
+
+hypotheses:
+  - claim: >-
+      Homeowners holding a HELOC quote and a refinance quote will type both into a private page to see the
+      total cost and the HELOC rate at which they tie, because lenders show each rate alone.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user or adviser reports that a worked comparison disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/heloc-vs-cash-out-refinance-calculator/
+  analytics: null
