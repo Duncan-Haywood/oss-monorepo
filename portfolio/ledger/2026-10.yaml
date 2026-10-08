@@ -3058,3 +3058,18 @@ entries:
         placeholders. Registered score row, launch date, CI workflow, inbound link from
         salt-cap-calculator.
     mrr_end: 0
+  - venture: container-demurrage-detention-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built container-demurrage-detention-calculator: a browser-local tool for
+        importers, forwarders and brokers that prices ocean-container demurrage and detention from
+        the user's own dates, free days and tiered per-day rates, gives each clock's last free day
+        and the cost of one more day, and tabulates what pulling pickup and return earlier is worth
+        (the ceiling on a rush fee worth paying) plus a pickup-by-return sensitivity grid
+        (hand-worked: two boxes, 7 chargeable days on each clock, $5,350; one day earlier saves
+        $550). First visitor: "demurrage and detention calculator"; volume unmeasured. Defaults are
+        placeholders, not any carrier's tariff. Registered score row, launch date, category rule,
+        CI workflow, inbound link from import-landed-cost-calculator.
+    mrr_end: 0
