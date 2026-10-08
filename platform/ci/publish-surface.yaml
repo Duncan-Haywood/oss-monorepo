@@ -605,6 +605,9 @@ workflows:
 - workflow: craft-fair-booth-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: crop-insurance-coverage-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: crawl-space-encapsulation-bid-calculator-ci.yml
   classification: none
   publishes: []
