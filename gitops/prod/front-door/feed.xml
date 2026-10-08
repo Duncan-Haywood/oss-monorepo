@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 886 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 887 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -30,6 +30,14 @@
     <updated>2026-10-08T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free pricing planner for yoga, pilates, barre and cycling studios: unlimited memberships, class packs and drop-ins in; monthly profit, what each plan earns per visit, break-even class size, empty-seat value and the best unlimited price out. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Cell Tower Lease Buyout Calculator (Is the Lump-Sum Offer Fair?) — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cell-tower-lease-buyout-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/cell-tower-lease-buyout-calculator</id>
+    <updated>2026-10-08T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free cell tower lease buyout calculator: compare a lump-sum offer with the rent you would keep collecting. Present value at your discount rate, the buyer&#39;s implied return, colocation upside, tenant-exit risk and an after-tax comparison. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Collision Shop DRP Profit Calculator — Free</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-08T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free recipe costing: type your pantry prices and recipes, get cost per portion, food cost percentage and the menu price that hits your target. Handles trim yield, sub-recipes, labor and packaging. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Roofing Insurance Supplement Finder — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/roofing-insurance-supplement-finder/"/>
-    <id>tag:marisstella.dev,2026:tool/roofing-insurance-supplement-finder</id>
-    <updated>2026-10-08T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free roofing insurance supplement calculator: compare your measurement report with the adjuster&#39;s estimate, price missing drip edge, starter, steep-slope, waste and permit lines, add O&amp;P, and see what the claim pays now and after depreciation. Nothing uploaded.</summary>
   </entry>
 </feed>
