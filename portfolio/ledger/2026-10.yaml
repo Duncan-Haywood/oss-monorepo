@@ -3177,3 +3177,17 @@ entries:
         insurance" searchers; volume unmeasured. Defaults are placeholders. Registered score row, launch
         date, category rule, CI workflow, inbound link from the farmland lease calculator.
     mrr_end: 0
+  - venture: tax-lien-certificate-yield-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built tax-lien-certificate-yield-calculator: a browser-local tool for county tax
+        lien certificate buyers. The county's interest rule (simple annual, per started month, or
+        per started period, with cap and floor), face, premium, fees and later taxes give interest and
+        annualized yield by redemption month, expected net at the buyer's own redemption chance, and the
+        break-even parcel value if nobody redeems (hand-worked: $4,000 face at 16% a year redeemed at
+        month 6 -> $320). First visitor: "tax lien certificate calculator" searchers and tax-lien
+        investing forums; volume unmeasured. No state data embedded; defaults are placeholders.
+        Registered score row, launch date, category rule, CI workflow.
+    mrr_end: 0
