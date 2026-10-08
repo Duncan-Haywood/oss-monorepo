@@ -833,6 +833,31 @@ workflows:
 - workflow: estimated-tax-penalty-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: beef-cattle-ration-optimizer-ci.yml
+  classification: none
+  publishes: []
+- workflow: ball-python-morph-pairing-planner-ci.yml
+- workflow: fertilizer-blend-optimizer-ci.yml
+  classification: none
+  publishes: []
+- workflow: hay-baling-own-vs-hire-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: escape-room-pricing-capacity-planner-ci.yml
+  classification: none
+  publishes: []
+- workflow: mobile-welding-job-price-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: property-management-profit-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: waterfront-rental-season-planner-ci.yml
+  classification: none
+  publishes: []
+- workflow: boutique-fitness-studio-pricing-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: etsy-ads-roi-analyzer-ci.yml
   classification: none
   publishes: []

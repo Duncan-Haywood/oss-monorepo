@@ -1,0 +1,55 @@
+name: mobile-welding-job-price-calculator
+description: >-
+  Free browser tool for mobile welders: on-site and drive hours, pay, rig, consumables,
+  truck miles, materials, fixed costs, card fee and target margin in; a job price, cost
+  breakdown, price by distance, overrun impact, offered-price check and break-even jobs per
+  month out. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. No mobile-welding venture or
+# screened-out row exists (grep of ventures/ and portfolio/pipeline/screened-out.md for
+# "weld" returned nothing); nearest neighbours fence-bid-calculator and
+# mobile-mechanic-visit-pricing-calculator price other trades.
+#
+# Why this niche: owner-operator mobile welders (truck-mounted rig, repair and fabrication
+# calls at farms, shops, job sites) quote by feel, and the costs that sink a job are the
+# ones invisible at the quote: the drive in both directions, a share of the truck and
+# insurance, and on-site time that runs long. Estimating software for trades is built for
+# crews and contractors; none answers "what do I charge for a 2-hour repair 40 miles out".
+#
+# First visitor: independent mobile welders and welding-shop owners in trade groups,
+# r/Welding and "mobile welding rates" searches. Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed numbers; no weld procedure, code,
+# inspection, licensing, insurance or tax advice; defaults are placeholders; nothing stored.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a hosted
+# version that prints a customer quote (not built).
+
+hypotheses:
+  - claim: >-
+      Independent mobile welders will use a private job-price tool that prices the drive,
+      fixed-cost share and overrun risk, because generic hourly-rate rules of thumb ignore
+      all three.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A working mobile welder reports that the job-price arithmetic disagrees with their own worked example.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mobile-welding-job-price-calculator/
+  analytics: null
