@@ -3148,6 +3148,9 @@ const CATEGORY_RULES = [
         'podcast-feed-check',
         'podcast-sponsorship-rate-calculator',
         'sponsor-ready',
+        // `section-1256-futures-tax-calculator` joined 2026-10-08 on its first commit: back-office was at its 3 MB offline bound,
+        // and a futures trader pricing what the 60/40 rule leaves them is one person working out their own income.
+        'section-1256-futures-tax-calculator',
         'studio-class-slot-optimizer',
         'tutor-package-pricing-calculator',
         'voiceover-project-rate-calculator',
