@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 891 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 894 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -88,6 +88,14 @@
     <summary type="text">Free farmland lease calculator: compare cash rent, crop share and flexible cash leases for the landlord and the operator at your own yield, price and costs, with the break-even yield and who carries the risk. Nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Film Tax Credit Calculator: Net Cash After Sale Discount, Fees and Wait — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/film-tax-credit-net-value-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/film-tax-credit-net-value-calculator</id>
+    <updated>2026-10-08T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free film and TV production tax credit calculator: the net cash a credit really puts in your budget after the cap, sale discount, fees, bridge-loan interest and the wait, plus the value of one more qualified dollar. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Fleet EV vs Diesel TCO Calculator — Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fleet-ev-vs-diesel-tco-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/fleet-ev-vs-diesel-tco-calculator</id>
@@ -110,6 +118,14 @@
     <updated>2026-10-08T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free Good Faith Estimate generator for the No Surprises Act: list services with codes and charges, get a printable estimate, the delivery deadline, a completeness check, a $400 dispute check and a review of your past estimates. Runs in your browser; no patient data leaves it.</summary>
+  </entry>
+  <entry>
+    <title>HELOC vs Cash-Out Refinance Calculator (Which Costs Less?) — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/heloc-vs-cash-out-refinance-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/heloc-vs-cash-out-refinance-calculator</id>
+    <updated>2026-10-08T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free HELOC vs cash-out refinance calculator: total cost of each at the year you sell or refinance, the repricing cost on your existing mortgage, the HELOC rate at which they tie, and a rate shock table. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Home Inspection Report Builder — Free</title>
@@ -136,35 +152,19 @@
     <summary type="text">Free mobile welding job price calculator: on-site and drive hours, pay, rig, consumables, truck miles, materials and target margin in; a job price, travel-distance table, overrun check and break-even jobs per month out. Nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Mortgage Points Break-Even Calculator (Are Points Worth It?) — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mortgage-points-break-even-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/mortgage-points-break-even-calculator</id>
+    <updated>2026-10-08T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free mortgage points calculator: break-even month, return on the points, how far ahead or behind you are when you sell or refinance, and the chance you finish ahead. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Mineral Rights Offer Calculator (Is the Lump-Sum Offer Fair?) — Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/oil-gas-mineral-rights-offer-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/oil-gas-mineral-rights-offer-calculator</id>
     <updated>2026-10-08T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free mineral and oil and gas royalty buyout calculator: compare a lump-sum offer with the royalty checks you would keep receiving. Arps decline curve, present value at your discount rate, the buyer&#39;s implied return, planned-well upside and an after-tax comparison. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Pension Lump Sum vs Monthly Pension Calculator (Which Pays More?) — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pension-lump-sum-vs-annuity-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/pension-lump-sum-vs-annuity-calculator</id>
-    <updated>2026-10-08T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free pension lump sum vs monthly pension calculator: the pension&#39;s value at your expected return and lifespan, the return the lump sum must earn to match it, break-even age, survivor benefit and what the lump sum could pay each month. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Property Management Company Profit Calculator — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/property-management-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/property-management-profit-calculator</id>
-    <updated>2026-10-08T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free property management profit calculator: doors, fee percentage, leasing and renewal income, managers and admin in; monthly profit, break-even doors, the cost of your next hire, best fee and new-owner payback out. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>PTE Tax Election Calculator — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pte-tax-election-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/pte-tax-election-calculator</id>
-    <updated>2026-10-08T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free calculator for S corporation and partnership owners: does a state pass-through entity tax (PTET) election save federal tax once the SALT cap, its income phase-out, your credit and the 20% pass-through deduction are counted? See the saving, why, and the income where it starts to pay. Nothing uploaded.</summary>
   </entry>
 </feed>
