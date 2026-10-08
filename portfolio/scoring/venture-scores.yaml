@@ -28826,3 +28826,31 @@ ventures:
       Liability: arithmetic on user-typed numbers, defaults labelled as placeholders, incentives
       default to zero and must be user-confirmed, no tax, financing, tariff, eligibility or insurance
       advice. Ethics: nothing leaves the browser, no dark patterns, nothing is sold.
+  - slug: home-inspection-report-builder
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Sorting, totals and a printable report are plain
+      functions of what the inspector enters.
+    basis: >-
+      Screened 2026-10-08 per portfolio/pipeline/README.md; write-up in this venture's own
+      VENTURE.yaml comment. A free report writer for home inspectors with an editable comment library.
+      Distribution 5: inspector forums and "free home inspection report template" searches are named
+      channels; volume not measured. Defensibility 4: paid platforms have photos, scheduling and
+      agreements that this does not, and the library is easy to copy.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: a writing aid; the inspector owns every statement, the library cites no code or
+      standard, costs are the inspector's own figures. Ethics: nothing leaves the browser, no dark
+      patterns, nothing is sold.

@@ -861,6 +861,9 @@ workflows:
 - workflow: fleet-ev-vs-diesel-tco-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: home-inspection-report-builder-ci.yml
+  classification: none
+  publishes: []
 - workflow: etsy-ads-roi-analyzer-ci.yml
   classification: none
   publishes: []

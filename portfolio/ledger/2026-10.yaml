@@ -2975,3 +2975,17 @@ entries:
         in good-faith-estimate-generator that blocked the Pages publish check. Registered score
         row, launch date, category rule, CI workflow.
     mrr_end: 0
+  - venture: home-inspection-report-builder
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built home-inspection-report-builder: a browser-local report writer for working
+        home inspectors. A library of 30 generic, editable comments across ten systems, severity
+        sorting (safety, major, minor, info), per-finding notes and the inspector's own repair cost
+        ranges, a printable client report with a safety-and-major summary, text download, and save and
+        load as a file on the user's device (nothing stored by the page). First visitor: new and
+        small-market inspectors asking for free report software in r/HomeInspections and inspector
+        forums; volume unmeasured. Library cites no code or standard of practice. 24 tests pass.
+        Registered score row, launch date, category rule, CI workflow.
+    mrr_end: 0
