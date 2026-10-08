@@ -33,44 +33,44 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547633 bytes
-#   portfolio-front-tools-1: 92 files, 555453 bytes
-#   portfolio-front-tools-2: 144 files, 553248 bytes
-#   portfolio-front-tools-3: 128 files, 549407 bytes
-#   portfolio-front-tools-4: 136 files, 551680 bytes
+#   portfolio-front-tools-0: 145 files, 547606 bytes
+#   portfolio-front-tools-1: 92 files, 555428 bytes
+#   portfolio-front-tools-2: 144 files, 553217 bytes
+#   portfolio-front-tools-3: 128 files, 549340 bytes
+#   portfolio-front-tools-4: 136 files, 551666 bytes
 #   portfolio-front-tools-5: 134 files, 555857 bytes
-#   portfolio-front-tools-6: 123 files, 556116 bytes
-#   portfolio-front-tools-7: 120 files, 554962 bytes
-#   portfolio-front-tools-8: 129 files, 555701 bytes
-#   portfolio-front-tools-9: 141 files, 555693 bytes
-#   portfolio-front-tools-10: 133 files, 556111 bytes
-#   portfolio-front-tools-11: 123 files, 553556 bytes
-#   portfolio-front-tools-12: 125 files, 556696 bytes
-#   portfolio-front-tools-13: 130 files, 556898 bytes
-#   portfolio-front-tools-14: 123 files, 556881 bytes
-#   portfolio-front-tools-15: 126 files, 552911 bytes
-#   portfolio-front-tools-16: 118 files, 548351 bytes
-#   portfolio-front-tools-17: 122 files, 549585 bytes
-#   portfolio-front-tools-18: 120 files, 553671 bytes
-#   portfolio-front-tools-19: 116 files, 556961 bytes
-#   portfolio-front-tools-20: 115 files, 555168 bytes
-#   portfolio-front-tools-21: 130 files, 547827 bytes
-#   portfolio-front-tools-22: 128 files, 556916 bytes
-#   portfolio-front-tools-23: 136 files, 556568 bytes
-#   portfolio-front-tools-24: 119 files, 552807 bytes
-#   portfolio-front-tools-25: 122 files, 552691 bytes
-#   portfolio-front-tools-26: 134 files, 553445 bytes
-#   portfolio-front-tools-27: 116 files, 554500 bytes
-#   portfolio-front-tools-28: 135 files, 553138 bytes
-#   portfolio-front-tools-29: 109 files, 553315 bytes
-#   portfolio-front-tools-30: 97 files, 543966 bytes
-#   portfolio-front-tools-31: 122 files, 550047 bytes
-#   portfolio-front-tools-32: 124 files, 555257 bytes
-#   portfolio-front-tools-33: 125 files, 555755 bytes
-#   portfolio-front-tools-34: 130 files, 556698 bytes
-#   portfolio-front-tools-35: 122 files, 550845 bytes
-#   portfolio-front-tools-36: 90 files, 452810 bytes
-#   portfolio-front-tools-37: 48 files, 263902 bytes
+#   portfolio-front-tools-6: 123 files, 556139 bytes
+#   portfolio-front-tools-7: 120 files, 554956 bytes
+#   portfolio-front-tools-8: 129 files, 555704 bytes
+#   portfolio-front-tools-9: 141 files, 555712 bytes
+#   portfolio-front-tools-10: 133 files, 556166 bytes
+#   portfolio-front-tools-11: 123 files, 553540 bytes
+#   portfolio-front-tools-12: 125 files, 556757 bytes
+#   portfolio-front-tools-13: 130 files, 556836 bytes
+#   portfolio-front-tools-14: 123 files, 556915 bytes
+#   portfolio-front-tools-15: 126 files, 554939 bytes
+#   portfolio-front-tools-16: 120 files, 549903 bytes
+#   portfolio-front-tools-17: 123 files, 556967 bytes
+#   portfolio-front-tools-18: 120 files, 553651 bytes
+#   portfolio-front-tools-19: 116 files, 556866 bytes
+#   portfolio-front-tools-20: 115 files, 555084 bytes
+#   portfolio-front-tools-21: 130 files, 547936 bytes
+#   portfolio-front-tools-22: 128 files, 556939 bytes
+#   portfolio-front-tools-23: 136 files, 556701 bytes
+#   portfolio-front-tools-24: 119 files, 552905 bytes
+#   portfolio-front-tools-25: 122 files, 552595 bytes
+#   portfolio-front-tools-26: 134 files, 553197 bytes
+#   portfolio-front-tools-27: 116 files, 554630 bytes
+#   portfolio-front-tools-28: 135 files, 553152 bytes
+#   portfolio-front-tools-29: 109 files, 553359 bytes
+#   portfolio-front-tools-30: 97 files, 543964 bytes
+#   portfolio-front-tools-31: 122 files, 549948 bytes
+#   portfolio-front-tools-32: 124 files, 555299 bytes
+#   portfolio-front-tools-33: 125 files, 555615 bytes
+#   portfolio-front-tools-34: 130 files, 556731 bytes
+#   portfolio-front-tools-35: 122 files, 550864 bytes
+#   portfolio-front-tools-36: 90 files, 452773 bytes
+#   portfolio-front-tools-37: 48 files, 263954 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2118,6 +2118,9 @@ configMapGenerator:
       - fba-reimbursement-claim-finder__calc.mjs.gz=fba-reimbursement-claim-finder__calc.mjs.gz
       - fba-reimbursement-claim-finder__index.html.gz=fba-reimbursement-claim-finder__index.html.gz
       - fba-reimbursement-claim-finder__usage.mjs.gz=fba-reimbursement-claim-finder__usage.mjs.gz
+      - fbar-8938-checker__calc.mjs.gz=fbar-8938-checker__calc.mjs.gz
+      - fbar-8938-checker__index.html.gz=fbar-8938-checker__index.html.gz
+      - fbar-8938-checker__usage.mjs.gz=fbar-8938-checker__usage.mjs.gz
       - feature-flag-pricing-calculator__cli.mjs.gz=feature-flag-pricing-calculator__cli.mjs.gz
       - feature-flag-pricing-calculator__engine.mjs.gz=feature-flag-pricing-calculator__engine.mjs.gz
       - feature-flag-pricing-calculator__how-to-choose-a-feature-flag-service-by-requests.html.gz=feature-flag-pricing-calculator__how-to-choose-a-feature-flag-service-by-requests.html.gz
@@ -2217,14 +2220,14 @@ configMapGenerator:
       - forestry-mulching-bid-calculator__calc.mjs.gz=forestry-mulching-bid-calculator__calc.mjs.gz
       - forestry-mulching-bid-calculator__how-much-to-charge-for-forestry-mulching.html.gz=forestry-mulching-bid-calculator__how-much-to-charge-for-forestry-mulching.html.gz
       - forestry-mulching-bid-calculator__index.html.gz=forestry-mulching-bid-calculator__index.html.gz
-      - forestry-mulching-bid-calculator__share.mjs.gz=forestry-mulching-bid-calculator__share.mjs.gz
-      - forestry-mulching-bid-calculator__usage.mjs.gz=forestry-mulching-bid-calculator__usage.mjs.gz
-      - forestry-mulching-bid-calculator__vs-a-flat-price-per-acre.html.gz=forestry-mulching-bid-calculator__vs-a-flat-price-per-acre.html.gz
   - name: portfolio-front-tools-16
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - forestry-mulching-bid-calculator__share.mjs.gz=forestry-mulching-bid-calculator__share.mjs.gz
+      - forestry-mulching-bid-calculator__usage.mjs.gz=forestry-mulching-bid-calculator__usage.mjs.gz
+      - forestry-mulching-bid-calculator__vs-a-flat-price-per-acre.html.gz=forestry-mulching-bid-calculator__vs-a-flat-price-per-acre.html.gz
       - forestry-mulching-bid-calculator__vs-aspire.html.gz=forestry-mulching-bid-calculator__vs-aspire.html.gz
       - form-5500-late-filing-calculator__calc.mjs.gz=form-5500-late-filing-calculator__calc.mjs.gz
       - form-5500-late-filing-calculator__index.html.gz=form-5500-late-filing-calculator__index.html.gz
@@ -2342,12 +2345,12 @@ configMapGenerator:
       - gbp-bulk-location-check__calc.mjs.gz=gbp-bulk-location-check__calc.mjs.gz
       - gbp-bulk-location-check__index.html.gz=gbp-bulk-location-check__index.html.gz
       - gbp-bulk-location-check__usage.mjs.gz=gbp-bulk-location-check__usage.mjs.gz
-      - ghost-members-export-analyzer__calc.mjs.gz=ghost-members-export-analyzer__calc.mjs.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - ghost-members-export-analyzer__calc.mjs.gz=ghost-members-export-analyzer__calc.mjs.gz
       - ghost-members-export-analyzer__index.html.gz=ghost-members-export-analyzer__index.html.gz
       - ghost-members-export-analyzer__usage.mjs.gz=ghost-members-export-analyzer__usage.mjs.gz
       - gig-driver-earnings-report-analyzer__calc.mjs.gz=gig-driver-earnings-report-analyzer__calc.mjs.gz
