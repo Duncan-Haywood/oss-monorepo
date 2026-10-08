@@ -831,6 +831,9 @@ workflows:
 - workflow: escape-room-pricing-capacity-planner-ci.yml
   classification: none
   publishes: []
+- workflow: waterfront-rental-season-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: etsy-ads-roi-analyzer-ci.yml
   classification: none
   publishes: []
