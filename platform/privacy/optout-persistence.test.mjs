@@ -1411,7 +1411,8 @@ const RELATIVE_SELF = relative(
 // +1: `volunteer-shift-scheduler` graduated.
 // +1: `fleet-ev-vs-diesel-tco-calculator` graduated.
 // +1: `appointment-no-show-cost-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 851;
+// +1: `roofing-insurance-supplement-finder` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 852;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
