@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 869 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 870 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -30,6 +30,14 @@
     <updated>2026-10-08T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free escape room pricing calculator: rooms, hours, game and reset length, price per player, occupancy and costs in; monthly profit, break-even occupancy, best price per player and build-cost payback out. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Fleet EV vs Diesel TCO Calculator — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fleet-ev-vs-diesel-tco-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/fleet-ev-vs-diesel-tco-calculator</id>
+    <updated>2026-10-08T00:00:00Z</updated>
+    <category term="Logistics, freight &amp; cloud cost"/>
+    <summary type="text">Free fleet EV vs diesel cost calculator: purchase, chargers, energy, demand charges, maintenance, insurance and resale in; year-by-year cost, payback, break-even fuel price and mileage, a sensitivity grid and a range check out. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Good Faith Estimate Generator for Self-Pay Patients — Free</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free estimate and quote generator: good-better-best options, optional add-ons, tax, deposit, valid-until date, print to PDF, win-rate and follow-up tracking, one-click convert to invoice. No account, no watermark, works offline.</summary>
-  </entry>
-  <entry>
-    <title>Etsy Ads ROI Analyzer — Are Your Ads Paying? Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/etsy-ads-roi-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/etsy-ads-roi-analyzer</id>
-    <updated>2026-10-07T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free Etsy Ads ROI analyzer: drop in your Shop Manager ad report and see which listings lose money after ad spend and what share of sales the ad must cause to break even. Runs in your browser, the file is never uploaded.</summary>
   </entry>
 </feed>

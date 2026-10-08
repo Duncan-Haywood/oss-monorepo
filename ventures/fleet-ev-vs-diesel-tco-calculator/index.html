@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Fleet EV vs Diesel TCO Calculator — Free</title>
+  <meta name="description" content="Free fleet EV vs diesel cost calculator: purchase, chargers, energy, demand charges, maintenance, insurance and resale in; year-by-year cost, payback, break-even fuel price and mileage, a sensitivity grid and a range check out. Nothing uploaded.">
+  <meta property="og:title" content="Is an electric fleet cheaper than diesel? Free TCO calculator">
+  <meta property="og:description" content="Year-by-year cost, payback, break-even fuel price and mileage for a small fleet. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23047857'/%3E%3Cpath d='M18 5 9 18h6l-1 9 9-13h-6z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Fleet EV vs Diesel TCO Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compare the total cost of ownership of electric and gas or diesel vehicles for a small fleet: purchase, chargers, energy, demand charges, maintenance, insurance and resale, year by year, with break-even fuel price, electricity rate and mileage, a sensitivity grid and a range and overnight-charging check. Runs in your browser; nothing is uploaded.","featureList":"Year-by-year cost, present-value savings, payback year, break-even fuel price, break-even mileage, sensitivity grid, range and charger check"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is an electric van cheaper than diesel for a small fleet?","acceptedAnswer":{"@type":"Answer","text":"It depends on three numbers: how many miles each vehicle drives, what you pay for fuel, and what you pay for electricity. EVs cost more to buy but less to run, so the more miles a year, the faster the gap closes. The calculator finds the fuel price, electricity rate and annual mileage at which the two tie, so you can see how far your fleet is from each."}},{"@type":"Question","name":"What does an EV total cost of ownership include?","acceptedAnswer":{"@type":"Answer","text":"Purchase price less any incentive you have confirmed, charger installation and upkeep, energy at your depot rate plus any public charging, the demand charge a new charger load can add to your electric bill, maintenance, the insurance difference, and resale value at the end. The same lines for the gas or diesel vehicle sit beside them, discounted to today's money."}},{"@type":"Question","name":"How do I know the EV can handle my hardest day?","acceptedAnswer":{"@type":"Answer","text":"Enter the miles on your longest route and the rated range. The tool takes off an allowance for cold weather, payload and battery wear, then compares what is left to your hardest day. It also checks whether the chargers you plan can put enough energy back overnight for every vehicle at once."}},{"@type":"Question","name":"Do incentives and tax credits change the answer?","acceptedAnswer":{"@type":"Answer","text":"They can by thousands per vehicle, and they change often and differ by state and utility, so none is built in. Enter only an amount you have confirmed in writing for your vehicle and your business. The default is zero, and the result shows what the answer would be without any help."}},{"@type":"Question","name":"Is this financial or tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type in. It does not decide tax treatment, financing, utility tariffs, incentive eligibility, vehicle suitability or insurance, and its defaults are placeholders, not market prices."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">FLEET EV VS DIESEL TCO CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Would electric vans save your fleet money?</h1>
+    <p>Enter what you would pay for the vehicles, chargers, fuel and electricity. It shows the cost year by year, the year the EV pays back, the fuel price and mileage at which the two tie, how the answer moves if prices move, and whether the EVs can do your hardest day.</p>
+    <p class="note">Planning arithmetic on your own numbers.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The fleet</h2>
+      <div class="grid">
+        <div><label for="vehicles">Vehicles you would replace</label><input id="vehicles" type="number" step="any" value="0"></div>
+        <div><label for="milesPerYear">Miles per vehicle per year</label><input id="milesPerYear" type="number" step="any" value="0"></div>
+        <div><label for="years">Years you keep them (1-20)</label><input id="years" type="number" step="any" value="0"></div>
+        <div><label for="discountPct">Discount rate: what spare cash earns you (%)</label><input id="discountPct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. The gas or diesel vehicle</h2>
+      <div class="grid">
+        <div><label for="icePrice">Purchase price each ($)</label><input id="icePrice" type="number" step="any" value="0"></div>
+        <div><label for="iceMpg">Real-world miles per gallon</label><input id="iceMpg" type="number" step="any" value="0"></div>
+        <div><label for="fuelPrice">Fuel price per gallon ($)</label><input id="fuelPrice" type="number" step="any" value="0"></div>
+        <div><label for="fuelEscPct">Fuel price rise per year (%)</label><input id="fuelEscPct" type="number" step="any" value="0"></div>
+        <div><label for="iceMaintPerMile">Maintenance and repairs per mile ($)</label><input id="iceMaintPerMile" type="number" step="any" value="0"></div>
+        <div><label for="iceResidualPct">Resale value at the end (% of price)</label><input id="iceResidualPct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. The electric vehicle</h2>
+      <div class="grid">
+        <div><label for="evPrice">Purchase price each ($)</label><input id="evPrice" type="number" step="any" value="0"></div>
+        <div><label for="incentivePerVehicle">Incentive per vehicle you have confirmed ($)</label><input id="incentivePerVehicle" type="number" step="any" value="0"></div>
+        <div><label for="evKwhPerMile">kWh per mile from the wall</label><input id="evKwhPerMile" type="number" step="any" value="0"></div>
+        <div><label for="evMaintPerMile">Maintenance and repairs per mile ($)</label><input id="evMaintPerMile" type="number" step="any" value="0"></div>
+        <div><label for="evResidualPct">Resale value at the end (% of price)</label><input id="evResidualPct" type="number" step="any" value="0"></div>
+        <div><label for="insuranceDeltaPerVehicle">Extra insurance per vehicle per year ($, negative if cheaper)</label><input id="insuranceDeltaPerVehicle" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-3">
+      <h2 id="h-3">4. Charging</h2>
+      <div class="grid">
+        <div><label for="chargers">Depot chargers</label><input id="chargers" type="number" step="any" value="0"></div>
+        <div><label for="chargerCost">Installed cost per charger ($)</label><input id="chargerCost" type="number" step="any" value="0"></div>
+        <div><label for="chargerIncentive">Charger incentive you have confirmed, total ($)</label><input id="chargerIncentive" type="number" step="any" value="0"></div>
+        <div><label for="chargerMaintPerYear">Charger upkeep per charger per year ($)</label><input id="chargerMaintPerYear" type="number" step="any" value="0"></div>
+        <div><label for="depotRate">Depot electricity rate per kWh ($)</label><input id="depotRate" type="number" step="any" value="0"></div>
+        <div><label for="publicSharePct">Share of charging done on public chargers (%)</label><input id="publicSharePct" type="number" step="any" value="0"></div>
+        <div><label for="publicRate">Public charging price per kWh ($)</label><input id="publicRate" type="number" step="any" value="0"></div>
+        <div><label for="peakKw">Added peak demand on your meter (kW)</label><input id="peakKw" type="number" step="any" value="0"></div>
+        <div><label for="demandRate">Demand charge per kW per month ($)</label><input id="demandRate" type="number" step="any" value="0"></div>
+        <div><label for="elecEscPct">Electricity price rise per year (%)</label><input id="elecEscPct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-4">
+      <h2 id="h-4">5. Can the EV do the work?</h2>
+      <div class="grid">
+        <div><label for="peakDayMiles">Miles on your hardest day</label><input id="peakDayMiles" type="number" step="any" value="0"></div>
+        <div><label for="evRange">Rated range, full battery (miles)</label><input id="evRange" type="number" step="any" value="0"></div>
+        <div><label for="rangeLossPct">Range lost to cold, load and battery wear (%)</label><input id="rangeLossPct" type="number" step="any" value="0"></div>
+        <div><label for="chargerKw">Power per charger (kW)</label><input id="chargerKw" type="number" step="any" value="0"></div>
+        <div><label for="overnightHours">Hours the vehicles sit plugged in overnight</label><input id="overnightHours" type="number" step="any" value="0"></div>
+        <div><label for="costEscPct">Maintenance and insurance rise per year (%)</label><input id="costEscPct" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Compare the costs</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Is an electric van cheaper than diesel for a small fleet?</h3>
+      <p>It depends on three numbers: how many miles each vehicle drives, what you pay for fuel, and what you pay for electricity. EVs cost more to buy but less to run, so the more miles a year, the faster the gap closes. The calculator finds the fuel price, electricity rate and annual mileage at which the two tie, so you can see how far your fleet is from each.</p>
+      <h3>What does an EV total cost of ownership include?</h3>
+      <p>Purchase price less any incentive you have confirmed, charger installation and upkeep, energy at your depot rate plus any public charging, the demand charge a new charger load can add to your electric bill, maintenance, the insurance difference, and resale value at the end. The same lines for the gas or diesel vehicle sit beside them, discounted to today's money.</p>
+      <h3>How do I know the EV can handle my hardest day?</h3>
+      <p>Enter the miles on your longest route and the rated range. The tool takes off an allowance for cold weather, payload and battery wear, then compares what is left to your hardest day. It also checks whether the chargers you plan can put enough energy back overnight for every vehicle at once.</p>
+      <h3>Do incentives and tax credits change the answer?</h3>
+      <p>They can by thousands per vehicle, and they change often and differ by state and utility, so none is built in. Enter only an amount you have confirmed in writing for your vehicle and your business. The default is zero, and the result shows what the answer would be without any help.</p>
+      <h3>Is this financial or tax advice?</h3>
+      <p>No. It is arithmetic on the numbers you type in. It does not decide tax treatment, financing, utility tariffs, incentive eligibility, vehicle suitability or insurance, and its defaults are placeholders, not market prices.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Tax treatment and depreciation, financing, whether you qualify for any incentive, your utility's real tariff and the demand charge a charger install triggers, vehicle availability and suitability for your payload, insurance quotes, and real resale values years from now (an estimate you make, not a measurement). The defaults are placeholders, not market prices: check every figure against your own quotes and bills.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../ev-charger-bid-calculator/">EV charger bid calculator</a>, the <a href="../fleet-repair-or-replace-planner/">fleet repair or replace planner</a> and the <a href="../ifta-quarterly-fuel-tax-calculator/">IFTA quarterly fuel tax calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any tax, incentive, insurance or utility obligation that applies to your purchase. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you decide, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { DEFAULTS, num, money, money2, tco, breakevenFuel, breakevenElectricity, breakevenMiles, sensitivity, feasibility } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    function run() {
+      const o = opts();
+      if (!(o.vehicles > 0) || !(o.milesPerYear > 0)) { $("result").innerHTML = '<div class="finding"><span class="pill">Check inputs</span> Enter at least one vehicle and some yearly miles.</div>'; $("out").hidden = false; return; }
+      const t = tco(o);
+      const wins = t.savingsNpv >= 0;
+      let h = "";
+      h += `<div class="finding"><h4>${wins ? "The EVs come out ahead" : "The gas or diesel vehicles come out ahead"}</h4><p class="stats"><strong>${money(Math.abs(t.savingsNpv))}</strong> ${wins ? "cheaper" : "dearer"} for the EVs over ${t.years} years in today's money (${money(Math.abs(t.savingsNom))} without discounting). Cost per mile: EV ${money2(t.evCostPerMile)}, gas or diesel ${money2(t.iceCostPerMile)}. The EVs cost ${money(Math.abs(t.upfrontPremium))} ${t.upfrontPremium >= 0 ? "more" : "less"} up front including chargers and save ${money(t.firstYearOperatingSaving)} in running costs in year 1. ${t.payback === null ? "Cumulative cost never crosses within the years you keep them." : t.payback === 0 ? "They cost less from day one." : "Cumulative cost crosses in year " + t.payback + "."}</p></div>`;
+      const bf = breakevenFuel(o), bm = breakevenMiles(o), be = breakevenElectricity(o);
+      h += `<div class="finding"><h4>Where the two tie</h4><ul>${bf === null ? "" : `<li>Fuel price: <strong>${money2(bf)}</strong> a gallon (you entered ${money2(o.fuelPrice)}).</li>`}${bm === null ? "" : `<li>Mileage: <strong>${Math.round(bm).toLocaleString("en-US")}</strong> miles per vehicle a year (you entered ${Math.round(o.milesPerYear).toLocaleString("en-US")}).</li>`}${be === null ? "" : `<li>Depot electricity: <strong>${money2(be)}</strong> per kWh (you entered ${money2(o.depotRate)}).</li>`}</ul><p class="note">Each is found by changing that one number and holding the rest. A value far from yours means the answer is not sensitive to it.</p></div>`;
+      h += `<div class="finding"><h4>Year by year</h4>${table(["Year", "EV running", "Gas/diesel running", "EV cumulative", "Gas/diesel cumulative"], [["0 (buy, install)", "", "", money(t.evUp), money(t.iceUp)], ...t.rows.map((r) => [r.year, money(r.evOperating), money(r.iceOperating), money(r.evCum), money(r.iceCum)])])}<p class="note">Cumulative is before resale. At the end the EVs resell for about ${money(t.evRes)} and the others for ${money(t.iceRes)}.</p></div>`;
+      const g = sensitivity(o);
+      h += `<div class="finding"><h4>If prices move: EV savings in today's money</h4>${table(["Electricity \\ Fuel", ...g[0].cells.map((c) => money2(c.fuelPrice))], g.map((row) => [money2(row.elecRate) + " /kWh", ...row.cells.map((c) => money(c.savings))]))}<p class="note">Negative means the gas or diesel vehicle is cheaper at that pair of prices.</p></div>`;
+      const f = feasibility(o);
+      h += `<div class="finding"><h4>Can the EV do the work?</h4><p>Usable range after your allowance is about <strong>${Math.round(f.usableRange)} miles</strong> against a hardest day of ${Math.round(o.peakDayMiles)}: ${f.rangeOk ? "enough, with " + Math.round(f.rangeMargin) + " miles to spare." : "<strong>not enough</strong>, short by " + Math.round(-f.rangeMargin) + " miles. Those routes need a bigger battery, a mid-day charge, or a different vehicle."} Overnight the vehicles would need about ${Math.round(f.needKwh)} kWh and your chargers can supply ${Math.round(f.supplyKwh)} kWh: ${f.chargingOk ? "enough." : "<strong>not enough</strong>" + (f.chargersNeeded ? " at this many chargers; about " + f.chargersNeeded + " would do it." : ".")}</p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("compare_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>
