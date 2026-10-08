@@ -866,6 +866,7 @@ workflows:
 - workflow: fleet-ev-vs-diesel-tco-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: home-inspection-report-builder-ci.yml
 - workflow: franchise-unit-economics-tco-calculator-ci.yml
   classification: none
   publishes: []
