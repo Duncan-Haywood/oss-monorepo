@@ -1417,7 +1417,7 @@ const RELATIVE_SELF = relative(
 // +1: `container-demurrage-detention-calculator` graduated.
 // +1: `roofing-insurance-supplement-finder` graduated.
 // +1: `bonus-take-home-gross-up-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 857;
+const SWITCHES_IN_THE_CATALOGUE = 858;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
