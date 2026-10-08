@@ -275,6 +275,9 @@ workflows:
 - workflow: bai2-statement-reader-ci.yml
   classification: none
   publishes: []
+- workflow: ball-python-morph-pairing-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: bandcamp-sales-report-analyzer-ci.yml
   classification: none
   publishes: []
@@ -288,6 +291,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: basement-waterproofing-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: beef-cattle-ration-optimizer-ci.yml
   classification: none
   publishes: []
 - workflow: bid-win-rate-optimizer-ci.yml
@@ -321,6 +327,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: bounce-house-rental-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: boutique-fitness-studio-pricing-planner-ci.yml
   classification: none
   publishes: []
 - workflow: branch-cleanup.yml
@@ -513,6 +522,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: coi-expiry-gap-checker-ci.yml
+  classification: none
+  publishes: []
+- workflow: collision-shop-drp-profit-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: commercial-lease-effective-rent-calculator-ci.yml
@@ -803,6 +815,9 @@ workflows:
 - workflow: error-tracking-pricing-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: escape-room-pricing-capacity-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: espp-tax-calculator-ci.yml
   classification: none
   publishes: []
@@ -816,28 +831,6 @@ workflows:
   classification: none
   publishes: []
 - workflow: estimated-tax-penalty-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: beef-cattle-ration-optimizer-ci.yml
-  classification: none
-  publishes: []
-- workflow: ball-python-morph-pairing-planner-ci.yml
-- workflow: fertilizer-blend-optimizer-ci.yml
-  classification: none
-  publishes: []
-- workflow: hay-baling-own-vs-hire-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: escape-room-pricing-capacity-planner-ci.yml
-  classification: none
-  publishes: []
-- workflow: property-management-profit-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: waterfront-rental-season-planner-ci.yml
-  classification: none
-  publishes: []
-- workflow: boutique-fitness-studio-pricing-planner-ci.yml
   classification: none
   publishes: []
 - workflow: etsy-ads-roi-analyzer-ci.yml
@@ -898,6 +891,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: fence-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: fertilizer-blend-optimizer-ci.yml
   classification: none
   publishes: []
 - workflow: fifo-pick-evidence-ci.yml
@@ -1090,6 +1086,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: hardwood-refinishing-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: hay-baling-own-vs-hire-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: heat-pump-vs-furnace-calculator-ci.yml
@@ -1404,6 +1403,9 @@ workflows:
 - workflow: metal-roof-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: midterm-rental-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: mileage-deduction-method-calculator-ci.yml
   classification: none
   publishes: []
@@ -1707,6 +1709,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: propane-delivery-route-margin-ci.yml
+  classification: none
+  publishes: []
+- workflow: property-management-profit-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: property-tax-appeal-calculator-ci.yml
@@ -2440,6 +2445,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: water-softener-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: waterfront-rental-season-planner-ci.yml
   classification: none
   publishes: []
 - workflow: wedding-budget-allocator-ci.yml
