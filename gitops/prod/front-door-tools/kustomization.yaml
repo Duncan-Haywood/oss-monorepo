@@ -33,44 +33,44 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547697 bytes
-#   portfolio-front-tools-1: 92 files, 555425 bytes
-#   portfolio-front-tools-2: 144 files, 553246 bytes
-#   portfolio-front-tools-3: 128 files, 549480 bytes
-#   portfolio-front-tools-4: 136 files, 556493 bytes
+#   portfolio-front-tools-0: 145 files, 547703 bytes
+#   portfolio-front-tools-1: 92 files, 555434 bytes
+#   portfolio-front-tools-2: 144 files, 553251 bytes
+#   portfolio-front-tools-3: 128 files, 549468 bytes
+#   portfolio-front-tools-4: 136 files, 556500 bytes
 #   portfolio-front-tools-5: 133 files, 553186 bytes
-#   portfolio-front-tools-6: 124 files, 554310 bytes
-#   portfolio-front-tools-7: 119 files, 553806 bytes
-#   portfolio-front-tools-8: 128 files, 553557 bytes
-#   portfolio-front-tools-9: 138 files, 556077 bytes
-#   portfolio-front-tools-10: 136 files, 552616 bytes
-#   portfolio-front-tools-11: 122 files, 550318 bytes
+#   portfolio-front-tools-6: 124 files, 554317 bytes
+#   portfolio-front-tools-7: 119 files, 553848 bytes
+#   portfolio-front-tools-8: 128 files, 553570 bytes
+#   portfolio-front-tools-9: 138 files, 556101 bytes
+#   portfolio-front-tools-10: 136 files, 552589 bytes
+#   portfolio-front-tools-11: 122 files, 550321 bytes
 #   portfolio-front-tools-12: 126 files, 554611 bytes
-#   portfolio-front-tools-13: 129 files, 556317 bytes
-#   portfolio-front-tools-14: 123 files, 554034 bytes
-#   portfolio-front-tools-15: 124 files, 552392 bytes
-#   portfolio-front-tools-16: 118 files, 549324 bytes
-#   portfolio-front-tools-17: 125 files, 554434 bytes
-#   portfolio-front-tools-18: 117 files, 557017 bytes
-#   portfolio-front-tools-19: 118 files, 555575 bytes
-#   portfolio-front-tools-20: 114 files, 555037 bytes
-#   portfolio-front-tools-21: 133 files, 556497 bytes
-#   portfolio-front-tools-22: 127 files, 554868 bytes
-#   portfolio-front-tools-23: 132 files, 550591 bytes
-#   portfolio-front-tools-24: 117 files, 545596 bytes
-#   portfolio-front-tools-25: 126 files, 552399 bytes
-#   portfolio-front-tools-26: 133 files, 556282 bytes
-#   portfolio-front-tools-27: 113 files, 556389 bytes
-#   portfolio-front-tools-28: 137 files, 551826 bytes
-#   portfolio-front-tools-29: 103 files, 550694 bytes
-#   portfolio-front-tools-30: 105 files, 555984 bytes
-#   portfolio-front-tools-31: 117 files, 554793 bytes
-#   portfolio-front-tools-32: 123 files, 556344 bytes
-#   portfolio-front-tools-33: 129 files, 556085 bytes
-#   portfolio-front-tools-34: 132 files, 550009 bytes
-#   portfolio-front-tools-35: 120 files, 555988 bytes
-#   portfolio-front-tools-36: 63 files, 332213 bytes
-#   portfolio-front-tools-37: 48 files, 264078 bytes
+#   portfolio-front-tools-13: 129 files, 556358 bytes
+#   portfolio-front-tools-14: 123 files, 554073 bytes
+#   portfolio-front-tools-15: 124 files, 552415 bytes
+#   portfolio-front-tools-16: 118 files, 549196 bytes
+#   portfolio-front-tools-17: 125 files, 554468 bytes
+#   portfolio-front-tools-18: 118 files, 554248 bytes
+#   portfolio-front-tools-19: 117 files, 556455 bytes
+#   portfolio-front-tools-20: 115 files, 556679 bytes
+#   portfolio-front-tools-21: 132 files, 553830 bytes
+#   portfolio-front-tools-22: 125 files, 551666 bytes
+#   portfolio-front-tools-23: 134 files, 556543 bytes
+#   portfolio-front-tools-24: 120 files, 556214 bytes
+#   portfolio-front-tools-25: 126 files, 552367 bytes
+#   portfolio-front-tools-26: 133 files, 556271 bytes
+#   portfolio-front-tools-27: 113 files, 556244 bytes
+#   portfolio-front-tools-28: 137 files, 551905 bytes
+#   portfolio-front-tools-29: 103 files, 550794 bytes
+#   portfolio-front-tools-30: 105 files, 555905 bytes
+#   portfolio-front-tools-31: 117 files, 554844 bytes
+#   portfolio-front-tools-32: 123 files, 556301 bytes
+#   portfolio-front-tools-33: 129 files, 556120 bytes
+#   portfolio-front-tools-34: 132 files, 550002 bytes
+#   portfolio-front-tools-35: 120 files, 556030 bytes
+#   portfolio-front-tools-36: 63 files, 332249 bytes
+#   portfolio-front-tools-37: 48 files, 264124 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2558,6 +2558,9 @@ configMapGenerator:
       - hsa-contribution-limit-calculator__calc.mjs.gz=hsa-contribution-limit-calculator__calc.mjs.gz
       - hsa-contribution-limit-calculator__index.html.gz=hsa-contribution-limit-calculator__index.html.gz
       - hsa-contribution-limit-calculator__usage.mjs.gz=hsa-contribution-limit-calculator__usage.mjs.gz
+      - hsa-shoebox-reimbursement-planner__calc.mjs.gz=hsa-shoebox-reimbursement-planner__calc.mjs.gz
+      - hsa-shoebox-reimbursement-planner__index.html.gz=hsa-shoebox-reimbursement-planner__index.html.gz
+      - hsa-shoebox-reimbursement-planner__usage.mjs.gz=hsa-shoebox-reimbursement-planner__usage.mjs.gz
       - hubspot-contacts-csv-check__calc.mjs.gz=hubspot-contacts-csv-check__calc.mjs.gz
       - hubspot-contacts-csv-check__index.html.gz=hubspot-contacts-csv-check__index.html.gz
       - hubspot-contacts-csv-check__usage.mjs.gz=hubspot-contacts-csv-check__usage.mjs.gz
@@ -2588,13 +2591,13 @@ configMapGenerator:
       - ifta-quarterly-fuel-tax-calculator__vs-expressifta.html.gz=ifta-quarterly-fuel-tax-calculator__vs-expressifta.html.gz
       - import-landed-cost-calculator__calc.mjs.gz=import-landed-cost-calculator__calc.mjs.gz
       - import-landed-cost-calculator__does-the-de-minimis-exemption-still-apply.html.gz=import-landed-cost-calculator__does-the-de-minimis-exemption-still-apply.html.gz
-      - import-landed-cost-calculator__formal-vs-informal-entry.html.gz=import-landed-cost-calculator__formal-vs-informal-entry.html.gz
-      - import-landed-cost-calculator__index.html.gz=import-landed-cost-calculator__index.html.gz
   - name: portfolio-front-tools-19
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - import-landed-cost-calculator__formal-vs-informal-entry.html.gz=import-landed-cost-calculator__formal-vs-informal-entry.html.gz
+      - import-landed-cost-calculator__index.html.gz=import-landed-cost-calculator__index.html.gz
       - import-landed-cost-calculator__share.mjs.gz=import-landed-cost-calculator__share.mjs.gz
       - import-landed-cost-calculator__usage.mjs.gz=import-landed-cost-calculator__usage.mjs.gz
       - import-landed-cost-calculator__vs-flexport.html.gz=import-landed-cost-calculator__vs-flexport.html.gz
@@ -2710,14 +2713,14 @@ configMapGenerator:
       - k8s-deprecated-api-check__engine.mjs.gz=k8s-deprecated-api-check__engine.mjs.gz
       - k8s-deprecated-api-check__index.html.gz=k8s-deprecated-api-check__index.html.gz
       - k8s-deprecated-api-check__usage.mjs.gz=k8s-deprecated-api-check__usage.mjs.gz
-      - k8s-deprecated-api-check__vs-checking-the-migration-guide-by-hand.html.gz=k8s-deprecated-api-check__vs-checking-the-migration-guide-by-hand.html.gz
-      - k8s-deprecated-api-check__vs-pluto.html.gz=k8s-deprecated-api-check__vs-pluto.html.gz
-      - k8s-deprecated-api-check__why-a-manifest-fails-a-kubernetes-upgrade.html.gz=k8s-deprecated-api-check__why-a-manifest-fails-a-kubernetes-upgrade.html.gz
   - name: portfolio-front-tools-20
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - k8s-deprecated-api-check__vs-checking-the-migration-guide-by-hand.html.gz=k8s-deprecated-api-check__vs-checking-the-migration-guide-by-hand.html.gz
+      - k8s-deprecated-api-check__vs-pluto.html.gz=k8s-deprecated-api-check__vs-pluto.html.gz
+      - k8s-deprecated-api-check__why-a-manifest-fails-a-kubernetes-upgrade.html.gz=k8s-deprecated-api-check__why-a-manifest-fails-a-kubernetes-upgrade.html.gz
       - k8s-pod-security-check__check.py.gz=k8s-pod-security-check__check.py.gz
       - k8s-pod-security-check__classify.mjs.gz=k8s-pod-security-check__classify.mjs.gz
       - k8s-pod-security-check__index.html.gz=k8s-pod-security-check__index.html.gz
@@ -2830,13 +2833,13 @@ configMapGenerator:
       - license-drift-check__index.html.gz=license-drift-check__index.html.gz
       - license-drift-check__usage.mjs.gz=license-drift-check__usage.mjs.gz
       - license-drift-check__vs-fossa.html.gz=license-drift-check__vs-fossa.html.gz
-      - license-drift-check__vs-manually-rechecking-licenses.html.gz=license-drift-check__vs-manually-rechecking-licenses.html.gz
-      - lien-waiver-checker__calc.mjs.gz=lien-waiver-checker__calc.mjs.gz
   - name: portfolio-front-tools-21
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - license-drift-check__vs-manually-rechecking-licenses.html.gz=license-drift-check__vs-manually-rechecking-licenses.html.gz
+      - lien-waiver-checker__calc.mjs.gz=lien-waiver-checker__calc.mjs.gz
       - lien-waiver-checker__index.html.gz=lien-waiver-checker__index.html.gz
       - lien-waiver-checker__usage.mjs.gz=lien-waiver-checker__usage.mjs.gz
       - like-kind-exchange-1031-calculator__calc.mjs.gz=like-kind-exchange-1031-calculator__calc.mjs.gz
@@ -2967,14 +2970,14 @@ configMapGenerator:
       - mercari-fee-calculator__share.mjs.gz=mercari-fee-calculator__share.mjs.gz
       - mercari-fee-calculator__to-where-to-sell.mjs.gz=mercari-fee-calculator__to-where-to-sell.mjs.gz
       - mercari-fee-calculator__usage.mjs.gz=mercari-fee-calculator__usage.mjs.gz
-      - mercari-fee-calculator__vs-doing-the-fee-math-yourself.html.gz=mercari-fee-calculator__vs-doing-the-fee-math-yourself.html.gz
-      - mercari-fee-calculator__vs-poshmark.html.gz=mercari-fee-calculator__vs-poshmark.html.gz
-      - merchant-cash-advance-true-cost-calculator__calc.mjs.gz=merchant-cash-advance-true-cost-calculator__calc.mjs.gz
   - name: portfolio-front-tools-22
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - mercari-fee-calculator__vs-doing-the-fee-math-yourself.html.gz=mercari-fee-calculator__vs-doing-the-fee-math-yourself.html.gz
+      - mercari-fee-calculator__vs-poshmark.html.gz=mercari-fee-calculator__vs-poshmark.html.gz
+      - merchant-cash-advance-true-cost-calculator__calc.mjs.gz=merchant-cash-advance-true-cost-calculator__calc.mjs.gz
       - merchant-cash-advance-true-cost-calculator__index.html.gz=merchant-cash-advance-true-cost-calculator__index.html.gz
       - merchant-cash-advance-true-cost-calculator__usage.mjs.gz=merchant-cash-advance-true-cost-calculator__usage.mjs.gz
       - merchant-feed-check__cli.mjs.gz=merchant-feed-check__cli.mjs.gz
@@ -3097,16 +3100,16 @@ configMapGenerator:
       - nail-tech-booth-rent-calculator__usage.mjs.gz=nail-tech-booth-rent-calculator__usage.mjs.gz
       - nat-gateway-cost-advisor__cli.mjs.gz=nat-gateway-cost-advisor__cli.mjs.gz
       - nat-gateway-cost-advisor__engine.mjs.gz=nat-gateway-cost-advisor__engine.mjs.gz
-      - nat-gateway-cost-advisor__index.html.gz=nat-gateway-cost-advisor__index.html.gz
-      - nat-gateway-cost-advisor__nat-gateway-vs-vpc-endpoint-cost.html.gz=nat-gateway-cost-advisor__nat-gateway-vs-vpc-endpoint-cost.html.gz
-      - nat-gateway-cost-advisor__usage.mjs.gz=nat-gateway-cost-advisor__usage.mjs.gz
-      - neon-bill-estimator__cli.mjs.gz=neon-bill-estimator__cli.mjs.gz
-      - neon-bill-estimator__engine.mjs.gz=neon-bill-estimator__engine.mjs.gz
   - name: portfolio-front-tools-23
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - nat-gateway-cost-advisor__index.html.gz=nat-gateway-cost-advisor__index.html.gz
+      - nat-gateway-cost-advisor__nat-gateway-vs-vpc-endpoint-cost.html.gz=nat-gateway-cost-advisor__nat-gateway-vs-vpc-endpoint-cost.html.gz
+      - nat-gateway-cost-advisor__usage.mjs.gz=nat-gateway-cost-advisor__usage.mjs.gz
+      - neon-bill-estimator__cli.mjs.gz=neon-bill-estimator__cli.mjs.gz
+      - neon-bill-estimator__engine.mjs.gz=neon-bill-estimator__engine.mjs.gz
       - neon-bill-estimator__how-to-reduce-your-neon-bill.html.gz=neon-bill-estimator__how-to-reduce-your-neon-bill.html.gz
       - neon-bill-estimator__index.html.gz=neon-bill-estimator__index.html.gz
       - neon-bill-estimator__usage.mjs.gz=neon-bill-estimator__usage.mjs.gz
@@ -3236,14 +3239,14 @@ configMapGenerator:
       - parking-lot-striping-bid-calculator__how-much-to-charge-to-stripe-a-parking-lot.html.gz=parking-lot-striping-bid-calculator__how-much-to-charge-to-stripe-a-parking-lot.html.gz
       - parking-lot-striping-bid-calculator__index.html.gz=parking-lot-striping-bid-calculator__index.html.gz
       - parking-lot-striping-bid-calculator__usage.mjs.gz=parking-lot-striping-bid-calculator__usage.mjs.gz
-      - parking-lot-striping-bid-calculator__vs-a-flat-8-per-stall-special.html.gz=parking-lot-striping-bid-calculator__vs-a-flat-8-per-stall-special.html.gz
-      - parking-lot-striping-bid-calculator__vs-saasphalt.html.gz=parking-lot-striping-bid-calculator__vs-saasphalt.html.gz
-      - pastured-poultry-profit-planner__calc.mjs.gz=pastured-poultry-profit-planner__calc.mjs.gz
   - name: portfolio-front-tools-24
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - parking-lot-striping-bid-calculator__vs-a-flat-8-per-stall-special.html.gz=parking-lot-striping-bid-calculator__vs-a-flat-8-per-stall-special.html.gz
+      - parking-lot-striping-bid-calculator__vs-saasphalt.html.gz=parking-lot-striping-bid-calculator__vs-saasphalt.html.gz
+      - pastured-poultry-profit-planner__calc.mjs.gz=pastured-poultry-profit-planner__calc.mjs.gz
       - pastured-poultry-profit-planner__index.html.gz=pastured-poultry-profit-planner__index.html.gz
       - pastured-poultry-profit-planner__usage.mjs.gz=pastured-poultry-profit-planner__usage.mjs.gz
       - patio-door-bid-calculator__calc.mjs.gz=patio-door-bid-calculator__calc.mjs.gz
