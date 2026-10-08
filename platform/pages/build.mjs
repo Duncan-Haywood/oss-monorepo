@@ -3161,6 +3161,9 @@ const CATEGORY_RULES = [
         // `section-1256-futures-tax-calculator` joined 2026-10-08 on its first commit: back-office was at its 3 MB offline bound,
         // and a futures trader pricing what the 60/40 rule leaves them is one person working out their own income.
         'section-1256-futures-tax-calculator',
+        // `sep-ira-contribution-calculator` landed 2026-10-08 from a stranded branch: back-office was at its 3 MB offline bound,
+        // and a self-employed filer sizing their own retirement contribution is one person working out their own income.
+        'sep-ira-contribution-calculator',
         'studio-class-slot-optimizer',
         'tutor-package-pricing-calculator',
         'voiceover-project-rate-calculator',
