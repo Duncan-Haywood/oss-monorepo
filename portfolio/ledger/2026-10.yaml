@@ -2975,3 +2975,20 @@ entries:
         in good-faith-estimate-generator that blocked the Pages publish check. Registered score
         row, launch date, category rule, CI workflow.
     mrr_end: 0
+  - venture: appointment-no-show-cost-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built appointment-no-show-cost-calculator: a browser-local cost tool for small medical, dental, therapy,
+        chiropractic, vet and salon practices. Schedule, visit revenue, no-show and late-cancel
+        rates, refills, a no-show fee and its collection rate, reminder cost and effect give annual
+        revenue lost, cost after refills and fees, the best overbooking level from an exact binomial
+        model of arrivals (checked against full outcome enumeration), the break-even no-show fee and
+        reminder price, and a sensitivity grid. First visitor: practice owners and managers asking
+        what no-shows cost and whether to add a fee, reminders or overbooking; volume unmeasured.
+        Defaults are placeholders; no patient data is asked for. Overlaps four existing generic
+        appointment tools (analyzer, overbooking optimizer, deposit, fee) by design: this is the
+        whole-year side-by-side, and the page links each. Registered score row, launch date, CI
+        workflow, inbound link from dental-ppo-writeoff-calculator.
+    mrr_end: 0
