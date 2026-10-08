@@ -3218,3 +3218,17 @@ entries:
         Defaults are placeholders. Registered score row, launch date, category rule, CI workflow,
         inbound link from the cell tower lease calculator.
     mrr_end: 0
+  - venture: mortgage-points-break-even-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built mortgage-points-break-even-calculator: a browser-local tool for buyers and
+        refinancers holding a Loan Estimate with a points option. Two amortized loans give the simple and
+        cash-adjusted break-even month, the yearly return on the points, dollars ahead or behind at the
+        horizon, the chance of finishing ahead given a yearly chance of selling or refinancing, and a
+        horizon-by-cash-return grid (hand-worked: with no return on cash and no tax the advantage at 7
+        years equals interest avoided minus the points, tested). First visitor: "are mortgage points
+        worth it" searchers; volume unmeasured. Defaults are placeholders. Registered launch date,
+        category rule and opt-out count.
+    mrr_end: 0
