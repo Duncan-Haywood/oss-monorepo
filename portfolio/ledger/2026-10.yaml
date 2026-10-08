@@ -2875,3 +2875,17 @@ entries:
         against real venues. 32 tests pass; page run in Chromium with no console errors.
         Registered score row, launch date, category rule, CI workflow.
     mrr_end: 0
+  - venture: waterfront-rental-season-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built waterfront-rental-season-planner: a browser-local seasonal planner for
+        kayak, paddleboard and boat rental operators. Fleet, rental length, prices, weekday and
+        weekend demand and season costs give season profit, a weather-lost-days break-even,
+        turned-away rentals, what one more kayak or boat earns and pays back in, and a best-price
+        search along a user-set demand curve. First visitor: livery operator groups and search;
+        volume unmeasured. Defaults are placeholders, unverified against real operators. 27 tests
+        pass; page run in Chromium with no console errors. Registered score row, launch date,
+        category rule, CI workflow.
+    mrr_end: 0
