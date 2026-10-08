@@ -2889,3 +2889,17 @@ entries:
         pass; page run in Chromium with no console errors. Registered score row, launch date,
         category rule, CI workflow.
     mrr_end: 0
+  - venture: property-management-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built property-management-profit-calculator: a browser-local profit and growth
+        planner for small property management companies. Doors, fee percentage, leasing, renewal,
+        maintenance and onboarding income, and managers and admin hired in whole steps give monthly
+        profit, break-even doors, the cost of the next hire, profit by portfolio size, a management fee
+        search on a user-set sensitivity and new-owner payback. First visitor: property manager groups and
+        fee searches; volume unmeasured. Defaults are placeholders, unverified against real companies.
+        27 tests pass; page logic run end to end and a syntax error in the result template found and fixed.
+        Registered score row, launch date, category rule, CI workflow.
+    mrr_end: 0

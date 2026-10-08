@@ -28651,3 +28651,32 @@ ventures:
       Liability: arithmetic on user-typed numbers and a stated demand assumption, defaults labelled
       as placeholders, no insurance, licensing, safety-equipment or tax advice. Ethics: nothing
       leaves the browser, no dark patterns, nothing is sold.
+  - slug: property-management-profit-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Fee revenue, whole-person staffing steps and a fee search
+      over a user-set sensitivity are plain functions of the numbers typed in.
+    basis: >-
+      Screened 2026-10-08 per portfolio/pipeline/README.md; write-up in this venture's own
+      VENTURE.yaml comment. A profit and growth planner for small property management companies:
+      monthly profit, break-even doors, the cost of the next manager hire, profit by portfolio size, a
+      management fee search and new-owner payback. Distribution 5: property manager groups and "property
+      management fees" searches are named channels; volume not measured. Defensibility 4: the hiring
+      cliff and owner payback go beyond a fee calculator, but the arithmetic is simple.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed numbers and a stated sensitivity assumption, defaults labelled as
+      placeholders, no licensing, trust-accounting, fair-housing, tax or employment advice. Ethics: nothing
+      leaves the browser, no dark patterns, nothing is sold.
