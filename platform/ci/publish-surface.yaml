@@ -200,6 +200,9 @@ workflows:
 - workflow: appointment-no-show-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: appointment-no-show-cost-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: appointment-overbooking-optimizer-ci.yml
   classification: none
   publishes: []
