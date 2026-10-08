@@ -2917,3 +2917,17 @@ entries:
         27 tests pass; page logic run end to end and a syntax error in the result template found and fixed.
         Registered score row, launch date, category rule, CI workflow.
     mrr_end: 0
+  - venture: collision-shop-drp-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built collision-shop-drp-profit-calculator: a browser-local planner for collision
+        repair shops weighing an insurer direct repair program. Retail and program labor rates, parts
+        discount, materials cap, paperwork cost, repriced existing jobs and promised new volume give profit
+        with and without the program, break-even new repair orders, the cost of one program job and the
+        lowest labor rate worth accepting, with whole-technician steps. First visitor: body-shop owner
+        groups and "is a DRP worth it" searches; volume unmeasured. Defaults are placeholders, unverified
+        against real shops. 30 tests pass; page run in Chromium with no console errors. Registered score
+        row, launch date, category rule, CI workflow.
+    mrr_end: 0

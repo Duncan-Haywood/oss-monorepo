@@ -28709,3 +28709,32 @@ ventures:
       Liability: arithmetic on user-typed numbers and a stated sensitivity assumption, defaults labelled as
       placeholders, no licensing, trust-accounting, fair-housing, tax or employment advice. Ethics: nothing
       leaves the browser, no dark patterns, nothing is sold.
+  - slug: collision-shop-drp-profit-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Program-versus-retail repair order economics and
+      whole-technician steps are plain functions of the numbers typed in.
+    basis: >-
+      Screened 2026-10-08 per portfolio/pipeline/README.md; write-up in this venture's own
+      VENTURE.yaml comment. A collision shop planner for the insurer DRP decision: profit with and
+      without the program, break-even new repair orders, cost of one program job and the lowest labor
+      rate worth accepting. Distribution 5: body-shop owner groups and "is a DRP worth it" searches are
+      named channels; volume not measured. Defensibility 4: repriced existing jobs and technician steps
+      go beyond a labor-rate calculator, but the arithmetic is simple.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed numbers, defaults labelled as placeholders, no contract,
+      insurance-regulation, steering, tax or employment advice, not affiliated with any insurer.
+      Ethics: nothing leaves the browser, no dark patterns, nothing is sold.
