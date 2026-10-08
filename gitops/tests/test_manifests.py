@@ -3010,7 +3010,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `farmland-lease-cash-rent-vs-crop-share-calculator` graduated (browser cash rent vs crop share vs flex farmland lease comparison with break-even yield and risk grid).
     # +1: `tip-fica-credit-calculator` graduated (browser employer FICA tip credit per employee from cash wage, hours and tips, with after-tax value and prior-year look-back).
     # +1: `contract-vs-fte-rate-calculator` graduated (browser W-2 offer to the hourly 1099 rate leaving the same cash, with a step-by-step gap table).
-    total = 886  # `infra/OWNER_CHECKLIST.md`'s own "N of the 886 tools" wording.
+    total = 887  # `infra/OWNER_CHECKLIST.md`'s own "N of the 887 tools" wording.
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
     # +1: `ag-spray-drone-quote-calculator` graduated (browser spray-drone fields, tank, battery and cost inputs to real time per field, cost per acre, recommended quote and break-even).
     # +1: `stump-grinding-price-calculator` graduated (browser stump diameters, wood hardness, grinder speed, crew and drive time to a price, per-stump prices and a per-inch quote check).
