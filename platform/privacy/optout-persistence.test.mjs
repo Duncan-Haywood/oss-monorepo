@@ -1421,7 +1421,8 @@ const RELATIVE_SELF = relative(
 // +1: `tip-fica-credit-calculator` graduated.
 // +1: `crop-insurance-coverage-calculator` graduated.
 // +1: `contract-vs-fte-rate-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 863;
+// +1: `mobile-home-park-valuation-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 864;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.

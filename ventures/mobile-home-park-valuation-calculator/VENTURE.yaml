@@ -1,0 +1,55 @@
+name: mobile-home-park-valuation-calculator
+description: >-
+  Free browser tool for mobile home park (manufactured-housing community) buyers, owners and
+  brokers: type lots, occupancy, lot rent and the T-12 expense lines, and see NOI, value at your
+  cap rate, the cap rate an asking price implies, DSCR, and what a lot rent increase is worth
+  after the move-outs you expect, with the break-even number of move-outs. Nothing leaves the
+  browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "mobile home park lot
+# rent increase occupancy value" scored 0.27 against the nearest venture (childcare-center-break-even-calculator);
+# no venture values a manufactured-home community or prices a lot rent increase.
+#
+# Why this niche: MHP investing is a well-followed niche (BiggerPockets, MHP-focused podcasts, small
+# brokers) where the deal math is a spreadsheet passed around, and "forced appreciation" from lot
+# rent increases is the core thesis. Searches like "mobile home park valuation calculator" and "lot
+# rent increase break even" have intent from people about to move six or seven figures.
+#
+# First visitor: first-time MHP buyers, small owners deciding on an annual rent increase, brokers
+# prepping a listing. Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed figures; not an appraisal, loan quote or advice;
+# no market cap-rate data embedded; says to check local rent-control and notice rules; nothing
+# stored or uploaded.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a T-12 CSV importer,
+# printable lender-style summary and multi-scenario comparison (not built).
+
+hypotheses:
+  - claim: >-
+      Park buyers and owners will type a T-12 into a private page to see value, implied cap rate and
+      the break-even move-outs of a lot rent increase, because the alternative is a spreadsheet
+      they have to build and trust.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A park owner or broker reports that a worked NOI, value or break-even move-out count disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mobile-home-park-valuation-calculator/
+  analytics: null
