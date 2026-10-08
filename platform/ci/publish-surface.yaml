@@ -956,6 +956,9 @@ workflows:
 - workflow: fractional-executive-rate-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: franchise-unit-economics-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: free-shipping-threshold-optimizer-ci.yml
   classification: none
   publishes: []
@@ -1125,6 +1128,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: home-inspection-fee-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: home-inspection-report-builder-ci.yml
   classification: none
   publishes: []
 - workflow: home-office-deduction-calculator-ci.yml

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 873 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 875 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -48,12 +48,28 @@
     <summary type="text">Free fleet EV vs diesel cost calculator: purchase, chargers, energy, demand charges, maintenance, insurance and resale in; year-by-year cost, payback, break-even fuel price and mileage, a sensitivity grid and a range check out. Nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Franchise Unit Economics Calculator — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/franchise-unit-economics-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/franchise-unit-economics-calculator</id>
+    <updated>2026-10-08T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free franchise calculator: fee, build-out, loan, sales ramp, costs and royalties in; payback, IRR, break-even sales, the cash cushion you need and whether the brand beats going independent out. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Good Faith Estimate Generator for Self-Pay Patients — Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/good-faith-estimate-generator/"/>
     <id>tag:marisstella.dev,2026:tool/good-faith-estimate-generator</id>
     <updated>2026-10-08T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free Good Faith Estimate generator for the No Surprises Act: list services with codes and charges, get a printable estimate, the delivery deadline, a completeness check, a $400 dispute check and a review of your past estimates. Runs in your browser; no patient data leaves it.</summary>
+  </entry>
+  <entry>
+    <title>Home Inspection Report Builder — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/home-inspection-report-builder/"/>
+    <id>tag:marisstella.dev,2026:tool/home-inspection-report-builder</id>
+    <updated>2026-10-08T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free home inspection report builder: pick findings from a library of plain-language comments, edit them, add notes and your own repair cost ranges, and print a clean report sorted by severity. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Mobile Welding Job Price Calculator — Free</title>
@@ -150,21 +166,5 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free beef cattle ration optimizer. Enter your feeds with price per ton and nutrient content, choose cow, bull, stocker or finishing class, and get the least-cost ration per head per day, herd cost and a buying list. A least-cost feed formulation solver in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>CDL School Payback Calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cdl-school-payback-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/cdl-school-payback-calculator</id>
-    <updated>2026-10-07T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free CDL school payback calculator: tuition, fees, weeks out of work, weekly miles and pay per mile become the cost to get in, the monthly gain over your current job, months to pay it back and company-paid training versus paying yourself. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Christmas Tree Farm Profit Calculator — Cost, Payback and Break-Even Price, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/christmas-tree-farm-profit-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/christmas-tree-farm-profit-planner</id>
-    <updated>2026-10-07T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free Christmas tree farm profit calculator. Plant blocks each year, wait 7-10 years, and see cash flow, payback, NPV and the price per tree you need to break even. Nothing uploaded.</summary>
   </entry>
 </feed>

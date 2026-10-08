@@ -3002,8 +3002,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `collision-shop-drp-profit-calculator` graduated (browser collision shop retail and insurer-program terms, repriced and promised jobs to profit with and without the program, break-even orders and a lowest labor rate).
     # +1: `volunteer-shift-scheduler` graduated (browser volunteers with availability, max shifts and excluded roles, plus shifts with headcounts, to a fair roster, unfilled-place report, per-volunteer calendars and reminder messages).
     # +1: `appointment-no-show-cost-calculator` graduated (browser practice schedule, no-show and late-cancel rates, refills, fee and reminders to yearly cost, best overbooking level and break-even fee and reminder price).
+    # +1: `franchise-unit-economics-calculator` graduated (browser franchise fee, build-out, loan, sales ramp, costs and royalties to payback, IRR, break-even sales, a cash-cushion check and the sales lift the brand must deliver against going independent).
+    # +1: `home-inspection-report-builder` graduated (browser home inspection findings, severity, notes and cost ranges to a printable report, with a generic editable comment library).
     # +1: `pte-tax-election-calculator` graduated (browser state pass-through entity tax election vs none: federal plus state tax, SALT cap phase-out, lost 20% deduction, income where it first pays).
-    total = 873  # `infra/OWNER_CHECKLIST.md`'s own "N of the 873 tools" wording.
+    total = 875  # `infra/OWNER_CHECKLIST.md`'s own "N of the 875 tools" wording.
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
     # +1: `ag-spray-drone-quote-calculator` graduated (browser spray-drone fields, tank, battery and cost inputs to real time per field, cost per acre, recommended quote and break-even).
     # +1: `stump-grinding-price-calculator` graduated (browser stump diameters, wood hardness, grinder speed, crew and drive time to a price, per-stump prices and a per-inch quote check).
