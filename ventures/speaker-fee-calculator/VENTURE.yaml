@@ -1,0 +1,51 @@
+name: speaker-fee-calculator
+description: >-
+  Free browser tool for paid speakers, trainers and workshop facilitators: the keynote fee needed to hit an
+  income goal after overhead, bureau commission and travel, a stacked quote with custom content, workshop,
+  recording-rights and rush add-ons, a virtual price, net per hour occupied, and a raise-the-fee versus
+  book-more ladder. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. The tree had no speaker / keynote fee tool
+# (grep of ventures/ for speaker, keynote, consult found none; podcast and newsletter sponsorship rate
+# calculators exist but price ad inventory, not a booked appearance).
+#
+# Why this niche: speakers, corporate trainers and facilitators set fees by rumour. "How much to charge
+# for a keynote" is a recurring search by people with a real income at stake, and the incumbents are
+# bureaus (who profit from the opacity) and generic freelance-rate blog calculators with no commission
+# gross-up, travel treatment or add-on stacking. A free calculator is a lead magnet; a paid proposal /
+# quote-PDF generator and bureau-commission tracker is the later revenue path (not built).
+#
+# First visitor: someone searching "how much should I charge for a keynote speech" or "speaker fee
+# calculator". Volume not measured.
+#
+# Liability boundary: arithmetic on typed assumptions; no market data claims, no contracts, no payments.
+# Defaults are placeholders. Not business or tax advice.
+
+hypotheses:
+  - claim: >-
+      Working speakers and trainers will use a private calculator that shows the fee floor after bureau
+      commission and the net per hour a booking really pays, because no competing page grosses the fee up
+      for commission or counts prep and travel days as time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/speaker-fee-calculator/
+  analytics: null
