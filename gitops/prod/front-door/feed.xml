@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 877 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 878 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -14,6 +14,14 @@
     <updated>2026-10-08T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free no-show cost calculator for dental, medical, therapy, chiropractic, vet and salon practices: annual revenue lost to no-shows and late cancels, cost after refills, best overbooking level from an exact binomial model, break-even no-show fee and reminder price. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Bonus Take-Home and Gross-Up Calculator — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bonus-take-home-gross-up-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/bonus-take-home-gross-up-calculator</id>
+    <updated>2026-10-08T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free bonus calculator: what a bonus pays after the 22% federal supplemental withholding, Social Security, Medicare and state tax, whether you owe or get a refund at filing, and the gross-up an employer needs to pay a bonus net. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Yoga, Pilates and Fitness Studio Pricing Planner — Free</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free beekeeping profit calculator. Project colonies, honey, nuc sales and pollination income year by year; see winter-loss sensitivity, break-even hives and payback. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Bakery Production Scheduler — Plan Bakes Backwards From Orders, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bakery-production-scheduler/"/>
-    <id>tag:marisstella.dev,2026:tool/bakery-production-scheduler</id>
-    <updated>2026-10-07T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free bakery production scheduler. Paste your products and orders with due times; get a backwards-planned prep, proof and bake timeline, the ovens and bakers you need, and which orders to drop when it does not fit. Nothing uploaded.</summary>
   </entry>
 </feed>

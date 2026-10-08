@@ -29040,3 +29040,32 @@ ventures:
       Liability: arithmetic on user-typed numbers, defaults labelled as placeholders, no coverage, legal,
       bad-faith or public-adjuster advice, who may negotiate a claim stated as not decided, no policy data
       requested. Ethics: nothing leaves the browser, no dark patterns, nothing is sold.
+  - slug: bonus-take-home-gross-up-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Payroll tax lines and an exact gross-up are plain
+      functions of the rates typed in.
+    basis: >-
+      Screened 2026-10-08 per portfolio/pipeline/README.md; write-up in this venture's own
+      VENTURE.yaml comment. A bonus take-home and gross-up tool showing each withholding line,
+      the Social Security cap, Additional Medicare, the refund or balance due against the real
+      bracket and an exact employer gross-up. Distribution 7: "bonus tax calculator" and "gross
+      up bonus" are evergreen high-volume searches that peak every year-end and review cycle;
+      volume not measured. Defensibility 3: the arithmetic is open.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed rates, defaults labelled as placeholders, no payroll
+      processing, no advice on withholding elections or W-4s. Ethics: nothing leaves the browser,
+      no dark patterns, nothing is sold.
