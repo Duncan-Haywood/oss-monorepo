@@ -601,3 +601,7 @@ a judgement call; all three were spelling.
 The first of those is the one to remember when adopting a venture whose
 calculator validates: the render loop and the printed sheet want *opposite*
 behaviour from a bad figure, and both are right.
+
+## `sauna-cold-plunge-install` does not ship it yet
+
+`sauna-cold-plunge-install` prices an install from a bill of materials with an electrician pass-through, a distance table and an overrun check. Its output is a cost-and-break-even readout, not a scope with a deposit split, so the printed proposal has nothing to carry yet. Adopt it per "Adopting a calculator" above if that changes.

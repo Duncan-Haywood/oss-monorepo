@@ -1907,6 +1907,9 @@ workflows:
 - workflow: roofing-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: roofing-insurance-supplement-finder-ci.yml
+  classification: none
+  publishes: []
 - workflow: roth-conversion-bracket-fill-calculator-ci.yml
   classification: none
   publishes: []
