@@ -3232,3 +3232,17 @@ entries:
         worth it" searchers; volume unmeasured. Defaults are placeholders. Registered launch date,
         category rule and opt-out count.
     mrr_end: 0
+  - venture: heloc-vs-cash-out-refinance-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built heloc-vs-cash-out-refinance-calculator: a browser-local tool for homeowners
+        choosing between keeping their mortgage and adding a HELOC, or refinancing everything into one
+        bigger loan. Monthly schedules (HELOC with an interest-only draw period) give total cost of each
+        route at the horizon, the yearly repricing cost of the old balance, the HELOC average rate at
+        which the routes tie, and a HELOC-rate-shock grid (hand-worked: at zero rates, no return and no
+        tax the gap equals the closing-cost difference; identical legs tie to zero, tested). First visitor:
+        "HELOC vs cash-out refinance" searchers; volume unmeasured. Defaults are placeholders. Registered
+        launch date, category rule and opt-out count; inbound links from the mortgage points and escrow tools.
+    mrr_end: 0
