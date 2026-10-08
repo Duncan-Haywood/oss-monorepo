@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Speaker Fee Calculator: What to Charge for a Keynote — Free</title>
+  <meta name="description" content="Free speaker fee calculator: the keynote fee you need to hit an income goal after bureau commission and travel, plus a stacked quote with add-ons, virtual pricing and net per hour. Nothing uploaded.">
+  <meta property="og:title" content="Speaker fee calculator">
+  <meta property="og:description" content="What a keynote or workshop has to cost for the year to pay, and a quote builder for custom content, workshops, recording rights and rush. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23166534'/%3E%3Cpath d='M10 12h12M10 16h8M10 20h12' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Speaker Fee Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Work out the keynote or workshop fee a speaker, trainer or facilitator needs to hit an income goal after bureau commission and travel, then build a stacked quote with add-ons. Runs in your browser.", "featureList": "Fee floor for an income goal, bureau commission gross-up, quote builder with add-ons, virtual discount, net per hour, bookings-needed ladder, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should a professional speaker charge?", "acceptedAnswer": {"@type": "Answer", "text": "There is no single market rate: fees run from a few hundred dollars for a local talk to five or six figures for well-known keynoters. A defensible starting point is arithmetic: the income you want plus business overhead, divided by the bookings you realistically land in a year, grossed up for any bureau commission. This tool does that, then lets you compare the result with the fee you actually quote."}}, {"@type": "Question", "name": "What commission do speaker bureaus take?", "acceptedAnswer": {"@type": "Answer", "text": "Bureaus and agents commonly keep a percentage of the fee, often around 20 to 30 percent, and the client pays the full fee. Because the commission comes out of the fee, your fee has to be grossed up to protect your net. Type your own rate and the share of your bookings that go through a bureau."}}, {"@type": "Question", "name": "Should I charge for travel separately?", "acceptedAnswer": {"@type": "Answer", "text": "Many speakers bill travel at cost on top of the fee, which keeps the fee comparable between local and distant events. If you absorb travel instead, it must be recovered inside the fee. Switch the travel setting to see how each choice changes the fee floor and your net."}}, {"@type": "Question", "name": "How much less should a virtual keynote cost?", "acceptedAnswer": {"@type": "Answer", "text": "Virtual events remove travel days and cost, but prep and delivery time remain, and the audience gets the same talk. Many speakers discount 25 to 50 percent. The tool shows the net per hour you keep at your chosen discount so you can see where it stops being worth it."}}, {"@type": "Question", "name": "What add-ons can a speaker charge for?", "acceptedAnswer": {"@type": "Answer", "text": "Common ones are custom content built for the client, a workshop or breakout session, recording or reuse rights, and a rush fee for short notice. Each is a typed percentage or flat amount here, stacked on the base fee in a printable quote."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type. Fees depend on your reputation, audience and market; the example numbers are placeholders, not market rates."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">SPEAKER FEE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does a keynote have to cost for your speaking year to pay?</h1>
+    <p>Type the income you want, your overhead and how many paid bookings you expect. The tool grosses the fee up for bureau commission and travel, compares it with the fee you quote today, builds a stacked quote with add-ons and a virtual price, and shows what each booking nets per hour of your time.</p>
+    <p class="note">Arithmetic on assumptions you type. Not financial or business advice. The example figures are placeholders, not market rates.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The year you want</h2>
+      <div class="grid">
+        <div><label for="incomeGoal">Income you want from speaking ($ a year, before tax)</label><input id="incomeGoal" type="number" step="any" value="0"></div>
+        <div><label for="overheadYear">Business overhead ($ a year: website, insurance, software, demo reel)</label><input id="overheadYear" type="number" step="any" value="0"></div>
+        <div><label for="bookingsPerYear">Paid bookings you expect per year</label><input id="bookingsPerYear" type="number" step="any" value="0"></div>
+        <div><label for="marketFee">Fee you quote today for one keynote ($)</label><input id="marketFee" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Commission, time and travel</h2>
+      <div class="grid">
+        <div><label for="commissionPct">Bureau or agent commission (%)</label><input id="commissionPct" type="number" step="any" value="0"></div>
+        <div><label for="commissionShare">Share of your bookings that come through a bureau (%)</label><input id="commissionShare" type="number" step="any" value="0"></div>
+        <div><label for="prepHours">Prep hours per booking</label><input id="prepHours" type="number" step="any" value="0"></div>
+        <div><label for="eventHours">Hours on stage and at the event</label><input id="eventHours" type="number" step="any" value="0"></div>
+        <div><label for="travelDays">Travel days per in-person booking</label><input id="travelDays" type="number" step="any" value="0"></div>
+        <div><label for="hoursPerTravelDay">Hours a travel day costs you</label><input id="hoursPerTravelDay" type="number" step="any" value="0"></div>
+        <div><label for="travelCost">Travel cost per booking ($)</label><input id="travelCost" type="number" step="any" value="0"></div>
+        <div><label for="travelPaidBy">Travel is</label><select id="travelPaidBy"><option value="0">Reimbursed by the client on top</option><option value="1">Paid by me, so it sits inside the fee</option></select></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Add-ons and virtual pricing</h2>
+      <div class="grid">
+        <div><label for="customContentPct">Custom content (% of base fee)</label><input id="customContentPct" type="number" step="any" value="0"></div>
+        <div><label for="workshopFee">Workshop add-on ($)</label><input id="workshopFee" type="number" step="any" value="0"></div>
+        <div><label for="recordingPct">Recording rights (% of base fee)</label><input id="recordingPct" type="number" step="any" value="0"></div>
+        <div><label for="rushPct">Rush fee (% of subtotal)</label><input id="rushPct" type="number" step="any" value="0"></div>
+        <div><label for="virtualDiscountPct">Virtual discount (%)</label><input id="virtualDiscountPct" type="number" step="any" value="0"></div>
+        <div><label for="depositPct">Deposit to request (%)</label><input id="depositPct" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Work out my fee</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>How much should a professional speaker charge?</h3>
+      <p>There is no single market rate: fees run from a few hundred dollars for a local talk to five or six figures for well-known keynoters. A defensible starting point is arithmetic: the income you want plus business overhead, divided by the bookings you realistically land in a year, grossed up for any bureau commission. This tool does that, then lets you compare the result with the fee you actually quote.</p>
+      <h3>What commission do speaker bureaus take?</h3>
+      <p>Bureaus and agents commonly keep a percentage of the fee, often around 20 to 30 percent, and the client pays the full fee. Because the commission comes out of the fee, your fee has to be grossed up to protect your net. Type your own rate and the share of your bookings that go through a bureau.</p>
+      <h3>Should I charge for travel separately?</h3>
+      <p>Many speakers bill travel at cost on top of the fee, which keeps the fee comparable between local and distant events. If you absorb travel instead, it must be recovered inside the fee. Switch the travel setting to see how each choice changes the fee floor and your net.</p>
+      <h3>How much less should a virtual keynote cost?</h3>
+      <p>Virtual events remove travel days and cost, but prep and delivery time remain, and the audience gets the same talk. Many speakers discount 25 to 50 percent. The tool shows the net per hour you keep at your chosen discount so you can see where it stops being worth it.</p>
+      <h3>What add-ons can a speaker charge for?</h3>
+      <p>Common ones are custom content built for the client, a workshop or breakout session, recording or reuse rights, and a rush fee for short notice. Each is a typed percentage or flat amount here, stacked on the base fee in a printable quote.</p>
+      <h3>Is this financial advice?</h3>
+      <p>No. It is arithmetic on figures you type. Fees depend on your reputation, audience and market; the example numbers are placeholders, not market rates.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>What your market will actually pay, whether a bureau is worth its commission for you, contract terms and cancellation policy, sales tax on services in your state, income tax and self-employment tax on what you keep, and whether a given event is worth doing at any fee.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../freelance-retainer-calculator/">freelance retainer calculator</a>, the <a href="../podcast-sponsorship-rate-calculator/">podcast sponsorship rate calculator</a> and the <a href="../self-employment-tax-calculator/">self-employment tax calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify before you quote or sign anything.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, money2, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const q = a.result;
+      h += `<div class="finding"><h4>Your fee floor is ${money(a.floor)} a booking</h4><p>That is the average fee that nets ${money(a.opts.incomeGoal)} after ${money(a.opts.overheadYear)} of overhead across ${a.opts.bookingsPerYear} bookings, with ${pct(a.effectiveCommission)} lost to commission on average. You quote ${money(a.opts.marketFee)}, which is ${a.gap >= 0 ? money(a.gap) + " above" : money(-a.gap) + " below"} the floor.</p></div>`;
+      h += `<div class="finding"><h4>One in-person booking at ${money(a.opts.marketFee)} nets ${money(q.net)}</h4><p>${money(q.commission)} commission${q.travelOut ? " and " + money(q.travelOut) + " of travel you pay" : ""} come off the fee. The booking occupies about ${Math.round(a.hours)} hours, so you keep ${money2(q.netPerHour)} for each.${q.travelBilled ? " The client also reimburses " + money(q.travelBilled) + " of travel, so they pay " + money(q.clientTotal) + " in all." : ""}</p></div>`;
+      h += `<div class="finding"><h4>Quote builder</h4>${table(["Package", "Client fee", "You keep", "Per hour"], [["Keynote", money(q.fee), money(q.net), money2(q.netPerHour)], ["Virtual keynote", money(a.virtual.fee), money(a.virtual.net), money2(a.virtual.netPerHour)], ["Keynote + custom content + workshop + recording", money(a.full.fee), money(a.full.net), money2(a.full.netPerHour)]])}<p>Suggested deposit on the keynote: ${money(q.deposit)} (${a.opts.depositPct}%). Rush adds ${a.opts.rushPct}% to the subtotal when the date is short notice.</p><p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      h += `<div class="finding"><h4>Raising the fee versus booking more</h4>${table(["Fee", "Bookings needed a year", "Hours a year"], a.ladder.map((l) => [money(l.fee) + (l.multiplier === 1 ? " (today)" : ""), Number.isFinite(l.bookings) ? l.bookings.toFixed(1) : "never", Number.isFinite(l.hoursYear) ? Math.round(l.hoursYear).toLocaleString("en-US") : "-"]))}</div>`;
+      h += `<div class="finding"><h4>Fee floor by number of bookings</h4>${table(["Bookings a year", "Fee floor"], a.feeGrid.map((g) => [g.bookings, money(g.floor)]))}</div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "speaker-fee.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

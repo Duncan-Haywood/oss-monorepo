@@ -33,44 +33,44 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547631 bytes
-#   portfolio-front-tools-1: 92 files, 555415 bytes
-#   portfolio-front-tools-2: 144 files, 553221 bytes
-#   portfolio-front-tools-3: 128 files, 549430 bytes
-#   portfolio-front-tools-4: 137 files, 556151 bytes
-#   portfolio-front-tools-5: 133 files, 555366 bytes
-#   portfolio-front-tools-6: 124 files, 555889 bytes
-#   portfolio-front-tools-7: 120 files, 555698 bytes
-#   portfolio-front-tools-8: 128 files, 554865 bytes
-#   portfolio-front-tools-9: 139 files, 549462 bytes
-#   portfolio-front-tools-10: 134 files, 552346 bytes
+#   portfolio-front-tools-0: 145 files, 547641 bytes
+#   portfolio-front-tools-1: 92 files, 555418 bytes
+#   portfolio-front-tools-2: 144 files, 553222 bytes
+#   portfolio-front-tools-3: 128 files, 549431 bytes
+#   portfolio-front-tools-4: 137 files, 556154 bytes
+#   portfolio-front-tools-5: 133 files, 555351 bytes
+#   portfolio-front-tools-6: 124 files, 555864 bytes
+#   portfolio-front-tools-7: 120 files, 555682 bytes
+#   portfolio-front-tools-8: 128 files, 554874 bytes
+#   portfolio-front-tools-9: 139 files, 549430 bytes
+#   portfolio-front-tools-10: 134 files, 552339 bytes
 #   portfolio-front-tools-11: 123 files, 553088 bytes
-#   portfolio-front-tools-12: 126 files, 556940 bytes
-#   portfolio-front-tools-13: 129 files, 556448 bytes
-#   portfolio-front-tools-14: 123 files, 554623 bytes
-#   portfolio-front-tools-15: 125 files, 555467 bytes
-#   portfolio-front-tools-16: 119 files, 555613 bytes
-#   portfolio-front-tools-17: 126 files, 555331 bytes
-#   portfolio-front-tools-18: 118 files, 555196 bytes
+#   portfolio-front-tools-12: 126 files, 556957 bytes
+#   portfolio-front-tools-13: 129 files, 556399 bytes
+#   portfolio-front-tools-14: 123 files, 554648 bytes
+#   portfolio-front-tools-15: 125 files, 555411 bytes
+#   portfolio-front-tools-16: 119 files, 555630 bytes
+#   portfolio-front-tools-17: 126 files, 555366 bytes
+#   portfolio-front-tools-18: 118 files, 555153 bytes
 #   portfolio-front-tools-19: 116 files, 551492 bytes
-#   portfolio-front-tools-20: 114 files, 552375 bytes
-#   portfolio-front-tools-21: 131 files, 553658 bytes
-#   portfolio-front-tools-22: 127 files, 554609 bytes
-#   portfolio-front-tools-23: 136 files, 549264 bytes
-#   portfolio-front-tools-24: 117 files, 553485 bytes
-#   portfolio-front-tools-25: 123 files, 556303 bytes
-#   portfolio-front-tools-26: 135 files, 554994 bytes
-#   portfolio-front-tools-27: 116 files, 553322 bytes
-#   portfolio-front-tools-28: 133 files, 549817 bytes
-#   portfolio-front-tools-29: 108 files, 556114 bytes
-#   portfolio-front-tools-30: 102 files, 555297 bytes
-#   portfolio-front-tools-31: 121 files, 554416 bytes
-#   portfolio-front-tools-32: 124 files, 555729 bytes
-#   portfolio-front-tools-33: 125 files, 547450 bytes
-#   portfolio-front-tools-34: 130 files, 556631 bytes
-#   portfolio-front-tools-35: 124 files, 553262 bytes
-#   portfolio-front-tools-36: 75 files, 394758 bytes
-#   portfolio-front-tools-37: 48 files, 264194 bytes
+#   portfolio-front-tools-20: 114 files, 552397 bytes
+#   portfolio-front-tools-21: 131 files, 553599 bytes
+#   portfolio-front-tools-22: 127 files, 554520 bytes
+#   portfolio-front-tools-23: 136 files, 549339 bytes
+#   portfolio-front-tools-24: 117 files, 553396 bytes
+#   portfolio-front-tools-25: 123 files, 556426 bytes
+#   portfolio-front-tools-26: 135 files, 554971 bytes
+#   portfolio-front-tools-27: 116 files, 553323 bytes
+#   portfolio-front-tools-28: 133 files, 549819 bytes
+#   portfolio-front-tools-29: 108 files, 556115 bytes
+#   portfolio-front-tools-30: 102 files, 555287 bytes
+#   portfolio-front-tools-31: 121 files, 553753 bytes
+#   portfolio-front-tools-32: 123 files, 549221 bytes
+#   portfolio-front-tools-33: 127 files, 553449 bytes
+#   portfolio-front-tools-34: 128 files, 552071 bytes
+#   portfolio-front-tools-35: 124 files, 553922 bytes
+#   portfolio-front-tools-36: 79 files, 410216 bytes
+#   portfolio-front-tools-37: 48 files, 264129 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -4200,6 +4200,9 @@ configMapGenerator:
       - source-map-leak-check__probe.mjs.gz=source-map-leak-check__probe.mjs.gz
       - source-map-leak-check__usage.mjs.gz=source-map-leak-check__usage.mjs.gz
       - source-map-leak-check__vs-checking-devtools-by-hand.html.gz=source-map-leak-check__vs-checking-devtools-by-hand.html.gz
+      - speaker-fee-calculator__calc.mjs.gz=speaker-fee-calculator__calc.mjs.gz
+      - speaker-fee-calculator__index.html.gz=speaker-fee-calculator__index.html.gz
+      - speaker-fee-calculator__usage.mjs.gz=speaker-fee-calculator__usage.mjs.gz
       - speech-to-text-pricing-calculator__cli.mjs.gz=speech-to-text-pricing-calculator__cli.mjs.gz
       - speech-to-text-pricing-calculator__engine.mjs.gz=speech-to-text-pricing-calculator__engine.mjs.gz
       - speech-to-text-pricing-calculator__how-to-choose-a-speech-to-text-api.html.gz=speech-to-text-pricing-calculator__how-to-choose-a-speech-to-text-api.html.gz
@@ -4237,14 +4240,14 @@ configMapGenerator:
       - sri-check__why-does-sri-need-the-crossorigin-attribute.html.gz=sri-check__why-does-sri-need-the-crossorigin-attribute.html.gz
       - staffing-markup-calculator__calc.mjs.gz=staffing-markup-calculator__calc.mjs.gz
       - staffing-markup-calculator__index.html.gz=staffing-markup-calculator__index.html.gz
-      - staffing-markup-calculator__markup-vs-margin.html.gz=staffing-markup-calculator__markup-vs-margin.html.gz
-      - staffing-markup-calculator__usage.mjs.gz=staffing-markup-calculator__usage.mjs.gz
-      - staffing-markup-calculator__vs-a-spreadsheet.html.gz=staffing-markup-calculator__vs-a-spreadsheet.html.gz
   - name: portfolio-front-tools-32
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - staffing-markup-calculator__markup-vs-margin.html.gz=staffing-markup-calculator__markup-vs-margin.html.gz
+      - staffing-markup-calculator__usage.mjs.gz=staffing-markup-calculator__usage.mjs.gz
+      - staffing-markup-calculator__vs-a-spreadsheet.html.gz=staffing-markup-calculator__vs-a-spreadsheet.html.gz
       - staffing-markup-calculator__vs-tempworks.html.gz=staffing-markup-calculator__vs-tempworks.html.gz
       - stair-lift-bid-calculator__calc.mjs.gz=stair-lift-bid-calculator__calc.mjs.gz
       - stair-lift-bid-calculator__how-much-to-charge-to-install-a-stair-lift.html.gz=stair-lift-bid-calculator__how-much-to-charge-to-install-a-stair-lift.html.gz
@@ -4365,15 +4368,15 @@ configMapGenerator:
       - subscription-audit-from-statement__index.html.gz=subscription-audit-from-statement__index.html.gz
       - subscription-audit-from-statement__usage.mjs.gz=subscription-audit-from-statement__usage.mjs.gz
       - substack-subscriber-export-analyzer__calc.mjs.gz=substack-subscriber-export-analyzer__calc.mjs.gz
-      - substack-subscriber-export-analyzer__index.html.gz=substack-subscriber-export-analyzer__index.html.gz
-      - substack-subscriber-export-analyzer__usage.mjs.gz=substack-subscriber-export-analyzer__usage.mjs.gz
-      - sump-pump-bid-calculator__calc.mjs.gz=sump-pump-bid-calculator__calc.mjs.gz
-      - sump-pump-bid-calculator__how-much-to-charge-to-install-a-sump-pump.html.gz=sump-pump-bid-calculator__how-much-to-charge-to-install-a-sump-pump.html.gz
   - name: portfolio-front-tools-33
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - substack-subscriber-export-analyzer__index.html.gz=substack-subscriber-export-analyzer__index.html.gz
+      - substack-subscriber-export-analyzer__usage.mjs.gz=substack-subscriber-export-analyzer__usage.mjs.gz
+      - sump-pump-bid-calculator__calc.mjs.gz=sump-pump-bid-calculator__calc.mjs.gz
+      - sump-pump-bid-calculator__how-much-to-charge-to-install-a-sump-pump.html.gz=sump-pump-bid-calculator__how-much-to-charge-to-install-a-sump-pump.html.gz
       - sump-pump-bid-calculator__index.html.gz=sump-pump-bid-calculator__index.html.gz
       - sump-pump-bid-calculator__share.mjs.gz=sump-pump-bid-calculator__share.mjs.gz
       - sump-pump-bid-calculator__usage.mjs.gz=sump-pump-bid-calculator__usage.mjs.gz
@@ -4497,13 +4500,13 @@ configMapGenerator:
       - tire-shop-ticket-margin-calculator__calc.mjs.gz=tire-shop-ticket-margin-calculator__calc.mjs.gz
       - tire-shop-ticket-margin-calculator__index.html.gz=tire-shop-ticket-margin-calculator__index.html.gz
       - tire-shop-ticket-margin-calculator__usage.mjs.gz=tire-shop-ticket-margin-calculator__usage.mjs.gz
-      - toilet-replacement-bid-calculator__calc.mjs.gz=toilet-replacement-bid-calculator__calc.mjs.gz
-      - toilet-replacement-bid-calculator__how-much-to-charge-to-replace-a-toilet.html.gz=toilet-replacement-bid-calculator__how-much-to-charge-to-replace-a-toilet.html.gz
   - name: portfolio-front-tools-34
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - toilet-replacement-bid-calculator__calc.mjs.gz=toilet-replacement-bid-calculator__calc.mjs.gz
+      - toilet-replacement-bid-calculator__how-much-to-charge-to-replace-a-toilet.html.gz=toilet-replacement-bid-calculator__how-much-to-charge-to-replace-a-toilet.html.gz
       - toilet-replacement-bid-calculator__index.html.gz=toilet-replacement-bid-calculator__index.html.gz
       - toilet-replacement-bid-calculator__should-i-install-a-customer-supplied-toilet.html.gz=toilet-replacement-bid-calculator__should-i-install-a-customer-supplied-toilet.html.gz
       - toilet-replacement-bid-calculator__should-i-take-a-saturday-toilet-call.html.gz=toilet-replacement-bid-calculator__should-i-take-a-saturday-toilet-call.html.gz
@@ -4630,15 +4633,15 @@ configMapGenerator:
       - vehicle-wrap-bid-calculator__vs-quoting-from-bare-vehicle-surface-area.html.gz=vehicle-wrap-bid-calculator__vs-quoting-from-bare-vehicle-surface-area.html.gz
       - vehicle-wrap-bid-calculator__vs-shopvox.html.gz=vehicle-wrap-bid-calculator__vs-shopvox.html.gz
       - vending-machine-route-margin__calc.mjs.gz=vending-machine-route-margin__calc.mjs.gz
-      - vending-machine-route-margin__how-much-does-a-vending-machine-actually-make.html.gz=vending-machine-route-margin__how-much-does-a-vending-machine-actually-make.html.gz
-      - vending-machine-route-margin__index.html.gz=vending-machine-route-margin__index.html.gz
-      - vending-machine-route-margin__share.mjs.gz=vending-machine-route-margin__share.mjs.gz
-      - vending-machine-route-margin__usage.mjs.gz=vending-machine-route-margin__usage.mjs.gz
   - name: portfolio-front-tools-35
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vending-machine-route-margin__how-much-does-a-vending-machine-actually-make.html.gz=vending-machine-route-margin__how-much-does-a-vending-machine-actually-make.html.gz
+      - vending-machine-route-margin__index.html.gz=vending-machine-route-margin__index.html.gz
+      - vending-machine-route-margin__share.mjs.gz=vending-machine-route-margin__share.mjs.gz
+      - vending-machine-route-margin__usage.mjs.gz=vending-machine-route-margin__usage.mjs.gz
       - vending-machine-route-margin__vs-cantaloupe.html.gz=vending-machine-route-margin__vs-cantaloupe.html.gz
       - vending-machine-route-margin__vs-vendsoft.html.gz=vending-machine-route-margin__vs-vendsoft.html.gz
       - vendor-change-watch__diff.mjs.gz=vendor-change-watch__diff.mjs.gz
@@ -4759,15 +4762,15 @@ configMapGenerator:
       - wedding-officiant-fee-calculator__calc.mjs.gz=wedding-officiant-fee-calculator__calc.mjs.gz
       - wedding-officiant-fee-calculator__index.html.gz=wedding-officiant-fee-calculator__index.html.gz
       - wedding-officiant-fee-calculator__usage.mjs.gz=wedding-officiant-fee-calculator__usage.mjs.gz
-      - wedding-photographer-profit-calculator__calc.mjs.gz=wedding-photographer-profit-calculator__calc.mjs.gz
-      - wedding-photographer-profit-calculator__index.html.gz=wedding-photographer-profit-calculator__index.html.gz
-      - wedding-photographer-profit-calculator__usage.mjs.gz=wedding-photographer-profit-calculator__usage.mjs.gz
-      - wedding-videographer-profit-calculator__calc.mjs.gz=wedding-videographer-profit-calculator__calc.mjs.gz
   - name: portfolio-front-tools-36
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - wedding-photographer-profit-calculator__calc.mjs.gz=wedding-photographer-profit-calculator__calc.mjs.gz
+      - wedding-photographer-profit-calculator__index.html.gz=wedding-photographer-profit-calculator__index.html.gz
+      - wedding-photographer-profit-calculator__usage.mjs.gz=wedding-photographer-profit-calculator__usage.mjs.gz
+      - wedding-videographer-profit-calculator__calc.mjs.gz=wedding-videographer-profit-calculator__calc.mjs.gz
       - wedding-videographer-profit-calculator__index.html.gz=wedding-videographer-profit-calculator__index.html.gz
       - wedding-videographer-profit-calculator__usage.mjs.gz=wedding-videographer-profit-calculator__usage.mjs.gz
       - well-pump-bid-calculator__calc.mjs.gz=well-pump-bid-calculator__calc.mjs.gz
