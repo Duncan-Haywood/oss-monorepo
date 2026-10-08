@@ -1,6 +1,6 @@
-name: mobile-welding-bid-calculator CI
+name: mobile-welding-job-price-calculator CI
 
-# Test runner for the browser-local mobile-welding-bid-calculator. The
+# Test runner for the browser-local mobile-welding-job-price-calculator. The
 # product is static ES modules with no build step and no dependencies, so
 # this does no more than a contributor runs locally: `node --test`. It
 # publishes nothing, registers nothing, and spends no API budget -- it is
@@ -11,13 +11,13 @@ name: mobile-welding-bid-calculator CI
 on:
   pull_request:
     paths:
-      - "ventures/mobile-welding-bid-calculator/**"
-      - ".github/workflows/mobile-welding-bid-calculator-ci.yml"
+      - "ventures/mobile-welding-job-price-calculator/**"
+      - ".github/workflows/mobile-welding-job-price-calculator-ci.yml"
   push:
     branches: [main]
     paths:
-      - "ventures/mobile-welding-bid-calculator/**"
-      - ".github/workflows/mobile-welding-bid-calculator-ci.yml"
+      - "ventures/mobile-welding-job-price-calculator/**"
+      - ".github/workflows/mobile-welding-job-price-calculator-ci.yml"
   workflow_dispatch:
 
 permissions:
@@ -25,7 +25,7 @@ permissions:
 
 # A second push to the same branch makes the first run irrelevant.
 concurrency:
-  group: mobile-welding-bid-calculator-ci-${{ github.ref }}
+  group: mobile-welding-job-price-calculator-ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -34,7 +34,7 @@ jobs:
     timeout-minutes: 20
     defaults:
       run:
-        working-directory: ventures/mobile-welding-bid-calculator
+        working-directory: ventures/mobile-welding-job-price-calculator
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -48,4 +48,4 @@ jobs:
       # merge, rather than the Pages job on main after it.
       - name: Published pages carry the no-warranty clause
         working-directory: .
-        run: node platform/pages/clauses.mjs mobile-welding-bid-calculator
+        run: node platform/pages/clauses.mjs mobile-welding-job-price-calculator

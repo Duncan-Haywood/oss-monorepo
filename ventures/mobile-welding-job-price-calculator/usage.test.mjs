@@ -56,7 +56,7 @@ test("a missing localStorage never throws", () => {
 });
 
 test("corrupt stored JSON is treated as empty rather than thrown", () => {
-  globalThis.localStorage.setItem("mobile-welding-bid-calculator-usage", "not json");
+  globalThis.localStorage.setItem("mobile-welding-job-price-calculator-usage", "not json");
   assert.deepEqual(readUsage(), {});
   record("quote_run");
   assert.equal(readUsage().quote_run, 1);

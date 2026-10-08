@@ -2917,12 +2917,12 @@ entries:
         27 tests pass; page logic run end to end and a syntax error in the result template found and fixed.
         Registered score row, launch date, category rule, CI workflow.
     mrr_end: 0
-  - venture: mobile-welding-bid-calculator
+  - venture: mobile-welding-job-price-calculator
     agent_spend_usd: null
     human_hours: 0
     outcomes:
       - >-
-        Graduated and built mobile-welding-bid-calculator: a browser-local job pricing tool for mobile welders. On-site and
+        Graduated and built mobile-welding-job-price-calculator: a browser-local job pricing tool for mobile welders. On-site and
         drive hours, pay, rig, consumables, truck miles, materials, fixed costs, card fee and target
         margin give a job price, cost breakdown, price by distance, overrun impact, an offered-price
         check and break-even jobs per month. First visitor: mobile welding groups and rate searches;

@@ -831,7 +831,7 @@ workflows:
 - workflow: escape-room-pricing-capacity-planner-ci.yml
   classification: none
   publishes: []
-- workflow: mobile-welding-bid-calculator-ci.yml
+- workflow: mobile-welding-job-price-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: property-management-profit-calculator-ci.yml

@@ -28709,7 +28709,7 @@ ventures:
       Liability: arithmetic on user-typed numbers and a stated sensitivity assumption, defaults labelled as
       placeholders, no licensing, trust-accounting, fair-housing, tax or employment advice. Ethics: nothing
       leaves the browser, no dark patterns, nothing is sold.
-  - slug: mobile-welding-bid-calculator
+  - slug: mobile-welding-job-price-calculator
     scores:
       ai_leverage: 2
       autonomous_ops: 10
