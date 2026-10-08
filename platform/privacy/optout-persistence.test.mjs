@@ -1405,10 +1405,11 @@ const RELATIVE_SELF = relative(
 // +1: `boutique-fitness-studio-pricing-planner` graduated.
 // +1: `property-management-profit-calculator` graduated.
 // +1: `mobile-welding-job-price-calculator` graduated.
+// +1: `sauna-cold-plunge-install-bid-calculator` graduated.
 // +1: `good-faith-estimate-generator` graduated.
 // +1: `collision-shop-drp-profit-calculator` graduated.
 // +1: `fleet-ev-vs-diesel-tco-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 848;
+const SWITCHES_IN_THE_CATALOGUE = 849;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.

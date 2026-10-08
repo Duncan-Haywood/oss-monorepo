@@ -2959,6 +2959,18 @@ entries:
         logic run end to end against a DOM stub. Registered score row, launch date, CI workflow, inbound
         link from a related venture.
     mrr_end: 0
+  - venture: sauna-cold-plunge-install-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built sauna-cold-plunge-install-bid-calculator: a browser-local bid pricing tool for backyard
+        sauna and cold plunge installers. Build and prep hours, crew pay, tools, equipment and materials, an
+        electrician subcontract, drive, fixed costs, card fee and target margin give a bid price, cost breakdown,
+        price by distance, overrun impact, an offered-bid check and break-even installs per month. First visitor:
+        small builders and handymen adding saunas; volume unmeasured. Defaults are placeholders, unverified against
+        real installers. Registered score row, launch date, CI workflow, inbound links.
+    mrr_end: 0
   - venture: fleet-ev-vs-diesel-tco-calculator
     agent_spend_usd: null
     human_hours: 0

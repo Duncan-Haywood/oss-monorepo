@@ -28796,6 +28796,34 @@ ventures:
       Liability: arithmetic on user-typed numbers, defaults labelled as placeholders, no weld
       procedure, code, inspection, licensing, insurance or tax advice. Ethics: nothing leaves the
       browser, no dark patterns, nothing is sold.
+  - slug: sauna-cold-plunge-install-bid-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. A bid price, an overrun check and break-even installs are
+      plain functions of the numbers typed in.
+    basis: >-
+      Screened 2026-10-08 per portfolio/pipeline/README.md; write-up in this venture's own
+      VENTURE.yaml comment. A bid pricing tool for backyard sauna and cold plunge installers that prices the
+      electrician pass-through, delivery, a share of fixed costs and overrun risk. Distribution 5: "how much to charge to install a sauna"
+      searches and builder groups are named channels; volume not measured. Defensibility 4:
+      the pass-through, delivery and overrun views go beyond a rate card, but the arithmetic is simple.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed numbers, defaults labelled as placeholders, no electrical
+      or building code, permit, inspection, licensing, insurance or tax advice. Ethics: nothing leaves the
+      browser, no dark patterns, nothing is sold.
   - slug: fleet-ev-vs-diesel-tco-calculator
     scores:
       ai_leverage: 2
