@@ -2959,6 +2959,18 @@ entries:
         logic run end to end against a DOM stub. Registered score row, launch date, CI workflow, inbound
         link from a related venture.
     mrr_end: 0
+  - venture: sauna-cold-plunge-install-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built sauna-cold-plunge-install-bid-calculator: a browser-local bid pricing tool for backyard
+        sauna and cold plunge installers. Build and prep hours, crew pay, tools, equipment and materials, an
+        electrician subcontract, drive, fixed costs, card fee and target margin give a bid price, cost breakdown,
+        price by distance, overrun impact, an offered-bid check and break-even installs per month. First visitor:
+        small builders and handymen adding saunas; volume unmeasured. Defaults are placeholders, unverified against
+        real installers. Registered score row, launch date, CI workflow, inbound links.
+    mrr_end: 0
   - venture: fleet-ev-vs-diesel-tco-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -2974,6 +2986,21 @@ entries:
         pass; page run end to end in Chromium with no console errors. Also fixed a print-rule bug
         in good-faith-estimate-generator that blocked the Pages publish check. Registered score
         row, launch date, category rule, CI workflow.
+    mrr_end: 0
+  - venture: volunteer-shift-scheduler
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built volunteer-shift-scheduler: a browser-local volunteer roster maker for church, PTA, food
+        bank and youth sports coordinators. Volunteers with availability, max shifts and excluded roles, plus shifts
+        with headcounts, give a deterministic roster (hardest shifts first, fewest-shifts-so-far picking, a repair
+        pass and a balance pass), unfilled places with reasons, over- and under-loaded flags, CSV, per-volunteer
+        calendar files, reminder messages and a fragment-only share link. First visitor: "volunteer schedule maker"
+        searches and r/nonprofit, r/churchtech; volume unmeasured. duplicate_check closest was
+        league-schedule-generator at about 0.12. Tests cover no double-booking, availability, max, determinism and
+        fairness spread on 300 seeded random rosters; page logic run end to end against a DOM stub. Registered score
+        row, launch date, category rule, CI workflow, inbound link from a related venture.
     mrr_end: 0
   - venture: appointment-no-show-cost-calculator
     agent_spend_usd: null
