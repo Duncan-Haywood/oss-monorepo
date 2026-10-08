@@ -3141,3 +3141,17 @@ entries:
         placeholders. 31 tests pass; browser checks pass. Registered score row, launch date, category
         rule, CI workflow, inbound links from cottage-food-pricing-calculator and catering-quote-calculator.
     mrr_end: 0
+  - venture: tip-fica-credit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built tip-fica-credit-calculator: a browser-local tool for restaurant, bar
+        and salon owners and their preparers. A pasted roster of cash wage, hours and tips gives the
+        employer FICA tip credit (Form 8846, section 45B) per employee and in total, the $5.15
+        baseline top-up that earns nothing, the wage-base cap, after-tax value and a prior-year
+        look-back (hand-worked: $2.13 wage, 1,500 h, $24,000 tips -> $1,489.46). First visitor:
+        "FICA tip credit" and "Form 8846" searchers; volume unmeasured. Defaults are placeholders.
+        Registered score row, launch date, category rule, CI workflow, inbound link from
+        restaurant-tip-pool-calculator.
+    mrr_end: 0

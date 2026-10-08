@@ -780,6 +780,9 @@ const CATEGORY_RULES = [
       // `restaurant-tip-pool-calculator` joined 2026-10-06 on its first commit: the payroll side of the same owner, beside
       // `tip-pool-compliance-calculator` (may we pool) -- this one splits the pool.
       'restaurant-tip-pool-calculator',
+      // `tip-fica-credit-calculator` joined 2026-10-08 on its first commit: the employer-tax side of tipped payroll, the FICA credit
+      // on the tips `restaurant-tip-pool-calculator` splits.
+      'tip-fica-credit-calculator',
     ].includes(slug),
   },
   {

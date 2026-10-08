@@ -2342,6 +2342,9 @@ workflows:
 - workflow: time-tracker-ci.yml
   classification: none
   publishes: []
+- workflow: tip-fica-credit-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: tip-pool-compliance-calculator-ci.yml
   classification: none
   publishes: []
