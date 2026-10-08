@@ -200,6 +200,9 @@ workflows:
 - workflow: appointment-no-show-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: appointment-no-show-cost-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: appointment-overbooking-optimizer-ci.yml
   classification: none
   publishes: []
@@ -864,6 +867,7 @@ workflows:
   classification: none
   publishes: []
 - workflow: home-inspection-report-builder-ci.yml
+- workflow: franchise-unit-economics-tco-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: etsy-ads-roi-analyzer-ci.yml
