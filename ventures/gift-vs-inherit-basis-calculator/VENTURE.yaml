@@ -1,0 +1,48 @@
+name: gift-vs-inherit-basis-calculator
+description: >-
+  Free browser tool for people deciding whether to gift a house or appreciated stock to a child now or let it pass at
+  death: carryover versus stepped-up basis, the capital gains tax each path leaves, Form 709 and estate tax, and how
+  the answer moves with the years to death. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. ventures/ had estate-tax-exemption-calculator,
+# inherited-ira-10-year-withdrawal-planner and medicaid-lookback-penalty-calculator, but no tool that prices the
+# gift-now versus inherit-later basis decision.
+#
+# Why this niche: "should I put my child on the deed", "gift vs inherit house taxes" and "stepped up basis" are
+# searched by older homeowners and their adult children with six-figure stakes. Incumbents are estate-attorney blog
+# posts and lead forms; none give a number for the user's own figures. Free tool is a lead magnet; a paid
+# attorney-ready summary or an estate-attorney referral are later revenue paths (not built; any referral needs a
+# disclosure and owner approval).
+#
+# First visitor: someone searching "gift house to child capital gains" or "step up in basis calculator". Volume not measured.
+#
+# Liability boundary: arithmetic on typed assumptions; not legal or tax advice; exemption and exclusion editable;
+# no filing, no payments; the page points to an estate attorney before any deed is signed.
+
+hypotheses:
+  - claim: >-
+      Adult children and older homeowners will use a private tool that puts a dollar figure on carryover versus
+      stepped-up basis, because the alternatives are attorney blog posts and generic capital gains calculators.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/gift-vs-inherit-basis-calculator/
+  analytics: null
