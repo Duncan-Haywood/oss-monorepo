@@ -1,0 +1,55 @@
+name: mineral-royalty-offer-calculator
+description: >-
+  Free browser tool for oil and gas mineral and royalty owners holding a lump-sum buyout offer: type
+  your recent monthly royalty check, how fast it is declining and the offer, and see what those checks
+  are worth at your own discount rate on a decline curve, the return the buyer earns at the offered
+  price, how much rests on a well not yet drilled, price sensitivity, and an after-tax comparison.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. No venture values a royalty stream on a
+# decline curve against a buyout offer (nearest by name: cell-tower-lease-buyout-calculator, a flat
+# escalating rent, a different cash-flow shape).
+#
+# Why this niche: US mineral owners (inherited acreage, often absentee) are mailed and cold-called with
+# offers quoted as "X months of income" or a price per net mineral acre, worth five to six figures to a
+# person with no finance team, and the buyers are professional. Searches like "mineral rights offer
+# calculator" and "is my royalty buyout offer fair" come from people holding a real letter.
+#
+# First visitor: an owner or heir with an offer letter and a few royalty statements, or an adviser.
+# Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed figures; not legal, tax or financial advice; embeds no
+# well data or market prices and names no buyer; says to have an oil and gas attorney review any deed;
+# nothing stored or uploaded.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a printable offer summary,
+# statement-CSV import to fit the decline automatically, and multi-offer comparison (not built).
+
+hypotheses:
+  - claim: >-
+      Mineral owners holding a buyout letter will type their royalty history into a private page to see
+      the offer against the present value of their checks and the return the buyer earns, because the
+      alternative is trusting the buyer's months-of-income multiple.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - An owner or adviser reports that a worked present value or implied return disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mineral-royalty-offer-calculator/
+  analytics: null

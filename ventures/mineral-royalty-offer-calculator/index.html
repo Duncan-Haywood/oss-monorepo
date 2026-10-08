@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mineral Rights Offer Calculator (Is the Royalty Buyout Fair?) — Free</title>
+  <meta name="description" content="Free oil and gas mineral rights offer calculator: compare a lump-sum buyout with the royalty checks you would keep receiving. Decline-curve present value at your discount rate, the buyer's implied return, new-well upside, price sensitivity and an after-tax comparison. Nothing uploaded.">
+  <meta property="og:title" content="Is a mineral rights or royalty offer fair? Free calculator">
+  <meta property="og:description" content="Present value of your royalty checks on a decline curve, the return the buyer earns at the offered price, and what changes with new wells, prices and tax. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23166534'/%3E%3Cpath d='M8 24c4 0 4-14 8-14s4 14 8 14' stroke='%23fff' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Mineral Royalty Offer Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare a lump-sum offer for your oil and gas mineral rights or royalty with the checks you would keep receiving: decline-curve present value at your discount rate, the buyer's implied return, new-well upside, price sensitivity and an after-tax comparison. Runs in your browser; nothing is uploaded.", "featureList": "Decline curve present value, implied buyer return, months-of-income and per-acre multiples, new well upside, oil and gas price sensitivity, after-tax comparison"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I sell my mineral rights or royalty for a lump sum?", "acceptedAnswer": {"@type": "Answer", "text": "This tool does not tell you to. It shows what the offer is worth against the royalty checks you would otherwise keep receiving: the present value of those checks at your own discount rate, the annual return the buyer earns at the offered price, and the same comparison after tax. Mineral buyers typically need a high return to buy, so an offer well below your own present value is paying you less than the stream is worth to you."}}, {"@type": "Question", "name": "How do mineral buyers price an offer?", "acceptedAnswer": {"@type": "Answer", "text": "Usually as a number of months of your current royalty income, or a price per net mineral acre. The tool shows both for your offer, then values the actual decline of the well so you can see what that multiple really buys."}}, {"@type": "Question", "name": "What is the decline curve in the tool?", "acceptedAnswer": {"@type": "Answer", "text": "A modified Arps curve, the standard engineering shape for wells: steep early decline that flattens over time (hyperbolic), then a steady terminal decline. You type the first-year decline, the curve shape (b) and the terminal rate. Look at your last twelve statements to estimate the decline; a shale well often loses 30 to 60 percent in year one."}}, {"@type": "Question", "name": "Why does the tool ask about a new well?", "acceptedAnswer": {"@type": "Answer", "text": "Unleased or undrilled acreage can add wells, and a buyer prices that in. The tool counts it as an expected value (monthly check times your chance of it happening) and shows the offer with and without it, so you can see how much of the price rests on a well that has not been drilled."}}, {"@type": "Question", "name": "What do the oil and gas price multipliers do?", "acceptedAnswer": {"@type": "Answer", "text": "They scale every future check up or down, as if prices ran 40 percent lower or 50 percent higher than today's. The grid shows the present value across discount rates and prices so a single price guess does not decide the answer."}}, {"@type": "Question", "name": "How is tax handled?", "acceptedAnswer": {"@type": "Answer", "text": "You type a rate for the lump sum applied to the offer minus your basis, a rate for ordinary royalty income, and the share of royalty income sheltered by percentage depletion. It is a rough comparison only. Whether a sale is capital gain or ordinary income depends on the facts, so confirm with a tax professional before signing anything."}}, {"@type": "Question", "name": "Is this legal, tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on numbers you type in, with simplified assumptions: monthly end-of-month checks, a smooth decline curve and a constant price drift. It uses no well data or market prices. Have an oil and gas attorney review any deed or purchase agreement, and check what the offer conveys: the minerals, the royalty, the term and any reversion."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">MINERAL ROYALTY OFFER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is the offer for my mineral rights worth taking?</h1>
+    <p>Mineral and royalty owners get unsolicited letters offering cash for their future royalty checks, usually quoted as a number of months of income or a price per acre. Type your recent check, how fast it is falling and the offer. It shows what those checks are worth to you at your own discount rate, the annual return the buyer earns at the price, how much rests on a well not yet drilled, and the same comparison after tax.</p>
+    <p class="note">Planning arithmetic on numbers you type in. Not legal, tax or financial advice. The example figures are placeholders, not a real property.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Your royalty and how it declines</h2>
+      <div class="grid">
+        <div><label for="currentMonthly">Current average monthly royalty check ($, last 12 months)</label><input id="currentMonthly" type="number" step="any" value="0"></div>
+        <div><label for="initialDecline">First-year production decline (%)</label><input id="initialDecline" type="number" step="any" value="0"></div>
+        <div><label for="b">Decline curve shape b (0 = exponential, 1 = typical, up to 2)</label><input id="b" type="number" step="any" value="0"></div>
+        <div><label for="terminalDecline">Long-term (terminal) decline (%)</label><input id="terminalDecline" type="number" step="any" value="0"></div>
+        <div><label for="priceDrift">Yearly oil and gas price change (%)</label><input id="priceDrift" type="number" step="any" value="0"></div>
+        <div><label for="shutInMonthly">Well shuts in below this monthly royalty ($)</label><input id="shutInMonthly" type="number" step="any" value="0"></div>
+        <div><label for="horizon">Years of royalty to consider (1 to 60)</label><input id="horizon" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Upside from a new well</h2>
+      <div class="grid">
+        <div><label for="newWellMonthly">Possible new well: first monthly royalty ($, 0 if none)</label><input id="newWellMonthly" type="number" step="any" value="0"></div>
+        <div><label for="newWellYear">Year the new well starts paying</label><input id="newWellYear" type="number" step="any" value="0"></div>
+        <div><label for="newWellProb">Chance the new well is drilled (%)</label><input id="newWellProb" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. The offer and your tax</h2>
+      <div class="grid">
+        <div><label for="offer">Lump-sum offer ($)</label><input id="offer" type="number" step="any" value="0"></div>
+        <div><label for="netMineralAcres">Net mineral acres the offer covers</label><input id="netMineralAcres" type="number" step="any" value="0"></div>
+        <div><label for="discountRate">Your discount rate (%): what the money would earn if you kept it</label><input id="discountRate" type="number" step="any" value="0"></div>
+        <div><label for="basis">Your tax basis in the minerals ($)</label><input id="basis" type="number" step="any" value="0"></div>
+        <div><label for="lumpTaxPct">Tax rate on the lump sum (%)</label><input id="lumpTaxPct" type="number" step="any" value="0"></div>
+        <div><label for="rentTaxPct">Tax rate on royalty income (%)</label><input id="rentTaxPct" type="number" step="any" value="0"></div>
+        <div><label for="depletionPct">Share of royalty sheltered by percentage depletion (%)</label><input id="depletionPct" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Evaluate the offer</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Should I sell my mineral rights or royalty for a lump sum?</h3>
+      <p>This tool does not tell you to. It shows what the offer is worth against the royalty checks you would otherwise keep receiving: the present value of those checks at your own discount rate, the annual return the buyer earns at the offered price, and the same comparison after tax. Mineral buyers typically need a high return to buy, so an offer well below your own present value is paying you less than the stream is worth to you.</p>
+      <h3>How do mineral buyers price an offer?</h3>
+      <p>Usually as a number of months of your current royalty income, or a price per net mineral acre. The tool shows both for your offer, then values the actual decline of the well so you can see what that multiple really buys.</p>
+      <h3>What is the decline curve in the tool?</h3>
+      <p>A modified Arps curve, the standard engineering shape for wells: steep early decline that flattens over time (hyperbolic), then a steady terminal decline. You type the first-year decline, the curve shape (b) and the terminal rate. Look at your last twelve statements to estimate the decline; a shale well often loses 30 to 60 percent in year one.</p>
+      <h3>Why does the tool ask about a new well?</h3>
+      <p>Unleased or undrilled acreage can add wells, and a buyer prices that in. The tool counts it as an expected value (monthly check times your chance of it happening) and shows the offer with and without it, so you can see how much of the price rests on a well that has not been drilled.</p>
+      <h3>What do the oil and gas price multipliers do?</h3>
+      <p>They scale every future check up or down, as if prices ran 40 percent lower or 50 percent higher than today&#x27;s. The grid shows the present value across discount rates and prices so a single price guess does not decide the answer.</p>
+      <h3>How is tax handled?</h3>
+      <p>You type a rate for the lump sum applied to the offer minus your basis, a rate for ordinary royalty income, and the share of royalty income sheltered by percentage depletion. It is a rough comparison only. Whether a sale is capital gain or ordinary income depends on the facts, so confirm with a tax professional before signing anything.</p>
+      <h3>Is this legal, tax or financial advice?</h3>
+      <p>No. It is arithmetic on numbers you type in, with simplified assumptions: monthly end-of-month checks, a smooth decline curve and a constant price drift. It uses no well data or market prices. Have an oil and gas attorney review any deed or purchase agreement, and check what the offer conveys: the minerals, the royalty, the term and any reversion.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>What the deed actually conveys (full minerals, royalty only, a term, a reversion), whether the lease is held by production, how fast your particular well will really decline, the right discount rate for you, how a sale is taxed, title and curative issues, and whether to sell at all. Checks are modelled monthly with a smooth decline curve and a constant price drift; no well data or market prices are used.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../cell-tower-lease-buyout-calculator/">cell tower lease buyout calculator</a> and the <a href="../farmland-lease-cash-rent-vs-crop-share-calculator/">farmland lease calculator</a> for other land-income decisions.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it is not real-estate, appraisal or investment advice. Valuations are arithmetic on figures you type; nothing here is an appraisal or an offer to buy or sell.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { DEFAULTS, num, money, pct, analyze } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    function run() {
+      const a = analyze(opts());
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.months || !a.offer || !a.annual) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const verdict = a.gap >= 0 ? "The offer is at or above what these royalties are worth to you at " + a.rate + "%." : "The offer is " + money(-a.gap) + " below what these royalties are worth to you at " + a.rate + "%, so the buyer earns " + pct(a.irr) + " a year on it.";
+      h += `<div class="finding"><h4>Offer against your own discount rate</h4><p>${esc(verdict)}</p>${table(["Measure", "Result"], [["Offer", money(a.offer)], ["Expected royalty checks, undiscounted", money(a.undiscounted)], ["Worth to you at " + a.rate + "% (present value)", money(a.pv)], ["Offer as a share of that value", pct(a.offerVsPv, 0)], ["Return the buyer earns at this price", pct(a.irr)], ["Offer that would match your rate", money(a.pv)], ["Offer as months of current royalty", a.monthsOfIncome.toFixed(1) + " months"], ["Offer per net mineral acre", money(a.perAcre) + " (value to you " + money(a.pvPerAcre) + ")"], ["Existing well pays out about", a.lastLiveYears.toFixed(1) + " years"], ["Checks pass the offer after", a.paybackMonth ? (a.paybackMonth / 12).toFixed(1) + " years" : "never within the term"]])}</div>`;
+      h += `<div class="finding"><h4>How much rests on a well not yet drilled</h4>${table(["Measure", "With new well", "Existing wells only"], [["Present value of royalty", money(a.pv), money(a.pvNoUpside)], ["Return the buyer earns", pct(a.irr), pct(a.irrNoUpside)]])}</div>`;
+      h += `<div class="finding"><h4>After tax (rough)</h4>${table(["Measure", "Result"], [["Tax on the lump sum", money(a.lumpTax)], ["Offer after tax", money(a.offerAfterTax)], ["Royalty, present value after tax", money(a.pvAfterTax)], ["After-tax gap (offer minus royalty value)", (a.afterTaxGap >= 0 ? "+" : "") + money(a.afterTaxGap)], ["After-tax return the price implies for the buyer side", pct(a.irrAfterTax)]])}</div>`;
+      h += `<div class="finding"><h4>Value of the royalty at other discount rates</h4>${table(["Discount rate", "Present value", "Offer minus value"], a.rates.map((r) => [r.rate + "%", money(r.pv), (a.offer - r.pv >= 0 ? "+" : "") + money(a.offer - r.pv)]))}</div>`;
+      h += `<div class="finding"><h4>Present value by discount rate and oil and gas price level</h4>${table(["Discount rate", ...a.multipliers.map((m) => Math.round(m * 100) + "% of today's prices")], a.grid.map((g) => [g.rate + "%", ...g.values.map(money)]))}</div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>
