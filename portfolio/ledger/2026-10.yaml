@@ -3042,3 +3042,19 @@ entries:
         calculator"; volume unmeasured. Defaults are placeholders. 32 tests pass. Registered score
         row, launch date, category rule, CI workflow.
     mrr_end: 0
+  - venture: pte-tax-election-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built pte-tax-election-calculator: a browser-local tool for S corporation and
+        partnership owners that compares federal plus state tax with and without a state pass-through
+        entity tax election. It counts the SALT cap and its MAGI phase-out, the lower AGI the election
+        produces, the state credit and the shrunken 20% pass-through deduction, splits the difference
+        into those causes, finds the income at which the election first pays, and shows the case where
+        it costs money (hand-worked: -$1,680 at $400k with the cap not binding, +$16,800 at $1M).
+        Fills the PTET gap salt-cap-calculator lists as out of scope. First visitor: owners asking
+        "is a PTET election worth it"; volume unmeasured. Defaults including cap figures are
+        placeholders. Registered score row, launch date, CI workflow, inbound link from
+        salt-cap-calculator.
+    mrr_end: 0

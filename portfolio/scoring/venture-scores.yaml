@@ -28959,3 +28959,32 @@ ventures:
       Liability: arithmetic on user-typed numbers, defaults labelled as placeholders, no review of a
       franchise agreement or disclosure document, no sales prediction, no tax, financing or legal
       advice. Ethics: nothing leaves the browser, no dark patterns, nothing is sold.
+  - slug: pte-tax-election-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Tax with and without an election is plain arithmetic
+      on the numbers typed in.
+    basis: >-
+      Screened 2026-10-08 per portfolio/pipeline/README.md; write-up in this venture's own
+      VENTURE.yaml comment. Models the pass-through entity tax election that salt-cap-calculator
+      lists as out of scope, including the case where it costs money. Distribution 6: "is a PTET
+      election worth it" is a recurring search and accountant-referral question for owners with
+      six-figure pass-through income; volume not measured. Defensibility 3: the arithmetic is open.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed numbers, one flat federal rate stated on the page, no
+      advice on eligibility, deadlines or whether to elect, defaults labelled as placeholders, no
+      taxpayer identifiers requested. Ethics: nothing leaves the browser, no dark patterns,
+      nothing is sold.
