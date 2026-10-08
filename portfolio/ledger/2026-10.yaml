@@ -3097,6 +3097,22 @@ entries:
         volume unmeasured. Defaults are placeholders. 25 tests pass. Registered score row,
         launch date, category rule, CI workflow.
     mrr_end: 0
+  - venture: real-estate-professional-status-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built real-estate-professional-status-calculator: a browser-local tool for rental investors that checks
+        the 750-hour and more-than-half tests, the 500-hour material participation gate on the
+        rentals, applies the $25,000 allowance and its MAGI phase-out, lists suspended losses
+        year by year, and prices non-passive status in today's dollars (hand-worked: $60,000
+        year-1 loss worth $21,000 now at 35%, $5,247 present-value gain over staying passive
+        across 5 years, because suspended losses are released at sale). Covers the long-term
+        rental route that str-tax-loophole-calculator does not. First visitor: "real estate
+        professional status requirements" searchers; volume unmeasured. Defaults are
+        placeholders. 23 tests pass. Registered score row, launch date, category rule, CI
+        workflow, inbound link from str-tax-loophole-calculator.
+    mrr_end: 0
   - venture: farmland-lease-cash-rent-vs-crop-share-calculator
     agent_spend_usd: null
     human_hours: 0

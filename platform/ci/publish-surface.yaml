@@ -1750,6 +1750,9 @@ workflows:
 - workflow: pte-tax-election-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: real-estate-professional-status-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: public-record-watch-ci.yml
   classification: none
   publishes: []

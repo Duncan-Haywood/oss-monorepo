@@ -29069,6 +29069,34 @@ ventures:
       Liability: arithmetic on user-typed rates, defaults labelled as placeholders, no payroll
       processing, no advice on withholding elections or W-4s. Ethics: nothing leaves the browser,
       no dark patterns, nothing is sold.
+  - slug: real-estate-professional-status-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Hours tests and a passive-loss schedule are plain
+      arithmetic on the numbers typed in.
+    basis: >-
+      Screened 2026-10-08 per portfolio/pipeline/README.md; write-up in this venture's own
+      VENTURE.yaml comment. duplicate_check scored 0.35 against str-tax-loophole-calculator,
+      which covers the short-term-rental route. Distribution 6: "real estate professional status"
+      is a recurring search and cost-segregation-referral question; volume not measured.
+      Defensibility 3: the arithmetic is open.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed numbers, flat rates stated on the page, no determination
+      of status, defaults labelled as placeholders, no taxpayer identifiers requested. Ethics:
+      nothing leaves the browser, no dark patterns, nothing is sold.
   - slug: farmland-lease-cash-rent-vs-crop-share-calculator
     scores:
       ai_leverage: 2
