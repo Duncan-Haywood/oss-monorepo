@@ -29125,3 +29125,32 @@ ventures:
       Liability: arithmetic on user-typed numbers, defaults labelled as placeholders, no lease
       drafted, no legal, tax or agronomic advice. Ethics: nothing leaves the browser, no dark
       patterns, nothing is sold.
+  - slug: recipe-costing-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Unit conversion, yield and cost roll-up are plain
+      functions of the prices typed in.
+    basis: >-
+      Screened 2026-10-08 per portfolio/pipeline/README.md; write-up in this venture's own
+      VENTURE.yaml comment. A text-in recipe costing tool with trim yield, weight-to-volume
+      density, sub-recipes, labor and packaging, and the menu price that hits a target food
+      cost. Distribution 7: "recipe cost calculator" and "how to cost a recipe" are evergreen
+      searches and market-pricing threads recur in baker and cottage-food communities; volume
+      not measured. Defensibility 3: the arithmetic is open.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed prices and quantities, example values labelled as
+      placeholders, no accounting, tax, labeling or food-safety advice. Ethics: nothing leaves
+      the browser, no dark patterns, nothing is sold.

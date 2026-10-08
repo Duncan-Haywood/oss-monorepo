@@ -320,6 +320,9 @@ workflows:
 - workflow: bonus-depreciation-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: bonus-take-home-gross-up-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: booking-request-chooser-ci.yml
   classification: none
   publishes: []
@@ -555,6 +558,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: construction-evidence-log-ci.yml
+  classification: none
+  publishes: []
+- workflow: container-demurrage-detention-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: container-load-planner-ci.yml
@@ -884,6 +890,9 @@ workflows:
 - workflow: farmers-market-booth-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: farmland-lease-cash-rent-vs-crop-share-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: fba-aged-inventory-fee-analyzer-ci.yml
   classification: none
   publishes: []
@@ -954,12 +963,6 @@ workflows:
   classification: none
   publishes: []
 - workflow: fractional-executive-rate-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: bonus-take-home-gross-up-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: farmland-lease-cash-rent-vs-crop-share-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: franchise-unit-economics-calculator-ci.yml
@@ -1750,9 +1753,6 @@ workflows:
 - workflow: pte-tax-election-calculator-ci.yml
   classification: none
   publishes: []
-- workflow: real-estate-professional-status-calculator-ci.yml
-  classification: none
-  publishes: []
 - workflow: public-record-watch-ci.yml
   classification: none
   publishes: []
@@ -1824,6 +1824,12 @@ workflows:
     step: uses cloudflare/wrangler-action
     gates:
     - env.CLOUDFLARE_API_TOKEN != ''
+- workflow: real-estate-professional-status-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: recipe-costing-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: redirect-chain-check-ci.yml
   classification: none
   publishes: []
