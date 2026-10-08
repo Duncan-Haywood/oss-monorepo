@@ -33,43 +33,43 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547706 bytes
-#   portfolio-front-tools-1: 92 files, 555434 bytes
-#   portfolio-front-tools-2: 144 files, 553244 bytes
-#   portfolio-front-tools-3: 128 files, 549408 bytes
-#   portfolio-front-tools-4: 136 files, 556434 bytes
-#   portfolio-front-tools-5: 133 files, 553233 bytes
-#   portfolio-front-tools-6: 124 files, 554372 bytes
-#   portfolio-front-tools-7: 119 files, 553939 bytes
-#   portfolio-front-tools-8: 128 files, 553538 bytes
-#   portfolio-front-tools-9: 138 files, 556995 bytes
-#   portfolio-front-tools-10: 131 files, 555753 bytes
-#   portfolio-front-tools-11: 124 files, 556434 bytes
-#   portfolio-front-tools-12: 128 files, 550009 bytes
-#   portfolio-front-tools-13: 127 files, 550181 bytes
-#   portfolio-front-tools-14: 121 files, 551075 bytes
-#   portfolio-front-tools-15: 124 files, 556521 bytes
-#   portfolio-front-tools-16: 125 files, 556871 bytes
-#   portfolio-front-tools-17: 116 files, 549530 bytes
-#   portfolio-front-tools-18: 123 files, 554493 bytes
-#   portfolio-front-tools-19: 113 files, 556433 bytes
-#   portfolio-front-tools-20: 116 files, 555914 bytes
-#   portfolio-front-tools-21: 130 files, 546223 bytes
-#   portfolio-front-tools-22: 126 files, 550335 bytes
-#   portfolio-front-tools-23: 127 files, 556925 bytes
-#   portfolio-front-tools-24: 121 files, 554643 bytes
-#   portfolio-front-tools-25: 129 files, 555286 bytes
-#   portfolio-front-tools-26: 129 files, 553933 bytes
-#   portfolio-front-tools-27: 120 files, 555035 bytes
-#   portfolio-front-tools-28: 128 files, 547214 bytes
-#   portfolio-front-tools-29: 88 files, 550011 bytes
-#   portfolio-front-tools-30: 121 files, 554345 bytes
-#   portfolio-front-tools-31: 117 files, 555432 bytes
-#   portfolio-front-tools-32: 124 files, 556631 bytes
-#   portfolio-front-tools-33: 122 files, 554457 bytes
-#   portfolio-front-tools-34: 133 files, 551722 bytes
-#   portfolio-front-tools-35: 116 files, 554912 bytes
-#   portfolio-front-tools-36: 74 files, 410738 bytes
+#   portfolio-front-tools-0: 145 files, 547665 bytes
+#   portfolio-front-tools-1: 92 files, 555403 bytes
+#   portfolio-front-tools-2: 144 files, 553214 bytes
+#   portfolio-front-tools-3: 128 files, 549377 bytes
+#   portfolio-front-tools-4: 136 files, 556395 bytes
+#   portfolio-front-tools-5: 133 files, 553181 bytes
+#   portfolio-front-tools-6: 124 files, 554341 bytes
+#   portfolio-front-tools-7: 119 files, 553902 bytes
+#   portfolio-front-tools-8: 128 files, 553505 bytes
+#   portfolio-front-tools-9: 138 files, 556976 bytes
+#   portfolio-front-tools-10: 131 files, 555744 bytes
+#   portfolio-front-tools-11: 124 files, 556408 bytes
+#   portfolio-front-tools-12: 128 files, 549968 bytes
+#   portfolio-front-tools-13: 127 files, 550163 bytes
+#   portfolio-front-tools-14: 121 files, 551058 bytes
+#   portfolio-front-tools-15: 124 files, 556502 bytes
+#   portfolio-front-tools-16: 125 files, 556843 bytes
+#   portfolio-front-tools-17: 116 files, 549519 bytes
+#   portfolio-front-tools-18: 123 files, 554466 bytes
+#   portfolio-front-tools-19: 113 files, 556402 bytes
+#   portfolio-front-tools-20: 116 files, 555896 bytes
+#   portfolio-front-tools-21: 130 files, 546196 bytes
+#   portfolio-front-tools-22: 126 files, 550298 bytes
+#   portfolio-front-tools-23: 127 files, 556878 bytes
+#   portfolio-front-tools-24: 121 files, 554608 bytes
+#   portfolio-front-tools-25: 129 files, 555272 bytes
+#   portfolio-front-tools-26: 130 files, 556324 bytes
+#   portfolio-front-tools-27: 119 files, 553515 bytes
+#   portfolio-front-tools-28: 130 files, 556970 bytes
+#   portfolio-front-tools-29: 89 files, 550886 bytes
+#   portfolio-front-tools-30: 121 files, 554262 bytes
+#   portfolio-front-tools-31: 117 files, 555418 bytes
+#   portfolio-front-tools-32: 124 files, 556622 bytes
+#   portfolio-front-tools-33: 122 files, 554392 bytes
+#   portfolio-front-tools-34: 133 files, 551657 bytes
+#   portfolio-front-tools-35: 116 files, 554933 bytes
+#   portfolio-front-tools-36: 74 files, 410696 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3585,6 +3585,9 @@ configMapGenerator:
       - real-estate-professional-status-calculator__calc.mjs.gz=real-estate-professional-status-calculator__calc.mjs.gz
       - real-estate-professional-status-calculator__index.html.gz=real-estate-professional-status-calculator__index.html.gz
       - real-estate-professional-status-calculator__usage.mjs.gz=real-estate-professional-status-calculator__usage.mjs.gz
+      - recipe-costing-calculator__calc.mjs.gz=recipe-costing-calculator__calc.mjs.gz
+      - recipe-costing-calculator__index.html.gz=recipe-costing-calculator__index.html.gz
+      - recipe-costing-calculator__usage.mjs.gz=recipe-costing-calculator__usage.mjs.gz
       - redirect-chain-check__check.mjs.gz=redirect-chain-check__check.mjs.gz
       - redirect-chain-check__engine.mjs.gz=redirect-chain-check__engine.mjs.gz
       - redirect-chain-check__fetch-chain.mjs.gz=redirect-chain-check__fetch-chain.mjs.gz
@@ -3617,13 +3620,13 @@ configMapGenerator:
       - rent-roll-delinquency-analyzer__index.html.gz=rent-roll-delinquency-analyzer__index.html.gz
       - rent-roll-delinquency-analyzer__usage.mjs.gz=rent-roll-delinquency-analyzer__usage.mjs.gz
       - rental-dscr-calculator__calc.mjs.gz=rental-dscr-calculator__calc.mjs.gz
-      - rental-dscr-calculator__index.html.gz=rental-dscr-calculator__index.html.gz
-      - rental-dscr-calculator__usage.mjs.gz=rental-dscr-calculator__usage.mjs.gz
   - name: portfolio-front-tools-27
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - rental-dscr-calculator__index.html.gz=rental-dscr-calculator__index.html.gz
+      - rental-dscr-calculator__usage.mjs.gz=rental-dscr-calculator__usage.mjs.gz
       - rental-fleet-size-optimizer__calc.mjs.gz=rental-fleet-size-optimizer__calc.mjs.gz
       - rental-fleet-size-optimizer__how-many-rental-units-to-own.html.gz=rental-fleet-size-optimizer__how-many-rental-units-to-own.html.gz
       - rental-fleet-size-optimizer__index.html.gz=rental-fleet-size-optimizer__index.html.gz
@@ -3741,14 +3744,14 @@ configMapGenerator:
       - saas-annual-plan-discount-calculator__index.html.gz=saas-annual-plan-discount-calculator__index.html.gz
       - saas-annual-plan-discount-calculator__usage.mjs.gz=saas-annual-plan-discount-calculator__usage.mjs.gz
       - saas-cac-payback-calculator__calc.mjs.gz=saas-cac-payback-calculator__calc.mjs.gz
-      - saas-cac-payback-calculator__index.html.gz=saas-cac-payback-calculator__index.html.gz
-      - saas-cac-payback-calculator__usage.mjs.gz=saas-cac-payback-calculator__usage.mjs.gz
-      - saas-efficiency-metrics-calculator__calc.mjs.gz=saas-efficiency-metrics-calculator__calc.mjs.gz
   - name: portfolio-front-tools-28
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - saas-cac-payback-calculator__index.html.gz=saas-cac-payback-calculator__index.html.gz
+      - saas-cac-payback-calculator__usage.mjs.gz=saas-cac-payback-calculator__usage.mjs.gz
+      - saas-efficiency-metrics-calculator__calc.mjs.gz=saas-efficiency-metrics-calculator__calc.mjs.gz
       - saas-efficiency-metrics-calculator__index.html.gz=saas-efficiency-metrics-calculator__index.html.gz
       - saas-efficiency-metrics-calculator__usage.mjs.gz=saas-efficiency-metrics-calculator__usage.mjs.gz
       - saas-renewal-planner__cli.mjs.gz=saas-renewal-planner__cli.mjs.gz
@@ -3876,12 +3879,12 @@ configMapGenerator:
       - senior-deduction-calculator__why-does-the-senior-deduction-phase-out-completely.html.gz=senior-deduction-calculator__why-does-the-senior-deduction-phase-out-completely.html.gz
       - sep-ira-vs-solo-401k-calculator__calc.mjs.gz=sep-ira-vs-solo-401k-calculator__calc.mjs.gz
       - sep-ira-vs-solo-401k-calculator__index.html.gz=sep-ira-vs-solo-401k-calculator__index.html.gz
-      - sep-ira-vs-solo-401k-calculator__usage.mjs.gz=sep-ira-vs-solo-401k-calculator__usage.mjs.gz
   - name: portfolio-front-tools-29
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sep-ira-vs-solo-401k-calculator__usage.mjs.gz=sep-ira-vs-solo-401k-calculator__usage.mjs.gz
       - sepa-pain001-validator__calc.mjs.gz=sepa-pain001-validator__calc.mjs.gz
       - sepa-pain001-validator__index.html.gz=sepa-pain001-validator__index.html.gz
       - sepa-pain001-validator__usage.mjs.gz=sepa-pain001-validator__usage.mjs.gz

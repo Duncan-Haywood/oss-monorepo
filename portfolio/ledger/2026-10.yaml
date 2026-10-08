@@ -3113,3 +3113,18 @@ entries:
         placeholders. 23 tests pass. Registered score row, launch date, category rule, CI
         workflow, inbound link from str-tax-loophole-calculator.
     mrr_end: 0
+  - venture: recipe-costing-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built recipe-costing-calculator: a browser-local, text-in recipe costing tool for
+        bakers, cafes, caterers and cottage-food sellers. Pantry (pack size, price, trim yield, density)
+        and recipes give cost per portion and batch, food cost percentage, the menu price at a target,
+        ranked cost drivers and CSV; converts weight and volume through density, rolls sub-recipes up
+        with loop detection and reports bad lines by name (hand-worked: 8 oz of a $4.60 lb of butter is
+        $2.30; a 92%-yield walnut costs 8.7% more per usable lb). First visitor: "recipe cost
+        calculator" searchers and baker/cottage-food pricing threads; volume unmeasured. Defaults are
+        placeholders. 31 tests pass; browser checks pass. Registered score row, launch date, category
+        rule, CI workflow, inbound links from cottage-food-pricing-calculator and catering-quote-calculator.
+    mrr_end: 0
