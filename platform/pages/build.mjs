@@ -3068,6 +3068,8 @@ const CATEGORY_RULES = [
       [
         // `greenhouse-bench-planner` joined 2026-10-07 on its first commit. Back-office was at its 3 MB offline bound; a
         // grower selling transplants on fixed dates is one person pricing their own season's space.
+        // `contract-vs-fte-rate-calculator` joined 2026-10-08 on its first commit: one person working out what a contract rate must be to match a salary.
+        'contract-vs-fte-rate-calculator',
         'greenhouse-bench-planner',
         // `mushroom-fruiting-room-planner` joined 2026-10-07 on its first commit, same reason: back-office is at its bound,
         // and a grower deciding flushes, slots and starting cash for their own room is one person pricing their own farm.

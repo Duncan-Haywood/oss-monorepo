@@ -3155,11 +3155,20 @@ entries:
         Registered score row, launch date, category rule, CI workflow, inbound link from
         restaurant-tip-pool-calculator.
     mrr_end: 0
+  - venture: contract-vs-fte-rate-calculator
   - venture: crop-insurance-coverage-calculator
     agent_spend_usd: null
     human_hours: 0
     outcomes:
       - >-
+        Graduated and built contract-vs-fte-rate-calculator: a browser-local tool that turns a
+        salaried offer into the hourly 1099/contract rate leaving the same cash, with a step table
+        (unpaid time off, bench weeks, self-employment tax net of employee FICA, health, lost 401(k)
+        match, expenses) and a check of an offered rate. Hand-worked test: $100k salary alone needs
+        $107,546 of revenue; the example offer ($150k + 10% bonus) needs $110.02/h, 1.39x the naive
+        figure. First visitor: career-subreddit "contract vs salary" threads and "W2 vs 1099 hourly
+        rate" searchers; volume unmeasured. Defaults are placeholders. Registered score row, launch
+        date, category rule, CI workflow.
         Graduated and built crop-insurance-coverage-calculator: a browser-local tool for row-crop farmers and
         their advisers. An agent's quoted premiums by coverage level plus APH, projected price and a few
         yield-and-price years give the guarantee, break-even yield, cost of each extra 5 points per
