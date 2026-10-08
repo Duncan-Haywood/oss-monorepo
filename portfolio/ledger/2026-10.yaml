@@ -2918,6 +2918,7 @@ entries:
         Registered score row, launch date, category rule, CI workflow.
     mrr_end: 0
   - venture: mobile-welding-job-price-calculator
+  - venture: collision-shop-drp-profit-calculator
     agent_spend_usd: null
     human_hours: 0
     outcomes:
@@ -2929,4 +2930,27 @@ entries:
         volume unmeasured. Defaults are placeholders, unverified against real shops. 29 tests pass; page
         logic run end to end against a DOM stub. Registered score row, launch date, CI workflow, inbound
         link from a related venture.
+        Graduated and built collision-shop-drp-profit-calculator: a browser-local planner for collision
+        repair shops weighing an insurer direct repair program. Retail and program labor rates, parts
+        discount, materials cap, paperwork cost, repriced existing jobs and promised new volume give profit
+        with and without the program, break-even new repair orders, the cost of one program job and the
+        lowest labor rate worth accepting, with whole-technician steps. First visitor: body-shop owner
+        groups and "is a DRP worth it" searches; volume unmeasured. Defaults are placeholders, unverified
+        against real shops. 30 tests pass; page run in Chromium with no console errors. Registered score
+        row, launch date, category rule, CI workflow.
+    mrr_end: 0
+  - venture: good-faith-estimate-generator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built good-faith-estimate-generator: a browser-local No Surprises Act Good Faith
+        Estimate builder for cash-pay practices. Service lines with codes, diagnoses and charges give a
+        printable estimate, per-biller subtotals, the delivery deadline (business days, optional federal
+        holidays), a completeness check, a $400 / 120-day bill-versus-estimate check and a per-code
+        drift review of past estimates. First visitor: practice managers searching "good faith estimate
+        template" and "deadline"; volume unmeasured. Deadline counting is an assumption shown to the
+        user; required notice wording flagged for comparison with CMS's template. 33 tests pass; page run
+        in Chromium end to end with no console errors. Registered score row, launch date, category rule,
+        CI workflow.
     mrr_end: 0
