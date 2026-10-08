@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'sauna-cold-plunge-install-bid-calculator':
+    'the labour rate is one hourly figure for the installer beside a separate helper rate, there is no burden field, overhead is a monthly dollar total spread over billable hours rather than a percentage of direct cost, and the target margin is a share of the price net of card fees with materials marked up on their own tier; the tool solves an install price from a bill of materials instead of being quoted a shop rate',
   'hay-baling-own-vs-hire-calculator':
     'the wage is the producer\'s own value of an hour of mowing, raking and baling per acre, there is no burden or overhead percentage (equipment ownership is a yearly depreciation, interest and insurance total), and the target margin is a share of the hay sale price; the tool compares owning with hiring custom baling rather than being quoted a shop rate',
   'stump-grinding-price-calculator':

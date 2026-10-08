@@ -58,6 +58,10 @@ const script = renderShopRatesModule();
  * that the assertion below actually checks.
  */
 const NO_SHARED_SHOP_RATES = {
+  'sauna-cold-plunge-install-bid-calculator':
+    'it has no payroll-burden field, its overhead is a monthly dollar total spread over billable hours ' +
+    'rather than a percentage of direct cost, and its labour rate sits beside a separate helper rate, so ' +
+    'sharing the four canonical rates would prefill figures that mean different things.',
   'tree-service-bid-calculator':
     'its wage field is a whole-crew rate (~$180/h), not a per-person wage. ' +
     'Sharing would prefill one person\'s $17-22 as the crew rate and bid the job ~10x low. ' +
