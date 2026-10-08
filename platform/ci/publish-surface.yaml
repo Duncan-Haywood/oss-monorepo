@@ -959,6 +959,9 @@ workflows:
 - workflow: bonus-take-home-gross-up-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: farmland-lease-cash-rent-vs-crop-share-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: franchise-unit-economics-calculator-ci.yml
   classification: none
   publishes: []

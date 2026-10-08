@@ -29097,3 +29097,31 @@ ventures:
       Liability: arithmetic on user-typed numbers, flat rates stated on the page, no determination
       of status, defaults labelled as placeholders, no taxpayer identifiers requested. Ethics:
       nothing leaves the browser, no dark patterns, nothing is sold.
+  - slug: farmland-lease-cash-rent-vs-crop-share-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Lease payouts and break-even yield are plain functions
+      of the numbers typed in.
+    basis: >-
+      Screened 2026-10-08 per portfolio/pipeline/README.md; write-up in this venture's own
+      VENTURE.yaml comment. Cash rent vs crop share vs flex lease for landowners and operators with
+      break-even yield, negotiation range and a yield-by-price risk grid. Distribution 6: "cash rent
+      vs crop share" is a recurring renewal-season search served today by scattered university
+      spreadsheets; volume not measured. Defensibility 3: the arithmetic is open.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed numbers, defaults labelled as placeholders, no lease
+      drafted, no legal, tax or agronomic advice. Ethics: nothing leaves the browser, no dark
+      patterns, nothing is sold.

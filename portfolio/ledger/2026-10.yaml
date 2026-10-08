@@ -3113,3 +3113,16 @@ entries:
         placeholders. 23 tests pass. Registered score row, launch date, category rule, CI
         workflow, inbound link from str-tax-loophole-calculator.
     mrr_end: 0
+  - venture: farmland-lease-cash-rent-vs-crop-share-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built farmland-lease-cash-rent-vs-crop-share-calculator: a browser-local tool for farmland owners and
+        operators. Yield, price, costs and lease terms give landlord and operator results per acre
+        and per field under cash rent, crop share and flex lease, the break-even yield, the cash
+        rent range both sides could accept, and a yield-by-price risk grid (hand-worked: $250 cash
+        vs $260 share to the landlord at 200 bu x $4.50). First visitor: "cash rent vs crop share"
+        searchers; volume unmeasured. Defaults are placeholders. Registered score row, launch date,
+        category rule, CI workflow.
+    mrr_end: 0
