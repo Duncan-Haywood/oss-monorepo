@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Short-Term Rental Loophole Calculator: Cost Segregation Tax Savings — Free</title>
+  <meta name="description" content="Free short-term rental loophole calculator: the 7-day average-stay test, material participation hours, cost-segregation bonus depreciation, year-one tax saved, loss limit and recapture. Nothing uploaded.">
+  <meta property="og:title" content="Short-term rental loophole calculator">
+  <meta property="og:description" content="Will your Airbnb loss offset your W-2 income? Test the stay and hours rules and see the year-one tax saved. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M6 16 16 7l10 9v9H6z' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Short-Term Rental Loophole Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Estimate the year-one tax saved by a short-term rental with cost-segregation bonus depreciation: the 7-day average-stay test, material participation hours, the loss limit, recapture at sale. Runs in your browser.", "featureList": "Average-stay test, material participation test, cost segregation lift, loss limit, recapture estimate, hours sensitivity, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the short-term rental tax loophole?", "acceptedAnswer": {"@type": "Answer", "text": "If the average guest stay is 7 days or fewer, the rental is not a rental activity under the passive-loss rules. If you also materially participate, depreciation losses (often boosted by a cost-segregation study and bonus depreciation) are non-passive and can offset W-2 or business income instead of being suspended. It is a real, widely used reading of the regulations, and also a frequent audit target, so records matter."}}, {"@type": "Question", "name": "How many hours do I need to materially participate?", "acceptedAnswer": {"@type": "Answer", "text": "More than 500 hours in the year, or more than 100 hours and more than any other single person who works on the property, cleaners and property managers included. A manager who logs more hours than you can defeat the second test. Keep a contemporaneous time log."}}, {"@type": "Question", "name": "Does cost segregation matter?", "acceptedAnswer": {"@type": "Answer", "text": "It moves part of the building into 5, 7 and 15 year property that bonus depreciation can write off in year one. The tool shows the year-one tax saved with and without it, and the recapture you owe later. Depreciation is a deferral, not forgiveness."}}, {"@type": "Question", "name": "Is there a limit on how much loss I can use?", "acceptedAnswer": {"@type": "Answer", "text": "A non-passive business loss is capped by the excess business loss limit (section 461(l)), an indexed threshold you type in. Anything above carries forward as a net operating loss."}}, {"@type": "Question", "name": "What happens when I sell?", "acceptedAnswer": {"@type": "Answer", "text": "Depreciation on the cost-segregated share is recaptured at ordinary rates and building depreciation at up to 25%. The tool estimates this for the years you plan to hold. A 1031 exchange or holding until death changes the picture; this tool does not model either."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type. Whether your stays, services and hours qualify is a facts-and-circumstances question for a qualified tax professional."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">SHORT-TERM RENTAL LOOPHOLE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will your short-term rental loss offset your other income?</h1>
+    <p>Enter the property, the income and your hours. The tool tests the 7-day average-stay rule and material participation, splits year-one depreciation into bonus, cost-segregation and straight line, and shows the tax saved now, the loss that carries forward and the recapture you owe at sale.</p>
+    <p class="note">Arithmetic on assumptions you type. Not tax, legal or financial advice. The example figures are placeholders, not a quote for any property or year; confirm thresholds with a tax professional.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The property</h2>
+      <div class="grid">
+        <div><label for="purchasePrice">Purchase price ($)</label><input id="purchasePrice" type="number" step="any" value="0"></div>
+        <div><label for="landPct">Land share of the price (%)</label><input id="landPct" type="number" step="any" value="0"></div>
+        <div><label for="costSegPct">Share of the building a cost-segregation study reclassifies (%)</label><input id="costSegPct" type="number" step="any" value="0"></div>
+        <div><label for="bonusPct">Bonus depreciation on that share (%)</label><input id="bonusPct" type="number" step="any" value="0"></div>
+        <div><label for="recoveryYears">Building recovery period</label><select id="recoveryYears"><option value="39">39 years (short stays are usually treated as non-residential)</option><option value="27.5">27.5 years (residential)</option></select></div>
+        <div><label for="yearOneFraction">Share of the year in service (0 to 1)</label><input id="yearOneFraction" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. The income</h2>
+      <div class="grid">
+        <div><label for="grossRentalIncome">Gross rental income, year one ($)</label><input id="grossRentalIncome" type="number" step="any" value="0"></div>
+        <div><label for="operatingExpenses">Operating expenses incl. interest, tax, insurance, management ($)</label><input id="operatingExpenses" type="number" step="any" value="0"></div>
+        <div><label for="otherIncome">Your other income: W-2 and business ($)</label><input id="otherIncome" type="number" step="any" value="0"></div>
+        <div><label for="fedRatePct">Federal marginal rate (%)</label><input id="fedRatePct" type="number" step="any" value="0"></div>
+        <div><label for="stateRatePct">State marginal rate (%)</label><input id="stateRatePct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. The tests</h2>
+      <div class="grid">
+        <div><label for="avgStayDays">Average guest stay (days)</label><input id="avgStayDays" type="number" step="any" value="0"></div>
+        <div><label for="hoursYou">Your documented hours a year</label><input id="hoursYou" type="number" step="any" value="0"></div>
+        <div><label for="hoursOthers">Hours of the busiest other person (cleaner, manager, co-owner)</label><input id="hoursOthers" type="number" step="any" value="0"></div>
+        <div><label for="holdYears">Years you expect to hold before selling</label><input id="holdYears" type="number" step="any" value="0"></div>
+        <div><label for="lossLimit">Excess business loss limit ($, indexed yearly)</label><input id="lossLimit" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Run the numbers</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What is the short-term rental tax loophole?</h3>
+      <p>If the average guest stay is 7 days or fewer, the rental is not a rental activity under the passive-loss rules. If you also materially participate, depreciation losses (often boosted by a cost-segregation study and bonus depreciation) are non-passive and can offset W-2 or business income instead of being suspended. It is a real, widely used reading of the regulations, and also a frequent audit target, so records matter.</p>
+      <h3>How many hours do I need to materially participate?</h3>
+      <p>More than 500 hours in the year, or more than 100 hours and more than any other single person who works on the property, cleaners and property managers included. A manager who logs more hours than you can defeat the second test. Keep a contemporaneous time log.</p>
+      <h3>Does cost segregation matter?</h3>
+      <p>It moves part of the building into 5, 7 and 15 year property that bonus depreciation can write off in year one. The tool shows the year-one tax saved with and without it, and the recapture you owe later. Depreciation is a deferral, not forgiveness.</p>
+      <h3>Is there a limit on how much loss I can use?</h3>
+      <p>A non-passive business loss is capped by the excess business loss limit (section 461(l)), an indexed threshold you type in. Anything above carries forward as a net operating loss.</p>
+      <h3>What happens when I sell?</h3>
+      <p>Depreciation on the cost-segregated share is recaptured at ordinary rates and building depreciation at up to 25%. The tool estimates this for the years you plan to hold. A 1031 exchange or holding until death changes the picture; this tool does not model either.</p>
+      <h3>Is this tax advice?</h3>
+      <p>No. It is arithmetic on figures you type. Whether your stays, services and hours qualify is a facts-and-circumstances question for a qualified tax professional.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your guests' stays and services qualify, whether your hours would survive an audit, state conformity with bonus depreciation, net investment income tax, the business-income deduction, passive income from other properties that could absorb a passive loss, a 1031 exchange, and whether a cost-segregation study is worth its fee. Rates and thresholds change every year.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../cost-segregation-study-calculator/">cost segregation study calculator</a>, the <a href="../real-estate-professional-status-calculator/">real estate professional status calculator</a> and the <a href="../midterm-rental-calculator/">mid-term rental calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you file or rely on a deduction.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const r = a.result, d = a.dep, c = a.cls;
+      h += `<div class="finding"><h4>${c.nonPassive ? "Your loss looks non-passive" : "Your loss would be passive"}: ${money(r.savings)} of tax saved in year one</h4><p>${r.loss > 0 ? `Year-one loss ${money(r.loss)}, of which ${money(r.allowed)} is usable now and ${money(r.carry)} carries forward.` : `No loss: the property shows a ${money(r.result)} profit, taxed about ${money(r.taxOnProfit)}.`} Cost segregation adds ${money(a.costSegLift)} of year-one savings over plain straight-line.</p></div>`;
+      h += `<div class="finding"><h4>Year-one depreciation: ${money(d.total)}</h4>${table(["Piece", "Amount"], [["Bonus depreciation", money(d.bonus)], ["Cost-segregation remainder (7-year)", money(d.csRegular)], ["Building straight line", money(d.sl)]])}<p>Income before depreciation: ${money(r.beforeDep)}.</p><p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      h += `<div class="finding"><h4>What you pay back at sale: about ${money(a.recaptureExposure)}</h4><p>${money(a.rec.ordinary)} ordinary-rate recapture on the cost-segregated share plus ${money(a.rec.unrecaptured)} on building depreciation over ${a.opts.holdYears} years. Depreciation defers tax; it does not erase it.</p></div>`;
+      h += `<div class="finding"><h4>What your hours do</h4>${table(["Your hours", "Non-passive?", "Loss usable now", "Tax saved"], a.grid.map((g) => [g.hours, g.nonPassive ? "Yes" : "No", money(g.allowed), money(g.savings)]))}</div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const csv = $("csv");
+      if (csv) csv.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "str-loophole.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

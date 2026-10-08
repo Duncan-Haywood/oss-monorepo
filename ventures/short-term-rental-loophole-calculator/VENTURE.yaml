@@ -1,0 +1,49 @@
+name: short-term-rental-loophole-calculator
+description: >-
+  Free browser tool for short-term rental owners: tests the 7-day average-stay rule and material participation
+  hours, splits year-one depreciation into bonus, cost-segregation and straight line, and shows the tax saved
+  now, the loss that carries forward and the recapture at sale. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled session. The tree had cost-segregation-study-calculator,
+# real-estate-professional-status-calculator and midterm-rental-calculator, but nothing for the
+# average-stay <= 7 days route that most Airbnb owners with W-2 income actually use (grep of ventures/ for
+# short-term-rental, str-loophole found none).
+#
+# Why this niche: "short term rental loophole" is a high-intent search by high-income owners deciding whether
+# to buy a $500k+ property; the tax saved is five figures, so the question is worth real money to them. Paid
+# incumbents are cost-seg study firms (lead-gen calculators that end in a sales call) and course sellers.
+# Free path is a lead magnet; a later paid path is an hours-log / audit-binder export (not built).
+#
+# First visitor: an owner or prospective buyer searching "short term rental loophole calculator" or "airbnb
+# cost segregation tax savings". Volume not measured.
+#
+# Liability boundary: arithmetic on typed assumptions; no filing, no advice on whether stays or services
+# qualify; thresholds are editable inputs and the page says to confirm with a professional. Not tax advice.
+
+hypotheses:
+  - claim: >-
+      Short-term rental owners will use a private calculator that tests the stay and hours gates before showing
+      savings, because cost-seg vendors show only the savings and hide the eligibility conditions.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/short-term-rental-loophole-calculator/
+  analytics: null
