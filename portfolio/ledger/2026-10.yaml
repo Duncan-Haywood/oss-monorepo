@@ -3083,3 +3083,17 @@ entries:
         price the job, not the carrier gap. Registered score row, launch date, category (Roofing, siding and
         gutters), CI workflow, inbound links from the roofing bid calculators.
     mrr_end: 0
+  - venture: bonus-take-home-gross-up-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built bonus-take-home-gross-up-calculator: a browser-local tool for people paid a bonus
+        and the employers paying it. Bonus, wages so far, withholding rates and real bracket give
+        take-home after supplemental withholding, Social Security with the wage-base cap, Medicare
+        and Additional Medicare, the refund or balance due at filing, a 401(k) deferral table,
+        employer cost, and an exact gross-up for a target net (hand-worked: $6,535 net on a
+        $10,000 bonus at 22% + 5% state). First visitor: "bonus tax calculator" searchers;
+        volume unmeasured. Defaults are placeholders. 25 tests pass. Registered score row,
+        launch date, category rule, CI workflow.
+    mrr_end: 0
