@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 901 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 902 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -30,6 +30,14 @@
     <updated>2026-10-08T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free pricing planner for yoga, pilates, barre and cycling studios: unlimited memberships, class packs and drop-ins in; monthly profit, what each plan earns per visit, break-even class size, empty-seat value and the best unlimited price out. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>CD and Treasury Ladder Planner: After-Tax Yield by Rung — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cd-treasury-ladder-planner/"/>
+    <id>tag:marisstella.dev,2026:tool/cd-treasury-ladder-planner</id>
+    <updated>2026-10-08T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free CD and Treasury ladder calculator: build a ladder from the rates you type, see after-tax yield per rung with the state-tax exemption, and compare it with the longest CD or rolling short if rates move. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Cell Tower Lease Buyout Calculator (Is the Lump-Sum Offer Fair?) — Free</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-08T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free HSA shoebox planner: list the medical receipts you paid out of pocket, then see how much tax you avoid by letting the HSA grow and reimbursing yourself later, versus reimbursing every year. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Mobile Home Park Valuation Calculator (NOI, Cap Rate, Lot Rent Increase) — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mobile-home-park-valuation-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/mobile-home-park-valuation-calculator</id>
-    <updated>2026-10-08T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free mobile home park valuation calculator: type lots, occupancy, lot rent and expenses from a T-12 to see NOI, value at your cap rate, implied cap rate on the asking price, DSCR, and what a lot rent increase is worth after move-outs. Nothing uploaded.</summary>
   </entry>
 </feed>
