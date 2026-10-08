@@ -1402,7 +1402,8 @@ const RELATIVE_SELF = relative(
 // +1: `hay-baling-own-vs-hire-calculator` graduated.
 // +1: `escape-room-pricing-capacity-planner` graduated.
 // +1: `waterfront-rental-season-planner` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 842;
+// +1: `boutique-fitness-studio-pricing-planner` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 843;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
