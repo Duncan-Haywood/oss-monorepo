@@ -635,6 +635,7 @@
     "renewal-rent-optimizer": "2026-09-30",
     "rent-increase-notice-checker": "2026-10-06",
     "rent-roll-delinquency-analyzer": "2026-09-29",
+    "rent-vs-buy-breakeven-calculator": "2026-10-08",
     "rental-dscr-calculator": "2026-09-30",
     "rental-fleet-size-optimizer": "2026-10-01",
     "rental-ledger": "2026-10-07",
