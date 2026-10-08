@@ -2458,6 +2458,19 @@ entries:
         stated unreviewed on the page; substantially-identical securities listed as not decided. 23 calc, usage and
         page tests. Registered launch date and category rule.
     mrr_end: 0
+  - venture: section-1256-futures-tax-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built section-1256-futures-tax-calculator: a browser-local tool for futures and index-option
+        traders. Form 1099-B boxes 8, 9 and 10 per account give the box 11 aggregate, the 60/40 long-term/short-term
+        split, tax at the entered marginal rates against all-short-term, optional 3.8% NIIT and the Form 6781 loss
+        carryback note. Screened with duplicate_check.py (closest 0.24, unrelated depreciation tools). First visitor:
+        a trader searching "section 1256 calculator" at filing time. Rule read by the author, not a tax professional,
+        stated on the page; straddles, section 988/475 and state tax listed as not decided. 20 tests. Registered
+        launch date and category rule.
+    mrr_end: 0
   - venture: restaurant-tip-pool-calculator
     agent_spend_usd: null
     human_hours: 0
