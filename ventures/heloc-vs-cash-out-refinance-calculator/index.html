@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>HELOC vs Cash-Out Refinance Calculator (Which Costs Less?) — Free</title>
+  <meta name="description" content="Free HELOC vs cash-out refinance calculator: total cost of each at the year you sell or refinance, the repricing cost on your existing mortgage, the HELOC rate at which they tie, and a rate shock table. Nothing uploaded.">
+  <meta property="og:title" content="HELOC or cash-out refinance? Free calculator">
+  <meta property="og:description" content="Which costs less over your horizon, and how high can the HELOC rate go. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M8 24h16M10 24V12M16 24V12M22 24V12M7 12l9-6 9 6' stroke='%23fff' stroke-width='1.800' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "HELOC vs Cash-Out Refinance Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "HELOC or cash-out refinance? Compares the total cost of keeping your mortgage and adding a HELOC against refinancing everything, including the repricing cost on your existing balance, the HELOC rate at which they tie, and a HELOC rate shock grid. Runs in your browser; nothing is uploaded.", "featureList": "HELOC vs cash-out refinance cost at your horizon, repricing cost on existing mortgage, interest-only draw period, break-even HELOC rate, HELOC rate shock grid"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I get a HELOC or a cash-out refinance?", "acceptedAnswer": {"@type": "Answer", "text": "It mostly comes down to the rate on the mortgage you already have. A cash-out refinance replaces your whole balance with a new loan at today's rate, so if your current rate is much lower, you pay the higher rate on money you were already borrowing cheaply. A HELOC leaves that mortgage alone and charges a (usually variable) rate on only the new cash. This tool prices both for the years you expect to keep them and shows which costs less."}}, {"@type": "Question", "name": "Why can a cash-out refinance cost more even when its rate is lower than the HELOC rate?", "acceptedAnswer": {"@type": "Answer", "text": "Because the refinance rate applies to the old balance too. Taking $60,000 out of a $220,000 mortgage at 3% by refinancing everything at 6.75% reprices $220,000, about $8,250 more interest a year, to get $60,000. The tool shows that repricing cost on its own line, next to the closing costs of each route."}}, {"@type": "Question", "name": "What if my HELOC rate goes up?", "acceptedAnswer": {"@type": "Answer", "text": "HELOC rates usually float with a benchmark, so one average rate is an assumption. The table at the bottom reruns the comparison with the HELOC rate one, two and three points higher, and the result lists the average HELOC rate at which the two routes cost the same, so you can judge how much room you have."}}, {"@type": "Question", "name": "How is the cost of each route measured?", "acceptedAnswer": {"@type": "Answer", "text": "Each month's payment is carried forward at the return you would otherwise earn on your money, closing costs are paid on day one and compounded the same way, and whatever you still owe at the end year is added. Lower is better. Both routes put the same cash in your hand, so only the cost differs."}}, {"@type": "Question", "name": "What does the interest-only period do?", "acceptedAnswer": {"@type": "Answer", "text": "Most HELOCs let you pay only interest during a draw period, often ten years, then require principal and interest over the rest of the term. The tool models that: you see the low early payment and the higher payment after the draw period ends, and the balance stays put until then."}}, {"@type": "Question", "name": "Is the interest tax deductible?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on what you spend the money on and how much total home debt you have, and many people take the standard deduction. The tool takes one marginal tax rate on interest for both routes; leave it at 0 if you do not itemize. Confirm with a tax professional."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on numbers you type, with simplified assumptions: a fixed rate on the refinance, one average rate on the HELOC, closing costs paid in cash, no prepayment, a constant return on your money. Check every figure against your lenders' Loan Estimates and consider a licensed adviser."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">HELOC VS CASH-OUT REFINANCE · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>HELOC or cash-out refinance: which costs less?</h1>
+    <p>Type the cash you need, your current mortgage and the two offers. It prices keeping your mortgage and adding a HELOC against refinancing everything into one bigger loan, shows what the refinance costs on the balance you already had, and finds the HELOC rate at which the two routes tie.</p>
+    <p class="note">Planning arithmetic on numbers you type in. Not legal, tax or financial advice. The example figures are placeholders, not a real offer.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Your situation</h2>
+      <div class="grid">
+        <div><label for="cash">Cash you need ($)</label><input id="cash" type="number" step="any" value="0"></div>
+        <div><label for="balance">Current mortgage balance ($, 0 if paid off)</label><input id="balance" type="number" step="any" value="0"></div>
+        <div><label for="oldRate">Current mortgage rate (%)</label><input id="oldRate" type="number" step="any" value="0"></div>
+        <div><label for="oldYears">Years left on current mortgage</label><input id="oldYears" type="number" step="any" value="0"></div>
+        <div><label for="horizon">Years until you expect to sell or refinance</label><input id="horizon" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Option A: keep your mortgage and add a HELOC</h2>
+      <div class="grid">
+        <div><label for="helocRate">HELOC rate, average over its life (%)</label><input id="helocRate" type="number" step="any" value="0"></div>
+        <div><label for="helocCost">HELOC closing costs ($)</label><input id="helocCost" type="number" step="any" value="0"></div>
+        <div><label for="interestOnlyYears">Interest-only draw period (years)</label><input id="interestOnlyYears" type="number" step="any" value="0"></div>
+        <div><label for="helocYears">HELOC total term (years)</label><input id="helocYears" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Option B: cash-out refinance</h2>
+      <div class="grid">
+        <div><label for="refiRate">New mortgage rate (%)</label><input id="refiRate" type="number" step="any" value="0"></div>
+        <div><label for="refiYears">New mortgage term (years)</label><input id="refiYears" type="number" step="any" value="0"></div>
+        <div><label for="refiCostPct">Closing costs (% of the new loan)</label><input id="refiCostPct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-3">
+      <h2 id="h-3">4. Assumptions</h2>
+      <div class="grid">
+        <div><label for="investReturn">Yearly return on money you would otherwise keep (%)</label><input id="investReturn" type="number" step="any" value="0"></div>
+        <div><label for="taxRate">Tax rate on mortgage interest (%, 0 if you take the standard deduction)</label><input id="taxRate" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Compare the two routes</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Should I get a HELOC or a cash-out refinance?</h3>
+      <p>It mostly comes down to the rate on the mortgage you already have. A cash-out refinance replaces your whole balance with a new loan at today's rate, so if your current rate is much lower, you pay the higher rate on money you were already borrowing cheaply. A HELOC leaves that mortgage alone and charges a (usually variable) rate on only the new cash. This tool prices both for the years you expect to keep them and shows which costs less.</p>
+      <h3>Why can a cash-out refinance cost more even when its rate is lower than the HELOC rate?</h3>
+      <p>Because the refinance rate applies to the old balance too. Taking $60,000 out of a $220,000 mortgage at 3% by refinancing everything at 6.75% reprices $220,000, about $8,250 more interest a year, to get $60,000. The tool shows that repricing cost on its own line, next to the closing costs of each route.</p>
+      <h3>What if my HELOC rate goes up?</h3>
+      <p>HELOC rates usually float with a benchmark, so one average rate is an assumption. The table at the bottom reruns the comparison with the HELOC rate one, two and three points higher, and the result lists the average HELOC rate at which the two routes cost the same, so you can judge how much room you have.</p>
+      <h3>How is the cost of each route measured?</h3>
+      <p>Each month's payment is carried forward at the return you would otherwise earn on your money, closing costs are paid on day one and compounded the same way, and whatever you still owe at the end year is added. Lower is better. Both routes put the same cash in your hand, so only the cost differs.</p>
+      <h3>What does the interest-only period do?</h3>
+      <p>Most HELOCs let you pay only interest during a draw period, often ten years, then require principal and interest over the rest of the term. The tool models that: you see the low early payment and the higher payment after the draw period ends, and the balance stays put until then.</p>
+      <h3>Is the interest tax deductible?</h3>
+      <p>It depends on what you spend the money on and how much total home debt you have, and many people take the standard deduction. The tool takes one marginal tax rate on interest for both routes; leave it at 0 if you do not itemize. Confirm with a tax professional.</p>
+      <h3>Is this financial advice?</h3>
+      <p>No. It is arithmetic on numbers you type, with simplified assumptions: a fixed rate on the refinance, one average rate on the HELOC, closing costs paid in cash, no prepayment, a constant return on your money. Check every figure against your lenders' Loan Estimates and consider a licensed adviser.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether you qualify for either loan, your credit and the lenders' real fees, a HELOC rate that floats up and down rather than one average, HELOC rate caps and lender freezes or reductions of your credit line, a fixed-rate HELOC or home equity loan as a third option, whether the interest is deductible for your use of the money, extra payments you may make, mortgage insurance, and what the cash is for. Fixed rate on the refinance, one average rate on the HELOC, closing costs paid in cash, constant return on your money.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../mortgage-points-break-even-calculator/">mortgage points break-even calculator</a> for choosing a rate and the <a href="../mortgage-escrow-analysis-checker/">mortgage escrow analysis checker</a> for the payment you already make.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it is not investment, lending or mortgage-brokerage advice. Results are arithmetic on figures you type; nothing here is a loan offer or a rate quote.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, pct, analyze } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const gap = (x) => (x >= 0 ? money(x) + " HELOC cheaper" : money(-x) + " refinance cheaper");
+    function run() {
+      const o = opts();
+      const a = analyze(o);
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.rows.length) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const verdict = a.helocWins
+        ? "Over " + a.horizon + " years the HELOC route costs " + money(a.advantage) + " less than the cash-out refinance."
+        : "Over " + a.horizon + " years the cash-out refinance costs " + money(-a.advantage) + " less than the HELOC route.";
+      h += `<div class="finding"><h4>Which costs less</h4><p>${esc(verdict)}</p>${table(["Measure", "A: mortgage + HELOC", "B: cash-out refinance"], [
+        ["Total cost by your horizon (payments, closing, debt still owed)", money(a.costHeloc), money(a.costRefi)],
+        ["Monthly payment now", money(a.payHeloc1), money(a.payRefi)],
+        ["Monthly payment after the interest-only period", money(a.payHelocAfterIo), money(a.payRefi)],
+        ["Closing costs paid on day one", money(a.helocClosing), money(a.refiClosing)],
+        ["Debt still owed at your horizon", money(a.owedHeloc), money(a.owedRefi)]])}</div>`;
+      h += `<div class="finding"><h4>What drives it</h4>${table(["Measure", "Result"], [
+        ["Extra interest per year from repricing your existing balance at the new rate", money(a.repricing)],
+        ["Blended rate on all your debt if you add the HELOC", pct(a.blended, 2)],
+        ["HELOC average rate at which the two routes tie at your horizon", a.breakEvenHelocRate === null ? "no tie between 0% and 40%" : pct(a.breakEvenHelocRate, 2)],
+        ["Month the cheaper route changes", a.crossover === null ? "it does not change" : "month " + a.crossover + " (" + (a.crossover / 12).toFixed(1) + " years)"]])}</div>`;
+      h += `<div class="finding"><h4>If the HELOC rate rises (positive = HELOC cheaper)</h4>${table(["Years kept", ...a.shifts.map((s) => s ? "HELOC +" + s + " points" : "HELOC as typed")], a.grid.map((g) => [g.years + " years", ...g.values.map(gap)]))}</div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

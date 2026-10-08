@@ -1426,9 +1426,12 @@ const RELATIVE_SELF = relative(
 // +1: `tax-lien-certificate-yield-calculator` graduated.
 // +1: `oil-gas-mineral-rights-offer-calculator` graduated.
 // +1: `pension-lump-sum-vs-annuity-calculator` graduated.
+// +1: `structured-settlement-buyout-calculator` graduated.
 // +1: `section-1256-futures-tax-calculator` graduated.
 // +1: `mortgage-points-break-even-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 872;
+// +1: `heloc-vs-cash-out-refinance-calculator` graduated.
+// +1: `tax-lot-sale-optimizer` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 874;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
