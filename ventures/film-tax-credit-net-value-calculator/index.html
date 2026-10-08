@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Film Tax Credit Calculator: Net Cash After Sale Discount, Fees and Wait — Free</title>
+  <meta name="description" content="Free film and TV production tax credit calculator: the net cash a credit really puts in your budget after the cap, sale discount, fees, bridge-loan interest and the wait, plus the value of one more qualified dollar. Nothing uploaded.">
+  <meta property="og:title" content="What is your film tax credit really worth? Free calculator">
+  <meta property="og:description" content="Face-value credit to net budget cash: cap, sale price, fees, bridge interest, time. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%237c2d12'/%3E%3Cpath d='M8 9h16v14H8zM8 13h16M8 19h16M12 9v14M20 9v14' stroke='%23fff' stroke-width='1.600' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Film Tax Credit Net Value Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Turn a film or TV production tax credit into the net cash it really puts in the budget: qualified spend, cap and minimum, sale discount, fees, bridge-loan interest and the wait, plus sensitivity grids. Runs in your browser; nothing is uploaded.","featureList":"Net cash from a production tax credit, sale or transfer discount, bridge-loan interest, time value, marginal value of qualified spend, break-even qualified share, sale price by qualified share grid, wait-time sensitivity"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does a film tax credit actually put into my budget?","acceptedAnswer":{"@type":"Answer","text":"Less than its face value. The credit is paid on qualified spend only, may be capped, often arrives months after wrap, and is frequently sold or transferred at a discount to someone who can use it. Enter your programme's rate, your qualified share of the budget, the cents on the dollar you expect, the fees and the wait, and the tool shows the net cash and what it is worth in today's money."}},{"@type":"Question","name":"What counts as qualified spend?","acceptedAnswer":{"@type":"Answer","text":"That is defined by your incentive programme, not by this tool. Many programmes count only spend inside their territory and exclude some above-the-line fees or out-of-area costs. Type the share of your budget your programme or its auditor says qualifies, and use the grid to see how much the answer moves if that share is 10 points higher or lower."}},{"@type":"Question","name":"How do I find the sale price of a credit?","acceptedAnswer":{"@type":"Answer","text":"Ask the credit broker or your production accountant for current indications, and treat the sale price as a range. The grid shows the net cash at five sale prices and five qualified-spend shares so you can see what a bid is worth before you accept it."}},{"@type":"Question","name":"What is the marginal value of one more qualified dollar?","acceptedAnswer":{"@type":"Answer","text":"It is how many cents of net cash one extra dollar of qualified spend brings into the budget, found by re-running the model with a little more spend. It reads zero when a cap binds and can be far below the headline rate once the sale discount and fees are taken out, which is why moving a shoot day in-territory is rarely worth the headline rate."}},{"@type":"Question","name":"Does this tool know my state's or country's programme?","acceptedAnswer":{"@type":"Answer","text":"No. It embeds no programme, rate table or eligibility rule, because those change and a stale one would be worse than none. You type the numbers from the current guidelines, and the tool does the arithmetic and the sensitivities."}},{"@type":"Question","name":"Is this tax, legal or financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on figures you type, with simplified assumptions: one rate, one cap, one minimum, one sale price and a single payment date. It does not decide whether your production qualifies and is not an audit. Confirm eligibility and the numbers with your programme office, production accountant or tax adviser."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">FILM TAX CREDIT NET VALUE · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What is my production tax credit really worth?</h1>
+    <p>A 25% credit is not 25 cents on the dollar of budget. It pays on qualified spend only, may hit a cap or a minimum, is often sold at a discount, costs fees, and arrives months after wrap. Type your programme's terms and your budget; it shows the net cash, the cents you keep per credit dollar, what one more qualified dollar is worth, and how the answer moves with sale price and wait.</p>
+    <p class="note">Planning arithmetic on numbers you type in. Not legal, tax or financial advice. The example figures are placeholders, not any real programme.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The production and the programme (type these from the incentive guidelines)</h2>
+      <div class="grid">
+        <div><label for="budget">Total production budget ($)</label><input id="budget" type="number" step="any" value="0"></div>
+        <div><label for="qualifiedPct">Share of the budget that is qualified spend (%)</label><input id="qualifiedPct" type="number" step="any" value="0"></div>
+        <div><label for="baseRatePct">Base credit rate on qualified spend (%)</label><input id="baseRatePct" type="number" step="any" value="0"></div>
+        <div><label for="upliftSharePct">Share of qualified spend that earns an uplift (%, 0 if none)</label><input id="upliftSharePct" type="number" step="any" value="0"></div>
+        <div><label for="upliftRatePct">Extra uplift rate on that share (%)</label><input id="upliftRatePct" type="number" step="any" value="0"></div>
+        <div><label for="minSpend">Programme minimum qualified spend ($, 0 if none)</label><input id="minSpend" type="number" step="any" value="0"></div>
+        <div><label for="capAmount">Per-project cap on the credit ($, 0 if none)</label><input id="capAmount" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Turning the credit into cash</h2>
+      <div class="grid">
+        <div><label for="salePricePct">Cents on the dollar you get for the credit (100 if refunded directly)</label><input id="salePricePct" type="number" step="any" value="0"></div>
+        <div><label for="feePct">Broker, legal and audit fees (% of credit)</label><input id="feePct" type="number" step="any" value="0"></div>
+        <div><label for="fixedCost">Fixed audit or filing cost ($)</label><input id="fixedCost" type="number" step="any" value="0"></div>
+        <div><label for="monthsToCash">Months from wrap until the cash arrives</label><input id="monthsToCash" type="number" step="any" value="0"></div>
+        <div><label for="bridgeAdvancePct">Share of the credit you borrow against while waiting (%)</label><input id="bridgeAdvancePct" type="number" step="any" value="0"></div>
+        <div><label for="bridgeRatePct">Yearly interest rate on that borrowing (%)</label><input id="bridgeRatePct" type="number" step="any" value="0"></div>
+        <div><label for="costOfCapitalPct">Your yearly cost of capital for the wait (%)</label><input id="costOfCapitalPct" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Work out the net credit</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What does a film tax credit actually put into my budget?</h3>
+      <p>Less than its face value. The credit is paid on qualified spend only, may be capped, often arrives months after wrap, and is frequently sold or transferred at a discount to someone who can use it. Enter your programme&#x27;s rate, your qualified share of the budget, the cents on the dollar you expect, the fees and the wait, and the tool shows the net cash and what it is worth in today&#x27;s money.</p>
+      <h3>What counts as qualified spend?</h3>
+      <p>That is defined by your incentive programme, not by this tool. Many programmes count only spend inside their territory and exclude some above-the-line fees or out-of-area costs. Type the share of your budget your programme or its auditor says qualifies, and use the grid to see how much the answer moves if that share is 10 points higher or lower.</p>
+      <h3>How do I find the sale price of a credit?</h3>
+      <p>Ask the credit broker or your production accountant for current indications, and treat the sale price as a range. The grid shows the net cash at five sale prices and five qualified-spend shares so you can see what a bid is worth before you accept it.</p>
+      <h3>What is the marginal value of one more qualified dollar?</h3>
+      <p>It is how many cents of net cash one extra dollar of qualified spend brings into the budget, found by re-running the model with a little more spend. It reads zero when a cap binds and can be far below the headline rate once the sale discount and fees are taken out, which is why moving a shoot day in-territory is rarely worth the headline rate.</p>
+      <h3>Does this tool know my state&#x27;s or country&#x27;s programme?</h3>
+      <p>No. It embeds no programme, rate table or eligibility rule, because those change and a stale one would be worse than none. You type the numbers from the current guidelines, and the tool does the arithmetic and the sensitivities.</p>
+      <h3>Is this tax, legal or financial advice?</h3>
+      <p>No. It is arithmetic on figures you type, with simplified assumptions: one rate, one cap, one minimum, one sale price and a single payment date. It does not decide whether your production qualifies and is not an audit. Confirm eligibility and the numbers with your programme office, production accountant or tax adviser.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your production qualifies at all, which costs your programme counts, how your auditor will treat them, tax on the credit, whether the credit is a refund, a transferable certificate or an offset against tax owed, clawbacks or caps by year, and who bears the risk if the programme runs out of funds. Everything is modelled with one payment date and one sale price.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../invoice-payment-terms-calculator/">invoice payment terms calculator</a> for what slow money costs, and the <a href="../small-business-acquisition-calculator/">small business acquisition calculator</a> for financing structures.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not determine whether any production qualifies for any incentive. Valuations are arithmetic on figures you type; nothing here is an offer to buy or sell a credit.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, pct, analyze } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    function run() {
+      const o = opts();
+      const a = analyze(o);
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.rows.length) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const r = a.r;
+      const verdict = r.granted > 0
+        ? "A credit of " + money(r.granted) + " (" + pct(r.grantedPctBudget) + " of budget) puts " + money(r.received) + " into the budget, " + pct(r.netPctBudget) + " of budget and " + (r.centsPerCredit * 100).toFixed(0) + " cents per credit dollar. Worth " + money(r.netPv) + " in today's money after a " + r.years.toFixed(1) + " year wait."
+        : "At these inputs the model pays no credit.";
+      h += `<div class="finding"><h4>Face value against what you keep</h4><p>${esc(verdict)}</p>${table(["Step", "Amount"], a.rows.map(([k, v]) => [k, money(v)]))}</div>`;
+      if (Number.isFinite(a.marginal)) h += `<div class="finding"><h4>What one more qualified dollar is worth</h4><p>An extra dollar of qualified spend brings ${(a.marginal * 100).toFixed(1)} cents of net cash into the budget, against a headline base rate of ${o.baseRatePct}%.${a.breakEvenPct === null ? " The credit never covers its fees at these inputs." : " The programme starts paying once about " + a.breakEvenPct.toFixed(1) + "% of the budget is qualified."}</p></div>`;
+      h += `<div class="finding"><h4>Net cash by qualified share and sale price</h4>${table(["Qualified share", ...a.prices.map((p) => p + "¢ sale")], a.grid.map((g) => [g.share + "%", ...g.values.map(money)]))}</div>`;
+      h += `<div class="finding"><h4>What waiting costs</h4>${table(["Months to cash", "Net cash", "Worth today"], a.waits.map((w) => [w.months, money(w.received), money(w.netPv)]))}</div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>
