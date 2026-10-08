@@ -3081,6 +3081,8 @@ const CATEGORY_RULES = [
         'film-tax-credit-net-value-calculator',
         // `mortgage-points-break-even-calculator` joined 2026-10-08 on its first commit: one buyer weighing points on their own loan estimate, beside the other lump-sum-for-income decisions.
         'mortgage-points-break-even-calculator',
+        // `heloc-vs-cash-out-refinance-calculator` joined 2026-10-08 on its first commit: one homeowner pricing their own two ways to borrow against equity, beside the mortgage points tool.
+        'heloc-vs-cash-out-refinance-calculator',
         // `oil-gas-mineral-rights-offer-calculator` joined 2026-10-08 on its first commit: one owner weighing a buyout of their own royalty income, beside the tower-lease tool.
         'oil-gas-mineral-rights-offer-calculator',
         // `tax-lien-certificate-yield-calculator` joined 2026-10-08: the catch-all hit its bound of 5 when it graduated; one investor working out the yield on their own certificate.
