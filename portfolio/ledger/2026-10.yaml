@@ -3019,3 +3019,17 @@ entries:
         whole-year side-by-side, and the page links each. Registered score row, launch date, CI
         workflow, inbound link from dental-ppo-writeoff-calculator.
     mrr_end: 0
+  - venture: franchise-unit-economics-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built franchise-unit-economics-calculator: a browser-local unit-economics
+        tool for prospective franchise buyers. Fee, build-out, loan, sales ramp, costs, royalty with
+        minimum, ad fund and fixed fees give month-by-month cash, payback month, multiple on cash,
+        IRR, exact break-even and target sales, the lowest cash point and the month the cushion runs
+        out, loan cover, a sales-by-prime-cost grid and the share of franchise sales an independent
+        would have to reach to tie. First visitor: first-time buyers searching "franchise ROI
+        calculator"; volume unmeasured. Defaults are placeholders. 32 tests pass. Registered score
+        row, launch date, category rule, CI workflow.
+    mrr_end: 0
