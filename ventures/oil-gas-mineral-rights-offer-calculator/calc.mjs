@@ -1,30 +1,39 @@
-// Oil and gas mineral / royalty interest offer evaluator. Pure functions, no dependencies, nothing
-// leaves the browser. Everything is arithmetic on figures the user types from their own royalty
-// statements and from the lump-sum offer they received.
+// Mineral / oil-and-gas royalty buyout evaluator. Pure functions, no dependencies, nothing leaves the
+// browser. Arithmetic on figures the user types from their own royalty statements and the lump-sum
+// offer they received.
 //
-// Model, annual cash flows, received at the end of each year t = 1..horizon:
-//   existing_t = monthly royalty x 12 x (1 - decline)^(t-1) x (1 + priceChange)^(t-1)
-//   newWell_t  = chance x newWell monthly x 12 x (1 - decline)^(t - newYear) x (1 + priceChange)^(t-1)
-//                once t >= newYear (a well not yet drilled, weighted by the chance it is)
-// The offer buys years 1..offerYears of that stream (offerYears >= horizon sells everything);
-// the owner keeps the rest. Present value discounts at the user's own rate. The implied return is
-// the discount rate at which the sold cash flows are worth exactly the offer (an IRR).
-// After tax: the lump sum is taxed at the typed rate on (offer - basis); royalties at the typed rate.
+// Model, monthly cash flows, month m = 1..12*horizon, received at the end of the month:
+//   Existing wells follow an Arps decline from the current monthly check q0:
+//     hyperbolic   q(t) = q0 / (1 + b*Di*t)^(1/b)      (b = 0 is exponential: q0 * exp(-Di*t))
+//     the nominal decline D(t) = Di / (1 + b*Di*t) falls as the well ages; once it reaches the
+//     terminal decline Dterm the curve switches to exponential at Dterm, the standard way to stop a
+//     hyperbolic curve from over-promising a very long tail.
+//   t is in years, taken at the middle of each month.
+//   Planned wells: an extra stream starting at a typed month with its own first-month check, the same
+//     decline shape, weighted by the typed chance the well is actually drilled.
+//   Prices: every flow is scaled by (1 + price change). Wells shut in below a minimum monthly check.
+// The offer buys the flow for `soldYears` (>= horizon sells it all). Present value discounts monthly at
+// the user's own annual rate. The buyer's return is the annual rate at which the sold flow is worth
+// exactly the offer (an IRR, found by bisection). After tax: lump sum taxed on (offer - basis), royalty
+// income taxed at the typed rate.
 
 export const DEFAULTS = {
-  monthlyRoyalty: 3200,
-  decline: 18,
+  monthlyCheck: 1800,
+  declineInitial: 40,
+  bFactor: 1,
+  declineTerminal: 8,
   priceChange: 0,
-  newWellRoyalty: 1800,
-  newWellYear: 3,
+  minCheck: 60,
+  newWellCheck: 1200,
+  newWellMonth: 18,
   newWellChance: 40,
   horizon: 30,
-  offerYears: 30,
-  offer: 150000,
+  soldYears: 30,
+  offer: 60000,
   discountRate: 12,
   basis: 0,
   lumpTaxPct: 20,
-  royaltyTaxPct: 30,
+  incomeTaxPct: 24,
 };
 
 export function num(v) {
@@ -43,37 +52,55 @@ export function pct(x, d = 1) {
   return Number.isFinite(x) ? (x * 100).toFixed(d) + "%" : "n/a";
 }
 
-// Expected royalty per year (index 0 = year 1), before tax.
-export function cashFlows(o) {
-  const horizon = Math.min(Math.max(Math.floor(nz(o.horizon)), 0), 99);
-  const d = Math.min(nz(o.decline) / 100, 1);
-  const p = Math.max(Number.isFinite(o.priceChange) ? o.priceChange : 0, -100) / 100;
-  const chance = Math.min(nz(o.newWellChance) / 100, 1);
-  const newYear = Math.max(Math.floor(nz(o.newWellYear)), 1);
+// Rate multiplier at age t years (1 at t = 0): Arps hyperbolic with a switch to exponential at Dterm.
+export function declineFactor(t, diPct, b, dtermPct) {
+  const di = nz(diPct) / 100;
+  const bb = nz(b);
+  const dterm = nz(dtermPct) / 100;
+  if (t <= 0 || di === 0) return 1;
+  if (bb < 1e-9) return Math.exp(-di * t);
+  if (dterm > 0 && dterm < di) {
+    const tSwitch = (di / dterm - 1) / (bb * di);
+    if (t > tSwitch) return Math.pow(1 + bb * di * tSwitch, -1 / bb) * Math.exp(-dterm * (t - tSwitch));
+  }
+  return Math.pow(1 + bb * di * t, -1 / bb);
+}
+
+// Expected monthly cash flow (index 0 = month 1), before tax.
+export function monthlyFlows(o) {
+  const years = Math.min(Math.max(Math.floor(nz(o.horizon)), 0), 60);
+  const price = Math.max(1 + (Number.isFinite(o.priceChange) ? o.priceChange : 0) / 100, 0);
+  const minCheck = nz(o.minCheck);
   const rows = [];
-  for (let t = 1; t <= horizon; t++) {
-    const price = Math.pow(1 + p, t - 1);
-    const existing = nz(o.monthlyRoyalty) * 12 * Math.pow(1 - d, t - 1) * price;
-    const fresh = nz(o.newWellRoyalty) > 0 && t >= newYear
-      ? chance * nz(o.newWellRoyalty) * 12 * Math.pow(1 - d, t - newYear) * price
-      : 0;
-    rows.push({ year: t, existing, fresh, expected: existing + fresh });
+  for (let m = 1; m <= years * 12; m++) {
+    const t = (m - 0.5) / 12;
+    const base = nz(o.monthlyCheck) * declineFactor(t, o.declineInitial, o.bFactor, o.declineTerminal) * price;
+    let wells = 0;
+    const start = Math.max(Math.floor(nz(o.newWellMonth)), 1);
+    if (nz(o.newWellCheck) > 0 && m >= start) {
+      const age = (m - start + 0.5) / 12;
+      wells = nz(o.newWellCheck) * declineFactor(age, o.declineInitial, o.bFactor, o.declineTerminal) * price;
+    }
+    const chance = Math.min(nz(o.newWellChance), 100) / 100;
+    const baseOn = base >= minCheck ? base : 0;
+    const wellsOn = wells >= minCheck ? wells : 0;
+    rows.push({ month: m, base: baseOn, wells: wellsOn * chance, expected: baseOn + wellsOn * chance });
   }
   return rows;
 }
 
 export function presentValue(flows, ratePct) {
   const r = nz(ratePct) / 100;
-  return flows.reduce((s, f, i) => s + f / Math.pow(1 + r, i + 1), 0);
+  return flows.reduce((s, f, i) => s + f / Math.pow(1 + r, (i + 1) / 12), 0);
 }
 
-// Discount rate at which `flows` are worth `price`; bisection, NaN when no rate exists.
+// Annual rate at which `flows` (monthly) are worth `price`; bisection, NaN when none exists.
 export function impliedReturn(price, flows) {
   if (!(price > 0) || !flows.length) return NaN;
   const total = flows.reduce((s, f) => s + f, 0);
   if (total <= 0) return NaN;
-  const pv = (r) => flows.reduce((s, f, i) => s + f / Math.pow(1 + r, i + 1), 0) - price;
-  let lo = -0.9, hi = 5;
+  const pv = (r) => flows.reduce((s, f, i) => s + f / Math.pow(1 + r, (i + 1) / 12), 0) - price;
+  let lo = -0.9, hi = 20;
   if (pv(lo) < 0) return NaN;
   if (pv(hi) > 0) return hi;
   for (let k = 0; k < 200; k++) {
@@ -83,62 +110,69 @@ export function impliedReturn(price, flows) {
   return (lo + hi) / 2;
 }
 
+const expectedOf = (o, sold) => monthlyFlows(o).map((r) => r.expected).slice(0, sold * 12);
+
 export function analyze(raw) {
   const o = { ...DEFAULTS, ...raw };
-  const rows = cashFlows(o);
-  const horizon = rows.length;
+  const rows = monthlyFlows(o);
+  const horizon = rows.length / 12;
   const warnings = [];
-  if (!horizon) warnings.push("Enter how many years of royalties to look at (1 to 99).");
-  if (!nz(o.monthlyRoyalty) && !nz(o.newWellRoyalty)) warnings.push("Enter your current monthly royalty.");
+  if (!horizon) warnings.push("Enter how many years of royalty income to look at (1 to 60).");
+  if (!nz(o.monthlyCheck)) warnings.push("Enter your current average monthly royalty check.");
   const offer = nz(o.offer);
   if (!offer) warnings.push("Enter the lump-sum offer to compare.");
-  const sold = Math.min(Math.max(Math.floor(nz(o.offerYears)), 0) || horizon, horizon);
+  const sold = Math.min(Math.max(Math.floor(nz(o.soldYears)), 0) || horizon, horizon);
   const flows = rows.map((r) => r.expected);
-  const soldFlows = flows.slice(0, sold);
-  const keptFlows = flows.slice(sold);
-
+  const soldFlows = flows.slice(0, sold * 12);
   const rate = nz(o.discountRate);
   const pvSold = presentValue(soldFlows, rate);
-  const pvKept = presentValue([...Array(sold).fill(0), ...keptFlows], rate);
+  const pvKept = presentValue([...Array(sold * 12).fill(0), ...flows.slice(sold * 12)], rate);
   const undiscounted = soldFlows.reduce((s, f) => s + f, 0);
   const irr = impliedReturn(offer, soldFlows);
 
-  // Without the undrilled well, to show how much of the value rests on a well that does not exist yet.
-  const bare = rows.map((r) => r.existing).slice(0, sold);
-  const pvSoldBare = presentValue(bare, rate);
-  const irrBare = impliedReturn(offer, bare);
+  // Existing wells only: how much of the price rests on wells not yet drilled.
+  const bareFlows = rows.map((r) => r.base).slice(0, sold * 12);
+  const pvSoldBare = presentValue(bareFlows, rate);
+  const irrBare = impliedReturn(offer, bareFlows);
 
-  // After tax.
   const lumpTax = offer ? Math.max(offer - nz(o.basis), 0) * (nz(o.lumpTaxPct) / 100) : 0;
   const offerAfterTax = offer - lumpTax;
-  const afterTaxFlows = soldFlows.map((f) => f * (1 - nz(o.royaltyTaxPct) / 100));
+  const afterTaxFlows = soldFlows.map((f) => f * (1 - nz(o.incomeTaxPct) / 100));
   const pvSoldAfterTax = presentValue(afterTaxFlows, rate);
   const irrAfterTax = impliedReturn(offerAfterTax, afterTaxFlows);
 
-  const yr1 = rows[0] ? rows[0].expected : 0;
-  const multiple = yr1 ? offer / yr1 : NaN;
-  let paybackYear = null, run = 0;
+  const check = nz(o.monthlyCheck);
+  const multiple = check ? offer / check : NaN; // buyers quote offers as "x months of income"
+  let paybackMonth = null, run = 0;
   for (let i = 0; i < soldFlows.length; i++) {
     run += soldFlows[i];
-    if (run >= offer) { paybackYear = i + 1; break; }
+    if (run >= offer) { paybackMonth = i + 1; break; }
   }
+  const year1 = soldFlows.slice(0, 12).reduce((s, f) => s + f, 0);
+  const halfLifeMonth = (() => {
+    const first = flows[0] || 0;
+    if (!first) return null;
+    const i = flows.findIndex((f) => f <= first / 2);
+    return i < 0 ? null : i + 1;
+  })();
 
-  const matchOffer = pvSold;
-  const rates = [8, 10, 12, 15, 18, 20, 25].map((r) => ({ rate: r, pv: presentValue(soldFlows, r) }));
-
-  // PV of the sold stream by discount rate (rows) and yearly production decline (columns).
-  const declines = [8, 12, 18, 25, 35, 50];
-  const grid = [rate - 4, rate - 2, rate, rate + 3, rate + 6].filter((r) => r > 0).map((r) => ({
+  const rates = [6, 8, 10, 12, 15, 20, 25].map((r) => ({ rate: r, pv: presentValue(soldFlows, r) }));
+  // PV of the sold flow by discount rate (rows) and by how steeply the wells decline (columns).
+  const declines = [20, 30, 40, 50, 65, 80];
+  const gridRates = [8, 10, 12, 15, 20];
+  const grid = gridRates.map((r) => ({
     rate: r,
-    values: declines.map((dc) => presentValue(cashFlows({ ...o, decline: dc }).map((x) => x.expected).slice(0, sold), r)),
+    values: declines.map((d) => presentValue(expectedOf({ ...o, declineInitial: d }, sold), r)),
   }));
+  const prices = [-40, -20, 0, 20, 40];
+  const priceRow = prices.map((p) => ({ change: p, pv: presentValue(expectedOf({ ...o, priceChange: p }, sold), rate) }));
 
   return {
     horizon, sold, soldAll: sold >= horizon, rows, offer, rate,
-    firstYearIncome: yr1, multiple, paybackYear, undiscounted,
-    pvSold, pvKept, pvSoldBare, matchOffer, offerVsPv: pvSold ? offer / pvSold : NaN,
+    multiple, year1, halfLifeMonth, paybackMonth, undiscounted,
+    pvSold, pvKept, pvSoldBare, offerVsPv: pvSold ? offer / pvSold : NaN, matchOffer: pvSold,
     gap: offer - pvSold, irr, irrBare,
     lumpTax, offerAfterTax, pvSoldAfterTax, irrAfterTax, afterTaxGap: offerAfterTax - pvSoldAfterTax,
-    rates, declines, grid, warnings,
+    rates, declines, grid, priceRow, warnings,
   };
 }

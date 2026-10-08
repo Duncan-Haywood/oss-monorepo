@@ -24,7 +24,7 @@ owner: duncan
 # an oil and gas attorney; nothing stored or uploaded.
 #
 # Path to revenue (payment rails stay off): lead magnet and donations; later a printable offer summary,
-# a multi-offer comparison and a decline-curve fit from pasted monthly statements (not built).
+# a multi-offer comparison and CSV import of royalty statements to fit the decline automatically (not built).
 
 hypotheses:
   - claim: >-
