@@ -605,6 +605,9 @@ workflows:
 - workflow: cra-evidence-desk-ci.yml
   classification: none
   publishes: []
+- workflow: oil-gas-mineral-rights-offer-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: craft-fair-booth-calculator-ci.yml
   classification: none
   publishes: []

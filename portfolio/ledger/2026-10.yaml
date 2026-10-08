@@ -3191,3 +3191,17 @@ entries:
         investing forums; volume unmeasured. No state data embedded; defaults are placeholders.
         Registered score row, launch date, category rule, CI workflow.
     mrr_end: 0
+  - venture: oil-gas-mineral-rights-offer-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built oil-gas-mineral-rights-offer-calculator: a browser-local tool for mineral and royalty owners holding a
+        lump-sum buyout offer. Monthly royalty, production decline, price change and an optional
+        undrilled well give the present value at the owner's own rate, the buyer's implied return,
+        the value with and without the new well, an after-tax comparison and a rate-by-decline grid
+        (hand-worked: flat $1,000/month for 10 years sums to $120,000, pays back a $100,000 offer in
+        year 9). First visitor: "is my mineral rights offer fair" searchers; volume unmeasured.
+        Defaults are placeholders. Registered score row, launch date, category rule, CI workflow,
+        inbound link from the cell tower lease calculator.
+    mrr_end: 0
