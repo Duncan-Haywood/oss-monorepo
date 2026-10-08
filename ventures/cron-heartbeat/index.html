@@ -67,10 +67,16 @@ ALERT_WEBHOOK_URL=https://hooks.slack.com/... node server.mjs</pre>
 
   <section class="card">
     <h2>Questions</h2>
+    <h3>How do I know if a cron job stopped running?</h3>
+    <p>Cron only reports errors it can mail, and silently does nothing when the machine is down, the crontab is overwritten or the job hangs. A heartbeat (dead man's switch) inverts this: the job pings a URL when it succeeds, and the monitor alerts when the ping does not arrive within the schedule plus a grace period.</p>
     <h3>What grace period should I use?</h3>
-    <p>Enough for the job's normal run time plus scheduler jitter. The suggestion is about 10% of the interval (1 minute to 1 hour); raise it for slow jobs.</p>
-    <h3>Which timezone?</h3>
-    <p>UTC. If your cron daemon uses local time with daylight saving, jobs in the skipped or repeated hour can run zero or two times on those days.</p>
+    <p>Long enough to cover normal run time and scheduler jitter, short enough that a missed run is noticed while it still matters. This tool suggests about 10% of the typical interval, between 1 minute and 1 hour; raise it for jobs that take a long time to finish.</p>
+    <h3>Does it report failures as well as silence?</h3>
+    <p>Yes. The wrapped command pings /ping/name when the job exits 0 and /ping/name/fail when it does not. A /start ping is also supported so a job that starts and never finishes is distinguished from one that never started.</p>
+    <h3>What does the monitor store, and what does it cost?</h3>
+    <p>It is one Node.js file with no dependencies that keeps check names and last-ping times in a JSON file on your own machine. Alerts go only to the webhook or ntfy topic you configure. There is no account and no cost; you pay only for the box it runs on.</p>
+    <h3>Which timezone does it use?</h3>
+    <p>UTC throughout. If your cron daemon runs in local time with daylight saving, a job scheduled in the skipped or repeated hour can run zero or two times on those days; set CRON_TZ or move the job off that hour. See also the <a href="../cron-dst-drift-check/">Cron DST Drift Check</a>.</p>
   </section>
 
   <footer>

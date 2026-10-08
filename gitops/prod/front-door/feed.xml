@@ -112,6 +112,14 @@
     <summary type="text">Free covered call and cash-secured put calculator: paste option quotes and rank strikes by annualized premium yield, chance of assignment, breakeven and payoff at expiry. Nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Cron Heartbeat — Free Cron Job Monitor, Self-Hosted in One File</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cron-heartbeat/"/>
+    <id>tag:marisstella.dev,2026:tool/cron-heartbeat</id>
+    <updated>2026-10-08T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Know when a cron job silently stops. Paste your crontab to get next runs, the right grace period and a wrapped line that pings a heartbeat monitor you can self-host with zero dependencies. Free, open source, runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Crop Insurance Coverage Level Calculator (RP, YP) — Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/crop-insurance-coverage-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/crop-insurance-coverage-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-08T00:00:00Z</updated>
     <category term="Logistics, freight &amp; cloud cost"/>
     <summary type="text">Free fleet EV vs diesel cost calculator: purchase, chargers, energy, demand charges, maintenance, insurance and resale in; year-by-year cost, payback, break-even fuel price and mileage, a sensitivity grid and a range check out. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Franchise Unit Economics Calculator — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/franchise-unit-economics-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/franchise-unit-economics-calculator</id>
-    <updated>2026-10-08T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free franchise calculator: fee, build-out, loan, sales ramp, costs and royalties in; payback, IRR, break-even sales, the cash cushion you need and whether the brand beats going independent out. Nothing uploaded.</summary>
   </entry>
 </feed>
