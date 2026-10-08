@@ -3079,6 +3079,8 @@ const CATEGORY_RULES = [
         'pension-lump-sum-vs-annuity-calculator',
         // `film-tax-credit-net-value-calculator` joined 2026-10-08 on its first commit: one producer turning their own production's incentive into net cash, the catch-all being at its bound.
         'film-tax-credit-net-value-calculator',
+        // `mortgage-points-break-even-calculator` joined 2026-10-08 on its first commit: one buyer weighing points on their own loan estimate, beside the other lump-sum-for-income decisions.
+        'mortgage-points-break-even-calculator',
         // `oil-gas-mineral-rights-offer-calculator` joined 2026-10-08 on its first commit: one owner weighing a buyout of their own royalty income, beside the tower-lease tool.
         'oil-gas-mineral-rights-offer-calculator',
         // `tax-lien-certificate-yield-calculator` joined 2026-10-08: the catch-all hit its bound of 5 when it graduated; one investor working out the yield on their own certificate.
@@ -3148,6 +3150,9 @@ const CATEGORY_RULES = [
         'podcast-feed-check',
         'podcast-sponsorship-rate-calculator',
         'sponsor-ready',
+        // `section-1256-futures-tax-calculator` joined 2026-10-08 on its first commit: back-office was at its 3 MB offline bound,
+        // and a futures trader pricing what the 60/40 rule leaves them is one person working out their own income.
+        'section-1256-futures-tax-calculator',
         'studio-class-slot-optimizer',
         'tutor-package-pricing-calculator',
         'voiceover-project-rate-calculator',

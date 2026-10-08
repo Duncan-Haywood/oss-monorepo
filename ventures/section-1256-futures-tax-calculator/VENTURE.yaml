@@ -1,0 +1,52 @@
+name: section-1256-futures-tax-calculator
+description: >-
+  Free browser tool for futures and index-option traders and their accountants: enter Form 1099-B boxes 8, 9 and 10
+  per account and see the box 11 aggregate, the 60% long-term / 40% short-term split, the blended rate, the tax against
+  treating the same result as short-term, and the Form 6781 loss carryback note. Figures are read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a new-venture-first session. duplicate_check.py: closest ventures at 0.24
+# (bonus-depreciation-calculator, depreciation-recapture-calculator), neither about trader tax.
+# Search phrases: "section 1256 calculator", "60/40 tax rule futures calculator", "form 6781 calculator",
+# "futures trader tax calculator", "SPX options 60/40 tax savings".
+# Volume not measured with an external tool. Demand peaks in Feb-April (1099-B arrives) and December.
+#
+# Who: retail futures and SPX/NDX/VIX option traders deciding between instruments (SPY vs SPX, ES vs SPY), and
+# the preparers who rebuild Form 6781 from the 1099-B. Paid alternatives are trader-tax software and CPA time;
+# this is the free, private estimator that also explains box 8-11.
+#
+# Path to revenue (payment rails stay off): lead magnet for traders and trader-tax CPAs; pairs with wash-sale-checker.
+# Paid version, if usage appears: broker 1099-B importers, mixed-straddle and section 475 handling, Form 6781 export
+# behind an env-var switch; not built.
+#
+# Liability: marginal-rate estimate only, never says what to file, carries the no-warranty and not-tax-advice clauses,
+# lists straddles, section 988, section 475 and state tax as not decided.
+#
+# Unverified: the rule was read by the author from IRC 1256, Form 6781 and 1099-B instructions, not a tax professional.
+
+hypotheses:
+  - claim: >-
+      A futures or index-option trader will enter their 1099-B boxes into a no-upload page to see the 60/40 saving and
+      check box 11, because no free tool shows the box 8-11 arithmetic next to the tax effect.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted list structure) engage with the tool by 2027-04-15, after the 2026 filing season it is built for.
+  - A user reports a result that differs from their preparer on a plain 60/40 case, at which point the arithmetic needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/section-1256-futures-tax-calculator/
+  analytics: null

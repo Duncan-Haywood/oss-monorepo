@@ -2458,6 +2458,19 @@ entries:
         stated unreviewed on the page; substantially-identical securities listed as not decided. 23 calc, usage and
         page tests. Registered launch date and category rule.
     mrr_end: 0
+  - venture: section-1256-futures-tax-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built section-1256-futures-tax-calculator: a browser-local tool for futures and index-option
+        traders. Form 1099-B boxes 8, 9 and 10 per account give the box 11 aggregate, the 60/40 long-term/short-term
+        split, tax at the entered marginal rates against all-short-term, optional 3.8% NIIT and the Form 6781 loss
+        carryback note. Screened with duplicate_check.py (closest 0.24, unrelated depreciation tools). First visitor:
+        a trader searching "section 1256 calculator" at filing time. Rule read by the author, not a tax professional,
+        stated on the page; straddles, section 988/475 and state tax listed as not decided. 20 tests. Registered
+        launch date and category rule.
+    mrr_end: 0
   - venture: restaurant-tip-pool-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -3204,4 +3217,18 @@ entries:
         year 9). First visitor: "is my mineral rights offer fair" searchers; volume unmeasured.
         Defaults are placeholders. Registered score row, launch date, category rule, CI workflow,
         inbound link from the cell tower lease calculator.
+    mrr_end: 0
+  - venture: mortgage-points-break-even-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built mortgage-points-break-even-calculator: a browser-local tool for buyers and
+        refinancers holding a Loan Estimate with a points option. Two amortized loans give the simple and
+        cash-adjusted break-even month, the yearly return on the points, dollars ahead or behind at the
+        horizon, the chance of finishing ahead given a yearly chance of selling or refinancing, and a
+        horizon-by-cash-return grid (hand-worked: with no return on cash and no tax the advantage at 7
+        years equals interest avoided minus the points, tested). First visitor: "are mortgage points
+        worth it" searchers; volume unmeasured. Defaults are placeholders. Registered launch date,
+        category rule and opt-out count.
     mrr_end: 0
