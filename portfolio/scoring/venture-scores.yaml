@@ -29001,6 +29001,7 @@ ventures:
       advice on eligibility, deadlines or whether to elect, defaults labelled as placeholders, no
       taxpayer identifiers requested. Ethics: nothing leaves the browser, no dark patterns,
       nothing is sold.
+  - slug: container-demurrage-detention-calculator
   - slug: roofing-insurance-supplement-finder
     scores:
       ai_leverage: 2
@@ -29014,6 +29015,14 @@ ventures:
     floor: 2
     floor_dimension: ai_leverage
     floor_note: >-
+      No model in the product, deliberately. Demurrage and detention are plain tiered per-day
+      arithmetic on the dates and tariff typed in.
+    basis: >-
+      Screened 2026-10-08 per portfolio/pipeline/README.md; write-up in this venture's own
+      VENTURE.yaml comment. Prices ocean-container demurrage and detention from the user's own
+      tariff, which no venture in the portfolio does. Distribution 6: "demurrage and detention
+      calculator" is a recurring importer and forwarder search; volume not measured.
+      Defensibility 3: the arithmetic is open.
       No model in the product, deliberately. A line-by-line gap, a depreciation schedule and a net-of-fee grid
       are plain functions of the numbers typed in.
     basis: >-
@@ -29026,6 +29035,8 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
+      Liability: arithmetic on user-typed dates and tariff numbers, defaults labelled as
+      placeholders, no advice on whether a charge is valid or disputable, no shipment identifiers
       Liability: arithmetic on user-typed numbers, defaults labelled as placeholders, no coverage, legal,
       bad-faith or public-adjuster advice, who may negotiate a claim stated as not decided, no policy data
       requested. Ethics: nothing leaves the browser, no dark patterns, nothing is sold.

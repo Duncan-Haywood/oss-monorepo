@@ -3005,8 +3005,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `franchise-unit-economics-calculator` graduated (browser franchise fee, build-out, loan, sales ramp, costs and royalties to payback, IRR, break-even sales, a cash-cushion check and the sales lift the brand must deliver against going independent).
     # +1: `home-inspection-report-builder` graduated (browser home inspection findings, severity, notes and cost ranges to a printable report, with a generic editable comment library).
     # +1: `pte-tax-election-calculator` graduated (browser state pass-through entity tax election vs none: federal plus state tax, SALT cap phase-out, lost 20% deduction, income where it first pays).
+    # +1: `container-demurrage-detention-calculator` graduated (browser ocean-container dates, free days and tiered per-day rates to demurrage and detention per box, last free days, one more day's cost and the value of an earlier pickup).
     # +1: `bonus-take-home-gross-up-calculator` graduated (browser bonus take-home after supplemental withholding, FICA caps and state tax, refund or balance due, 401(k) deferral comparison, exact employer gross-up).
-    total = 877  # `infra/OWNER_CHECKLIST.md`'s own "N of the 877 tools" wording.
+    total = 878  # `infra/OWNER_CHECKLIST.md`'s own "N of the 878 tools" wording.
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
     # +1: `ag-spray-drone-quote-calculator` graduated (browser spray-drone fields, tank, battery and cost inputs to real time per field, cost per acre, recommended quote and break-even).
     # +1: `stump-grinding-price-calculator` graduated (browser stump diameters, wood hardness, grinder speed, crew and drive time to a price, per-stump prices and a per-inch quote check).
