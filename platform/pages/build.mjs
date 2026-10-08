@@ -3077,6 +3077,8 @@ const CATEGORY_RULES = [
         'cell-tower-lease-buyout-calculator',
         // `pension-lump-sum-vs-annuity-calculator` joined 2026-10-08 on its first commit: one retiree weighing a buyout of their own pension income, beside the lease buyout tools.
         'pension-lump-sum-vs-annuity-calculator',
+        // `structured-settlement-buyout-calculator` joined 2026-10-08 on its first commit: one payee weighing a factoring company's cash offer for settlement payments, beside the buyout tools.
+        'structured-settlement-buyout-calculator',
         // `film-tax-credit-net-value-calculator` joined 2026-10-08 on its first commit: one producer turning their own production's incentive into net cash, the catch-all being at its bound.
         'film-tax-credit-net-value-calculator',
         // `mortgage-points-break-even-calculator` joined 2026-10-08 on its first commit: one buyer weighing points on their own loan estimate, beside the other lump-sum-for-income decisions.
