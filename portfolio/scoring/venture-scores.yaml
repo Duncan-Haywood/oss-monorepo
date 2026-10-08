@@ -28796,3 +28796,33 @@ ventures:
       Liability: arithmetic on user-typed numbers, defaults labelled as placeholders, no weld
       procedure, code, inspection, licensing, insurance or tax advice. Ethics: nothing leaves the
       browser, no dark patterns, nothing is sold.
+  - slug: fleet-ev-vs-diesel-tco-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 5
+      distribution: 5
+    composite: 6.2
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. A year-by-year cost, a break-even and a range check
+      are plain functions of the numbers typed in.
+    basis: >-
+      Screened 2026-10-08 per portfolio/pipeline/README.md; write-up in this venture's own
+      VENTURE.yaml comment. A total-cost-of-ownership tool for small fleets weighing electric
+      against gas or diesel that reports break-even fuel price, electricity rate and mileage and
+      checks range and overnight charging. Distribution 5: fleet and contractor groups and
+      "are electric vans worth it" searches are named channels; volume not measured. Defensibility
+      5: break-evens, demand charges and the feasibility check go beyond vendor calculators, but the
+      arithmetic is open.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed numbers, defaults labelled as placeholders, incentives
+      default to zero and must be user-confirmed, no tax, financing, tariff, eligibility or insurance
+      advice. Ethics: nothing leaves the browser, no dark patterns, nothing is sold.
