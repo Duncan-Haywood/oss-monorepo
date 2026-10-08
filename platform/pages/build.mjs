@@ -3081,6 +3081,8 @@ const CATEGORY_RULES = [
         'tax-lot-sale-optimizer',
         // `covered-call-wheel-calculator` joined 2026-10-08 on its first commit: one investor ranking option quotes on their own holding, beside the other single-person investing and income-timing tools.
         'covered-call-wheel-calculator',
+        // `rent-vs-buy-breakeven-calculator` joined 2026-10-08 on its first commit: one household deciding whether to buy, beside the home-sale and mortgage tools.
+        'rent-vs-buy-breakeven-calculator',
         // `charity-bunching-planner` joined 2026-10-08 on its first commit: one donor timing gifts into a donor-advised fund, beside the other single-person tax and income-timing tools.
         'charity-bunching-planner',
         // `structured-settlement-buyout-calculator` joined 2026-10-08 on its first commit: one payee weighing a factoring company's cash offer for settlement payments, beside the buyout tools.
