@@ -3929,7 +3929,7 @@ const SUBCATEGORY_RULES = {
       // work -- but this tool prices vegetation removal by acres per
       // machine-hour, not excavation, grading or a poured product, and its
       // nearest neighbour by both buyer and job is the tree service beside it.
-      test: (slug) => /^(artificial-turf|sod-install|lawn-care|irrigation-|tree-service|stump-grinding|forestry-mulching|landscape-lighting|holiday-light|snow-removal|snow-plow-contract|fence|deck-|deck-bid|pergola|hot-tub|pool-plaster|vinyl-liner)/.test(slug),
+      test: (slug) => /^(artificial-turf|sod-install|lawn-care|irrigation-|tree-service|stump-grinding|forestry-mulching|landscape-lighting|holiday-light|snow-removal|snow-plow-contract|fence|deck-|deck-bid|pergola|hot-tub|sauna-cold-plunge|pool-plaster|vinyl-liner)/.test(slug),
     },
   ],
 };
