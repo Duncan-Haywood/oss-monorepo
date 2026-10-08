@@ -1,0 +1,54 @@
+name: mortgage-extra-payment-vs-invest-calculator
+description: >-
+  Free browser calculator for homeowners with spare cash: compare paying extra on the mortgage, investing
+  the same money, and a lump-sum recast, with after-tax wealth at the end of the original term, months and
+  interest saved, the break-even investment return and a sensitivity table. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "mortgage extra payment versus
+# invest recast" scored 0.30 at best (mortgage-escrow-analysis-checker); mortgage-points-break-even and
+# heloc-vs-cash-out-refinance answer different questions. Bankrate, NerdWallet and Calculator.net run a
+# generic extra-payment calculator; none shows the invest side after tax, the recast path, or the return at
+# which the two tie, which is the actual decision.
+#
+# Why this niche: "should I pay extra on my mortgage or invest" is among the most-searched personal-finance
+# questions, rate-environment dependent, and answered in forums with hand-waving. A fixed-cash, three-path
+# comparison with a solved break-even gives a defensible answer. Lead magnet and donation play.
+#
+# First visitor: someone in r/personalfinance, r/Bogleheads or r/FirstTimeHomeBuyer asking "pay off mortgage
+# or invest" or "mortgage recast vs refinance", or searching those phrases. Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed numbers; embeds no tax table; recommends no loan, payment or
+# security; not financial or tax advice; nothing stored or uploaded.
+#
+# Path to revenue (payment rails stay off): donations; later ARM and refinance paths, a retirement-account
+# (pre-tax) investing option, a risk band from simulated return sequences, a printable one-page summary
+# (not built).
+
+hypotheses:
+  - claim: >-
+      Homeowners with spare cash will run their own loan through a private page that shows the break-even
+      investment return, because generic extra-payment calculators show interest saved but not the
+      alternative's after-tax outcome.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a worked figure disagrees with a standard amortisation of the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mortgage-extra-payment-vs-invest-calculator/
+  analytics: null
