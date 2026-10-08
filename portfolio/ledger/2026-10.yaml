@@ -2889,6 +2889,20 @@ entries:
         pass; page run in Chromium with no console errors. Registered score row, launch date,
         category rule, CI workflow.
     mrr_end: 0
+  - venture: boutique-fitness-studio-pricing-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built boutique-fitness-studio-pricing-planner: a browser-local pricing planner for yoga, pilates,
+        barre and cycling studios. Timetable, costs, unlimited members, class packs (with classes
+        never taken) and drop-ins give monthly profit, net earnings per visit under each plan,
+        break-even class size, unlimited-vs-pack crossover points, empty-seat value and a best
+        unlimited price on a user-set member-loss curve. First visitor: studio-owner groups and
+        search; volume unmeasured. Defaults are placeholders, unverified against real studios.
+        19 calc and 7 page tests pass; page run in Chromium with no console errors. Registered
+        score row, launch date, category rule, CI workflow.
+    mrr_end: 0
   - venture: property-management-profit-calculator
     agent_spend_usd: null
     human_hours: 0
