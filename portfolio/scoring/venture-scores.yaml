@@ -28854,3 +28854,33 @@ ventures:
       Liability: arithmetic on user-typed numbers, defaults labelled as placeholders, incentives
       default to zero and must be user-confirmed, no tax, financing, tariff, eligibility or insurance
       advice. Ethics: nothing leaves the browser, no dark patterns, nothing is sold.
+  - slug: volunteer-shift-scheduler
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. A fair roster from availability, maximums and roles is a
+      deterministic assignment and a validator; a model would add nothing the coordinator could check.
+    basis: >-
+      Screened 2026-10-08 per portfolio/pipeline/README.md; write-up in this venture's own
+      VENTURE.yaml comment. A free, private volunteer roster maker for church, PTA, food bank and
+      youth sports coordinators. Distribution 5: "volunteer schedule maker" searches and
+      r/nonprofit and r/churchtech are named channels; volume not measured. Time to revenue 4:
+      coordinators have small budgets and payment rails are off, so donations and referrals only.
+      Defensibility 3: the assignment and exports are straightforward and sign-up tools are free
+      too; the privacy angle is the edge.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: scheduling arithmetic on user-typed text, no background-check, safeguarding or
+      labour-law advice, the coordinator decides who suits which role. Ethics: names stay in the
+      browser, the share link says it carries them, no dark patterns, nothing is sold.
