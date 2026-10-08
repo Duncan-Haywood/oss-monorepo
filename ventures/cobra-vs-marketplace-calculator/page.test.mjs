@@ -51,5 +51,5 @@ test("every form field id the script reads exists in the markup", async () => {
 
 test("index links one hop to sibling tools", async () => {
   const idx = await read("index.html");
-  for (const slug of ["aca-subsidy-cliff-calculator", "insurance-denial-appeal-builder"]) assert.match(idx, new RegExp(`href="\\.\\./${slug}/"`));
+  for (const slug of ["aca-subsidy-cliff-calculator", "insurance-denial-appeal-builder", "severance-package-calculator"]) assert.match(idx, new RegExp(`href="\\.\\./${slug}/"`));
 });
