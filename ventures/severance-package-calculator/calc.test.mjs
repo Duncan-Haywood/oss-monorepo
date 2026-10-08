@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULTS, benchmark, fica, shapes, analyze, num, money, toCsv } from "./calc.mjs";
+import { DEFAULTS, benchmark, fica, shapes, analyze, num, money, toCsv, dates, calendarIcs, parseDate, isoDate } from "./calc.mjs";
 
 test("benchmark is one to three weeks per year with a mid at the chosen rate", () => {
   const b = benchmark({ ...DEFAULTS, yearsService: 6, offeredWeeks: 8, benchmarkWeeksPerYear: 2 });
@@ -81,4 +81,41 @@ test("num, money, csv", () => {
   assert.equal(num("$1,200"), 1200);
   assert.equal(money(-1234.4), "-$1,234");
   assert.match(toCsv(analyze({})), /Net if lump sum paid in January/);
+});
+
+test("age 40+ gets 21 days (individual) or 45 (group) to consider, then 7 to revoke", () => {
+  const ind = dates({ age: 44, releaseReceived: "2026-11-06" });
+  assert.equal(isoDate(ind.rows[0].date), "2026-11-27");
+  assert.equal(isoDate(ind.rows[1].date), "2026-12-04");
+  const grp = dates({ age: 44, groupProgram: true, releaseReceived: "2026-11-06" });
+  assert.equal(isoDate(grp.rows[0].date), "2026-12-21");
+});
+
+test("under 40 there is no federal review period, only a reminder to ask", () => {
+  const r = dates({ age: 35, releaseReceived: "2026-11-06" });
+  assert.equal(r.rows.length, 1);
+  assert.match(r.rows[0].label, /no federal minimum/);
+});
+
+test("a vest within 90 days after the last day produces an ask and a critical row", () => {
+  const r = dates({ age: 30, separationDate: "2026-11-20", nextVestDate: "2026-12-15" });
+  assert.equal(r.vestGapDays, 25);
+  assert.equal(r.asks.length, 1);
+  assert.ok(r.rows.some((x) => /Next equity vest/.test(x.label) && x.critical));
+});
+
+test("WARN flag only for large-employer layoffs with under 60 days of notice", () => {
+  const short = dates({ age: 30, largeEmployerLayoff: true, releaseReceived: "2026-11-06", separationDate: "2026-11-20" });
+  assert.ok(short.rows.some((x) => /WARN/.test(x.label)));
+  const none = dates({ age: 30, releaseReceived: "2026-11-06", separationDate: "2026-11-20" });
+  assert.ok(!none.rows.some((x) => /WARN/.test(x.label)));
+});
+
+test("dates ignores blank or impossible input and the ics has one event per row", () => {
+  assert.deepEqual(dates({}).rows, []);
+  assert.equal(parseDate("2026-02-31"), null);
+  const r = dates({ age: 50, releaseReceived: "2026-11-06", separationDate: "2026-11-20" });
+  const ics = calendarIcs(r.rows);
+  assert.equal((ics.match(/BEGIN:VEVENT/g) || []).length, r.rows.length);
+  assert.match(ics, /^BEGIN:VCALENDAR/);
 });

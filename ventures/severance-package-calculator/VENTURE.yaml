@@ -2,7 +2,7 @@ name: severance-package-calculator
 description: >-
   Free browser tool for people holding a severance offer: compares the weeks to the usual one-to-two weeks per
   year of service, shows the net as a lump sum now, a lump sum in January or salary continuation, prices the
-  COBRA gap, flags unemployment at risk, shows runway and lists what to negotiate. Nothing leaves the browser.
+  COBRA gap, flags unemployment at risk, shows runway and lists what to negotiate. Optional dates give the 21/45-day review and 7-day revocation deadlines at 40+, a vest-gap and WARN check, and an .ics calendar. Nothing leaves the browser.
 stage: prototype
 owner: duncan
 
