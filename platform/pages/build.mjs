@@ -3070,6 +3070,9 @@ const CATEGORY_RULES = [
         // grower selling transplants on fixed dates is one person pricing their own season's space.
         // `contract-vs-fte-rate-calculator` joined 2026-10-08 on its first commit: one person working out what a contract rate must be to match a salary.
         'contract-vs-fte-rate-calculator',
+        // `mobile-home-park-valuation-calculator` joined 2026-10-08 on its first commit. Back-office was at its 3 MB offline bound; a small park owner or buyer
+        // working out what their own asset is worth and what a rent increase adds is one person valuing their own income stream.
+        'mobile-home-park-valuation-calculator',
         'greenhouse-bench-planner',
         // `mushroom-fruiting-room-planner` joined 2026-10-07 on its first commit, same reason: back-office is at its bound,
         // and a grower deciding flushes, slots and starting cash for their own room is one person pricing their own farm.
