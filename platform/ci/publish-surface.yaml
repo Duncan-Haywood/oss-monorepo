@@ -611,6 +611,9 @@ workflows:
 - workflow: crop-insurance-coverage-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: tax-lien-certificate-yield-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: crawl-space-encapsulation-bid-calculator-ci.yml
   classification: none
   publishes: []
