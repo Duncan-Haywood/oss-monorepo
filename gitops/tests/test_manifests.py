@@ -2996,7 +2996,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `sheep-goat-flock-profit-planner` graduated (browser ewes or does, weaning rate, prices and hay to a multi-year flock projection, break-even flock and weaning rate).
     # +1: `waterfront-rental-season-planner` graduated (browser kayak and boat fleets, demand, weather days and costs to season profit, weather break-even, turn-aways and one-more-boat payback).
     # +1: `property-management-profit-calculator` graduated (browser doors, fee, staffing and owner inputs to monthly profit, break-even doors, the next-hire cliff and a fee search).
-    total = 865  # `infra/OWNER_CHECKLIST.md`'s own "N of the 865 tools" wording.
+    # +1: `mobile-welding-bid-calculator` graduated (browser mobile welding hours, drive, rig, materials and margin to a job price, distance table, overrun check and break-even jobs).
+    total = 866  # `infra/OWNER_CHECKLIST.md`'s own "N of the 866 tools" wording.
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
     # +1: `ag-spray-drone-quote-calculator` graduated (browser spray-drone fields, tank, battery and cost inputs to real time per field, cost per acre, recommended quote and break-even).
     # +1: `stump-grinding-price-calculator` graduated (browser stump diameters, wood hardness, grinder speed, crew and drive time to a price, per-stump prices and a per-inch quote check).

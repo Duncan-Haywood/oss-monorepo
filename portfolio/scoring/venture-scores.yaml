@@ -28709,3 +28709,31 @@ ventures:
       Liability: arithmetic on user-typed numbers and a stated sensitivity assumption, defaults labelled as
       placeholders, no licensing, trust-accounting, fair-housing, tax or employment advice. Ethics: nothing
       leaves the browser, no dark patterns, nothing is sold.
+  - slug: mobile-welding-bid-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. A job price, an overrun check and break-even jobs are
+      plain functions of the numbers typed in.
+    basis: >-
+      Screened 2026-10-08 per portfolio/pipeline/README.md; write-up in this venture's own
+      VENTURE.yaml comment. A job pricing tool for owner-operator mobile welders that prices the
+      drive, a share of fixed costs and overrun risk. Distribution 5: mobile welding groups and
+      "mobile welding rates" searches are named channels; volume not measured. Defensibility 4:
+      the drive, fixed-cost share and overrun views go beyond a rate card, but the arithmetic is simple.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed numbers, defaults labelled as placeholders, no weld
+      procedure, code, inspection, licensing, insurance or tax advice. Ethics: nothing leaves the
+      browser, no dark patterns, nothing is sold.
