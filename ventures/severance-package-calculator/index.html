@@ -60,6 +60,15 @@
         <div><label for="monthlyExpenses">Monthly expenses ($)</label><input id="monthlyExpenses" type="number" step="any" value="0"></div>
         <div><label for="savings">Savings ($)</label><input id="savings" type="number" step="any" value="0"></div>
       </div>
+      <h2 id="h-4">5. Dates (optional)</h2>
+      <p class="note">Add the dates you know to get your signing, revocation, vesting and COBRA deadlines as a calendar.</p>
+      <div class="grid">
+        <div><label for="releaseReceived">Date you received the release (YYYY-MM-DD)</label><input id="releaseReceived" placeholder="optional"></div>
+        <div><label for="separationDate">Last day (YYYY-MM-DD)</label><input id="separationDate" placeholder="optional"></div>
+        <div><label for="nextVestDate">Next equity vest (YYYY-MM-DD)</label><input id="nextVestDate" placeholder="optional"></div>
+        <div><label for="groupProgram">Part of a group layoff or exit program</label><select id="groupProgram"><option value="0">No / not sure</option><option value="1">Yes</option></select></div>
+        <div><label for="largeEmployerLayoff">Layoff at an employer with 100+ employees</label><select id="largeEmployerLayoff"><option value="0">No / not sure</option><option value="1">Yes</option></select></div>
+      </div>
       <button type="button" id="run">Evaluate my severance</button>
       <button type="button" class="secondary" id="example">Reset to the example</button>
     </section>
@@ -95,12 +104,12 @@
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with your agreement, your payroll department and a qualified professional before you sign or pay anyone.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
-    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>dates_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
   </footer>
   <script type="module">
-    import { DEFAULTS, num, money, analyze, toCsv } from "./calc.mjs";
+    import { DEFAULTS, num, money, analyze, toCsv, dates, calendarIcs, isoDate } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (id) => document.getElementById(id);
     const KEYS = Object.keys(DEFAULTS);
@@ -108,7 +117,8 @@
     const fill = () => { for (const k of KEYS) $(k).value = k === "ptoPaidOutByLaw" ? (DEFAULTS[k] ? "1" : "0") : DEFAULTS[k]; };
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
-    let last = null;
+    let last = null, lastDates = null;
+    const dateOpts = (o) => ({ age: o.age, releaseReceived: $("releaseReceived").value, separationDate: $("separationDate").value, nextVestDate: $("nextVestDate").value, groupProgram: $("groupProgram").value === "1", largeEmployerLayoff: $("largeEmployerLayoff").value === "1" });
     function run() {
       const a = analyze(opts());
       last = a;
@@ -123,9 +133,20 @@
       h += `<div class="finding"><h4>Also paid when you leave</h4><p>${money(a.pto)} of PTO, ${money(o.proRataBonus)} bonus and ${money(o.equityAcceleratedValue)} of accelerated equity: ${money(a.alwaysPaid)} gross, about ${money(a.alwaysPaidNet)} net. Total package gross ${money(a.totalGross)}.</p></div>`;
       h += `<div class="finding"><h4>Health coverage and unemployment</h4><p>Without a subsidy, COBRA costs you ${money(a.healthPerMonthGap)} a month more than you paid as an employee. Asking for ${o.coveredMonths} months covered is worth ${money(a.subsidyValue)}. If your state delays unemployment while severance covers your weeks, up to ${money(a.atRisk)} of benefits could be pushed back. Check with your state agency before choosing a shape.</p></div>`;
       h += `<div class="finding"><h4>Runway</h4><p>With savings, the best net payout and your last-day pay you have about ${Number.isFinite(a.runwayMonths) ? a.runwayMonths.toFixed(1) : "no limit"} months at ${money(o.monthlyExpenses)} a month plus the health gap. Without any severance it would be ${Number.isFinite(a.runwayMonthsNoSeverance) ? a.runwayMonthsNoSeverance.toFixed(1) : "no limit"}.</p></div>`;
+      lastDates = dates(dateOpts(o));
+      if (lastDates.rows.length) h += `<div class="finding"><h4>Your dates</h4>${table(["Date", "What happens"], lastDates.rows.map((r) => [isoDate(r.date), (r.critical ? "<strong>" : "") + esc(r.label) + (r.critical ? "</strong>" : "")]))}<p><button type="button" class="secondary" id="ics">Add dates to calendar (.ics)</button></p></div>`;
+      if (lastDates.asks.length) h += `<div class="finding"><h4>Also ask for</h4><ul>${lastDates.asks.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>`;
       h += `<div class="finding"><h4>Before you sign</h4><ul>${a.checklist.map((c) => `<li>${esc(c)}</li>`).join("")}</ul><p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
+      const ics = $("ics");
+      if (ics) ics.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([calendarIcs(lastDates.rows)], { type: "text/calendar" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "severance-dates.ics"; el.click();
+        URL.revokeObjectURL(url);
+        record("dates_downloaded");
+      });
       const c = $("csv");
       if (c) c.addEventListener("click", () => {
         const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));

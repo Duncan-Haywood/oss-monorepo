@@ -153,3 +153,59 @@ export function toCsv(a) {
     ["Runway in months", Number.isFinite(a.runwayMonths) ? a.runwayMonths : 0]];
   return rows.map((x) => [x[0].replace(/,/g, ""), typeof x[1] === "number" ? x[1].toFixed(2) : x[1]].join(",")).join("\n") + "\n";
 }
+
+// ---- Dates: signing, revocation, vesting and notice deadlines ----------------------------------------------------
+// Separate from DEFAULTS (all numbers) because these are optional calendar dates typed as YYYY-MM-DD.
+const DAY = 86400000;
+export function parseDate(s) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || "").trim());
+  if (!m) return null;
+  const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+  return d.getUTCMonth() === +m[2] - 1 ? d : null;
+}
+export const isoDate = (d) => d.toISOString().slice(0, 10);
+const plus = (d, n) => new Date(d.getTime() + n * DAY);
+
+// raw: { releaseReceived, separationDate, nextVestDate, groupProgram, largeEmployerLayoff, age }
+// Returns dated rows, soonest first. The 21/45/7-day periods are the federal OWBPA minimums for a waiver of age-discrimination
+// claims at 40 and over; shorter periods can be accepted voluntarily, so the first date is the earliest the company may require you to sign.
+export function dates(raw = {}) {
+  const received = parseDate(raw.releaseReceived), sep = parseDate(raw.separationDate), vest = parseDate(raw.nextVestDate);
+  const age = num(raw.age);
+  const rows = [], asks = [];
+  if (received && age >= 40) {
+    const days = raw.groupProgram ? 45 : 21;
+    const signBy = plus(received, days);
+    rows.push({ date: signBy, label: `Review period ends (${days} days; ${raw.groupProgram ? "group exit program" : "individual release"}, age 40+). The company cannot require a signature before this`, critical: true });
+    rows.push({ date: plus(signBy, 7), label: "If you sign on the last day, the 7-day revocation window ends here. The release is not effective, and severance is not owed, before this", critical: false });
+  } else if (received) {
+    rows.push({ date: received, label: "Release received. Under 40 there is no federal minimum: ask in writing how long you have to sign", critical: false });
+  }
+  if (sep) rows.push({ date: sep, label: "Separation date (last day on payroll)", critical: false });
+  if (sep) rows.push({ date: plus(sep, 60), label: "COBRA election: you have at least 60 days from the later of losing coverage or getting the election notice. Watch for the notice", critical: false });
+  let vestGapDays = null;
+  if (sep && vest) {
+    vestGapDays = Math.round((vest - sep) / DAY);
+    if (vestGapDays > 0) {
+      rows.push({ date: vest, label: `Next equity vest, ${vestGapDays} days after your last day (forfeited unless the agreement accelerates it)`, critical: vestGapDays <= 90 });
+      if (vestGapDays <= 90) asks.push(`Your last day is ${vestGapDays} days before a vest. Ask to move the separation date past ${isoDate(vest)}, or to accelerate that tranche. Ask to extend the exercise window on vested options beyond 90 days.`);
+    }
+  }
+  if (raw.largeEmployerLayoff && received && sep) {
+    const notice = Math.round((sep - received) / DAY);
+    if (notice < 60) {
+      rows.push({ date: sep, label: `Only ${Math.max(0, notice)} days between notice and last day. The federal WARN Act can require 60 days of notice or pay for mass layoffs at employers with 100 or more employees; ask HR whether it applies`, critical: true });
+      asks.push("Ask whether the layoff is covered by the WARN Act (60 days of notice or pay) and whether the severance is in addition to it.");
+    }
+  }
+  rows.sort((a, b) => a.date - b.date);
+  return { rows, asks, vestGapDays };
+}
+
+export function calendarIcs(rows, name = "Severance") {
+  const ev = rows.map((c, i) => {
+    const d = isoDate(c.date).replace(/-/g, ""), n = isoDate(plus(c.date, 1)).replace(/-/g, "");
+    return ["BEGIN:VEVENT", `UID:sev-${i}-${d}@severance-package-calculator`, "DTSTAMP:20260101T000000Z", `DTSTART;VALUE=DATE:${d}`, `DTEND;VALUE=DATE:${n}`, `SUMMARY:${(name + ": " + c.label).replace(/[,;\n]/g, " ").slice(0, 120)}`, "END:VEVENT"].join("\r\n");
+  });
+  return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//severance-package-calculator//EN", ...ev, "END:VCALENDAR", ""].join("\r\n");
+}
