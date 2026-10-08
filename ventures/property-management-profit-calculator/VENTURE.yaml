@@ -1,0 +1,59 @@
+name: property-management-profit-calculator
+description: >-
+  Free browser tool for property management company owners: doors, fee, leasing and
+  renewal income, managers and admin hired in whole steps in; monthly profit, break-even
+  doors, the cost of the next hire, profit by portfolio size, a management fee search and
+  new-owner payback out. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py on
+# "property management company fee per door break-even": closest row
+# property-tax-appeal-calculator 0.33, below the 0.45 line. Neighbours
+# (rent-roll-delinquency-analyzer, renewal-rent-optimizer) serve the landlord, not the
+# company that manages doors for fees.
+#
+# Why this niche: tens of thousands of small property managers (often a broker plus a
+# few staff) charge 8-10% of rent and hire a manager each ~100-150 doors, but price and
+# hire by feel. Incumbent software (AppFolio, Buildium, DoorLoop) runs the operations;
+# none answers "how many doors do I need" or "what does hire number three cost me".
+#
+# First visitor: small property managers and agents considering a management arm, in
+# NARPM-style groups, r/propertymanagement and "property management fees" searches.
+# Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed numbers plus a sensitivity the user
+# chooses and the page says is an assumption; no licensing, trust-accounting,
+# fair-housing, tax or employment advice; defaults are placeholders; nothing stored.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a hosted
+# version that reads an owner-statement or PMS export and fits fees and churn from the
+# real book (not built).
+
+hypotheses:
+  - claim: >-
+      Small property management company owners will use a private planner that turns
+      doors, fee and staffing into profit, break-even doors and the cost of the next
+      hire, because their management software reports operations but not the economics
+      of growing or repricing the book.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A property manager reports that the revenue or hiring arithmetic disagrees with their own worked example.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/property-management-profit-calculator/
+  analytics: null

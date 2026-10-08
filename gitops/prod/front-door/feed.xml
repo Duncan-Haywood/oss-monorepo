@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 864 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 865 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -22,6 +22,14 @@
     <updated>2026-10-08T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free escape room pricing calculator: rooms, hours, game and reset length, price per player, occupancy and costs in; monthly profit, break-even occupancy, best price per player and build-cost payback out. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Property Management Company Profit Calculator — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/property-management-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/property-management-profit-calculator</id>
+    <updated>2026-10-08T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free property management profit calculator: doors, fee percentage, leasing and renewal income, managers and admin in; monthly profit, break-even doors, the cost of your next hire, best fee and new-owner payback out. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Kayak and Boat Rental Season Planner — Free</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free freelance contract generator: describe the project, pick fixed, hourly or retainer, set deposit, revisions, ownership, kill fee and late fee, and get a plain-language service agreement to print or download. No account, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Freelance Dashboard — Overdue Invoices, Unbilled Time, Profit and What to Do Next</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freelance-dashboard/"/>
-    <id>tag:marisstella.dev,2026:tool/freelance-dashboard</id>
-    <updated>2026-10-07T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free freelancer dashboard that runs in your browser: see overdue invoices, unbilled hours, your estimate pipeline, year-to-date profit and tax set-aside, plus a ranked list of what to do next. No account, nothing uploaded.</summary>
   </entry>
 </feed>
