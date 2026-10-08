@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 878 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 879 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -54,6 +54,14 @@
     <updated>2026-10-08T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free escape room pricing calculator: rooms, hours, game and reset length, price per player, occupancy and costs in; monthly profit, break-even occupancy, best price per player and build-cost payback out. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Farmland Lease Calculator: Cash Rent vs Crop Share — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/farmland-lease-cash-rent-vs-crop-share-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/farmland-lease-cash-rent-vs-crop-share-calculator</id>
+    <updated>2026-10-08T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free farmland lease calculator: compare cash rent, crop share and flexible cash leases for the landlord and the operator at your own yield, price and costs, with the break-even yield and who carries the risk. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Fleet EV vs Diesel TCO Calculator — Free</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free spray drone quote calculator for custom applicators. Enter your drone, batteries, costs and a list of fields; get the real time on each field, cost per acre, a recommended quote, minimum-charge check and season break-even. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Beekeeping Profit Calculator — Hives, Honey, Nucs and Pollination Planner, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/apiary-profit-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/apiary-profit-planner</id>
-    <updated>2026-10-07T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free beekeeping profit calculator. Project colonies, honey, nuc sales and pollination income year by year; see winter-loss sensitivity, break-even hives and payback. Nothing uploaded.</summary>
   </entry>
 </feed>
