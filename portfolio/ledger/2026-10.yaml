@@ -2861,3 +2861,17 @@ entries:
         Unverified on flown fields: starter values are examples. Time checked by an independent
         sortie-by-sortie replay; 36 tests pass. Registered score row, launch date, category rule, CI workflow.
     mrr_end: 0
+  - venture: escape-room-pricing-capacity-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built escape-room-pricing-capacity-planner: a browser-local pricing and capacity planner for escape
+        rooms and timed-slot venues. Rooms, hours, game and reset length, peak and off-peak
+        price and occupancy, and costs give sellable slots, monthly profit, break-even
+        occupancy, a best-price search along a user-set demand curve, reset-time and
+        group-minimum sensitivity and build-cost payback. First visitor: escape room owner
+        groups and pricing searches; volume unmeasured. Defaults are placeholders, unverified
+        against real venues. 32 tests pass; page run in Chromium with no console errors.
+        Registered score row, launch date, category rule, CI workflow.
+    mrr_end: 0

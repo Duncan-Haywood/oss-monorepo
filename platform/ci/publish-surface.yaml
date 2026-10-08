@@ -828,6 +828,9 @@ workflows:
 - workflow: hay-baling-own-vs-hire-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: escape-room-pricing-capacity-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: etsy-ads-roi-analyzer-ci.yml
   classification: none
   publishes: []

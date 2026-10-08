@@ -1,0 +1,60 @@
+name: escape-room-pricing-capacity-planner
+description: >-
+  Free browser tool for escape room and timed-slot venue owners: rooms, hours, game and
+  reset length, price per player, occupancy and costs in; sellable slots, monthly profit,
+  break-even occupancy, the price that earns the most along a demand curve you set,
+  reset-time and minimum-group sensitivity, and build-cost payback out. Nothing leaves
+  the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session asked for deeper tools with
+# real competitors. duplicate_check.py on "escape room pricing group": closest row
+# bridal-hair-makeup-pricing-calculator 0.29, well below the 0.45 line; the nearest
+# true neighbours are the pickleball facility pro forma and the campground profit
+# calculator, which do not model timed slots, reset time or a price search.
+#
+# Why this niche: escape rooms, axe-throwing, VR arenas and similar timed-slot venues
+# sell a fixed number of perishable slots, pay hosts for every open hour and set price
+# by copying the competitor down the road. Owners ask "what should I charge", "how full
+# must I be" and "does a faster reset pay" in owner groups and forums. Booking
+# platforms report bookings, not the price that would have earned more.
+#
+# First visitor: escape room owners in owner Facebook groups, r/escaperooms and
+# regional venue associations. Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed numbers plus a demand sensitivity the
+# user chooses and the page says is an assumption; no lease, insurance, fire-safety,
+# employment or tax advice; defaults are placeholders; nothing stored.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a hosted
+# version that reads a booking-platform CSV export and fits the demand curve from real
+# bookings (not built).
+
+hypotheses:
+  - claim: >-
+      Escape room and similar timed-slot venue owners will use a private planner that
+      turns slots, price and occupancy into profit, break-even occupancy and a best
+      price, because booking platforms report bookings but not what a different price
+      or reset time would have earned.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - An owner reports that the slot count or break-even arithmetic disagrees with their own worked example.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/escape-room-pricing-capacity-planner/
+  analytics: null
