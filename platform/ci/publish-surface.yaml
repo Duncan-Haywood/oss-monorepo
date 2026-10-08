@@ -566,6 +566,9 @@ workflows:
 - workflow: container-load-planner-ci.yml
   classification: none
   publishes: []
+- workflow: contract-vs-fte-rate-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: contractor-bid-readiness-ci.yml
   classification: none
   publishes: []

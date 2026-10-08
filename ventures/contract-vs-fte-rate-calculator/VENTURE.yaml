@@ -1,0 +1,57 @@
+name: contract-vs-fte-rate-calculator
+description: >-
+  Free browser tool for engineers, designers, analysts and other professionals weighing a salaried
+  offer against a 1099 or contract rate: finds the hourly rate that leaves the same cash after
+  self-employment tax, health insurance, unpaid time off, bench weeks, the lost 401(k) match and
+  expenses, shows each gap as its own step, and says what an offered rate really leaves you.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "W-2 job offer versus
+# 1099 contract hourly rate break-even self-employment tax benefits PTO" scored 0.63 against
+# locum-tenens-vs-employed-calculator (physicians only) and 0.25 against freelance-platform-fee-
+# calculator; job-offer-total-comp-calculator compares salaried offers, self-employment-tax-
+# calculator computes one tax; none converts a salary into a contract rate.
+#
+# Why this niche: it is a decision that moves tens of thousands of dollars a year, and the common
+# rule of thumb ("1.5x to 2x the salary rate") is unexplained. Contract roles are posted with an
+# hourly rate and no way to compare it to a salaried offer.
+#
+# First visitor: people comparing a contract-to-hire or contract offer with a salaried one, in
+# r/cscareerquestions, r/ExperiencedDevs, r/Contractor-style and r/freelance threads asking "is
+# $X/hr contract better than $Y salary?", and the search "W2 vs 1099 hourly rate calculator".
+# Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed numbers; no income-tax or classification advice;
+# rates and the wage base are editable with stated defaults; nothing stored or uploaded.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a negotiation-script
+# generator and a multi-offer comparison (not built).
+
+hypotheses:
+  - claim: >-
+      People holding a contract offer and a salaried offer will use a private calculator to turn
+      one into the other, because the usual rule of thumb hides how much of the gap is tax,
+      benefits and unpaid time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A CPA reports that the break-even disagrees with a hand calculation of self-employment tax and FICA on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/contract-vs-fte-rate-calculator/
+  analytics: null
