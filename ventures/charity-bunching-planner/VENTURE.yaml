@@ -1,0 +1,53 @@
+name: charity-bunching-planner
+description: >-
+  Free browser tool for donors: enter a planned annual gift and your deductions, and get the exact years to
+  fund a donor-advised fund for the largest tax saving over a multi-year horizon, modelling the 0.5%-of-AGI
+  floor and the direct-cash deduction for non-itemizers, compared with giving directly each year and
+  every-k-years cycles. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "donor advised fund bunching
+# charitable deduction" scored 0.26 at best (charitable-deduction-calculator, which compares itemizing with
+# the non-itemizer deduction for ONE year and has no multi-year schedule or DAF). This is a solver: an
+# exhaustive search over deposit-year schedules, verified against an independent brute force.
+#
+# Why this niche: the 2026 rules (0.5% AGI floor for itemizers, direct-cash deduction for non-itemizers that
+# excludes DAF deposits) changed the best schedule for exactly the households that bunch, and the DAF
+# sponsors' own calculators are single-year sales tools. Donors in the standard-deduction band have real
+# money at stake and a free, private what-if is the gap. Lead magnet and donation play.
+#
+# First visitor: someone searching "donor advised fund bunching calculator", "should I bunch charitable
+# donations" or asking r/personalfinance / r/tax whether a DAF is worth it. Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed amounts and rates; embeds no tax table; does not recommend any
+# gift, fund or security; not tax, legal or financial advice; nothing stored or uploaded.
+#
+# Path to revenue (payment rails stay off): donations; later a progressive-bracket mode, appreciated-stock
+# AGI limits and carryforward, and a printable schedule for a tax preparer (not built).
+
+hypotheses:
+  - claim: >-
+      Donors near the standard deduction will enter their numbers into a private page to see which years to
+      fund a donor-advised fund, because fund sponsors' calculators show one year and sell the fund.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A tax preparer or donor reports that a worked tax figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/charity-bunching-planner/
+  analytics: null
