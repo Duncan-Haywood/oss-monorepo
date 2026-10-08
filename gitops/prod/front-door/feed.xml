@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 875 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 878 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -14,6 +14,14 @@
     <updated>2026-10-08T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free no-show cost calculator for dental, medical, therapy, chiropractic, vet and salon practices: annual revenue lost to no-shows and late cancels, cost after refills, best overbooking level from an exact binomial model, break-even no-show fee and reminder price. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Bonus Take-Home and Gross-Up Calculator — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bonus-take-home-gross-up-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/bonus-take-home-gross-up-calculator</id>
+    <updated>2026-10-08T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free bonus calculator: what a bonus pays after the 22% federal supplemental withholding, Social Security, Medicare and state tax, whether you owe or get a refund at filing, and the gross-up an employer needs to pay a bonus net. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Yoga, Pilates and Fitness Studio Pricing Planner — Free</title>
@@ -30,6 +38,14 @@
     <updated>2026-10-08T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free collision repair DRP calculator: your labor rates, the insurer&#39;s rate cut, parts discount and materials cap, repriced jobs and promised volume in; profit with and without the program, break-even repair orders and the lowest labor rate worth accepting out. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Container Demurrage &amp; Detention Calculator — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/container-demurrage-detention-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/container-demurrage-detention-calculator</id>
+    <updated>2026-10-08T00:00:00Z</updated>
+    <category term="Logistics, freight &amp; cloud cost"/>
+    <summary type="text">Free calculator for importers and forwarders: what will demurrage and detention cost on your containers? Enter your dates, free days and tiered per-day rates to see the bill, the last free day, what one more day costs and what an earlier pickup is worth. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Escape Room Pricing and Capacity Planner — Free</title>
@@ -96,6 +112,14 @@
     <summary type="text">Free calculator for S corporation and partnership owners: does a state pass-through entity tax (PTET) election save federal tax once the SALT cap, its income phase-out, your credit and the 20% pass-through deduction are counted? See the saving, why, and the income where it starts to pay. Nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Roofing Insurance Supplement Finder — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/roofing-insurance-supplement-finder/"/>
+    <id>tag:marisstella.dev,2026:tool/roofing-insurance-supplement-finder</id>
+    <updated>2026-10-08T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free roofing insurance supplement calculator: compare your measurement report with the adjuster&#39;s estimate, price missing drip edge, starter, steep-slope, waste and permit lines, add O&amp;P, and see what the claim pays now and after depreciation. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Sauna &amp; Cold Plunge Install Bid Calculator — Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sauna-cold-plunge-install-bid-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/sauna-cold-plunge-install-bid-calculator</id>
@@ -142,29 +166,5 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free beekeeping profit calculator. Project colonies, honey, nuc sales and pollination income year by year; see winter-loss sensitivity, break-even hives and payback. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Bakery Production Scheduler — Plan Bakes Backwards From Orders, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bakery-production-scheduler/"/>
-    <id>tag:marisstella.dev,2026:tool/bakery-production-scheduler</id>
-    <updated>2026-10-07T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free bakery production scheduler. Paste your products and orders with due times; get a backwards-planned prep, proof and bake timeline, the ovens and bakers you need, and which orders to drop when it does not fit. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Ball Python Morph Pairing Planner — odds, clutch profit and best pairing</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ball-python-morph-pairing-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/ball-python-morph-pairing-planner</id>
-    <updated>2026-10-07T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free ball python morph pairing planner. Enter your females and males with their morphs and hets and what each morph sells for; get the genetics odds for every pairing, expected hatchlings, clutch profit and the best pairing. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Beef Cattle Ration Optimizer — least-cost feed ration for cows and calves</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/beef-cattle-ration-optimizer/"/>
-    <id>tag:marisstella.dev,2026:tool/beef-cattle-ration-optimizer</id>
-    <updated>2026-10-07T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free beef cattle ration optimizer. Enter your feeds with price per ton and nutrient content, choose cow, bull, stocker or finishing class, and get the least-cost ration per head per day, herd cost and a buying list. A least-cost feed formulation solver in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>

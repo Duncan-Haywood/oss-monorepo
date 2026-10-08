@@ -956,6 +956,9 @@ workflows:
 - workflow: fractional-executive-rate-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: bonus-take-home-gross-up-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: franchise-unit-economics-calculator-ci.yml
   classification: none
   publishes: []
@@ -1905,6 +1908,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: roofing-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: roofing-insurance-supplement-finder-ci.yml
   classification: none
   publishes: []
 - workflow: roth-conversion-bracket-fill-calculator-ci.yml

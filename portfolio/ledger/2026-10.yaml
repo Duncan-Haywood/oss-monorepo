@@ -3058,3 +3058,42 @@ entries:
         placeholders. Registered score row, launch date, CI workflow, inbound link from
         salt-cap-calculator.
     mrr_end: 0
+  - venture: container-demurrage-detention-calculator
+  - venture: roofing-insurance-supplement-finder
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built container-demurrage-detention-calculator: a browser-local tool for
+        importers, forwarders and brokers that prices ocean-container demurrage and detention from
+        the user's own dates, free days and tiered per-day rates, gives each clock's last free day
+        and the cost of one more day, and tabulates what pulling pickup and return earlier is worth
+        (the ceiling on a rush fee worth paying) plus a pickup-by-return sensitivity grid
+        (hand-worked: two boxes, 7 chargeable days on each clock, $5,350; one day earlier saves
+        $550). First visitor: "demurrage and detention calculator"; volume unmeasured. Defaults are
+        placeholders, not any carrier's tariff. Registered score row, launch date, category rule,
+        CI workflow, inbound link from import-landed-cost-calculator.
+        Graduated and built roofing-insurance-supplement-finder: a browser-local tool for storm-restoration roofers
+        and homeowners. Measured quantities, the adjuster's estimate quantities and the user's unit prices give a
+        priced gap line by line (eleven lines plus the shingle field, with waste and per-square price gap kept
+        apart), overhead, profit and tax, claim payments now and on completion after depreciation and deductible,
+        and net kept across acceptance rate and supplement-service fee. First visitor: small roofing contractors
+        and estimators searching for supplement help; volume unmeasured. Defaults are placeholders; no policy or
+        homeowner data is asked for; who may negotiate a claim is stated as not decided. Nearest existing tools
+        price the job, not the carrier gap. Registered score row, launch date, category (Roofing, siding and
+        gutters), CI workflow, inbound links from the roofing bid calculators.
+    mrr_end: 0
+  - venture: bonus-take-home-gross-up-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built bonus-take-home-gross-up-calculator: a browser-local tool for people paid a bonus
+        and the employers paying it. Bonus, wages so far, withholding rates and real bracket give
+        take-home after supplemental withholding, Social Security with the wage-base cap, Medicare
+        and Additional Medicare, the refund or balance due at filing, a 401(k) deferral table,
+        employer cost, and an exact gross-up for a target net (hand-worked: $6,535 net on a
+        $10,000 bonus at 22% + 5% state). First visitor: "bonus tax calculator" searchers;
+        volume unmeasured. Defaults are placeholders. 25 tests pass. Registered score row,
+        launch date, category rule, CI workflow.
+    mrr_end: 0
