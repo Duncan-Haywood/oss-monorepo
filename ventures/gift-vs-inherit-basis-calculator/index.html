@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Gift vs Inherit Basis Calculator: Step-Up in Basis and Gift Tax — Free</title>
+  <meta name="description" content="Free calculator: should you gift a house or stock to your child now or let them inherit it? Compares carryover basis against the stepped-up basis, the capital gains tax, Form 709 and estate tax. Nothing uploaded.">
+  <meta property="og:title" content="Gift vs inherit basis calculator">
+  <meta property="og:description" content="Gift the house now or leave it in the will? See the capital gains tax and estate tax each path costs. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e3a8a'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Gift vs Inherit Basis Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare gifting appreciated property now with letting it pass at death: carryover versus stepped-up basis, capital gains tax, Form 709 and estate tax. Runs in your browser.", "featureList": "Carryover vs step-up basis, estate tax check, Form 709 flag, years-to-death sensitivity, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the difference between carryover basis and stepped-up basis?", "acceptedAnswer": {"@type": "Answer", "text": "If you give someone an appreciated asset while you are alive, they take over your cost basis (IRC section 1015) and owe capital gains tax on all the growth since you bought it when they sell. If they inherit it at your death, their basis resets to the fair market value on the date of death (IRC section 1014), so the growth during your lifetime is never taxed."}}, {"@type": "Question", "name": "Should I put my child on the deed to my house?", "acceptedAnswer": {"@type": "Answer", "text": "Usually not for tax reasons alone. A lifetime gift of the house gives your child your low basis, loses the home sale exclusion on their share, and can be a Medicaid look-back transfer. A transfer-on-death deed, a revocable trust or a life estate deed (where your state allows it) can move the house at death and keep the step-up. This tool prices the tax side so you can take the comparison to an attorney."}}, {"@type": "Question", "name": "When does gifting beat inheriting?", "acceptedAnswer": {"@type": "Answer", "text": "When the estate is large enough that the federal estate tax (40% above the exemption) outweighs the capital gains tax the recipient will pay, so moving future growth out of the estate saves more than the lost step-up costs. Below the exemption, which is 15,000,000 per person in 2026, inheriting nearly always wins for appreciated property."}}, {"@type": "Question", "name": "Do I need to file Form 709?", "acceptedAnswer": {"@type": "Answer", "text": "A gift to one person above the annual exclusion (19,000 in 2026) needs a gift tax return, even if no tax is due because it just uses lifetime exemption. A gift of a share of a house to each of two children is tested per recipient."}}, {"@type": "Question", "name": "What if the property has lost value?", "acceptedAnswer": {"@type": "Answer", "text": "A gift of loss property uses the lower fair value at the date of the gift for any loss the recipient later claims, so a loss cannot be passed on. An inheritance resets basis down to the date-of-death value. Either way the paper loss is not usable, so selling before is the case to ask a professional about."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the figures you type, with simplifications listed under Not decided. State inheritance and estate taxes, gift splitting, trusts and Medicaid planning all change the answer."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">GIFT VS INHERIT BASIS CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Gift it now or leave it in the will? The tax on each path.</h1>
+    <p>Type the value and cost basis of a house or a stock position. The tool compares what the recipient owes if you gift it today (your low basis carries over) against letting it pass at death (the basis steps up), checks the estate tax that gifting can avoid, flags Form 709, and shows how the answer moves with the years to death.</p>
+    <p class="note">Arithmetic on assumptions you type. Not tax, legal or financial advice. The example figures are placeholders, not your situation; the 2026 exemption and annual exclusion are editable inputs.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The asset</h2>
+      <div class="grid">
+        <div><label for="value">Fair market value today ($)</label><input id="value" type="number" step="any" value="0"><p class="note">The whole asset; the share below sets how much of it moves.</p></div>
+        <div><label for="basis">Owner's cost basis ($)</label><input id="basis" type="number" step="any" value="0"><p class="note">What was paid plus improvements, before any depreciation.</p></div>
+        <div><label for="share">Share moved (%)</label><input id="share" type="number" step="any" value="0"><p class="note">100 for the whole asset, 50 for adding one person to the deed.</p></div>
+        <div><label for="years">Years until the owner dies</label><input id="years" type="number" step="any" value="0"><p class="note">Planning assumption, not a prediction.</p></div>
+        <div><label for="growth">Assumed yearly growth (%)</label><input id="growth" type="number" step="any" value="0"><p class="note">Can be negative.</p></div>
+        <div><label for="isHome">Main home of the owner? (1 yes, 0 no)</label><input id="isHome" type="number" step="any" value="0"><p class="note">Only matters for the sell-now column.</p></div>
+        <div><label for="exclusion">Home sale exclusion if sold now ($)</label><input id="exclusion" type="number" step="any" value="0"><p class="note">250,000 single, 500,000 joint, if lived in 2 of the last 5 years.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Tax on a sale</h2>
+      <div class="grid">
+        <div><label for="fedRate">Federal long-term gain rate (%)</label><input id="fedRate" type="number" step="any" value="0"><p class="note">0, 15 or 20.</p></div>
+        <div><label for="niitRate">Net investment income tax (%)</label><input id="niitRate" type="number" step="any" value="0"><p class="note">3.8 if the recipient will be over the NIIT threshold, else 0.</p></div>
+        <div><label for="stateRate">State tax on the gain (%)</label><input id="stateRate" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Estate and gift tax</h2>
+      <div class="grid">
+        <div><label for="otherEstate">Everything else the owner will leave ($)</label><input id="otherEstate" type="number" step="any" value="0"><p class="note">Other property, accounts, life insurance owned by the owner.</p></div>
+        <div><label for="exemption">Federal estate and gift exemption ($)</label><input id="exemption" type="number" step="any" value="0"><p class="note">15,000,000 per person in 2026; edit if the law changes.</p></div>
+        <div><label for="annualExclusion">Gift tax annual exclusion per recipient ($)</label><input id="annualExclusion" type="number" step="any" value="0"><p class="note">19,000 in 2026.</p></div>
+        <div><label for="donees">Number of recipients</label><input id="donees" type="number" step="any" value="0"></div>
+        <div><label for="priorGifts">Taxable gifts already reported on Form 709 ($)</label><input id="priorGifts" type="number" step="any" value="0"></div>
+        <div><label for="estateRate">Top federal estate and gift rate (%)</label><input id="estateRate" type="number" step="any" value="0"><p class="note">40 today.</p></div>
+      </div>
+      <button type="button" id="run">Compare gift, inheritance and sale</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What is the difference between carryover basis and stepped-up basis?</h3>
+      <p>If you give someone an appreciated asset while you are alive, they take over your cost basis (IRC section 1015) and owe capital gains tax on all the growth since you bought it when they sell. If they inherit it at your death, their basis resets to the fair market value on the date of death (IRC section 1014), so the growth during your lifetime is never taxed.</p>
+      <h3>Should I put my child on the deed to my house?</h3>
+      <p>Usually not for tax reasons alone. A lifetime gift of the house gives your child your low basis, loses the home sale exclusion on their share, and can be a Medicaid look-back transfer. A transfer-on-death deed, a revocable trust or a life estate deed (where your state allows it) can move the house at death and keep the step-up. This tool prices the tax side so you can take the comparison to an attorney.</p>
+      <h3>When does gifting beat inheriting?</h3>
+      <p>When the estate is large enough that the federal estate tax (40% above the exemption) outweighs the capital gains tax the recipient will pay, so moving future growth out of the estate saves more than the lost step-up costs. Below the exemption, which is 15,000,000 per person in 2026, inheriting nearly always wins for appreciated property.</p>
+      <h3>Do I need to file Form 709?</h3>
+      <p>A gift to one person above the annual exclusion (19,000 in 2026) needs a gift tax return, even if no tax is due because it just uses lifetime exemption. A gift of a share of a house to each of two children is tested per recipient.</p>
+      <h3>What if the property has lost value?</h3>
+      <p>A gift of loss property uses the lower fair value at the date of the gift for any loss the recipient later claims, so a loss cannot be passed on. An inheritance resets basis down to the date-of-death value. Either way the paper loss is not usable, so selling before is the case to ask a professional about.</p>
+      <h3>Is this tax advice?</h3>
+      <p>No. It is arithmetic on the figures you type, with simplifications listed under Not decided. State inheritance and estate taxes, gift splitting, trusts and Medicaid planning all change the answer.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>State estate and inheritance taxes, gift splitting between spouses, depreciation recapture on rentals, trusts and irrevocable planning, the Medicaid five-year look-back, portability of a deceased spouse's exemption, community property basis rules, and whether the sale happens at all. Rates, exemptions and the law can change.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../medicaid-lookback-penalty-calculator/">Medicaid look-back penalty calculator</a>, the <a href="../estate-tax-exemption-calculator/">estate tax exemption calculator</a> and the <a href="../inherited-ira-10-year-withdrawal-planner/">inherited IRA 10-year withdrawal planner</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with IRS Publication 551, the Form 709 instructions and a qualified professional before you gift, file or pay anyone.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const r = a.result;
+      h += `<div class="finding"><h4>Lowest tax on these figures: ${r.best}</h4><p>In ${a.opts.years} years the share is worth ${money(r.futureValue)} against a cost basis of ${money(r.gift.basis)}, a built-in gain of ${money(r.builtInGain)}. ${a.giftBeatsInherit ? "Gifting wins here because the estate tax it avoids is larger than the capital gains tax the recipient will owe." : "Gifting hands over the low basis, so the recipient owes " + money(r.gift.gainTax) + " in capital gains tax that inheriting would erase" + (r.estateOverExemption ? ", but your estate is over the exemption, so check the estate tax line" : "") + "."}</p></div>`;
+      h += `<div class="finding"><h4>Three paths, same date</h4>${table(["Path", "Basis for the seller", "Capital gains tax", "Estate tax", "Total"], [["Inherit it", money(r.inherit.basis), money(r.inherit.gainTax), money(r.inherit.estateTax), money(r.inherit.total)], ["Gift it now", money(r.gift.basis), money(r.gift.gainTax), money(r.gift.estateTax), money(r.gift.total)], ["Sell now", money(r.sellNow.basis), money(r.sellNow.gainTax), money(r.sellNow.estateTax), money(r.sellNow.total)]])}<p>Inheriting saves ${money(a.stepUpTax)} of gain tax against a gift; a gift changes the estate tax by ${money(a.estateTaxSaved)}.</p></div>`;
+      h += `<div class="finding"><h4>Form 709</h4><p>${r.needs709 ? "This gift is above the annual exclusion of " + money(r.exclusionUsed) + ", so a gift tax return is due. Taxable gift " + money(r.taxableGift) + "; lifetime exemption left after it " + money(r.lifetimeExemptionLeft) + "." : "The gift is within the annual exclusion of " + money(r.exclusionUsed) + ", so no Form 709 for this gift."}</p></div>`;
+      h += `<div class="finding"><h4>How the answer moves with time</h4>${table(["Years to death", "Value then", "Gift now (total)", "Inherit (total)", "Lowest"], a.rows.map((x) => [x.years, money(x.fv), money(x.gift), money(x.inherit), x.best]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "gift-vs-inherit.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>
