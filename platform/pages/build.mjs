@@ -3079,10 +3079,14 @@ const CATEGORY_RULES = [
         'pension-lump-sum-vs-annuity-calculator',
         // `tax-lot-sale-optimizer` joined 2026-10-08 on its first commit: one investor choosing which lots of their own holding to sell, beside the other single-person tax and income-timing tools.
         'tax-lot-sale-optimizer',
+        // `mortgage-extra-payment-vs-invest-calculator` joined 2026-10-08 on its first commit: one homeowner deciding what to do with their own spare cash against their own loan, beside the other single-person money-decision tools.
+        'mortgage-extra-payment-vs-invest-calculator',
         // `covered-call-wheel-calculator` joined 2026-10-08 on its first commit: one investor ranking option quotes on their own holding, beside the other single-person investing and income-timing tools.
         'covered-call-wheel-calculator',
         // `rent-vs-buy-breakeven-calculator` joined 2026-10-08 on its first commit: one household deciding whether to buy, beside the home-sale and mortgage tools.
         'rent-vs-buy-breakeven-calculator',
+        // `hsa-shoebox-reimbursement-planner` joined 2026-10-08 on its first commit: one HSA owner valuing their own unreimbursed receipts, beside the other single-person tax and income-timing tools.
+        'hsa-shoebox-reimbursement-planner',
         // `charity-bunching-planner` joined 2026-10-08 on its first commit: one donor timing gifts into a donor-advised fund, beside the other single-person tax and income-timing tools.
         'charity-bunching-planner',
         // `structured-settlement-buyout-calculator` joined 2026-10-08 on its first commit: one payee weighing a factoring company's cash offer for settlement payments, beside the buyout tools.

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pay Extra on Mortgage or Invest? Recast Calculator — Free</title>
+  <meta name="description" content="Free calculator: pay extra on your mortgage, invest the same money, or recast after a lump sum? See after-tax wealth at the end of the loan and the break-even investment return. Nothing uploaded.">
+  <meta property="og:title" content="Pay extra on your mortgage or invest? Free break-even calculator">
+  <meta property="og:description" content="Three paths, same cash: prepay, invest, or recast. Months and interest saved, and the investment return at which they tie. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M6 16l10-8 10 8v9H6z' stroke='%23fff' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Mortgage Extra Payment vs Invest Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare paying extra on your mortgage, investing the same money, and a lump-sum recast, with the break-even investment return. Runs in your browser; nothing is uploaded.", "featureList": "Extra payment vs invest, mortgage recast comparison, break-even investment return, months and interest saved, after-tax wealth at the end of the term, sensitivity table, CSV"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I pay extra on my mortgage or invest the money?", "acceptedAnswer": {"@type": "Answer", "text": "It comes down to one comparison: the return your mortgage rate guarantees against the return you expect, after tax, from investing. Paying down a 6.5% loan is a certain 6.5% (less any tax saving on the interest). Investing has to beat that by enough to cover the tax on its gains and the risk of a bad stretch. The tool runs both with the same cash every month and shows the investment return at which they tie."}}, {"@type": "Question", "name": "What is a mortgage recast and when does it beat paying extra?", "acceptedAnswer": {"@type": "Answer", "text": "A recast means paying a lump sum toward principal and asking the lender to re-amortize the remaining balance over the same term, which lowers the monthly payment. Lenders usually charge a small fee and many require a minimum lump sum. It beats simply prepaying when you want the lower required payment for cash-flow safety; the tool invests the payment drop so you can see the cost of that choice."}}, {"@type": "Question", "name": "Why does the tool use the same cash every month for all three paths?", "acceptedAnswer": {"@type": "Answer", "text": "So the comparison is fair. In every path you spend the same total each month and the same lump sum today. What changes is only where the money sits: in the loan, which stops charging interest, or in an investment account, which earns a return. Wealth is compared when the original loan term would have ended."}}, {"@type": "Question", "name": "What return should I enter for investing?", "acceptedAnswer": {"@type": "Answer", "text": "A realistic long-run figure you would stand behind, before tax, and not a hot recent year. Stock-market averages are volatile, and the comparison is not risk-adjusted: the mortgage payoff return is certain and the market return is not. Try the sensitivity table across 2% to 12% to see where the answer flips."}}, {"@type": "Question", "name": "How are taxes handled?", "acceptedAnswer": {"@type": "Answer", "text": "Two simple inputs. Tax on investment gains is charged once on the gains at the end, as a single flat percentage. The optional interest tax saving is the share of each month's mortgage interest you get back in tax because you itemize; leave it at 0 if you take the standard deduction. No tax table is built in because the rules change."}}, {"@type": "Question", "name": "Is this financial or tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the numbers you type, with simplifications: fixed rate, constant investment return, no payment of insurance or escrow, no prepayment penalty, no emergency-fund or liquidity value. Home equity is hard to get back out, which the numbers do not price. Confirm with your own adviser before you decide."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">MORTGAGE EXTRA PAYMENT VS INVEST · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Pay extra on the mortgage, or invest the money?</h1>
+    <p>Enter your loan and the cash you could put to work. The tool runs three paths with the same money every month: keep the mortgage and invest, pay the loan down faster, or put a lump sum in and recast. It shows what you end up with after tax when the original term would have ended, the months and interest saved, and the investment return at which investing and prepaying tie.</p>
+    <p class="note">Planning arithmetic on numbers you type in. Not legal, tax or financial advice. The example figures are placeholders, not a recommendation or a real loan.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Your loan</h2>
+      <div class="grid">
+        <div><label for="balance">Remaining loan balance ($)</label><input id="balance" type="number" step="any" value="0"></div>
+        <div><label for="ratePct">Mortgage interest rate (%)</label><input id="ratePct" type="number" step="any" value="0"></div>
+        <div><label for="yearsLeft">Years left on the loan</label><input id="yearsLeft" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. The money, and what it could earn</h2>
+      <div class="grid">
+        <div><label for="extraMonthly">Extra cash per month you could pay or invest ($)</label><input id="extraMonthly" type="number" step="any" value="0"></div>
+        <div><label for="lump">Lump sum you could pay or invest now ($)</label><input id="lump" type="number" step="any" value="0"></div>
+        <div><label for="returnPct">Expected yearly investment return, before tax (%)</label><input id="returnPct" type="number" step="any" value="0"></div>
+        <div><label for="gainsTaxPct">Tax on investment gains at the end (%)</label><input id="gainsTaxPct" type="number" step="any" value="0"></div>
+        <div><label for="interestTaxSavingPct">Share of mortgage interest you get back in tax (%, 0 if you take the standard deduction)</label><input id="interestTaxSavingPct" type="number" step="any" value="0"></div>
+        <div><label for="recastFee">Lender's recast fee ($)</label><input id="recastFee" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Compare the three paths</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Should I pay extra on my mortgage or invest the money?</h3>
+      <p>It comes down to one comparison: the return your mortgage rate guarantees against the return you expect, after tax, from investing. Paying down a 6.5% loan is a certain 6.5% (less any tax saving on the interest). Investing has to beat that by enough to cover the tax on its gains and the risk of a bad stretch. The tool runs both with the same cash every month and shows the investment return at which they tie.</p>
+      <h3>What is a mortgage recast and when does it beat paying extra?</h3>
+      <p>A recast means paying a lump sum toward principal and asking the lender to re-amortize the remaining balance over the same term, which lowers the monthly payment. Lenders usually charge a small fee and many require a minimum lump sum. It beats simply prepaying when you want the lower required payment for cash-flow safety; the tool invests the payment drop so you can see the cost of that choice.</p>
+      <h3>Why does the tool use the same cash every month for all three paths?</h3>
+      <p>So the comparison is fair. In every path you spend the same total each month and the same lump sum today. What changes is only where the money sits: in the loan, which stops charging interest, or in an investment account, which earns a return. Wealth is compared when the original loan term would have ended.</p>
+      <h3>What return should I enter for investing?</h3>
+      <p>A realistic long-run figure you would stand behind, before tax, and not a hot recent year. Stock-market averages are volatile, and the comparison is not risk-adjusted: the mortgage payoff return is certain and the market return is not. Try the sensitivity table across 2% to 12% to see where the answer flips.</p>
+      <h3>How are taxes handled?</h3>
+      <p>Two simple inputs. Tax on investment gains is charged once on the gains at the end, as a single flat percentage. The optional interest tax saving is the share of each month&#x27;s mortgage interest you get back in tax because you itemize; leave it at 0 if you take the standard deduction. No tax table is built in because the rules change.</p>
+      <h3>Is this financial or tax advice?</h3>
+      <p>No. It is arithmetic on the numbers you type, with simplifications: fixed rate, constant investment return, no payment of insurance or escrow, no prepayment penalty, no emergency-fund or liquidity value. Home equity is hard to get back out, which the numbers do not price. Confirm with your own adviser before you decide.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether you are comfortable with the risk, since the loan payoff return is certain and the investment return is an assumption held constant here. Also not modelled: adjustable rates, escrow and insurance, prepayment penalties, private mortgage insurance dropping off, emergency-fund and liquidity value of cash you keep, retirement-account tax advantages, and taxes on dividends along the way. One loan at a time.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../mortgage-points-break-even-calculator/">mortgage points break-even calculator</a>, the <a href="../heloc-vs-cash-out-refinance-calculator/">HELOC vs cash-out refinance calculator</a>, and the <a href="../mortgage-escrow-analysis-checker/">mortgage escrow analysis checker</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not recommend any loan, payment, or investment. Results are arithmetic on figures you type; verify them with your lender's statements and a qualified professional before you decide.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const yrs = (m) => (m === 0 ? "now" : Math.floor(m / 12) + " yr " + (m % 12) + " mo");
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.rows.length) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const b = a.best, inv = a.rows[0];
+      const margin = b.final - Math.min(...a.rows.map((r) => r.final));
+      h += `<div class="finding"><h4>The answer on your numbers</h4><p>${esc(b.label)} ends highest: ${money(b.final)} after tax at the end of the original term${margin > 1 ? ", " + money(margin) + " ahead of the lowest path" : ""}.</p>` +
+        (a.breakEven === null ? "" : `<p>Investing and prepaying tie at about <strong>${pct(a.breakEven)}</strong> a year before tax on gains. Paying down your loan is a certain ${pct(a.afterTaxMortgage)} after any interest tax saving; investing has to clear that plus the tax on its gains, with no guarantee.</p>`) + `</div>`;
+      h += `<div class="finding"><h4>Three paths, same cash</h4>${table(["Path", "Monthly mortgage payment", "Loan ends", "Interest paid", "After-tax wealth at term end", "vs investing"], a.rows.map((r) => [esc(r.label), money(r.payment), yrs(r.payoffMonths), money(r.interestPaid), money(r.final), r.key === "invest" ? "—" : (r.vsInvest >= 0 ? "+" : "") + money(r.vsInvest)]))}</div>`;
+      if (a.monthsSaved > 0) h += `<div class="finding"><span class="pill">Prepay</span> Paying extra ends the loan ${yrs(a.monthsSaved)} early and saves ${money(a.interestSavedByPrepay)} of interest.</div>`;
+      h += `<div class="finding"><h4>What if the market returns less or more?</h4>${table(["Yearly return", "Keep & invest", "Prepay", "Recast & invest", "Highest"], a.sensitivity.map((s) => [s.returnPct + "%", money(s.invest), money(s.prepay), money(s.recast), s.winner === "invest" ? "Invest" : s.winner === "prepay" ? "Prepay" : "Recast"]))}<p><button type="button" class="secondary" id="csv">Download yearly schedule (CSV)</button></p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "mortgage-extra-vs-invest.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>
