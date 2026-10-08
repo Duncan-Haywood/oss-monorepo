@@ -2931,3 +2931,18 @@ entries:
         against real shops. 30 tests pass; page run in Chromium with no console errors. Registered score
         row, launch date, category rule, CI workflow.
     mrr_end: 0
+  - venture: good-faith-estimate-generator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built good-faith-estimate-generator: a browser-local No Surprises Act Good Faith
+        Estimate builder for cash-pay practices. Service lines with codes, diagnoses and charges give a
+        printable estimate, per-biller subtotals, the delivery deadline (business days, optional federal
+        holidays), a completeness check, a $400 / 120-day bill-versus-estimate check and a per-code
+        drift review of past estimates. First visitor: practice managers searching "good faith estimate
+        template" and "deadline"; volume unmeasured. Deadline counting is an assumption shown to the
+        user; required notice wording flagged for comparison with CMS's template. 33 tests pass; page run
+        in Chromium end to end with no console errors. Registered score row, launch date, category rule,
+        CI workflow.
+    mrr_end: 0

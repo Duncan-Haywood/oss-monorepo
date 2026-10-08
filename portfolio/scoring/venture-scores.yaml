@@ -28738,3 +28738,33 @@ ventures:
       Liability: arithmetic on user-typed numbers, defaults labelled as placeholders, no contract,
       insurance-regulation, steering, tax or employment advice, not affiliated with any insurer.
       Ethics: nothing leaves the browser, no dark patterns, nothing is sold.
+  - slug: good-faith-estimate-generator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Business-day deadlines, per-biller totals and a
+      per-code drift review are plain functions of the numbers typed in.
+    basis: >-
+      Screened 2026-10-08 per portfolio/pipeline/README.md; write-up in this venture's own
+      VENTURE.yaml comment. A No Surprises Act Good Faith Estimate builder for cash-pay practices:
+      printable estimate, delivery deadline, completeness check, $400 dispute check and a review of
+      past estimates. Distribution 5: "good faith estimate template" and "deadline" searches and
+      cash-pay practice groups are named channels; volume not measured. Defensibility 4: the
+      deadline and drift review go beyond a template, but the rules are public.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and document assembly on user-typed figures, the deadline reading stated
+      as an assumption, no fee schedule or code set, required notice flagged for comparison with the
+      CMS template, no legal advice. Ethics: no patient data leaves the browser, nothing is saved, no
+      dark patterns, nothing is sold.
