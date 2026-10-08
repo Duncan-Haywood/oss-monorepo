@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 863 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 864 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-10-08T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Yoga, Pilates and Fitness Studio Pricing Planner — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/boutique-fitness-studio-pricing-planner/"/>
+    <id>tag:marisstella.dev,2026:tool/boutique-fitness-studio-pricing-planner</id>
+    <updated>2026-10-08T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free pricing planner for yoga, pilates, barre and cycling studios: unlimited memberships, class packs and drop-ins in; monthly profit, what each plan earns per visit, break-even class size, empty-seat value and the best unlimited price out. Nothing uploaded.</summary>
+  </entry>
   <entry>
     <title>Escape Room Pricing and Capacity Planner — Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/escape-room-pricing-capacity-planner/"/>
@@ -158,13 +166,5 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free freelancer dashboard that runs in your browser: see overdue invoices, unbilled hours, your estimate pipeline, year-to-date profit and tax set-aside, plus a ranked list of what to do next. No account, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Freelance Lead Tracker — Free Pipeline, Follow-Up Reminders and Income Forecast, No Signup</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freelance-lead-tracker/"/>
-    <id>tag:marisstella.dev,2026:tool/freelance-lead-tracker</id>
-    <updated>2026-10-07T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free freelance lead tracker: a simple pipeline from new lead to won, who to follow up today, a weighted income forecast, win rate by lead source and a one-click hand-off into a proposal. No account, nothing uploaded.</summary>
   </entry>
 </feed>

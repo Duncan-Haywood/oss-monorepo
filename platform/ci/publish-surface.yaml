@@ -834,6 +834,9 @@ workflows:
 - workflow: waterfront-rental-season-planner-ci.yml
   classification: none
   publishes: []
+- workflow: boutique-fitness-studio-pricing-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: etsy-ads-roi-analyzer-ci.yml
   classification: none
   publishes: []
