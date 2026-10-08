@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 870 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 872 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -70,6 +70,22 @@
     <updated>2026-10-08T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free property management profit calculator: doors, fee percentage, leasing and renewal income, managers and admin in; monthly profit, break-even doors, the cost of your next hire, best fee and new-owner payback out. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Sauna &amp; Cold Plunge Install Bid Calculator — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sauna-cold-plunge-install-bid-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/sauna-cold-plunge-install-bid-calculator</id>
+    <updated>2026-10-08T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free sauna and cold plunge install bid calculator: build and prep hours, crew pay, equipment and materials, electrician subcontract, drive and target margin in; a bid price, distance table, overrun check and break-even installs per month out. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Volunteer Shift Scheduler — free volunteer schedule maker, no sign-up</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/volunteer-shift-scheduler/"/>
+    <id>tag:marisstella.dev,2026:tool/volunteer-shift-scheduler</id>
+    <updated>2026-10-08T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free volunteer shift scheduler for churches, PTAs, food banks and youth sports. Paste your volunteers with the days they can do and their maximum shifts, list the shifts, and get a fair roster with unfilled slots flagged. CSV, calendar and reminder exports. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Kayak and Boat Rental Season Planner — Free</title>
@@ -150,21 +166,5 @@
     <updated>2026-10-07T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free craft brewery batch margin calculator: cost each beer after yield loss, labour, federal and state excise and overhead, see profit per barrel by channel (taproom, kegs, distributor cans) and which beer earns most per fermenter day. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>eBay Promoted Listings ROI Analyzer — Are Your Ads Paying? Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ebay-promoted-listings-roi-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/ebay-promoted-listings-roi-analyzer</id>
-    <updated>2026-10-07T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free eBay Promoted Listings ROI analyzer: drop in your Seller Hub ad report and see which listings lose money after ad fees and what share of sales the ad must cause to break even. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Estimate Maker — Free Quote &amp; Estimate Generator, No Signup, Works Offline</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/estimate-maker/"/>
-    <id>tag:marisstella.dev,2026:tool/estimate-maker</id>
-    <updated>2026-10-07T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free estimate and quote generator: good-better-best options, optional add-ons, tax, deposit, valid-until date, print to PDF, win-rate and follow-up tracking, one-click convert to invoice. No account, no watermark, works offline.</summary>
   </entry>
 </feed>

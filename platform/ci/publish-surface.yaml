@@ -836,7 +836,6 @@ workflows:
 - workflow: beef-cattle-ration-optimizer-ci.yml
   classification: none
   publishes: []
-- workflow: ball-python-morph-pairing-planner-ci.yml
 - workflow: fertilizer-blend-optimizer-ci.yml
   classification: none
   publishes: []
@@ -847,6 +846,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: mobile-welding-job-price-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: sauna-cold-plunge-install-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: property-management-profit-calculator-ci.yml
@@ -2562,6 +2564,12 @@ workflows:
 - workflow: zoho-crm-import-csv-check-ci.yml
   classification: none
   publishes: []
+- workflow: good-faith-estimate-generator-ci.yml
+  classification: none
+  publishes: []
+- workflow: volunteer-shift-scheduler-ci.yml
+  classification: none
+  publishes: []
 gitops:
 - application: agents
   path: gitops/agents
@@ -2610,6 +2618,3 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
-- workflow: good-faith-estimate-generator-ci.yml
-  classification: none
-  publishes: []
