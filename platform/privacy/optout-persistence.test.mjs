@@ -1464,9 +1464,10 @@ const RELATIVE_SELF = relative(
 // +1: `surety-bond-capacity-calculator` graduated.
 // +1: `rush-job-sequencer` graduated.
 // +1: `warehouse-slotting-optimizer` graduated.
+// +1: `early-pay-discount-picker` graduated.
 // +1: `childcare-enrollment-mix-optimizer` graduated.
 // +1: `dining-room-table-mix-optimizer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 926;
+const SWITCHES_IN_THE_CATALOGUE = 927;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
