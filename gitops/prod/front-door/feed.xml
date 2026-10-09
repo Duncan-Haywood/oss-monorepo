@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 957 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 958 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -20,7 +20,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/auto-detailing-service-menu-picker/"/>
     <id>tag:marisstella.dev,2026:tool/auto-detailing-service-menu-picker</id>
     <updated>2026-10-09T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free tool for auto detailers and mobile detailing shops with limited bay hours: get the exact most profitable set of services to sell after product cost, booking and card fees, consumables and labour. Nothing uploaded.</summary>
   </entry>
   <entry>
