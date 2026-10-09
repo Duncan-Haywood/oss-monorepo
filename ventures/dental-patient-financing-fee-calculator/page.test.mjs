@@ -41,3 +41,12 @@ test("usage events named on the page are the ones the code records", () => {
 });
 
 
+test("the inline module script parses", async () => {
+  const { execFileSync } = await import("node:child_process");
+  const { writeFileSync, mkdtempSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const dir = mkdtempSync(`${tmpdir()}/dental-page-`);
+  const file = `${dir}/inline.mjs`;
+  writeFileSync(file, page("index.html").match(/<script type="module">([\s\S]*?)<\/script>/)[1]);
+  assert.doesNotThrow(() => execFileSync(process.execPath, ["--check", file], { stdio: "pipe" }));
+});
