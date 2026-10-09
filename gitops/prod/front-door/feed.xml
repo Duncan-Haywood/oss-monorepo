@@ -80,6 +80,14 @@
     <summary type="text">Drop your DMARC aggregate reports (.xml, .gz or .zip) and see which senders pass SPF and DKIM alignment, which fail and exactly why, and when it is safe to move from p=none to quarantine or reject. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Early Pay Discount Picker: Which Invoices Should I Pay Early? — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/early-pay-discount-picker/"/>
+    <id>tag:marisstella.dev,2026:tool/early-pay-discount-picker</id>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free tool for small businesses with several 2/10 net 30 style supplier discounts and not enough cash to take them all: get the exact set of invoices to pay early after your cost of cash, compared with highest-rate-first and other rules. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>EV Charging Station ROI Calculator: Payback, NPV, Break-Even — Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ev-charging-site-roi-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/ev-charging-site-roi-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free mosquito control pricing calculator for barrier spray operators: type your product, labour, drive time and re-treat rate to see the minimum price per visit and per prepaid season, customer lifetime value and customers needed to break even. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Pawn Loan Profit Calculator: Loan-to-Value and Redemption Rate — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pawn-loan-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/pawn-loan-profit-calculator</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free pawn loan profit calculator for pawnbrokers: enter your rate, redemption rate, loan-to-value and what forfeits sell for to see profit per loan, break-even redemption, the largest loan an item can carry and the smallest loan worth writing. Nothing uploaded.</summary>
   </entry>
 </feed>
