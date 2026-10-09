@@ -1,0 +1,51 @@
+name: food-truck-prep-mix-optimizer
+description: >-
+  Free browser tool for food trucks, pop-ups and market stalls: enter prep minutes, grill or fryer minutes and ingredient cash,
+  plus each menu item's price, food cost, times and expected demand, and get the exact portion plan that earns the most
+  (a linear program solved by the simplex method), a comparison with the current plan, and shadow prices for one more prep
+  minute, station minute or ingredient dollar. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: closest rows were food-truck-event-margin-calculator 0.22
+# (prices one booking, not the prep mix), recipe-costing-calculator 0.19 and restaurant-pos-menu-mix-analyzer 0.19 (reads past
+# sales, does not choose quantities under limits).
+#
+# Why this niche: a truck decides each morning how much of each item to prep against a fixed crew, one grill and a cash float.
+# The textbook method is linear programming; operators use gut feel or a margin ranking that ignores the scarce resource.
+# Shadow prices (what an extra prep hour or a second fryer is worth) are the part a margin table cannot give.
+#
+# First visitor: people searching "food truck menu profitability", "how much food to prep for an event" and "menu engineering
+# food truck"; r/foodtrucks, food-truck association forums, commissary and event-organizer groups. Volume not measured with an
+# external tool.
+#
+# Liability boundary: arithmetic on typed figures; not food-safety, legal, tax or financial advice; nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural front end for a paid multi-event prep planner,
+# or referrals to commissary kitchens and POS vendors.
+
+hypotheses:
+  - claim: >-
+      Truck and pop-up operators planning a service will use a free tool that returns the contribution-maximising portions under
+      their own labor, station and cash limits, and will use the shadow prices to decide on a helper, a second station or more cash.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/food-truck-prep-mix-optimizer/
+  analytics: null
