@@ -1,0 +1,46 @@
+name: grape-grower-sell-vs-bottle-calculator
+description: >-
+  Free browser tool for vineyard owners: compare what your acreage nets selling grapes by the ton against bottling and
+  selling your own wine, after winemaking, ageing, marketing, excise tax, fixed winery overhead and the bottles that do
+  not sell. Finds the sell-through, bottle price, grape price and acreage at which the two tie. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. ventures/ had no vineyard or winery tool (craft-brewery-batch-margin-calculator
+# is the nearest, for beer batches). 
+#
+# Why this niche: a small grower holds one real decision a year with five-figure stakes: sign the fruit contract or keep
+# the crop and make wine. The wine path pays more per ton on paper and loses in practice when sell-through, ageing carry
+# and selling cost are honest, so the answer turns on a handful of numbers the grower knows and rarely puts side by side.
+#
+# First visitor: a small vineyard owner searching "sell grapes or make wine", "how many cases per ton of grapes" or
+# "is it worth starting a winery". Volume not measured.
+#
+# Liability boundary: arithmetic on typed figures; not financial, tax, legal or licensing advice; alcohol licensing and
+# excise are set by law and the tool says so; nothing stored or sent.
+
+hypotheses:
+  - claim: >-
+      Small vineyard owners will use a private sell-versus-bottle calculator, because no free tool puts fruit price,
+      sell-through and fixed winery overhead into one yearly comparison with the break-even for each.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/grape-grower-sell-vs-bottle-calculator/
+  analytics: null

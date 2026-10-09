@@ -750,6 +750,9 @@ const CATEGORY_RULES = [
       // `craft-brewery-batch-margin-calculator` joined 2026-10-07 on its first commit: a brewery sells drink by the
       // pint, keg and can; the same operator reader as `pour-cost-calculator`, one hop away.
       'craft-brewery-batch-margin-calculator',
+      // `grape-grower-sell-vs-bottle-calculator` joined 2026-10-09 on its first commit: a vineyard owner choosing between a fruit contract and
+      // bottling sits beside `craft-brewery-batch-margin-calculator`, the same makes-drink-and-sells-it operator.
+      'grape-grower-sell-vs-bottle-calculator',
       // `mobile-bartender-event-quote` joined 2026-10-03 on its first commit: per-event bar service pricing,
       // one hop from `pour-cost-calculator` and `catering-quote-calculator`.
       'mobile-bartender-event-quote',
