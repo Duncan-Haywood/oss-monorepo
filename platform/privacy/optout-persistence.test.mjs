@@ -1440,7 +1440,8 @@ const RELATIVE_SELF = relative(
 // +1: `sbir-budget-builder` graduated.
 // +1: `birth-doula-package-pricing-calculator` graduated.
 // +1: `pet-sitting-platform-fee-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 896;
+// +1: `ghostwriter-book-quote-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 897;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
