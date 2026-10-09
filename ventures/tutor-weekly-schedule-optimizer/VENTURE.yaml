@@ -1,0 +1,53 @@
+name: tutor-weekly-schedule-optimizer
+description: >-
+  Free browser tool for private tutors, music teachers, coaches and instructors who teach one-to-one: list each student with
+  fee, lesson length and the days and times they can come, give your open hours per day, and get the weekly timetable with the
+  highest profit. Exact (a subset DP per day plus a DP across the week), not a heuristic. Handles the gap needed between
+  lessons, daily caps, a cost to open each day (room hire, travel), a cost per lesson, and must-keep students. Shows what a
+  first-come timetable would have earned, why each student was left out, and the one change (an hour later on a day, asking a
+  student about another day) that adds the most. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: closest was music-lesson-break-even 0.17 (a break-even for
+# one teacher's costs, no timetable), then escape-room-pricing-capacity-planner 0.10 and class-price-and-minimum-optimizer 0.09
+# (group classes). Nothing in the tree builds a timetable.
+#
+# Why this niche: a one-to-one teacher's income is capped by hours and by when students can come, and most build the timetable
+# by hand in a calendar as students arrive. That is a bin-packing problem with time windows; a first-come timetable leaves
+# paying slots empty. The exact method is small enough to run in a browser and is absent from free tools aimed at teachers.
+#
+# First visitor: people searching "private tutor schedule template", "music teacher scheduling", "how to fill lesson slots";
+# r/musicteachers, r/Tutoring, piano-teacher Facebook groups, studio-owner forums. Search volume not measured.
+#
+# Liability boundary: arithmetic on typed figures; student names stay in the browser; not business advice; no payments.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. Natural front end for a paid booking page that collects
+# availability from families and runs this solver (needs an account system, owner decision), or referrals to scheduling and
+# invoicing software for teachers.
+
+hypotheses:
+  - claim: >-
+      Private teachers with more students than slots will use a free tool that turns each student's available times into a
+      weekly timetable, and will come back when a student joins, leaves or changes their times.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a timetable that breaks a time window, a gap or a daily cap they entered.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/tutor-weekly-schedule-optimizer/
+  analytics: null

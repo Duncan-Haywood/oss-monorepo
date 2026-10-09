@@ -33,44 +33,44 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547715 bytes
-#   portfolio-front-tools-1: 92 files, 555436 bytes
-#   portfolio-front-tools-2: 144 files, 553147 bytes
-#   portfolio-front-tools-3: 128 files, 549408 bytes
-#   portfolio-front-tools-4: 136 files, 549192 bytes
-#   portfolio-front-tools-5: 135 files, 554379 bytes
-#   portfolio-front-tools-6: 120 files, 552592 bytes
-#   portfolio-front-tools-7: 119 files, 552725 bytes
-#   portfolio-front-tools-8: 133 files, 556890 bytes
-#   portfolio-front-tools-9: 137 files, 553810 bytes
-#   portfolio-front-tools-10: 134 files, 556027 bytes
-#   portfolio-front-tools-11: 127 files, 556826 bytes
-#   portfolio-front-tools-12: 131 files, 554436 bytes
-#   portfolio-front-tools-13: 127 files, 549100 bytes
-#   portfolio-front-tools-14: 122 files, 556768 bytes
-#   portfolio-front-tools-15: 130 files, 556950 bytes
-#   portfolio-front-tools-16: 122 files, 554550 bytes
-#   portfolio-front-tools-17: 120 files, 554267 bytes
-#   portfolio-front-tools-18: 120 files, 542163 bytes
-#   portfolio-front-tools-19: 119 files, 548342 bytes
+#   portfolio-front-tools-0: 145 files, 547719 bytes
+#   portfolio-front-tools-1: 92 files, 555448 bytes
+#   portfolio-front-tools-2: 144 files, 553148 bytes
+#   portfolio-front-tools-3: 128 files, 549490 bytes
+#   portfolio-front-tools-4: 136 files, 549165 bytes
+#   portfolio-front-tools-5: 135 files, 554381 bytes
+#   portfolio-front-tools-6: 120 files, 552564 bytes
+#   portfolio-front-tools-7: 119 files, 552704 bytes
+#   portfolio-front-tools-8: 133 files, 556884 bytes
+#   portfolio-front-tools-9: 137 files, 553778 bytes
+#   portfolio-front-tools-10: 134 files, 555999 bytes
+#   portfolio-front-tools-11: 127 files, 556819 bytes
+#   portfolio-front-tools-12: 131 files, 554437 bytes
+#   portfolio-front-tools-13: 127 files, 549105 bytes
+#   portfolio-front-tools-14: 122 files, 556763 bytes
+#   portfolio-front-tools-15: 130 files, 556949 bytes
+#   portfolio-front-tools-16: 122 files, 554642 bytes
+#   portfolio-front-tools-17: 120 files, 554209 bytes
+#   portfolio-front-tools-18: 120 files, 542170 bytes
+#   portfolio-front-tools-19: 119 files, 548395 bytes
 #   portfolio-front-tools-20: 112 files, 552159 bytes
-#   portfolio-front-tools-21: 129 files, 556954 bytes
-#   portfolio-front-tools-22: 123 files, 552465 bytes
-#   portfolio-front-tools-23: 138 files, 556715 bytes
-#   portfolio-front-tools-24: 124 files, 556533 bytes
-#   portfolio-front-tools-25: 121 files, 554463 bytes
-#   portfolio-front-tools-26: 135 files, 554144 bytes
-#   portfolio-front-tools-27: 124 files, 551225 bytes
-#   portfolio-front-tools-28: 123 files, 552217 bytes
-#   portfolio-front-tools-29: 131 files, 551374 bytes
-#   portfolio-front-tools-30: 90 files, 556083 bytes
-#   portfolio-front-tools-31: 122 files, 555792 bytes
-#   portfolio-front-tools-32: 116 files, 553917 bytes
-#   portfolio-front-tools-33: 127 files, 554507 bytes
+#   portfolio-front-tools-21: 129 files, 556960 bytes
+#   portfolio-front-tools-22: 123 files, 552471 bytes
+#   portfolio-front-tools-23: 138 files, 556714 bytes
+#   portfolio-front-tools-24: 124 files, 556606 bytes
+#   portfolio-front-tools-25: 121 files, 554529 bytes
+#   portfolio-front-tools-26: 135 files, 554128 bytes
+#   portfolio-front-tools-27: 124 files, 551193 bytes
+#   portfolio-front-tools-28: 123 files, 552220 bytes
+#   portfolio-front-tools-29: 131 files, 551332 bytes
+#   portfolio-front-tools-30: 90 files, 556084 bytes
+#   portfolio-front-tools-31: 122 files, 555781 bytes
+#   portfolio-front-tools-32: 116 files, 553922 bytes
+#   portfolio-front-tools-33: 127 files, 554414 bytes
 #   portfolio-front-tools-34: 126 files, 556918 bytes
-#   portfolio-front-tools-35: 132 files, 550339 bytes
-#   portfolio-front-tools-36: 121 files, 551148 bytes
-#   portfolio-front-tools-37: 94 files, 525230 bytes
+#   portfolio-front-tools-35: 133 files, 552698 bytes
+#   portfolio-front-tools-36: 121 files, 554112 bytes
+#   portfolio-front-tools-37: 96 files, 534264 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -4683,6 +4683,9 @@ configMapGenerator:
       - tutor-package-pricing-calculator__index.html.gz=tutor-package-pricing-calculator__index.html.gz
       - tutor-package-pricing-calculator__usage.mjs.gz=tutor-package-pricing-calculator__usage.mjs.gz
       - tutor-package-pricing-calculator__vs-a-spreadsheet.html.gz=tutor-package-pricing-calculator__vs-a-spreadsheet.html.gz
+      - tutor-weekly-schedule-optimizer__calc.mjs.gz=tutor-weekly-schedule-optimizer__calc.mjs.gz
+      - tutor-weekly-schedule-optimizer__index.html.gz=tutor-weekly-schedule-optimizer__index.html.gz
+      - tutor-weekly-schedule-optimizer__usage.mjs.gz=tutor-weekly-schedule-optimizer__usage.mjs.gz
       - twitch-payout-calculator__calc.mjs.gz=twitch-payout-calculator__calc.mjs.gz
       - twitch-payout-calculator__does-a-mobile-subscription-pay-me-less.html.gz=twitch-payout-calculator__does-a-mobile-subscription-pay-me-less.html.gz
       - twitch-payout-calculator__index.html.gz=twitch-payout-calculator__index.html.gz
@@ -4780,13 +4783,13 @@ configMapGenerator:
       - voiceover-project-rate-calculator__usage.mjs.gz=voiceover-project-rate-calculator__usage.mjs.gz
       - voiceover-project-rate-calculator__vs-a-flat-rate-regardless-of-usage.html.gz=voiceover-project-rate-calculator__vs-a-flat-rate-regardless-of-usage.html.gz
       - voiceover-project-rate-calculator__vs-voices-com.html.gz=voiceover-project-rate-calculator__vs-voices-com.html.gz
-      - volunteer-shift-scheduler__calc.mjs.gz=volunteer-shift-scheduler__calc.mjs.gz
-      - volunteer-shift-scheduler__how-to-schedule-volunteers-fairly.html.gz=volunteer-shift-scheduler__how-to-schedule-volunteers-fairly.html.gz
   - name: portfolio-front-tools-36
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - volunteer-shift-scheduler__calc.mjs.gz=volunteer-shift-scheduler__calc.mjs.gz
+      - volunteer-shift-scheduler__how-to-schedule-volunteers-fairly.html.gz=volunteer-shift-scheduler__how-to-schedule-volunteers-fairly.html.gz
       - volunteer-shift-scheduler__index.html.gz=volunteer-shift-scheduler__index.html.gz
       - volunteer-shift-scheduler__usage.mjs.gz=volunteer-shift-scheduler__usage.mjs.gz
       - vpat-acr-generator__calc.mjs.gz=vpat-acr-generator__calc.mjs.gz
@@ -4906,13 +4909,13 @@ configMapGenerator:
       - wheelchair-ramp-bid-calculator__index.html.gz=wheelchair-ramp-bid-calculator__index.html.gz
       - wheelchair-ramp-bid-calculator__share.mjs.gz=wheelchair-ramp-bid-calculator__share.mjs.gz
       - wheelchair-ramp-bid-calculator__usage.mjs.gz=wheelchair-ramp-bid-calculator__usage.mjs.gz
-      - wheelchair-ramp-bid-calculator__vs-a-flat-rate-per-lineal-foot.html.gz=wheelchair-ramp-bid-calculator__vs-a-flat-rate-per-lineal-foot.html.gz
-      - wheelchair-ramp-bid-calculator__vs-jobber.html.gz=wheelchair-ramp-bid-calculator__vs-jobber.html.gz
   - name: portfolio-front-tools-37
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - wheelchair-ramp-bid-calculator__vs-a-flat-rate-per-lineal-foot.html.gz=wheelchair-ramp-bid-calculator__vs-a-flat-rate-per-lineal-foot.html.gz
+      - wheelchair-ramp-bid-calculator__vs-jobber.html.gz=wheelchair-ramp-bid-calculator__vs-jobber.html.gz
       - where-to-sell-calculator__calc.mjs.gz=where-to-sell-calculator__calc.mjs.gz
       - where-to-sell-calculator__does-it-actually-sell-there.html.gz=where-to-sell-calculator__does-it-actually-sell-there.html.gz
       - where-to-sell-calculator__etsy-vs-ebay-fees.html.gz=where-to-sell-calculator__etsy-vs-ebay-fees.html.gz

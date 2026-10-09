@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tutor Weekly Schedule Optimizer: Best Lesson Timetable — Free</title>
+  <meta name="description" content="Free lesson scheduler for private tutors, music teachers and coaches: enter each student's fee and the times they can come, and get the weekly timetable that earns the most, with gaps, room costs and must-keep students. Nothing uploaded.">
+  <meta property="og:title" content="Tutor weekly schedule optimizer">
+  <meta property="og:description" content="Which students to book, and when, to earn the most from your teaching hours. Exact answer from your own numbers. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Tutor Weekly Schedule Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Find the weekly timetable that earns a private tutor, music teacher or coach the most from the students and hours they have. Runs in your browser.", "featureList": "Exact weekly schedule, per-student time windows, gaps between lessons, cost of opening a day, must-keep students, comparison with first-come scheduling, what-to-ask-whom suggestions, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I fit the most paying students into my teaching week?", "acceptedAnswer": {"@type": "Answer", "text": "List each student with their fee, lesson length and the days and times they can come, then give your open hours for each day. The tool tries every combination of students and days, with the gap you need between lessons, and returns the schedule that earns the most. It is exact, not a rule of thumb, so it finds swaps a first-come timetable misses."}}, {"@type": "Question", "name": "What does the gap between lessons mean?", "acceptedAnswer": {"@type": "Answer", "text": "The minutes you need between one student leaving and the next starting: resetting the room, travel, notes, a drink of water. The tool never puts two lessons closer than that."}}, {"@type": "Question", "name": "What is the cost of opening a day?", "acceptedAnswer": {"@type": "Answer", "text": "Room hire, studio fees or travel you pay only if you teach that day. Opening a day for one 30-minute lesson may cost more than it earns, so the tool leaves it closed unless the lessons on that day pay for it."}}, {"@type": "Question", "name": "Why does it say who to ask about a different time?", "acceptedAnswer": {"@type": "Answer", "text": "For students it could not place, it tries giving them one more hour or any day, and reports the change that would add the most to your week. That turns a full timetable into a short list of specific questions to ask families."}}, {"@type": "Question", "name": "Is this business advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type. It assumes lessons happen weekly at the same time, that every student pays the fee you enter and that nobody cancels. Cancellation policy, travel between venues and what to charge are yours to decide."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">TUTOR WEEKLY SCHEDULE OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which students should I book, and when, to earn the most from my teaching week?</h1>
+    <p>List your students with what each pays, how long the lesson is and the days and times they can come. Then give the hours you teach each day. The tool tries every combination and returns the weekly timetable with the highest profit, with the gap you need between lessons and the cost of opening a day. It also shows what a plain first-come timetable would have earned and which one change would add the most.</p>
+    <p class="note">Arithmetic on figures you type. Not business, tax or legal advice. The example figures are placeholders, not any business's rates or availability.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-s">
+      <h2 id="h-s">Your limits</h2>
+      <div class="grid">
+        <div><label for="bufferMin">Minutes needed between lessons</label><input id="bufferMin" type="number" step="any" value="10"><p class="note">Reset, travel, notes. No two lessons are placed closer than this.</p></div>
+        <div><label for="maxLessonsPerDay">Most lessons in a day</label><input id="maxLessonsPerDay" type="number" step="any" value="6"></div>
+        <div><label for="maxHoursPerDay">Most teaching hours in a day</label><input id="maxHoursPerDay" type="number" step="any" value="6"><p class="note">Lesson time only, not the gaps.</p></div>
+        <div><label for="weeksPerYear">Teaching weeks a year</label><input id="weeksPerYear" type="number" step="any" value="40"><p class="note">Only used for the yearly figure. Holidays and term breaks reduce it.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-d">
+      <h2 id="h-d">Hours you teach</h2>
+      <p class="note">Times like 16:00 or 4pm. Leave a day blank if you do not teach then. The cost of opening a day is room hire, studio fees or travel you pay only if you teach that day.</p>
+      <div class="scroll"><table><thead><tr><th>Day</th><th>Open from</th><th>Until</th><th>Cost to open this day ($)</th></tr></thead><tbody>
+<tr><th scope="row">Mon</th><td><input id="d0_open" type="text" aria-label="Mon open time" value=""></td><td><input id="d0_close" type="text" aria-label="Mon close time" value=""></td><td><input id="d0_dayCost" type="text" aria-label="Mon cost of opening this day in dollars" value="0"></td></tr>
+<tr><th scope="row">Tue</th><td><input id="d1_open" type="text" aria-label="Tue open time" value=""></td><td><input id="d1_close" type="text" aria-label="Tue close time" value=""></td><td><input id="d1_dayCost" type="text" aria-label="Tue cost of opening this day in dollars" value="0"></td></tr>
+<tr><th scope="row">Wed</th><td><input id="d2_open" type="text" aria-label="Wed open time" value=""></td><td><input id="d2_close" type="text" aria-label="Wed close time" value=""></td><td><input id="d2_dayCost" type="text" aria-label="Wed cost of opening this day in dollars" value="0"></td></tr>
+<tr><th scope="row">Thu</th><td><input id="d3_open" type="text" aria-label="Thu open time" value=""></td><td><input id="d3_close" type="text" aria-label="Thu close time" value=""></td><td><input id="d3_dayCost" type="text" aria-label="Thu cost of opening this day in dollars" value="0"></td></tr>
+<tr><th scope="row">Fri</th><td><input id="d4_open" type="text" aria-label="Fri open time" value=""></td><td><input id="d4_close" type="text" aria-label="Fri close time" value=""></td><td><input id="d4_dayCost" type="text" aria-label="Fri cost of opening this day in dollars" value="0"></td></tr>
+<tr><th scope="row">Sat</th><td><input id="d5_open" type="text" aria-label="Sat open time" value=""></td><td><input id="d5_close" type="text" aria-label="Sat close time" value=""></td><td><input id="d5_dayCost" type="text" aria-label="Sat cost of opening this day in dollars" value="0"></td></tr>
+<tr><th scope="row">Sun</th><td><input id="d6_open" type="text" aria-label="Sun open time" value=""></td><td><input id="d6_close" type="text" aria-label="Sun close time" value=""></td><td><input id="d6_dayCost" type="text" aria-label="Sun cost of opening this day in dollars" value="0"></td></tr>
+</tbody></table></div>
+    </section>
+    <section class="card" aria-labelledby="h-t">
+      <h2 id="h-t">Students (up to 12)</h2>
+      <p class="note">Fee and length are required. Earliest and latest are the times the student can attend, for example after school: 16:00 to 18:30. Days can be Mon Tue Thu, weekdays or all, and blank means any day. Type yes under Must keep for a student you will not drop. Cost per lesson is what you pay for that lesson, such as a travel cost or a share to a platform. For a student who comes twice a week, add two rows.</p>
+      <div class="scroll"><table><thead><tr><th>#</th><th>Name</th><th>Fee ($)</th><th>Minutes</th><th>Earliest</th><th>Latest finish</th><th>Days</th><th>Cost ($)</th><th>Must keep</th></tr></thead><tbody>
+<tr><th scope="row">1</th><td><input id="s0_name" type="text" aria-label="Student 1 name" value=""></td><td><input id="s0_fee" type="text" aria-label="Student 1 fee per lesson in dollars" value=""></td><td><input id="s0_durationMin" type="text" aria-label="Student 1 lesson length in minutes" value=""></td><td><input id="s0_earliest" type="text" aria-label="Student 1 earliest start time" value=""></td><td><input id="s0_latest" type="text" aria-label="Student 1 latest finish time" value=""></td><td><input id="s0_days" type="text" aria-label="Student 1 days they can come" value=""></td><td><input id="s0_costPerLesson" type="text" aria-label="Student 1 cost to you per lesson in dollars" value=""></td><td><input id="s0_mustKeep" type="text" aria-label="Student 1 must keep, type yes" value=""></td></tr>
+<tr><th scope="row">2</th><td><input id="s1_name" type="text" aria-label="Student 2 name" value=""></td><td><input id="s1_fee" type="text" aria-label="Student 2 fee per lesson in dollars" value=""></td><td><input id="s1_durationMin" type="text" aria-label="Student 2 lesson length in minutes" value=""></td><td><input id="s1_earliest" type="text" aria-label="Student 2 earliest start time" value=""></td><td><input id="s1_latest" type="text" aria-label="Student 2 latest finish time" value=""></td><td><input id="s1_days" type="text" aria-label="Student 2 days they can come" value=""></td><td><input id="s1_costPerLesson" type="text" aria-label="Student 2 cost to you per lesson in dollars" value=""></td><td><input id="s1_mustKeep" type="text" aria-label="Student 2 must keep, type yes" value=""></td></tr>
+<tr><th scope="row">3</th><td><input id="s2_name" type="text" aria-label="Student 3 name" value=""></td><td><input id="s2_fee" type="text" aria-label="Student 3 fee per lesson in dollars" value=""></td><td><input id="s2_durationMin" type="text" aria-label="Student 3 lesson length in minutes" value=""></td><td><input id="s2_earliest" type="text" aria-label="Student 3 earliest start time" value=""></td><td><input id="s2_latest" type="text" aria-label="Student 3 latest finish time" value=""></td><td><input id="s2_days" type="text" aria-label="Student 3 days they can come" value=""></td><td><input id="s2_costPerLesson" type="text" aria-label="Student 3 cost to you per lesson in dollars" value=""></td><td><input id="s2_mustKeep" type="text" aria-label="Student 3 must keep, type yes" value=""></td></tr>
+<tr><th scope="row">4</th><td><input id="s3_name" type="text" aria-label="Student 4 name" value=""></td><td><input id="s3_fee" type="text" aria-label="Student 4 fee per lesson in dollars" value=""></td><td><input id="s3_durationMin" type="text" aria-label="Student 4 lesson length in minutes" value=""></td><td><input id="s3_earliest" type="text" aria-label="Student 4 earliest start time" value=""></td><td><input id="s3_latest" type="text" aria-label="Student 4 latest finish time" value=""></td><td><input id="s3_days" type="text" aria-label="Student 4 days they can come" value=""></td><td><input id="s3_costPerLesson" type="text" aria-label="Student 4 cost to you per lesson in dollars" value=""></td><td><input id="s3_mustKeep" type="text" aria-label="Student 4 must keep, type yes" value=""></td></tr>
+<tr><th scope="row">5</th><td><input id="s4_name" type="text" aria-label="Student 5 name" value=""></td><td><input id="s4_fee" type="text" aria-label="Student 5 fee per lesson in dollars" value=""></td><td><input id="s4_durationMin" type="text" aria-label="Student 5 lesson length in minutes" value=""></td><td><input id="s4_earliest" type="text" aria-label="Student 5 earliest start time" value=""></td><td><input id="s4_latest" type="text" aria-label="Student 5 latest finish time" value=""></td><td><input id="s4_days" type="text" aria-label="Student 5 days they can come" value=""></td><td><input id="s4_costPerLesson" type="text" aria-label="Student 5 cost to you per lesson in dollars" value=""></td><td><input id="s4_mustKeep" type="text" aria-label="Student 5 must keep, type yes" value=""></td></tr>
+<tr><th scope="row">6</th><td><input id="s5_name" type="text" aria-label="Student 6 name" value=""></td><td><input id="s5_fee" type="text" aria-label="Student 6 fee per lesson in dollars" value=""></td><td><input id="s5_durationMin" type="text" aria-label="Student 6 lesson length in minutes" value=""></td><td><input id="s5_earliest" type="text" aria-label="Student 6 earliest start time" value=""></td><td><input id="s5_latest" type="text" aria-label="Student 6 latest finish time" value=""></td><td><input id="s5_days" type="text" aria-label="Student 6 days they can come" value=""></td><td><input id="s5_costPerLesson" type="text" aria-label="Student 6 cost to you per lesson in dollars" value=""></td><td><input id="s5_mustKeep" type="text" aria-label="Student 6 must keep, type yes" value=""></td></tr>
+<tr><th scope="row">7</th><td><input id="s6_name" type="text" aria-label="Student 7 name" value=""></td><td><input id="s6_fee" type="text" aria-label="Student 7 fee per lesson in dollars" value=""></td><td><input id="s6_durationMin" type="text" aria-label="Student 7 lesson length in minutes" value=""></td><td><input id="s6_earliest" type="text" aria-label="Student 7 earliest start time" value=""></td><td><input id="s6_latest" type="text" aria-label="Student 7 latest finish time" value=""></td><td><input id="s6_days" type="text" aria-label="Student 7 days they can come" value=""></td><td><input id="s6_costPerLesson" type="text" aria-label="Student 7 cost to you per lesson in dollars" value=""></td><td><input id="s6_mustKeep" type="text" aria-label="Student 7 must keep, type yes" value=""></td></tr>
+<tr><th scope="row">8</th><td><input id="s7_name" type="text" aria-label="Student 8 name" value=""></td><td><input id="s7_fee" type="text" aria-label="Student 8 fee per lesson in dollars" value=""></td><td><input id="s7_durationMin" type="text" aria-label="Student 8 lesson length in minutes" value=""></td><td><input id="s7_earliest" type="text" aria-label="Student 8 earliest start time" value=""></td><td><input id="s7_latest" type="text" aria-label="Student 8 latest finish time" value=""></td><td><input id="s7_days" type="text" aria-label="Student 8 days they can come" value=""></td><td><input id="s7_costPerLesson" type="text" aria-label="Student 8 cost to you per lesson in dollars" value=""></td><td><input id="s7_mustKeep" type="text" aria-label="Student 8 must keep, type yes" value=""></td></tr>
+<tr><th scope="row">9</th><td><input id="s8_name" type="text" aria-label="Student 9 name" value=""></td><td><input id="s8_fee" type="text" aria-label="Student 9 fee per lesson in dollars" value=""></td><td><input id="s8_durationMin" type="text" aria-label="Student 9 lesson length in minutes" value=""></td><td><input id="s8_earliest" type="text" aria-label="Student 9 earliest start time" value=""></td><td><input id="s8_latest" type="text" aria-label="Student 9 latest finish time" value=""></td><td><input id="s8_days" type="text" aria-label="Student 9 days they can come" value=""></td><td><input id="s8_costPerLesson" type="text" aria-label="Student 9 cost to you per lesson in dollars" value=""></td><td><input id="s8_mustKeep" type="text" aria-label="Student 9 must keep, type yes" value=""></td></tr>
+<tr><th scope="row">10</th><td><input id="s9_name" type="text" aria-label="Student 10 name" value=""></td><td><input id="s9_fee" type="text" aria-label="Student 10 fee per lesson in dollars" value=""></td><td><input id="s9_durationMin" type="text" aria-label="Student 10 lesson length in minutes" value=""></td><td><input id="s9_earliest" type="text" aria-label="Student 10 earliest start time" value=""></td><td><input id="s9_latest" type="text" aria-label="Student 10 latest finish time" value=""></td><td><input id="s9_days" type="text" aria-label="Student 10 days they can come" value=""></td><td><input id="s9_costPerLesson" type="text" aria-label="Student 10 cost to you per lesson in dollars" value=""></td><td><input id="s9_mustKeep" type="text" aria-label="Student 10 must keep, type yes" value=""></td></tr>
+<tr><th scope="row">11</th><td><input id="s10_name" type="text" aria-label="Student 11 name" value=""></td><td><input id="s10_fee" type="text" aria-label="Student 11 fee per lesson in dollars" value=""></td><td><input id="s10_durationMin" type="text" aria-label="Student 11 lesson length in minutes" value=""></td><td><input id="s10_earliest" type="text" aria-label="Student 11 earliest start time" value=""></td><td><input id="s10_latest" type="text" aria-label="Student 11 latest finish time" value=""></td><td><input id="s10_days" type="text" aria-label="Student 11 days they can come" value=""></td><td><input id="s10_costPerLesson" type="text" aria-label="Student 11 cost to you per lesson in dollars" value=""></td><td><input id="s10_mustKeep" type="text" aria-label="Student 11 must keep, type yes" value=""></td></tr>
+<tr><th scope="row">12</th><td><input id="s11_name" type="text" aria-label="Student 12 name" value=""></td><td><input id="s11_fee" type="text" aria-label="Student 12 fee per lesson in dollars" value=""></td><td><input id="s11_durationMin" type="text" aria-label="Student 12 lesson length in minutes" value=""></td><td><input id="s11_earliest" type="text" aria-label="Student 12 earliest start time" value=""></td><td><input id="s11_latest" type="text" aria-label="Student 12 latest finish time" value=""></td><td><input id="s11_days" type="text" aria-label="Student 12 days they can come" value=""></td><td><input id="s11_costPerLesson" type="text" aria-label="Student 12 cost to you per lesson in dollars" value=""></td><td><input id="s11_mustKeep" type="text" aria-label="Student 12 must keep, type yes" value=""></td></tr>
+</tbody></table></div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Find the best timetable</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+      <p class="note">Needs at least one open day and one student with a fee and a lesson length.</p>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions tutors ask</h2>
+      <h3>How do I fit the most paying students into my teaching week?</h3>
+      <p>List each student with their fee, lesson length and the days and times they can come, then give your open hours for each day. The tool tries every combination of students and days, with the gap you need between lessons, and returns the schedule that earns the most. It is exact, not a rule of thumb, so it finds swaps a first-come timetable misses.</p>
+      <h3>What does the gap between lessons mean?</h3>
+      <p>The minutes you need between one student leaving and the next starting: resetting the room, travel, notes, a drink of water. The tool never puts two lessons closer than that.</p>
+      <h3>What is the cost of opening a day?</h3>
+      <p>Room hire, studio fees or travel you pay only if you teach that day. Opening a day for one 30-minute lesson may cost more than it earns, so the tool leaves it closed unless the lessons on that day pay for it.</p>
+      <h3>Why does it say who to ask about a different time?</h3>
+      <p>For students it could not place, it tries giving them one more hour or any day, and reports the change that would add the most to your week. That turns a full timetable into a short list of specific questions to ask families.</p>
+      <h3>Is this business advice?</h3>
+      <p>No. It is arithmetic on figures you type. It assumes lessons happen weekly at the same time, that every student pays the fee you enter and that nobody cancels. Cancellation policy, travel between venues and what to charge are yours to decide.</p>
+      
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>What to charge, whether to raise a fee, cancellations and make-up lessons, group lessons, students who change time from week to week, travel time between venues beyond the gap you set, and demand you do not yet have. Every lesson is treated as weekly, at one fixed time, and paid in full.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../music-lesson-break-even/">music lesson break-even calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you rely on them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Student names stay on your device. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, STUDENT_DEFAULTS, DAY_DEFAULTS, EXAMPLE_STUDENTS, EXAMPLE_DAYS, DAYS, money, fmtTime, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const N = 12, SKEYS = Object.keys(SHARED_DEFAULTS), TKEYS = Object.keys(STUDENT_DEFAULTS), DKEYS = Object.keys(DAY_DEFAULTS);
+    const fill = () => {
+      for (const k of SKEYS) $(k).value = SHARED_DEFAULTS[k];
+      for (let d = 0; d < 7; d++) for (const k of DKEYS) $("d" + d + "_" + k).value = (EXAMPLE_DAYS[d] || DAY_DEFAULTS)[k];
+      for (let i = 0; i < N; i++) for (const k of TKEYS) $("s" + i + "_" + k).value = (EXAMPLE_STUDENTS[i] || STUDENT_DEFAULTS)[k];
+    };
+    const readAll = () => {
+      const shared = {}; for (const k of SKEYS) shared[k] = $(k).value;
+      const days = []; for (let d = 0; d < 7; d++) { const t = {}; for (const k of DKEYS) t[k] = $("d" + d + "_" + k).value; days.push(t); }
+      const students = []; for (let i = 0; i < N; i++) { const t = {}; for (const k of TKEYS) t[k] = $("s" + i + "_" + k).value; students.push(t); }
+      return { shared, days, students };
+    };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i > 2 ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i > 2 ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const input = readAll();
+      const a = analyze(input.students, input.days, input.shared);
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      const lessons = a.best.placed.length;
+      h += `<div class="finding"><h4>Best week: ${money(a.best.profit)} profit from ${lessons} of ${a.students.length} students</h4><p>${money(a.best.revenue)} in fees over ${a.hours.toFixed(1)} teaching hours on ${a.best.daysUsed} day${a.best.daysUsed === 1 ? "" : "s"}${a.hours ? ", " + money(a.profitPerHour) + " an hour" : ""}. Over ${a.shared.weeksPerYear} weeks that is about ${money(a.yearly)}. ${a.gain > 0.5 ? "A first-come timetable (highest-paying lesson first, earliest slot that fits) makes " + money(a.base.profit) + ", so the exact plan adds " + money(a.gain) + " a week." : "A first-come timetable reaches the same profit on these inputs."}</p></div>`;
+      for (const s of a.droppedMust) h += `<div class="finding"><span class="pill">Check</span> ${esc(a.students[s].name)} is marked must keep but could not be placed. See the list of students left out below.</div>`;
+      const rows = [];
+      for (const d of a.schedule) for (const l of d.lessons) rows.push([d.name, fmtTime(l.start) + " to " + fmtTime(l.end), esc(l.student.name), money(l.student.fee)]);
+      h += `<div class="finding"><h4>The timetable</h4>${table(["Day", "Time", "Student", "Fee"], rows)}</div>`;
+      if (a.rows.length) h += `<div class="finding"><h4>Students left out</h4>${table(["Student", "Fee", "Why"], a.rows.map((r) => [esc(r.name), money(r.fee), esc(r.why)]))}</div>`;
+      if (a.opps.length) h += `<div class="finding"><h4>Changes worth asking about</h4><ul>${a.opps.map((o) => `<li>${esc(o.label)}: about ${money(o.gain)} more a week</li>`).join("")}</ul><p class="note">Each figure is the exact gain from changing only that one thing.</p></div>`;
+      h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "timetable.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

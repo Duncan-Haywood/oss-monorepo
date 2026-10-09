@@ -3215,6 +3215,8 @@ const CATEGORY_RULES = [
         'class-price-and-minimum-optimizer',
         'studio-class-slot-optimizer',
         'tutor-package-pricing-calculator',
+        // `tutor-weekly-schedule-optimizer` joined 2026-10-09 on its first commit: the same one-to-one teacher as the package calculator, deciding which students to book when.
+        'tutor-weekly-schedule-optimizer',
         'voiceover-project-rate-calculator',
       ].includes(slug),
   },
