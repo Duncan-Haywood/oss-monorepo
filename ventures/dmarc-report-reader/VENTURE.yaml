@@ -1,0 +1,59 @@
+name: dmarc-report-reader
+description: >-
+  Free, private DMARC aggregate (rua) report reader: drop .xml, .xml.gz or .zip
+  reports in the browser and get per-sender SPF/DKIM alignment, a plain-English
+  fix for each failing sender (custom DKIM d=, custom return-path, likely
+  spoofing) and a verdict on whether it is safe to move from p=none to
+  quarantine or reject. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09. Paid market is real: dmarcian, EasyDMARC, Postmark DMARC
+# Digests, Valimail and Red Sift charge roughly $10-100+ a month per domain to
+# turn the same XML into a dashboard, and Google/Yahoo's 2024 bulk-sender rules
+# pushed every small sender to publish DMARC and then face unreadable reports.
+# duplicate_check.py top score 0.37 (email-auth-check, which reads DNS records,
+# not reports -- complementary, linked both ways).
+#
+# First visitor: IT admins, MSPs, agency owners and indie SaaS founders on
+# r/sysadmin, r/msp, r/emailmarketing and Hacker News asking "how to read dmarc
+# xml", "dmarc report analyzer free", "dmarc p=none to reject".
+# Volume not measured with an external tool.
+#
+# Path to revenue (payments stay off): free private tool as a lead magnet; if
+# repeat use shows up, a hosted rua inbox with weekly digests per domain is the
+# natural paid step -- owner-gated (billing, hosting under the public name).
+
+hypotheses:
+  - claim: >-
+      Admins who already have a rua mailbox full of unread XML will drop a batch
+      into a private browser tool, because the free tiers of hosted DMARC
+      dashboards cap domains or volume and require pointing rua at a third party.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The per-sender "what to do" line (custom DKIM, custom return-path) is what
+      gets people to p=quarantine, and they come back with a second batch to
+      confirm the fix worked.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a report format (a provider's XML variant) the parser misreads, at which point the parser needs fixture-driven fixes before anything else.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/dmarc-report-reader/
+  analytics: null
