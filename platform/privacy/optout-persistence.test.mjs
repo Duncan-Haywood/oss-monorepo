@@ -1455,7 +1455,8 @@ const RELATIVE_SELF = relative(
 // +1: `lash-studio-service-profit-calculator` graduated.
 // +1: `self-storage-unit-mix-optimizer` graduated.
 // +1: `wedding-venue-date-pricing-optimizer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 912;
+// +1: `farm-crop-mix-optimizer` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 913;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.

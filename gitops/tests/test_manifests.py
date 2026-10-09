@@ -3020,7 +3020,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `lash-studio-service-profit-calculator` graduated (browser lash service take-home per chair hour after supplies, card fees, no-shows and studio rent, ranked side by side).
     # +1: `self-storage-unit-mix-optimizer` graduated (browser exact unit-size mix for a self-storage building, bounded knapsack under demand limits).
     # +1: `wedding-venue-date-pricing-optimizer` graduated (browser exact price per date type for a wedding venue).
-    total = 933  # `infra/OWNER_CHECKLIST.md`'s own "N of the 933 tools" wording.
+    # +1: `farm-crop-mix-optimizer` graduated (browser exact crop-acreage plan, linear program under land, labor and capital limits).
+    total = 934  # `infra/OWNER_CHECKLIST.md`'s own "N of the 934 tools" wording.
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
     # +1: `ag-spray-drone-quote-calculator` graduated (browser spray-drone fields, tank, battery and cost inputs to real time per field, cost per acre, recommended quote and break-even).
     # +1: `stump-grinding-price-calculator` graduated (browser stump diameters, wood hardness, grinder speed, crew and drive time to a price, per-stump prices and a per-inch quote check).
