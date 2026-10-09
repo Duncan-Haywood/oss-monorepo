@@ -3187,6 +3187,8 @@ const CATEGORY_RULES = [
         'cat-adjuster-fee-calculator',
         'ad-slot-sell-through-planner',
         'candle-batch-cost-calculator',
+        // `small-batch-run-size-optimizer` joined 2026-10-09 on its first commit: how big each run should be, beside the candle batch cost.
+        'small-batch-run-size-optimizer',
         'pottery-piece-pricing-calculator',
         'craft-fair-booth-calculator',
         'epk-generator',
