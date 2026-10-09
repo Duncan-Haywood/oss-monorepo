@@ -136,6 +136,14 @@
     <summary type="text">Free farm crop mix optimizer: enter yields, prices, costs, labor hours and operating capital per crop to find the acres that earn the most, and see what an extra acre, labor hour or dollar of capital is worth. Nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>FERS Retirement Planner: Pension, Supplement and TSP by Retirement Age — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fers-retirement-planner/"/>
+    <id>tag:marisstella.dev,2026:tool/fers-retirement-planner</id>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free FERS retirement calculator for federal employees: your pension, the Special Retirement Supplement and TSP income at every retirement age, MRA+10 reduction, the 1.1% multiplier at 62, sick leave credit and survivor cost. Runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Food Truck Prep Mix Optimizer: Best Portions per Item — Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/food-truck-prep-mix-optimizer/"/>
     <id>tag:marisstella.dev,2026:tool/food-truck-prep-mix-optimizer</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free ghostwriter quote calculator: build a book fee from drafting, interview, research and revision hours, add confidentiality and rush premiums, see per-word and per-page rates, a payment schedule and what a client&#39;s lower budget really pays you. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Sell Grapes or Bottle Wine? Vineyard Calculator — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/grape-grower-sell-vs-bottle-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/grape-grower-sell-vs-bottle-calculator</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free vineyard calculator: compare selling your grapes by the ton with bottling and selling your own wine. Break-even sell-through, bottle price, grape price and acreage. Runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>

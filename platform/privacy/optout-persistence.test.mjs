@@ -1481,6 +1481,7 @@ const RELATIVE_SELF = relative(
 // +1: `car-hauler-load-planner` graduated.
 // +1: `wholesale-real-estate-offer-calculator` graduated.
 // +1: `commercial-solar-ppa-lease-buy-calculator` graduated.
+// +1: `fers-retirement-planner` graduated.
 const SWITCHES_IN_THE_CATALOGUE = 941;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
