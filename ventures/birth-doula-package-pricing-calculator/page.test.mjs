@@ -47,3 +47,8 @@ test("usage events named on the page are the ones the code records", () => {
 test("page says its defaults are placeholders", () => {
   assert.match(page("index.html"), /placeholders, not/i);
 });
+
+test("a sibling page links here, so the page is not an orphan", () => {
+  const sibling = readFileSync(new URL("../nail-tech-booth-rent-calculator/index.html", import.meta.url), "utf8");
+  assert.ok(sibling.includes('href="../birth-doula-package-pricing-calculator/"'));
+});
