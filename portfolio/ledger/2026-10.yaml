@@ -3294,3 +3294,18 @@ entries:
         date, opt-out count, mirror count, logistics filing; inbound links from owner-operator-load-chain-
         planner, truck-detention-pay-calculator and owner-operator-cpm-calculator.
     mrr_end: 0
+  - venture: chargeback-ratio-monitor
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built chargeback-ratio-monitor: a browser-local tool for online sellers. A Stripe payments
+        CSV gives the dispute ratio for every month (disputes counted in the month they were opened, over settled
+        charges that month), status against three editable warning lines, exact headroom (disputes still
+        survivable, or settled charges needed to get back under), a straight-line trend with months to each line,
+        disputes by reason with what to check first, by card brand, repeat disputers and cost (fee plus
+        disputed amounts not won back). Every table reconciles to one total (tested). The default lines are
+        labelled starting points, not any network's or provider's rules. First visitor: "chargeback ratio
+        calculator" / "dispute rate" searchers and r/stripe, r/ecommerce threads; volume unmeasured. Browser
+        checks pass (7 ran, highlight skipped). Registered launch date, opt-out count, mirror count.
+    mrr_end: 0
