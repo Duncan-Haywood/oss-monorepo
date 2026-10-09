@@ -112,3 +112,7 @@ test("links to the ad slot sell-through planner", async () => {
   const { readFileSync } = await import("node:fs");
   assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/ad-slot-sell-through-planner\/"/);
 });
+
+test("links to the class price and minimum optimizer", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/class-price-and-minimum-optimizer\/"/);
+});
