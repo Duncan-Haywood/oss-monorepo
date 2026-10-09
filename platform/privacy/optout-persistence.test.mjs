@@ -1475,7 +1475,8 @@ const RELATIVE_SELF = relative(
 // +1: `tile-layout-optimizer` graduated (landed from a stranded branch).
 // +1: `mileage-deduction-calculator` graduated (landed from a stranded branch).
 // +1: `wedding-flower-order-optimizer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 935;
+// +1: `saas-tier-price-optimizer` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 936;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
