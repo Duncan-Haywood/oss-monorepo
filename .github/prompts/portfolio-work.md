@@ -57,6 +57,9 @@ Prefer software that:
 - Has low variable cost at launch (no per-user API spikes)
 - Is free and full-featured while usage is recorded
 - Needs only an API key to unlock — build it, document the key
+- Is ready to open source — everything here is intended to go public, viable
+  businesses included: no secrets in the tree, no private coupling, a README
+  a stranger can build it from, a LICENSE
 
 Keep liability disclaimers. No payment collection. GitHub Sponsors/donations OK.
 
