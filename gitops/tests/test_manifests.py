@@ -3024,6 +3024,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `ev-charging-site-roi-calculator` graduated (browser EV charging site payback, NPV, IRR and break-even utilization with demand charges).
     # +1: `tutor-weekly-schedule-optimizer` graduated (browser exact weekly timetable for one-to-one teachers from each student's available times, gaps, day costs and must-keep students).
     # +1: `surety-bond-capacity-calculator` graduated (browser surety bond premium priced into the bid, bonding capacity from working capital, and the bids to submit).
+    # +1: `optical-dispensary-margin-calculator` graduated (browser eyeglass sale margin after frame, lenses, remakes, plan and card fees and optician time).
     total = 965  # `infra/OWNER_CHECKLIST.md`'s own "N of the 965 tools" wording.
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
     # +1: `ag-spray-drone-quote-calculator` graduated (browser spray-drone fields, tank, battery and cost inputs to real time per field, cost per acre, recommended quote and break-even).
