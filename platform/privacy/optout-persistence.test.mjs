@@ -1449,10 +1449,11 @@ const RELATIVE_SELF = relative(
 // +1: `grape-grower-sell-vs-bottle-calculator` graduated.
 // +1: `mosquito-control-program-pricing-calculator` graduated.
 // +1: `card-bonus-planner` graduated.
+// +1: `water-well-drilling-bid-calculator` graduated.
 // +1: `junk-car-buyer-offer-calculator` graduated.
 // +1: `adjunct-course-offer-calculator` graduated.
 // +1: `lash-studio-service-profit-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 909;
+const SWITCHES_IN_THE_CATALOGUE = 910;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.

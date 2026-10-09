@@ -1,0 +1,42 @@
+name: water-well-drilling-bid-calculator
+description: >-
+  Free browser tool for small water-well drillers: enter depth by formation, casing, grout, pump and tank, trench,
+  mobilization, rig hours, dry-hole chance and your margin to get the bid, break-even, effective price per foot and what a
+  dry hole costs. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. ventures/ has well-pump-bid-calculator and septic-pumping-bid-calculator for
+# adjacent water-system trades but nothing for drilling the well itself, where the dry-hole risk and the fixed items
+# (move, pump system, trench) make a single per-foot rate lose money on shallow wells.
+#
+# First visitor: a small water-well driller searching "water well drilling cost calculator", "how to bid a water well" or
+# "well drilling price per foot". Volume not measured.
+#
+# Liability boundary: arithmetic on typed figures; not financial, tax or business advice; nothing stored or sent.
+
+hypotheses:
+  - claim: >-
+      Small well drillers will use a private bid calculator because a per-foot rate ignores the dry-hole risk and the fixed
+      cost of the move, pump system and trench.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/water-well-drilling-bid-calculator/
+  analytics: null
