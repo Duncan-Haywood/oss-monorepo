@@ -3012,7 +3012,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `contract-vs-fte-rate-calculator` graduated (browser W-2 offer to the hourly 1099 rate leaving the same cash, with a step-by-step gap table).
     # +1: `covered-call-wheel-calculator` graduated (browser covered call and cash-secured put quotes ranked by annualized yield, assignment chance and breakeven).
     # +1: `scrap-gold-buy-price-calculator` graduated (browser scrap gold karat and weight lot, refiner terms and gold price to break-even and target-margin offer, offer ladder and price-drop risk).
-    total = 920  # `infra/OWNER_CHECKLIST.md`'s own "N of the 920 tools" wording.
+    total = 921  # `infra/OWNER_CHECKLIST.md`'s own "N of the 921 tools" wording.
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
     # +1: `ag-spray-drone-quote-calculator` graduated (browser spray-drone fields, tank, battery and cost inputs to real time per field, cost per acre, recommended quote and break-even).
     # +1: `stump-grinding-price-calculator` graduated (browser stump diameters, wood hardness, grinder speed, crew and drive time to a price, per-stump prices and a per-inch quote check).
