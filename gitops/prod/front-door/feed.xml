@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 960 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 961 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -78,6 +78,14 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free class price optimizer for tutoring centers, music schools, studios and workshops: enter past prices and sign-ups, set capacity, minimum to run and costs, and get the per-seat price with the highest expected profit. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Commercial Solar: Buy vs PPA vs Lease Calculator — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/commercial-solar-ppa-lease-buy-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/commercial-solar-ppa-lease-buy-calculator</id>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator for businesses, farms, nonprofits and landlords: compare buying commercial solar, a PPA and a lease on one set of after-tax cash flows. NPV, payback, break-even PPA rate and utility escalation sensitivity. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Daily Prep Quantity Optimizer: How Much to Bake or Prep — Free</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free vineyard calculator: compare selling your grapes by the ton with bottling and selling your own wine. Break-even sell-through, bottle price, grape price and acreage. Runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Hard Money Loan Cost Calculator: Compare Two Lenders on a Flip — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hard-money-loan-cost-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/hard-money-loan-cost-calculator</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free hard money loan calculator for house flippers: compare two lenders on interest, points, draw fees, minimum interest and extension fees, see the effective annual rate, your profit, and the hold length where the cheaper lender changes. Nothing uploaded.</summary>
   </entry>
 </feed>
