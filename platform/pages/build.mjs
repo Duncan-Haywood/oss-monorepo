@@ -3108,6 +3108,10 @@ const CATEGORY_RULES = [
     // moved here (exact slugs, as the rest of this list) rather than the bound being raised.
     test: (slug) =>
       [
+        // `mileage-deduction-calculator` and `proposal-maker` joined 2026-10-09 when landed. Back-office is over its 3 MB offline
+        // bound; a self-employed filer's vehicle deduction and a freelancer's proposal are one person earning from their own work.
+        'mileage-deduction-calculator',
+        'proposal-maker',
         // `card-bonus-planner` joined 2026-10-09 on its first commit. Back-office is over its 3 MB offline bound on main; one person scheduling their own sign-up bonuses is an individual earning from their own spending, not a business back office.
         'card-bonus-planner',
         // `greenhouse-bench-planner` joined 2026-10-07 on its first commit. Back-office was at its 3 MB offline bound; a

@@ -2603,6 +2603,15 @@ workflows:
 - workflow: zoho-crm-import-csv-check-ci.yml
   classification: none
   publishes: []
+- workflow: proposal-maker-ci.yml
+  classification: none
+  publishes: []
+- workflow: tile-layout-optimizer-ci.yml
+  classification: none
+  publishes: []
+- workflow: mileage-deduction-calculator-ci.yml
+  classification: none
+  publishes: []
 gitops:
 - application: agents
   path: gitops/agents
