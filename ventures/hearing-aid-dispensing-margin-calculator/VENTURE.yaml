@@ -1,0 +1,51 @@
+name: hearing-aid-dispensing-margin-calculator
+description: >-
+  Free browser tool for hearing aid clinics and audiology practices: enter each sale type's patient payment, plan or benefit payment,
+  device cost, trial-period return rate, bundled follow-up visits, commission, fees and clinician wage, and get what every sale earns,
+  profit per clinician-hour, the patient price that reaches a target margin, plan versus private pay, break-even sales per month and
+  cost sensitivity including over-the-counter price pressure. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: best match 0.15 for "hearing aid clinic dispensing margin",
+# nothing for hearing care; optical-dispensary-margin-calculator is the nearest neighbour (goods + service retail, different
+# cost structure: trial-period returns and bundled follow-up care instead of remakes).
+#
+# Why this niche: a US hearing clinic earns nearly all its profit on device sales priced at several times wholesale, but the price
+# bundles fitting and years of follow-up visits, states mandate a return window, commission is common, and over-the-counter
+# devices since 2022 are compressing entry prices. Practice-management reports show revenue per unit, not what a bundled pair
+# earns per clinician hour after returns and visits. Tens of thousands of US audiology and hearing-aid-dispensing locations.
+#
+# First visitor: searches "hearing aid clinic profit margin", "hearing aid markup", "audiology practice break even",
+# "hearing aid bundled vs unbundled pricing"; r/audiology, r/hearingaids (dispenser side). Volume not measured.
+#
+# Liability boundary: arithmetic on typed numbers; placeholder values labelled as such; "Not decided" section (state licensing,
+# trial and refund law, clinical standards); no-advice footer. Nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. Natural front end for a paid unbundled-pricing / return-rate
+# tracker for clinics -- needs an owner decision on payment.
+
+hypotheses:
+  - claim: >-
+      Hearing clinic owners and managers will type their device costs, return rate and follow-up load into a free tool to see which bundles and tiers earn the least per clinician hour.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a modelling error that changes which sale type looks unprofitable on their numbers.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/hearing-aid-dispensing-margin-calculator/
+  analytics: null
