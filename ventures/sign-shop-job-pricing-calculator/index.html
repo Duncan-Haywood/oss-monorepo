@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sign Shop Pricing Calculator: Banner, Sign and Vinyl Job Quotes — Free</title>
+  <meta name="description" content="Free sign shop pricing calculator: enter size, quantity, material, print and install time and your shop rate to get the price that earns your margin, your break-even, and the price per square foot at any quantity. Nothing uploaded.">
+  <meta property="og:title" content="Sign shop job pricing calculator">
+  <meta property="og:description" content="What should this banner or sign cost? Material with waste, print time, design, install and overhead, priced to your margin. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e40af'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Sign Shop Job Pricing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Price banner, sign and vinyl jobs from material with waste, print and finishing time, design, install and overhead, to your target margin. Runs in your browser.","featureList":"Job price for a target margin, break-even price, price per square foot, market-rate comparison, quantity and margin tables, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you price a banner or sign job?","acceptedAnswer":{"@type":"Answer","text":"Add material including waste, print and finishing time at your labour rate, design time, install and travel, and shop overhead for the hours the job occupies. Then divide by one minus your card fee and your target margin. Pricing per square foot alone hides the fixed design and setup time that small jobs carry."}},{"@type":"Question","name":"Why is the price per square foot higher on small jobs?","acceptedAnswer":{"@type":"Answer","text":"Design, proofing and setup take the same time for one banner as for fifty. The quantity table shows the price per piece and per square foot falling as that fixed time is spread, so you can see where a volume discount still pays."}},{"@type":"Question","name":"What margin should a sign shop target?","acceptedAnswer":{"@type":"Answer","text":"It depends on your overhead and how much of your time is billable. The tool shows the price at margins from 20% to 60% and the dollars left per shop hour, which is the number that tells you whether the work pays you."}},{"@type":"Question","name":"Should I match the market price per square foot?","acceptedAnswer":{"@type":"Answer","text":"Only if it covers your cost. The tool prices the same job at your market rate and shows the profit or loss, so you can decide whether to match it, add install and design as separate lines, or pass."}},{"@type":"Question","name":"Is this pricing or business advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on figures you type. Check material prices, taxes and contract terms with your suppliers and a qualified professional."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">SIGN SHOP PRICING CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should this sign or banner job cost?</h1>
+    <p>Type the size and quantity, your material costs, how long the job takes in the shop and on site, and the margin you want. The tool shows the price that earns that margin, your break-even, what the job earns if you match the market price per square foot, and how the price per piece falls as quantity rises.</p>
+    <p class="note">Arithmetic on figures you type. Not financial, tax or business advice. The example figures are placeholders, not your rate card or your suppliers' prices.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The piece</h2>
+      <div class="grid">
+        <div><label for="widthIn">Width of one piece (inches)</label><input id="widthIn" type="number" step="any" value="0"></div>
+        <div><label for="heightIn">Height of one piece (inches)</label><input id="heightIn" type="number" step="any" value="0"></div>
+        <div><label for="qty">Number of identical pieces</label><input id="qty" type="number" step="any" value="0"><p class="note">Same size and artwork.</p></div>
+        <div><label for="wastePct">Material waste (%)</label><input id="wastePct" type="number" step="any" value="0"><p class="note">Trim loss, misprints and test strips.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Material</h2>
+      <div class="grid">
+        <div><label for="substrateCostSqft">Substrate ($ per sq ft)</label><input id="substrateCostSqft" type="number" step="any" value="0"><p class="note">Board, banner stock or vinyl backing.</p></div>
+        <div><label for="printCostSqft">Print media and ink ($ per sq ft)</label><input id="printCostSqft" type="number" step="any" value="0"></div>
+        <div><label for="laminateCostSqft">Laminate or clear coat ($ per sq ft)</label><input id="laminateCostSqft" type="number" step="any" value="0"><p class="note">Zero if you use none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Shop time</h2>
+      <div class="grid">
+        <div><label for="printSqftPerHour">Sq ft printed per hour</label><input id="printSqftPerHour" type="number" step="any" value="0"><p class="note">Include loading, unloading and cleanup.</p></div>
+        <div><label for="finishMinPerPiece">Finishing per piece (minutes)</label><input id="finishMinPerPiece" type="number" step="any" value="0"><p class="note">Trim, weed, mount, hem or grommet.</p></div>
+        <div><label for="designMinutes">Design and proof time for the job (minutes)</label><input id="designMinutes" type="number" step="any" value="0"><p class="note">Charged once per job, not per piece.</p></div>
+        <div><label for="laborRate">Shop labour ($ per hour)</label><input id="laborRate" type="number" step="any" value="0"><p class="note">What an hour of staff costs you, loaded.</p></div>
+        <div><label for="overheadPerHour">Overhead ($ per shop hour)</label><input id="overheadPerHour" type="number" step="any" value="0"><p class="note">Rent, equipment, software, utilities, divided by billable hours.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-3">
+      <h2 id="h-3">4. Install</h2>
+      <div class="grid">
+        <div><label for="installHours">Hours on site</label><input id="installHours" type="number" step="any" value="0"><p class="note">Zero for pickup or shipping.</p></div>
+        <div><label for="installRate">Install cost ($ per hour)</label><input id="installRate" type="number" step="any" value="0"></div>
+        <div><label for="travelCost">Travel ($)</label><input id="travelCost" type="number" step="any" value="0"><p class="note">Fuel and van wear for the trip.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-4">
+      <h2 id="h-4">5. Price and compare</h2>
+      <div class="grid">
+        <div><label for="marginPct">Margin you want on the price (%)</label><input id="marginPct" type="number" step="any" value="0"></div>
+        <div><label for="cardFeePct">Card fee (%)</label><input id="cardFeePct" type="number" step="any" value="0"></div>
+        <div><label for="minCharge">Minimum job charge ($)</label><input id="minCharge" type="number" step="any" value="0"><p class="note">The price never goes below this.</p></div>
+        <div><label for="marketPerSqft">Market price ($ per sq ft)</label><input id="marketPerSqft" type="number" step="any" value="0"><p class="note">What other shops charge, to compare against.</p></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Price this job</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions sign shops ask</h2>
+      <h3>How do you price a banner or sign job?</h3>
+      <p>Add material including waste, print and finishing time at your labour rate, design time, install and travel, and shop overhead for the hours the job occupies. Then divide by one minus your card fee and your target margin. Pricing per square foot alone hides the fixed design and setup time that small jobs carry.</p>
+      <h3>Why is the price per square foot higher on small jobs?</h3>
+      <p>Design, proofing and setup take the same time for one banner as for fifty. The quantity table shows the price per piece and per square foot falling as that fixed time is spread, so you can see where a volume discount still pays.</p>
+      <h3>What margin should a sign shop target?</h3>
+      <p>It depends on your overhead and how much of your time is billable. The tool shows the price at margins from 20% to 60% and the dollars left per shop hour, which is the number that tells you whether the work pays you.</p>
+      <h3>Should I match the market price per square foot?</h3>
+      <p>Only if it covers your cost. The tool prices the same job at your market rate and shows the profit or loss, so you can decide whether to match it, add install and design as separate lines, or pass.</p>
+      <h3>Is this pricing or business advice?</h3>
+      <p>No. It is arithmetic on figures you type. Check material prices, taxes and contract terms with your suppliers and a qualified professional.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Supplier price breaks, sales tax, permits and engineering for large or lit signs, rush fees, artwork that needs redrawing, ink and media waste beyond the percentage you enter, and whether a customer will pay the price. Every piece in a job is treated as identical, and labour and overhead are straight hourly rates.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../apparel-decoration-price-calculator/">apparel decoration price calculator</a>, the <a href="../3d-print-price-calculator/">3D print price calculator</a> and the <a href="../pressure-washing-bid-calculator/">pressure washing bid calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you quote or buy anything.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, money2, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const r = a.result, c = r.cost, p = r.atPrice, m = r.atMarket, o = a.opts;
+      h += `<div class="finding"><h4>Quote ${money2(r.price)} (${money2(p.perSqft)} per sq ft)</h4><p>${o.qty} piece${o.qty === 1 ? "" : "s"} of ${o.widthIn} x ${o.heightIn} in, ${c.area.toFixed(1)} sq ft. That leaves ${money2(p.profit)} profit, ${pct(p.margin)} of the price, and ${money2(p.perShopHour)} per shop hour after material and install. Your break-even is ${money2(r.breakEven)}.</p></div>`;
+      h += `<div class="finding"><h4>Where the cost goes</h4>${table(["Item", "Cost"], [["Material (with waste)", money2(c.material)], ["Shop labour", money2(c.labor)], ["Overhead", money2(c.overhead)], ["Install and travel", money2(c.install)], ["Total cost", money2(c.cost)]])}<p>The job takes ${c.shopHours.toFixed(1)} shop hours: ${c.printHours.toFixed(1)} printing, ${c.finishHours.toFixed(1)} finishing, ${c.designHours.toFixed(1)} design.</p></div>`;
+      h += `<div class="finding"><h4>If you match the market price</h4><p>At ${money2(o.marketPerSqft)} per sq ft the job brings ${money2(r.marketPrice)} and ${m.profit >= 0 ? "earns" : "loses"} ${money2(Math.abs(m.profit))} (${pct(m.margin)}).</p></div>`;
+      h += `<div class="finding"><h4>If the quantity changes</h4>${table(["Pieces", "Total", "Each", "Per sq ft"], a.quantity.map((x) => [x.qty, money2(x.total), money2(x.each), money2(x.perSqft)]))}</div>`;
+      h += `<div class="finding"><h4>If you target a different margin</h4>${table(["Margin", "Price", "Per sq ft", "Profit"], a.margin.map((x) => [x.marginPct + "%", money2(x.price), money2(x.perSqft), money2(x.profit)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const csvBtn = $("csv");
+      if (csvBtn) csvBtn.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "sign-shop-pricing.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'sign-shop-job-pricing-calculator':
+    'the labour rate is one loaded hourly cost for print, finishing and design hours beside a separate install rate, there is no burden field, overhead is a dollar amount per shop hour rather than a percentage of direct cost, and the target margin is a share of the price net of card fees; the tool prices a sign job from square footage and shop hours instead of being quoted a shop rate',
   'medical-billing-pricing-calculator':
     'the hourly figure is a billing specialist\'s loaded cost per staff hour applied to minutes per claim, not a shop labour rate for a job quote, there is no burden field, and the target margin is a share of the revenue each pricing offer earns, not a markup on direct cost',
   'ghostwriter-book-quote-calculator':
