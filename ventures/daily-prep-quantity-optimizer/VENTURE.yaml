@@ -1,0 +1,52 @@
+name: daily-prep-quantity-optimizer
+description: >-
+  Free browser tool for bakeries, cafes, food trucks and prepared-food counters: paste the units each item sold on past days
+  (a trailing + marks a sell-out day), plus price, cost and leftover value, and get the prep quantity that maximises expected
+  profit per item. Sell-out days are treated as lower bounds on demand (Kaplan-Meier estimate), then the newsvendor rule is
+  applied unit by unit. Shows expected leftovers, chance of selling out and the gain over today's prep, and ranks units by
+  profit per oven minute or per ingredient dollar when those are limited. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: closest rows were seasonal-buy-quantity-optimizer 0.29 (one
+# buy per season, not a repeating daily prep) and bakery-production-scheduler 0.13 (when to bake, not how many). Read the
+# description of both before building. An earlier draft of this session's idea, hourly shift scheduling, was dropped when
+# shift-cover-optimizer turned out to exist: duplicate_check.py scored it too low to flag it, so check by name too.
+#
+# Why this niche: every food counter decides each morning how many to make. Over-prep is food cost thrown away; under-prep is
+# a sold-out shelf by 2 pm. POS systems show units sold, but a sell-out day hides true demand, and most small operators
+# prep by habit. The method (censored-demand newsvendor) is standard operations research and absent from free tools.
+#
+# First visitor: people searching "how much to bake each day", "reduce bakery waste", "cafe food waste par levels"; r/Bakeries,
+# r/smallbusiness, food-truck and cafe owner groups. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on typed figures; not food-safety, accounting or business advice; nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural front end for a paid POS-connected daily prep
+# forecast, or referrals to POS and food-waste vendors.
+
+hypotheses:
+  - claim: >-
+      Owners of small food counters will use a free tool that turns their own sales history, with sell-out days handled
+      correctly, into a daily prep number, and will return daily or weekly.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/daily-prep-quantity-optimizer/
+  analytics: null
