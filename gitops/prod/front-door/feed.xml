@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 973 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 974 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -112,6 +112,14 @@
     <summary type="text">Free daily prep quantity optimizer for bakeries, cafes and food trucks: paste past daily sales, mark sell-out days, and get the prep per item that earns the most after waste, with oven-minute and cash limits. Nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Demand Charge Analyzer — Free, Paste Your Interval Data</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/demand-charge-interval-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/demand-charge-interval-analyzer</id>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free tool for businesses with demand charges: paste 15-minute utility interval data and see monthly peaks, demand charges, ratchet effects, and what shaving the peak would save and need. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Dining Room Table Mix Optimizer: 2-Tops vs 4-Tops — Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dining-room-table-mix-optimizer/"/>
     <id>tag:marisstella.dev,2026:tool/dining-room-table-mix-optimizer</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free FERS retirement calculator for federal employees: your pension, the Special Retirement Supplement and TSP income at every retirement age, MRA+10 reduction, the 1.1% multiplier at 62, sick leave credit and survivor cost. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Fitness Studio Membership Calculator — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fitness-studio-membership-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/fitness-studio-membership-calculator</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free calculator for boutique gym, yoga, pilates and CrossFit owners: member lifetime value, cost to win a member, payback months, where your member count settles, break-even members and what one point of churn is worth. Nothing uploaded.</summary>
   </entry>
 </feed>

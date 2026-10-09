@@ -53,3 +53,7 @@ test("related-tool links point at ventures that exist", () => {
     assert.ok(readFileSync(new URL(`../${m[1]}/VENTURE.yaml`, import.meta.url), "utf8"), m[1]);
   }
 });
+
+test("the page links the demand charge interval analyzer", () => {
+  assert.match(page("index.html"), /href="\.\.\/demand-charge-interval-analyzer\/"/);
+});
