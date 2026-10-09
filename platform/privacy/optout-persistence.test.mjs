@@ -1489,9 +1489,10 @@ const RELATIVE_SELF = relative(
 // +1: `therapy-8-minute-rule-calculator` graduated.
 // +1: `provider-credentialing-delay-cost-calculator` graduated.
 // +1: `veterinary-wellness-plan-pricing-calculator` graduated.
+// +1: `demand-charge-interval-analyzer` graduated.
 // +1: `independent-pharmacy-rx-margin-calculator` graduated.
 // +1: `dental-patient-financing-fee-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 952;
+const SWITCHES_IN_THE_CATALOGUE = 953;
 // +1: `retreat-profit-pricing-calculator` graduated.
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
