@@ -1485,7 +1485,8 @@ const RELATIVE_SELF = relative(
 // +1: `fers-retirement-planner` graduated.
 // +1: `optical-dispensary-margin-calculator` graduated.
 // +1: `fitness-studio-membership-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 946;
+// +1: `hearing-aid-dispensing-margin-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 947;
 // +1: `retreat-profit-pricing-calculator` graduated.
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
