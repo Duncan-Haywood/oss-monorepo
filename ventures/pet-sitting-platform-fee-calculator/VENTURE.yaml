@@ -1,0 +1,47 @@
+name: pet-sitting-platform-fee-calculator
+description: >-
+  Free browser tool for pet sitters and dog walkers: what they keep per booking and per hour on Rover, Wag or another
+  marketplace versus booking clients directly, how many direct bookings a month cover the software and marketing, and the
+  platform price that nets the same. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled new-venture session. ventures/ had dog-walking-route-pricing,
+# dog-boarding-daycare-pricing and generic freelance-platform / marketplace fee tools, but nothing that prices a pet
+# sitter's platform cut against direct booking (grep for rover, wag and pet-sit found no tool).
+#
+# Why this niche: independent sitters and walkers lose 20-40% of every booking to a marketplace and are told by every
+# forum thread to "go direct" with no numbers for what that is worth after card fees, booking software and marketing.
+# Incumbents are Rover/Wag themselves and sitter-business blogs; the gap is a private what-if. Free tool is a lead magnet;
+# a paid client-contract and intake-form pack is the later revenue path (not built).
+#
+# First visitor: a sitter searching "Rover fees", "Rover vs booking direct" or "how much does Wag take". Volume not measured.
+#
+# Liability boundary: arithmetic on typed assumptions; fee presets are labelled approximate and editable; the page warns
+# that marketplace terms may restrict moving clients off-platform and gives no advice on that. Not tax or business advice.
+
+hypotheses:
+  - claim: >-
+      Sitters and walkers who pay a marketplace fee will use a private what-if that shows take-home and break-even direct
+      bookings, because forum advice to "go direct" never puts a number on it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/pet-sitting-platform-fee-calculator/
+  analytics: null
