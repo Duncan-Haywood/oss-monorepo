@@ -1,0 +1,46 @@
+name: mosquito-control-program-pricing-calculator
+description: >-
+  Free browser tool for mosquito control (barrier spray) operators: enter product, labour, drive time, free re-treat rate
+  and overhead to get the lowest price per visit and per prepaid season that leaves your target margin, a price ladder,
+  customer lifetime value, truck capacity and the customers needed to cover startup cost. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. ventures/ has pest-control-bid-calculator (one-off pest jobs),
+# lawn-care-bid-calculator and pool-route-pricing (recurring routes) but no mosquito program tool. Not in screened-out.md.
+#
+# Why this niche: mosquito barrier spray is a fast-growing seasonal route business with low startup cost, sold as a
+# prepaid season at a discount. Operators copy franchise prices (Mosquito Joe, Mosquito Squad) without knowing whether
+# rain re-treats, drive time and the prepay discount still leave a margin. The recurring season and renewal rate make
+# customer lifetime value the number that decides how hard to chase a new route.
+#
+# First visitor: a new or side-hustle mosquito spray operator searching "how much to charge for mosquito control".
+# Volume not measured.
+#
+# Liability boundary: arithmetic on typed figures; not financial, legal, tax or licensing advice; nothing stored or sent.
+
+hypotheses:
+  - claim: >-
+      Mosquito control operators will use a private pricing calculator, because competitor price pages show one number and ignore
+      free re-treats, drive time and the prepay discount that decide the margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mosquito-control-program-pricing-calculator/
+  analytics: null
