@@ -1188,7 +1188,9 @@ const CATEGORY_RULES = [
     // optimizer above, and the two cross-link.
     // `fleet-ev-vs-diesel-tco-calculator` joined 2026-10-08 on its first commit: a small fleet's electric-vs-diesel cost sits beside
     // `fleet-repair-or-replace-planner` and `ifta-`, the same vehicle-fleet operating-cost job.
-    test: (slug) => /^(fleet-ev-vs-diesel|3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|truck-detention|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club|tow-truck-rate|mobile-tire-van|route-stop-optimizer|shipping-box-size|container-load-planner|container-demurrage-detention-calculator)/.test(
+    // `self-storage-unit-mix-optimizer` joined 2026-10-09 on its first commit: a storage owner sizing a building's unit mix is a warehousing-space
+    // decision beside the 3PL and freight tools; filed here because the catch-all is at its bound and the back-office bundle is over the 3 MB ceiling (build.test.mjs).
+    test: (slug) => /^(fleet-ev-vs-diesel|self-storage-unit-mix-optimizer|3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|truck-detention|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club|tow-truck-rate|mobile-tire-van|route-stop-optimizer|shipping-box-size|container-load-planner|container-demurrage-detention-calculator)/.test(
       slug,
     ),
   },
