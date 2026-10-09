@@ -1,0 +1,5 @@
+{
+  "nightly-backup": { "schedule": "0 3 * * *", "graceSeconds": 1800 },
+  "invoice-sync": { "schedule": "*/15 * * * *", "graceSeconds": 300 },
+  "weekly-report": { "periodSeconds": 604800, "graceSeconds": 7200 }
+}
