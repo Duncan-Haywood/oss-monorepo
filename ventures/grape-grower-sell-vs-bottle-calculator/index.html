@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sell Grapes or Bottle Wine? Vineyard Calculator — Free</title>
+  <meta name="description" content="Free vineyard calculator: compare selling your grapes by the ton with bottling and selling your own wine. Break-even sell-through, bottle price, grape price and acreage. Runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Sell grapes or bottle wine? A calculator for vineyard owners">
+  <meta property="og:description" content="What does your acreage net as fruit versus as your own wine, after winemaking, ageing, marketing and the bottles that do not sell? Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e40af'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Grape Grower Sell vs Bottle Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compare what a vineyard nets selling grapes by the ton with bottling and selling its own wine: break-even sell-through, direct price, grape price and acreage. Runs in your browser.","featureList":"Sell-vs-bottle net, break-even sell-through, break-even bottle price, break-even grape price, break-even acres, sensitivity tables, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I sell my grapes or make wine?","acceptedAnswer":{"@type":"Answer","text":"Compare the two on the same acreage. Selling the fruit nets the price per ton times your tons, less growing and picking. Making wine nets the bottles you actually sell times what you keep per bottle, less winemaking, dry goods, labour, the money tied up while it ages, excise tax, marketing and fixed winery overhead, less the same growing cost. This tool puts the two side by side and shows which one is ahead at your figures."}},{"@type":"Question","name":"How many cases of wine does a ton of grapes make?","acceptedAnswer":{"@type":"Answer","text":"A common rule of thumb is about 150 gallons, roughly 60 twelve-bottle cases, per ton of fruit before losses. Your figure depends on the variety, the press and how much you lose in processing; both are inputs here."}},{"@type":"Question","name":"What sell-through do I need for bottling to beat selling fruit?","acceptedAnswer":{"@type":"Answer","text":"The tool finds the share of bottled wine you must sell for the two paths to tie, and shows the gap at sell-through from 40% to 100%. Unsold bottles are counted at zero, which is deliberately cautious."}},{"@type":"Question","name":"How many acres does it take to justify a winery?","acceptedAnswer":{"@type":"Answer","text":"Fixed yearly costs such as licences, insurance and accounting are spread over every case. If each acre earns more as wine than as fruit, the tool shows the acreage above which the overhead is absorbed; if it never does, it says so."}},{"@type":"Question","name":"Is this financial, tax or legal advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on figures you type. Alcohol licensing, excise tax, labelling and shipping rules are set by federal, state and local law; check yours with a qualified professional."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">SELL GRAPES OR BOTTLE WINE · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is your acreage worth more as fruit or as your own wine?</h1>
+    <p>Type what a buyer pays per ton and what it costs you to make and sell wine. The tool shows what the same acres net each way, the sell-through you need for bottling to win, the bottle price, grape price and acreage at which the two tie, and how the answer moves with yield, price and direct sales.</p>
+    <p class="note">Arithmetic on figures you type. Not financial, tax, legal or licensing advice. The example figures are placeholders, not your contract, your crush bill or your price list.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Your vineyard</h2>
+      <div class="grid">
+        <div><label for="acres">Planted acres in production</label><input id="acres" type="number" step="any" value="0"></div>
+        <div><label for="tonsPerAcre">Yield (tons per acre)</label><input id="tonsPerAcre" type="number" step="any" value="0"><p class="note">Your multi-year average, not your best year.</p></div>
+        <div><label for="growCostPerAcre">Growing cost per acre ($)</label><input id="growCostPerAcre" type="number" step="any" value="0"><p class="note">Labour, spray, trellis, water, insurance. Same on both paths.</p></div>
+        <div><label for="harvestCostPerTon">Picking and hauling per ton ($)</label><input id="harvestCostPerTon" type="number" step="any" value="0"><p class="note">Same on both paths unless your buyer picks.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Selling the fruit</h2>
+      <div class="grid">
+        <div><label for="grapePrice">Price per ton from a buyer ($)</label><input id="grapePrice" type="number" step="any" value="0"><p class="note">Your contract or last year's price for this variety.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Making the wine</h2>
+      <div class="grid">
+        <div><label for="casesPerTon">Cases of wine per ton</label><input id="casesPerTon" type="number" step="any" value="0"><p class="note">About 60 twelve-bottle cases is a common rule of thumb.</p></div>
+        <div><label for="lossPct">Loss in processing (%)</label><input id="lossPct" type="number" step="any" value="0"></div>
+        <div><label for="productionPerCase">Winemaking and dry goods per case ($)</label><input id="productionPerCase" type="number" step="any" value="0"><p class="note">Custom crush or your cellar, bottles, corks, labels, cartons, lab.</p></div>
+        <div><label for="laborPerCase">Your own labour per case ($)</label><input id="laborPerCase" type="number" step="any" value="0"><p class="note">Cellar, bottling and admin time, valued at what you would pay for it.</p></div>
+        <div><label for="agingMonths">Months the wine ages before it sells</label><input id="agingMonths" type="number" step="any" value="0"></div>
+        <div><label for="capitalRatePct">Cost of your money (% a year)</label><input id="capitalRatePct" type="number" step="any" value="0"><p class="note">What the cash would earn elsewhere or cost to borrow.</p></div>
+        <div><label for="exciseTaxPerCase">Excise and state tax per case sold ($)</label><input id="exciseTaxPerCase" type="number" step="any" value="0"><p class="note">Check your rate and any small-producer credit.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-3">
+      <h2 id="h-3">4. Selling the wine</h2>
+      <div class="grid">
+        <div><label for="dtcPrice">Direct bottle price ($)</label><input id="dtcPrice" type="number" step="any" value="0"><p class="note">Tasting room, club, online.</p></div>
+        <div><label for="dtcCostPct">Cost of direct sales (%)</label><input id="dtcCostPct" type="number" step="any" value="0"><p class="note">Card fees, shipping, club costs.</p></div>
+        <div><label for="wholesalePrice">Wholesale price you receive per bottle ($)</label><input id="wholesalePrice" type="number" step="any" value="0"><p class="note">What you actually get from a distributor or retailer.</p></div>
+        <div><label for="dtcSharePct">Bottles sold direct (%)</label><input id="dtcSharePct" type="number" step="any" value="0"></div>
+        <div><label for="sellThroughPct">Bottled wine that sells (%)</label><input id="sellThroughPct" type="number" step="any" value="0"><p class="note">Unsold stock counts as zero here. Be honest for a young brand.</p></div>
+        <div><label for="marketingPerCase">Marketing and selling per case sold ($)</label><input id="marketingPerCase" type="number" step="any" value="0"><p class="note">Tasting-room staff, events, samples, advertising.</p></div>
+        <div><label for="fixedOverhead">Fixed winery costs per year ($)</label><input id="fixedOverhead" type="number" step="any" value="0"><p class="note">Licences, insurance, accounting, label approval, storage.</p></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Compare the two</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions vineyard owners ask</h2>
+      <h3>Should I sell my grapes or make wine?</h3>
+      <p>Compare the two on the same acreage. Selling the fruit nets the price per ton times your tons, less growing and picking. Making wine nets the bottles you actually sell times what you keep per bottle, less winemaking, dry goods, labour, the money tied up while it ages, excise tax, marketing and fixed winery overhead, less the same growing cost. This tool puts the two side by side and shows which one is ahead at your figures.</p>
+      <h3>How many cases of wine does a ton of grapes make?</h3>
+      <p>A common rule of thumb is about 150 gallons, roughly 60 twelve-bottle cases, per ton of fruit before losses. Your figure depends on the variety, the press and how much you lose in processing; both are inputs here.</p>
+      <h3>What sell-through do I need for bottling to beat selling fruit?</h3>
+      <p>The tool finds the share of bottled wine you must sell for the two paths to tie, and shows the gap at sell-through from 40% to 100%. Unsold bottles are counted at zero, which is deliberately cautious.</p>
+      <h3>How many acres does it take to justify a winery?</h3>
+      <p>Fixed yearly costs such as licences, insurance and accounting are spread over every case. If each acre earns more as wine than as fruit, the tool shows the acreage above which the overhead is absorbed; if it never does, it says so.</p>
+      <h3>Is this financial, tax or legal advice?</h3>
+      <p>No. It is arithmetic on figures you type. Alcohol licensing, excise tax, labelling and shipping rules are set by federal, state and local law; check yours with a qualified professional.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether you can get a licence, a label approval or a tasting-room permit, what your buyer will contract for in future years, vintage and price swings, how fast a new brand really sells, capital for equipment and a cellar, taxes, and your own time beyond the labour figure. Unsold wine is counted at zero rather than as stock worth something later. Every year is treated as the same typical year.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../craft-brewery-batch-margin-calculator/">craft brewery batch margin calculator</a>, the <a href="../u-pick-farm-profit-planner/">u-pick farm profit planner</a> and the <a href="../farmland-lease-cash-rent-vs-crop-share-calculator/">farmland lease calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you buy or sell anything.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+
+  <script type="module">
+    import { DEFAULTS, num, money, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const ladder = (title, label, key, rows, fmt) => `<div class="finding"><h4>${title}</h4>${table([label, "Wine nets", "Fruit nets", "Wine minus fruit"], rows.map((x) => [fmt(x[key]), money(x.wine), money(x.fruit), money(x.gain)]))}</div>`;
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const r = a.result, w = r.wine, f = r.fruit, o = a.opts;
+      h += `<div class="finding"><h4>${r.winePays ? "Bottling" : "Selling the fruit"} is ahead by ${money(Math.abs(r.gain))} a year</h4>${table(["", "Sell the fruit", "Bottle it"], [["Net for the year", money(f.net), money(w.net)], ["Net per acre", money(f.perAcre), money(w.perAcre)], ["Revenue", money(f.revenue), money(w.revenue)]])}<p>${Math.round(w.bottledCases)} cases bottled, ${Math.round(w.soldCases)} sold, about ${money(w.cashInWine)} of your money in wine before it sells.</p></div>`;
+      h += `<div class="finding"><h4>Where the two tie</h4>${table(["What would have to be true", "Needed", "Your figure"], [
+        ["Share of bottled wine that sells", Number.isNaN(r.breakEvenSellThrough) ? "never" : pct(r.breakEvenSellThrough), pct(o.sellThroughPct)],
+        ["Direct bottle price", Number.isNaN(r.breakEvenDtcPrice) ? "n/a" : "$" + r.breakEvenDtcPrice.toFixed(2), "$" + o.dtcPrice.toFixed(2)],
+        ["Net you keep per bottle (blended)", "$" + r.requiredBottleNet.toFixed(2), "$" + w.perBottle.toFixed(2)],
+        ["Grape price at which selling matches bottling", money(Math.max(0, r.breakEvenGrapePrice)) + " a ton", money(o.grapePrice) + " a ton"],
+        ["Acres to absorb the fixed overhead", Number.isFinite(r.breakEvenAcres) ? r.breakEvenAcres.toFixed(1) : "never at these figures", String(o.acres)]])}</div>`;
+      h += `<div class="finding"><h4>Where the wine path spends the money</h4>${table(["Cost", "Per year"], [["Winemaking, dry goods and labour", money(w.production)], ["Carrying the stock while it ages", money(w.carry)], ["Marketing and selling", money(w.marketing)], ["Excise and state tax", money(w.excise)], ["Fixed winery overhead", money(w.fixed)]])}</div>`;
+      h += ladder("If more or fewer bottles sell", "Sell-through", "sellThroughPct", a.sellThrough, (x) => x + "%");
+      h += ladder("If you sell more direct", "Sold direct", "dtcSharePct", a.directShare, (x) => x + "%");
+      h += ladder("If the grape price moves", "Price per ton", "grapePrice", a.grapePrice, money);
+      h += ladder("If the crop is lighter or heavier", "Tons per acre", "tonsPerAcre", a.yield, (x) => String(x));
+      h += `<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "sell-vs-bottle.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>
