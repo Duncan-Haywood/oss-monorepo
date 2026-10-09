@@ -696,6 +696,8 @@ const CATEGORY_RULES = [
       'bakery-production-scheduler',
       // `daily-prep-quantity-optimizer` joined 2026-10-09 on its first commit: how many to make, beside `bakery-production-scheduler`'s when to bake.
       'daily-prep-quantity-optimizer',
+      // `brewery-tank-schedule-optimizer` joined 2026-10-09 on its first commit: when and where each batch goes, beside `craft-brewery-batch-margin-calculator`'s profit per barrel.
+      'brewery-tank-schedule-optimizer',
       // `farmers-market-booth-calculator` joined 2026-10-03 on its first commit: market vendors who sell food,
       // one hop from `food-truck-event-margin-calculator`.
       'farmers-market-booth-calculator',
@@ -3206,6 +3208,9 @@ const CATEGORY_RULES = [
         // `sep-ira-contribution-calculator` landed 2026-10-08 from a stranded branch: back-office was at its 3 MB offline bound,
         // and a self-employed filer sizing their own retirement contribution is one person working out their own income.
         'sep-ira-contribution-calculator',
+        // `class-price-and-minimum-optimizer` joined 2026-10-09 on its first commit: a studio or tutoring centre setting its own seat price,
+        // one hop from `studio-class-slot-optimizer` and `tutor-package-pricing-calculator`.
+        'class-price-and-minimum-optimizer',
         'studio-class-slot-optimizer',
         'tutor-package-pricing-calculator',
         'voiceover-project-rate-calculator',

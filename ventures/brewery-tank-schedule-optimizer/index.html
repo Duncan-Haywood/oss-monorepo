@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Brewery Tank Schedule Optimizer: Fermenter and Brite Planning — Free</title>
+  <meta name="description" content="Free brewery tank schedule optimizer: enter your fermenters, bright tanks and beers, and get the brew-day and tank plan that finishes the most margin, with batch minimums and maximums, utilisation, and what one more tank is worth. Nothing uploaded.">
+  <meta property="og:title" content="Brewery tank schedule optimizer">
+  <meta property="og:description" content="Which beer goes in which tank, and when? A margin-maximising brew plan for craft and nano breweries. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23b45309'/%3E%3Cpath d='M9 8h14v16H9z' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3Cpath d='M9 15h14' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Brewery Tank Schedule Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Plan which beer to brew when across your fermenters and bright tanks to finish the most margin, with brew-day limits, cleaning turnaround and an upper bound. Runs in your browser.", "featureList": "Tank-by-tank brew schedule, minimum and maximum batches per beer, tank utilisation, gain over brewing in rotation, value of one more tank, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I schedule fermenters and brite tanks in a small brewery?", "acceptedAnswer": {"@type": "Answer", "text": "Treat each batch as two bookings: a fermenter for its fermenting days plus cleaning, then a bright tank for its conditioning days plus cleaning. The plan that earns the most is rarely brewing your beers in rotation, because a long lager blocks a tank that two ales could use. This tool tries many orders of batches and keeps the one that finishes the most margin by the end of the horizon."}}, {"@type": "Question", "name": "Is the schedule guaranteed to be the best possible?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a search, not a proof. On small cases it is checked against an exhaustive search and matches or comes close. The page also shows an upper bound that no schedule can beat, so you can see how much room is left; the bound is loose because it pools tank days and cannot see that a 30-barrel batch needs a 30-barrel tank."}}, {"@type": "Question", "name": "What does adding a tank do to the plan?", "acceptedAnswer": {"@type": "Answer", "text": "The tool re-plans with one more fermenter and one more bright tank of your largest size and shows the extra margin over the horizon and per year. That is margin, not profit after the tank cost, and it assumes you can sell what the extra tank makes."}}, {"@type": "Question", "name": "Does it know demand, seasonality or what I can sell?", "acceptedAnswer": {"@type": "Answer", "text": "No. Margin per barrel is the number you type, and the only demand control is the minimum and maximum batches per beer. A beer you cannot sell more of should have a maximum."}}, {"@type": "Question", "name": "Is this brewing, food-safety or regulatory advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is scheduling arithmetic on figures you type. Fermentation times, packaging and any licensing, tax or quality questions are yours to confirm."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">BREWERY TANK SCHEDULE OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which beer should go in which tank, and when, to finish the most margin?</h1>
+    <p>List your fermenters and bright tanks and your beers. The tool plans every brew day over the weeks you choose, books a fermenter and a bright tank for each batch including cleaning, and keeps the plan that finishes the most margin. It shows how it compares with brewing in rotation, how busy each tank is, an upper bound on what any plan could earn, and what one more tank would add.</p>
+    <p class="note">Scheduling arithmetic on figures you type. Not brewing, food-safety, licensing, tax or business advice. The example figures are placeholders, not any brewery's tanks, recipes or margins.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-s">
+      <h2 id="h-s">Your brewery</h2>
+      <div class="grid">
+        <div><label for="fermenters">Fermenter sizes (barrels)</label><input id="fermenters" type="text" value=""><p class="note">One number per tank, separated by spaces, like 30 30 15.</p></div>
+        <div><label for="brites">Bright tank sizes (barrels)</label><input id="brites" type="text" value=""><p class="note">Leave blank if you do not condition in a separate tank.</p></div>
+        <div><label for="weeks">Weeks to plan</label><input id="weeks" type="number" step="any" value="0"><p class="note">1 to 26. Only batches that finish inside this window count.</p></div>
+        <div><label for="brewDaysPerWeek">Brew days per week</label><input id="brewDaysPerWeek" type="number" step="any" value="0"><p class="note">Brewing happens on the first days of each week, Monday first.</p></div>
+        <div><label for="brewsPerBrewDay">Brews per brew day</label><input id="brewsPerBrewDay" type="number" step="any" value="0"><p class="note">How many batches your brewhouse can turn in a day.</p></div>
+        <div><label for="turnaroundDays">Cleaning days between batches</label><input id="turnaroundDays" type="number" step="any" value="0"><p class="note">Days a tank sits for cleaning and sanitising before the next batch.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-b0">
+      <h2 id="h-b0">Beer 1</h2>
+      <div class="grid">
+        <div><label for="b0_name">Beer name</label><input id="b0_name" type="text" value=""></div>
+        <div><label for="b0_batchBbl">Batch size (barrels)</label><input id="b0_batchBbl" type="number" step="any" value="0"><p class="note">What one brew puts in the tank. It must fit a fermenter.</p></div>
+        <div><label for="b0_fermentDays">Fermenting days in the fermenter</label><input id="b0_fermentDays" type="number" step="any" value="0"><p class="note">Days from brew day until it leaves the fermenter.</p></div>
+        <div><label for="b0_conditionDays">Conditioning days in a bright tank</label><input id="b0_conditionDays" type="number" step="any" value="0"><p class="note">Zero if it is packaged straight from the fermenter.</p></div>
+        <div><label for="b0_marginPerBbl">Margin per barrel ($)</label><input id="b0_marginPerBbl" type="number" step="any" value="0"><p class="note">Selling price less ingredients, packaging, excise and the costs you count per barrel.</p></div>
+        <div><label for="b0_minBatches">Fewest batches wanted</label><input id="b0_minBatches" type="number" step="any" value="0"><p class="note">Optional. A flagship you must keep in stock.</p></div>
+        <div><label for="b0_maxBatches">Most batches wanted</label><input id="b0_maxBatches" type="number" step="any" value="0"><p class="note">Optional. What you can sell in this period. Zero means no limit.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-b1">
+      <h2 id="h-b1">Beer 2</h2>
+      <div class="grid">
+        <div><label for="b1_name">Beer name</label><input id="b1_name" type="text" value=""></div>
+        <div><label for="b1_batchBbl">Batch size (barrels)</label><input id="b1_batchBbl" type="number" step="any" value="0"><p class="note">What one brew puts in the tank. It must fit a fermenter.</p></div>
+        <div><label for="b1_fermentDays">Fermenting days in the fermenter</label><input id="b1_fermentDays" type="number" step="any" value="0"><p class="note">Days from brew day until it leaves the fermenter.</p></div>
+        <div><label for="b1_conditionDays">Conditioning days in a bright tank</label><input id="b1_conditionDays" type="number" step="any" value="0"><p class="note">Zero if it is packaged straight from the fermenter.</p></div>
+        <div><label for="b1_marginPerBbl">Margin per barrel ($)</label><input id="b1_marginPerBbl" type="number" step="any" value="0"><p class="note">Selling price less ingredients, packaging, excise and the costs you count per barrel.</p></div>
+        <div><label for="b1_minBatches">Fewest batches wanted</label><input id="b1_minBatches" type="number" step="any" value="0"><p class="note">Optional. A flagship you must keep in stock.</p></div>
+        <div><label for="b1_maxBatches">Most batches wanted</label><input id="b1_maxBatches" type="number" step="any" value="0"><p class="note">Optional. What you can sell in this period. Zero means no limit.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-b2">
+      <h2 id="h-b2">Beer 3</h2>
+      <div class="grid">
+        <div><label for="b2_name">Beer name</label><input id="b2_name" type="text" value=""></div>
+        <div><label for="b2_batchBbl">Batch size (barrels)</label><input id="b2_batchBbl" type="number" step="any" value="0"><p class="note">What one brew puts in the tank. It must fit a fermenter.</p></div>
+        <div><label for="b2_fermentDays">Fermenting days in the fermenter</label><input id="b2_fermentDays" type="number" step="any" value="0"><p class="note">Days from brew day until it leaves the fermenter.</p></div>
+        <div><label for="b2_conditionDays">Conditioning days in a bright tank</label><input id="b2_conditionDays" type="number" step="any" value="0"><p class="note">Zero if it is packaged straight from the fermenter.</p></div>
+        <div><label for="b2_marginPerBbl">Margin per barrel ($)</label><input id="b2_marginPerBbl" type="number" step="any" value="0"><p class="note">Selling price less ingredients, packaging, excise and the costs you count per barrel.</p></div>
+        <div><label for="b2_minBatches">Fewest batches wanted</label><input id="b2_minBatches" type="number" step="any" value="0"><p class="note">Optional. A flagship you must keep in stock.</p></div>
+        <div><label for="b2_maxBatches">Most batches wanted</label><input id="b2_maxBatches" type="number" step="any" value="0"><p class="note">Optional. What you can sell in this period. Zero means no limit.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-b3">
+      <h2 id="h-b3">Beer 4</h2>
+      <div class="grid">
+        <div><label for="b3_name">Beer name</label><input id="b3_name" type="text" value=""></div>
+        <div><label for="b3_batchBbl">Batch size (barrels)</label><input id="b3_batchBbl" type="number" step="any" value="0"><p class="note">What one brew puts in the tank. It must fit a fermenter.</p></div>
+        <div><label for="b3_fermentDays">Fermenting days in the fermenter</label><input id="b3_fermentDays" type="number" step="any" value="0"><p class="note">Days from brew day until it leaves the fermenter.</p></div>
+        <div><label for="b3_conditionDays">Conditioning days in a bright tank</label><input id="b3_conditionDays" type="number" step="any" value="0"><p class="note">Zero if it is packaged straight from the fermenter.</p></div>
+        <div><label for="b3_marginPerBbl">Margin per barrel ($)</label><input id="b3_marginPerBbl" type="number" step="any" value="0"><p class="note">Selling price less ingredients, packaging, excise and the costs you count per barrel.</p></div>
+        <div><label for="b3_minBatches">Fewest batches wanted</label><input id="b3_minBatches" type="number" step="any" value="0"><p class="note">Optional. A flagship you must keep in stock.</p></div>
+        <div><label for="b3_maxBatches">Most batches wanted</label><input id="b3_maxBatches" type="number" step="any" value="0"><p class="note">Optional. What you can sell in this period. Zero means no limit.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-b4">
+      <h2 id="h-b4">Beer 5</h2>
+      <div class="grid">
+        <div><label for="b4_name">Beer name</label><input id="b4_name" type="text" value=""></div>
+        <div><label for="b4_batchBbl">Batch size (barrels)</label><input id="b4_batchBbl" type="number" step="any" value="0"><p class="note">What one brew puts in the tank. It must fit a fermenter.</p></div>
+        <div><label for="b4_fermentDays">Fermenting days in the fermenter</label><input id="b4_fermentDays" type="number" step="any" value="0"><p class="note">Days from brew day until it leaves the fermenter.</p></div>
+        <div><label for="b4_conditionDays">Conditioning days in a bright tank</label><input id="b4_conditionDays" type="number" step="any" value="0"><p class="note">Zero if it is packaged straight from the fermenter.</p></div>
+        <div><label for="b4_marginPerBbl">Margin per barrel ($)</label><input id="b4_marginPerBbl" type="number" step="any" value="0"><p class="note">Selling price less ingredients, packaging, excise and the costs you count per barrel.</p></div>
+        <div><label for="b4_minBatches">Fewest batches wanted</label><input id="b4_minBatches" type="number" step="any" value="0"><p class="note">Optional. A flagship you must keep in stock.</p></div>
+        <div><label for="b4_maxBatches">Most batches wanted</label><input id="b4_maxBatches" type="number" step="any" value="0"><p class="note">Optional. What you can sell in this period. Zero means no limit.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-b5">
+      <h2 id="h-b5">Beer 6</h2>
+      <div class="grid">
+        <div><label for="b5_name">Beer name</label><input id="b5_name" type="text" value=""></div>
+        <div><label for="b5_batchBbl">Batch size (barrels)</label><input id="b5_batchBbl" type="number" step="any" value="0"><p class="note">What one brew puts in the tank. It must fit a fermenter.</p></div>
+        <div><label for="b5_fermentDays">Fermenting days in the fermenter</label><input id="b5_fermentDays" type="number" step="any" value="0"><p class="note">Days from brew day until it leaves the fermenter.</p></div>
+        <div><label for="b5_conditionDays">Conditioning days in a bright tank</label><input id="b5_conditionDays" type="number" step="any" value="0"><p class="note">Zero if it is packaged straight from the fermenter.</p></div>
+        <div><label for="b5_marginPerBbl">Margin per barrel ($)</label><input id="b5_marginPerBbl" type="number" step="any" value="0"><p class="note">Selling price less ingredients, packaging, excise and the costs you count per barrel.</p></div>
+        <div><label for="b5_minBatches">Fewest batches wanted</label><input id="b5_minBatches" type="number" step="any" value="0"><p class="note">Optional. A flagship you must keep in stock.</p></div>
+        <div><label for="b5_maxBatches">Most batches wanted</label><input id="b5_maxBatches" type="number" step="any" value="0"><p class="note">Optional. What you can sell in this period. Zero means no limit.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-b6">
+      <h2 id="h-b6">Beer 7</h2>
+      <div class="grid">
+        <div><label for="b6_name">Beer name</label><input id="b6_name" type="text" value=""></div>
+        <div><label for="b6_batchBbl">Batch size (barrels)</label><input id="b6_batchBbl" type="number" step="any" value="0"><p class="note">What one brew puts in the tank. It must fit a fermenter.</p></div>
+        <div><label for="b6_fermentDays">Fermenting days in the fermenter</label><input id="b6_fermentDays" type="number" step="any" value="0"><p class="note">Days from brew day until it leaves the fermenter.</p></div>
+        <div><label for="b6_conditionDays">Conditioning days in a bright tank</label><input id="b6_conditionDays" type="number" step="any" value="0"><p class="note">Zero if it is packaged straight from the fermenter.</p></div>
+        <div><label for="b6_marginPerBbl">Margin per barrel ($)</label><input id="b6_marginPerBbl" type="number" step="any" value="0"><p class="note">Selling price less ingredients, packaging, excise and the costs you count per barrel.</p></div>
+        <div><label for="b6_minBatches">Fewest batches wanted</label><input id="b6_minBatches" type="number" step="any" value="0"><p class="note">Optional. A flagship you must keep in stock.</p></div>
+        <div><label for="b6_maxBatches">Most batches wanted</label><input id="b6_maxBatches" type="number" step="any" value="0"><p class="note">Optional. What you can sell in this period. Zero means no limit.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-b7">
+      <h2 id="h-b7">Beer 8</h2>
+      <div class="grid">
+        <div><label for="b7_name">Beer name</label><input id="b7_name" type="text" value=""></div>
+        <div><label for="b7_batchBbl">Batch size (barrels)</label><input id="b7_batchBbl" type="number" step="any" value="0"><p class="note">What one brew puts in the tank. It must fit a fermenter.</p></div>
+        <div><label for="b7_fermentDays">Fermenting days in the fermenter</label><input id="b7_fermentDays" type="number" step="any" value="0"><p class="note">Days from brew day until it leaves the fermenter.</p></div>
+        <div><label for="b7_conditionDays">Conditioning days in a bright tank</label><input id="b7_conditionDays" type="number" step="any" value="0"><p class="note">Zero if it is packaged straight from the fermenter.</p></div>
+        <div><label for="b7_marginPerBbl">Margin per barrel ($)</label><input id="b7_marginPerBbl" type="number" step="any" value="0"><p class="note">Selling price less ingredients, packaging, excise and the costs you count per barrel.</p></div>
+        <div><label for="b7_minBatches">Fewest batches wanted</label><input id="b7_minBatches" type="number" step="any" value="0"><p class="note">Optional. A flagship you must keep in stock.</p></div>
+        <div><label for="b7_maxBatches">Most batches wanted</label><input id="b7_maxBatches" type="number" step="any" value="0"><p class="note">Optional. What you can sell in this period. Zero means no limit.</p></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Plan the tanks</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+      <p class="note">A beer needs a size, a fermenting time and a margin. Leave a beer's boxes blank to leave it out.</p>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions brewers ask</h2>
+      <h3>How do I schedule fermenters and brite tanks in a small brewery?</h3>
+      <p>Treat each batch as two bookings: a fermenter for its fermenting days plus cleaning, then a bright tank for its conditioning days plus cleaning. The plan that earns the most is rarely brewing your beers in rotation, because a long lager blocks a tank that two ales could use. This tool tries many orders of batches and keeps the one that finishes the most margin by the end of the horizon.</p>
+      <h3>Is the schedule guaranteed to be the best possible?</h3>
+      <p>No. It is a search, not a proof. On small cases it is checked against an exhaustive search and matches or comes close. The page also shows an upper bound that no schedule can beat, so you can see how much room is left; the bound is loose because it pools tank days and cannot see that a 30-barrel batch needs a 30-barrel tank.</p>
+      <h3>What does adding a tank do to the plan?</h3>
+      <p>The tool re-plans with one more fermenter and one more bright tank of your largest size and shows the extra margin over the horizon and per year. That is margin, not profit after the tank cost, and it assumes you can sell what the extra tank makes.</p>
+      <h3>Does it know demand, seasonality or what I can sell?</h3>
+      <p>No. Margin per barrel is the number you type, and the only demand control is the minimum and maximum batches per beer. A beer you cannot sell more of should have a maximum.</p>
+      <h3>Is this brewing, food-safety or regulatory advice?</h3>
+      <p>No. It is scheduling arithmetic on figures you type. Fermentation times, packaging and any licensing, tax or quality questions are yours to confirm.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Demand, seasonality, keg and can packaging lines, yeast and brite-tank cross-use, dry hopping or barrel time, fermenters filled by more than one brew, labor, deliveries and rush orders. Each beer's fermenting and conditioning days are fixed numbers, and every batch is assumed to sell at the margin you type.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../craft-brewery-batch-margin-calculator/">craft brewery batch margin calculator</a> for profit per barrel by sales channel.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you rely on them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, BEER_DEFAULTS, EXAMPLE_SHARED, EXAMPLE_BEERS, money, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const N = 8, SKEYS = Object.keys(SHARED_DEFAULTS), BKEYS = Object.keys(BEER_DEFAULTS);
+    const fill = () => {
+      for (const k of SKEYS) $(k).value = EXAMPLE_SHARED[k];
+      for (let i = 0; i < N; i++) for (const k of BKEYS) $("b" + i + "_" + k).value = (EXAMPLE_BEERS[i] || BEER_DEFAULTS)[k];
+    };
+    const readAll = () => {
+      const shared = {}; for (const k of SKEYS) shared[k] = $(k).value;
+      const beers = []; for (let i = 0; i < N; i++) { const b = {}; for (const k of BKEYS) b[k] = $("b" + i + "_" + k).value; beers.push(b); }
+      return { shared, beers };
+    };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i > 1 ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i > 1 ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const pct = (x) => Math.round(x * 100) + "%";
+    let last = null;
+    function run() {
+      const { shared, beers } = readAll();
+      const a = analyze(beers, shared);
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      if (a.problems.length) h += `<div class="finding"><span class="pill">Check</span> The plan failed its own feasibility check: ${esc(a.problems.join("; "))}. Do not use it.</div>`;
+      const weeks = a.shared.weeks;
+      h += `<div class="finding"><h4>${money(a.value)} of margin finishes in ${weeks} weeks (${Math.round(a.barrels)} barrels, ${a.schedule.length} batches)</h4><p>${a.gain > 0.5 ? `Brewing your beers in rotation finishes ${money(a.naiveValue)}, so this plan is ${money(a.gain)} better over the period, about ${money(a.annualGain)} a year if it repeats.` : "Brewing your beers in rotation does about as well here."} No plan can finish more than ${money(a.bound)}; this one is ${Math.round(a.gapPct)}% below that ceiling, which is loose rather than a promise that the gap is recoverable.</p></div>`;
+      h += `<div class="finding"><h4>Batches by beer</h4>${table(["Beer", "Barrels each", "Batches", "Margin"], a.beers.map((b) => [esc(b.name), b.batchBbl, b.made, money(b.made * b.value)]))}</div>`;
+      h += `<div class="finding"><h4>Brew schedule</h4>${table(["#", "Beer", "Brew day", "Fermenter", "Bright tank", "Ready"], a.schedule.map((r) => [r.n, esc(r.beer), r.brew, r.fermenter + " (" + r.fermenterBbl + " bbl)", r.brite ?? "none", r.ready]))}</div>`;
+      h += `<div class="finding"><h4>Tank use, day by day</h4><p class="note">Each character is a day, from week 1 Monday. A digit is the beer number, ~ is cleaning, . is idle.</p><div class="scroll"><pre>${a.rowsF.map((r, i) => "F" + (i + 1) + " " + String(a.shared.fermenters[i]).padStart(3) + "bbl " + r + "  " + pct(a.fermUtil[i])).concat(a.rowsB.map((r, i) => "B" + (i + 1) + " " + String(a.shared.brites[i]).padStart(3) + "bbl " + r + "  " + pct(a.briteUtil[i]))).join("\n")}</pre></div><p class="note">${a.beers.map((b, i) => (i + 1) + " = " + esc(b.name)).join(", ")}</p></div>`;
+      if (a.scenarios.length) h += `<div class="finding"><h4>What one more tank would add</h4>${table(["Tank", "", "Extra margin in period", "Per year"], a.scenarios.map((s) => [esc(s.label), "", money(s.gain), money(s.annual)]))}<p class="note">Margin before the cost of the tank, assuming everything extra sells at the margin you typed.</p></div>`;
+      h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "brew-schedule.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>
