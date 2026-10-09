@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'birth-doula-package-pricing-calculator':
+    'the hourly figure is the doula\'s target pay per worked hour, not a shop labour rate, and overhead is a yearly dollar total spread over clients rather than a percentage of direct cost; there is no burden field or job quote built from a wage',
   'sauna-cold-plunge-install-bid-calculator':
     'the labour rate is one hourly figure for the installer beside a separate helper rate, there is no burden field, overhead is a monthly dollar total spread over billable hours rather than a percentage of direct cost, and the target margin is a share of the price net of card fees with materials marked up on their own tier; the tool solves an install price from a bill of materials instead of being quoted a shop rate',
   'hay-baling-own-vs-hire-calculator':
