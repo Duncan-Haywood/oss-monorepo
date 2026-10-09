@@ -1,0 +1,50 @@
+name: self-storage-unit-mix-optimizer
+description: >-
+  Free browser tool for self-storage owners and developers: enter rentable square feet and, per unit size, rate, occupancy
+  and how many units the market will rent, and get the exact unit mix that earns the most net operating income (a bounded
+  knapsack solved by dynamic programming), a comparison with the current plan, and what 1,000 more or fewer square feet is
+  worth. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: closest rows were self-storage-rate-increase-calculator 0.34
+# (pricing an existing mix, not choosing one) and storage-auction-max-bid-calculator 0.30; screened-out.md has no storage row.
+#
+# Why this niche: self-storage is a large, fragmented industry of small owners and first-time developers who decide the door
+# mix once per building and live with it. The standard tools are paid feasibility software and spreadsheets; a free exact
+# optimizer that also prices an extra 1,000 sq ft is a lead magnet toward paid feasibility or coaching referrals.
+#
+# First visitor: people searching "self storage unit mix", "storage facility feasibility" and "how many 10x10 units";
+# r/selfstorage, storage developer forums and Facebook groups. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on typed figures; not investment, appraisal, lending or construction advice; nothing stored
+# or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural front end for a paid multi-phase feasibility
+# model, a rate-benchmark add-on, or referrals to storage consultants.
+
+hypotheses:
+  - claim: >-
+      Self-storage owners and developers planning a building or phase will use a free tool that returns the income-maximising
+      unit mix under their own demand limits, and will share the result with partners or lenders.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/self-storage-unit-mix-optimizer/
+  analytics: null

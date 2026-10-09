@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 929 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 930 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -120,6 +120,14 @@
     <summary type="text">Free scrap gold buying calculator for pawn shops and estate buyers: type the karat and weight of each piece and your refiner&#39;s terms to see the highest offer that still pays after assay loss, fees, shipping and a gold price drop. Nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Self-Storage Unit Mix Optimizer: Best Mix of Unit Sizes — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/self-storage-unit-mix-optimizer/"/>
+    <id>tag:marisstella.dev,2026:tool/self-storage-unit-mix-optimizer</id>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free self-storage unit mix optimizer: enter rentable square feet, rates, occupancy and demand limits per unit size to find the mix that earns the most net operating income, and see what extra space is worth. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Sign Shop Pricing Calculator: Banner, Sign and Vinyl Job Quotes — Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sign-shop-job-pricing-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/sign-shop-job-pricing-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-08T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free bonus calculator: what a bonus pays after the 22% federal supplemental withholding, Social Security, Medicare and state tax, whether you owe or get a refund at filing, and the gross-up an employer needs to pay a bonus net. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Yoga, Pilates and Fitness Studio Pricing Planner — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/boutique-fitness-studio-pricing-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/boutique-fitness-studio-pricing-planner</id>
-    <updated>2026-10-08T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free pricing planner for yoga, pilates, barre and cycling studios: unlimited memberships, class packs and drop-ins in; monthly profit, what each plan earns per visit, break-even class size, empty-seat value and the best unlimited price out. Nothing uploaded.</summary>
   </entry>
 </feed>
