@@ -3262,3 +3262,20 @@ entries:
         change). Registered launch date, opt-out count, mirror count; inbound link from
         subscription-audit-from-statement.
     mrr_end: 0
+  - venture: surety-bond-capacity-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built surety-bond-capacity-calculator: a browser-local tool for contractors who bid
+        bonded work. Prices the performance and payment bond into each bid by bisection (the premium is a
+        share of the price it is charged on; hand-worked, tested), applies single-job and aggregate limits
+        from working capital, burns current backlog down to show the first month each job fits, and picks
+        the bids to submit by exact subset enumeration with the chance of overcommitting computed over every
+        win/lose outcome (checked against an independent recursion on random portfolios). First visitor:
+        "bid bond cost" / "bonding capacity calculator" searchers and small-contractor groups; volume
+        unmeasured. Rates are placeholders. The three stranded finished ventures found by unlanded_work
+        --sweep (proposal-maker, tile-layout-optimizer, mileage-deduction-calculator) were each a duplicate
+        of a venture already on main and were deliberately not landed. Registered launch date, opt-out count,
+        mirror count; inbound link from contractor-wip-schedule.
+    mrr_end: 0
