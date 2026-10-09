@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>FERS Retirement Planner: Pension, Supplement and TSP by Retirement Age — Free</title>
+  <meta name="description" content="Free FERS retirement calculator for federal employees: your pension, the Special Retirement Supplement and TSP income at every retirement age, MRA+10 reduction, the 1.1% multiplier at 62, sick leave credit and survivor cost. Runs in your browser.">
+  <meta property="og:title" content="FERS retirement planner">
+  <meta property="og:description" content="What each retirement age pays a federal employee: FERS annuity, supplement, TSP draw and what one more year adds. Nothing uploaded.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "FERS Retirement Planner", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How is a FERS pension calculated?", "acceptedAnswer": {"@type": "Answer", "text": "Multiplier times high-3 times years of service. The multiplier is 1.0%, or 1.1% if you retire at 62 or later with at least 20 years. High-3 is your highest average basic pay over any three consecutive years. Unused sick leave is converted to months of service and added to the years used in the formula, but it does not help you qualify."}}, {"@type": "Question", "name": "When can I retire?", "acceptedAnswer": {"@type": "Answer", "text": "Immediately at your minimum retirement age (55 to 57 depending on birth year) with 30 years, at 60 with 20 years, or at 62 with 5 years. At your minimum retirement age with 10 to 29 years you can retire at once too (called MRA+10), but the annuity is cut 5% for every year you are under 62."}}, {"@type": "Question", "name": "What is the Special Retirement Supplement?", "acceptedAnswer": {"@type": "Answer", "text": "A bridge payment that stands in for the Social Security you earned in federal service, paid until 62. It goes to people retiring with 30 years at their minimum retirement age or with 20 years at 60. It is not paid with MRA+10, and it is reduced if you earn above the Social Security earnings limit."}}, {"@type": "Question", "name": "Why is there a jump at 62?", "acceptedAnswer": {"@type": "Answer", "text": "Two rules meet there: the 1.1% multiplier for people with 20 years, and the start of cost-of-living adjustments. The table shows the effect in dollars so you can weigh a year of work against it."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">FERS RETIREMENT PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does each retirement age pay a federal employee?</h1>
+    <p>Enter your birth month, your service start month, pay, sick leave and TSP. The tool shows your FERS annuity, the Special Retirement Supplement and a TSP draw for every retirement age, the month each kind of retirement first opens to you, and what one more year of work adds. It is built for the question people actually ask: is it worth waiting for 62, or for the 1.1% multiplier?</p>
+    <p class="note">Arithmetic on the figures you type, using FERS rules as the tool's author understood them. Not retirement, tax or legal advice. Your agency HR office and OPM's retirement estimate are the authority. The example is made-up placeholder data, not any person's.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-p">
+      <h2 id="h-p">You</h2>
+      <div class="grid">
+        <div><label for="asof">This month (YYYY-MM)</label><input id="asof" type="text" value=""></div>
+        <div><label for="birth">Birth month (YYYY-MM)</label><input id="birth" type="text" value=""></div>
+        <div><label for="scd">Month your creditable service began (YYYY-MM)</label><input id="scd" type="text" value=""><p class="note">Your service computation date is on an SF-50. Subtract any time without pay yourself.</p></div>
+        <div><label for="retage">Retirement age to look at closely</label><input id="retage" type="text" value=""></div>
+        <div><label for="salary">Current annual salary ($)</label><input id="salary" type="text" value=""></div>
+        <div><label for="raise">Expected raise per year (%)</label><input id="raise" type="text" value=""></div>
+        <div><label for="sick">Unused sick leave now (hours)</label><input id="sick" type="text" value=""></div>
+        <div><label for="sickadd">Sick leave added per year, net of what you use (hours)</label><input id="sickadd" type="text" value=""><p class="note">104 hours is a full year of accrual with none used.</p></div>
+        <div><label for="survivor">Survivor benefit for a spouse</label><select id="survivor"><option value="none">None</option><option value="partial">Partial (25%, costs 5%)</option><option value="full">Full (50%, costs 10%)</option></select></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t">
+      <h2 id="h-t">TSP and Social Security</h2>
+      <div class="grid">
+        <div><label for="tsp">TSP balance now ($)</label><input id="tsp" type="text" value=""></div>
+        <div><label for="tspemp">Your TSP contribution (% of pay)</label><input id="tspemp" type="text" value=""><p class="note">Your agency adds 1% plus a match of up to 4%.</p></div>
+        <div><label for="tspret">TSP return per year (%)</label><input id="tspret" type="text" value=""></div>
+        <div><label for="tspdraw">Share of TSP you spend each year (%)</label><input id="tspdraw" type="text" value=""></div>
+        <div><label for="ss62">Social Security per month if claimed at 62 ($, optional)</label><input id="ss62" type="text" value=""><p class="note">From your statement at ssa.gov. Needed for the supplement.</p></div>
+        <div><label for="infl">Expected inflation per year (%)</label><input id="infl" type="text" value=""><p class="note">Sets the COLA, which FERS pays from age 62.</p></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Show my options</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions federal employees ask</h2>
+      <h3>How is a FERS pension calculated?</h3>
+      <p>Multiplier times high-3 times years of service. The multiplier is 1.0%, or 1.1% if you retire at 62 or later with at least 20 years. High-3 is your highest average basic pay over any three consecutive years. Unused sick leave is converted to months of service and added to the years used in the formula, but it does not help you qualify.</p>
+      <h3>When can I retire?</h3>
+      <p>Immediately at your minimum retirement age (55 to 57 depending on birth year) with 30 years, at 60 with 20 years, or at 62 with 5 years. At your minimum retirement age with 10 to 29 years you can retire at once too (called MRA+10), but the annuity is cut 5% for every year you are under 62.</p>
+      <h3>What is the Special Retirement Supplement?</h3>
+      <p>A bridge payment that stands in for the Social Security you earned in federal service, paid until 62. It goes to people retiring with 30 years at their minimum retirement age or with 20 years at 60. It is not paid with MRA+10, and it is reduced if you earn above the Social Security earnings limit.</p>
+      <h3>Why is there a jump at 62?</h3>
+      <p>Two rules meet there: the 1.1% multiplier for people with 20 years, and the start of cost-of-living adjustments. The table shows the effect in dollars so you can weigh a year of work against it.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Law enforcement, firefighter, air traffic controller and similar special provisions, CSRS and mixed service, part-time and military buyback service, disability and involuntary retirement, deferred and early-out retirement, the Social Security earnings test, taxes on any income, the TSP withdrawal rules and Medicare or FEHB timing. Check any of these with your HR office and your OPM estimate.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../pension-lump-sum-vs-annuity-calculator/">pension lump sum vs annuity calculator</a> and the <a href="../retirement-withdrawal-sequencer/">retirement withdrawal sequencer</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, retirement, investment, or financial advice, and does not replace a qualified professional or your agency's HR office. Results are arithmetic on figures you type. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every rule it applies. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It is independent of OPM, the TSP and any federal agency.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, EXAMPLE, money, pct, ageStr, monthLabel, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const fill = () => { for (const k of KEYS) $(k).value = EXAMPLE[k]; };
+    const readAll = () => { const o = {}; for (const k of KEYS) o[k] = $(k).value; return o; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => '<div class="scroll"><table><thead><tr>' + head.map((h, i) => "<th" + (i > 0 ? ' class="n"' : "") + ">" + h + "</th>").join("") + "</tr></thead><tbody>" + rows.map((r) => "<tr>" + r.map((c, i) => "<td" + (i > 0 ? ' class="n"' : "") + ">" + c + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+    const KIND = { "62+5": "Age 62, 5+ years", "MRA+30": "MRA with 30 years", "60+20": "Age 60, 20+ years", "MRA+10": "MRA with 10+ years (reduced)" };
+    let last = null;
+    function run() {
+      const a = analyze(readAll());
+      let h = "";
+      for (const w of a.warnings) h += '<div class="finding"><span class="pill">Check</span> ' + esc(w) + "</div>";
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      const p = a.plan;
+      h += '<div class="finding"><h4>Your minimum retirement age is ' + ageStr(a.mra) + "</h4><p>You are " + ageStr(a.ageNow) + " now.</p></div>";
+      if (p.eligible) {
+        h += '<div class="finding"><h4>Retiring at ' + ageStr(p.age) + ": " + money(p.pension) + " a year from FERS</h4><p>" + esc(KIND[p.kind]) + ". " + (p.annuityM / 12).toFixed(2) + " years of service used (" + Math.floor(p.sickM) + " months from sick leave), high-3 about " + money(p.high3) + ", multiplier " + p.mult + "%." + (p.reduction ? " Cut " + pct(p.reduction * 100) + " for retiring before 62." : "") + (p.survPct ? " After the " + p.survPct + "% survivor cost." : "") + "</p></div>";
+        h += '<div class="finding"><h4>Income: ' + money(p.income) + " a year, " + (p.replacement == null ? "" : pct(p.replacement * 100) + " of your final pay") + "</h4><p>FERS " + money(p.pension) + (p.supplement ? " + supplement " + money(p.supplement) + " until 62" : "") + " + TSP draw " + money(p.draw) + " from a projected " + money(p.tspBalance) + ". At 62, with Social Security claimed then: " + money(p.incomeAt62) + " a year" + (p.replacementAt62 == null ? "" : " (" + pct(p.replacementAt62 * 100) + ")") + ". FERS alone at 75: " + money(p.pensionAt(75)) + ", at 85: " + money(p.pensionAt(85)) + " with a " + pct(a.cola) + " COLA.</p></div>";
+      } else {
+        h += '<div class="finding"><h4>Retiring at ' + ageStr(p.age) + ": not eligible for an immediate annuity</h4><p>You would have " + (p.svcM / 12).toFixed(1) + " years of service. See the dates below for when you first qualify.</p></div>";
+      }
+      if (a.firsts.length) h += '<div class="finding"><h4>When each kind of retirement first opens</h4>' + table(["Kind", "Earliest month", "Your age", "FERS a year", "Supplement a year"], a.firsts.map((f) => [esc(KIND[f.kind]), monthLabel(f.retM), ageStr(f.age), money(f.pension), f.supplement ? money(f.supplement) : "none"])) + "</div>";
+      h += '<div class="finding"><h4>Every retirement age</h4>' + table(["Age", "Kind", "FERS", "Supplement", "TSP at retirement", "Income", "Of final pay", "Extra from another year"], a.rows.map((r) => r.eligible
+        ? [r.age / 12, esc(KIND[r.kind]), money(r.pension), r.supplement ? money(r.supplement) : "-", money(r.tspBalance), money(r.income), r.replacement == null ? "" : pct(r.replacement * 100), r.gain == null ? "" : (r.gain >= 0 ? "+" : "") + money(r.gain)]
+        : [r.age / 12, "not eligible", "-", "-", money(r.tspBalance), "-", "-", ""])) + "</div>";
+      h += '<p class="note">Income before 62 includes the supplement, which stops at 62, so the extra from the year you turn 62 can look negative. The "At 62" figure above puts Social Security in its place.</p>';
+      h += '<p><button type="button" class="secondary" id="csv">Download result (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "fers-retirement-options.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    const now = new Date();
+    $("asof").value = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0");
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>
