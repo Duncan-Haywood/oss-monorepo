@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Birth Doula Package Pricing Calculator: What Do You Earn Per Hour? — Free</title>
+  <meta name="description" content="Free calculator for birth doulas: your real pay per hour after long labors, driving, on-call days, backup cover and overhead, and the package price that reaches your target. Nothing uploaded.">
+  <meta property="og:title" content="Birth doula package pricing calculator">
+  <meta property="og:description" content="What does your doula package really pay per hour? Find the price that hits your target. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%239d174d'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Birth Doula Package Pricing Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Work out what a birth doula package really pays per hour after labor length, travel, on-call days, backup cover and overhead, and the fee needed to hit your target. Runs in your browser.", "featureList": "Effective hourly rate, fee for target rate, labor-length sensitivity, births needed for a yearly goal, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should a birth doula charge?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on your market, but the number to anchor on is your pay per worked hour, not the package price. A $1,200 package looks fine until you count 14 hours at the birth, six hours of visits, driving, a month on call and the fee you pay a backup. This calculator works the package price back from the hourly rate you want. Local rates, your experience and what clients in your area pay vary, so treat the result as your floor, not a market quote."}}, {"@type": "Question", "name": "How do I count on-call time?", "acceptedAnswer": {"@type": "Answer", "text": "Most doulas do not bill for it, but it has a cost: weeks of not travelling, drinking or planning. The tool lets you give each on-call day a dollar value you choose, including zero, and shows the hourly rate both ways."}}, {"@type": "Question", "name": "Should I charge more for a long birth?", "acceptedAnswer": {"@type": "Answer", "text": "Many doulas price a package for an average birth and add a per-hour charge past a set number of hours, or a flat fee for births over 24 hours. The sensitivity table shows how fast the hourly rate drops as labor gets longer, which is the case for either."}}, {"@type": "Question", "name": "What does a backup doula really cost?", "acceptedAnswer": {"@type": "Answer", "text": "On the share of births a backup attends, you usually pay the backup part of the fee. Averaged over all your clients that is a steady cost per package, so it belongs in the price. Set the share of births and the share you pay."}}, {"@type": "Question", "name": "Is this business or tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the figures you type, with simplifications listed under Not decided. Ask an accountant about self-employment tax, deductions and the mileage method you use."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">BIRTH DOULA PACKAGE PRICING CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does your doula package really pay per hour?</h1>
+    <p>Type your package price and what a client actually costs you in time: visits, hours at the birth, driving, days on call, the backup you pay and your yearly overhead. The tool shows your pay per worked hour, the package price that reaches your target, how a 30-hour labor changes the answer, and how many births a year your income goal takes.</p>
+    <p class="note">Arithmetic on assumptions you type. Not business, tax or financial advice. The example figures are placeholders, not market rates or your situation.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Your package</h2>
+      <div class="grid">
+        <div><label for="fee">Package price ($)</label><input id="fee" type="number" step="any" value="0"><p class="note">What the client pays for prenatal, birth and postpartum support.</p></div>
+        <div><label for="prenatalVisits">Prenatal visits</label><input id="prenatalVisits" type="number" step="any" value="0"></div>
+        <div><label for="prenatalHours">Hours per prenatal visit</label><input id="prenatalHours" type="number" step="any" value="0"><p class="note">Include prep and notes.</p></div>
+        <div><label for="laborHours">Average hours at the birth</label><input id="laborHours" type="number" step="any" value="0"><p class="note">Door to door, averaged over your last several births. Long births are the point of this tool.</p></div>
+        <div><label for="postpartumVisits">Postpartum visits</label><input id="postpartumVisits" type="number" step="any" value="0"></div>
+        <div><label for="postpartumHours">Hours per postpartum visit</label><input id="postpartumHours" type="number" step="any" value="0"></div>
+        <div><label for="adminHours">Admin hours per client</label><input id="adminHours" type="number" step="any" value="0"><p class="note">Consult, texting, resource lists, notes.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Travel and on-call</h2>
+      <div class="grid">
+        <div><label for="travelMinutesEachWay">Drive minutes, one way</label><input id="travelMinutesEachWay" type="number" step="any" value="0"></div>
+        <div><label for="milesEachWay">Miles, one way</label><input id="milesEachWay" type="number" step="any" value="0"></div>
+        <div><label for="mileageRate">Mileage rate ($ per mile)</label><input id="mileageRate" type="number" step="any" value="0"><p class="note">IRS standard business rate; 0.725 for 2026. Edit if it changes.</p></div>
+        <div><label for="onCallDays">On-call days per client</label><input id="onCallDays" type="number" step="any" value="0"><p class="note">Days around the due date you cannot travel or plan freely.</p></div>
+        <div><label for="onCallDayValue">What one on-call day is worth to you ($)</label><input id="onCallDayValue" type="number" step="any" value="0"><p class="note">Your own number. 0 ignores it.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Costs and goals</h2>
+      <div class="grid">
+        <div><label for="supplies">Supplies per client ($)</label><input id="supplies" type="number" step="any" value="0"></div>
+        <div><label for="feePct">Card or platform fee (%)</label><input id="feePct" type="number" step="any" value="0"><p class="note">Of the package price.</p></div>
+        <div><label for="missedBirthPct">Births a backup attends (%)</label><input id="missedBirthPct" type="number" step="any" value="0"><p class="note">Illness, double bookings, a precipitous labor.</p></div>
+        <div><label for="backupPct">Share of the fee you pay the backup (%)</label><input id="backupPct" type="number" step="any" value="0"></div>
+        <div><label for="overheadYear">Yearly overhead ($)</label><input id="overheadYear" type="number" step="any" value="0"><p class="note">Liability insurance, certification, continuing education, website.</p></div>
+        <div><label for="birthsPerYear">Clients per year</label><input id="birthsPerYear" type="number" step="any" value="0"></div>
+        <div><label for="taxPct">Tax set-aside (%)</label><input id="taxPct" type="number" step="any" value="0"><p class="note">Self-employment plus income tax; ask your accountant.</p></div>
+        <div><label for="targetHourly">Target pre-tax $ per worked hour</label><input id="targetHourly" type="number" step="any" value="0"></div>
+        <div><label for="annualGoal">Yearly pre-tax income goal ($)</label><input id="annualGoal" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Price my package</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions doulas ask</h2>
+      <h3>How much should a birth doula charge?</h3>
+      <p>It depends on your market, but the number to anchor on is your pay per worked hour, not the package price. A $1,200 package looks fine until you count 14 hours at the birth, six hours of visits, driving, a month on call and the fee you pay a backup. This calculator works the package price back from the hourly rate you want. Local rates, your experience and what clients in your area pay vary, so treat the result as your floor, not a market quote.</p>
+      <h3>How do I count on-call time?</h3>
+      <p>Most doulas do not bill for it, but it has a cost: weeks of not travelling, drinking or planning. The tool lets you give each on-call day a dollar value you choose, including zero, and shows the hourly rate both ways.</p>
+      <h3>Should I charge more for a long birth?</h3>
+      <p>Many doulas price a package for an average birth and add a per-hour charge past a set number of hours, or a flat fee for births over 24 hours. The sensitivity table shows how fast the hourly rate drops as labor gets longer, which is the case for either.</p>
+      <h3>What does a backup doula really cost?</h3>
+      <p>On the share of births a backup attends, you usually pay the backup part of the fee. Averaged over all your clients that is a steady cost per package, so it belongs in the price. Set the share of births and the share you pay.</p>
+      <h3>Is this business or tax advice?</h3>
+      <p>No. It is arithmetic on the figures you type, with simplifications listed under Not decided. Ask an accountant about self-employment tax, deductions and the mileage method you use.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Local market rates, sliding-scale or Medicaid reimbursement, add-ons such as photography or placenta services, seasonality, time between clients, the value of referrals and reviews, and how you pay yourself. Self-employment tax, deductions and mileage method are for your accountant. Rates and law can change.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../nail-tech-booth-rent-calculator/">nail tech booth rent calculator</a>, the <a href="../boutique-fitness-studio-pricing-planner/">boutique fitness studio pricing planner</a> and the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you set prices or file anything.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, money2, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const r = a.result, o = a.opts;
+      h += `<div class="finding"><h4>${a.underTarget ? "Below your target" : "At or above your target"}: ${money2(r.hourlyAfterOnCall)} per worked hour after on-call</h4><p>One ${money(o.fee)} package takes ${r.hours.total.toFixed(1)} worked hours and nets ${money(r.net)} after costs, ${money2(r.hourly)} an hour before valuing on-call days. To reach ${money2(o.targetHourly)} an hour, price the package at <strong>${money(r.feeForTarget)}</strong> (${r.raise >= 0 ? "+" : "-"}${money(Math.abs(r.raise))}).</p></div>`;
+      h += `<div class="finding"><h4>Where the package goes</h4>${table(["Line", "Per birth"], [["Package price", money(o.fee)], ["Card or platform fee", "-" + money(r.fees)], ["Backup doula cover", "-" + money(r.backup)], ["Mileage", "-" + money(r.mileage)], ["Supplies", "-" + money(o.supplies)], ["Share of yearly overhead", "-" + money(r.overhead)], ["Net per birth", money(r.net)], ["On-call days valued at your rate", "-" + money(r.onCall)], ["Net after on-call", money(r.netAfterOnCall)]])}<p>Worked hours: ${r.hours.visits.toFixed(1)} visits, ${r.hours.labor} at the birth, ${r.hours.admin} admin, ${r.hours.driving.toFixed(1)} driving.</p></div>`;
+      h += `<div class="finding"><h4>Your year</h4><p>${o.birthsPerYear} clients is ${money(r.yearly)} before tax (${money(r.afterTaxYearly)} after a ${o.taxPct}% set-aside) for ${Math.round(r.yearlyHours)} worked hours. ${r.birthsForGoal ? "A " + money(o.annualGoal) + " yearly goal takes about " + r.birthsForGoal + " births at this price." : "At this price the package does not cover your on-call days, so no number of births reaches the goal."}</p></div>`;
+      h += `<div class="finding"><h4>How a longer labor changes it</h4>${table(["Hours at the birth", "Worked hours", "Net per birth", "$ per hour", "After on-call", "Fee for target"], a.rows.map((x) => [x.labor, x.hours.toFixed(1), money(x.net), money2(x.hourly), money2(x.hourlyAfterOnCall), money(x.feeForTarget)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "doula-pricing.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>
