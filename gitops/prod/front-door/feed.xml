@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 930 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 932 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -72,6 +72,14 @@
     <summary type="text">Free junk car buyer calculator: the most you can offer for a scrap or salvage car after weight, converter, parts, tow, storage and labour. Profit at the seller&#39;s ask and the farthest tow that still pays. Runs in your browser.</summary>
   </entry>
   <entry>
+    <title>Lash Pricing Calculator: What a Lash Set Really Earns Per Hour — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/lash-studio-service-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/lash-studio-service-profit-calculator</id>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free lash studio pricing calculator: enter price, chair time, supplies, no-shows, card fees and studio rent to see what each lash service takes home per hour, compare full sets and fills, and find the price that reaches your target. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Medical Billing Pricing Calculator: Percent vs Per-Claim vs Flat Fee — Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/medical-billing-pricing-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/medical-billing-pricing-calculator</id>
@@ -124,7 +132,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/self-storage-unit-mix-optimizer/"/>
     <id>tag:marisstella.dev,2026:tool/self-storage-unit-mix-optimizer</id>
     <updated>2026-10-09T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Logistics, freight &amp; cloud cost"/>
     <summary type="text">Free self-storage unit mix optimizer: enter rentable square feet, rates, occupancy and demand limits per unit size to find the mix that earns the most net operating income, and see what extra space is worth. Nothing uploaded.</summary>
   </entry>
   <entry>
@@ -134,6 +142,14 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free sign shop pricing calculator: enter size, quantity, material, print and install time and your shop rate to get the price that earns your margin, your break-even, and the price per square foot at any quantity. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Water Well Drilling Bid Calculator: Price a Well With Dry-Hole Risk — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/water-well-drilling-bid-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/water-well-drilling-bid-calculator</id>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free water well drilling bid calculator: depth by formation, casing, grout, pump and tank, trench, mobilization and rig hours, plus a dry-hole allowance, priced to your margin with break-even and price per foot. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>401(k) Loan vs Withdrawal Calculator: True Cost — Free</title>
@@ -150,21 +166,5 @@
     <updated>2026-10-08T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free 529-to-Roth IRA rollover calculator: the 15-year rule, five-year contribution lock, $35,000 lifetime cap, annual limit and earned income, year by year. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Appointment No-Show Cost Calculator — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/appointment-no-show-cost-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/appointment-no-show-cost-calculator</id>
-    <updated>2026-10-08T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free no-show cost calculator for dental, medical, therapy, chiropractic, vet and salon practices: annual revenue lost to no-shows and late cancels, cost after refills, best overbooking level from an exact binomial model, break-even no-show fee and reminder price. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Bonus Take-Home and Gross-Up Calculator — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bonus-take-home-gross-up-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/bonus-take-home-gross-up-calculator</id>
-    <updated>2026-10-08T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free bonus calculator: what a bonus pays after the 22% federal supplemental withholding, Social Security, Medicare and state tax, whether you owe or get a refund at filing, and the gross-up an employer needs to pay a bonus net. Nothing uploaded.</summary>
   </entry>
 </feed>

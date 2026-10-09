@@ -53,6 +53,14 @@ customer to hand a proposal to. Its slug ends in `-bid-calculator` because the
 bid is the product, which is what puts it in `discoverability.test.mjs`'s
 population even though it is not a trade calculator.
 
+**`water-well-drilling`** (`water-well-drilling-bid-calculator`, graduated
+2026-10-09) does not adopt yet. Its customer is a homeowner, so it is a
+candidate, but it prices the job through `analyze()` rather than the
+`readInput()` / `calculate*(readInput())` pair `inspect()` anchors on, and a
+proposal for a well also needs terms the tool does not model (a dry-hole
+clause, a yield disclaimer). Adopting it is a follow-up, not part of the
+launch.
+
 The last holdout was **`home-staging`** (`home-staging-bid-calculator`,
 graduated in #3580, unblocked in the same session that added this line). It
 priced the job inline from individual `el(...)` reads rather than through the

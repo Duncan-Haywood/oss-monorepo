@@ -359,6 +359,10 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'lash-studio-service-profit-calculator':
+    'the take-home figure is a lash artist\'s own pay per chair hour after supplies, card fees, no-shows and studio rent, not a shop labour rate for a job quote, there is no burden or overhead-on-cost field, and the target is an hourly take-home rather than a margin on cost',
+  'water-well-drilling-bid-calculator':
+    'the rig rate is one hourly cost for the rig, compressor and crew applied to drilling hours, the install rate is a separate crew hour for the pump, there is no burden field, overhead is a share of direct cost, and the target margin is a share of the price after a dry-hole allowance; the tool prices a well from feet drilled and rig hours instead of being quoted a shop rate',
   'adjunct-course-offer-calculator':
     'the hourly figure is what a per-course teaching contract pays per hour of the instructor\'s own time after prep, grading and unpaid hours, not a shop labour rate for a job quote, there is no burden or overhead field, and the target is an hourly pay rate the instructor wants rather than a margin on cost',
   'sign-shop-job-pricing-calculator':
