@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Independent Pharmacy Prescription Margin Calculator — Free</title>
+  <meta name="description" content="Free calculator for independent pharmacies: what each kind of prescription really earns after drug cost, supplies, PBM claim fees, DIR fees, rejected claims, delivery and staff time. Margin by prescription type, copay for a target margin, insured vs cash, break-even prescriptions. Nothing uploaded.">
+  <meta property="og:title" content="Independent pharmacy prescription margin calculator">
+  <meta property="og:description" content="See which prescriptions earn money after PBM fees, DIR and staff time, and what a break-even month looks like. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f6e4e'/%3E%3Cpath d='M16 8v16M8 16h16' stroke='%23fff' stroke-width='4'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Independent Pharmacy Prescription Margin Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Margin per prescription type for an independent pharmacy after drug cost, supplies, PBM claim fees, DIR fees, rejected-claim rework, delivery and staff time, with profit per staff-hour, the copay for a target margin and break-even prescriptions per month. Runs in your browser.","featureList":"Margin per prescription type, profit per staff-hour, copay for target margin, insured vs cash comparison, break-even prescriptions, cost sensitivity, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a good margin on a prescription?","acceptedAnswer":{"@type":"Answer","text":"Per fill it is thin and it varies enormously by type. A generic on a good commercial plan can earn several dollars after drug cost, supplies, fees and staff time, while a brand or specialty drug on the same plan often passes almost all of its money straight through to the wholesaler and nets a dollar or two. A generic from a low-reimbursement PBM can lose money on every fill. This tool subtracts drug acquisition cost, vials and supplies, PBM claim fees, DIR and post-sale fees, a rework allowance, copay card fees, delivery and the staff's time, then shows what each kind of fill really earns."}},{"@type":"Question","name":"How do PBM reimbursements and DIR fees change the math?","acceptedAnswer":{"@type":"Answer","text":"A PBM pays a contracted amount per claim and the patient pays a copay on top. Fees charged after the sale, often called DIR fees, can claw back part of it weeks later. Enter the copay, what the PBM pays, and your DIR and post-sale fees per fill as separate numbers. The card fee applies only to the copay and the claim fee only to the PBM payment, and the tool gives you the copay that would reach your target margin if the PBM payment is fixed."}},{"@type":"Question","name":"What does a rejected claim cost?","acceptedAnswer":{"@type":"Answer","text":"A rejected or reversed claim costs the vial and supplies again plus staff time to call, resubmit or restock. Multiply by how often it happens. Even a four percent rework rate quietly takes cents from every fill, and the scenario table shows what three more points would cost across a month."}},{"@type":"Question","name":"How many prescriptions a month do I need to cover fixed costs?","acceptedAnswer":{"@type":"Answer","text":"Divide monthly fixed costs (rent, utilities, base staffing, pharmacy software, insurance, licenses) by the average contribution per fill at your current mix of generics, brands, cash and specialty fills. The result is only as good as that mix, so rerun it if a PBM changes its rates or you add a specialty line."}}]}</script>
+  <style>
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .menu input { width: 100%; min-width: 4.5em; box-sizing: border-box; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">INDEPENDENT PHARMACY RX MARGIN · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which prescriptions actually make money?</h1>
+    <p>A big reimbursement line is not the same as profit. Type your prescription types, what the patient copay and the PBM each pay, what the drug and supplies cost you, your DIR and post-sale fees, rejection rate, card fees and staff wage. The tool shows what each kind of fill earns, which use a pharmacy staff hour best, the copay that hits your target margin, how insured fills compare with cash fills, and how many prescriptions a month cover your fixed costs.</p>
+    <p class="note">Arithmetic on the numbers you type. Not tax, legal or financial advice. The values shown are placeholder data, not benchmarks or any real practice's figures.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">Your costs</h2>
+      <div class="grid">
+        <div><label for="cardPct">Copay card fee (%)</label><input id="cardPct" type="text" value=""></div>
+        <div><label for="cardFixed">Card fee per Rx ($)</label><input id="cardFixed" type="text" value=""></div>
+        <div><label for="planFee">PBM claim fee (%)</label><input id="planFee" type="text" value=""><p class="note">Fees and short-pays withheld from PBM payments.</p></div>
+        <div><label for="rework">Reject and rework rate (%)</label><input id="rework" type="text" value=""><p class="note">Share of fills that are rejected, reversed or returned to stock.</p></div>
+        <div><label for="reworkMins">Minutes per rework</label><input id="reworkMins" type="text" value=""><p class="note">Staff time to redo and re-fit.</p></div>
+        <div><label for="delivery">Delivery and compliance cost per Rx ($)</label><input id="delivery" type="text" value=""><p class="note">Average cost of delivery, counseling and compliance packaging.</p></div>
+        <div><label for="wage">Pharmacist and tech blended wage ($/hour)</label><input id="wage" type="text" value=""></div>
+        <div><label for="burden">Payroll taxes and extras (%)</label><input id="burden" type="text" value=""><p class="note">Employer taxes, workers' comp, paid breaks.</p></div>
+        <div><label for="fixedMonth">Fixed costs ($/month)</label><input id="fixedMonth" type="text" value=""><p class="note">Rent, utilities, base staffing, pharmacy software, insurance, licenses. Not owner pay.</p></div>
+        <div><label for="target">Target margin per Rx (%)</label><input id="target" type="text" value=""><p class="note">After drug cost, rework, fees and staff time.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">Your prescription types</h2>
+      <p class="note">One row per kind of fill, such as a generic on a commercial plan or a specialty drug. Enter the drug acquisition cost you pay, not the amount billed. Use 0 for PBM pays on a cash fill. Leave a row empty to skip it.</p>
+      <div class="scroll"><table class="menu">
+        <thead><tr><th scope="col">Prescription type</th><th scope="col" class="n">Copay $</th><th scope="col" class="n">PBM pays $</th><th scope="col" class="n">Drug cost $</th><th scope="col" class="n">Supplies $</th><th scope="col" class="n">DIR / fees $</th><th scope="col" class="n">Staff min</th><th scope="col" class="n">Rx/mo</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><label class="sr" for="name1">Rx 1 name</label><input id="name1" type="text" value=""></td>
+          <td><label class="sr" for="patient1">Rx 1 patient copay ($)</label><input id="patient1" type="text" value=""></td>
+          <td><label class="sr" for="plan1">Rx 1 PBM payment ($)</label><input id="plan1" type="text" value=""></td>
+          <td><label class="sr" for="acq1">Rx 1 drug acquisition cost ($)</label><input id="acq1" type="text" value=""></td>
+          <td><label class="sr" for="supply1">Rx 1 vial, label and supplies cost ($)</label><input id="supply1" type="text" value=""></td>
+          <td><label class="sr" for="dir1">Rx 1 DIR and post-sale fees ($)</label><input id="dir1" type="text" value=""></td>
+          <td><label class="sr" for="mins1">Rx 1 pharmacy staff minutes</label><input id="mins1" type="text" value=""></td>
+          <td><label class="sr" for="perMonth1">Rx 1 prescriptions per month</label><input id="perMonth1" type="text" value=""></td>
+        </tr>
+        <tr>
+          <td><label class="sr" for="name2">Rx 2 name</label><input id="name2" type="text" value=""></td>
+          <td><label class="sr" for="patient2">Rx 2 patient copay ($)</label><input id="patient2" type="text" value=""></td>
+          <td><label class="sr" for="plan2">Rx 2 PBM payment ($)</label><input id="plan2" type="text" value=""></td>
+          <td><label class="sr" for="acq2">Rx 2 drug acquisition cost ($)</label><input id="acq2" type="text" value=""></td>
+          <td><label class="sr" for="supply2">Rx 2 vial, label and supplies cost ($)</label><input id="supply2" type="text" value=""></td>
+          <td><label class="sr" for="dir2">Rx 2 DIR and post-sale fees ($)</label><input id="dir2" type="text" value=""></td>
+          <td><label class="sr" for="mins2">Rx 2 pharmacy staff minutes</label><input id="mins2" type="text" value=""></td>
+          <td><label class="sr" for="perMonth2">Rx 2 prescriptions per month</label><input id="perMonth2" type="text" value=""></td>
+        </tr>
+        <tr>
+          <td><label class="sr" for="name3">Rx 3 name</label><input id="name3" type="text" value=""></td>
+          <td><label class="sr" for="patient3">Rx 3 patient copay ($)</label><input id="patient3" type="text" value=""></td>
+          <td><label class="sr" for="plan3">Rx 3 PBM payment ($)</label><input id="plan3" type="text" value=""></td>
+          <td><label class="sr" for="acq3">Rx 3 drug acquisition cost ($)</label><input id="acq3" type="text" value=""></td>
+          <td><label class="sr" for="supply3">Rx 3 vial, label and supplies cost ($)</label><input id="supply3" type="text" value=""></td>
+          <td><label class="sr" for="dir3">Rx 3 DIR and post-sale fees ($)</label><input id="dir3" type="text" value=""></td>
+          <td><label class="sr" for="mins3">Rx 3 pharmacy staff minutes</label><input id="mins3" type="text" value=""></td>
+          <td><label class="sr" for="perMonth3">Rx 3 prescriptions per month</label><input id="perMonth3" type="text" value=""></td>
+        </tr>
+        <tr>
+          <td><label class="sr" for="name4">Rx 4 name</label><input id="name4" type="text" value=""></td>
+          <td><label class="sr" for="patient4">Rx 4 patient copay ($)</label><input id="patient4" type="text" value=""></td>
+          <td><label class="sr" for="plan4">Rx 4 PBM payment ($)</label><input id="plan4" type="text" value=""></td>
+          <td><label class="sr" for="acq4">Rx 4 drug acquisition cost ($)</label><input id="acq4" type="text" value=""></td>
+          <td><label class="sr" for="supply4">Rx 4 vial, label and supplies cost ($)</label><input id="supply4" type="text" value=""></td>
+          <td><label class="sr" for="dir4">Rx 4 DIR and post-sale fees ($)</label><input id="dir4" type="text" value=""></td>
+          <td><label class="sr" for="mins4">Rx 4 pharmacy staff minutes</label><input id="mins4" type="text" value=""></td>
+          <td><label class="sr" for="perMonth4">Rx 4 prescriptions per month</label><input id="perMonth4" type="text" value=""></td>
+        </tr>
+        <tr>
+          <td><label class="sr" for="name5">Rx 5 name</label><input id="name5" type="text" value=""></td>
+          <td><label class="sr" for="patient5">Rx 5 patient copay ($)</label><input id="patient5" type="text" value=""></td>
+          <td><label class="sr" for="plan5">Rx 5 PBM payment ($)</label><input id="plan5" type="text" value=""></td>
+          <td><label class="sr" for="acq5">Rx 5 drug acquisition cost ($)</label><input id="acq5" type="text" value=""></td>
+          <td><label class="sr" for="supply5">Rx 5 vial, label and supplies cost ($)</label><input id="supply5" type="text" value=""></td>
+          <td><label class="sr" for="dir5">Rx 5 DIR and post-sale fees ($)</label><input id="dir5" type="text" value=""></td>
+          <td><label class="sr" for="mins5">Rx 5 pharmacy staff minutes</label><input id="mins5" type="text" value=""></td>
+          <td><label class="sr" for="perMonth5">Rx 5 prescriptions per month</label><input id="perMonth5" type="text" value=""></td>
+        </tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Show my margins</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What is a good margin on a prescription?</h3>
+      <p>Per fill it is thin and it varies enormously by type. A generic on a good commercial plan can earn several dollars after drug cost, supplies, fees and staff time, while a brand or specialty drug on the same plan often passes almost all of its money straight through to the wholesaler and nets a dollar or two. A generic from a low-reimbursement PBM can lose money on every fill. This tool subtracts drug acquisition cost, vials and supplies, PBM claim fees, DIR and post-sale fees, a rework allowance, copay card fees, delivery and the staff's time, then shows what each kind of fill really earns.</p>
+      <h3>How do PBM reimbursements and DIR fees change the math?</h3>
+      <p>A PBM pays a contracted amount per claim and the patient pays a copay on top. Fees charged after the sale, often called DIR fees, can claw back part of it weeks later. Enter the copay, what the PBM pays, and your DIR and post-sale fees per fill as separate numbers. The card fee applies only to the copay and the claim fee only to the PBM payment, and the tool gives you the copay that would reach your target margin if the PBM payment is fixed.</p>
+      <h3>What does a rejected claim cost?</h3>
+      <p>A rejected or reversed claim costs the vial and supplies again plus staff time to call, resubmit or restock. Multiply by how often it happens. Even a four percent rework rate quietly takes cents from every fill, and the scenario table shows what three more points would cost across a month.</p>
+      <h3>How many prescriptions a month do I need to cover fixed costs?</h3>
+      <p>Divide monthly fixed costs (rent, utilities, base staffing, pharmacy software, insurance, licenses) by the average contribution per fill at your current mix of generics, brands, cash and specialty fills. The result is only as good as that mix, so rerun it if a PBM changes its rates or you add a specialty line.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>What your market will pay, which PBM networks to join, your contracted rates and DIR terms, wholesaler and buying-group terms, 340B and compliance questions, controlled-substance handling, the pharmacist-in-charge's compensation, and how to treat any of this for tax or accounting. Take costs from wholesaler invoices, take payments and fees from your remittance advices, and talk to your accountant about the books. No patient names or prescription data belong in this page and it never asks for them.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../card-processing-fee-audit/">card processing fee audit</a>, the <a href="../appointment-no-show-cost-calculator/">appointment no-show cost calculator</a>, the <a href="../optical-dispensary-margin-calculator/">optical dispensary margin calculator</a> and the <a href="../hearing-aid-dispensing-margin-calculator/">hearing aid dispensing margin calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before relying on them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in your browser's local storage, honour Do Not Track, and can be switched off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, EXAMPLE_SHARED, money, money2, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(SHARED_DEFAULTS);
+    const fill = () => { for (const k of KEYS) $(k).value = EXAMPLE_SHARED[k]; };
+    const readAll = () => { const o = {}; for (const k of KEYS) o[k] = $(k).value; return o; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => '<div class="scroll"><table><thead><tr>' + head.map((h, i) => "<th" + (i > 0 ? ' class="n"' : "") + ">" + h + "</th>").join("") + "</tr></thead><tbody>" + rows.map((r) => "<tr>" + r.map((c, i) => "<td" + (i > 0 ? ' class="n"' : "") + ">" + c + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+    let last = null;
+    function run() {
+      const a = analyze(readAll());
+      let h = "";
+      for (const w of a.warnings) h += '<div class="finding"><span class="pill">Check</span> ' + esc(w) + "</div>";
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      const t = a.totals;
+      h += '<div class="finding"><h4>' + (t.profitMonth >= 0 ? "Left after fixed costs: " : "Short of fixed costs by ") + money(Math.abs(t.profitMonth)) + " a month</h4><p>" + Math.round(t.sales) + " prescriptions a month bring in " + money(t.revenue) + " and contribute " + money(t.contribution) + " after goods, remakes, fees and staff time, against " + money(a.v.fixedMonth) + " of fixed costs. " + (a.breakEvenSales == null ? "Contribution per sale is not positive, so no volume breaks even." : "At this mix you break even at about " + a.breakEvenSales + " prescriptions a month.") + "</p></div>";
+      h += '<div class="finding"><h4>Each prescription type</h4>' + table(["Prescription type", "Collected", "Drug and supplies", "Rework allowance", "Fees", "Staff time", "Earns", "Margin", "Per staff-hour", "Copay for " + a.v.target + "%"], a.rows.map((r) => [esc(r.name), money2(r.collected), money2(r.goods), money2(r.reworkCost), money2(r.card + r.planFee), money2(r.labor), money2(r.contribution), pct(r.margin), money(r.perStaffHour), r.targetPrice == null ? "—" : money2(r.targetPrice.patient)])) + '<p class="note">Per staff-hour is what the sale earns before labor, if the optician did only that kind of sale for an hour. Copay for target assumes the PBM payment stays fixed.</p></div>';
+      h += '<div class="finding"><h4>Best and worst use of an staff hour</h4><p>' + esc(a.bestPerHour.name) + " earns the most per staff-hour (" + money(a.bestPerHour.perStaffHour) + "); " + esc(a.worstPerHour.name) + " earns the least (" + money(a.worstPerHour.perStaffHour) + ").</p></div>";
+      if (a.planAvg != null && a.cashAvg != null) h += '<div class="finding"><h4>Insurance fills vs cash fills</h4><p>Insured fills are ' + Math.round(a.planShare * 100) + "% of your volume. An average insured fill earns " + money2(a.planAvg) + " and an average cash fill earns " + money2(a.cashAvg) + ", a gap of " + money2(a.cashAvg - a.planAvg) + " a fill.</p></div>";
+      h += '<div class="finding"><h4>If costs move (monthly profit)</h4>' + table(["Change", "Monthly profit", "Difference"], a.scenarios.map((s) => [esc(s.label), money(s.profitMonth), money(s.change)])) + "</div>";
+      h += '<p><button type="button" class="secondary" id="csv">Download Rx table (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "pharmacy-rx-margins.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>
