@@ -1,0 +1,57 @@
+name: chargeback-ratio-monitor
+description: >-
+  Free browser tool for online sellers: drop in a Stripe payments CSV and see the dispute ratio for every month, headroom to your own
+  warning lines, the trend, disputes by reason and card brand, repeat disputers and what it costs. The file never leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py top score 0.17 (shopify-payout-profit-analyzer); the nearest
+# real neighbour is chargeback-evidence-packet, which helps you answer ONE dispute -- this answers "how close am I to being
+# flagged", which is the question that comes first and that a merchant asks monthly.
+#
+# Why this niche: card-network monitoring programs flag merchants on a dispute ratio, and being flagged risks fines and losing
+# the ability to take cards. Paid alert and monitoring services (Chargebacks911, Verifi/Ethoca alerts, Kount, Stripe Radar
+# add-ons) are priced for merchants already in trouble; the free diagnostic that tells you early is missing.
+#
+# First visitor: small ecommerce, digital-goods and subscription sellers on r/stripe, r/ecommerce, r/shopify, Indie Hackers and
+# Stripe support threads asking "what is a good chargeback ratio", "how many disputes before I'm flagged"; search phrases
+# "chargeback ratio calculator", "dispute rate calculator", "visa vamp ratio". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on the user's file against thresholds the USER sets. The defaults are labelled as starting
+# points, not any network's or provider's rules, because those change and carry minimum counts the export does not show. No
+# compliance claim, no "you are safe" output, no advice. The file never leaves the browser (a test asserts no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. The natural paid layer is a hosted monthly watch that
+# emails when headroom drops, which needs an owner decision on accounts and payment handling; not built.
+
+hypotheses:
+  - claim: >-
+      Sellers who got a dispute warning from their payment provider, or who fear one, will run an exported Stripe CSV through a
+      no-signup tool to find their monthly dispute ratio and headroom before paying for a monitoring service.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The reason, brand and repeat-customer breakdown tells a seller what to fix first, which is the reason to return after each
+      monthly export.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a ratio that differs from disputes divided by settled charges for the same file, at which point the parser or model needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/chargeback-ratio-monitor/
+  analytics: null
