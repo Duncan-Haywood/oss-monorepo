@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Wedding Flower Order Optimizer: Cheapest Wholesale Order — Free</title>
+  <meta name="description" content="Free wedding and event florist tool: enter the stems each flower needs and the wholesale pack sizes and prices, and get the cheapest order that covers every stem plus a damage allowance. Shows spare stems, savings against buying the small pack only, and flower cost as a share of the client's budget. Nothing uploaded.">
+  <meta property="og:title" content="Wedding flower order optimizer">
+  <meta property="og:description" content="The cheapest wholesale order that covers every stem, with spare stems and flower cost against the client's budget. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23be185d'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%23fff'/%3E%3Ccircle cx='16' cy='8' r='3' fill='%23fff'/%3E%3Ccircle cx='16' cy='24' r='3' fill='%23fff'/%3E%3Ccircle cx='8' cy='16' r='3' fill='%23fff'/%3E%3Ccircle cx='24' cy='16' r='3' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Wedding Flower Order Optimizer","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Work out the cheapest wholesale flower order for a wedding or event from stems needed, damage allowance and pack sizes and prices. Runs in your browser.","featureList":"Cheapest mix of two wholesale pack sizes per flower, damage allowance, spare stems, savings against small packs only, flower cost share of budget, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many flowers should I order for a wedding?","acceptedAnswer":{"@type":"Answer","text":"Add up the stems in every bouquet, centrepiece and installation recipe, then add an allowance for stems that arrive damaged or are lost in conditioning. Ten percent is a common starting point for roses and more for delicate flowers. This tool adds that allowance and rounds up to the packs your wholesaler really sells."}},{"@type":"Question","name":"Is it cheaper to buy a bigger wholesale box?","acceptedAnswer":{"@type":"Answer","text":"Often, but only if you can use the extra stems. The tool tries every number of big boxes and fills the rest with bunches, then returns the cheapest order that still covers what you need, and shows how many spare stems come with it."}},{"@type":"Question","name":"How much should flowers cost against the client's budget?","acceptedAnswer":{"@type":"Answer","text":"Many florists aim for flowers to be around a third of what the client pays, with labour, hard goods and delivery covering the rest. Enter the client's flower budget and the tool shows your wholesale cost as a share of it."}},{"@type":"Question","name":"What does the tool not know?","acceptedAnswer":{"@type":"Answer","text":"Wholesale prices change by week and season, minimum order values, delivery fees, substitutions and shelf life are yours to weigh. It does the pack arithmetic on the numbers you type."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">WEDDING FLOWER ORDER OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What is the cheapest wholesale order that covers every stem this event needs?</h1>
+    <p>List each flower with the stems your recipes need in total, then the wholesaler's pack sizes and prices (a bunch and, if they sell one, a bigger box). The tool adds your damage allowance, tries every mix of the two packs, and returns the cheapest order that covers the event, with spare stems, the saving over buying the small pack only, and your flower cost as a share of the client's budget.</p>
+    <p class="note">Arithmetic on figures you type. The example flowers and prices are placeholders, not any wholesaler's.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-g">
+      <h2 id="h-g">Event</h2>
+      <div class="grid">
+        <div><label for="lossPct">Extra stems for damage and conditioning (%)</label><input id="lossPct" type="number" step="any" value="10"><p class="note">Added to every flower before rounding up to whole packs.</p></div>
+        <div><label for="budget">Client flower budget ($, optional)</label><input id="budget" type="number" step="any" value=""><p class="note">What the client pays for flowers, to show wholesale cost as a share of it.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-f">
+      <h2 id="h-f">Flowers (up to 15)</h2>
+      <p class="note">Stems needed is the total across every recipe. Pack A is the smaller pack (a bunch); pack B is optional (a box or case). Leave pack B blank if there is only one.</p>
+      <div class="scroll"><table><thead><tr><th>#</th><th>Flower</th><th>Stems needed</th><th>Pack A stems</th><th>Pack A price</th><th>Pack B stems</th><th>Pack B price</th></tr></thead><tbody>
+<tr><th scope="row">1</th><td><input id="f0_name" type="text" aria-label="Flower 1 name" value=""></td><td><input id="f0_stems" type="text" inputmode="decimal" aria-label="Flower 1 stems needed" value=""></td><td><input id="f0_sizeA" type="text" inputmode="decimal" aria-label="Flower 1 pack A size" value=""></td><td><input id="f0_priceA" type="text" inputmode="decimal" aria-label="Flower 1 pack A price" value=""></td><td><input id="f0_sizeB" type="text" inputmode="decimal" aria-label="Flower 1 pack B size" value=""></td><td><input id="f0_priceB" type="text" inputmode="decimal" aria-label="Flower 1 pack B price" value=""></td></tr>
+<tr><th scope="row">2</th><td><input id="f1_name" type="text" aria-label="Flower 2 name" value=""></td><td><input id="f1_stems" type="text" inputmode="decimal" aria-label="Flower 2 stems needed" value=""></td><td><input id="f1_sizeA" type="text" inputmode="decimal" aria-label="Flower 2 pack A size" value=""></td><td><input id="f1_priceA" type="text" inputmode="decimal" aria-label="Flower 2 pack A price" value=""></td><td><input id="f1_sizeB" type="text" inputmode="decimal" aria-label="Flower 2 pack B size" value=""></td><td><input id="f1_priceB" type="text" inputmode="decimal" aria-label="Flower 2 pack B price" value=""></td></tr>
+<tr><th scope="row">3</th><td><input id="f2_name" type="text" aria-label="Flower 3 name" value=""></td><td><input id="f2_stems" type="text" inputmode="decimal" aria-label="Flower 3 stems needed" value=""></td><td><input id="f2_sizeA" type="text" inputmode="decimal" aria-label="Flower 3 pack A size" value=""></td><td><input id="f2_priceA" type="text" inputmode="decimal" aria-label="Flower 3 pack A price" value=""></td><td><input id="f2_sizeB" type="text" inputmode="decimal" aria-label="Flower 3 pack B size" value=""></td><td><input id="f2_priceB" type="text" inputmode="decimal" aria-label="Flower 3 pack B price" value=""></td></tr>
+<tr><th scope="row">4</th><td><input id="f3_name" type="text" aria-label="Flower 4 name" value=""></td><td><input id="f3_stems" type="text" inputmode="decimal" aria-label="Flower 4 stems needed" value=""></td><td><input id="f3_sizeA" type="text" inputmode="decimal" aria-label="Flower 4 pack A size" value=""></td><td><input id="f3_priceA" type="text" inputmode="decimal" aria-label="Flower 4 pack A price" value=""></td><td><input id="f3_sizeB" type="text" inputmode="decimal" aria-label="Flower 4 pack B size" value=""></td><td><input id="f3_priceB" type="text" inputmode="decimal" aria-label="Flower 4 pack B price" value=""></td></tr>
+<tr><th scope="row">5</th><td><input id="f4_name" type="text" aria-label="Flower 5 name" value=""></td><td><input id="f4_stems" type="text" inputmode="decimal" aria-label="Flower 5 stems needed" value=""></td><td><input id="f4_sizeA" type="text" inputmode="decimal" aria-label="Flower 5 pack A size" value=""></td><td><input id="f4_priceA" type="text" inputmode="decimal" aria-label="Flower 5 pack A price" value=""></td><td><input id="f4_sizeB" type="text" inputmode="decimal" aria-label="Flower 5 pack B size" value=""></td><td><input id="f4_priceB" type="text" inputmode="decimal" aria-label="Flower 5 pack B price" value=""></td></tr>
+<tr><th scope="row">6</th><td><input id="f5_name" type="text" aria-label="Flower 6 name" value=""></td><td><input id="f5_stems" type="text" inputmode="decimal" aria-label="Flower 6 stems needed" value=""></td><td><input id="f5_sizeA" type="text" inputmode="decimal" aria-label="Flower 6 pack A size" value=""></td><td><input id="f5_priceA" type="text" inputmode="decimal" aria-label="Flower 6 pack A price" value=""></td><td><input id="f5_sizeB" type="text" inputmode="decimal" aria-label="Flower 6 pack B size" value=""></td><td><input id="f5_priceB" type="text" inputmode="decimal" aria-label="Flower 6 pack B price" value=""></td></tr>
+<tr><th scope="row">7</th><td><input id="f6_name" type="text" aria-label="Flower 7 name" value=""></td><td><input id="f6_stems" type="text" inputmode="decimal" aria-label="Flower 7 stems needed" value=""></td><td><input id="f6_sizeA" type="text" inputmode="decimal" aria-label="Flower 7 pack A size" value=""></td><td><input id="f6_priceA" type="text" inputmode="decimal" aria-label="Flower 7 pack A price" value=""></td><td><input id="f6_sizeB" type="text" inputmode="decimal" aria-label="Flower 7 pack B size" value=""></td><td><input id="f6_priceB" type="text" inputmode="decimal" aria-label="Flower 7 pack B price" value=""></td></tr>
+<tr><th scope="row">8</th><td><input id="f7_name" type="text" aria-label="Flower 8 name" value=""></td><td><input id="f7_stems" type="text" inputmode="decimal" aria-label="Flower 8 stems needed" value=""></td><td><input id="f7_sizeA" type="text" inputmode="decimal" aria-label="Flower 8 pack A size" value=""></td><td><input id="f7_priceA" type="text" inputmode="decimal" aria-label="Flower 8 pack A price" value=""></td><td><input id="f7_sizeB" type="text" inputmode="decimal" aria-label="Flower 8 pack B size" value=""></td><td><input id="f7_priceB" type="text" inputmode="decimal" aria-label="Flower 8 pack B price" value=""></td></tr>
+<tr><th scope="row">9</th><td><input id="f8_name" type="text" aria-label="Flower 9 name" value=""></td><td><input id="f8_stems" type="text" inputmode="decimal" aria-label="Flower 9 stems needed" value=""></td><td><input id="f8_sizeA" type="text" inputmode="decimal" aria-label="Flower 9 pack A size" value=""></td><td><input id="f8_priceA" type="text" inputmode="decimal" aria-label="Flower 9 pack A price" value=""></td><td><input id="f8_sizeB" type="text" inputmode="decimal" aria-label="Flower 9 pack B size" value=""></td><td><input id="f8_priceB" type="text" inputmode="decimal" aria-label="Flower 9 pack B price" value=""></td></tr>
+<tr><th scope="row">10</th><td><input id="f9_name" type="text" aria-label="Flower 10 name" value=""></td><td><input id="f9_stems" type="text" inputmode="decimal" aria-label="Flower 10 stems needed" value=""></td><td><input id="f9_sizeA" type="text" inputmode="decimal" aria-label="Flower 10 pack A size" value=""></td><td><input id="f9_priceA" type="text" inputmode="decimal" aria-label="Flower 10 pack A price" value=""></td><td><input id="f9_sizeB" type="text" inputmode="decimal" aria-label="Flower 10 pack B size" value=""></td><td><input id="f9_priceB" type="text" inputmode="decimal" aria-label="Flower 10 pack B price" value=""></td></tr>
+<tr><th scope="row">11</th><td><input id="f10_name" type="text" aria-label="Flower 11 name" value=""></td><td><input id="f10_stems" type="text" inputmode="decimal" aria-label="Flower 11 stems needed" value=""></td><td><input id="f10_sizeA" type="text" inputmode="decimal" aria-label="Flower 11 pack A size" value=""></td><td><input id="f10_priceA" type="text" inputmode="decimal" aria-label="Flower 11 pack A price" value=""></td><td><input id="f10_sizeB" type="text" inputmode="decimal" aria-label="Flower 11 pack B size" value=""></td><td><input id="f10_priceB" type="text" inputmode="decimal" aria-label="Flower 11 pack B price" value=""></td></tr>
+<tr><th scope="row">12</th><td><input id="f11_name" type="text" aria-label="Flower 12 name" value=""></td><td><input id="f11_stems" type="text" inputmode="decimal" aria-label="Flower 12 stems needed" value=""></td><td><input id="f11_sizeA" type="text" inputmode="decimal" aria-label="Flower 12 pack A size" value=""></td><td><input id="f11_priceA" type="text" inputmode="decimal" aria-label="Flower 12 pack A price" value=""></td><td><input id="f11_sizeB" type="text" inputmode="decimal" aria-label="Flower 12 pack B size" value=""></td><td><input id="f11_priceB" type="text" inputmode="decimal" aria-label="Flower 12 pack B price" value=""></td></tr>
+<tr><th scope="row">13</th><td><input id="f12_name" type="text" aria-label="Flower 13 name" value=""></td><td><input id="f12_stems" type="text" inputmode="decimal" aria-label="Flower 13 stems needed" value=""></td><td><input id="f12_sizeA" type="text" inputmode="decimal" aria-label="Flower 13 pack A size" value=""></td><td><input id="f12_priceA" type="text" inputmode="decimal" aria-label="Flower 13 pack A price" value=""></td><td><input id="f12_sizeB" type="text" inputmode="decimal" aria-label="Flower 13 pack B size" value=""></td><td><input id="f12_priceB" type="text" inputmode="decimal" aria-label="Flower 13 pack B price" value=""></td></tr>
+<tr><th scope="row">14</th><td><input id="f13_name" type="text" aria-label="Flower 14 name" value=""></td><td><input id="f13_stems" type="text" inputmode="decimal" aria-label="Flower 14 stems needed" value=""></td><td><input id="f13_sizeA" type="text" inputmode="decimal" aria-label="Flower 14 pack A size" value=""></td><td><input id="f13_priceA" type="text" inputmode="decimal" aria-label="Flower 14 pack A price" value=""></td><td><input id="f13_sizeB" type="text" inputmode="decimal" aria-label="Flower 14 pack B size" value=""></td><td><input id="f13_priceB" type="text" inputmode="decimal" aria-label="Flower 14 pack B price" value=""></td></tr>
+<tr><th scope="row">15</th><td><input id="f14_name" type="text" aria-label="Flower 15 name" value=""></td><td><input id="f14_stems" type="text" inputmode="decimal" aria-label="Flower 15 stems needed" value=""></td><td><input id="f14_sizeA" type="text" inputmode="decimal" aria-label="Flower 15 pack A size" value=""></td><td><input id="f14_priceA" type="text" inputmode="decimal" aria-label="Flower 15 pack A price" value=""></td><td><input id="f14_sizeB" type="text" inputmode="decimal" aria-label="Flower 15 pack B size" value=""></td><td><input id="f14_priceB" type="text" inputmode="decimal" aria-label="Flower 15 pack B price" value=""></td></tr>
+</tbody></table></div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Find the cheapest order</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+      <p class="note">Needs at least one flower with stems needed, a pack size and a pack price.</p>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions florists ask</h2>
+      <h3>How many flowers should I order for a wedding?</h3>
+      <p>Add up the stems in every bouquet, centrepiece and installation recipe, then add an allowance for stems that arrive damaged or are lost in conditioning. Ten percent is a common starting point for roses and more for delicate flowers. This tool adds that allowance and rounds up to the packs your wholesaler really sells.</p>
+      <h3>Is it cheaper to buy a bigger wholesale box?</h3>
+      <p>Often, but only if you can use the extra stems. The tool tries every number of big boxes and fills the rest with bunches, then returns the cheapest order that still covers what you need, and shows how many spare stems come with it.</p>
+      <h3>How much should flowers cost against the client's budget?</h3>
+      <p>Many florists aim for flowers to be around a third of what the client pays, with labour, hard goods and delivery covering the rest. Enter the client's flower budget and the tool shows your wholesale cost as a share of it.</p>
+      <h3>What does the tool not know?</h3>
+      <p>Wholesale prices change by week and season, minimum order values, delivery fees, substitutions and shelf life are yours to weigh. It does the pack arithmetic on the numbers you type.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Which wholesaler to use, this week's prices and availability, minimum order values and delivery fees, substitutions, shelf life and how early to order, and what to charge the client. Those are yours to weigh.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../wedding-florist-proposal-calculator/">wedding florist proposal calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify them against your wholesaler's invoice before you order. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, FLOWER_DEFAULTS, EXAMPLE_SHARED, EXAMPLE_FLOWERS, money, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const N = 15, SK = Object.keys(SHARED_DEFAULTS), FK = Object.keys(FLOWER_DEFAULTS);
+    const fill = () => {
+      for (const k of SK) $(k).value = EXAMPLE_SHARED[k];
+      for (let i = 0; i < N; i++) for (const k of FK) $("f" + i + "_" + k).value = (EXAMPLE_FLOWERS[i] || FLOWER_DEFAULTS)[k];
+    };
+    const readAll = () => {
+      const shared = {}; for (const k of SK) shared[k] = $(k).value;
+      const flowers = [];
+      for (let i = 0; i < N; i++) { const t = {}; for (const k of FK) t[k] = $("f" + i + "_" + k).value; flowers.push(t); }
+      return { shared, flowers };
+    };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => '<div class="scroll"><table><thead><tr>' + head.map((h, i) => "<th" + (i > 0 ? ' class="n"' : "") + ">" + h + "</th>").join("") + "</tr></thead><tbody>" + rows.map((r) => "<tr>" + r.map((c, i) => "<td" + (i > 0 ? ' class="n"' : "") + ">" + c + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+    let last = null;
+    function run() {
+      const input = readAll();
+      const a = analyze(input.flowers, input.shared);
+      let h = "";
+      for (const w of a.warnings) h += '<div class="finding"><span class="pill">Check</span> ' + esc(w) + "</div>";
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      h += '<div class="finding"><h4>Cheapest order: ' + money(a.total) + "</h4><p>" + (a.saving > 0.005 ? "That is " + money(a.saving) + " less than buying the small pack only. " : "Buying the small pack only costs the same. ") + a.spareStems + " spare stems come with it (about " + money(a.spareValue) + " of flowers)." + (a.budget ? " Wholesale cost is " + Math.round(a.flowerCostPct * 100) + "% of the " + money(a.budget) + " flower budget." : "") + "</p></div>";
+      h += '<div class="finding"><h4>What to order</h4>' + table(["Flower", "Stems to cover", "Pack A", "Pack B", "Spare", "Cost"], a.lines.map((l) => [esc(l.name), l.stemsToCover, l.packA + " × " + l.sizeA, l.packB ? l.packB + " × " + l.sizeB : "–", l.spare, money(l.cost)])) + "</div>";
+      h += '<p><button type="button" class="secondary" id="csv">Download order (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "flower-order.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>
