@@ -363,6 +363,8 @@ export const REVIEWED_NOT_CARRIED = {
     'the clinician wage and payroll-extras percentage price the fitting and follow-up minutes on each hearing aid sale, not a shop labour rate for a job quote; there is no overhead-on-cost field, fixed costs are a monthly dollar total, and the target margin is a share of what the patient and plan pay.',
   'optical-dispensary-margin-calculator':
     'the optician wage and payroll-extras percentage price the minutes spent on each eyeglass sale, not a shop labour rate for a job quote; there is no overhead-on-cost field, fixed costs are a monthly dollar total, and the target margin is a share of what the patient and plan pay.',
+  'provider-credentialing-delay-cost-calculator':
+    'it prices the revenue blocked while a new clinician waits for payer enrollment from visits, allowed amounts and delay days the user types; weekly pay is a cost line for the gap, not a shop labour rate for a job quote, and there is no overhead-on-cost or markup field.',
   'therapy-8-minute-rule-calculator':
     'the tool counts billable units from timed minutes and prices them at allowed amounts per unit the user types; there is no labour rate, overhead or markup, and no shop rate for a job quote.',
   'fitness-studio-membership-calculator':
