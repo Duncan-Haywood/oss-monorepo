@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 918 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 919 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -22,6 +22,14 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free ghostwriter quote calculator: build a book fee from drafting, interview, research and revision hours, add confidentiality and rush premiums, see per-word and per-page rates, a payment schedule and what a client&#39;s lower budget really pays you. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Hard Money Loan Cost Calculator: Compare Two Lenders on a Flip — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hard-money-loan-cost-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/hard-money-loan-cost-calculator</id>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free hard money loan calculator for house flippers: compare two lenders on interest, points, draw fees, minimum interest and extension fees, see the effective annual rate, your profit, and the hold length where the cheaper lender changes. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Pet Sitting Platform Fee Calculator: Rover and Wag vs Direct — Free</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-08T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free crop insurance coverage level calculator for farmers: compare 70, 75, 80 and 85 percent RP, RP-HPE or YP using your agent&#39;s quoted premiums. See the guarantee, break-even yield, what each extra 5 points costs and your net across yield and price scenarios. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Escape Room Pricing and Capacity Planner — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/escape-room-pricing-capacity-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/escape-room-pricing-capacity-planner</id>
-    <updated>2026-10-08T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free escape room pricing calculator: rooms, hours, game and reset length, price per player, occupancy and costs in; monthly profit, break-even occupancy, best price per player and build-cost payback out. Nothing uploaded.</summary>
   </entry>
 </feed>
