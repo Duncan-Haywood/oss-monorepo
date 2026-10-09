@@ -1436,7 +1436,8 @@ const RELATIVE_SELF = relative(
 // +1: `charity-bunching-planner` graduated.
 // +1: `hsa-shoebox-reimbursement-planner` graduated.
 // +1: `cd-treasury-ladder-planner` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 892;
+// +1: `cron-heartbeat` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 893;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.

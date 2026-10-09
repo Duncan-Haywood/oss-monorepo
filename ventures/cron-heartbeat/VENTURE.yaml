@@ -1,0 +1,59 @@
+name: cron-heartbeat
+description: >-
+  Free dead-man's-switch monitoring for cron jobs: a browser tool that turns a
+  pasted crontab into next runs, a grace period, a success/failure-reporting
+  command line and a config, plus a zero-dependency self-hosted Node monitor
+  that alerts a webhook or ntfy topic when a job goes quiet or fails.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08. Paid market is real: Healthchecks.io, Cronitor, Dead Man's
+# Snitch and Better Stack heartbeats charge roughly $5-30 a month and gate the
+# useful limits (check count, alert channels) behind plans. A self-hostable
+# single file with a crontab-to-config helper serves the developer who will not
+# pay per check and will not run a Django app.
+# duplicate_check.py top score 0.20 (vendor-watch, a page differ, not a job
+# monitor).
+#
+# First visitor: sysadmins and indie developers on r/selfhosted, r/sysadmin,
+# r/devops and Hacker News asking "how do I know my cron job ran", "cron
+# monitoring self hosted", "healthchecks.io alternative", "dead man's switch cron".
+# Volume not measured with an external tool.
+#
+# Path to revenue (payments stay off): free tool and open-source monitor as a
+# lead magnet; if repeat use shows up, a hosted version with email alerts and a
+# status page is the natural paid step -- owner-gated (billing, hosting under
+# the public name).
+
+hypotheses:
+  - claim: >-
+      Developers who run a handful of cron jobs on their own boxes will paste a
+      crontab into a private browser tool and then actually self-host the
+      monitor, because the free hosted tiers cap check count and alert channels.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Reporting exit status (the /fail ping) rather than only silence is what
+      makes users keep the wrapped lines in their crontab after the first week.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a missed alert or a wrong next-run time, at which point the scheduler maths or the alert state machine needs revisiting before anything else.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/cron-heartbeat/
+  analytics: null
