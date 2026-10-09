@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Food Truck Prep Mix Optimizer: Best Portions per Item — Free</title>
+  <meta name="description" content="Free food truck prep mix optimizer: enter prices, food costs, prep minutes, grill time and ingredient cash per menu item to find how many portions earn the most, and what an extra prep minute is worth. Nothing uploaded.">
+  <meta property="og:title" content="Food truck prep mix optimizer">
+  <meta property="og:description" content="How many of each item should you prep? The exact contribution-maximising plan under labor, station and cash limits, versus your plan. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23166534'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Food Truck Prep Mix Optimizer","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Find how many portions of each menu item to prep to earn the most, given prep minutes, grill or fryer minutes, ingredient cash and expected demand. Runs in your browser.","featureList":"Optimal prep quantities, current-vs-best comparison, shadow prices for labor, equipment and cash, break-even contribution for left-out items, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many portions of each menu item should I prep?","acceptedAnswer":{"@type":"Answer","text":"Rank items by contribution (price after card fees, minus food cost), then prep the best one until a limit stops you: prep labor minutes, grill or fryer minutes, ingredient cash, or the demand you expect. When a limit binds, the answer changes, because a lower-priced item can earn more per scarce minute. The tool solves this exactly as a linear program."}},{"@type":"Question","name":"What is a shadow price here?","acceptedAnswer":{"@type":"Answer","text":"It is what one more unit of a limit is worth: one more prep minute, one more grill or fryer minute, or one more dollar of ingredient cash. If prep time shows $3.75 a minute, paying a helper less than $225 an hour for that time raises profit that service."}},{"@type":"Question","name":"Why does a popular item get zero portions?","acceptedAnswer":{"@type":"Answer","text":"Because minutes or dollars are better spent elsewhere. The tool shows the contribution per portion that item would need, everything else unchanged, before it earns a place."}},{"@type":"Question","name":"Does it handle waste, spoilage or leftovers?","acceptedAnswer":{"@type":"Answer","text":"Only through the ceiling you set per item. Enter the portions you expect to sell, not the most you could make. Leftover value, spoilage, queue length and weather are yours to judge."}},{"@type":"Question","name":"Is this food-safety, legal or financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on prices, costs and times you type. Food-safety rules, permits and taxes vary by place; check them with the right authority or a qualified advisor."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">FOOD TRUCK PREP MIX OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How many of each menu item should I prep?</h1>
+    <p>Type your prep minutes, grill or fryer minutes and ingredient cash, then each item's price, food cost, times and expected demand. The tool finds the prep plan with the highest contribution, compares it with your current plan, and prices one more prep minute, station minute and ingredient dollar.</p>
+    <p class="note">Arithmetic on figures you type. Not food-safety, legal, tax or financial advice. The example figures are placeholders, not any truck's prices, costs or times.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-s">
+      <h2 id="h-s">The service</h2>
+      <div class="grid">
+        <div><label for="laborMinutes">Prep labor minutes</label><input id="laborMinutes" type="number" step="any" value="0"><p class="note">Total crew minutes available to prep for this service. Zero means no limit.</p></div>
+        <div><label for="equipMinutes">Grill / fryer minutes</label><input id="equipMinutes" type="number" step="any" value="0"><p class="note">Minutes your busiest station can run. Zero means no limit.</p></div>
+        <div><label for="cash">Ingredient cash ($)</label><input id="cash" type="number" step="any" value="0"><p class="note">What you can spend on ingredients for this service. Zero means no limit.</p></div>
+        <div><label for="cardFeePct">Card fee (%)</label><input id="cardFeePct" type="number" step="any" value="0"><p class="note">Share of each sale lost to card processing.</p></div>
+        <div><label for="fixedCost">Fixed cost for the service ($)</label><input id="fixedCost" type="number" step="any" value="0"><p class="note">Pitch fee, commissary, fuel; it does not change the plan, only the total.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t0">
+      <h2 id="h-t0">Menu item 1</h2>
+      <div class="grid">
+        <div><label for="t0_name">Menu item</label><input id="t0_name" type="text" step="any" value=""></div>
+        <div><label for="t0_price">Price per portion ($)</label><input id="t0_price" type="number" step="any" value="0"><p class="note">What the customer pays.</p></div>
+        <div><label for="t0_foodCost">Food cost per portion ($)</label><input id="t0_foodCost" type="number" step="any" value="0"><p class="note">Ingredients and packaging.</p></div>
+        <div><label for="t0_prepMinutes">Prep minutes per portion</label><input id="t0_prepMinutes" type="number" step="any" value="0"><p class="note">Crew minutes in the tightest prep window.</p></div>
+        <div><label for="t0_equipMinutes">Grill / fryer minutes per portion</label><input id="t0_equipMinutes" type="number" step="any" value="0"><p class="note">Zero if it needs no station time.</p></div>
+        <div><label for="t0_minPortions">Fewest portions</label><input id="t0_minPortions" type="number" step="any" value="0"><p class="note">Pre-orders or must-have items.</p></div>
+        <div><label for="t0_maxPortions">Most portions</label><input id="t0_maxPortions" type="number" step="any" value="0"><p class="note">Demand you expect. Zero means no limit.</p></div>
+        <div><label for="t0_current">Portions in your current plan</label><input id="t0_current" type="number" step="any" value="0"><p class="note">Leave zero if you have no plan to compare.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t1">
+      <h2 id="h-t1">Menu item 2</h2>
+      <div class="grid">
+        <div><label for="t1_name">Menu item</label><input id="t1_name" type="text" step="any" value=""></div>
+        <div><label for="t1_price">Price per portion ($)</label><input id="t1_price" type="number" step="any" value="0"><p class="note">What the customer pays.</p></div>
+        <div><label for="t1_foodCost">Food cost per portion ($)</label><input id="t1_foodCost" type="number" step="any" value="0"><p class="note">Ingredients and packaging.</p></div>
+        <div><label for="t1_prepMinutes">Prep minutes per portion</label><input id="t1_prepMinutes" type="number" step="any" value="0"><p class="note">Crew minutes in the tightest prep window.</p></div>
+        <div><label for="t1_equipMinutes">Grill / fryer minutes per portion</label><input id="t1_equipMinutes" type="number" step="any" value="0"><p class="note">Zero if it needs no station time.</p></div>
+        <div><label for="t1_minPortions">Fewest portions</label><input id="t1_minPortions" type="number" step="any" value="0"><p class="note">Pre-orders or must-have items.</p></div>
+        <div><label for="t1_maxPortions">Most portions</label><input id="t1_maxPortions" type="number" step="any" value="0"><p class="note">Demand you expect. Zero means no limit.</p></div>
+        <div><label for="t1_current">Portions in your current plan</label><input id="t1_current" type="number" step="any" value="0"><p class="note">Leave zero if you have no plan to compare.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t2">
+      <h2 id="h-t2">Menu item 3</h2>
+      <div class="grid">
+        <div><label for="t2_name">Menu item</label><input id="t2_name" type="text" step="any" value=""></div>
+        <div><label for="t2_price">Price per portion ($)</label><input id="t2_price" type="number" step="any" value="0"><p class="note">What the customer pays.</p></div>
+        <div><label for="t2_foodCost">Food cost per portion ($)</label><input id="t2_foodCost" type="number" step="any" value="0"><p class="note">Ingredients and packaging.</p></div>
+        <div><label for="t2_prepMinutes">Prep minutes per portion</label><input id="t2_prepMinutes" type="number" step="any" value="0"><p class="note">Crew minutes in the tightest prep window.</p></div>
+        <div><label for="t2_equipMinutes">Grill / fryer minutes per portion</label><input id="t2_equipMinutes" type="number" step="any" value="0"><p class="note">Zero if it needs no station time.</p></div>
+        <div><label for="t2_minPortions">Fewest portions</label><input id="t2_minPortions" type="number" step="any" value="0"><p class="note">Pre-orders or must-have items.</p></div>
+        <div><label for="t2_maxPortions">Most portions</label><input id="t2_maxPortions" type="number" step="any" value="0"><p class="note">Demand you expect. Zero means no limit.</p></div>
+        <div><label for="t2_current">Portions in your current plan</label><input id="t2_current" type="number" step="any" value="0"><p class="note">Leave zero if you have no plan to compare.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t3">
+      <h2 id="h-t3">Menu item 4</h2>
+      <div class="grid">
+        <div><label for="t3_name">Menu item</label><input id="t3_name" type="text" step="any" value=""></div>
+        <div><label for="t3_price">Price per portion ($)</label><input id="t3_price" type="number" step="any" value="0"><p class="note">What the customer pays.</p></div>
+        <div><label for="t3_foodCost">Food cost per portion ($)</label><input id="t3_foodCost" type="number" step="any" value="0"><p class="note">Ingredients and packaging.</p></div>
+        <div><label for="t3_prepMinutes">Prep minutes per portion</label><input id="t3_prepMinutes" type="number" step="any" value="0"><p class="note">Crew minutes in the tightest prep window.</p></div>
+        <div><label for="t3_equipMinutes">Grill / fryer minutes per portion</label><input id="t3_equipMinutes" type="number" step="any" value="0"><p class="note">Zero if it needs no station time.</p></div>
+        <div><label for="t3_minPortions">Fewest portions</label><input id="t3_minPortions" type="number" step="any" value="0"><p class="note">Pre-orders or must-have items.</p></div>
+        <div><label for="t3_maxPortions">Most portions</label><input id="t3_maxPortions" type="number" step="any" value="0"><p class="note">Demand you expect. Zero means no limit.</p></div>
+        <div><label for="t3_current">Portions in your current plan</label><input id="t3_current" type="number" step="any" value="0"><p class="note">Leave zero if you have no plan to compare.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t4">
+      <h2 id="h-t4">Menu item 5</h2>
+      <div class="grid">
+        <div><label for="t4_name">Menu item</label><input id="t4_name" type="text" step="any" value=""></div>
+        <div><label for="t4_price">Price per portion ($)</label><input id="t4_price" type="number" step="any" value="0"><p class="note">What the customer pays.</p></div>
+        <div><label for="t4_foodCost">Food cost per portion ($)</label><input id="t4_foodCost" type="number" step="any" value="0"><p class="note">Ingredients and packaging.</p></div>
+        <div><label for="t4_prepMinutes">Prep minutes per portion</label><input id="t4_prepMinutes" type="number" step="any" value="0"><p class="note">Crew minutes in the tightest prep window.</p></div>
+        <div><label for="t4_equipMinutes">Grill / fryer minutes per portion</label><input id="t4_equipMinutes" type="number" step="any" value="0"><p class="note">Zero if it needs no station time.</p></div>
+        <div><label for="t4_minPortions">Fewest portions</label><input id="t4_minPortions" type="number" step="any" value="0"><p class="note">Pre-orders or must-have items.</p></div>
+        <div><label for="t4_maxPortions">Most portions</label><input id="t4_maxPortions" type="number" step="any" value="0"><p class="note">Demand you expect. Zero means no limit.</p></div>
+        <div><label for="t4_current">Portions in your current plan</label><input id="t4_current" type="number" step="any" value="0"><p class="note">Leave zero if you have no plan to compare.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t5">
+      <h2 id="h-t5">Menu item 6</h2>
+      <div class="grid">
+        <div><label for="t5_name">Menu item</label><input id="t5_name" type="text" step="any" value=""></div>
+        <div><label for="t5_price">Price per portion ($)</label><input id="t5_price" type="number" step="any" value="0"><p class="note">What the customer pays.</p></div>
+        <div><label for="t5_foodCost">Food cost per portion ($)</label><input id="t5_foodCost" type="number" step="any" value="0"><p class="note">Ingredients and packaging.</p></div>
+        <div><label for="t5_prepMinutes">Prep minutes per portion</label><input id="t5_prepMinutes" type="number" step="any" value="0"><p class="note">Crew minutes in the tightest prep window.</p></div>
+        <div><label for="t5_equipMinutes">Grill / fryer minutes per portion</label><input id="t5_equipMinutes" type="number" step="any" value="0"><p class="note">Zero if it needs no station time.</p></div>
+        <div><label for="t5_minPortions">Fewest portions</label><input id="t5_minPortions" type="number" step="any" value="0"><p class="note">Pre-orders or must-have items.</p></div>
+        <div><label for="t5_maxPortions">Most portions</label><input id="t5_maxPortions" type="number" step="any" value="0"><p class="note">Demand you expect. Zero means no limit.</p></div>
+        <div><label for="t5_current">Portions in your current plan</label><input id="t5_current" type="number" step="any" value="0"><p class="note">Leave zero if you have no plan to compare.</p></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Find the best plan</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+      <p class="note">Leave an item's price at zero to leave it out.</p>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions truck owners ask</h2>
+      <h3>How many portions of each menu item should I prep?</h3>
+      <p>Rank items by contribution (price after card fees, minus food cost), then prep the best one until a limit stops you: prep labor minutes, grill or fryer minutes, ingredient cash, or the demand you expect. When a limit binds, the answer changes, because a lower-priced item can earn more per scarce minute. The tool solves this exactly as a linear program.</p>
+      <h3>What is a shadow price here?</h3>
+      <p>It is what one more unit of a limit is worth: one more prep minute, one more grill or fryer minute, or one more dollar of ingredient cash. If prep time shows $3.75 a minute, paying a helper less than $225 an hour for that time raises profit that service.</p>
+      <h3>Why does a popular item get zero portions?</h3>
+      <p>Because minutes or dollars are better spent elsewhere. The tool shows the contribution per portion that item would need, everything else unchanged, before it earns a place.</p>
+      <h3>Does it handle waste, spoilage or leftovers?</h3>
+      <p>Only through the ceiling you set per item. Enter the portions you expect to sell, not the most you could make. Leftover value, spoilage, queue length and weather are yours to judge.</p>
+      <h3>Is this food-safety, legal or financial advice?</h3>
+      <p>No. It is arithmetic on prices, costs and times you type. Food-safety rules, permits and taxes vary by place; check them with the right authority or a qualified advisor.</p>
+      
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your demand estimates will hold, waste and leftovers, food safety and holding times, permits, queue length, weather, taxes and financing. Each item is treated as one uniform portion with a fixed contribution.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../food-truck-event-margin-calculator/">food truck event margin calculator</a>, the <a href="../recipe-costing-calculator/">recipe costing calculator</a> and the <a href="../restaurant-pos-menu-mix-analyzer/">menu mix analyzer</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you buy, prep or price anything.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, ITEM_DEFAULTS, EXAMPLE_SHARED, EXAMPLE_ITEMS, money, money2, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const N = 6, SKEYS = Object.keys(SHARED_DEFAULTS), TKEYS = Object.keys(ITEM_DEFAULTS);
+    const fill = () => {
+      for (const k of SKEYS) $(k).value = EXAMPLE_SHARED[k];
+      for (let i = 0; i < N; i++) for (const k of TKEYS) $("t" + i + "_" + k).value = (EXAMPLE_ITEMS[i] || ITEM_DEFAULTS)[k];
+    };
+    const readAll = () => {
+      const shared = {}; for (const k of SKEYS) shared[k] = $(k).value;
+      const items = []; for (let i = 0; i < N; i++) { const t = {}; for (const k of TKEYS) t[k] = $("t" + i + "_" + k).value; items.push(t); }
+      return { shared, items };
+    };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const ac = (n) => (Math.round(n * 10) / 10).toLocaleString("en-US");
+    let last = null;
+    function run() {
+      const { shared, items } = readAll();
+      const a = analyze(items, shared);
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      const vs = a.hasCurrent ? ` Your plan earns ${money(a.current.net)}, so the best plan is ${a.gain > 0.5 ? money(a.gain) + " better" : "no better"}.` : "";
+      h += `<div class="finding"><h4>Best plan: ${money(a.best.net)} after card fees, food cost and fixed cost</h4><p>${ac(a.best.units)} portions, ${money(a.best.revenue)} in sales, ${ac(a.best.labor)} prep minutes, ${ac(a.best.equip)} station minutes, ${money(a.best.cash)} of ingredients.${vs}</p></div>`;
+      h += `<div class="finding"><h4>Portions by item</h4>${table(["Item", "Contribution / portion", "Your plan", "Best plan", "Change", "Note"], a.rows.map((r) => [esc(r.name), money2(r.margin), ac(r.current), ac(r.optimal), (r.change > 0 ? "+" : "") + ac(r.change), r.atCeiling ? "at your demand limit" : r.needs ? "needs " + money2(r.needs) + " / portion to earn a place" : ""]))}</div>`;
+      const parts = [];
+      if (a.shadow.labor > 1e-6) parts.push(`one more prep minute is worth ${money2(a.shadow.labor)}`);
+      if (a.shadow.equip > 1e-6) parts.push(`one more grill or fryer minute is worth ${money2(a.shadow.equip)}`);
+      if (a.shadow.cash > 1e-6) parts.push(`one more dollar of ingredient cash returns ${money2(a.shadow.cash)}`);
+      h += `<div class="finding"><h4>What the limits cost you</h4><p>${parts.length ? "At the margin, " + parts.join("; ") + ". Compare these with what a helper, a second station or more cash would cost." : "None of your limits binds: your demand estimates stop the plan first."}</p></div>`;
+      h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "prep-mix.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+        fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>
