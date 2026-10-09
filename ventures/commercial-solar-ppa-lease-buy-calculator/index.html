@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Commercial Solar: Buy vs PPA vs Lease Calculator — Free</title>
+  <meta name="description" content="Free calculator for businesses, farms, nonprofits and landlords: compare buying commercial solar, a PPA and a lease on one set of after-tax cash flows. NPV, payback, break-even PPA rate and utility escalation sensitivity. Nothing uploaded.">
+  <meta property="og:title" content="Commercial solar: buy vs PPA vs lease">
+  <meta property="og:description" content="Put a purchase quote, a PPA quote and a lease quote on the same cash-flow footing. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Commercial Solar: Buy vs PPA vs Lease Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare buying, a PPA and a lease for commercial solar on one set of after-tax cash flows: NPV, payback, IRR, break-even PPA rate and a utility-escalation sensitivity. Runs in your browser.", "featureList": "Buy vs PPA vs lease NPV, payback and IRR, break-even PPA rate, utility escalation sensitivity, tax credit and MACRS depreciation inputs, loan option, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should a business buy solar, sign a PPA or lease?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on tax appetite, cash and how fast your utility rate rises. Buying earns the tax credit and depreciation if you can use them and has the highest long-run return. A PPA or lease needs no cash up front and is often simpler, but the provider keeps the credit and prices it into your rate. This tool puts all three on one set of annual cash flows so you can compare net present value, payback and year-1 cash."}}, {"@type": "Question", "name": "What is the PPA rate at which buying stops being better?", "acceptedAnswer": {"@type": "Answer", "text": "The break-even PPA rate is the starting $/kWh, with your escalator, at which a PPA has the same net present value as buying. If a quote is below it, the PPA is the better deal on these numbers. If it is above, buying is. It moves with the utility escalation you assume, so check the sensitivity table."}}, {"@type": "Question", "name": "Why does the utility escalation matter so much?", "acceptedAnswer": {"@type": "Answer", "text": "Every kWh the system produces is a kWh you do not buy at next year's rate. A fixed-price PPA or buy locks in the cost while the avoided utility price rises, so higher escalation favors the options with less annual outflow relative to savings. The table re-runs the comparison at 0, 2, 4 and 6%."}}, {"@type": "Question", "name": "What happens after the PPA or lease term?", "acceptedAnswer": {"@type": "Answer", "text": "Contracts differ: renew, buy out at fair market value, or remove the system. The tool assumes you buy it out at a percentage of the installed cost that you choose and then run it yourself. Set the buyout to match your contract."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">COMMERCIAL SOLAR: BUY VS PPA VS LEASE · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Buy, PPA or lease: which commercial solar quote is actually best?</h1>
+    <p>Installers quote a price, a $/kWh PPA with an escalator, and a monthly lease, and each looks good alone. Type the three quotes and your utility rate. The tool puts them on the same after-tax annual cash flows and reports net present value, payback, the PPA rate at which buying stops winning, and how the answer changes if your utility raises rates faster or slower.</p>
+    <p class="note">Arithmetic on the numbers you type. Not tax, legal or financial advice. The values shown are placeholder data, not any real quote, and installer quotes you receive will differ.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">Project</h2>
+      <div class="grid">
+        <div><label for="kw">System size (kW DC)</label><input id="kw" type="text" value=""></div>
+        <div><label for="costPerW">Installed cost ($/W)</label><input id="costPerW" type="text" value=""><p class="note">Quote total divided by watts.</p></div>
+        <div><label for="yield">Annual production (kWh per kW)</label><input id="yield" type="text" value=""><p class="note">From the quote's production estimate. 1,100-1,600 across most of the US.</p></div>
+        <div><label for="degr">Panel degradation (%/yr)</label><input id="degr" type="text" value=""></div>
+        <div><label for="years">Years to analyze</label><input id="years" type="text" value=""><p class="note">5 to 40.</p></div>
+        <div><label for="disc">Discount rate (%)</label><input id="disc" type="text" value=""><p class="note">Your cost of capital, or what the cash would earn elsewhere.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">Your utility</h2>
+      <div class="grid">
+        <div><label for="util">Utility rate ($/kWh)</label><input id="util" type="text" value=""><p class="note">Blended energy plus demand charge cost per kWh the system offsets.</p></div>
+        <div><label for="utilEsc">Utility rate escalation (%/yr)</label><input id="utilEsc" type="text" value=""><p class="note">The biggest swing factor. The table below re-runs 0, 2, 4 and 6%.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">Buying</h2>
+      <div class="grid">
+        <div><label for="om">Operations and maintenance ($/kW-yr)</label><input id="om" type="text" value=""><p class="note">Grows 2% a year.</p></div>
+        <div><label for="inverter">Inverter replacement in year 12 ($/kW)</label><input id="inverter" type="text" value=""></div>
+        <div><label for="itc">Tax credit (% of cost)</label><input id="itc" type="text" value=""><p class="note">Type what your tax advisor says applies, or 0.</p></div>
+        <div><label for="stateIncent">Upfront rebate or grant ($)</label><input id="stateIncent" type="text" value=""></div>
+        <div><label for="taxRate">Your income tax rate (%)</label><input id="taxRate" type="text" value=""><p class="note">0 for a tax-exempt owner. Credits and depreciation are ignored at 0.</p></div>
+        <div><label for="macrs">Depreciate over 5 years (MACRS)?</label><select id="macrs"><option value="yes">Yes</option><option value="no">No</option></select></div>
+        <div><label for="financed">Share financed (%)</label><input id="financed" type="text" value=""></div>
+        <div><label for="apr">Loan APR (%)</label><input id="apr" type="text" value=""></div>
+        <div><label for="loanYears">Loan term (years)</label><input id="loanYears" type="text" value=""></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-3">
+      <h2 id="h-3">PPA quote</h2>
+      <div class="grid">
+        <div><label for="ppaRate">PPA starting rate ($/kWh)</label><input id="ppaRate" type="text" value=""></div>
+        <div><label for="ppaEsc">PPA escalator (%/yr)</label><input id="ppaEsc" type="text" value=""></div>
+        <div><label for="ppaTerm">PPA term (years)</label><input id="ppaTerm" type="text" value=""></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-4">
+      <h2 id="h-4">Lease quote</h2>
+      <div class="grid">
+        <div><label for="leasePay">Lease payment ($/month)</label><input id="leasePay" type="text" value=""></div>
+        <div><label for="leaseEsc">Lease escalator (%/yr)</label><input id="leaseEsc" type="text" value=""></div>
+        <div><label for="leaseTerm">Lease term (years)</label><input id="leaseTerm" type="text" value=""></div>
+        <div><label for="buyout">Buyout at end of PPA or lease (% of installed cost)</label><input id="buyout" type="text" value=""><p class="note">Then you own and run the system.</p></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Compare the three options</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Should a business buy solar, sign a PPA or lease?</h3>
+      <p>It depends on tax appetite, cash and how fast your utility rate rises. Buying earns the tax credit and depreciation if you can use them and has the highest long-run return. A PPA or lease needs no cash up front and is often simpler, but the provider keeps the credit and prices it into your rate. This tool puts all three on one set of annual cash flows so you can compare net present value, payback and year-1 cash.</p>
+      <h3>What is the PPA rate at which buying stops being better?</h3>
+      <p>The break-even PPA rate is the starting $/kWh, with your escalator, at which a PPA has the same net present value as buying. If a quote is below it, the PPA is the better deal on these numbers. If it is above, buying is. It moves with the utility escalation you assume, so check the sensitivity table.</p>
+      <h3>Why does the utility escalation matter so much?</h3>
+      <p>Every kWh the system produces is a kWh you do not buy at next year's rate. A fixed-price PPA or buy locks in the cost while the avoided utility price rises, so higher escalation favors the options with less annual outflow relative to savings. The table re-runs the comparison at 0, 2, 4 and 6%.</p>
+      <h3>What happens after the PPA or lease term?</h3>
+      <p>Contracts differ: renew, buy out at fair market value, or remove the system. The tool assumes you buy it out at a percentage of the installed cost that you choose and then run it yourself. Set the buyout to match your contract.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether you qualify for any tax credit or depreciation, current law and construction-start rules, who may claim the credit under a lease or PPA, state and utility net-metering or demand-charge rules, interconnection, roof condition, insurance, fair market value of an end-of-term buyout, or the accounting treatment of a lease. Take the percentages from your tax advisor and the terms from the contract, and have a professional review any agreement before you sign.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../solar-payback-calculator/">home solar payback calculator</a>, the <a href="../solar-pv-bid-calculator/">solar PV bid calculator</a> and the <a href="../bonus-depreciation-calculator/">bonus depreciation calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before relying on them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in your browser's local storage, honour Do Not Track, and can be switched off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, EXAMPLE_SHARED, money, cents, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(SHARED_DEFAULTS);
+    const NAMES = { buy: "Buy", ppa: "PPA", lease: "Lease" };
+    const fill = () => { for (const k of KEYS) $(k).value = EXAMPLE_SHARED[k]; };
+    const readAll = () => { const o = {}; for (const k of KEYS) o[k] = $(k).value; return o; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => '<div class="scroll"><table><thead><tr>' + head.map((h, i) => "<th" + (i > 0 ? ' class="n"' : "") + ">" + h + "</th>").join("") + "</tr></thead><tbody>" + rows.map((r) => "<tr>" + r.map((c, i) => "<td" + (i > 0 ? ' class="n"' : "") + ">" + c + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+    const pb = (o) => (o.payback == null ? (o.upfront > 0 ? "not within the period" : "no cash up front") : (Math.round(o.payback * 10) / 10) + " yr");
+    let last = null;
+    function run() {
+      const a = analyze(readAll());
+      let h = "";
+      for (const w of a.warnings) h += '<div class="finding"><span class="pill">Check</span> ' + esc(w) + "</div>";
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      const o = a.opts, b = a.best, second = Object.entries(o).filter(([k]) => k !== b).sort((x, y) => y[1].npv - x[1].npv)[0];
+      h += '<div class="finding"><h4>Highest net present value: ' + NAMES[b] + " (" + money(o[b].npv) + ")</h4><p>" + NAMES[second[0]] + " is next, " + money(o[b].npv - second[1].npv) + " behind, over " + a.v.years + " years at a " + a.v.disc + "% discount rate. NPV is against paying the utility instead.</p></div>";
+      h += '<div class="finding"><h4>Side by side</h4>' + table(["", "Buy", "PPA", "Lease"], [
+        ["Cash up front", money(o.buy.upfront), money(o.ppa.upfront), money(o.lease.upfront)],
+        ["Year-1 cash flow", money(o.buy.year1), money(o.ppa.year1), money(o.lease.year1)],
+        ["Net cash over " + a.v.years + " yr", money(o.buy.total), money(o.ppa.total), money(o.lease.total)],
+        ["NPV", money(o.buy.npv), money(o.ppa.npv), money(o.lease.npv)],
+        ["Payback", pb(o.buy), pb(o.ppa), pb(o.lease)],
+        ["IRR", o.buy.irr == null ? "—" : (o.buy.irr * 100).toFixed(1) + "%", "—", "—"],
+      ]) + "<p class=\"note\">Buy year 1 includes the tax credit you entered. Cash flows are after tax at your rate.</p></div>";
+      h += '<div class="finding"><h4>Break-even PPA rate</h4><p>' + (a.breakeven.rate == null ? esc(a.breakeven.why) : "A PPA starting below " + cents(a.breakeven.rate) + "/kWh (with your " + a.v.ppaEsc + "% escalator) beats buying on these numbers; above it, buying wins. Your quote is " + cents(a.v.ppaRate) + ".") + "</p></div>";
+      h += '<div class="finding"><h4>If the utility escalation is different (NPV)</h4>' + table(["Utility escalation", "Buy", "PPA", "Lease", "Best"], a.sens.map((s) => [s.esc + "%/yr", money(s.buy), money(s.ppa), money(s.lease), NAMES[s.best]])) + "</div>";
+      h += '<p><button type="button" class="secondary" id="csv">Download cash flows (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "solar-buy-ppa-lease.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

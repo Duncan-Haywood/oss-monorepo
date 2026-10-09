@@ -1479,7 +1479,8 @@ const RELATIVE_SELF = relative(
 // +1: `saas-feature-packaging-optimizer` graduated.
 // +1: `pto-accrual-liability-calculator` graduated.
 // +1: `car-hauler-load-planner` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 939;
+// +1: `commercial-solar-ppa-lease-buy-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 940;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
