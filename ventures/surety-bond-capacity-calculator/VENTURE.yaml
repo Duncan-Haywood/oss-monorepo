@@ -1,0 +1,57 @@
+name: surety-bond-capacity-calculator
+description: >-
+  Free browser tool for contractors who bid bonded public and private work: enter working capital, your surety's rate schedule,
+  current bonded jobs and up to six bids, and get each bid priced so the performance and payment bond premium is recovered and
+  the margin is real, the single-job and aggregate bonding limits checked, the first month each job fits as current work burns
+  down, the working capital each bid needs, and the set of bids to submit that maximises expected profit while keeping the chance
+  of winning more than the aggregate limit within your tolerance. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session after finding the three stranded finished ventures (proposal-maker,
+# tile-layout-optimizer, mileage-deduction-calculator) were duplicates of freelance-proposal-maker, tile-layout-planner and
+# mileage-deduction-method-calculator already on main, so none was landed. duplicate_check.py: closest rows were
+# osha-trir-dart-calculator 0.29 and contractor-wip-schedule 0.28 (a WIP schedule reports over/under billing; it does not price a
+# bond or test a bid against a surety limit). Ideas dropped first because the tree has them: str-nightly-rate-optimizer (0.57),
+# economic-nexus-threshold-tracker (0.82), certified-payroll-calculator (0.85), appointment-overbooking-optimizer (0.50).
+#
+# Why this niche: a contractor who bids public work needs bid, performance and payment bonds, and the surety's limits (often a
+# multiple of working capital) decide how much work can be under contract at once. Small and growing contractors discover this
+# at award time. The bond is a share of a price that already includes it, so it is routinely under-priced, and the choice of
+# which bids to submit when winning all of them would break the aggregate limit is a small stochastic knapsack that nobody does
+# by hand. Surety agents sell a service; they do not give contractors a free what-if tool.
+#
+# First visitor: contractors searching "bid bond cost", "performance bond cost calculator", "bonding capacity calculator",
+# "how much work can I bond"; construction subreddits, small-contractor and minority-contractor associations, SBA surety bond
+# guarantee program outreach. Volume not measured.
+#
+# Liability boundary: arithmetic on typed figures with placeholder rates; not bonding or financial advice; nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural front end for a referral to surety agencies or
+# a paid bid-pipeline and WIP tracker.
+
+hypotheses:
+  - claim: >-
+      Contractors who bid bonded work will use a free tool that turns their working capital and quoted rates into a bond-inclusive
+      bid price and a submit-or-skip plan, and will return when a bid or a job changes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/surety-bond-capacity-calculator/
+  analytics: null
