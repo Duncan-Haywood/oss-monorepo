@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 962 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 963 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -144,6 +144,14 @@
     <summary type="text">Free farm crop mix optimizer: enter yields, prices, costs, labor hours and operating capital per crop to find the acres that earn the most, and see what an extra acre, labor hour or dollar of capital is worth. Nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>FERS Retirement Planner: Pension, Supplement and TSP by Retirement Age — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fers-retirement-planner/"/>
+    <id>tag:marisstella.dev,2026:tool/fers-retirement-planner</id>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free FERS retirement calculator for federal employees: your pension, the Special Retirement Supplement and TSP income at every retirement age, MRA+10 reduction, the 1.1% multiplier at 62, sick leave credit and survivor cost. Runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Food Truck Prep Mix Optimizer: Best Portions per Item — Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/food-truck-prep-mix-optimizer/"/>
     <id>tag:marisstella.dev,2026:tool/food-truck-prep-mix-optimizer</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free tool for ghost kitchens and delivery-only restaurants running several virtual brands with limited kitchen hours: get the exact most profitable set of brands after food cost, delivery-app fees, packaging and labour. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Ghostwriter Book Quote Calculator: Price a Book From Your Hours — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ghostwriter-book-quote-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/ghostwriter-book-quote-calculator</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free ghostwriter quote calculator: build a book fee from drafting, interview, research and revision hours, add confidentiality and rush premiums, see per-word and per-page rates, a payment schedule and what a client&#39;s lower budget really pays you. Nothing uploaded.</summary>
   </entry>
 </feed>
