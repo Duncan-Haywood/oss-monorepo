@@ -704,6 +704,8 @@ const CATEGORY_RULES = [
       'daily-prep-quantity-optimizer',
       // `brewery-tank-schedule-optimizer` joined 2026-10-09 on its first commit: when and where each batch goes, beside `craft-brewery-batch-margin-calculator`'s profit per barrel.
       'brewery-tank-schedule-optimizer',
+      // `fitness-studio-membership-calculator` joined 2026-10-09 on its first commit: member lifetime value, churn and break-even for boutique studios, beside `car-wash-membership-calculator`'s recurring-membership model.
+      'fitness-studio-membership-calculator',
       // `farmers-market-booth-calculator` joined 2026-10-03 on its first commit: market vendors who sell food,
       // one hop from `food-truck-event-margin-calculator`.
       'farmers-market-booth-calculator',
