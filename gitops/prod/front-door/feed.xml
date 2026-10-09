@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 947 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 948 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -70,6 +70,14 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free daily prep quantity optimizer for bakeries, cafes and food trucks: paste past daily sales, mark sell-out days, and get the prep per item that earns the most after waste, with oven-minute and cash limits. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Dining Room Table Mix Optimizer: 2-Tops vs 4-Tops — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dining-room-table-mix-optimizer/"/>
+    <id>tag:marisstella.dev,2026:tool/dining-room-table-mix-optimizer</id>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free restaurant table mix tool: enter your floor area, table sizes and party-size mix, and get the number of 2-tops, 4-tops and 6-tops that seats the most guests, from simulated busy services. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>DMARC Report Reader — Free, Private DMARC XML Analyzer</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free medical billing pricing calculator: compare percent of collections, per-claim and flat monthly fees against your cost to serve a practice. See margin, break-even claim volume, the price needed for your target margin and what happens if collections move. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Mosquito Control Pricing Calculator: Price Per Visit and Season — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mosquito-control-program-pricing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/mosquito-control-program-pricing-calculator</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free mosquito control pricing calculator for barrier spray operators: type your product, labour, drive time and re-treat rate to see the minimum price per visit and per prepaid season, customer lifetime value and customers needed to break even. Nothing uploaded.</summary>
   </entry>
 </feed>
