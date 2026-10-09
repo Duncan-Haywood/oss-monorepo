@@ -1224,7 +1224,8 @@ const CATEGORY_RULES = [
     // `warehouse-slotting-optimizer` joined 2026-10-09 on its first commit: where each SKU sits on a small warehouse's shelves decides the walk, beside the box and container planners.
     // `self-storage-unit-mix-optimizer` joined 2026-10-09 on its first commit: a storage owner sizing a building's unit mix is a warehousing-space
     // decision beside the 3PL and freight tools; filed here because the catch-all is at its bound and the back-office bundle is over the 3 MB ceiling (build.test.mjs).
-    test: (slug) => /^(fleet-ev-vs-diesel|self-storage-unit-mix-optimizer|3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|truck-detention|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club|tow-truck-rate|mobile-tire-van|route-stop-optimizer|shipping-box-size|container-load-planner|container-demurrage-detention-calculator|warehouse-slotting-optimizer)/.test(
+    // `car-hauler-load-planner` joined 2026-10-09 on its first commit: an auto-transport owner-operator choosing which vehicles share a trailer, beside `owner-operator` and `truck-detention`.
+    test: (slug) => /^(car-hauler-load-planner|fleet-ev-vs-diesel|self-storage-unit-mix-optimizer|3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|truck-detention|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club|tow-truck-rate|mobile-tire-van|route-stop-optimizer|shipping-box-size|container-load-planner|container-demurrage-detention-calculator|warehouse-slotting-optimizer)/.test(
       slug,
     ),
   },
@@ -3241,6 +3242,11 @@ const CATEGORY_RULES = [
         'tutor-weekly-schedule-optimizer',
         // `rush-job-sequencer` joined 2026-10-09 on its first commit: a small shop ordering its own job queue, one hop from the scheduling optimizers above.
         'rush-job-sequencer',
+        // `patreon-fee-calculator` and the two Social Security calculators were filed here 2026-10-09 because the catch-all hit 6:
+        // each is one individual working out what their own creator income or benefit actually nets.
+        'patreon-fee-calculator',
+        'social-security-benefits-tax-calculator',
+        'social-security-earnings-test-calculator',
         'voiceover-project-rate-calculator',
       ].includes(slug),
   },

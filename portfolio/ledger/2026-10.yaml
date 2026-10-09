@@ -3279,3 +3279,18 @@ entries:
         of a venture already on main and were deliberately not landed. Registered launch date, opt-out count,
         mirror count; inbound link from contractor-wip-schedule.
     mrr_end: 0
+  - venture: car-hauler-load-planner
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built car-hauler-load-planner: a browser-local tool for auto-transport owner-operators.
+        From a dispatch-board shortlist (vehicle type or length, weight, pay, pickup and drop mile) and a
+        two-deck trailer it picks the cars to carry and the deck for each by exact branch and bound, checking
+        deck length, gaps, payload, upper-deck weight cap and lower-deck-only vehicles at every pickup mile
+        (checked against exhaustive search on 60 random boards), and re-solves per offer for the lowest pay
+        worth taking (verified by re-solving at that pay). First visitor: "car hauler load planning" searchers
+        and trucking forums; volume unmeasured. Vehicle sizes are typical placeholders. Registered launch
+        date, opt-out count, mirror count, logistics filing; inbound links from owner-operator-load-chain-
+        planner, truck-detention-pay-calculator and owner-operator-cpm-calculator.
+    mrr_end: 0
