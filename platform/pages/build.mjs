@@ -594,7 +594,9 @@ const CATEGORY_RULES = [
     // shop, same reader as `plumber-flat-rate-price-calculator` just above; slug names no `bid-calculator`.
     // `roofing-insurance-supplement-finder` joined 2026-10-08 on its first commit: a storm-restoration roofer pricing what an adjuster's estimate
     // left out is this section's reader; the slug does not end in `bid-calculator`, so it needs naming to stay out of the catch-all.
-    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || /^(mosquito-control-program|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|tender-bid-readiness|tender-radar|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
+    // `surety-bond-capacity-calculator` joined 2026-10-09 on its first commit: a contractor pricing the performance and payment bond into a bid and
+    // testing it against a surety limit is this section's reader; the slug does not end in `bid-calculator`, so it needs naming.
+    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || /^(mosquito-control-program|surety-bond-capacity|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|tender-bid-readiness|tender-radar|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -3217,6 +3219,8 @@ const CATEGORY_RULES = [
         'tutor-package-pricing-calculator',
         // `tutor-weekly-schedule-optimizer` joined 2026-10-09 on its first commit: the same one-to-one teacher as the package calculator, deciding which students to book when.
         'tutor-weekly-schedule-optimizer',
+        // `rush-job-sequencer` joined 2026-10-09 on its first commit: a small shop ordering its own job queue, one hop from the scheduling optimizers above.
+        'rush-job-sequencer',
         'voiceover-project-rate-calculator',
       ].includes(slug),
   },

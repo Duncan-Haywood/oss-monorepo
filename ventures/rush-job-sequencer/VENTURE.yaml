@@ -1,0 +1,54 @@
+name: rush-job-sequencer
+description: >-
+  Free browser tool for small shops with more rush jobs than hours: enter each job's hours, due time, flat late cost and cost per
+  hour late, plus hours already committed, and get the order with the lowest total lateness cost. Checks every order exactly (up to
+  14 jobs) by dynamic programming, compares it with as-received, earliest-due-date, shortest-job and penalty-density rules, shows
+  what one and four more hours of capacity would save, names the job whose removal helps the queue most, and re-solves with every
+  estimate 20% off. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: closest rows translation-job-picker 0.19 and
+# form-5500-late-filing-calculator 0.18; the single-machine sequencing question (order, not which jobs to take) is not
+# covered by which-job-first (pairwise ranking, no times or penalties), crew-dispatch-optimizer (assignment and routes) or
+# the scheduling tools for specific trades (tutor, brewery, bakery).
+#
+# Why this niche: print shops, machine shops, sign makers, alteration and repair benches, bakeries and custom fabricators
+# routinely hold a queue they cannot finish on time. Total weighted tardiness on one machine is a textbook scheduling problem
+# (NP-hard, exact by subset DP at this size) that small shops solve by instinct; the rules of thumb they use are each wrong
+# on some mix of penalties. An exact answer plus the price of an overtime hour is a decision they can act on today.
+#
+# First visitor: people searching "what order should I do jobs in", "job sequencing small shop", "earliest due date vs
+# shortest processing time", "rush order scheduling"; r/smallbusiness, r/Machinists, print and sign shop forums. Volume not
+# measured.
+#
+# Liability boundary: arithmetic on typed figures; not business advice; nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural front end for a paid shop scheduler with
+# changeovers, multiple machines and saved queues.
+
+hypotheses:
+  - claim: >-
+      Owners of small job shops with an overloaded queue will use a free tool that turns their own hours and late penalties
+      into an order, and will return each time the queue changes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/rush-job-sequencer/
+  analytics: null
