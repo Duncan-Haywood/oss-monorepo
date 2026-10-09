@@ -1449,7 +1449,8 @@ const RELATIVE_SELF = relative(
 // +1: `grape-grower-sell-vs-bottle-calculator` graduated.
 // +1: `mosquito-control-program-pricing-calculator` graduated.
 // +1: `card-bonus-planner` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 906;
+// +1: `water-well-drilling-bid-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 907;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
