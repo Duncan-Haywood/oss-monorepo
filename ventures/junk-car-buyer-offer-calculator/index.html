@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Junk Car Offer Calculator for Scrap and Salvage Buyers — Free</title>
+  <meta name="description" content="Free junk car buyer calculator: the most you can offer for a scrap or salvage car after weight, converter, parts, tow, storage and labour. Profit at the seller's ask and the farthest tow that still pays. Runs in your browser.">
+  <meta property="og:title" content="What can you pay for this junk car? A calculator for scrap and salvage buyers">
+  <meta property="og:description" content="Weight, converter, parts, tow and storage in one offer. Runs in your browser, nothing uploaded.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e40af'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Junk Car Buyer Offer Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Work out the most a scrap or salvage buyer can offer for a junk car and still hit a target profit: scrap weight, catalytic converter, parts, tow, storage and labour. Runs in your browser.","featureList":"Max offer, profit at the seller's ask, break-even scrap price, farthest tow, break-even parts sell-through, sensitivity tables, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What should I pay for a junk car?","acceptedAnswer":{"@type":"Answer","text":"Work backward from what the car brings you. Add the scrap value of the stripped hulk (weight times the crusher's price per ton), the catalytic converter, and the parts that really sell after fees, then subtract the tow, paperwork, disposal, yard storage, your labour and the haul to the crusher. Subtract the profit you need and what is left is the most you can offer. This tool does that for the car in front of you."}},{"@type":"Question","name":"How is a junk car priced by weight?","acceptedAnswer":{"@type":"Answer","text":"Crushers and shredders pay per ton of the stripped hulk. Weigh or look up the curb weight, subtract the parts you pull and sell separately, and multiply by the price per 2,000 lb ton. The price moves with the scrap market, so it is an input here, not a constant."}},{"@type":"Question","name":"How far can I tow a junk car and still make money?","acceptedAnswer":{"@type":"Answer","text":"The tool finds the farthest one-way tow at which the seller's asking price still leaves your target profit, and shows the offer you could make at 5 to 80 miles."}},{"@type":"Question","name":"What if the parts do not sell?","acceptedAnswer":{"@type":"Answer","text":"Parts are counted at the share you say actually sells, net of marketplace and payment fees, and the tool shows the sell-through the ask needs and what the offer looks like from none to all of the parts selling."}},{"@type":"Question","name":"Is this financial, tax or legal advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on figures you type. Title rules, licensing for salvage buyers, converter laws and environmental disposal rules are set by state and local law; check yours with a qualified professional."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">JUNK CAR OFFER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What can you pay for this junk car and still make money?</h1>
+    <p>Type the car's weight, what your crusher pays, what the converter and parts bring, and what the tow, paperwork, storage and labour cost. The tool shows the most you can offer, what the seller's ask leaves you, and how far you can tow, how low the scrap price can fall and how little of the parts must sell before the ask stops working.</p>
+    <p class="note">Arithmetic on figures you type. Not financial, tax, legal or licensing advice. The example figures are placeholders, not your crusher's quote, your tow rate or your local scrap market.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The car</h2>
+      <div class="grid">
+        <div><label for="weightLbs">Curb weight (lbs)</label><input id="weightLbs" type="number" step="any" value="0"><p class="note">Look it up by year and model if you do not have a scale ticket.</p></div>
+        <div><label for="removedLbs">Weight of parts you pull and sell (lbs)</label><input id="removedLbs" type="number" step="any" value="0"><p class="note">Taken off before the hulk goes to the crusher.</p></div>
+        <div><label for="converterValue">Catalytic converter value ($)</label><input id="converterValue" type="number" step="any" value="0"><p class="note">What a recycler pays for this car's converter.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. What the scrap and parts bring</h2>
+      <div class="grid">
+        <div><label for="scrapPricePerTon">Crusher price per ton ($)</label><input id="scrapPricePerTon" type="number" step="any" value="0"><p class="note">Your crusher's current quote for the stripped hulk, per 2,000 lb.</p></div>
+        <div><label for="partsRetail">Value of parts if all sold ($)</label><input id="partsRetail" type="number" step="any" value="0"><p class="note">Alternator, wheels, doors, ECU, whatever you will pull.</p></div>
+        <div><label for="partsSellThroughPct">Parts value that sells (%)</label><input id="partsSellThroughPct" type="number" step="any" value="0"><p class="note">Use your last ten cars, not your best one.</p></div>
+        <div><label for="partsFeePct">Marketplace and payment fees (%)</label><input id="partsFeePct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. What it costs you</h2>
+      <div class="grid">
+        <div><label for="towBase">Flat tow charge ($)</label><input id="towBase" type="number" step="any" value="0"></div>
+        <div><label for="towMiles">One-way tow miles</label><input id="towMiles" type="number" step="any" value="0"></div>
+        <div><label for="towPerMile">Tow cost per mile ($)</label><input id="towPerMile" type="number" step="any" value="0"></div>
+        <div><label for="adminFee">Title and paperwork ($)</label><input id="adminFee" type="number" step="any" value="0"><p class="note">State fees and your time at the counter.</p></div>
+        <div><label for="disposal">Fluids, tires and disposal ($)</label><input id="disposal" type="number" step="any" value="0"></div>
+        <div><label for="partsHours">Hours to pull and list parts</label><input id="partsHours" type="number" step="any" value="0"></div>
+        <div><label for="hourlyRate">Cost of an hour ($)</label><input id="hourlyRate" type="number" step="any" value="0"><p class="note">What you would pay a helper.</p></div>
+        <div><label for="storageDays">Days in the yard</label><input id="storageDays" type="number" step="any" value="0"></div>
+        <div><label for="storagePerDay">Yard cost per car per day ($)</label><input id="storagePerDay" type="number" step="any" value="0"></div>
+        <div><label for="haulOut">Hulk to the crusher ($)</label><input id="haulOut" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-3">
+      <h2 id="h-3">4. The deal</h2>
+      <div class="grid">
+        <div><label for="sellerAsk">What the seller wants ($)</label><input id="sellerAsk" type="number" step="any" value="0"></div>
+        <div><label for="targetProfit">Profit you need on this car ($)</label><input id="targetProfit" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Work out my offer</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions junk car buyers ask</h2>
+      <h3>What should I pay for a junk car?</h3>
+      <p>Work backward from what the car brings you. Add the scrap value of the stripped hulk (weight times the crusher's price per ton), the catalytic converter, and the parts that really sell after fees, then subtract the tow, paperwork, disposal, yard storage, your labour and the haul to the crusher. Subtract the profit you need and what is left is the most you can offer. This tool does that for the car in front of you.</p>
+      <h3>How is a junk car priced by weight?</h3>
+      <p>Crushers and shredders pay per ton of the stripped hulk. Weigh or look up the curb weight, subtract the parts you pull and sell separately, and multiply by the price per 2,000 lb ton. The price moves with the scrap market, so it is an input here, not a constant.</p>
+      <h3>How far can I tow a junk car and still make money?</h3>
+      <p>The tool finds the farthest one-way tow at which the seller's asking price still leaves your target profit, and shows the offer you could make at 5 to 80 miles.</p>
+      <h3>What if the parts do not sell?</h3>
+      <p>Parts are counted at the share you say actually sells, net of marketplace and payment fees, and the tool shows the sell-through the ask needs and what the offer looks like from none to all of the parts selling.</p>
+      <h3>Is this financial, tax or legal advice?</h3>
+      <p>No. It is arithmetic on figures you type. Title rules, licensing for salvage buyers, converter laws and environmental disposal rules are set by state and local law; check yours with a qualified professional.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether the car's title is clean, whether you hold the licence a salvage buyer needs, whether the converter is legal to buy or sell where you are, which parts really are in good shape, the scrap price on the day the crusher weighs it, taxes, and your time beyond the labour figure. The hulk is priced at today's quote, and parts that do not sell count as zero.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../scrap-gold-buy-price-calculator/">scrap gold buy price calculator</a>, the <a href="../tow-truck-rate-calculator/">tow truck rate calculator</a> and the <a href="../auction-car-flip-calculator/">auction car flip calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you buy or sell anything.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+
+
+  <script type="module">
+    import { DEFAULTS, num, money, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const ladder = (title, label, key, rows, fmt) => `<div class="finding"><h4>${title}</h4>${table([label, "Profit at the ask", "Most you can offer"], rows.map((x) => [fmt(x[key]), money(x.profit), money(x.maxOffer)]))}</div>`;
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const r = a.result, o = a.opts;
+      h += `<div class="finding"><h4>${r.buy ? "Take it at the ask" : "Counter below the ask"}: offer up to ${money(Math.max(0, r.maxOffer))}</h4>${table(["", "Amount"], [["Profit at the seller's ask", money(r.profitAtAsk)], ["Most you can offer and still hit your target", money(r.maxOffer)], ["Break-even offer (zero profit)", money(r.breakEvenOffer)]])}</div>`;
+      h += `<div class="finding"><h4>What the car brings and costs</h4>${table(["Line", "Dollars"], [["Stripped hulk to the crusher", money(r.hulk)], ["Catalytic converter", money(r.converter)], ["Parts that sell, after fees", money(r.parts)], ["Total in", money(r.revenue)], ["Tow", "-" + money(r.tow)], ["Paperwork and disposal", "-" + money(r.admin + r.disposal)], ["Yard storage", "-" + money(r.storage)], ["Parts labour", "-" + money(r.labour)], ["Hulk to the crusher", "-" + money(r.haulOut)], ["Worth to you before paying the seller", money(r.net)]])}</div>`;
+      h += `<div class="finding"><h4>Where the seller's ask stops working</h4>${table(["What would have to change", "Limit", "Your figure"], [
+        ["Crusher price per ton", money(r.breakEvenScrapPrice) + " a ton", money(o.scrapPricePerTon) + " a ton"],
+        ["Farthest one-way tow", Number.isNaN(r.maxTowMiles) ? "n/a" : r.maxTowMiles < 0 ? "none, even a free tow is not enough" : r.maxTowMiles.toFixed(0) + " miles", o.towMiles + " miles"],
+        ["Share of parts value that must sell", Number.isNaN(r.breakEvenSellThrough) ? "never at these figures" : pct(r.breakEvenSellThrough), pct(o.partsSellThroughPct)]])}</div>`;
+      h += ladder("If the scrap price moves", "Price per ton", "scrapPricePerTon", a.scrap, money);
+      h += ladder("If the converter is worth more or less", "Converter", "converterValue", a.converter, money);
+      h += ladder("If more or fewer parts sell", "Parts that sell", "partsSellThroughPct", a.sellThrough, (x) => x + "%");
+      h += ladder("If the tow is longer", "One-way miles", "towMiles", a.tow, (x) => x + " mi");
+      h += ladder("If the car is heavier or lighter", "Curb weight", "weightLbs", a.weight, (x) => x.toLocaleString("en-US") + " lb");
+      h += `<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "junk-car-offer.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>
