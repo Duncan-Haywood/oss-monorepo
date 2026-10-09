@@ -33,44 +33,44 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547627 bytes
+#   portfolio-front-tools-0: 145 files, 547653 bytes
 #   portfolio-front-tools-1: 92 files, 555436 bytes
 #   portfolio-front-tools-2: 144 files, 553243 bytes
-#   portfolio-front-tools-3: 128 files, 549380 bytes
-#   portfolio-front-tools-4: 136 files, 551686 bytes
-#   portfolio-front-tools-5: 134 files, 555805 bytes
-#   portfolio-front-tools-6: 123 files, 556193 bytes
-#   portfolio-front-tools-7: 120 files, 555217 bytes
-#   portfolio-front-tools-8: 130 files, 556648 bytes
-#   portfolio-front-tools-9: 141 files, 556543 bytes
-#   portfolio-front-tools-10: 133 files, 554980 bytes
+#   portfolio-front-tools-3: 128 files, 549382 bytes
+#   portfolio-front-tools-4: 136 files, 551659 bytes
+#   portfolio-front-tools-5: 134 files, 555810 bytes
+#   portfolio-front-tools-6: 123 files, 556142 bytes
+#   portfolio-front-tools-7: 120 files, 555208 bytes
+#   portfolio-front-tools-8: 130 files, 556619 bytes
+#   portfolio-front-tools-9: 141 files, 556552 bytes
+#   portfolio-front-tools-10: 133 files, 555012 bytes
 #   portfolio-front-tools-11: 123 files, 550718 bytes
-#   portfolio-front-tools-12: 125 files, 551592 bytes
-#   portfolio-front-tools-13: 125 files, 541880 bytes
-#   portfolio-front-tools-14: 123 files, 556261 bytes
-#   portfolio-front-tools-15: 130 files, 554744 bytes
-#   portfolio-front-tools-16: 120 files, 555769 bytes
-#   portfolio-front-tools-17: 118 files, 556952 bytes
-#   portfolio-front-tools-18: 123 files, 556633 bytes
-#   portfolio-front-tools-19: 117 files, 555799 bytes
-#   portfolio-front-tools-20: 115 files, 556073 bytes
-#   portfolio-front-tools-21: 132 files, 556311 bytes
-#   portfolio-front-tools-22: 126 files, 552005 bytes
-#   portfolio-front-tools-23: 138 files, 557029 bytes
-#   portfolio-front-tools-24: 117 files, 556726 bytes
-#   portfolio-front-tools-25: 123 files, 555361 bytes
-#   portfolio-front-tools-26: 136 files, 556311 bytes
-#   portfolio-front-tools-27: 116 files, 548320 bytes
-#   portfolio-front-tools-28: 133 files, 552411 bytes
-#   portfolio-front-tools-29: 111 files, 551348 bytes
-#   portfolio-front-tools-30: 96 files, 549177 bytes
-#   portfolio-front-tools-31: 126 files, 554698 bytes
-#   portfolio-front-tools-32: 118 files, 555631 bytes
-#   portfolio-front-tools-33: 128 files, 546902 bytes
-#   portfolio-front-tools-34: 126 files, 552345 bytes
-#   portfolio-front-tools-35: 122 files, 550185 bytes
-#   portfolio-front-tools-36: 104 files, 510873 bytes
-#   portfolio-front-tools-37: 48 files, 264238 bytes
+#   portfolio-front-tools-12: 125 files, 551585 bytes
+#   portfolio-front-tools-13: 125 files, 541900 bytes
+#   portfolio-front-tools-14: 123 files, 556268 bytes
+#   portfolio-front-tools-15: 130 files, 554707 bytes
+#   portfolio-front-tools-16: 120 files, 555740 bytes
+#   portfolio-front-tools-17: 118 files, 556975 bytes
+#   portfolio-front-tools-18: 123 files, 556654 bytes
+#   portfolio-front-tools-19: 117 files, 555856 bytes
+#   portfolio-front-tools-20: 115 files, 556021 bytes
+#   portfolio-front-tools-21: 132 files, 556318 bytes
+#   portfolio-front-tools-22: 126 files, 551945 bytes
+#   portfolio-front-tools-23: 137 files, 556194 bytes
+#   portfolio-front-tools-24: 117 files, 553866 bytes
+#   portfolio-front-tools-25: 122 files, 554024 bytes
+#   portfolio-front-tools-26: 135 files, 549733 bytes
+#   portfolio-front-tools-27: 118 files, 554548 bytes
+#   portfolio-front-tools-28: 133 files, 552693 bytes
+#   portfolio-front-tools-29: 112 files, 556504 bytes
+#   portfolio-front-tools-30: 96 files, 549139 bytes
+#   portfolio-front-tools-31: 126 files, 554628 bytes
+#   portfolio-front-tools-32: 118 files, 555612 bytes
+#   portfolio-front-tools-33: 128 files, 546929 bytes
+#   portfolio-front-tools-34: 126 files, 552376 bytes
+#   portfolio-front-tools-35: 122 files, 550147 bytes
+#   portfolio-front-tools-36: 104 files, 510892 bytes
+#   portfolio-front-tools-37: 48 files, 264258 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3248,12 +3248,12 @@ configMapGenerator:
       - package-exports-drift-check__cli.mjs.gz=package-exports-drift-check__cli.mjs.gz
       - package-exports-drift-check__engine.mjs.gz=package-exports-drift-check__engine.mjs.gz
       - package-exports-drift-check__index.html.gz=package-exports-drift-check__index.html.gz
-      - package-exports-drift-check__usage.mjs.gz=package-exports-drift-check__usage.mjs.gz
   - name: portfolio-front-tools-24
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - package-exports-drift-check__usage.mjs.gz=package-exports-drift-check__usage.mjs.gz
       - package-exports-drift-check__vs-manually-checking-exports-targets.html.gz=package-exports-drift-check__vs-manually-checking-exports-targets.html.gz
       - package-exports-drift-check__vs-publint.html.gz=package-exports-drift-check__vs-publint.html.gz
       - package-exports-drift-check__why-package-json-exports-fields-drift-from-what-you-actually-publish.html.gz=package-exports-drift-check__why-package-json-exports-fields-drift-from-what-you-actually-publish.html.gz
@@ -3370,12 +3370,12 @@ configMapGenerator:
       - photo-addon-pricing-calculator__is-a-second-shooter-worth-it.html.gz=photo-addon-pricing-calculator__is-a-second-shooter-worth-it.html.gz
       - photo-addon-pricing-calculator__share.mjs.gz=photo-addon-pricing-calculator__share.mjs.gz
       - photo-addon-pricing-calculator__usage.mjs.gz=photo-addon-pricing-calculator__usage.mjs.gz
-      - photo-addon-pricing-calculator__vs-pricing-by-comparing-to-other-studios.html.gz=photo-addon-pricing-calculator__vs-pricing-by-comparing-to-other-studios.html.gz
   - name: portfolio-front-tools-25
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - photo-addon-pricing-calculator__vs-pricing-by-comparing-to-other-studios.html.gz=photo-addon-pricing-calculator__vs-pricing-by-comparing-to-other-studios.html.gz
       - photo-booth-event-quote__calc.mjs.gz=photo-booth-event-quote__calc.mjs.gz
       - photo-booth-event-quote__how-much-to-charge-for-a-photo-booth-rental.html.gz=photo-booth-event-quote__how-much-to-charge-for-a-photo-booth-rental.html.gz
       - photo-booth-event-quote__index.html.gz=photo-booth-event-quote__index.html.gz
@@ -3497,13 +3497,13 @@ configMapGenerator:
       - price-increase-breakeven-calculator__price-increase-guide.html.gz=price-increase-breakeven-calculator__price-increase-guide.html.gz
       - price-increase-breakeven-calculator__usage.mjs.gz=price-increase-breakeven-calculator__usage.mjs.gz
       - print-atelier__index.html.gz=print-atelier__index.html.gz
-      - print-atelier__preflight.mjs.gz=print-atelier__preflight.mjs.gz
-      - print-atelier__usage.mjs.gz=print-atelier__usage.mjs.gz
   - name: portfolio-front-tools-26
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - print-atelier__preflight.mjs.gz=print-atelier__preflight.mjs.gz
+      - print-atelier__usage.mjs.gz=print-atelier__usage.mjs.gz
       - print-atelier__vs-printful.html.gz=print-atelier__vs-printful.html.gz
       - print-atelier__what-resolution-do-i-need-to-print-my-artwork.html.gz=print-atelier__what-resolution-do-i-need-to-print-my-artwork.html.gz
       - print-on-demand-profit-calculator__calc.mjs.gz=print-on-demand-profit-calculator__calc.mjs.gz
@@ -3637,14 +3637,14 @@ configMapGenerator:
       - radon-mitigation-bid-calculator__vs-a-flat-1195-radon-special.html.gz=radon-mitigation-bid-calculator__vs-a-flat-1195-radon-special.html.gz
       - radon-mitigation-bid-calculator__vs-oneradon.html.gz=radon-mitigation-bid-calculator__vs-oneradon.html.gz
       - rd-tax-credit-calculator__calc.mjs.gz=rd-tax-credit-calculator__calc.mjs.gz
-      - rd-tax-credit-calculator__index.html.gz=rd-tax-credit-calculator__index.html.gz
-      - rd-tax-credit-calculator__usage.mjs.gz=rd-tax-credit-calculator__usage.mjs.gz
-      - rds-instance-cost-advisor__cli.mjs.gz=rds-instance-cost-advisor__cli.mjs.gz
   - name: portfolio-front-tools-27
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - rd-tax-credit-calculator__index.html.gz=rd-tax-credit-calculator__index.html.gz
+      - rd-tax-credit-calculator__usage.mjs.gz=rd-tax-credit-calculator__usage.mjs.gz
+      - rds-instance-cost-advisor__cli.mjs.gz=rds-instance-cost-advisor__cli.mjs.gz
       - rds-instance-cost-advisor__engine.mjs.gz=rds-instance-cost-advisor__engine.mjs.gz
       - rds-instance-cost-advisor__index.html.gz=rds-instance-cost-advisor__index.html.gz
       - rds-instance-cost-advisor__rds-multi-az-iops-and-graviton-cost.html.gz=rds-instance-cost-advisor__rds-multi-az-iops-and-graviton-cost.html.gz
@@ -3760,12 +3760,12 @@ configMapGenerator:
       - retirement-withdrawal-sequencer__usage.mjs.gz=retirement-withdrawal-sequencer__usage.mjs.gz
       - retirement-withdrawal-sequencer__withdrawal-order-in-retirement.html.gz=retirement-withdrawal-sequencer__withdrawal-order-in-retirement.html.gz
       - returns-policy-cost-analyzer__cli.mjs.gz=returns-policy-cost-analyzer__cli.mjs.gz
-      - returns-policy-cost-analyzer__engine.mjs.gz=returns-policy-cost-analyzer__engine.mjs.gz
   - name: portfolio-front-tools-28
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - returns-policy-cost-analyzer__engine.mjs.gz=returns-policy-cost-analyzer__engine.mjs.gz
       - returns-policy-cost-analyzer__index.html.gz=returns-policy-cost-analyzer__index.html.gz
       - returns-policy-cost-analyzer__returns-policy-guide.html.gz=returns-policy-cost-analyzer__returns-policy-guide.html.gz
       - returns-policy-cost-analyzer__usage.mjs.gz=returns-policy-cost-analyzer__usage.mjs.gz
@@ -3898,12 +3898,12 @@ configMapGenerator:
       - section-1256-futures-tax-calculator__calc.mjs.gz=section-1256-futures-tax-calculator__calc.mjs.gz
       - section-1256-futures-tax-calculator__index.html.gz=section-1256-futures-tax-calculator__index.html.gz
       - section-1256-futures-tax-calculator__usage.mjs.gz=section-1256-futures-tax-calculator__usage.mjs.gz
-      - section-174a-catchup-calculator__calc.mjs.gz=section-174a-catchup-calculator__calc.mjs.gz
   - name: portfolio-front-tools-29
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - section-174a-catchup-calculator__calc.mjs.gz=section-174a-catchup-calculator__calc.mjs.gz
       - section-174a-catchup-calculator__index.html.gz=section-174a-catchup-calculator__index.html.gz
       - section-174a-catchup-calculator__should-i-take-the-174a-catchup-in-one-year-or-two.html.gz=section-174a-catchup-calculator__should-i-take-the-174a-catchup-in-one-year-or-two.html.gz
       - section-174a-catchup-calculator__usage.mjs.gz=section-174a-catchup-calculator__usage.mjs.gz
