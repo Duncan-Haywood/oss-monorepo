@@ -1458,7 +1458,7 @@ const RELATIVE_SELF = relative(
 // +1: `farm-crop-mix-optimizer` graduated.
 // +1: `ev-charging-site-roi-calculator` graduated.
 // +1: `food-truck-prep-mix-optimizer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 916;
+const SWITCHES_IN_THE_CATALOGUE = 917;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
