@@ -1459,7 +1459,8 @@ const RELATIVE_SELF = relative(
 // +1: `ev-charging-site-roi-calculator` graduated.
 // +1: `food-truck-prep-mix-optimizer` graduated.
 // +1: `class-price-and-minimum-optimizer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 919;
+// +1: `surety-bond-capacity-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 920;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
