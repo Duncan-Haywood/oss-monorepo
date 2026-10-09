@@ -57,3 +57,7 @@ test("the page links to the sibling tools it points at, and those exist", () => 
     assert.doesNotThrow(() => readFileSync(new URL(`../${m[1]}/index.html`, import.meta.url)), m[1]);
   }
 });
+
+test("the page links the veterinary wellness plan pricing calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/veterinary-wellness-plan-pricing-calculator\/"/);
+});
