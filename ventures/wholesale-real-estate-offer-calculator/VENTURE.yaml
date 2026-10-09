@@ -1,0 +1,44 @@
+name: wholesale-real-estate-offer-calculator
+description: >-
+  Free browser tool for real estate wholesalers: the end buyer's ceiling (70% rule and profit test), the maximum offer to the
+  seller after your fee, whether the seller's asking price works, assignment versus double-close net fee with break-even, comps
+  to ARV, and ARV sensitivity. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: closest were appraisal-assignment-picker 0.29 and
+# fix-and-flip-deal-analyzer 0.25 (the flipper's side: what a flipper can pay). Nothing in the tree prices the wholesaler's
+# own offer, fee or closing route. Paid alternatives are deal-analysis subscriptions and course-bundled spreadsheets.
+#
+# First visitor: searches "wholesale real estate calculator", "maximum allowable offer", "assignment fee vs double close";
+# r/WholesaleRealEstate, r/realestateinvesting. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on typed figures; "Not decided" section and footer say wholesaling legality, licensing and
+# disclosure are state-specific and not assessed. Nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. Natural front end for a paid deal-pipeline tracker.
+
+hypotheses:
+  - claim: >-
+      Wholesalers will use a free no-signup offer calculator on every lead and return to rerun it per property.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a calculation that disagrees with their hand arithmetic.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/wholesale-real-estate-offer-calculator/
+  analytics: null
