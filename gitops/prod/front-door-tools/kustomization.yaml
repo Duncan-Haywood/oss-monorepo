@@ -33,44 +33,44 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547627 bytes
-#   portfolio-front-tools-1: 92 files, 555436 bytes
-#   portfolio-front-tools-2: 144 files, 553243 bytes
-#   portfolio-front-tools-3: 128 files, 549380 bytes
-#   portfolio-front-tools-4: 136 files, 551686 bytes
-#   portfolio-front-tools-5: 134 files, 555810 bytes
-#   portfolio-front-tools-6: 123 files, 556141 bytes
-#   portfolio-front-tools-7: 120 files, 554984 bytes
-#   portfolio-front-tools-8: 129 files, 555696 bytes
-#   portfolio-front-tools-9: 141 files, 555748 bytes
-#   portfolio-front-tools-10: 133 files, 556237 bytes
-#   portfolio-front-tools-11: 123 files, 553511 bytes
-#   portfolio-front-tools-12: 125 files, 556680 bytes
-#   portfolio-front-tools-13: 130 files, 557017 bytes
-#   portfolio-front-tools-14: 122 files, 554198 bytes
-#   portfolio-front-tools-15: 126 files, 538912 bytes
-#   portfolio-front-tools-16: 118 files, 541830 bytes
-#   portfolio-front-tools-17: 118 files, 556944 bytes
-#   portfolio-front-tools-18: 123 files, 556803 bytes
-#   portfolio-front-tools-19: 117 files, 555711 bytes
-#   portfolio-front-tools-20: 115 files, 555911 bytes
-#   portfolio-front-tools-21: 132 files, 556469 bytes
-#   portfolio-front-tools-22: 126 files, 551868 bytes
-#   portfolio-front-tools-23: 138 files, 557010 bytes
-#   portfolio-front-tools-24: 117 files, 556560 bytes
-#   portfolio-front-tools-25: 123 files, 555333 bytes
-#   portfolio-front-tools-26: 136 files, 556271 bytes
-#   portfolio-front-tools-27: 116 files, 548324 bytes
-#   portfolio-front-tools-28: 134 files, 556930 bytes
-#   portfolio-front-tools-29: 112 files, 554577 bytes
-#   portfolio-front-tools-30: 97 files, 551973 bytes
-#   portfolio-front-tools-31: 126 files, 554628 bytes
-#   portfolio-front-tools-32: 118 files, 555612 bytes
-#   portfolio-front-tools-33: 128 files, 546918 bytes
-#   portfolio-front-tools-34: 126 files, 552388 bytes
-#   portfolio-front-tools-35: 122 files, 550147 bytes
-#   portfolio-front-tools-36: 104 files, 510892 bytes
-#   portfolio-front-tools-37: 48 files, 264245 bytes
+#   portfolio-front-tools-0: 145 files, 547615 bytes
+#   portfolio-front-tools-1: 92 files, 555438 bytes
+#   portfolio-front-tools-2: 144 files, 553241 bytes
+#   portfolio-front-tools-3: 128 files, 549376 bytes
+#   portfolio-front-tools-4: 136 files, 551645 bytes
+#   portfolio-front-tools-5: 134 files, 555776 bytes
+#   portfolio-front-tools-6: 123 files, 556113 bytes
+#   portfolio-front-tools-7: 120 files, 554937 bytes
+#   portfolio-front-tools-8: 129 files, 555692 bytes
+#   portfolio-front-tools-9: 141 files, 555785 bytes
+#   portfolio-front-tools-10: 133 files, 556274 bytes
+#   portfolio-front-tools-11: 127 files, 555195 bytes
+#   portfolio-front-tools-12: 125 files, 551623 bytes
+#   portfolio-front-tools-13: 125 files, 541963 bytes
+#   portfolio-front-tools-14: 123 files, 556259 bytes
+#   portfolio-front-tools-15: 130 files, 554649 bytes
+#   portfolio-front-tools-16: 120 files, 555746 bytes
+#   portfolio-front-tools-17: 118 files, 556968 bytes
+#   portfolio-front-tools-18: 123 files, 556713 bytes
+#   portfolio-front-tools-19: 117 files, 555780 bytes
+#   portfolio-front-tools-20: 115 files, 555991 bytes
+#   portfolio-front-tools-21: 132 files, 556488 bytes
+#   portfolio-front-tools-22: 126 files, 551937 bytes
+#   portfolio-front-tools-23: 138 files, 556861 bytes
+#   portfolio-front-tools-24: 117 files, 556665 bytes
+#   portfolio-front-tools-25: 123 files, 555389 bytes
+#   portfolio-front-tools-26: 136 files, 556359 bytes
+#   portfolio-front-tools-27: 116 files, 548244 bytes
+#   portfolio-front-tools-28: 134 files, 556970 bytes
+#   portfolio-front-tools-29: 112 files, 554466 bytes
+#   portfolio-front-tools-30: 97 files, 551954 bytes
+#   portfolio-front-tools-31: 126 files, 554450 bytes
+#   portfolio-front-tools-32: 118 files, 555506 bytes
+#   portfolio-front-tools-33: 128 files, 546926 bytes
+#   portfolio-front-tools-34: 126 files, 552460 bytes
+#   portfolio-front-tools-35: 122 files, 550126 bytes
+#   portfolio-front-tools-36: 104 files, 510858 bytes
+#   portfolio-front-tools-37: 48 files, 264197 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1598,6 +1598,12 @@ configMapGenerator:
       - cron-dst-drift-check__usage.mjs.gz=cron-dst-drift-check__usage.mjs.gz
       - cron-dst-drift-check__vs-checking-a-dst-calendar-by-hand.html.gz=cron-dst-drift-check__vs-checking-a-dst-calendar-by-hand.html.gz
       - cron-dst-drift-check__why-cron-jobs-break-across-dst.html.gz=cron-dst-drift-check__why-cron-jobs-break-across-dst.html.gz
+      - cron-heartbeat__cron.mjs.gz=cron-heartbeat__cron.mjs.gz
+      - cron-heartbeat__crontab.mjs.gz=cron-heartbeat__crontab.mjs.gz
+      - cron-heartbeat__index.html.gz=cron-heartbeat__index.html.gz
+      - cron-heartbeat__monitor.mjs.gz=cron-heartbeat__monitor.mjs.gz
+      - cron-heartbeat__server.mjs.gz=cron-heartbeat__server.mjs.gz
+      - cron-heartbeat__usage.mjs.gz=cron-heartbeat__usage.mjs.gz
       - crop-insurance-coverage-calculator__calc.mjs.gz=crop-insurance-coverage-calculator__calc.mjs.gz
       - crop-insurance-coverage-calculator__index.html.gz=crop-insurance-coverage-calculator__index.html.gz
       - crop-insurance-coverage-calculator__usage.mjs.gz=crop-insurance-coverage-calculator__usage.mjs.gz
@@ -1694,13 +1700,13 @@ configMapGenerator:
       - dependent-care-fsa-vs-credit-calculator__calc.mjs.gz=dependent-care-fsa-vs-credit-calculator__calc.mjs.gz
       - dependent-care-fsa-vs-credit-calculator__index.html.gz=dependent-care-fsa-vs-credit-calculator__index.html.gz
       - dependent-care-fsa-vs-credit-calculator__usage.mjs.gz=dependent-care-fsa-vs-credit-calculator__usage.mjs.gz
-      - deploy-concurrency-check__classify.mjs.gz=deploy-concurrency-check__classify.mjs.gz
-      - deploy-concurrency-check__how-a-deploy-ships-an-older-commit.html.gz=deploy-concurrency-check__how-a-deploy-ships-an-older-commit.html.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - deploy-concurrency-check__classify.mjs.gz=deploy-concurrency-check__classify.mjs.gz
+      - deploy-concurrency-check__how-a-deploy-ships-an-older-commit.html.gz=deploy-concurrency-check__how-a-deploy-ships-an-older-commit.html.gz
       - deploy-concurrency-check__index.html.gz=deploy-concurrency-check__index.html.gz
       - deploy-concurrency-check__usage.mjs.gz=deploy-concurrency-check__usage.mjs.gz
       - deploy-concurrency-check__vs-reading-your-workflows-yourself.html.gz=deploy-concurrency-check__vs-reading-your-workflows-yourself.html.gz
@@ -1824,13 +1830,13 @@ configMapGenerator:
       - drywall-bid-calculator__vs-buildxact.html.gz=drywall-bid-calculator__vs-buildxact.html.gz
       - duct-cleaning-bid-calculator__calc.mjs.gz=duct-cleaning-bid-calculator__calc.mjs.gz
       - duct-cleaning-bid-calculator__how-much-to-charge-for-duct-cleaning.html.gz=duct-cleaning-bid-calculator__how-much-to-charge-for-duct-cleaning.html.gz
-      - duct-cleaning-bid-calculator__index.html.gz=duct-cleaning-bid-calculator__index.html.gz
-      - duct-cleaning-bid-calculator__share.mjs.gz=duct-cleaning-bid-calculator__share.mjs.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - duct-cleaning-bid-calculator__index.html.gz=duct-cleaning-bid-calculator__index.html.gz
+      - duct-cleaning-bid-calculator__share.mjs.gz=duct-cleaning-bid-calculator__share.mjs.gz
       - duct-cleaning-bid-calculator__usage.mjs.gz=duct-cleaning-bid-calculator__usage.mjs.gz
       - duct-cleaning-bid-calculator__vs-a-flat-whole-house-special.html.gz=duct-cleaning-bid-calculator__vs-a-flat-whole-house-special.html.gz
       - duct-cleaning-bid-calculator__vs-jobber.html.gz=duct-cleaning-bid-calculator__vs-jobber.html.gz
@@ -1954,6 +1960,11 @@ configMapGenerator:
       - employment-contract-checker__usage.mjs.gz=employment-contract-checker__usage.mjs.gz
       - entry-door-bid-calculator__calc.mjs.gz=entry-door-bid-calculator__calc.mjs.gz
       - entry-door-bid-calculator__how-much-to-charge-to-replace-a-front-door.html.gz=entry-door-bid-calculator__how-much-to-charge-to-replace-a-front-door.html.gz
+  - name: portfolio-front-tools-14
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - entry-door-bid-calculator__index.html.gz=entry-door-bid-calculator__index.html.gz
       - entry-door-bid-calculator__share.mjs.gz=entry-door-bid-calculator__share.mjs.gz
       - entry-door-bid-calculator__usage.mjs.gz=entry-door-bid-calculator__usage.mjs.gz
@@ -1961,11 +1972,6 @@ configMapGenerator:
       - entry-door-bid-calculator__vs-jobber.html.gz=entry-door-bid-calculator__vs-jobber.html.gz
       - env-example-drift-check__cli.mjs.gz=env-example-drift-check__cli.mjs.gz
       - env-example-drift-check__engine.mjs.gz=env-example-drift-check__engine.mjs.gz
-  - name: portfolio-front-tools-14
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - env-example-drift-check__index.html.gz=env-example-drift-check__index.html.gz
       - env-example-drift-check__usage.mjs.gz=env-example-drift-check__usage.mjs.gz
       - env-example-drift-check__vs-dotenv-linter.html.gz=env-example-drift-check__vs-dotenv-linter.html.gz
@@ -2082,17 +2088,17 @@ configMapGenerator:
       - expense-tracker__index.html.gz=expense-tracker__index.html.gz
       - expense-tracker__usage.mjs.gz=expense-tracker__usage.mjs.gz
       - exterior-painting-bid-calculator__calc.mjs.gz=exterior-painting-bid-calculator__calc.mjs.gz
+  - name: portfolio-front-tools-15
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - exterior-painting-bid-calculator__how-much-to-charge-to-paint-the-exterior-of-a-house.html.gz=exterior-painting-bid-calculator__how-much-to-charge-to-paint-the-exterior-of-a-house.html.gz
       - exterior-painting-bid-calculator__index.html.gz=exterior-painting-bid-calculator__index.html.gz
       - exterior-painting-bid-calculator__share.mjs.gz=exterior-painting-bid-calculator__share.mjs.gz
       - exterior-painting-bid-calculator__usage.mjs.gz=exterior-painting-bid-calculator__usage.mjs.gz
       - exterior-painting-bid-calculator__vs-a-flat-3999-house-special.html.gz=exterior-painting-bid-calculator__vs-a-flat-3999-house-special.html.gz
       - exterior-painting-bid-calculator__vs-paintscout.html.gz=exterior-painting-bid-calculator__vs-paintscout.html.gz
-  - name: portfolio-front-tools-15
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - facebook-marketplace-fee-calculator__calc.mjs.gz=facebook-marketplace-fee-calculator__calc.mjs.gz
       - facebook-marketplace-fee-calculator__how-much-does-facebook-marketplace-take.html.gz=facebook-marketplace-fee-calculator__how-much-does-facebook-marketplace-take.html.gz
       - facebook-marketplace-fee-calculator__index.html.gz=facebook-marketplace-fee-calculator__index.html.gz
@@ -2217,13 +2223,13 @@ configMapGenerator:
       - food-truck-event-margin-calculator__usage.mjs.gz=food-truck-event-margin-calculator__usage.mjs.gz
       - food-truck-event-margin-calculator__vs-a-flat-per-guest-price.html.gz=food-truck-event-margin-calculator__vs-a-flat-per-guest-price.html.gz
       - food-truck-event-margin-calculator__vs-roaminghunger.html.gz=food-truck-event-margin-calculator__vs-roaminghunger.html.gz
-      - forestry-mulching-bid-calculator__calc.mjs.gz=forestry-mulching-bid-calculator__calc.mjs.gz
-      - forestry-mulching-bid-calculator__how-much-to-charge-for-forestry-mulching.html.gz=forestry-mulching-bid-calculator__how-much-to-charge-for-forestry-mulching.html.gz
   - name: portfolio-front-tools-16
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - forestry-mulching-bid-calculator__calc.mjs.gz=forestry-mulching-bid-calculator__calc.mjs.gz
+      - forestry-mulching-bid-calculator__how-much-to-charge-for-forestry-mulching.html.gz=forestry-mulching-bid-calculator__how-much-to-charge-for-forestry-mulching.html.gz
       - forestry-mulching-bid-calculator__index.html.gz=forestry-mulching-bid-calculator__index.html.gz
       - forestry-mulching-bid-calculator__share.mjs.gz=forestry-mulching-bid-calculator__share.mjs.gz
       - forestry-mulching-bid-calculator__usage.mjs.gz=forestry-mulching-bid-calculator__usage.mjs.gz
