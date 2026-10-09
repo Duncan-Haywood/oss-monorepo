@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'cafe-drink-margin-calculator':
+    'the wage and payroll-extras percentage price the seconds a barista spends making each drink, not a shop labour rate for a job quote; there is no overhead-on-cost or target-margin-on-job field, fixed costs are a monthly dollar total, and the target margin is a share of each drink price.',
   'lash-studio-service-profit-calculator':
     'the take-home figure is a lash artist\'s own pay per chair hour after supplies, card fees, no-shows and studio rent, not a shop labour rate for a job quote, there is no burden or overhead-on-cost field, and the target is an hourly take-home rather than a margin on cost',
   'water-well-drilling-bid-calculator':
