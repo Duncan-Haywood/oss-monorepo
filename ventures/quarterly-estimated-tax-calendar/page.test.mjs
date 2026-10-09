@@ -98,3 +98,7 @@ test("footer points at the state residency day counter", () => {
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
   assert.match(html, /href="\.\.\/state-residency-day-counter\/"/);
 });
+
+test("index links one hop to the mileage-deduction-calculator sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/mileage-deduction-calculator\/"/);
+});

@@ -1470,8 +1470,12 @@ const RELATIVE_SELF = relative(
 // +1: `dining-room-table-mix-optimizer` graduated.
 // +1: `vending-machine-planogram-optimizer` graduated.
 // +1: `project-staffing-margin-optimizer` graduated.
+// +1: `auto-detailing-service-menu-picker` graduated.
+// +1: `proposal-maker` graduated (landed from a stranded branch).
+// +1: `tile-layout-optimizer` graduated (landed from a stranded branch).
+// +1: `mileage-deduction-calculator` graduated (landed from a stranded branch).
 // +1: `wedding-flower-order-optimizer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 931;
+const SWITCHES_IN_THE_CATALOGUE = 935;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
