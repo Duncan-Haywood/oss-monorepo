@@ -1,0 +1,63 @@
+name: card-bonus-planner
+description: >-
+  Free, private credit card sign-up-bonus planner: track minimum-spend
+  deadlines and pace, see your 5/24 count and community-reported issuer
+  velocity rules with the date each clears, compare net bonus value after the
+  annual fee, and build an application schedule that your monthly spending can
+  actually cover (demand-bound feasibility), exported as a calendar file.
+  Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09. duplicate_check.py found no card-bonus venture (closest
+# hits were bank-statement tools, 0.32). Paid/ad-funded competition is real:
+# AwardWallet, Travel Freely, Points Path and spreadsheet templates cover the
+# tracking, but none builds a schedule against a monthly-spend budget, and
+# most want an account or card-number-adjacent data. This one keeps nothing
+# off-device.
+#
+# First visitor: r/churning, r/CreditCards, r/awardtravel and Doctor of Credit /
+# Reddit "5/24" and "minimum spend" threads -- the audience already keeps these
+# in spreadsheets. Search phrases: "5/24 rule calculator", "credit card
+# application tracker", "sign-up bonus tracker spreadsheet". Volume not
+# measured with an external tool.
+#
+# Path to revenue (payments stay off): donations; card-issuer referral links
+# are the usual monetization in this niche but are an affiliate relationship
+# under the portfolio's public name -- owner-gated, deliberately not built.
+# Liability: planning aid only; rules are community-reported and flagged as
+# such on the page; no credit pulls, no account data.
+
+hypotheses:
+  - claim: >-
+      Points-and-miles hobbyists who track bonuses in spreadsheets will use a
+      free local tool that tells them the date their 5/24 count drops and when
+      a new application fits their monthly spend.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The spend-aware schedule (not the tracker) is what makes people come
+      back, because the question they ask each month is "what can I apply for
+      next without missing a minimum spend".
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars) engage within 90 days of it being reachable from the published site.
+  - A user reports an issuer rule in the default set that is wrong or retired, at which point the rule data needs sourcing before anything else.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/card-bonus-planner/
+  analytics: null

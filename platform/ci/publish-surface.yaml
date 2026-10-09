@@ -404,6 +404,9 @@ workflows:
 - workflow: car-wash-membership-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: card-bonus-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: card-grading-submission-picker-ci.yml
   classification: none
   publishes: []
