@@ -1,0 +1,56 @@
+name: dining-room-table-mix-optimizer
+description: >-
+  Free browser tool for independent restaurants, cafes and bars: enter the dining floor, the table types (seats and floor
+  footprint), and the party-size mix with how long each size stays, and get the number of 2-tops, 4-tops and 6-tops that
+  seats the most guests. Simulates hundreds of busy services (random arrivals, random stays, walk-aways after a wait,
+  optional pushing of two tables together) on identical nights for every candidate, searches add / remove / swap moves
+  under the floor area and per-type caps, and reports guests per service gained with a paired standard error, parties no
+  longer turned away, the value of one more or fewer table of each type, and the monthly sales and contribution. Nothing
+  leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: closest was childcare-enrollment-mix-optimizer 0.18 and
+# self-storage-unit-mix-optimizer 0.17 (different domains and different math; neither seats parties). Nothing in the tree
+# sizes a restaurant's table mix.
+#
+# Why this niche: an independent restaurant buys tables once and lives with them for years, and the usual rule of thumb
+# (mostly four-tops) wastes seats when most parties are couples. Software that does this is sold inside enterprise floor
+# plan and reservation suites. The saving is guests the owner already has at the door.
+#
+# First visitor: people searching "how many 2-tops and 4-tops", "restaurant table mix", "restaurant seating capacity
+# planning", "restaurant floor plan seating"; r/restaurateur, r/KitchenConfidential owners, new-restaurant planners.
+# Volume not measured.
+#
+# Liability boundary: simulation and arithmetic on typed figures; not layout, fire-code, occupancy or accessibility advice
+# (the page says so); nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. Natural front end for a paid tool that reads a
+# reservation or POS export for the real party mix and day-of-week demand (needs accounts, an owner decision), or referrals
+# to restaurant furniture suppliers and reservation platforms.
+
+hypotheses:
+  - claim: >-
+      Restaurant owners planning a new room or a refit will use a free tool that turns their party mix into a table count
+      with a guest gain they can see is not noise, and will come back when the menu or hours change.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a recommended mix that exceeds the floor they entered, or a simulation that is not reproducible for the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/dining-room-table-mix-optimizer/
+  analytics: null
