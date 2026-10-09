@@ -1568,6 +1568,11 @@ const CATEGORY_RULES = [
       // exports from payroll or AP before the bank sees it -- the same back-office money-movement job as
       // `payroll-tax-deposit-penalty-calculator` and `duplicate-payment-audit`.
       || slug === 'nacha-file-validator'
+      // `mileage-deduction-calculator` and `proposal-maker` joined 2026-10-09 when landed: a self-employed filer's
+      // year-end vehicle deduction, and the document a freelancer sends before the estimate and invoice -- both
+      // owner-operator back-office jobs.
+      || slug === 'mileage-deduction-calculator'
+      || slug === 'proposal-maker'
       // `w2-efw2-file-validator` joined 2026-10-04 on its first commit: it checks the W-2 wage file a payroll
       // preparer exports before it goes to SSA -- the same back-office payroll job as the deposit-penalty calculator.
       || slug === 'w2-efw2-file-validator'
