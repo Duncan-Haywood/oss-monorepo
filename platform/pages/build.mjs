@@ -730,6 +730,9 @@ const CATEGORY_RULES = [
       // `fertilizer-blend-optimizer` joined 2026-10-07 on its first commit: row-crop, hay and garden growers on the same farm
       // category, the input-cost step beside `beef-cattle-ration-optimizer`.
       'fertilizer-blend-optimizer',
+      // `farm-crop-mix-optimizer` joined 2026-10-09 on its first commit: growers choosing acres per crop under land, labor and capital limits,
+      // the planning step before `fertilizer-blend-optimizer` on the same row-crop farm.
+      'farm-crop-mix-optimizer',
       // `farmland-lease-cash-rent-vs-crop-share-calculator` joined 2026-10-08 on its first commit: landowners and operators negotiating a farm lease
       // sit beside `custom-farm-rate-calculator` and `fertilizer-blend-optimizer`, the same row-crop farm job.
       'farmland-lease-cash-rent-vs-crop-share-calculator',
