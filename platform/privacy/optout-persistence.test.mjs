@@ -1467,7 +1467,7 @@ const RELATIVE_SELF = relative(
 // +1: `early-pay-discount-picker` graduated.
 // +1: `childcare-enrollment-mix-optimizer` graduated.
 // +1: `dining-room-table-mix-optimizer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 927;
+const SWITCHES_IN_THE_CATALOGUE = 930;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
