@@ -3070,6 +3070,8 @@ const CATEGORY_RULES = [
     // moved here (exact slugs, as the rest of this list) rather than the bound being raised.
     test: (slug) =>
       [
+        // `card-bonus-planner` joined 2026-10-09 on its first commit. Back-office is over its 3 MB offline bound on main; one person scheduling their own sign-up bonuses is an individual earning from their own spending, not a business back office.
+        'card-bonus-planner',
         // `greenhouse-bench-planner` joined 2026-10-07 on its first commit. Back-office was at its 3 MB offline bound; a
         // grower selling transplants on fixed dates is one person pricing their own season's space.
         // `contract-vs-fte-rate-calculator` joined 2026-10-08 on its first commit: one person working out what a contract rate must be to match a salary.

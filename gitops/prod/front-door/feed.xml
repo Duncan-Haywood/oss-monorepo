@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 924 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 925 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -14,6 +14,14 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator for birth doulas: your real pay per hour after long labors, driving, on-call days, backup cover and overhead, and the package price that reaches your target. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Card Bonus Planner — Sign-Up Bonus Tracker, 5/24 and Spend Scheduler</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/card-bonus-planner/"/>
+    <id>tag:marisstella.dev,2026:tool/card-bonus-planner</id>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Plan credit card sign-up bonuses: track minimum-spend deadlines, see your 5/24 count and issuer velocity limits, compare net value after the annual fee, and get an application schedule that fits your monthly spending. Free, private, runs in your browser.</summary>
   </entry>
   <entry>
     <title>DMARC Report Reader — Free, Private DMARC XML Analyzer</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-08T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free collision repair DRP calculator: your labor rates, the insurer&#39;s rate cut, parts discount and materials cap, repriced jobs and promised volume in; profit with and without the program, break-even repair orders and the lowest labor rate worth accepting out. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Commercial Lease Abstract Reader</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/commercial-lease-abstract-reader/"/>
-    <id>tag:marisstella.dev,2026:tool/commercial-lease-abstract-reader</id>
-    <updated>2026-10-08T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free commercial lease abstract tool: paste a lease and get the key terms, a calendar of renewal-notice and rent-step dates (downloadable .ics), the year-by-year rent schedule and the clauses to negotiate, such as personal guaranty, NNN pass-throughs, holdover rent and relocation. Private, runs in your browser.</summary>
   </entry>
 </feed>
