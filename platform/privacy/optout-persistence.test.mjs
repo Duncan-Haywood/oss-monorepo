@@ -1443,7 +1443,8 @@ const RELATIVE_SELF = relative(
 // +1: `ghostwriter-book-quote-calculator` graduated.
 // +1: `hard-money-loan-cost-calculator` graduated.
 // +1: `dmarc-report-reader` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 899;
+// +1: `scrap-gold-buy-price-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 900;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.
