@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 941 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 943 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -30,6 +30,14 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free brewery tank schedule optimizer: enter your fermenters, bright tanks and beers, and get the brew-day and tank plan that finishes the most margin, with batch minimums and maximums, utilisation, and what one more tank is worth. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Capex Budget Prioritizer: Which Projects to Fund — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/capex-budget-prioritizer/"/>
+    <id>tag:marisstella.dev,2026:tool/capex-budget-prioritizer</id>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free capital budgeting tool for small businesses: list the equipment, vehicle and software projects you want, enter your budget, and get the set with the highest total net present value, with options, must-dos and payback. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Card Bonus Planner — Sign-Up Bonus Tracker, 5/24 and Spend Scheduler</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator for pet sitters and dog walkers: what you keep per booking on Rover, Wag or another marketplace versus booking clients directly, how many direct bookings pay for the software, and the price that matches. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>SBIR / STTR Budget Builder: Percentage-of-Work and Fee Checks — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sbir-budget-builder/"/>
-    <id>tag:marisstella.dev,2026:tool/sbir-budget-builder</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free SBIR and STTR proposal budget builder: personnel, fringe, MTDC indirect, subawards and fee in SF424 R&amp;R lines, with checks on the small-business share of work, the STTR research-institution share and the fee ceiling. Nothing uploaded.</summary>
   </entry>
 </feed>
