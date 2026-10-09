@@ -526,6 +526,8 @@ const CATEGORY_RULES = [
     // what wins them the job, and it was invisible on the one page most
     // visitors land on.
     blurb: 'Bid a job the way the trade does — materials, crew hours, burden, overhead, and what the extras really cost — then print the customer a proposal with the scope, the deposit split, and a line to sign.',
+    // `mosquito-control-program-pricing-calculator` joined 2026-10-09 on its first commit: a recurring seasonal spray route priced per visit and per
+    // prepaid season is trade route work like `lawn-care-bid-calculator`, and its slug does not end in `bid-calculator`.
     // `shop-rate` is the upstream tool for this whole section: it computes the
     // payroll burden and overhead rate that every bid calculator below asks for.
     // Landing in the catch-all would have hidden it from exactly the readers who
@@ -592,7 +594,7 @@ const CATEGORY_RULES = [
     // shop, same reader as `plumber-flat-rate-price-calculator` just above; slug names no `bid-calculator`.
     // `roofing-insurance-supplement-finder` joined 2026-10-08 on its first commit: a storm-restoration roofer pricing what an adjuster's estimate
     // left out is this section's reader; the slug does not end in `bid-calculator`, so it needs naming to stay out of the catch-all.
-    test: (slug) => /bid-calculator$/.test(slug) || /^(roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|tender-bid-readiness|tender-radar|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
+    test: (slug) => /bid-calculator$/.test(slug) || /^(mosquito-control-program|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|tender-bid-readiness|tender-radar|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
