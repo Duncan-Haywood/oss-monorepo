@@ -3217,6 +3217,8 @@ const CATEGORY_RULES = [
         'tutor-package-pricing-calculator',
         // `tutor-weekly-schedule-optimizer` joined 2026-10-09 on its first commit: the same one-to-one teacher as the package calculator, deciding which students to book when.
         'tutor-weekly-schedule-optimizer',
+        // `rush-job-sequencer` joined 2026-10-09 on its first commit: a small shop ordering its own job queue, one hop from the scheduling optimizers above.
+        'rush-job-sequencer',
         'voiceover-project-rate-calculator',
       ].includes(slug),
   },
