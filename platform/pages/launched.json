@@ -156,6 +156,7 @@
     "chrome-extension-permission-check": "2026-09-09",
     "ci-minutes-pricing-calculator": "2026-10-03",
     "ci-test-shard-balancer": "2026-10-03",
+    "class-price-and-minimum-optimizer": "2026-10-09",
     "claude-code-hooks-security-check": "2026-09-25",
     "claude-code-settings-check": "2026-09-24",
     "claude-code-subagent-check": "2026-09-24",

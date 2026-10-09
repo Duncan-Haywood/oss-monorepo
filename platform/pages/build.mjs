@@ -3204,6 +3204,9 @@ const CATEGORY_RULES = [
         // `sep-ira-contribution-calculator` landed 2026-10-08 from a stranded branch: back-office was at its 3 MB offline bound,
         // and a self-employed filer sizing their own retirement contribution is one person working out their own income.
         'sep-ira-contribution-calculator',
+        // `class-price-and-minimum-optimizer` joined 2026-10-09 on its first commit: a studio or tutoring centre setting its own seat price,
+        // one hop from `studio-class-slot-optimizer` and `tutor-package-pricing-calculator`.
+        'class-price-and-minimum-optimizer',
         'studio-class-slot-optimizer',
         'tutor-package-pricing-calculator',
         'voiceover-project-rate-calculator',
