@@ -363,6 +363,8 @@ export const REVIEWED_NOT_CARRIED = {
     'the optician wage and payroll-extras percentage price the minutes spent on each eyeglass sale, not a shop labour rate for a job quote; there is no overhead-on-cost field, fixed costs are a monthly dollar total, and the target margin is a share of what the patient and plan pay.',
   'therapy-8-minute-rule-calculator':
     'the tool counts billable units from timed minutes and prices them at allowed amounts per unit the user types; there is no labour rate, overhead or markup, and no shop rate for a job quote.',
+  'fitness-studio-membership-calculator':
+    'it models recurring membership revenue, churn and per-member cost, not hours of labour; there is no shop labour rate, overhead-on-cost or target-margin-on-job field, and fixed costs are a monthly dollar total.',
   'cafe-drink-margin-calculator':
     'the wage and payroll-extras percentage price the seconds a barista spends making each drink, not a shop labour rate for a job quote; there is no overhead-on-cost or target-margin-on-job field, fixed costs are a monthly dollar total, and the target margin is a share of each drink price.',
   'lash-studio-service-profit-calculator':

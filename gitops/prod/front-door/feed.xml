@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 967 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 968 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -152,19 +152,19 @@
     <summary type="text">Free FERS retirement calculator for federal employees: your pension, the Special Retirement Supplement and TSP income at every retirement age, MRA+10 reduction, the 1.1% multiplier at 62, sick leave credit and survivor cost. Runs in your browser.</summary>
   </entry>
   <entry>
+    <title>Fitness Studio Membership Calculator — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fitness-studio-membership-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/fitness-studio-membership-calculator</id>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free calculator for boutique gym, yoga, pilates and CrossFit owners: member lifetime value, cost to win a member, payback months, where your member count settles, break-even members and what one point of churn is worth. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Food Truck Prep Mix Optimizer: Best Portions per Item — Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/food-truck-prep-mix-optimizer/"/>
     <id>tag:marisstella.dev,2026:tool/food-truck-prep-mix-optimizer</id>
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free food truck prep mix optimizer: enter prices, food costs, prep minutes, grill time and ingredient cash per menu item to find how many portions earn the most, and what an extra prep minute is worth. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Ghost Kitchen Brand Picker: Which Virtual Brands Should I Run? — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ghost-kitchen-brand-picker/"/>
-    <id>tag:marisstella.dev,2026:tool/ghost-kitchen-brand-picker</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free tool for ghost kitchens and delivery-only restaurants running several virtual brands with limited kitchen hours: get the exact most profitable set of brands after food cost, delivery-app fees, packaging and labour. Nothing uploaded.</summary>
   </entry>
 </feed>
