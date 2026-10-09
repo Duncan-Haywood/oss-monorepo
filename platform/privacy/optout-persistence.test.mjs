@@ -1442,8 +1442,10 @@ const RELATIVE_SELF = relative(
 // +1: `pet-sitting-platform-fee-calculator` graduated.
 // +1: `ghostwriter-book-quote-calculator` graduated.
 // +1: `hard-money-loan-cost-calculator` graduated.
+// +1: `dmarc-report-reader` graduated.
+// +1: `scrap-gold-buy-price-calculator` graduated.
 // +1: `medical-billing-pricing-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 899;
+const SWITCHES_IN_THE_CATALOGUE = 901;
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
 // +1: `saas-efficiency-metrics-calculator` graduated.

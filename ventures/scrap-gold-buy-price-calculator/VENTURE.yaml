@@ -1,0 +1,48 @@
+name: scrap-gold-buy-price-calculator
+description: >-
+  Free browser tool for scrap gold buyers (pawn shops, estate and jewelry buyers): enter each piece's karat and weight and
+  your refiner's terms to get the fine gold, melt value, what the refiner really sends after assay loss, payout share, fees
+  and shipping, the highest offer that still leaves your target profit, an offer ladder, and the profit if the gold price
+  moves before you are paid. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. ventures/ has no scrap-gold, jewelry or bullion tool: the nearest are
+# storage-auction-max-bid-calculator, estate-sale-net-proceeds-calculator and liquidation-pallet-bid-calculator, none of
+# which converts karat and weight to fine gold or models a refiner. Not in screened-out.md.
+#
+# Why this niche: a buyer who pays 80% of melt and is paid 96% back by a refiner thinks the spread is 16 points; assay
+# loss, a flat refiner fee, shipping and the wait for settlement (during which gold can fall) decide whether a small lot
+# pays at all. "Scrap gold calculator" searches are served by seller-side melt-value pages that stop at a single number
+# and push a mail-in kit; the buyer's break-even offer and price-drop risk is the thing those pages do not show.
+#
+# First visitor: a pawn or coin-shop buyer, or an estate buyer, searching "scrap gold calculator" or "how much to pay
+# for scrap gold". Volume not measured.
+#
+# Liability boundary: arithmetic on typed figures; not financial, legal, tax or licensing advice; nothing stored or sent.
+
+hypotheses:
+  - claim: >-
+      Small scrap gold buyers will use a private break-even offer calculator, because seller-side melt calculators show
+      one number and ignore assay loss, refiner fees and price risk while the lot waits for settlement.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/scrap-gold-buy-price-calculator/
+  analytics: null
