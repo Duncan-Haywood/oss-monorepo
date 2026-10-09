@@ -3246,3 +3246,19 @@ entries:
         "HELOC vs cash-out refinance" searchers; volume unmeasured. Defaults are placeholders. Registered
         launch date, category rule and opt-out count; inbound links from the mortgage points and escrow tools.
     mrr_end: 0
+  - venture: card-bonus-planner
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built card-bonus-planner: a browser-local credit card sign-up-bonus planner for
+        points-and-miles hobbyists. Tracks minimum-spend deadlines and monthly pace, the 5/24 count and the
+        date it clears, community-reported issuer velocity rules with next clear dates, net bonus value
+        after the annual fee, and a wishlist scheduler that places each application on the earliest day
+        clearing issuer rules while a demand-bound check (hand-worked, tested) proves the shared monthly
+        spend covers every active deadline; .ics export. First visitor: r/churning, r/CreditCards and
+        "5/24 calculator" / "sign-up bonus tracker" searchers; volume unmeasured. Filed in solo-earner
+        because back-office is over its offline bundle bound on main (build.test.mjs red there before this
+        change). Registered launch date, opt-out count, mirror count; inbound link from
+        subscription-audit-from-statement.
+    mrr_end: 0
