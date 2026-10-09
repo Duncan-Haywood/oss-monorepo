@@ -696,6 +696,8 @@ const CATEGORY_RULES = [
       // `bakery-production-scheduler` joined 2026-10-07 on its first commit: bakers planning oven and prep time from
       // wholesale orders, one hop from the other food-service tools here.
       'bakery-production-scheduler',
+      // `ghost-kitchen-brand-picker` joined 2026-10-09 on its first commit: which virtual brands a delivery-only kitchen keeps under a kitchen-hours limit, beside `menu-engineering-calculator`'s per-item margins.
+      'ghost-kitchen-brand-picker',
       // `daily-prep-quantity-optimizer` joined 2026-10-09 on its first commit: how many to make, beside `bakery-production-scheduler`'s when to bake.
       'daily-prep-quantity-optimizer',
       // `brewery-tank-schedule-optimizer` joined 2026-10-09 on its first commit: when and where each batch goes, beside `craft-brewery-batch-margin-calculator`'s profit per barrel.
