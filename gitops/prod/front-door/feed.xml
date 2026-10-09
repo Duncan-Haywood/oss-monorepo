@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 935 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 937 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -48,12 +48,28 @@
     <summary type="text">Drop your DMARC aggregate reports (.xml, .gz or .zip) and see which senders pass SPF and DKIM alignment, which fail and exactly why, and when it is safe to move from p=none to quarantine or reject. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>EV Charging Station ROI Calculator: Payback, NPV, Break-Even — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ev-charging-site-roi-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/ev-charging-site-roi-calculator</id>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free EV charging station ROI calculator: enter ports, costs, price, utilization and demand charges to get payback, NPV, IRR and the break-even utilization for a Level 2 or DC fast site. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Farm Crop Mix Optimizer: Best Acres per Crop — Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/farm-crop-mix-optimizer/"/>
     <id>tag:marisstella.dev,2026:tool/farm-crop-mix-optimizer</id>
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free farm crop mix optimizer: enter yields, prices, costs, labor hours and operating capital per crop to find the acres that earn the most, and see what an extra acre, labor hour or dollar of capital is worth. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Food Truck Prep Mix Optimizer: Best Portions per Item — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/food-truck-prep-mix-optimizer/"/>
+    <id>tag:marisstella.dev,2026:tool/food-truck-prep-mix-optimizer</id>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free food truck prep mix optimizer: enter prices, food costs, prep minutes, grill time and ingredient cash per menu item to find how many portions earn the most, and what an extra prep minute is worth. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Ghostwriter Book Quote Calculator: Price a Book From Your Hours — Free</title>
@@ -150,21 +166,5 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Logistics, freight &amp; cloud cost"/>
     <summary type="text">Free self-storage unit mix optimizer: enter rentable square feet, rates, occupancy and demand limits per unit size to find the mix that earns the most net operating income, and see what extra space is worth. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Sign Shop Pricing Calculator: Banner, Sign and Vinyl Job Quotes — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sign-shop-job-pricing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/sign-shop-job-pricing-calculator</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free sign shop pricing calculator: enter size, quantity, material, print and install time and your shop rate to get the price that earns your margin, your break-even, and the price per square foot at any quantity. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Water Well Drilling Bid Calculator: Price a Well With Dry-Hole Risk — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/water-well-drilling-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/water-well-drilling-bid-calculator</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free water well drilling bid calculator: depth by formation, casing, grout, pump and tank, trench, mobilization and rig hours, plus a dry-hole allowance, priced to your margin with break-even and price per foot. Nothing uploaded.</summary>
   </entry>
 </feed>
