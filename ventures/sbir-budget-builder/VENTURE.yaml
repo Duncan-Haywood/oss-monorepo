@@ -1,0 +1,49 @@
+name: sbir-budget-builder
+description: >-
+  Free browser tool for small tech companies applying to SBIR / STTR: builds the SF424 R&R-style budget (personnel,
+  fringe, MTDC indirect, subawards, fee) and checks the small-business share of work, the STTR research-institution
+  share, the fee ceiling and the solicitation maximum. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled new-venture session. ventures/ had no grant-budget tool (duplicate_check score
+# 0.23 against home-inspection-report-builder, i.e. nothing real); the 900+ other ventures are trade bids and tax
+# calculators.
+#
+# Why this niche: SBIR/STTR is roughly $4B a year of non-dilutive money to small tech companies, awards run $150k to
+# $2M, and every first-time applicant rebuilds the same budget spreadsheet and learns the percentage-of-work rule from a
+# rejection. Incumbents are grant consultants (thousands of dollars) and agency Excel templates with no checks. A
+# private checker is the gap. Free tool is a lead magnet; revenue path is a paid proposal-pack (budget justification
+# text, biosketch and data-management templates) and consultant white-label, not built.
+#
+# First visitor: a founder searching "SBIR budget template", "SBIR percentage of work subcontract" or "STTR 30%
+# research institution". Volume not measured.
+#
+# Liability boundary: arithmetic on typed assumptions; no submission, no payment; every rule is an editable input and the
+# page says the solicitation controls. Not legal or grant-writing advice.
+
+hypotheses:
+  - claim: >-
+      First-time SBIR/STTR applicants will use a private budget builder that flags a percentage-of-work or fee violation,
+      because those errors are only discovered after submission and agency templates do no checking.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/sbir-budget-builder/
+  analytics: null

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SBIR / STTR Budget Builder: Percentage-of-Work and Fee Checks — Free</title>
+  <meta name="description" content="Free SBIR and STTR proposal budget builder: personnel, fringe, MTDC indirect, subawards and fee in SF424 R&amp;R lines, with checks on the small-business share of work, the STTR research-institution share and the fee ceiling. Nothing uploaded.">
+  <meta property="og:title" content="SBIR / STTR budget builder">
+  <meta property="og:description" content="Build the proposal budget and see whether your subawards break the percentage-of-work rule. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e3a8a'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "SBIR Budget Builder", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free SBIR and STTR proposal budget builder with fringe, MTDC indirect, fee, subaward percentage-of-work checks and CSV export. Runs in your browser.", "featureList": "SF424 R&R-style budget lines, percentage-of-work check, fee ceiling check, solicitation maximum check, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is an SBIR or STTR budget?", "acceptedAnswer": {"@type": "Answer", "text": "The cost section of a Small Business Innovation Research or Technology Transfer proposal: personnel and fringe, equipment, materials, travel, subawards and consultants, indirect costs and a fee. Agencies use the SF424 R&R budget form or their own template, and the solicitation sets the limits."}}, {"@type": "Question", "name": "How much of the work must the small business do?", "acceptedAnswer": {"@type": "Answer", "text": "Under the SBA policy directive the small business must perform at least two thirds (66.67%) of the work in SBIR Phase I and half in Phase II. For STTR the small business must perform at least 40% and the partnering research institution at least 30%. The solicitation controls; every figure here is an editable input."}}, {"@type": "Question", "name": "How much fee or profit can I charge?", "acceptedAnswer": {"@type": "Answer", "text": "Most agencies allow a fee of up to about 7% of total costs. Some agencies and some topics allow less or none, so read the solicitation. The tool warns when the fee you enter is over the ceiling you enter."}}, {"@type": "Question", "name": "What is modified total direct cost (MTDC)?", "acceptedAnswer": {"@type": "Answer", "text": "A common indirect cost base that excludes equipment and the part of each subaward above $25,000. Your negotiated or provisional indirect rate applies to the base your rate agreement names; pick the base that matches it."}}, {"@type": "Question", "name": "Does this submit or store my proposal?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser and nothing is uploaded. You can download the budget as a CSV to paste into the agency's form."}}, {"@type": "Question", "name": "Is this grant-writing or legal advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type. Eligibility, cost allowability, rates and the final budget are decided by your solicitation, your accountant and the agency."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">SBIR / STTR BUDGET BUILDER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Build your SBIR or STTR budget and see if the subawards break the rules</h1>
+    <p>Type your people, subawards and rates. The tool builds the SF424 R&amp;R-style budget lines, applies fringe, indirect and fee, and checks the share of work your company keeps, the STTR research-institution share, the fee ceiling and the solicitation maximum.</p>
+    <p class="note">Arithmetic on assumptions you type. Not legal, accounting or grant-writing advice. The example figures are placeholders, not a real proposal; the solicitation sets the real limits.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Program and rules</h2>
+      <div class="grid">
+        <div><label for="program">Program and phase</label><select id="program"><option value="sbir-1">SBIR Phase I</option><option value="sbir-2">SBIR Phase II</option><option value="sttr-1">STTR Phase I</option><option value="sttr-2">STTR Phase II</option></select></div>
+        <div><label for="months">Project length (months)</label><input id="months" type="number" step="any" value="6"></div>
+        <div><label for="minSmallBusiness">Minimum small business share of work (%)</label><input id="minSmallBusiness" type="number" step="any" value="66.67"></div>
+        <div><label for="minResearchInstitution">Minimum research institution share (%)</label><input id="minResearchInstitution" type="number" step="any" value="0"></div>
+        <div><label for="feeCeiling">Fee ceiling (% of costs, 0 = no check)</label><input id="feeCeiling" type="number" step="any" value="7"></div>
+        <div><label for="awardMax">Solicitation maximum ($, 0 = no check)</label><input id="awardMax" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. People and subawards</h2>
+      <div class="grid">
+        <div><label for="personnel">Personnel, one per line: name, role, annual salary, % effort</label><textarea id="personnel" rows="5"></textarea></div>
+        <div><label for="subawards">Subawards and consultants, one per line: name, university|company|consultant, amount</label><textarea id="subawards" rows="5"></textarea></div>
+        <div><label for="fringeRate">Fringe rate on salaries (%)</label><input id="fringeRate" type="number" step="any" value="25"></div>
+        <div><label for="salaryCap">Salary cap per person ($, 0 = none)</label><input id="salaryCap" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Other costs, indirect and fee</h2>
+      <div class="grid">
+        <div><label for="equipment">Equipment ($)</label><input id="equipment" type="number" step="any" value="0"></div>
+        <div><label for="materials">Materials and supplies ($)</label><input id="materials" type="number" step="any" value="8000"></div>
+        <div><label for="travel">Travel ($)</label><input id="travel" type="number" step="any" value="3000"></div>
+        <div><label for="otherDirect">Other direct costs ($)</label><input id="otherDirect" type="number" step="any" value="0"></div>
+        <div><label for="indirectBase">Indirect rate applies to</label><select id="indirectBase"><option value="mtdc">Modified total direct costs</option><option value="tdc">Total direct costs</option><option value="salary">Salaries and wages only</option><option value="none">No indirect</option></select></div>
+        <div><label for="indirectRate">Indirect rate (%)</label><input id="indirectRate" type="number" step="any" value="45"></div>
+        <div><label for="feeRate">Fee / profit (% of costs)</label><input id="feeRate" type="number" step="any" value="7"></div>
+      </div>
+      <button type="button" id="run">Build my budget</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What is an SBIR or STTR budget?</h3>
+      <p>The cost section of a Small Business Innovation Research or Technology Transfer proposal: personnel and fringe, equipment, materials, travel, subawards and consultants, indirect costs and a fee. Agencies use the SF424 R&R budget form or their own template, and the solicitation sets the limits.</p>
+      <h3>How much of the work must the small business do?</h3>
+      <p>Under the SBA policy directive the small business must perform at least two thirds (66.67%) of the work in SBIR Phase I and half in Phase II. For STTR the small business must perform at least 40% and the partnering research institution at least 30%. The solicitation controls; every figure here is an editable input.</p>
+      <h3>How much fee or profit can I charge?</h3>
+      <p>Most agencies allow a fee of up to about 7% of total costs. Some agencies and some topics allow less or none, so read the solicitation. The tool warns when the fee you enter is over the ceiling you enter.</p>
+      <h3>What is modified total direct cost (MTDC)?</h3>
+      <p>A common indirect cost base that excludes equipment and the part of each subaward above $25,000. Your negotiated or provisional indirect rate applies to the base your rate agreement names; pick the base that matches it.</p>
+      <h3>Does this submit or store my proposal?</h3>
+      <p>No. Everything runs in your browser and nothing is uploaded. You can download the budget as a CSV to paste into the agency's form.</p>
+      <h3>Is this grant-writing or legal advice?</h3>
+      <p>No. It is arithmetic on figures you type. Eligibility, cost allowability, rates and the final budget are decided by your solicitation, your accountant and the agency.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your company is eligible, whether a cost is allowable, your negotiated indirect rate, the agency's own template and page limits, cost-sharing, human-subjects or animal costs, and how an agency counts "percentage of work" for a particular topic. Rules and award ceilings change; the solicitation controls.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../freelance-proposal-maker/">freelance proposal maker</a>, the <a href="../employee-cost-calculator/">employee cost calculator</a> the <a href="../grant-indirect-cost-calculator/">grant indirect cost calculator</a> and the <a href="../rd-tax-credit-calculator/">R&amp;D tax credit calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify against the solicitation and your agency's budget instructions and a qualified professional before you submit.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, PROGRAMS, num, money, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const TEXT = ["program", "personnel", "subawards", "indirectBase"];
+    const opts = () => { const o = {}; for (const k of KEYS) { if (TEXT.includes(k)) { o[k] = $(k).value; continue; } o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    $("program").addEventListener("change", () => { const p = PROGRAMS[$("program").value]; $("minSmallBusiness").value = p.minSmallBusiness; $("minResearchInstitution").value = p.minResearchInstitution; });
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      h += `<div class="finding"><h4>${a.allOk ? "Every check passes" : "A check fails"}: total price ${money(a.price)}</h4><p>Costs ${money(a.totalCosts)} plus fee ${money(a.fee)}.</p></div>`;
+      h += `<div class="finding"><h4>Rule checks</h4>${table(["Check", "Result", "Detail"], a.checks.map((c) => [esc(c.name), c.ok ? "OK" : "FAILS", esc(c.detail)]))}${a.subHeadroom !== null ? `<p>You could add about ${money(a.subHeadroom)} more to subawards before the small-business floor is reached.</p>` : ""}</div>`;
+      h += `<div class="finding"><h4>Budget lines</h4>${table(["Line", "Amount"], a.sf424.map(([k, v]) => [esc(k), money(v)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      h += `<div class="finding"><h4>People</h4>${table(["Person", "Effort", "Person-months", "Cost"], a.people.map((p) => [esc(p.name), p.effort + "%", p.personMonths, money(p.cost)]))}</div>`;
+      h += `<div class="finding"><h4>Fee scenarios</h4>${table(["Fee rate", "Fee", "Total price"], a.feeScenarios.map((f) => [f.rate + "%", money(f.fee), money(f.price)]))}</div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "sbir-budget.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>
