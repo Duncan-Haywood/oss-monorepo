@@ -605,16 +605,7 @@ workflows:
 - workflow: cra-evidence-desk-ci.yml
   classification: none
   publishes: []
-- workflow: oil-gas-mineral-rights-offer-calculator-ci.yml
-  classification: none
-  publishes: []
 - workflow: craft-fair-booth-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: crop-insurance-coverage-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: tax-lien-certificate-yield-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: crawl-space-encapsulation-bid-calculator-ci.yml
@@ -624,6 +615,12 @@ workflows:
   classification: none
   publishes: []
 - workflow: cron-dst-drift-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: cron-heartbeat-ci.yml
+  classification: none
+  publishes: []
+- workflow: crop-insurance-coverage-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: crown-molding-bid-calculator-ci.yml
@@ -687,6 +684,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: dj-gig-profit-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: dmarc-report-reader-ci.yml
   classification: none
   publishes: []
 - workflow: dns-configuration-evidence-ci.yml
@@ -1538,6 +1538,9 @@ workflows:
 - workflow: oidc-trust-policy-check-ci.yml
   classification: none
   publishes: []
+- workflow: oil-gas-mineral-rights-offer-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: online-business-valuation-calculator-ci.yml
   classification: none
   publishes: []
@@ -2048,6 +2051,9 @@ workflows:
 - workflow: senior-deduction-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: sep-ira-contribution-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: sepa-pain001-validator-ci.yml
   classification: none
   publishes: []
@@ -2304,6 +2310,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: tattoo-piece-profit-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: tax-lien-certificate-yield-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: tax-loss-harvesting-calculator-ci.yml
@@ -2639,6 +2648,3 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
-- workflow: sep-ira-contribution-calculator-ci.yml
-  classification: none
-  publishes: []
