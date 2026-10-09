@@ -47,3 +47,7 @@ test("usage events named on the page are the ones the code records", () => {
 test("page does not decide demand, licence or safety rules", () => {
   assert.match(page("index.html"), /not a measurement/i);
 });
+
+test("links to the membership calculator that covers churn, lifetime value and break-even members", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/fitness-studio-membership-calculator\/"/);
+});
