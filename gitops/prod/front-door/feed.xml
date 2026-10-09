@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 972 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 973 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -104,6 +104,14 @@
     <summary type="text">Free daily prep quantity optimizer for bakeries, cafes and food trucks: paste past daily sales, mark sell-out days, and get the prep per item that earns the most after waste, with oven-minute and cash limits. Nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Dental Patient Financing Fee Calculator — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dental-patient-financing-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/dental-patient-financing-fee-calculator</id>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free calculator for dental and orthodontic practices: third-party patient financing vs an in-house payment plan vs pay-in-full. What you keep per case after merchant fees, defaults and waiting, and the acceptance rate financing must reach to pay for itself. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Dining Room Table Mix Optimizer: 2-Tops vs 4-Tops — Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dining-room-table-mix-optimizer/"/>
     <id>tag:marisstella.dev,2026:tool/dining-room-table-mix-optimizer</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free calculator for boutique gym, yoga, pilates and CrossFit owners: member lifetime value, cost to win a member, payback months, where your member count settles, break-even members and what one point of churn is worth. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Food Truck Prep Mix Optimizer: Best Portions per Item — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/food-truck-prep-mix-optimizer/"/>
-    <id>tag:marisstella.dev,2026:tool/food-truck-prep-mix-optimizer</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free food truck prep mix optimizer: enter prices, food costs, prep minutes, grill time and ingredient cash per menu item to find how many portions earn the most, and what an extra prep minute is worth. Nothing uploaded.</summary>
   </entry>
 </feed>

@@ -367,6 +367,8 @@ export const REVIEWED_NOT_CARRIED = {
     'staff pay and payroll extras price the minutes spent on each prescription, not a shop labour rate for a job quote; there is no overhead-on-cost field, fixed costs are a monthly dollar total, and the target margin is a share of what the patient and PBM pay.',
   'provider-credentialing-delay-cost-calculator':
     'it prices the revenue blocked while a new clinician waits for payer enrollment from visits, allowed amounts and delay days the user types; weekly pay is a cost line for the gap, not a shop labour rate for a job quote, and there is no overhead-on-cost or markup field.',
+  'dental-patient-financing-fee-calculator':
+    'it compares ways of collecting a treatment fee (merchant fee, instalments, defaults, discount) from rates the user types; there is no shop labour rate, overhead-on-cost or markup field for a job quote.',
   'veterinary-wellness-plan-pricing-calculator':
     'it prices a monthly wellness-plan fee from per-service list prices and costs the user types, with billing fees as a rate on plan payments; there is no shop labour rate, overhead-on-cost or markup field for a job quote.',
   'therapy-8-minute-rule-calculator':
