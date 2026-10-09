@@ -76,7 +76,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/chargeback-ratio-monitor/"/>
     <id>tag:marisstella.dev,2026:tool/chargeback-ratio-monitor</id>
     <updated>2026-10-09T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Marketplace seller tools"/>
     <summary type="text">Free chargeback ratio monitor: drop in your Stripe payments CSV and see your dispute rate by month, headroom to your warning lines, the trend, and what is driving disputes. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
