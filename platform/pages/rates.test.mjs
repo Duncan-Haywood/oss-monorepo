@@ -58,6 +58,10 @@ const script = renderShopRatesModule();
  * that the assertion below actually checks.
  */
 const NO_SHARED_SHOP_RATES = {
+  'water-well-drilling-bid-calculator':
+    'it has no payroll-burden field, its labour is a rig, compressor and crew rate per rig hour beside a ' +
+    'separate install crew rate, and its margin is a share of the price after a dry-hole allowance, so ' +
+    'sharing the four canonical rates would prefill figures that mean different things.',
   'sauna-cold-plunge-install-bid-calculator':
     'it has no payroll-burden field, its overhead is a monthly dollar total spread over billable hours ' +
     'rather than a percentage of direct cost, and its labour rate sits beside a separate helper rate, so ' +
