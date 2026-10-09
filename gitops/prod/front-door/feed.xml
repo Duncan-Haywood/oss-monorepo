@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 927 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 928 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-10-09T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Adjunct Pay Calculator: What a Course Really Pays Per Hour — Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/adjunct-course-offer-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/adjunct-course-offer-calculator</id>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free adjunct pay calculator: enter the per-course pay, prep, grading, unpaid office hours, commute and cancellation risk to see what a course really pays per hour, compare up to three offers and find the largest class worth accepting. Nothing uploaded.</summary>
+  </entry>
   <entry>
     <title>Birth Doula Package Pricing Calculator: What Do You Earn Per Hour? — Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/birth-doula-package-pricing-calculator/"/>
@@ -158,13 +166,5 @@
     <updated>2026-10-08T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free CD and Treasury ladder calculator: build a ladder from the rates you type, see after-tax yield per rung with the state-tax exemption, and compare it with the longest CD or rolling short if rates move. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Cell Tower Lease Buyout Calculator (Is the Lump-Sum Offer Fair?) — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cell-tower-lease-buyout-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/cell-tower-lease-buyout-calculator</id>
-    <updated>2026-10-08T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free cell tower lease buyout calculator: compare a lump-sum offer with the rent you would keep collecting. Present value at your discount rate, the buyer&#39;s implied return, colocation upside, tenant-exit risk and an after-tax comparison. Nothing uploaded.</summary>
   </entry>
 </feed>
