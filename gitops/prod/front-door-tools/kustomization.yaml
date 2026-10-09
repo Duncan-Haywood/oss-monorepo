@@ -33,45 +33,45 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547780 bytes
-#   portfolio-front-tools-1: 92 files, 555456 bytes
-#   portfolio-front-tools-2: 144 files, 553114 bytes
-#   portfolio-front-tools-3: 128 files, 549659 bytes
-#   portfolio-front-tools-4: 136 files, 549190 bytes
-#   portfolio-front-tools-5: 135 files, 554327 bytes
-#   portfolio-front-tools-6: 120 files, 555745 bytes
-#   portfolio-front-tools-7: 120 files, 555132 bytes
-#   portfolio-front-tools-8: 135 files, 556309 bytes
+#   portfolio-front-tools-0: 145 files, 547790 bytes
+#   portfolio-front-tools-1: 92 files, 555448 bytes
+#   portfolio-front-tools-2: 144 files, 553122 bytes
+#   portfolio-front-tools-3: 128 files, 549662 bytes
+#   portfolio-front-tools-4: 136 files, 549191 bytes
+#   portfolio-front-tools-5: 135 files, 554338 bytes
+#   portfolio-front-tools-6: 120 files, 555743 bytes
+#   portfolio-front-tools-7: 120 files, 555137 bytes
+#   portfolio-front-tools-8: 135 files, 556310 bytes
 #   portfolio-front-tools-9: 136 files, 555307 bytes
-#   portfolio-front-tools-10: 133 files, 554318 bytes
-#   portfolio-front-tools-11: 127 files, 553969 bytes
-#   portfolio-front-tools-12: 130 files, 554499 bytes
-#   portfolio-front-tools-13: 127 files, 542253 bytes
-#   portfolio-front-tools-14: 126 files, 553550 bytes
-#   portfolio-front-tools-15: 127 files, 550505 bytes
-#   portfolio-front-tools-16: 121 files, 555332 bytes
-#   portfolio-front-tools-17: 123 files, 554814 bytes
-#   portfolio-front-tools-18: 118 files, 549877 bytes
-#   portfolio-front-tools-19: 122 files, 551187 bytes
-#   portfolio-front-tools-20: 113 files, 557029 bytes
-#   portfolio-front-tools-21: 123 files, 556519 bytes
-#   portfolio-front-tools-22: 126 files, 556886 bytes
+#   portfolio-front-tools-10: 133 files, 554345 bytes
+#   portfolio-front-tools-11: 127 files, 553972 bytes
+#   portfolio-front-tools-12: 130 files, 554503 bytes
+#   portfolio-front-tools-13: 127 files, 542247 bytes
+#   portfolio-front-tools-14: 126 files, 553547 bytes
+#   portfolio-front-tools-15: 127 files, 550506 bytes
+#   portfolio-front-tools-16: 121 files, 555396 bytes
+#   portfolio-front-tools-17: 123 files, 554811 bytes
+#   portfolio-front-tools-18: 118 files, 549875 bytes
+#   portfolio-front-tools-19: 122 files, 551191 bytes
+#   portfolio-front-tools-20: 113 files, 557028 bytes
+#   portfolio-front-tools-21: 123 files, 556512 bytes
+#   portfolio-front-tools-22: 126 files, 556892 bytes
 #   portfolio-front-tools-23: 136 files, 554184 bytes
-#   portfolio-front-tools-24: 127 files, 553016 bytes
-#   portfolio-front-tools-25: 122 files, 556745 bytes
-#   portfolio-front-tools-26: 129 files, 549645 bytes
-#   portfolio-front-tools-27: 129 files, 553775 bytes
-#   portfolio-front-tools-28: 116 files, 553601 bytes
-#   portfolio-front-tools-29: 136 files, 556646 bytes
+#   portfolio-front-tools-24: 127 files, 553022 bytes
+#   portfolio-front-tools-25: 122 files, 556743 bytes
+#   portfolio-front-tools-26: 129 files, 549646 bytes
+#   portfolio-front-tools-27: 129 files, 553774 bytes
+#   portfolio-front-tools-28: 116 files, 553603 bytes
+#   portfolio-front-tools-29: 136 files, 556652 bytes
 #   portfolio-front-tools-30: 109 files, 549326 bytes
-#   portfolio-front-tools-31: 99 files, 553873 bytes
-#   portfolio-front-tools-32: 124 files, 550971 bytes
-#   portfolio-front-tools-33: 123 files, 550012 bytes
+#   portfolio-front-tools-31: 99 files, 553872 bytes
+#   portfolio-front-tools-32: 124 files, 550972 bytes
+#   portfolio-front-tools-33: 123 files, 550013 bytes
 #   portfolio-front-tools-34: 123 files, 554988 bytes
-#   portfolio-front-tools-35: 127 files, 554046 bytes
-#   portfolio-front-tools-36: 121 files, 546970 bytes
-#   portfolio-front-tools-37: 117 files, 556304 bytes
-#   portfolio-front-tools-38: 51 files, 281896 bytes
+#   portfolio-front-tools-35: 127 files, 554043 bytes
+#   portfolio-front-tools-36: 121 files, 546967 bytes
+#   portfolio-front-tools-37: 117 files, 555785 bytes
+#   portfolio-front-tools-38: 54 files, 293456 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -5003,6 +5003,9 @@ configMapGenerator:
       - wholesale-line-sheet-maker__calc.mjs.gz=wholesale-line-sheet-maker__calc.mjs.gz
       - wholesale-line-sheet-maker__index.html.gz=wholesale-line-sheet-maker__index.html.gz
       - wholesale-line-sheet-maker__usage.mjs.gz=wholesale-line-sheet-maker__usage.mjs.gz
+      - wholesale-real-estate-offer-calculator__calc.mjs.gz=wholesale-real-estate-offer-calculator__calc.mjs.gz
+      - wholesale-real-estate-offer-calculator__index.html.gz=wholesale-real-estate-offer-calculator__index.html.gz
+      - wholesale-real-estate-offer-calculator__usage.mjs.gz=wholesale-real-estate-offer-calculator__usage.mjs.gz
       - wildlife-exclusion-bid-calculator__calc.mjs.gz=wildlife-exclusion-bid-calculator__calc.mjs.gz
       - wildlife-exclusion-bid-calculator__index.html.gz=wildlife-exclusion-bid-calculator__index.html.gz
       - wildlife-exclusion-bid-calculator__usage.mjs.gz=wildlife-exclusion-bid-calculator__usage.mjs.gz
@@ -5021,14 +5024,14 @@ configMapGenerator:
       - window-replacement-bid-calculator__share.mjs.gz=window-replacement-bid-calculator__share.mjs.gz
       - window-replacement-bid-calculator__usage.mjs.gz=window-replacement-bid-calculator__usage.mjs.gz
       - window-replacement-bid-calculator__vs-a-flat-price-per-window.html.gz=window-replacement-bid-calculator__vs-a-flat-price-per-window.html.gz
-      - window-replacement-bid-calculator__vs-marketsharp.html.gz=window-replacement-bid-calculator__vs-marketsharp.html.gz
-      - window-tinting-bid-calculator__calc.mjs.gz=window-tinting-bid-calculator__calc.mjs.gz
-      - window-tinting-bid-calculator__how-much-to-charge-for-window-tinting.html.gz=window-tinting-bid-calculator__how-much-to-charge-for-window-tinting.html.gz
   - name: portfolio-front-tools-38
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - window-replacement-bid-calculator__vs-marketsharp.html.gz=window-replacement-bid-calculator__vs-marketsharp.html.gz
+      - window-tinting-bid-calculator__calc.mjs.gz=window-tinting-bid-calculator__calc.mjs.gz
+      - window-tinting-bid-calculator__how-much-to-charge-for-window-tinting.html.gz=window-tinting-bid-calculator__how-much-to-charge-for-window-tinting.html.gz
       - window-tinting-bid-calculator__index.html.gz=window-tinting-bid-calculator__index.html.gz
       - window-tinting-bid-calculator__usage.mjs.gz=window-tinting-bid-calculator__usage.mjs.gz
       - window-tinting-bid-calculator__vs-a-flat-per-vehicle-size-price.html.gz=window-tinting-bid-calculator__vs-a-flat-per-vehicle-size-price.html.gz
