@@ -29310,3 +29310,106 @@ ventures:
       Ethics: purely informational, helps a self-employed filer size a
       retirement contribution they are already entitled to make; no
       scraped or personal data, nothing adversarial.
+  - slug: proposal-maker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Prices, dates, the payment schedule and
+      the clause wording are deterministic functions of what the user typed.
+    basis: >-
+      Screened 2026-10-07 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Front of the freelancer
+      loop: estimate-maker prices a quote and freelance-contract-checker reads a
+      contract someone sends you, but nothing produced the scoped, dated, priced
+      document a freelancer sends to win the project. Distribution 6: "free proposal
+      template" and "project proposal generator" are real search phrases and the
+      sibling freelancer tools link to it, but volume is not measured with an
+      external tool. Defensibility 3: a template builder is easy to copy and the paid
+      platforms (Bonsai, PandaDoc, Proposify, HoneyBook) bundle signing and payment;
+      the wedge is free, private and no signup.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: the clause text is generic template wording, labelled on the page,
+      in the printed terms and in the footer as not legal advice with an instruction
+      to have a lawyer review any contract; it does not promise legal effect (a test
+      asserts that), and the page says what it does not model (e-signature, online
+      payment, multiple tax rates). Data never leaves the browser (test asserts no
+      network calls), all user text is escaped before rendering, and a restore
+      accepts only well-formed proposals. Ethics: no data capture, no dark
+      patterns, the hand-off writes only to Estimate Maker's own saved data.
+  - slug: tile-layout-optimizer
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      A layout search plus guillotine bin packing in the browser; no language model
+      and no paid API. The value is laying out the actual room, with offcuts, instead
+      of a flat waste percentage.
+    basis: >-
+      Screened 2026-10-01 per portfolio/pipeline/README.md's scoring process; full
+      write-up in this venture's own VENTURE.yaml comment. Distribution 6: "tile
+      layout calculator", "how many tiles do I need" and "tile waste" are recurring
+      searches and DIY forum questions (volume not measured with an external tool).
+      Defensibility 5: retailer calculators are area times a percentage; a free private
+      layout optimizer with offcut reuse and a tile-size cost comparison is uncommon but
+      easy to imitate.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and a layout heuristic on supplied figures, a planning aid
+      and not installation advice, no warranty, no prices asserted. No customer data;
+      nothing leaves the browser. Ethics: helps a buyer order the right amount.
+  - slug: mileage-deduction-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every result is deterministic
+      arithmetic: miles times a dated IRS rate, and expenses times a
+      business-use share.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring
+      process; write-up in this venture's VENTURE.yaml comment.
+      duplicate_check.py's top score was 0.18. Distribution 6 reflects
+      year-end tax-prep search seasonality plus the mid-year 2026 rate
+      change (72.5 to 76 cents on July 1, Announcement 2026-11), which
+      makes single-rate calculators wrong. Defensibility 2: published IRS
+      rates applied via arithmetic, trivially replicated.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: scoped to self-employed filers; the standard-rate
+      eligibility limits and commuting rule are standing findings on every
+      result; output is a deduction estimate, never a filed return. No
+      warranty and no-advice disclaimers on the page.
+      Ethics: purely informational, no scraped or personal data, nothing
+      adversarial, zero externality.
