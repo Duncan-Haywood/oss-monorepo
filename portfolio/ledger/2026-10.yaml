@@ -3332,3 +3332,14 @@ entries:
         Lesson: two scheduled sessions chose the same niche because duplicate_check.py reads merged ventures, not open
         PRs or fresh pushes; check main again right before building, not only before screening.
     mrr_end: 0
+  - venture: aws-iam-policy-risk-check
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built aws-iam-policy-risk-check: a browser-local tool and CLI that reads one IAM identity, trust or
+        resource policy and reports admin wildcards, privilege-escalation actions (wildcards expanded against a 15-action
+        list), Allow+NotAction/NotResource, secret reads on "*", public principals and unconditioned cross-account trust, with
+        a 0-100 score and a fix per finding. CLI exits 1 on critical/high so it can gate CI. 25 tests; browser checks pass.
+        First visitor: r/aws and Stack Overflow searches on over-permissive IAM; volume unmeasured.
+    mrr_end: 0
