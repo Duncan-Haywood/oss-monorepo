@@ -712,6 +712,8 @@ const CATEGORY_RULES = [
       // `bakery-production-scheduler` joined 2026-10-07 on its first commit: bakers planning oven and prep time from
       // wholesale orders, one hop from the other food-service tools here.
       'bakery-production-scheduler',
+      // `cake-pricing-calculator` joined 2026-10-10: custom cake pricing for home and small bakeries, a sibling of `bakery-production-scheduler`.
+      'cake-pricing-calculator',
       // `ghost-kitchen-brand-picker` joined 2026-10-09 on its first commit: which virtual brands a delivery-only kitchen keeps under a kitchen-hours limit, beside `menu-engineering-calculator`'s per-item margins.
       'ghost-kitchen-brand-picker',
       // `cafe-drink-margin-calculator` joined 2026-10-09 on its first commit: per-drink margin for coffee shops after card fees and make-time labor, beside `menu-engineering-calculator`'s dish margins.
