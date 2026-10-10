@@ -1,0 +1,54 @@
+name: aws-iam-policy-risk-check
+description: >-
+  Free browser tool and CLI for AWS users: paste one IAM policy, trust policy or resource policy and see a risk score, admin wildcards,
+  privilege-escalation actions, Allow+NotAction grants and public principals, each with a fix to review. No AWS access; the text
+  never leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. No IAM policy venture exists (neighbours: s3-bucket-exposure-check reads bucket
+# config, terraform-plan-blast-radius-check reads plans). Not in screened-out.md.
+#
+# Why this niche: every AWS team writes policies with a wildcard "to get it working" and ships it. Paid answers (Wiz, Prisma,
+# Datadog CSPM, Prowler SaaS) need account access and a contract; Access Analyzer needs an account. A paste-the-policy tool needs
+# neither, so a security-conscious team or a contractor reviewing a PR can use it today.
+#
+# First visitor: engineers on r/aws, r/devops, Stack Overflow and Terraform threads searching "iam policy too permissive", "iam
+# privilege escalation actions", "principal * s3 bucket policy public". Volume not measured with an external tool.
+#
+# Liability boundary: pure text analysis of what the user pastes. No AWS calls, no credentials. Output is findings and suggested
+# fixes for a person to review; the page says a clean score is not proof of safety and lists what is not modelled.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. The natural paid layer is a PR check that runs this against
+# rendered Terraform/CloudFormation policies and diffs risk over time, which needs an owner decision on accounts; not built.
+
+hypotheses:
+  - claim: >-
+      Engineers searching why an IAM policy is too permissive will paste it into a no-signup tool rather than read an escalation
+      blog post line by line.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A CI-friendly exit code gets the CLI adopted as a pre-merge check on rendered policies.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a false "critical" on a policy that is demonstrably tight, at which point the escalation list needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/aws-iam-policy-risk-check/
+  analytics: null

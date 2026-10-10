@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 979 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 980 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -14,6 +14,14 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free app review analyzer: drop in your Google Play or App Store review CSV and see which release dropped your rating, which complaints cost the most stars, and which unhappy reviews you have not answered. Runs in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>AWS IAM Policy Risk Check — Find Over-Broad Permissions in Your Policy</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/aws-iam-policy-risk-check/"/>
+    <id>tag:marisstella.dev,2026:tool/aws-iam-policy-risk-check</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free AWS IAM policy checker: paste a policy, trust policy or bucket policy and see admin wildcards, privilege-escalation actions, NotAction grants and public principals with fixes to review. Runs in your browser, no AWS access needed.</summary>
   </entry>
   <entry>
     <title>Postgres Index Auditor — Find Unused, Duplicate and Redundant Indexes</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator for dental and orthodontic practices: third-party patient financing vs an in-house payment plan vs pay-in-full. What you keep per case after merchant fees, defaults and waiting, and the acceptance rate financing must reach to pay for itself. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Dining Room Table Mix Optimizer: 2-Tops vs 4-Tops — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dining-room-table-mix-optimizer/"/>
-    <id>tag:marisstella.dev,2026:tool/dining-room-table-mix-optimizer</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free restaurant table mix tool: enter your floor area, table sizes and party-size mix, and get the number of 2-tops, 4-tops and 6-tops that seats the most guests, from simulated busy services. Nothing uploaded.</summary>
   </entry>
 </feed>
