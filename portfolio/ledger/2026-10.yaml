@@ -3376,3 +3376,14 @@ entries:
         visitor: working photographers asking what to charge and whether to outsource editing on r/RealEstatePhotography and photographer
         groups; volume unmeasured.
     mrr_end: 0
+  - venture: brewery-excise-tax-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built brewery-excise-tax-calculator: a browser-local calculator for craft brewers turning kegs, cases, growlers
+        and barrels removed in a year into federal beer excise tax at the CBMA rates ($3.50 to 60,000 bbl, $16 to 6M, $18 above, shared
+        controlled-group allotment), the tax inside each keg, case and pint, a growth table showing the rate cliff, and a filing-period
+        hint. Hand-computed tier cases pinned by tests. First visitor: brewers and bookkeepers searching brewery excise tax / CBMA
+        calculator, and brewery-owner threads on r/craftbeer and Brewers Association forums; volume unmeasured.
+    mrr_end: 0
