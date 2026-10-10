@@ -421,6 +421,8 @@ export const REVIEWED_NOT_CARRIED = {
     'the labor rate is the operator\'s hourly cost applied to the clock time of one job and overhead is a dollar figure per machine hour, not a percentage of direct cost; the target margin is a share of the quote, and there is no burden field -- the tool quotes a decorated piece from machine time rather than being handed a shop rate',
   'screen-print-job-quote-calculator':
     'labor and overhead are dollars per hour applied to setup and press hours of one job, not a percentage of direct cost, and there is no burden field; the target margin is a share of the quote -- the tool prices a print job from screens, garments and press time rather than being handed a shop rate',
+  'sports-official-game-fee-calculator':
+    'there is no labor rate, burden or quote to a customer: the tool turns an official\'s per-game fee, assignor cut and drive into pay per hour and season take-home; the hourly figure is a target the user sets for themselves',
   'course-launch-revenue-calculator':
     'there is no labor rate or job pricing: the tool turns a course creator\'s own list, conversion rates, price and fees into launch profit; nothing is quoted to a customer',
   'freelance-rate-increase-calculator':

@@ -3410,11 +3410,18 @@ entries:
         Hand-computed cases pinned by tests. First visitor: shop owners and merch sellers searching screen printing pricing
         calculator, and r/screenprinting pricing threads; volume unmeasured.
     mrr_end: 0
+  - venture: sports-official-game-fee-calculator
   - venture: winery-excise-tax-calculator
     agent_spend_usd: 0
     human_hours: 0
     outcomes:
       - >-
+        Graduated and built sports-official-game-fee-calculator: a browser-local pay calculator for referees, umpires and game
+        officials that turns fee, assignor cut, round-trip miles, hours on site and games per trip into pay per hour after the
+        drive, a distance ladder, the value of a second game on the same trip, season take-home after self-employment tax (IRS
+        mileage rate for the deduction, real cost per mile for cash), games needed for a take-home goal and the lowest fee worth
+        driving for. Hand-computed cases pinned by tests. First visitor: officials searching referee pay calculator and is
+        refereeing worth it, and r/Referees fee-and-drive threads; volume unmeasured.
         Graduated and built winery-excise-tax-calculator: a browser-local calculator for wineries and cideries turning cases,
         bottles and bulk gallons by category (still, fortified, sparkling, carbonated, hard cider) into federal excise tax at the
         IRC 5041(b) rates, less the CBMA credit tiers ($1.00 / $0.90 / $0.535 per wine gallon over 30,000 / 130,000 / 750,000,
@@ -3422,6 +3429,18 @@ entries:
         hint. Credit tier cases hand-computed and pinned by tests; tier figures verified against 26 U.S.C. 5041(c) and TTB
         guidance. First visitor: winemakers, cidermakers and bookkeepers searching wine excise tax / CBMA wine credit, and
         threads on r/winemaking and cider-association forums; volume unmeasured.
+    mrr_end: 0
+  - venture: form-2290-hvut-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built form-2290-hvut-calculator: a browser-local Form 2290 heavy highway vehicle use tax calculator for
+        owner-operators and small fleets. Per truck it gives the weight category (A-V, W when suspended), annual tax ($100 at 55,000 lb,
+        +$22 per 1,000 lb, $550 cap above 75,000 lb, 75% for logging), whole-month proration from the first-use month, the filing
+        deadline, the 5,000 / 7,500-mile suspension, the cost of the next weight bracket and cost per mile, with CSV export. Rate
+        boundaries and proration hand-computed and pinned by tests. First visitor: truckers searching form 2290 calculator / hvut tax
+        for 80000 lbs; volume unmeasured.
     mrr_end: 0
   - venture: eu-pay-gap-report-calculator
     agent_spend_usd: 0
