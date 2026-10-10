@@ -3332,3 +3332,14 @@ entries:
         Lesson: two scheduled sessions chose the same niche because duplicate_check.py reads merged ventures, not open
         PRs or fresh pushes; check main again right before building, not only before screening.
     mrr_end: 0
+  - venture: veterinary-dental-estimate-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built veterinary-dental-estimate-calculator: a browser-local worksheet for veterinary clinics giving an itemised
+        dental estimate and clinic profit per grade 1-4 (extractions, blocks, anesthesia time, staff and overhead), profit per
+        anesthesia hour, the price that reaches a target margin, a suggested estimate range, and what a flat dental quote gives up per
+        year at the clinic's case mix. Hand-computed defaults pinned by tests. First visitor: practice managers asking how to price
+        dentals on r/Veterinary, r/vetmed and VIN boards; volume unmeasured.
+    mrr_end: 0

@@ -1494,7 +1494,7 @@ const RELATIVE_SELF = relative(
 // +1: `dental-patient-financing-fee-calculator` graduated.
 // +1: `app-review-insights` graduated.
 // +1: `postgres-index-auditor` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 957;
+const SWITCHES_IN_THE_CATALOGUE = 958;
 // +1: `retreat-profit-pricing-calculator` graduated.
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
