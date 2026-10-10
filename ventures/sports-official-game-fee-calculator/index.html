@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Referee &amp; Umpire Pay Calculator — Pay Per Hour After the Drive</title>
+  <meta name="description" content="Free pay calculator for referees, umpires and game officials: what you keep per game and per hour after the assignor fee, driving and taxes, how many games you need for a take-home goal, and the lowest fee worth the drive. Runs in your browser.">
+  <meta property="og:title" content="Referee &amp; Umpire Pay Calculator — free, private">
+  <meta property="og:description" content="Pay per hour after the drive, doubleheader value, season take-home and the lowest fee worth driving for. Nothing is uploaded.">
+  <link rel="canonical" href="./index.html">
+      <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Referee & Umpire Pay Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free pay calculator for sports officials: net pay per game and per hour after assignor fee, driving and self-employment tax, season take-home and the lowest fee worth the drive."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should a referee or umpire charge per game?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the league, but the number that matters is pay per hour after the drive. Enter the fee, the hours from arrival to departure, the round-trip miles and what driving really costs you, and the tool shows what you keep per hour and the lowest fee that reaches your target rate."}}, {"@type": "Question", "name": "Why do doubleheaders and tournaments pay better per hour?", "acceptedAnswer": {"@type": "Answer", "text": "The drive, parking and setup are paid once per trip, not once per game. The tool shows pay per hour for one to four games on the same trip so you can see how much a second game is worth."}}, {"@type": "Question", "name": "Why are there two mileage rates?", "acceptedAnswer": {"@type": "Answer", "text": "Driving costs you real money per mile (fuel, wear, depreciation). The IRS standard mileage rate is a separate figure that sets the tax deduction, and it is usually higher. The tool uses the real cost for your cash and the IRS rate for your tax, which is why you enter both. Look up the current IRS rate before filing."}}, {"@type": "Question", "name": "Do officials pay self-employment tax?", "acceptedAnswer": {"@type": "Answer", "text": "Most game officials are paid as independent contractors, so net profit is generally subject to self-employment tax of 15.3% on 92.35% of profit, plus income tax. The tool estimates both from the rate you enter. Whether you are a contractor or an employee depends on your league; ask a tax professional."}}, {"@type": "Question", "name": "What does the assignor fee mean?", "acceptedAnswer": {"@type": "Answer", "text": "Many leagues book officials through an assignor or an online platform that keeps a percentage or charges a fee. Enter it as a percentage of the game fee."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "State and local tax, the qualified business income deduction, the Social Security wage-base cap, meals, equipment you buy mid-season, cancellations and rainouts, and anything that makes your fee vary by game. Enter an average fee."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab. There are no accounts."}}, {"@type": "Question", "name": "Is this tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic over the numbers you enter. Check it against your own records and a tax professional before relying on it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f7f4; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #17623a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0d3b22; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0d3b22; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #cfe0d4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0d3b2210; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #9db9a6; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17623a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dcebe1; color: #0d3b22; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e1ece5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    .finding { border-bottom: 1px solid #e1ece5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .big { font-size: 1.6rem; font-weight: 800; color: #0d3b22; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 8px; }
+    .stat span { display: block; font-size: .8rem; color: #46566a; text-transform: uppercase; letter-spacing: .03em; }
+    footer { margin-top: 28px; border-top: 1px solid #cfe0d4; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">REFEREE &amp; UMPIRE PAY CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What does a game actually pay you per hour?</h1>
+    <p>Enter your game fee, the drive and your season. You get <strong>pay per hour after the assignor and the drive, what a doubleheader is worth, season take-home after self-employment tax, and the lowest fee worth driving for</strong>.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example numbers are made up. Arithmetic over what you enter, not tax advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The game and the trip</h2>
+    <div class="grid">
+      <div><label for="fee">Fee per game ($)</label><input type="number" id="fee" min="1" step="1" value="55"></div>
+      <div><label for="assignorPct">Assignor or booking fee (% of fee)</label><input type="number" id="assignorPct" min="0" step="0.5" value="8"></div>
+      <div><label for="gamesPerTrip">Games worked per trip (doubleheader = 2)</label><input type="number" id="gamesPerTrip" min="0" step="1" value="1"></div>
+      <div><label for="miles">Round-trip miles</label><input type="number" id="miles" min="0" step="1" value="30"></div>
+      <div><label for="mph">Average driving speed (mph)</label><input type="number" id="mph" min="0" step="1" value="35"></div>
+      <div><label for="tripExpense">Parking, tolls, food per trip ($)</label><input type="number" id="tripExpense" min="0" step="0.5" value="0"></div>
+      <div><label for="hoursFirst">Hours on site, first game (arrive to leave)</label><input type="number" id="hoursFirst" min="0" step="0.25" value="2.5"></div>
+      <div><label for="hoursExtra">Extra hours per additional game</label><input type="number" id="hoursExtra" min="0" step="0.25" value="1.5"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Your season and costs</h2>
+    <div class="grid">
+      <div><label for="games">Games you work this season</label><input type="number" id="games" min="0" step="1" value="60"></div>
+      <div><label for="annualCosts">Yearly costs: dues, background check, uniform, clinics ($)</label><input type="number" id="annualCosts" min="0" step="10" value="250"></div>
+      <div><label for="costPerMile">What driving really costs you per mile ($)</label><input type="number" id="costPerMile" min="0" step="0.01" value="0.45"></div>
+      <div><label for="irsRate">Tax mileage deduction rate per mile ($, IRS standard)</label><input type="number" id="irsRate" min="0" step="0.005" value="0.70"></div>
+      <div><label for="taxPct">Income tax rate on profit (%)</label><input type="number" id="taxPct" min="0" step="1" value="12"></div>
+      <div><label for="targetHourly">Pay per hour you want ($, optional)</label><input type="number" id="targetHourly" min="0" step="1" value="25"></div>
+      <div><label for="targetTakeHome">Season take-home you want after tax ($, optional)</label><input type="number" id="targetTakeHome" min="0" step="100" value="3000"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Calculate</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+    </p>
+    <p class="note" id="form-status">Enter your numbers, or load the example, then click Calculate.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Your pay</h2>
+    <div class="stats">
+      <div class="stat"><span>Kept per trip</span><div class="big" id="s-net"></div></div>
+      <div class="stat"><span>Pay per hour</span><div class="big" id="s-hourly"></div></div>
+      <div class="stat"><span>Season take-home</span><div class="big" id="s-season"></div></div>
+      <div class="stat"><span>Lowest fee for your target</span><div class="big" id="s-min"></div></div>
+    </div>
+    <div id="advice"></div>
+    <h3>Where a trip's money goes</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Item</th><th scope="col">Amount</th></tr></thead><tbody id="parts"></tbody></table></div>
+    <h3>Season, after tax</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Item</th><th scope="col">Amount</th></tr></thead><tbody id="seasonRows"></tbody></table></div>
+    <h3>How far is too far?</h3>
+    <p class="note">Same fee and games per trip at other round-trip distances.</p>
+    <div class="scroll"><table><thead><tr><th scope="col">Round-trip miles</th><th scope="col">Kept per trip</th><th scope="col">Hours</th><th scope="col">Pay per hour</th></tr></thead><tbody id="ladder"></tbody></table></div>
+    <h3>What a second game is worth</h3>
+    <p class="note">Same drive, more games on the same trip.</p>
+    <div class="scroll"><table><thead><tr><th scope="col">Games per trip</th><th scope="col">Kept per trip</th><th scope="col">Hours</th><th scope="col">Pay per hour</th></tr></thead><tbody id="games"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download the distance table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How it works, and what it leaves out</h2>
+    <ul>
+      <li><strong>Kept per trip</strong> = games × fee − assignor cut − round-trip miles × real cost per mile − trip expenses.</li>
+      <li><strong>Hours</strong> = hours on site (first game plus extra per additional game) + round-trip miles ÷ driving speed. Pay per hour = kept ÷ hours.</li>
+      <li><strong>Lowest fee</strong> = (target rate × hours + driving + trip expenses) ÷ (games × (1 − assignor cut)).</li>
+      <li><strong>Taxable profit</strong> = fees − assignor cut − mileage deduction (miles × IRS rate) − trip expenses − yearly costs. <strong>Self-employment tax</strong> = 15.3% × 92.35% of profit; income tax = your rate × (profit − half of SE tax).</li>
+      <li><strong>Take-home</strong> = cash after real costs − self-employment tax − income tax.</li>
+      <li><strong>Not modelled:</strong> state tax, the qualified business income deduction, the Social Security wage cap, rainouts and cancellations, gear bought mid-season. Contractor status depends on your league.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should a referee or umpire charge per game?</h3>
+    <p>It depends on the league, but the number that matters is pay per hour after the drive. Enter the fee, the hours from arrival to departure, the round-trip miles and what driving really costs you, and the tool shows what you keep per hour and the lowest fee that reaches your target rate.</p>
+    <h3>Why do doubleheaders and tournaments pay better per hour?</h3>
+    <p>The drive, parking and setup are paid once per trip, not once per game. The tool shows pay per hour for one to four games on the same trip so you can see how much a second game is worth.</p>
+    <h3>Why are there two mileage rates?</h3>
+    <p>Driving costs you real money per mile (fuel, wear, depreciation). The IRS standard mileage rate is a separate figure that sets the tax deduction, and it is usually higher. The tool uses the real cost for your cash and the IRS rate for your tax, which is why you enter both. Look up the current IRS rate before filing.</p>
+    <h3>Do officials pay self-employment tax?</h3>
+    <p>Most game officials are paid as independent contractors, so net profit is generally subject to self-employment tax of 15.3% on 92.35% of profit, plus income tax. The tool estimates both from the rate you enter. Whether you are a contractor or an employee depends on your league; ask a tax professional.</p>
+    <h3>What does the assignor fee mean?</h3>
+    <p>Many leagues book officials through an assignor or an online platform that keeps a percentage or charges a fee. Enter it as a percentage of the game fee.</p>
+    <h3>What does this leave out?</h3>
+    <p>State and local tax, the qualified business income deduction, the Social Security wage-base cap, meals, equipment you buy mid-season, cancellations and rainouts, and anything that makes your fee vary by game. Enter an average fee.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab. There are no accounts.</p>
+    <h3>Is this tax or financial advice?</h3>
+    <p>No. It is arithmetic over the numbers you enter. Check it against your own records and a tax professional before relying on it.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> Tax figures are estimates from the rates you enter.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../mileage-deduction-calculator/">mileage deduction</a>, <a href="../gig-driver-net-pay-calculator/">gig driver net pay</a>, <a href="../dj-gig-profit-calculator/">DJ gig profit</a>, <a href="../1099-k-threshold-checker/">1099-K threshold</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv, usd } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["fee", "assignorPct", "gamesPerTrip", "miles", "mph", "tripExpense", "hoursFirst", "hoursExtra", "games", "annualCosts", "costPerMile", "irsRate", "taxPct", "targetHourly", "targetTakeHome"];
+    const row = (k, v) => `<tr><th scope="row">${k}</th><td>${v}</td></tr>`;
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run() {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      const t = r.trip, s = r.season;
+      $("#s-net").textContent = usd(t.net);
+      $("#s-hourly").textContent = usd(t.hourly);
+      $("#s-season").textContent = usd(s.takeHome);
+      $("#s-min").textContent = r.minFee === null ? "—" : usd(r.minFee);
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#parts").innerHTML = row("Game fees", usd(t.gross)) + row("Assignor or booking fee", "-" + usd(t.assignor)) + row("Driving (real cost)", "-" + usd(t.driving)) + row("Trip expenses", "-" + usd(t.expense)) + row("Kept per trip", usd(t.net)) + row("Hours (incl. " + t.driveHours.toFixed(2) + " driving)", t.hours.toFixed(2));
+      $("#seasonRows").innerHTML = row("Game fees", usd(s.gross)) + row("Assignor or booking fees", "-" + usd(s.assignor)) + row("Driving and trip expenses", "-" + usd(s.driving + s.expenses)) + row("Yearly costs", "-" + usd(s.annualCosts)) + row("Cash before tax", usd(s.cashBeforeTax)) + row("Taxable profit (with IRS mileage rate)", usd(s.profit)) + row("Self-employment tax", "-" + usd(s.se)) + row("Income tax", "-" + usd(s.incomeTax)) + row("Take-home", usd(s.takeHome)) + row("Take-home per hour worked", usd(s.takeHomeHourly));
+      const lr = (a, label) => `<tr><th scope="row">${label}${a.isYours ? " (yours)" : ""}</th><td>${usd(a.net)}</td><td>${a.hours.toFixed(2)}</td><td>${usd(a.hourly)}</td></tr>`;
+      $("#ladder").innerHTML = r.byDistance.map((a) => lr(a, a.miles)).join("");
+      $("#games").innerHTML = r.byGames.map((a) => lr(a, a.n)).join("");
+      report.hidden = false;
+      status.textContent = "Pay calculated.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("plan_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleInput();
+      for (const k of keys) if (s[k] !== undefined) $("#" + k).value = s[k];
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "official-pay-by-distance.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
