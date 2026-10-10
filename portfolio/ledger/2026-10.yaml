@@ -3399,3 +3399,14 @@ entries:
         tests. First visitor: craft distillers and bookkeepers searching spirits excise tax / proof gallon calculator, and threads on
         r/Distilling and American Craft Spirits Association forums; volume unmeasured.
     mrr_end: 0
+  - venture: screen-print-job-quote-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built screen-print-job-quote-calculator: a browser-local quote calculator for screen printing shops that turns
+        order size, colours x locations (screens), spoilage, blank cost, setup, press speed, labor, overhead and target margin into
+        a price per piece, a cost breakdown, a price-break ladder and the break-even order size at the price already being quoted.
+        Hand-computed cases pinned by tests. First visitor: shop owners and merch sellers searching screen printing pricing
+        calculator, and r/screenprinting pricing threads; volume unmeasured.
+    mrr_end: 0

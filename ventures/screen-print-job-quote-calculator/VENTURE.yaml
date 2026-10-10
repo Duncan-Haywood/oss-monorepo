@@ -1,0 +1,53 @@
+name: screen-print-job-quote-calculator
+description: >-
+  Free browser calculator for screen printing shops: enter pieces, colours, locations, blank cost, screens, setup, press speed,
+  labor, overhead and target margin, and get the price per piece, where the cost goes, a price-break ladder by quantity and the
+  smallest order that pays at the price you were going to quote. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. duplicate_check scored the nearest ventures at 0.30
+# (embroidery-shop-quote-calculator, machine-time quote for stitched pieces) and 0.24 (apparel-decoration-price-calculator,
+# a generic decoration price). Neither models screens as the unit of setup, so the colour-count price curve is not covered.
+#
+# Why this niche: small print shops and merch sellers quote from a price grid they inherited. The grid hides the real driver --
+# colours x locations is the number of screens, and every screen is both a fixed burn cost and a pass under the press for
+# every piece -- so a four-colour run of 24 and a one-colour run of 144 look alike on the grid and are not.
+#
+# First visitor: shop owners and merch sellers searching "screen printing pricing calculator", "how much to charge for screen
+# printed shirts"; r/screenprinting threads asking what to charge. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over costs the user types; nothing stored. Page carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet into the trades/apparel quote cluster plus donations.
+
+hypotheses:
+  - claim: >-
+      Print shop owners will enter their own press and screen costs into a no-signup tool to get price breaks, because a
+      price grid cannot show how colour count changes the price at small quantities.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the break-even order size at the price they already quote changes their minimum order or screen fee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - Shops report that artwork time, flash/cure and underbase are the common reason the numbers feel wrong, at which point the tool should model them.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/screen-print-job-quote-calculator/
+  analytics: null
