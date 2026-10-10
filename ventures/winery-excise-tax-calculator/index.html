@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Winery Excise Tax Calculator — Federal Wine and Cider Tax per Bottle</title>
+  <meta name="description" content="Free federal wine and hard cider excise tax calculator for wineries and cideries: enter cases, bottles and bulk gallons, see wine gallons, the $1.07 rate, the CBMA credit tiers, the tax per bottle and what growth does. Runs in your browser.">
+  <meta property="og:title" content="Winery Excise Tax Calculator — free, private">
+  <meta property="og:description" content="Federal wine and cider excise tax with the CBMA credit, per wine gallon, case and bottle.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Winery Excise Tax Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free federal wine and hard cider excise tax calculator for wineries and cideries: cases and bottles into wine gallons, the CBMA credit tiers, tax per bottle and what growing does to the effective rate."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much is the federal excise tax on wine?", "acceptedAnswer": {"@type": "Answer", "text": "Federal law taxes still wine up to 16% alcohol by volume at $1.07 per wine gallon, wine over 16% up to 21% at $1.57, over 21% up to 24% at $3.15, naturally sparkling wine at $3.40, artificially carbonated wine at $3.30 and hard cider at $0.226. The Craft Beverage Modernization Act then gives a credit against that tax: $1.00 per wine gallon on the first 30,000 wine gallons removed in a calendar year, $0.90 on the next 100,000 and $0.535 on the next 620,000."}}, {"@type": "Question", "name": "How much federal tax is in a bottle of wine?", "acceptedAnswer": {"@type": "Answer", "text": "A 750 mL bottle holds about 0.198 wine gallons, so it carries about 21 cents of federal tax at the statutory $1.07 rate for still wine. After the $1.00 credit on a producer's first 30,000 gallons it carries about 1.4 cents. Sparkling wine carries about 67 cents before the credit."}}, {"@type": "Question", "name": "What is the CBMA wine tax credit?", "acceptedAnswer": {"@type": "Answer", "text": "A credit against federal wine excise tax: $1.00 per wine gallon on the first 30,000 wine gallons removed in a calendar year, $0.90 on the next 100,000 and $0.535 on the next 620,000. Hard cider gets smaller credits of 6.2, 5.6 and 3.3 cents. The credit cannot be more than the tax, so it takes still wine from $1.07 to $0.07 on those first gallons."}}, {"@type": "Question", "name": "Does a winery pay tax when it makes the wine?", "acceptedAnswer": {"@type": "Answer", "text": "No. Tax attaches when wine is removed from bonded premises for consumption or sale, including tasting-room and wine-club sales. Enter what you remove in a calendar year, not what you produce or have in tank."}}, {"@type": "Question", "name": "What counts as hard cider?", "acceptedAnswer": {"@type": "Answer", "text": "For the lower $0.226 rate, a wine made from apples or pears with at least 0.5% and under 8.5% alcohol by volume and no more than 0.64 grams of carbon dioxide per 100 mL. Cider that falls outside these limits is taxed as wine."}}, {"@type": "Question", "name": "Do wineries under common ownership each get the full credit?", "acceptedAnswer": {"@type": "Answer", "text": "No. Wineries and cideries under common control share one set of credit tiers. Enter your share as a percentage if you divide them."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a planning estimate from numbers you enter. State excise tax, local tax, importer rules, drawback, tax-free removals and the actual TTB return are outside it. Verify against current TTB guidance or ask your accountant."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    tr.drive td:first-child { border-left: 4px solid #0b4f9c; }
+    tr.break td:first-child, tr.dwell td:first-child { border-left: 4px solid #b7791f; }
+    tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">WINERY EXCISE TAX CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What does federal excise tax really cost your winery or cidery per bottle?</h1>
+    <p>Enter the wine and cider that leave your bonded premises in a year. You get <strong>wine gallons, the federal excise tax before and after the Craft Beverage Modernization Act credit, the tax built into each bottle and case, and what happens to your bill as you grow past the credit tiers at 30,000, 130,000 and 750,000 gallons</strong>, so you can price, plan and budget your return.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example numbers are made up. A planning estimate, not a TTB return.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. What you remove from the winery in a year</h2>
+    <p class="note">Leave a category at 0 if you do not make it. Tasting-room and wine-club sales count as removals.</p>
+    <div class="grid">
+      <div><label for="stillCases">Still wine up to 16% ABV: cases of 12 x 750 mL</label><input type="number" id="stillCases" min="0" step="1" value="0"></div>
+      <div><label for="stillBottles">Still wine up to 16% ABV: single 750 mL bottles</label><input type="number" id="stillBottles" min="0" step="1" value="0"></div>
+      <div><label for="stillBulk">Still wine up to 16% ABV: bulk wine gallons</label><input type="number" id="stillBulk" min="0" step="0.1" value="0"></div>
+      <div><label for="midCases">Wine over 16% up to 21% ABV: cases of 12 x 750 mL</label><input type="number" id="midCases" min="0" step="1" value="0"></div>
+      <div><label for="midBottles">Wine over 16% up to 21% ABV: single 750 mL bottles</label><input type="number" id="midBottles" min="0" step="1" value="0"></div>
+      <div><label for="midBulk">Wine over 16% up to 21% ABV: bulk wine gallons</label><input type="number" id="midBulk" min="0" step="0.1" value="0"></div>
+      <div><label for="highCases">Wine over 21% up to 24% ABV: cases of 12 x 750 mL</label><input type="number" id="highCases" min="0" step="1" value="0"></div>
+      <div><label for="highBottles">Wine over 21% up to 24% ABV: single 750 mL bottles</label><input type="number" id="highBottles" min="0" step="1" value="0"></div>
+      <div><label for="highBulk">Wine over 21% up to 24% ABV: bulk wine gallons</label><input type="number" id="highBulk" min="0" step="0.1" value="0"></div>
+      <div><label for="sparklingCases">Naturally sparkling wine: cases of 12 x 750 mL</label><input type="number" id="sparklingCases" min="0" step="1" value="0"></div>
+      <div><label for="sparklingBottles">Naturally sparkling wine: single 750 mL bottles</label><input type="number" id="sparklingBottles" min="0" step="1" value="0"></div>
+      <div><label for="sparklingBulk">Naturally sparkling wine: bulk wine gallons</label><input type="number" id="sparklingBulk" min="0" step="0.1" value="0"></div>
+      <div><label for="carbonatedCases">Artificially carbonated wine: cases of 12 x 750 mL</label><input type="number" id="carbonatedCases" min="0" step="1" value="0"></div>
+      <div><label for="carbonatedBottles">Artificially carbonated wine: single 750 mL bottles</label><input type="number" id="carbonatedBottles" min="0" step="1" value="0"></div>
+      <div><label for="carbonatedBulk">Artificially carbonated wine: bulk wine gallons</label><input type="number" id="carbonatedBulk" min="0" step="0.1" value="0"></div>
+      <div><label for="ciderCases">Hard cider: cases of 12 x 750 mL</label><input type="number" id="ciderCases" min="0" step="1" value="0"></div>
+      <div><label for="ciderBottles">Hard cider: single 750 mL bottles</label><input type="number" id="ciderBottles" min="0" step="1" value="0"></div>
+      <div><label for="ciderBulk">Hard cider: bulk wine gallons</label><input type="number" id="ciderBulk" min="0" step="0.1" value="0"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Your credit allotment</h2>
+    <div class="grid">
+      <div><label for="share">Your share of the CBMA credit tiers (percent; 100 unless wineries under common control divide them)</label><input type="number" id="share" min="1" max="100" step="1" value="100"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Calculate the tax</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+    </p>
+    <p class="note" id="form-status">Enter your volumes, or load the example, then click Calculate the tax.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>Tax by category</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Category</th><th scope="col">Wine gallons</th><th scope="col">Before credit</th><th scope="col">Credit</th><th scope="col">Tax</th></tr></thead><tbody id="tiers"></tbody></table></div>
+    <h3>Tax inside each bottle</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Category</th><th scope="col">Bottles</th><th scope="col">Statutory tax per bottle</th><th scope="col">Tax per bottle after credit</th></tr></thead><tbody id="units"></tbody></table></div>
+    <h3>If you grow</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Volume</th><th scope="col">Wine gallons</th><th scope="col">Tax</th><th scope="col">Effective per wine gallon</th></tr></thead><tbody id="growth"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The rates this applies, and what it leaves out</h2>
+    <ul>
+      <li><strong>$1.07 per wine gallon</strong> on still wine up to 16% alcohol by volume, $1.57 over 16% up to 21%, $3.15 over 21% up to 24%, $3.40 on naturally sparkling wine, $3.30 on artificially carbonated wine and $0.226 on hard cider (IRC 5041(b)).</li>
+      <li><strong>CBMA credit:</strong> $1.00 per wine gallon on the first 30,000 wine gallons removed in a calendar year, $0.90 on the next 100,000 and $0.535 on the next 620,000 (IRC 5041(c)). Hard cider credits are 6.2, 5.6 and 3.3 cents. The credit cannot exceed the tax.</li>
+      <li>Wineries under common control share one set of credit tiers. Credit tiers are applied here to wine first and then cider.</li>
+      <li>Tax attaches when wine is <strong>removed</strong> from bonded premises, not when it is made.</li>
+      <li><strong>Not modelled:</strong> state and local wine tax, wine over 24% ABV (taxed as spirits), importers, drawback and tax-free removals, losses, refunds, and your actual filing period. Check current TTB guidance.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much is the federal excise tax on wine?</h3>
+    <p>Federal law taxes still wine up to 16% alcohol by volume at $1.07 per wine gallon, wine over 16% up to 21% at $1.57, over 21% up to 24% at $3.15, naturally sparkling wine at $3.40, artificially carbonated wine at $3.30 and hard cider at $0.226. The Craft Beverage Modernization Act then gives a credit against that tax: $1.00 per wine gallon on the first 30,000 wine gallons removed in a calendar year, $0.90 on the next 100,000 and $0.535 on the next 620,000.</p>
+    <h3>How much federal tax is in a bottle of wine?</h3>
+    <p>A 750 mL bottle holds about 0.198 wine gallons, so it carries about 21 cents of federal tax at the statutory $1.07 rate for still wine. After the $1.00 credit on a producer's first 30,000 gallons it carries about 1.4 cents. Sparkling wine carries about 67 cents before the credit.</p>
+    <h3>What is the CBMA wine tax credit?</h3>
+    <p>A credit against federal wine excise tax: $1.00 per wine gallon on the first 30,000 wine gallons removed in a calendar year, $0.90 on the next 100,000 and $0.535 on the next 620,000. Hard cider gets smaller credits of 6.2, 5.6 and 3.3 cents. The credit cannot be more than the tax, so it takes still wine from $1.07 to $0.07 on those first gallons.</p>
+    <h3>Does a winery pay tax when it makes the wine?</h3>
+    <p>No. Tax attaches when wine is removed from bonded premises for consumption or sale, including tasting-room and wine-club sales. Enter what you remove in a calendar year, not what you produce or have in tank.</p>
+    <h3>What counts as hard cider?</h3>
+    <p>For the lower $0.226 rate, a wine made from apples or pears with at least 0.5% and under 8.5% alcohol by volume and no more than 0.64 grams of carbon dioxide per 100 mL. Cider that falls outside these limits is taxed as wine.</p>
+    <h3>Do wineries under common ownership each get the full credit?</h3>
+    <p>No. Wineries and cideries under common control share one set of credit tiers. Enter your share as a percentage if you divide them.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. It is a planning estimate from numbers you enter. State excise tax, local tax, importer rules, drawback, tax-free removals and the actual TTB return are outside it. Verify against current TTB guidance or ask your accountant.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your accountant or the current TTB rules and forms. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for filing and paying the tax you owe.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>tax_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../distillery-excise-tax-calculator/">distillery excise tax</a>, <a href="../brewery-excise-tax-calculator/">brewery excise tax</a>, <a href="../vineyard-grape-vs-wine-calculator/">vineyard grape vs wine</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["stillCases", "stillBottles", "stillBulk", "midCases", "midBottles", "midBulk", "highCases", "highBottles", "highBulk", "sparklingCases", "sparklingBottles", "sparklingBulk", "carbonatedCases", "carbonatedBottles", "carbonatedBulk", "ciderCases", "ciderBottles", "ciderBulk", "share"];
+    const usd = (x) => "$" + x.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const usd3 = (x) => "$" + x.toLocaleString("en-US", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+    const n0 = (x) => Math.round(x).toLocaleString("en-US");
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run() {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#tiers").innerHTML = r.rowsInUse.map((t) => `<tr><th scope="row">${esc(t.label)}</th><td>${n0(t.gallons)}</td><td>${usd(t.gross)}</td><td>${usd(t.credit)}</td><td>${usd(t.tax)}</td></tr>`).join("");
+      $("#units").innerHTML = r.perBottleRows.map((u) => `<tr><th scope="row">${esc(u.label)}</th><td>${n0(u.count)}</td><td>${usd3(u.gross)}</td><td>${usd3(u.net)}</td></tr>`).join("");
+      $("#growth").innerHTML = r.growth.map((g) => `<tr><th scope="row">${g.multiple === 1 ? "Today" : "+" + Math.round((g.multiple - 1) * 100) + "%"}</th><td>${n0(g.gallons)}</td><td>${usd(g.tax)}</td><td>${usd(g.effective)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Estimated tax ${usd(r.tax)} on ${n0(r.gallons)} wine gallons.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("tax_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleInput();
+      for (const k of keys) $("#" + k).value = s[k] !== undefined ? s[k] : 0;
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "winery-excise-tax.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

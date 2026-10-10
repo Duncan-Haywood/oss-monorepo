@@ -794,6 +794,9 @@ const CATEGORY_RULES = [
       // `distillery-excise-tax-calculator` joined 2026-10-10 on its first commit: the spirits sibling of the brewery tax tool,
       // proof-gallon math and the $2.70 / $13.34 CBMA tiers.
       'distillery-excise-tax-calculator',
+      // `winery-excise-tax-calculator` joined 2026-10-10 on its first commit: the wine and cider sibling of the brewery and
+      // distillery tax tools, wine-gallon math and the CBMA credit tiers.
+      'winery-excise-tax-calculator',
       // `mobile-bartender-event-quote` joined 2026-10-03 on its first commit: per-event bar service pricing,
       // one hop from `pour-cost-calculator` and `catering-quote-calculator`.
       'mobile-bartender-event-quote',

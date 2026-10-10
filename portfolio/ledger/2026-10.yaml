@@ -3411,6 +3411,7 @@ entries:
         calculator, and r/screenprinting pricing threads; volume unmeasured.
     mrr_end: 0
   - venture: sports-official-game-fee-calculator
+  - venture: winery-excise-tax-calculator
     agent_spend_usd: 0
     human_hours: 0
     outcomes:
@@ -3421,4 +3422,11 @@ entries:
         mileage rate for the deduction, real cost per mile for cash), games needed for a take-home goal and the lowest fee worth
         driving for. Hand-computed cases pinned by tests. First visitor: officials searching referee pay calculator and is
         refereeing worth it, and r/Referees fee-and-drive threads; volume unmeasured.
+        Graduated and built winery-excise-tax-calculator: a browser-local calculator for wineries and cideries turning cases,
+        bottles and bulk gallons by category (still, fortified, sparkling, carbonated, hard cider) into federal excise tax at the
+        IRC 5041(b) rates, less the CBMA credit tiers ($1.00 / $0.90 / $0.535 per wine gallon over 30,000 / 130,000 / 750,000,
+        cider 6.2 / 5.6 / 3.3 cents), tax inside each bottle, a growth table showing the credit stepping down and a filing-period
+        hint. Credit tier cases hand-computed and pinned by tests; tier figures verified against 26 U.S.C. 5041(c) and TTB
+        guidance. First visitor: winemakers, cidermakers and bookkeepers searching wine excise tax / CBMA wine credit, and
+        threads on r/winemaking and cider-association forums; volume unmeasured.
     mrr_end: 0
