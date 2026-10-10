@@ -727,6 +727,10 @@ const CATEGORY_RULES = [
       // `apiary-profit-planner` joined 2026-10-07 on its first commit: beekeepers projecting colonies, nucs and pollination
       // over several years, the sideline step up from `backyard-honey-profit-calculator`.
       'apiary-profit-planner',
+      // `pollination-contract-checker` and `oyster-farm-growout-planner` joined 2026-10-10: beekeepers pricing rented hives and shellfish
+      // growers planning a 12-24 month crop, same farm category, one hop from `apiary-profit-planner`.
+      'pollination-contract-checker',
+      'oyster-farm-growout-planner',
       // `christmas-tree-farm-profit-planner` joined 2026-10-07 on its first commit: land-based growers on the same farm
       // category, the longest-horizon sibling of `u-pick-farm-profit-planner`.
       'christmas-tree-farm-profit-planner',
