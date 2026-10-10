@@ -1519,7 +1519,8 @@ const RELATIVE_SELF = relative(
 // +1: `payment-processor-fee-comparison-calculator` graduated.
 // +1: `clergy-housing-allowance-calculator` graduated.
 // +1: `fuel-surcharge-schedule-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 995;
+// +1: `cake-pricing-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 996;
 // +1: `retreat-profit-pricing-calculator` graduated.
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
