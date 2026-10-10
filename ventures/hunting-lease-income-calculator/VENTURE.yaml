@@ -1,0 +1,53 @@
+name: hunting-lease-income-calculator
+description: >-
+  Free browser tool and CLI for landowners: compare a flat club lease, per-hunter seasonal leases and paid day hunts on your own
+  prices and costs, with net income per acre, the break-even lease rate and seat-fill sensitivity. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. No venture covers hunting leases (repo search for "hunting" in ventures/ and
+# portfolio/pipeline/ found nothing); nearest are farmland-lease-cash-rent-vs-crop-share-calculator and timber-sale-offer-checker,
+# which price other uses of the same rural land. Not in screened-out.md.
+#
+# Why this niche: rural landowners get unsolicited per-acre lease offers and have no neutral way to compare a flat club lease with
+# selling individual seats or day hunts after insurance and upkeep. Paid answers are extension bulletins and lease-broker listings.
+#
+# First visitor: landowners searching "how much to charge for a hunting lease", "hunting lease per acre", "is leasing land for hunting
+# worth it". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user enters; no market rates shipped. Not legal, tax or insurance advice; the page
+# says paid leases can change a landowner's liability protection and sends the reader to an insurer and attorney. No data leaves
+# the browser. Carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. The natural paid layer is a hosted lease-listing and
+# hunter-matching board, which needs accounts and payments and so an owner decision; not built. Written to be open-sourced as is.
+
+hypotheses:
+  - claim: >-
+      Landowners with a per-acre offer in hand will enter their costs into a no-signup tool to compare it with selling seats or day hunts.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Showing net after insurance and lost use, not just gross per acre, is what makes owners negotiate or change model.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - Landowners or insurers report that omitting liability cost structure makes the output misleading, at which point the tool should ask for a premium quote first.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/hunting-lease-income-calculator/
+  analytics: null
