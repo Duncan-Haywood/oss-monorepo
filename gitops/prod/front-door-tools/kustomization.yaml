@@ -33,45 +33,45 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547903 bytes
-#   portfolio-front-tools-1: 92 files, 555403 bytes
-#   portfolio-front-tools-2: 144 files, 553175 bytes
-#   portfolio-front-tools-3: 128 files, 549658 bytes
-#   portfolio-front-tools-4: 136 files, 549257 bytes
-#   portfolio-front-tools-5: 132 files, 555027 bytes
-#   portfolio-front-tools-6: 123 files, 556715 bytes
-#   portfolio-front-tools-7: 120 files, 553421 bytes
-#   portfolio-front-tools-8: 134 files, 555500 bytes
-#   portfolio-front-tools-9: 138 files, 554659 bytes
-#   portfolio-front-tools-10: 133 files, 556288 bytes
-#   portfolio-front-tools-11: 128 files, 554347 bytes
-#   portfolio-front-tools-12: 127 files, 549898 bytes
-#   portfolio-front-tools-13: 126 files, 556786 bytes
-#   portfolio-front-tools-14: 135 files, 555355 bytes
-#   portfolio-front-tools-15: 123 files, 546748 bytes
-#   portfolio-front-tools-16: 121 files, 555663 bytes
-#   portfolio-front-tools-17: 121 files, 551379 bytes
-#   portfolio-front-tools-18: 121 files, 549878 bytes
-#   portfolio-front-tools-19: 125 files, 553347 bytes
-#   portfolio-front-tools-20: 113 files, 555251 bytes
-#   portfolio-front-tools-21: 115 files, 556819 bytes
-#   portfolio-front-tools-22: 135 files, 556699 bytes
-#   portfolio-front-tools-23: 129 files, 554955 bytes
-#   portfolio-front-tools-24: 133 files, 553905 bytes
-#   portfolio-front-tools-25: 121 files, 553381 bytes
-#   portfolio-front-tools-26: 125 files, 556889 bytes
-#   portfolio-front-tools-27: 133 files, 556702 bytes
-#   portfolio-front-tools-28: 118 files, 553997 bytes
-#   portfolio-front-tools-29: 136 files, 554764 bytes
-#   portfolio-front-tools-30: 114 files, 554830 bytes
-#   portfolio-front-tools-31: 93 files, 540992 bytes
-#   portfolio-front-tools-32: 129 files, 552133 bytes
-#   portfolio-front-tools-33: 114 files, 553472 bytes
-#   portfolio-front-tools-34: 130 files, 555989 bytes
-#   portfolio-front-tools-35: 121 files, 553558 bytes
-#   portfolio-front-tools-36: 131 files, 552107 bytes
-#   portfolio-front-tools-37: 119 files, 552403 bytes
-#   portfolio-front-tools-38: 85 files, 459038 bytes
+#   portfolio-front-tools-0: 145 files, 547860 bytes
+#   portfolio-front-tools-1: 92 files, 555366 bytes
+#   portfolio-front-tools-2: 144 files, 553129 bytes
+#   portfolio-front-tools-3: 128 files, 549637 bytes
+#   portfolio-front-tools-4: 136 files, 549234 bytes
+#   portfolio-front-tools-5: 132 files, 555017 bytes
+#   portfolio-front-tools-6: 123 files, 556678 bytes
+#   portfolio-front-tools-7: 121 files, 557034 bytes
+#   portfolio-front-tools-8: 134 files, 556106 bytes
+#   portfolio-front-tools-9: 137 files, 550366 bytes
+#   portfolio-front-tools-10: 133 files, 556312 bytes
+#   portfolio-front-tools-11: 128 files, 554365 bytes
+#   portfolio-front-tools-12: 127 files, 549870 bytes
+#   portfolio-front-tools-13: 126 files, 556832 bytes
+#   portfolio-front-tools-14: 135 files, 555359 bytes
+#   portfolio-front-tools-15: 123 files, 546776 bytes
+#   portfolio-front-tools-16: 121 files, 555659 bytes
+#   portfolio-front-tools-17: 121 files, 551386 bytes
+#   portfolio-front-tools-18: 121 files, 549797 bytes
+#   portfolio-front-tools-19: 125 files, 553364 bytes
+#   portfolio-front-tools-20: 113 files, 555160 bytes
+#   portfolio-front-tools-21: 115 files, 556837 bytes
+#   portfolio-front-tools-22: 135 files, 556661 bytes
+#   portfolio-front-tools-23: 129 files, 554832 bytes
+#   portfolio-front-tools-24: 133 files, 553878 bytes
+#   portfolio-front-tools-25: 121 files, 553229 bytes
+#   portfolio-front-tools-26: 125 files, 556900 bytes
+#   portfolio-front-tools-27: 133 files, 556600 bytes
+#   portfolio-front-tools-28: 118 files, 553988 bytes
+#   portfolio-front-tools-29: 136 files, 554752 bytes
+#   portfolio-front-tools-30: 114 files, 554808 bytes
+#   portfolio-front-tools-31: 93 files, 540968 bytes
+#   portfolio-front-tools-32: 129 files, 552109 bytes
+#   portfolio-front-tools-33: 114 files, 553444 bytes
+#   portfolio-front-tools-34: 130 files, 556014 bytes
+#   portfolio-front-tools-35: 121 files, 553513 bytes
+#   portfolio-front-tools-36: 132 files, 550724 bytes
+#   portfolio-front-tools-37: 119 files, 553245 bytes
+#   portfolio-front-tools-38: 87 files, 470251 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1149,12 +1149,12 @@ configMapGenerator:
       - bookkeeping-client-fee-calculator__how-to-price-bookkeeping-services-monthly-retainer.html.gz=bookkeeping-client-fee-calculator__how-to-price-bookkeeping-services-monthly-retainer.html.gz
       - bookkeeping-client-fee-calculator__index.html.gz=bookkeeping-client-fee-calculator__index.html.gz
       - bookkeeping-client-fee-calculator__usage.mjs.gz=bookkeeping-client-fee-calculator__usage.mjs.gz
+      - bounce-house-rental-calculator__calc.mjs.gz=bounce-house-rental-calculator__calc.mjs.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - bounce-house-rental-calculator__calc.mjs.gz=bounce-house-rental-calculator__calc.mjs.gz
       - bounce-house-rental-calculator__how-much-to-charge-for-a-bounce-house-rental.html.gz=bounce-house-rental-calculator__how-much-to-charge-for-a-bounce-house-rental.html.gz
       - bounce-house-rental-calculator__index.html.gz=bounce-house-rental-calculator__index.html.gz
       - bounce-house-rental-calculator__share.mjs.gz=bounce-house-rental-calculator__share.mjs.gz
@@ -1288,12 +1288,12 @@ configMapGenerator:
       - card-grading-submission-picker__index.html.gz=card-grading-submission-picker__index.html.gz
       - card-grading-submission-picker__is-it-worth-grading-a-card.html.gz=card-grading-submission-picker__is-it-worth-grading-a-card.html.gz
       - card-grading-submission-picker__usage.mjs.gz=card-grading-submission-picker__usage.mjs.gz
+      - card-processing-fee-audit__calc.mjs.gz=card-processing-fee-audit__calc.mjs.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - card-processing-fee-audit__calc.mjs.gz=card-processing-fee-audit__calc.mjs.gz
       - card-processing-fee-audit__index.html.gz=card-processing-fee-audit__index.html.gz
       - card-processing-fee-audit__usage.mjs.gz=card-processing-fee-audit__usage.mjs.gz
       - card-processing-fee-audit__vs-comparing-effective-rates.html.gz=card-processing-fee-audit__vs-comparing-effective-rates.html.gz
@@ -4870,6 +4870,9 @@ configMapGenerator:
       - veterinarian-associate-pay-calculator__calc.mjs.gz=veterinarian-associate-pay-calculator__calc.mjs.gz
       - veterinarian-associate-pay-calculator__index.html.gz=veterinarian-associate-pay-calculator__index.html.gz
       - veterinarian-associate-pay-calculator__usage.mjs.gz=veterinarian-associate-pay-calculator__usage.mjs.gz
+      - veterinary-dental-estimate-calculator__calc.mjs.gz=veterinary-dental-estimate-calculator__calc.mjs.gz
+      - veterinary-dental-estimate-calculator__index.html.gz=veterinary-dental-estimate-calculator__index.html.gz
+      - veterinary-dental-estimate-calculator__usage.mjs.gz=veterinary-dental-estimate-calculator__usage.mjs.gz
       - veterinary-wellness-plan-pricing-calculator__calc.mjs.gz=veterinary-wellness-plan-pricing-calculator__calc.mjs.gz
       - veterinary-wellness-plan-pricing-calculator__index.html.gz=veterinary-wellness-plan-pricing-calculator__index.html.gz
       - veterinary-wellness-plan-pricing-calculator__usage.mjs.gz=veterinary-wellness-plan-pricing-calculator__usage.mjs.gz
@@ -4914,13 +4917,13 @@ configMapGenerator:
       - wage-garnishment-limit-calculator__calc.mjs.gz=wage-garnishment-limit-calculator__calc.mjs.gz
       - wage-garnishment-limit-calculator__index.html.gz=wage-garnishment-limit-calculator__index.html.gz
       - wage-garnishment-limit-calculator__usage.mjs.gz=wage-garnishment-limit-calculator__usage.mjs.gz
-      - walk-in-shower-bid-calculator__calc.mjs.gz=walk-in-shower-bid-calculator__calc.mjs.gz
-      - walk-in-shower-bid-calculator__how-much-to-charge-to-install-a-walk-in-shower.html.gz=walk-in-shower-bid-calculator__how-much-to-charge-to-install-a-walk-in-shower.html.gz
   - name: portfolio-front-tools-37
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - walk-in-shower-bid-calculator__calc.mjs.gz=walk-in-shower-bid-calculator__calc.mjs.gz
+      - walk-in-shower-bid-calculator__how-much-to-charge-to-install-a-walk-in-shower.html.gz=walk-in-shower-bid-calculator__how-much-to-charge-to-install-a-walk-in-shower.html.gz
       - walk-in-shower-bid-calculator__index.html.gz=walk-in-shower-bid-calculator__index.html.gz
       - walk-in-shower-bid-calculator__should-i-install-customer-supplied-tile.html.gz=walk-in-shower-bid-calculator__should-i-install-customer-supplied-tile.html.gz
       - walk-in-shower-bid-calculator__should-i-match-an-alcove-price-on-a-curbless-walk-in.html.gz=walk-in-shower-bid-calculator__should-i-match-an-alcove-price-on-a-curbless-walk-in.html.gz
@@ -5038,13 +5041,13 @@ configMapGenerator:
       - where-to-sell-calculator__vs-crosslist.html.gz=where-to-sell-calculator__vs-crosslist.html.gz
       - where-to-sell-calculator__vs-each-marketplaces-own-calculator.html.gz=where-to-sell-calculator__vs-each-marketplaces-own-calculator.html.gz
       - where-to-sell-calculator__vs-list-perfectly.html.gz=where-to-sell-calculator__vs-list-perfectly.html.gz
-      - where-to-sell-calculator__vs-vendoo.html.gz=where-to-sell-calculator__vs-vendoo.html.gz
-      - which-job-first__how-do-i-decide-which-job-to-take-first.html.gz=which-job-first__how-do-i-decide-which-job-to-take-first.html.gz
   - name: portfolio-front-tools-38
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - where-to-sell-calculator__vs-vendoo.html.gz=where-to-sell-calculator__vs-vendoo.html.gz
+      - which-job-first__how-do-i-decide-which-job-to-take-first.html.gz=which-job-first__how-do-i-decide-which-job-to-take-first.html.gz
       - which-job-first__index.html.gz=which-job-first__index.html.gz
       - which-job-first__rank.mjs.gz=which-job-first__rank.mjs.gz
       - which-job-first__vs-jobber.html.gz=which-job-first__vs-jobber.html.gz
