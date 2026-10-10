@@ -1,0 +1,43 @@
+name: stocker-cattle-margin-calculator
+description: >-
+  Free browser calculator for stocker and backgrounding operators: enter purchase weight and price, days, gain, feed, pasture, health, interest,
+  death loss and a price slide, and get margin per head and for the pen, break-even sale and purchase price per cwt, and cost of gain against
+  the value of the gain, with price and death-loss scenarios. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. duplicate_check scored the nearest venture (cow-calf-breakeven-calculator) 0.19; that tool prices
+# a cow-calf herd, not buying and selling calves. Buyers with real capital at risk per sale-barn visit.
+#
+# First visitor: stocker and backgrounding operators searching "stocker cattle breakeven calculator", "price slide feeder cattle", "cost of gain
+# calculator". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; not financial advice and no price or performance prediction; carries
+# the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet into the cattle cluster plus donations.
+
+hypotheses:
+  - claim: >-
+      Stocker operators will type a pen's costs into a no-signup calculator before a sale-barn purchase to learn the most they can pay per cwt,
+      because the price slide and interest make the mental math unreliable.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/stocker-cattle-margin-calculator/
+  analytics: null
