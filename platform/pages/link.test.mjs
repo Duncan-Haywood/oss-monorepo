@@ -231,6 +231,7 @@ test('an unknown figure on either side is not reported as a disagreement', () =>
 test('a page with its own share control is left alone', () => {
   assert.equal(pageHasOwnShareLink('<button id="copyShare">Copy share link</button>'), true);
   assert.equal(pageHasOwnShareLink("import { encodeShare } from './share.mjs';"), true);
+  assert.equal(pageHasOwnShareLink('<button type="button" class="secondary" id="share">Copy a share link</button>'), true);
   assert.equal(pageHasOwnShareLink('<button>Save</button>'), false);
   assert.equal(pageTakesBidLink(page('<button type="button" id="copyShare">x</button>')), false);
 });
