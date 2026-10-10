@@ -1,0 +1,43 @@
+name: wholesale-vs-retail-pricing-calculator
+description: >-
+  Free browser calculator for makers and small brands: what you keep per unit and per order selling direct, wholesale or on
+  consignment, after fees, shipping, your own time, payment terms and sell-through, plus the wholesale price that hits your margin.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. duplicate_check.py top score 0.38 (candle-batch-cost-calculator); the neighbours price one
+# product or one craft-fair booth. None compares the three channels a maker chooses between, or prices net-60 terms and consignment
+# sell-through, which is where wholesale quietly loses money.
+#
+# First visitor: makers on r/Etsy, r/smallbusiness, r/candlemaking and craft-business forums asking "what should my wholesale price be",
+# "is keystone pricing right", "should I do consignment". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on numbers the user types. No advice, nothing uploaded, no outcome promised.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural paid layer is a line-sheet / price-list generator, not built.
+
+hypotheses:
+  - claim: >-
+      Makers deciding whether to take a wholesale or consignment offer will use a no-signup calculator that shows profit per unit and per
+      order across channels, and return when quoting each new shop.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a per-unit profit that differs from the stated formulas for the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/wholesale-vs-retail-pricing-calculator/
+  analytics: null
