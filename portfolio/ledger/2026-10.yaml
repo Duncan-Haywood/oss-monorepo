@@ -3343,3 +3343,14 @@ entries:
         year at the clinic's case mix. Hand-computed defaults pinned by tests. First visitor: practice managers asking how to price
         dentals on r/Veterinary, r/vetmed and VIN boards; volume unmeasured.
     mrr_end: 0
+  - venture: real-estate-photographer-shoot-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built real-estate-photographer-shoot-profit-calculator: a browser-local worksheet for listing photographers giving the
+        true hourly earnings of each package tier (drive, shoot, editing, admin), the fee that reaches a target hourly rate, add-on profit
+        at stated take rates, edit-versus-outsource break-even and the month at a tier mix. Hand-computed defaults pinned by tests. First
+        visitor: working photographers asking what to charge and whether to outsource editing on r/RealEstatePhotography and photographer
+        groups; volume unmeasured.
+    mrr_end: 0

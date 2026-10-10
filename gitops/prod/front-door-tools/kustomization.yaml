@@ -33,45 +33,45 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547903 bytes
-#   portfolio-front-tools-1: 92 files, 555403 bytes
-#   portfolio-front-tools-2: 144 files, 553175 bytes
-#   portfolio-front-tools-3: 128 files, 549658 bytes
-#   portfolio-front-tools-4: 136 files, 549267 bytes
-#   portfolio-front-tools-5: 132 files, 555022 bytes
-#   portfolio-front-tools-6: 122 files, 554926 bytes
-#   portfolio-front-tools-7: 119 files, 549994 bytes
-#   portfolio-front-tools-8: 133 files, 551759 bytes
-#   portfolio-front-tools-9: 137 files, 550443 bytes
-#   portfolio-front-tools-10: 133 files, 556470 bytes
-#   portfolio-front-tools-11: 128 files, 554324 bytes
-#   portfolio-front-tools-12: 127 files, 549790 bytes
-#   portfolio-front-tools-13: 126 files, 556935 bytes
-#   portfolio-front-tools-14: 135 files, 555373 bytes
-#   portfolio-front-tools-15: 123 files, 547014 bytes
-#   portfolio-front-tools-16: 121 files, 555672 bytes
-#   portfolio-front-tools-17: 121 files, 551423 bytes
-#   portfolio-front-tools-18: 121 files, 549928 bytes
-#   portfolio-front-tools-19: 125 files, 553289 bytes
-#   portfolio-front-tools-20: 113 files, 555042 bytes
-#   portfolio-front-tools-21: 115 files, 556698 bytes
-#   portfolio-front-tools-22: 135 files, 556787 bytes
-#   portfolio-front-tools-23: 129 files, 554985 bytes
-#   portfolio-front-tools-24: 133 files, 553762 bytes
-#   portfolio-front-tools-25: 121 files, 553196 bytes
-#   portfolio-front-tools-26: 125 files, 556815 bytes
-#   portfolio-front-tools-27: 133 files, 556813 bytes
-#   portfolio-front-tools-28: 118 files, 554134 bytes
-#   portfolio-front-tools-29: 136 files, 554786 bytes
-#   portfolio-front-tools-30: 114 files, 554746 bytes
-#   portfolio-front-tools-31: 93 files, 541038 bytes
-#   portfolio-front-tools-32: 129 files, 552054 bytes
-#   portfolio-front-tools-33: 114 files, 553323 bytes
-#   portfolio-front-tools-34: 130 files, 556130 bytes
-#   portfolio-front-tools-35: 121 files, 553469 bytes
-#   portfolio-front-tools-36: 132 files, 550645 bytes
-#   portfolio-front-tools-37: 119 files, 553163 bytes
-#   portfolio-front-tools-38: 87 files, 470276 bytes
+#   portfolio-front-tools-0: 145 files, 547860 bytes
+#   portfolio-front-tools-1: 92 files, 555366 bytes
+#   portfolio-front-tools-2: 144 files, 553129 bytes
+#   portfolio-front-tools-3: 128 files, 549637 bytes
+#   portfolio-front-tools-4: 136 files, 549245 bytes
+#   portfolio-front-tools-5: 132 files, 555010 bytes
+#   portfolio-front-tools-6: 122 files, 554906 bytes
+#   portfolio-front-tools-7: 119 files, 549925 bytes
+#   portfolio-front-tools-8: 133 files, 551740 bytes
+#   portfolio-front-tools-9: 137 files, 550440 bytes
+#   portfolio-front-tools-10: 133 files, 556445 bytes
+#   portfolio-front-tools-11: 128 files, 554318 bytes
+#   portfolio-front-tools-12: 127 files, 549745 bytes
+#   portfolio-front-tools-13: 126 files, 556882 bytes
+#   portfolio-front-tools-14: 135 files, 555392 bytes
+#   portfolio-front-tools-15: 123 files, 547040 bytes
+#   portfolio-front-tools-16: 121 files, 555674 bytes
+#   portfolio-front-tools-17: 121 files, 551358 bytes
+#   portfolio-front-tools-18: 121 files, 549984 bytes
+#   portfolio-front-tools-19: 125 files, 553313 bytes
+#   portfolio-front-tools-20: 113 files, 555055 bytes
+#   portfolio-front-tools-21: 115 files, 556683 bytes
+#   portfolio-front-tools-22: 135 files, 556784 bytes
+#   portfolio-front-tools-23: 129 files, 554939 bytes
+#   portfolio-front-tools-24: 133 files, 553843 bytes
+#   portfolio-front-tools-25: 121 files, 553325 bytes
+#   portfolio-front-tools-26: 125 files, 556875 bytes
+#   portfolio-front-tools-27: 133 files, 556819 bytes
+#   portfolio-front-tools-28: 120 files, 556285 bytes
+#   portfolio-front-tools-29: 134 files, 553211 bytes
+#   portfolio-front-tools-30: 114 files, 543140 bytes
+#   portfolio-front-tools-31: 94 files, 556722 bytes
+#   portfolio-front-tools-32: 130 files, 556293 bytes
+#   portfolio-front-tools-33: 115 files, 555424 bytes
+#   portfolio-front-tools-34: 130 files, 556092 bytes
+#   portfolio-front-tools-35: 121 files, 553500 bytes
+#   portfolio-front-tools-36: 132 files, 550651 bytes
+#   portfolio-front-tools-37: 119 files, 553212 bytes
+#   portfolio-front-tools-38: 87 files, 470271 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3799,6 +3799,9 @@ configMapGenerator:
       - real-estate-agent-photo-app__usage.mjs.gz=real-estate-agent-photo-app__usage.mjs.gz
       - real-estate-agent-photo-app__vs-boxbrownie.html.gz=real-estate-agent-photo-app__vs-boxbrownie.html.gz
       - real-estate-agent-photo-app__why-was-my-listing-photo-rejected.html.gz=real-estate-agent-photo-app__why-was-my-listing-photo-rejected.html.gz
+      - real-estate-photographer-shoot-profit-calculator__calc.mjs.gz=real-estate-photographer-shoot-profit-calculator__calc.mjs.gz
+      - real-estate-photographer-shoot-profit-calculator__index.html.gz=real-estate-photographer-shoot-profit-calculator__index.html.gz
+      - real-estate-photographer-shoot-profit-calculator__usage.mjs.gz=real-estate-photographer-shoot-profit-calculator__usage.mjs.gz
       - real-estate-professional-status-calculator__calc.mjs.gz=real-estate-professional-status-calculator__calc.mjs.gz
       - real-estate-professional-status-calculator__index.html.gz=real-estate-professional-status-calculator__index.html.gz
       - real-estate-professional-status-calculator__usage.mjs.gz=real-estate-professional-status-calculator__usage.mjs.gz
@@ -3903,12 +3906,12 @@ configMapGenerator:
       - retreat-profit-pricing-calculator__usage.mjs.gz=retreat-profit-pricing-calculator__usage.mjs.gz
       - returns-policy-cost-analyzer__cli.mjs.gz=returns-policy-cost-analyzer__cli.mjs.gz
       - returns-policy-cost-analyzer__engine.mjs.gz=returns-policy-cost-analyzer__engine.mjs.gz
-      - returns-policy-cost-analyzer__index.html.gz=returns-policy-cost-analyzer__index.html.gz
   - name: portfolio-front-tools-29
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - returns-policy-cost-analyzer__index.html.gz=returns-policy-cost-analyzer__index.html.gz
       - returns-policy-cost-analyzer__returns-policy-guide.html.gz=returns-policy-cost-analyzer__returns-policy-guide.html.gz
       - returns-policy-cost-analyzer__usage.mjs.gz=returns-policy-cost-analyzer__usage.mjs.gz
       - revenue-target-lead-planner__calc.mjs.gz=revenue-target-lead-planner__calc.mjs.gz
@@ -4042,14 +4045,14 @@ configMapGenerator:
       - screened-porch-bid-calculator__index.html.gz=screened-porch-bid-calculator__index.html.gz
       - screened-porch-bid-calculator__share.mjs.gz=screened-porch-bid-calculator__share.mjs.gz
       - screened-porch-bid-calculator__usage.mjs.gz=screened-porch-bid-calculator__usage.mjs.gz
-      - screened-porch-bid-calculator__vs-a-flat-55-a-square-foot-special.html.gz=screened-porch-bid-calculator__vs-a-flat-55-a-square-foot-special.html.gz
-      - screened-porch-bid-calculator__vs-buildxact.html.gz=screened-porch-bid-calculator__vs-buildxact.html.gz
-      - search-api-pricing-calculator__cli.mjs.gz=search-api-pricing-calculator__cli.mjs.gz
   - name: portfolio-front-tools-30
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - screened-porch-bid-calculator__vs-a-flat-55-a-square-foot-special.html.gz=screened-porch-bid-calculator__vs-a-flat-55-a-square-foot-special.html.gz
+      - screened-porch-bid-calculator__vs-buildxact.html.gz=screened-porch-bid-calculator__vs-buildxact.html.gz
+      - search-api-pricing-calculator__cli.mjs.gz=search-api-pricing-calculator__cli.mjs.gz
       - search-api-pricing-calculator__engine.mjs.gz=search-api-pricing-calculator__engine.mjs.gz
       - search-api-pricing-calculator__how-to-choose-a-search-api-by-records-and-queries.html.gz=search-api-pricing-calculator__how-to-choose-a-search-api-by-records-and-queries.html.gz
       - search-api-pricing-calculator__index.html.gz=search-api-pricing-calculator__index.html.gz
@@ -4161,14 +4164,14 @@ configMapGenerator:
       - sewer-hydrojet-bid-calculator__vs-jobber.html.gz=sewer-hydrojet-bid-calculator__vs-jobber.html.gz
       - sewer-line-replace-bid-calculator__calc.mjs.gz=sewer-line-replace-bid-calculator__calc.mjs.gz
       - sewer-line-replace-bid-calculator__how-much-to-charge-to-replace-a-sewer-line.html.gz=sewer-line-replace-bid-calculator__how-much-to-charge-to-replace-a-sewer-line.html.gz
-      - sewer-line-replace-bid-calculator__index.html.gz=sewer-line-replace-bid-calculator__index.html.gz
-      - sewer-line-replace-bid-calculator__usage.mjs.gz=sewer-line-replace-bid-calculator__usage.mjs.gz
-      - sewer-line-replace-bid-calculator__vs-a-flat-per-foot-price.html.gz=sewer-line-replace-bid-calculator__vs-a-flat-per-foot-price.html.gz
   - name: portfolio-front-tools-31
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sewer-line-replace-bid-calculator__index.html.gz=sewer-line-replace-bid-calculator__index.html.gz
+      - sewer-line-replace-bid-calculator__usage.mjs.gz=sewer-line-replace-bid-calculator__usage.mjs.gz
+      - sewer-line-replace-bid-calculator__vs-a-flat-per-foot-price.html.gz=sewer-line-replace-bid-calculator__vs-a-flat-per-foot-price.html.gz
       - sewer-line-replace-bid-calculator__vs-servicetitan.html.gz=sewer-line-replace-bid-calculator__vs-servicetitan.html.gz
       - shared-kitchen-rate-planner__calc.mjs.gz=shared-kitchen-rate-planner__calc.mjs.gz
       - shared-kitchen-rate-planner__index.html.gz=shared-kitchen-rate-planner__index.html.gz
@@ -4260,13 +4263,13 @@ configMapGenerator:
       - shopify-to-woocommerce-converter__converter.mjs.gz=shopify-to-woocommerce-converter__converter.mjs.gz
       - shopify-to-woocommerce-converter__index.html.gz=shopify-to-woocommerce-converter__index.html.gz
       - shopify-to-woocommerce-converter__usage.mjs.gz=shopify-to-woocommerce-converter__usage.mjs.gz
-      - siding-bid-calculator__calc.mjs.gz=siding-bid-calculator__calc.mjs.gz
-      - siding-bid-calculator__how-much-to-charge.html.gz=siding-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-32
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - siding-bid-calculator__calc.mjs.gz=siding-bid-calculator__calc.mjs.gz
+      - siding-bid-calculator__how-much-to-charge.html.gz=siding-bid-calculator__how-much-to-charge.html.gz
       - siding-bid-calculator__index.html.gz=siding-bid-calculator__index.html.gz
       - siding-bid-calculator__share.mjs.gz=siding-bid-calculator__share.mjs.gz
       - siding-bid-calculator__usage.mjs.gz=siding-bid-calculator__usage.mjs.gz
@@ -4395,12 +4398,12 @@ configMapGenerator:
       - speaker-fee-calculator__usage.mjs.gz=speaker-fee-calculator__usage.mjs.gz
       - speech-to-text-pricing-calculator__cli.mjs.gz=speech-to-text-pricing-calculator__cli.mjs.gz
       - speech-to-text-pricing-calculator__engine.mjs.gz=speech-to-text-pricing-calculator__engine.mjs.gz
-      - speech-to-text-pricing-calculator__how-to-choose-a-speech-to-text-api.html.gz=speech-to-text-pricing-calculator__how-to-choose-a-speech-to-text-api.html.gz
   - name: portfolio-front-tools-33
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - speech-to-text-pricing-calculator__how-to-choose-a-speech-to-text-api.html.gz=speech-to-text-pricing-calculator__how-to-choose-a-speech-to-text-api.html.gz
       - speech-to-text-pricing-calculator__index.html.gz=speech-to-text-pricing-calculator__index.html.gz
       - speech-to-text-pricing-calculator__usage.mjs.gz=speech-to-text-pricing-calculator__usage.mjs.gz
       - spray-foam-bid-calculator__calc.mjs.gz=spray-foam-bid-calculator__calc.mjs.gz
