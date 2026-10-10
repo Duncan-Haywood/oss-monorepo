@@ -3176,6 +3176,8 @@ const CATEGORY_RULES = [
         'pension-lump-sum-vs-annuity-calculator',
         // `fers-retirement-planner` joined 2026-10-09 on its first commit: one federal employee comparing retirement ages on their own pension, beside the pension buyout tool.
         'fers-retirement-planner',
+        // `401k-plan-fee-calculator` joined 2026-10-10 on its first commit: filed here because `backoffice` is at its 3 MB gzipped offline bound; one plan sponsor sizing their own retirement plan's cost, beside the other retirement planners.
+        '401k-plan-fee-calculator',
         // `tax-lot-sale-optimizer` joined 2026-10-08 on its first commit: one investor choosing which lots of their own holding to sell, beside the other single-person tax and income-timing tools.
         'tax-lot-sale-optimizer',
         // `mortgage-extra-payment-vs-invest-calculator` joined 2026-10-08 on its first commit: one homeowner deciding what to do with their own spare cash against their own loan, beside the other single-person money-decision tools.

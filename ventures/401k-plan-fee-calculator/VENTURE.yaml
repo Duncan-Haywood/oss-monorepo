@@ -1,0 +1,45 @@
+name: 401k-plan-fee-calculator
+description: >-
+  Free browser calculator for small-business owners and 401(k) plan committees: enter funds, recordkeeper, advisor and admin fees and get
+  the all-in cost as a percent of assets and per participant, the gap to an editable plan-size benchmark, and the long-run cost to an
+  average participant. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. duplicate_check scored the nearest venture (form-5500-late-filing-calculator) 0.32; no
+# venture prices a plan's fees. Same buyer as solo-401k-contribution-calculator and form-5500-late-filing-calculator, but the employer
+# side: an owner or CFO who signs the plan document and carries the ERISA fiduciary duty to review fees.
+#
+# First visitor: small employers searching "401k plan fees calculator", "is my 401k expensive", "401k fee benchmarking for small
+# business". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; not legal, tax or financial advice and not an ERISA fee
+# audit; the benchmark table is labelled illustrative and editable, with no claim that any percentage is a safe harbor; carries the
+# no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet into the retirement-plan cluster plus donations.
+
+hypotheses:
+  - claim: >-
+      Small employers will type their funds and fees into a no-signup calculator to see an all-in percentage and the cost to a participant,
+      because the 408(b)(2) disclosure lists each fee separately and nobody adds them up.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/401k-plan-fee-calculator/
+  analytics: null
