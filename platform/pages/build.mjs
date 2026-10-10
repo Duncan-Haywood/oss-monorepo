@@ -3252,6 +3252,7 @@ const CATEGORY_RULES = [
         '3d-print-price-calculator',
         'affiliate-disclosure-checker',
         'ats-resume-checker',
+        'house-hack-calculator',
         'brand-deal-rate-calculator',
         'cat-adjuster-fee-calculator',
         'ad-slot-sell-through-planner',
