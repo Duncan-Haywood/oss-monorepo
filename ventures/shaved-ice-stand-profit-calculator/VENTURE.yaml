@@ -1,0 +1,53 @@
+name: shaved-ice-stand-profit-calculator
+description: >-
+  Free browser calculator for shaved ice, lemonade and frozen-treat stands at fairs and festivals: margin per cup by size,
+  cups to break even, profit on a hot, normal and rainy day, and the most booth fee an event can bear (flat vs percent).
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. Repo grep of ventures/ for "shaved ice", "snow cone", "lemonade", "popsicle"
+# found none; nearest are craft-fair-booth-calculator, farmers-market-booth-calculator and food-truck-event-margin-calculator
+# (duplicate_check 0.25), which do not model per-cup recipe cost, size mix or weather. Not in screened-out.md.
+#
+# Why this niche: seasonal stand operators decide event by event whether a booth fee pays, with ingredient costs that look
+# tiny and a day that is mostly labour, fee and weather. Operators range from teens to full-time concession businesses.
+#
+# First visitor: people searching "shaved ice business profit", "how many cups to break even", "festival booth fee flat or percentage".
+# Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types in; no data stored, no tax or financial advice. The page
+# carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet into the event-vendor cluster plus donations.
+
+hypotheses:
+  - claim: >-
+      Concession stand operators will type their cup recipe, labour and booth fee into a no-signup calculator before signing
+      for an event, because nothing they use shows break-even cups or what a rainy day does to the fee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing a flat fee as an equivalent percentage of a normal day's sales changes which fee structure operators negotiate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - Operators report that equipment cost and multi-day events are the common case, at which point the tool should model them.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/shaved-ice-stand-profit-calculator/
+  analytics: null

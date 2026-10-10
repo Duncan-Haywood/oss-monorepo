@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1000 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1001 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -160,11 +160,11 @@
     <summary type="text">Free custom sawing rate calculator for portable sawmill operators: true cost per sawing hour, break-even and target quote per board foot or per hour, and which log sizes lose money. Runs in your browser.</summary>
   </entry>
   <entry>
-    <title>SOC 2 Readiness Checker — Free Gap Score and Timeline</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/soc2-readiness-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/soc2-readiness-checker</id>
+    <title>Shaved Ice Stand Profit Calculator — Will the Event Pay?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/shaved-ice-stand-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/shaved-ice-stand-profit-calculator</id>
     <updated>2026-10-10T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free SOC 2 readiness checker: answer the controls auditors test, get a readiness score, the gaps ranked by value per day of effort, and a rough timeline to a Type I date and a Type II report. Runs in your browser; nothing is uploaded.</summary>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free calculator for shaved ice, lemonade and frozen-treat stands: margin per cup by size, cups to break even, profit on a hot, normal and rainy day, and the most booth fee an event can bear. Runs in your browser.</summary>
   </entry>
 </feed>

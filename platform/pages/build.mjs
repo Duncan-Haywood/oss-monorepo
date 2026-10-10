@@ -700,6 +700,9 @@ const CATEGORY_RULES = [
       // `coffee-cart-event-quote-calculator` joined 2026-10-10 on its first commit: drink-cart owners comparing a host's fee, share or guarantee,
       // the drink-cart sibling of `food-truck-event-margin-calculator`.
       'coffee-cart-event-quote-calculator',
+      // `shaved-ice-stand-profit-calculator` joined 2026-10-10 on its first commit: per-cup concession stands at fairs and
+      // festivals, the cold-drink sibling of `coffee-cart-event-quote-calculator`.
+      'shaved-ice-stand-profit-calculator',
       // `shared-kitchen-rate-planner` joined 2026-10-07 on its first commit: commissary and shared-kitchen owners pricing
       // station-hours and memberships; the renters are the food-truck and catering operators served here, one hop away.
       'shared-kitchen-rate-planner',
