@@ -1500,7 +1500,8 @@ const RELATIVE_SELF = relative(
 // +1: `mobile-vet-house-call-fee-calculator` graduated.
 // +1: `fixed-bid-overrun-forecaster` graduated.
 // +1: `soc2-readiness-checker` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 966;
+// +1: `timber-sale-offer-checker` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 967;
 // +1: `retreat-profit-pricing-calculator` graduated.
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
