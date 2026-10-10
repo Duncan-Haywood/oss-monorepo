@@ -788,6 +788,9 @@ const CATEGORY_RULES = [
       // `craft-brewery-batch-margin-calculator` joined 2026-10-07 on its first commit: a brewery sells drink by the
       // pint, keg and can; the same operator reader as `pour-cost-calculator`, one hop away.
       'craft-brewery-batch-margin-calculator',
+      // `brewery-excise-tax-calculator` joined 2026-10-10 on its first commit: the federal tax built into every keg and case,
+      // beside the batch margin that has to absorb it.
+      'brewery-excise-tax-calculator',
       // `mobile-bartender-event-quote` joined 2026-10-03 on its first commit: per-event bar service pricing,
       // one hop from `pour-cost-calculator` and `catering-quote-calculator`.
       'mobile-bartender-event-quote',

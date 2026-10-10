@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 999 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1000 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -30,6 +30,14 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free bid leveling worksheet: paste subcontractor bids, price the excluded and unaddressed scope at your estimate, and see whether the low bid is still lowest. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Brewery Excise Tax Calculator — Federal Beer Tax per Keg and Case</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/brewery-excise-tax-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/brewery-excise-tax-calculator</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free federal beer excise tax calculator for craft brewers: enter kegs, cases and barrels and see the CBMA $3.50 and $16 per barrel tax, the cost per keg and case, and what growing past 60,000 barrels does. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>Coffee Cart Event Quote Calculator — Flat Fee vs Percentage</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free SOC 2 readiness checker: answer the controls auditors test, get a readiness score, the gaps ranked by value per day of effort, and a rough timeline to a Type I date and a Type II report. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Solar Land Lease Offer Calculator — Is the Offer Worth It?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/solar-land-lease-offer-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/solar-land-lease-offer-calculator</id>
-    <updated>2026-10-10T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free solar lease calculator for landowners: present value of an option-plus-term solar lease against what your land earns now, the break-even rent and escalator, and rent as a share of project revenue. Runs in your browser.</summary>
   </entry>
 </feed>

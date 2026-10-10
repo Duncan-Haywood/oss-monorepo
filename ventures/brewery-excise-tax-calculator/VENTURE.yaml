@@ -1,0 +1,56 @@
+name: brewery-excise-tax-calculator
+description: >-
+  Free browser calculator for craft brewers: enter kegs, cases, growlers and barrels removed in a year and get the federal beer
+  excise tax at the Craft Beverage Modernization Act rates ($3.50 on the first 60,000 barrels, $16 to 6 million, $18 above), the
+  effective rate, the tax inside each keg, case and pint, and a growth table showing the rate cliff. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. duplicate_check scored the nearest venture at 0.42
+# (craft-brewery-batch-margin-calculator, which prices a batch and does not compute the federal excise tax tiers).
+#
+# Why this niche: roughly 9,000 US craft breweries pay federal excise tax on removals, and the reduced rate turns a
+# $3.50 barrel into a $16 barrel at 60,000 barrels. Owners price kegs and plan expansion without a view of that cliff;
+# the TTB return form computes tax but does not explain per-package cost or growth effects.
+#
+# First visitor: brewers and brewery bookkeepers searching "brewery excise tax calculator", "CBMA reduced rate
+# calculator", "federal excise tax per keg", "TTB beer tax per barrel". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over volumes the user types in; nothing stored; not tax advice; states what is not
+# modelled (state tax, importers, losses, refunds, actual filing period) and carries the no-warranty and no-SLA clauses.
+# Rates cited from IRC 5051(a) as amended by the CBMA; verify against current TTB guidance.
+#
+# Path to revenue (payment rails stay off): lead magnet into the brewery cluster plus donations. A paid layer
+# (TTB return worksheet export, multi-brewery controlled-group tracking) needs accounts, so an owner decision; not built.
+
+hypotheses:
+  - claim: >-
+      Craft brewery owners and bookkeepers will type annual keg and case volumes into a no-signup calculator to see the
+      excise tax per package and the cost of crossing 60,000 barrels, because their TTB return computes the tax but not
+      what it adds to a keg price or to growth.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the effective rate jump past 60,000 barrels changes whether a brewery chooses to grow volume or add margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - Brewers report that state tax or contract-brewing assignment is the common need, at which point the tool should model it.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/brewery-excise-tax-calculator/
+  analytics: null
