@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 999 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1000 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -46,6 +46,14 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free calculator for mobile coffee cart owners: compare a booking fee, a percentage of sales and a prepaid drink guarantee for an event, with break-even drinks and net per hour. Runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Distillery Excise Tax Calculator — Federal Spirits Tax per Bottle</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/distillery-excise-tax-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/distillery-excise-tax-calculator</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free federal spirits excise tax calculator for craft distillers: enter bottles and their proof, see proof gallons, the CBMA $2.70 and $13.34 tax, the cost per bottle and pour, and what growing past 100,000 proof gallons does. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>Fixed-Bid Overrun Forecaster — Will This Job Finish Inside the Price?</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free SOC 2 readiness checker: answer the controls auditors test, get a readiness score, the gaps ranked by value per day of effort, and a rough timeline to a Type I date and a Type II report. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Solar Land Lease Offer Calculator — Is the Offer Worth It?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/solar-land-lease-offer-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/solar-land-lease-offer-calculator</id>
-    <updated>2026-10-10T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free solar lease calculator for landowners: present value of an option-plus-term solar lease against what your land earns now, the break-even rent and escalator, and rent as a share of project revenue. Runs in your browser.</summary>
   </entry>
 </feed>
