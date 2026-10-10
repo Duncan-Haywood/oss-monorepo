@@ -40,3 +40,7 @@ test("usage events named on the page are the ones the code records", () => {
 });
 
 
+
+test("footer links to the sibling wholesale-vs-retail-pricing-calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/wholesale-vs-retail-pricing-calculator\/"/);
+});

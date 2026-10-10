@@ -16,11 +16,19 @@
     <summary type="text">Free app review analyzer: drop in your Google Play or App Store review CSV and see which release dropped your rating, which complaints cost the most stars, and which unhappy reviews you have not answered. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>pg_stat_statements Analyzer — Find the Postgres Queries Using the Most Time</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pg-stat-statements-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/pg-stat-statements-analyzer</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free pg_stat_statements analyzer: run one read-only query, paste the result, and see which Postgres queries use the most database time, which look like N+1 loops, and which miss cache or spill to disk. Runs in your browser, never touches your database.</summary>
+  </entry>
+  <entry>
     <title>Postgres Index Auditor — Find Unused, Duplicate and Redundant Indexes</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/postgres-index-auditor/"/>
     <id>tag:marisstella.dev,2026:tool/postgres-index-auditor</id>
     <updated>2026-10-10T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free Postgres index auditor: run one read-only query, paste the result, and see unused, duplicate, redundant and invalid indexes, the disk they waste and DROP INDEX statements to review. Runs in your browser, never touches your database.</summary>
   </entry>
   <entry>
@@ -158,13 +166,5 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free restaurant table mix tool: enter your floor area, table sizes and party-size mix, and get the number of 2-tops, 4-tops and 6-tops that seats the most guests, from simulated busy services. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>DMARC Report Reader — Free, Private DMARC XML Analyzer</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dmarc-report-reader/"/>
-    <id>tag:marisstella.dev,2026:tool/dmarc-report-reader</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Drop your DMARC aggregate reports (.xml, .gz or .zip) and see which senders pass SPF and DKIM alignment, which fail and exactly why, and when it is safe to move from p=none to quarantine or reject. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>
