@@ -48,6 +48,14 @@
     <summary type="text">Free federal beer excise tax calculator for craft brewers: enter kegs, cases and barrels and see the CBMA $3.50 and $16 per barrel tax, the cost per keg and case, and what growing past 60,000 barrels does. Runs in your browser.</summary>
   </entry>
   <entry>
+    <title>Cake Pricing Calculator — what to charge for a custom cake</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cake-pricing-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/cake-pricing-calculator</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free cake pricing calculator for home bakers and cake decorators: ingredients, decoration, hours, delivery, overhead and fees in, a price per cake and per serving out, with break-even, target and premium tiers. Runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Coast FIRE Calculator — Do You Already Have Enough to Coast?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/coast-fire-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/coast-fire-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator for mobile veterinarians: what a house call really costs after drive time, mileage, supplies, assistant time and no-shows, the visit fee and travel-zone surcharge that reach your margin, and profit per day. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>On-Call Load Analyzer — Is Your Pager Rotation Fair and Quiet?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/oncall-load-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/oncall-load-analyzer</id>
-    <updated>2026-10-10T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free on-call load analyzer: paste a PagerDuty, Opsgenie or Grafana OnCall incident CSV and see who carries the pager, night and weekend pages, noisy and self-resolving alerts, and the hours a cleanup would give back. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
