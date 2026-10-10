@@ -1,0 +1,54 @@
+name: sawmill-custom-sawing-calculator
+description: >-
+  Free browser tool and CLI for portable-sawmill operators: the true cost of a sawing hour, break-even and target quote per
+  board foot and per hour for a custom sawing job, hourly vs per-board-foot, and the log diameters that lose money at a flat rate.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. Repo search of ventures/ for "saw", "lumber", "mill", "timber" found
+# timber-sale-offer-checker (a landowner judging a stumpage offer) and firewood-profit-calculator; neither prices custom
+# sawing for a mill owner. Not in screened-out.md.
+#
+# Why this niche: tens of thousands of Wood-Mizer, Norwood, Hud-Son and similar portable bandsaw mills are owned by people who
+# saw for neighbours and landowners at a rate "everyone charges" without a cost basis. Blades, fuel, a helper and ten-minute
+# log handling vanish from the number. Income tool for a one-person trade business.
+#
+# First visitor: sawyers searching "custom sawing rates per board foot", "portable sawmill business profit", "sawmill hourly
+# vs per board foot". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user enters. No price data is shipped. Not tax or financial advice; the page
+# says so and carries the no-warranty and no-SLA clauses. No data leaves the browser.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. A paid layer (job tracker, customer quotes and invoices)
+# needs accounts and payments, so an owner decision; not built.
+
+hypotheses:
+  - claim: >-
+      Portable-mill owners will type their blade, fuel and crew costs into a no-signup calculator to set a custom sawing rate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing that small logs lose money at a flat per-board-foot rate changes how a sawyer quotes (minimum per log or hourly).
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - Sawyers report that species and grade of lumber drive the margin far more than the cost side, at which point the tool should model resale value of the lumber.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/sawmill-custom-sawing-calculator/
+  analytics: null
