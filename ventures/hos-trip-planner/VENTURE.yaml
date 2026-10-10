@@ -1,0 +1,56 @@
+name: hos-trip-planner
+description: >-
+  Free browser planner for truckers, owner-operators and small-fleet dispatchers: enter the hours-of-service clocks you have
+  left (11-hour drive, 14-hour window, 30-minute break, 60/70-hour cycle) and a multi-stop load, and get the full schedule with
+  forced breaks, 10-hour resets and 34-hour restarts and the real arrival time at each stop. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. duplicate_check scored the nearest ventures at 0.25 (freight-accessorial-auditor,
+# service-hourly-yield-analyzer); no venture plans a load against HOS clocks. owner-operator-cpm-calculator and
+# owner-operator-per-diem-calculator price a week or a deduction, not a schedule.
+#
+# Why this niche: owner-operators and dispatchers decide whether to take a load and what delivery window to promise from
+# a mental sum of the 11/14/8/70 rules. A wrong answer is a late load, a detention fight, or an HOS violation. ELDs show the
+# clocks you have, not what a planned route will do to them. Free ELD-bundled planners are tied to a subscription and a map.
+#
+# First visitor: drivers and dispatchers searching "hours of service calculator", "can I make this delivery HOS", "70 hour
+# 8 day calculator", "34 hour restart calculator". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over clocks the user types in; no logs stored, no regulatory advice. The page says it is not
+# a logbook or ELD, lists what is not modelled (sleeper split, adverse conditions, exemptions) and carries the no-warranty
+# and no-SLA clauses. Rules cited: 49 CFR 395.3 as in force; verify against current FMCSA text.
+#
+# Path to revenue (payment rails stay off): lead magnet into the owner-operator cluster plus donations. A paid layer
+# (route mileage, saved loads, dispatcher fleet view) needs maps and accounts, so an owner decision; not built.
+
+hypotheses:
+  - claim: >-
+      Dispatchers and owner-operators will type their remaining clocks and stops into a no-signup planner to decide whether a
+      load makes its appointment, because their ELD shows only the clocks they have, not the schedule a route will force.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing that a long shipper dwell costs a 10-hour reset changes whether a driver accepts a tight appointment.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - Drivers report that sleeper-berth splits and adverse-conditions extensions are the common case, at which point the tool should model them.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/hos-trip-planner/
+  analytics: null
