@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 988 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 989 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -38,6 +38,14 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free fixed-price project forecaster: enter price, cost budget, percent complete and cost to date to see projected final cost, margin, CPI and SPI, and when the job stops paying. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Hunting Lease Income Calculator — What Will My Land Net?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hunting-lease-income-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/hunting-lease-income-calculator</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free hunting lease income calculator for landowners: compare a flat club lease, per-hunter seasonal leases and paid day hunts after insurance, upkeep and lost use, and see the break-even rate per acre. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>Mobile Vet House-Call Fee Calculator — Cost, Zone Surcharge and Daily Profit</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free capital budgeting tool for small businesses: list the equipment, vehicle and software projects you want, enter your budget, and get the set with the highest total net present value, with options, must-dos and payback. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Car Hauler Load Planner: Which Cars to Carry and Where — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/car-hauler-load-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/car-hauler-load-planner</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Logistics, freight &amp; cloud cost"/>
-    <summary type="text">Free car hauler load planner: paste the vehicles on your dispatch board with pickup and drop miles, describe your two-deck trailer, and get the cars to carry, the deck for each, the lowest pay worth taking per car, and the net. Nothing uploaded.</summary>
   </entry>
 </feed>
