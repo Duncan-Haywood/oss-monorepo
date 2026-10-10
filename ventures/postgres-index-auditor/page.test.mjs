@@ -40,3 +40,7 @@ test("robots and sitemap let crawlers find the page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
 });
+
+test("footer links to the sibling pg-stat-statements-analyzer", () => {
+  assert.match(page("index.html"), /href="\.\.\/pg-stat-statements-analyzer\/"/);
+});

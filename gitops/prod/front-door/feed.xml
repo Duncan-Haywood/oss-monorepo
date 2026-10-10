@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 980 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 981 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -22,6 +22,14 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free AWS IAM policy checker: paste a policy, trust policy or bucket policy and see admin wildcards, privilege-escalation actions, NotAction grants and public principals with fixes to review. Runs in your browser, no AWS access needed.</summary>
+  </entry>
+  <entry>
+    <title>pg_stat_statements Analyzer — Find the Postgres Queries Using the Most Time</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pg-stat-statements-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/pg-stat-statements-analyzer</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free pg_stat_statements analyzer: run one read-only query, paste the result, and see which Postgres queries use the most database time, which look like N+1 loops, and which miss cache or spill to disk. Runs in your browser, never touches your database.</summary>
   </entry>
   <entry>
     <title>Postgres Index Auditor — Find Unused, Duplicate and Redundant Indexes</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free tool for businesses with demand charges: paste 15-minute utility interval data and see monthly peaks, demand charges, ratchet effects, and what shaving the peak would save and need. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Dental Patient Financing Fee Calculator — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dental-patient-financing-fee-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/dental-patient-financing-fee-calculator</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free calculator for dental and orthodontic practices: third-party patient financing vs an in-house payment plan vs pay-in-full. What you keep per case after merchant fees, defaults and waiting, and the acceptance rate financing must reach to pay for itself. Nothing uploaded.</summary>
   </entry>
 </feed>
