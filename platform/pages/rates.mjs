@@ -425,6 +425,8 @@ export const REVIEWED_NOT_CARRIED = {
     'labour and truck cost are dollars per hour applied to one visit\'s drive, setup, pumping and dump-trip minutes, not a percentage of direct cost, and there is no burden or overhead field; the margin is a share of the price -- the tool prices a pump-out visit and sets a pump-out interval rather than being quoted a shop rate',
   'powder-coating-job-price-calculator':
     'labour and overhead are dollars per labour hour applied to one job\'s prep, spray and setup minutes, not a percentage of direct cost, and there is no burden field; the margin is a share of the price -- the tool prices a coating job from powder use, oven batches and setup rather than from a shop rate',
+  'laser-cutting-engraving-job-price-calculator':
+    'labour and overhead are dollars per labour hour applied to one job\'s setup, sheet loading and finishing minutes, not a percentage of direct cost, and there is no burden field; the margin is a share of the price -- the tool prices a laser job from sheet nesting, cut and engrave time rather than from a shop rate',
   'screen-print-job-quote-calculator':
     'labor and overhead are dollars per hour applied to setup and press hours of one job, not a percentage of direct cost, and there is no burden field; the target margin is a share of the quote -- the tool prices a print job from screens, garments and press time rather than being handed a shop rate',
   'sports-official-game-fee-calculator':
