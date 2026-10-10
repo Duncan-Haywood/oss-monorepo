@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Construction Delay Claim Calculator — Time, Eichleay and Liquidated Damages</title>
+  <meta name="description" content="Free construction delay claim calculator: sort delay days by cause, see the time extension you earn, the compensable cost with an Eichleay home-office share, and the liquidated damages left. Runs in your browser.">
+  <meta property="og:title" content="Construction Delay Claim Calculator — free, private">
+  <meta property="og:description" content="Delay days by cause, time extension, Eichleay overhead and liquidated damages in one net position.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Construction Delay Claim Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free construction delay claim calculator: time extension days, compensable delay, Eichleay home-office overhead and liquidated damages in one net position."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do you calculate a construction delay claim?", "acceptedAnswer": {"@type": "Answer", "text": "Sort each delay day by cause. Owner-caused delay that did not overlap with your own delay earns a time extension and money. Weather and other neutral delay earns time only. Your own delay earns neither. Money is the daily field overhead times the compensable days, a home-office overhead share, and profit if the contract allows it."}}, {"@type": "Question", "name": "What is the Eichleay formula?", "acceptedAnswer": {"@type": "Answer", "text": "A way to price the head-office overhead a contractor could not recover while a job sat idle. Contract billings divided by total billings for the contract period gives the job's share of home-office overhead. Divided by the days the job actually took it gives a daily rate, and the rate times the compensable delay days is the claim."}}, {"@type": "Question", "name": "What is a concurrent delay?", "acceptedAnswer": {"@type": "Answer", "text": "Two delays that overlap in time, one on the owner and one on the contractor. Most contracts give the contractor extra time for the overlap but no extra money, so separating the days is often the whole dispute."}}, {"@type": "Question", "name": "How are liquidated damages computed?", "acceptedAnswer": {"@type": "Answer", "text": "The contract's daily rate times the days the job finishes after its adjusted completion date, often limited by a cap. Getting time extensions granted lowers the late days before the rate is applied, which is why an extension can be worth more than the cost claim."}}, {"@type": "Question", "name": "Does a delay claim need written notice?", "acceptedAnswer": {"@type": "Answer", "text": "Almost always. Many contracts require written notice of a delay within a short window of the event, sometimes a week or less, and a late notice can waive the claim. This tool does not know your notice terms; read the clause."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "No-damages-for-delay clauses, notice and waiver terms, the critical path (it assumes each day entered really delayed completion), acceleration costs, loss of productivity, interest, state-specific rules and public-owner rules. Have a construction attorney check a real claim."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    tr.drive td:first-child { border-left: 4px solid #0b4f9c; }
+    tr.break td:first-child, tr.dwell td:first-child { border-left: 4px solid #b7791f; }
+    tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CONSTRUCTION DELAY CLAIM CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What is this delayed job really worth, claim against liquidated damages?</h1>
+    <p>List the delay events and who caused them. You get <strong>the time extension you earned, the days that are compensable, a field and Eichleay home-office overhead claim, and the liquidated damages that remain</strong>, netted into one position. On a late job the extension is often worth more than the cost claim, and neither can be sized from a gut feel.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. A planning estimate, not legal advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The contract and the delay</h2>
+    <div class="grid">
+      <div><label for="contractValue">Contract value ($, for the LD cap)</label><input type="number" id="contractValue" min="0" step="any" value="2400000"></div>
+      <div><label for="contractDays">Original contract time (days)</label><input type="number" id="contractDays" min="0" step="any" value="240"></div>
+      <div><label for="actualDays">Days the job actually took</label><input type="number" id="actualDays" min="0" step="any" value="297"></div>
+      <div><label for="ldPerDay">Liquidated damages per day ($)</label><input type="number" id="ldPerDay" min="0" step="any" value="1500"></div>
+      <div><label for="ldCapPct">LD cap (% of contract, 0 for none)</label><input type="number" id="ldCapPct" min="0" step="any" value="10"></div>
+      <div><label for="fieldDaily">Field overhead per delay day ($)</label><input type="number" id="fieldDaily" min="0" step="any" value="1850"></div>
+      <div><label for="profitPct">Profit on delay cost (%)</label><input type="number" id="profitPct" min="0" step="any" value="5"></div>
+      <div><label for="contractBillings">This contract's billings ($, for Eichleay)</label><input type="number" id="contractBillings" min="0" step="any" value="2400000"></div>
+      <div><label for="totalBillings">All billings in the same period ($)</label><input type="number" id="totalBillings" min="0" step="any" value="9600000"></div>
+      <div><label for="homeOverhead">Home-office overhead in the period ($)</label><input type="number" id="homeOverhead" min="0" step="any" value="1100000"></div>
+    </div>
+    <p class="note">One delay event per line: <code>name, days, owner|contractor|weather|other, concurrent yes|no</code>. Names cannot contain commas. "Concurrent" means your own delay overlapped it. Leave the Eichleay fields at 0 to skip home-office overhead.</p>
+    <label for="delays">Delay events</label>
+    <textarea id="delays" rows="5" spellcheck="false">Late owner-furnished switchgear, 21, owner, no</textarea>
+    <p>
+      <button type="button" id="analyze">Calculate the claim</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+    </p>
+    <p class="note" id="form-status">Enter the contract, the delays and the overhead, or load the example, then click Calculate the claim.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>Where the money comes from</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Item</th><th scope="col">Amount</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <h3>What each compensable owner day is worth</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Compensable days</th><th scope="col">Claim</th><th scope="col">Liquidated damages</th><th scope="col">Net</th></tr></thead><tbody id="sens"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The arithmetic, and what it leaves out</h2>
+    <ul>
+      <li>Owner, weather and other neutral delay earns a <strong>time extension</strong>, concurrent or not. Your own delay earns none.</li>
+      <li>Only owner delay with <strong>no concurrent delay of yours</strong> counts as compensable for money.</li>
+      <li>Field overhead is your daily rate times the compensable days. The home-office share uses the <strong>Eichleay</strong> formula: contract billings over total billings, times home-office overhead, divided by the days the job took, times the compensable days.</li>
+      <li>Liquidated damages are the daily rate times the days left after the adjusted completion date, held to the cap if you enter one.</li>
+      <li><strong>Not modelled:</strong> notice and waiver clauses, no-damages-for-delay clauses, the critical path, acceleration, lost productivity, interest, and state or public-owner rules.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do you calculate a construction delay claim?</h3>
+    <p>Sort each delay day by cause. Owner-caused delay that did not overlap with your own delay earns a time extension and money. Weather and other neutral delay earns time only. Your own delay earns neither. Money is the daily field overhead times the compensable days, a home-office overhead share, and profit if the contract allows it.</p>
+    <h3>What is the Eichleay formula?</h3>
+    <p>A way to price the head-office overhead a contractor could not recover while a job sat idle. Contract billings divided by total billings for the contract period gives the job's share of home-office overhead. Divided by the days the job actually took it gives a daily rate, and the rate times the compensable delay days is the claim.</p>
+    <h3>What is a concurrent delay?</h3>
+    <p>Two delays that overlap in time, one on the owner and one on the contractor. Most contracts give the contractor extra time for the overlap but no extra money, so separating the days is often the whole dispute.</p>
+    <h3>How are liquidated damages computed?</h3>
+    <p>The contract's daily rate times the days the job finishes after its adjusted completion date, often limited by a cap. Getting time extensions granted lowers the late days before the rate is applied, which is why an extension can be worth more than the cost claim.</p>
+    <h3>Does a delay claim need written notice?</h3>
+    <p>Almost always. Many contracts require written notice of a delay within a short window of the event, sometimes a week or less, and a late notice can waive the claim. This tool does not know your notice terms; read the clause.</p>
+    <h3>What does this leave out?</h3>
+    <p>No-damages-for-delay clauses, notice and waiver terms, the critical path (it assumes each day entered really delayed completion), acceleration costs, loss of productivity, interest, state-specific rules and public-owner rules. Have a construction attorney check a real claim.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your contract, your attorney or your scheduler. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for any claim you send.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>claim_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../change-order-margin-calculator/">change order margin</a>, <a href="../pay-application-generator/">pay application generator</a>, <a href="../mechanics-lien-deadline-calculator/">mechanics lien deadlines</a>, <a href="../contractor-wip-schedule/">contractor WIP schedule</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sensitivity, sampleInput, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["contractValue", "contractDays", "actualDays", "ldPerDay", "ldCapPct", "fieldDaily", "profitPct", "contractBillings", "totalBillings", "homeOverhead", "delays"];
+    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run() {
+      const input = read();
+      const r = plan(input);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      const lines = [["Field overhead", r.field], ["Home-office overhead (Eichleay)", r.eichleay.claim], ["Profit", r.profit], ["Total claim", r.claim], ["Liquidated damages", -r.ld], ["Net position", r.net]];
+      $("#rows").innerHTML = lines.map(([n, v]) => `<tr><th scope="row">${esc(n)}</th><td>${usd(v)}</td></tr>`).join("");
+      $("#sens").innerHTML = sensitivity(input).map((x) => `<tr><th scope="row">${x.ownerDays}</th><td>${usd(x.claim)}</td><td>${usd(x.ld)}</td><td>${usd(x.net)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Net position: ${usd(r.net)} (claim ${usd(r.claim)} against liquidated damages ${usd(r.ld)}).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("claim_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleInput();
+      for (const k of keys) $("#" + k).value = s[k];
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "delay-claim.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
