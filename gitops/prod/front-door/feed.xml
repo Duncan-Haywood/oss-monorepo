@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 991 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 992 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -70,6 +70,14 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free on-call load analyzer: paste a PagerDuty, Opsgenie or Grafana OnCall incident CSV and see who carries the pager, night and weekend pages, noisy and self-resolving alerts, and the hours a cleanup would give back. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Oyster Farm Grow-Out Calculator — Cost per Oyster and Break-Even Survival</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/oyster-farm-grow-out-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/oyster-farm-grow-out-calculator</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free oyster farm calculator: cost per market oyster, profit per cycle, break-even price and survival, and a survival-by-price profit grid. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>pg_stat_statements Analyzer — Find the Postgres Queries Using the Most Time</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator for birth doulas: your real pay per hour after long labors, driving, on-call days, backup cover and overhead, and the package price that reaches your target. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Brewery Tank Schedule Optimizer: Fermenter and Brite Planning — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/brewery-tank-schedule-optimizer/"/>
-    <id>tag:marisstella.dev,2026:tool/brewery-tank-schedule-optimizer</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free brewery tank schedule optimizer: enter your fermenters, bright tanks and beers, and get the brew-day and tank plan that finishes the most margin, with batch minimums and maximums, utilisation, and what one more tank is worth. Nothing uploaded.</summary>
   </entry>
 </feed>

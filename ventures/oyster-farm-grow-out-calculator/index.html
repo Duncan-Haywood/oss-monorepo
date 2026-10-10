@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Oyster Farm Grow-Out Calculator — Cost per Oyster and Break-Even Survival</title>
+  <meta name="description" content="Free oyster farm calculator: cost per market oyster, profit per cycle, break-even price and survival, and a survival-by-price profit grid. Runs in your browser.">
+  <meta property="og:title" content="Oyster Farm Grow-Out Calculator — free, private">
+  <meta property="og:description" content="What a market oyster costs to grow, and the price and survival you need to break even.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Oyster Farm Grow-Out Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free tool for oyster growers: cost per market oyster, profit per cycle, break-even price and survival, and a survival-by-price profit grid."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much does it cost to grow an oyster?", "acceptedAnswer": {"@type": "Answer", "text": "Add up seed, the wear on bags and floats, labor, the lease, boat running costs and the cost of money tied up, then divide by the oysters you actually sell. The tool does this from your numbers and shows each line, so you can see whether seed, gear or labor is what drives your cost per oyster."}}, {"@type": "Question", "name": "What survival rate do I need to break even?", "acceptedAnswer": {"@type": "Answer", "text": "The tool searches for the seed-to-harvest survival at which profit is zero, holding your price, gear and labor fixed. If your real survival from past batches is below that number, the cycle loses money at your price."}}, {"@type": "Question", "name": "How many bags do I need for 100,000 seed?", "acceptedAnswer": {"@type": "Answer", "text": "Bags depend on how many oysters each holds on average over the cycle: small seed is crowded in, big oysters are thinned out. The tool uses seed plus survivors averaged, divided by your oysters-per-bag figure, rounded up."}}, {"@type": "Question", "name": "How much seed should I buy for a sales target?", "acceptedAnswer": {"@type": "Answer", "text": "Divide the oysters you want to sell by survival times the share that makes grade. The tool does the division for a target you enter."}}, {"@type": "Question", "name": "Does a longer grow-out cost more?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Lease, boat, the wear on gear and the cost of money all scale with months, so a slower-growing site needs a higher price or better survival to earn the same."}}, {"@type": "Question", "name": "Where do the numbers come from?", "acceptedAnswer": {"@type": "Answer", "text": "From you. The tool contains no seed prices, survival data or market prices. The example values are made up."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser tab and nothing is sent anywhere. There are no accounts."}}, {"@type": "Question", "name": "Is this legal or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on numbers you enter. Shellfish growing is regulated by your state; leases, licences, harvest-area classification and food-safety rules must be checked with your state shellfish agency."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0f5b73; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b3f52; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b3f52; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b3f5210; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0f5b73; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #0b3f52; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #0b3f52; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">OYSTER FARM GROW-OUT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What does a market oyster cost you to grow, and what survival do you need?</h1>
+    <p>Enter your seed, survival, gear, labor and price. You get the <strong>cost per oyster sold, profit for the cycle, break-even price and break-even survival</strong>, a survival-by-price profit grid, and the seed to buy for a sales target.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The tool contains no seed prices, survival data or market prices, and the example numbers are made up.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The crop</h2>
+    <div class="grid">
+      <div><label for="seed">Seed bought (count)</label><input type="number" id="seed" min="0" step="1000" value="150000"></div>
+      <div><label for="seedcost">Seed price ($ per 1,000)</label><input type="number" id="seedcost" min="0" step="0.5" value="30"></div>
+      <div><label for="survival">Survival, seed to harvest (%)</label><input type="number" id="survival" min="0" step="1" value="70"></div>
+      <div><label for="grade">Making market grade (%)</label><input type="number" id="grade" min="0" step="1" value="92"></div>
+      <div><label for="price">Farm-gate price ($ per oyster)</label><input type="number" id="price" min="0" step="0.01" value="0.70"></div>
+      <div><label for="months">Grow-out (months)</label><input type="number" id="months" min="0" step="1" value="16"></div>
+      <div><label for="perbag">Average oysters per bag over the cycle</label><input type="number" id="perbag" min="0" step="10" value="200"></div>
+      <div><label for="bagcost">Bag cost incl. floats or frame ($)</label><input type="number" id="bagcost" min="0" step="1" value="38"></div>
+      <div><label for="gearlife">Gear life (years)</label><input type="number" id="gearlife" min="0" step="0.5" value="5"></div>
+      <div><label for="handlings">Handlings per bag over the cycle</label><input type="number" id="handlings" min="0" step="1" value="14"></div>
+      <div><label for="minutes">Minutes per handling</label><input type="number" id="minutes" min="0" step="1" value="6"></div>
+      <div><label for="labor">Labor ($ per hour)</label><input type="number" id="labor" min="0" step="1" value="22"></div>
+      <div><label for="lease">Lease and permits ($ per year)</label><input type="number" id="lease" min="0" step="50" value="1800"></div>
+      <div><label for="boat">Boat and fuel ($ per month)</label><input type="number" id="boat" min="0" step="10" value="160"></div>
+      <div><label for="capital">Cost of money (% per year)</label><input type="number" id="capital" min="0" step="0.5" value="8"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Work out the cycle</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+    </p>
+    <p class="note" id="form-status">Change the numbers or load the example, then click Work out the cycle.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <div class="scroll"><table><thead><tr><th scope="col">Line</th><th class="n" scope="col">Value</th></tr></thead><tbody id="lines"></tbody></table></div>
+    <h3>Profit by survival and price</h3>
+    <div class="scroll"><table><thead id="gridhead"></thead><tbody id="grid"></tbody></table></div>
+    <h3>Seed for a sales target</h3>
+    <div class="grid"><div><label for="target">Oysters you want to sell</label><input type="number" id="target" min="1" step="1000" value="100000"></div></div>
+    <p class="note" id="target-out"></p>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How the numbers work, and what they leave out</h2>
+    <ul>
+      <li><strong>Oysters sold</strong> = seed × survival × share making grade. <strong>Bags</strong> = (seed + survivors) ÷ 2 ÷ oysters per bag, rounded up.</li>
+      <li><strong>Gear wear</strong> = bags × bag cost × (months ÷ 12) ÷ gear life. <strong>Labor</strong> = bags × handlings × minutes ÷ 60 × hourly rate. <strong>Lease</strong> and <strong>boat</strong> scale with months. <strong>Cost of money</strong> = (seed + gear purchase) × rate × years.</li>
+      <li><strong>Break-even survival</strong> is found by searching survival values with every other input held fixed.</li>
+      <li><strong>Not modelled:</strong> nursery or upweller costs, storm and theft loss beyond the survival you enter, discounted culls, depuration or processing, shipping, marketing, insurance, taxes, and your state's harvest-area closures.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much does it cost to grow an oyster?</h3>
+    <p>Add up seed, the wear on bags and floats, labor, the lease, boat running costs and the cost of money tied up, then divide by the oysters you actually sell. The tool does this from your numbers and shows each line, so you can see whether seed, gear or labor is what drives your cost per oyster.</p>
+    <h3>What survival rate do I need to break even?</h3>
+    <p>The tool searches for the seed-to-harvest survival at which profit is zero, holding your price, gear and labor fixed. If your real survival from past batches is below that number, the cycle loses money at your price.</p>
+    <h3>How many bags do I need for 100,000 seed?</h3>
+    <p>Bags depend on how many oysters each holds on average over the cycle: small seed is crowded in, big oysters are thinned out. The tool uses seed plus survivors averaged, divided by your oysters-per-bag figure, rounded up.</p>
+    <h3>How much seed should I buy for a sales target?</h3>
+    <p>Divide the oysters you want to sell by survival times the share that makes grade. The tool does the division for a target you enter.</p>
+    <h3>Does a longer grow-out cost more?</h3>
+    <p>Yes. Lease, boat, the wear on gear and the cost of money all scale with months, so a slower-growing site needs a higher price or better survival to earn the same.</p>
+    <h3>Where do the numbers come from?</h3>
+    <p>From you. The tool contains no seed prices, survival data or market prices. The example values are made up.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything is calculated in your browser tab and nothing is sent anywhere. There are no accounts.</p>
+    <h3>Is this legal or financial advice?</h3>
+    <p>No. It is arithmetic on numbers you enter. Shellfish growing is regulated by your state; leases, licences, harvest-area classification and food-safety rules must be checked with your state shellfish agency.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional such as an attorney, your state shellfish agency, an extension aquaculture specialist or a tax adviser. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for complying with the leasing, licensing and food-safety rules that apply to you.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>cycle_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../mushroom-fruiting-room-planner/">mushroom fruiting room planner</a>, <a href="../farmers-market-booth-calculator/">farmers market booth calculator</a>, <a href="../fishing-crew-share-settlement-calculator/">fishing crew share settlement</a> and <a href="../microgreens-tray-planner/">microgreens tray planner</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, sensitivity, seedFor, sampleInput, toCsv, money, money2 } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const ids = { seedCount: "seed", seedCostPer1000: "seedcost", survivalPct: "survival", marketablePct: "grade", pricePerOyster: "price", growMonths: "months", stockingPerBag: "perbag", bagCost: "bagcost", gearLifeYears: "gearlife", handlingsPerBag: "handlings", minutesPerHandling: "minutes", laborRate: "labor", leasePerYear: "lease", boatPerMonth: "boat", capitalRatePct: "capital" };
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const [k, id] of Object.entries(ids)) input[k] = $("#" + id).value;
+      return input;
+    }
+
+    function target() {
+      if (!last) return;
+      const n = Number($("#target").value);
+      $("#target-out").textContent = n > 0 ? `To sell ${n.toLocaleString("en-US")} oysters at ${last.inputs.survivalPct}% survival and ${last.inputs.marketablePct}% making grade, buy about ${seedFor(n, read()).toLocaleString("en-US")} seed.` : "";
+    }
+
+    function run() {
+      const input = read();
+      const r = analyze(input);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding"><span class="pill ${r.viable ? "info" : "high"}">${r.viable ? "result" : "loses money"}</span>${esc(a)}</div>`).join("");
+      const rows = [["Oysters sold", r.sold.toLocaleString("en-US")], ["Bags", r.bags], ["Seed", money(r.seed)], ["Gear wear", money(r.gear)], ["Labor", money(r.labor) + " (" + Math.round(r.laborHours) + " h)"], ["Lease and permits", money(r.lease)], ["Boat", money(r.boat)], ["Cost of money", money(r.interest)], ["Total cost", money(r.total)], ["Sales", money(r.revenue)], ["Profit", money(r.profit)], ["Cost per oyster sold", money2(r.costPerOyster)], ["Break-even survival", r.breakEvenSurvival == null ? "not reachable" : r.breakEvenSurvival + "%"]];
+      $("#lines").innerHTML = rows.map(([k, x]) => `<tr><th scope="row">${esc(k)}</th><td class="n">${esc(x)}</td></tr>`).join("");
+      const g = sensitivity(input);
+      $("#gridhead").innerHTML = `<tr><th scope="col">Survival</th>${g[0].cells.map((c) => `<th class="n" scope="col">at ${money2(c.price)}</th>`).join("")}</tr>`;
+      $("#grid").innerHTML = g.map((row) => `<tr><th scope="row">${row.survivalPct}%</th>${row.cells.map((c) => `<td class="n">${money(c.profit)}</td>`).join("")}</tr>`).join("");
+      report.hidden = false;
+      status.textContent = `${r.sold.toLocaleString("en-US")} oysters at ${money2(r.costPerOyster)} each; profit ${money(r.profit)}.`;
+      target();
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("cycle_calculated"); });
+    $("#target").addEventListener("input", target);
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleInput();
+      for (const [k, id] of Object.entries(ids)) $("#" + id).value = s[k];
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "oyster-grow-out.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

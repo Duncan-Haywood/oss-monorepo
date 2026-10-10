@@ -33,46 +33,46 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547894 bytes
-#   portfolio-front-tools-1: 92 files, 555368 bytes
-#   portfolio-front-tools-2: 144 files, 553165 bytes
-#   portfolio-front-tools-3: 128 files, 549621 bytes
-#   portfolio-front-tools-4: 136 files, 549197 bytes
-#   portfolio-front-tools-5: 132 files, 554995 bytes
-#   portfolio-front-tools-6: 123 files, 556753 bytes
-#   portfolio-front-tools-7: 122 files, 556018 bytes
-#   portfolio-front-tools-8: 133 files, 551548 bytes
-#   portfolio-front-tools-9: 138 files, 555829 bytes
-#   portfolio-front-tools-10: 133 files, 555317 bytes
-#   portfolio-front-tools-11: 127 files, 552009 bytes
-#   portfolio-front-tools-12: 128 files, 555663 bytes
-#   portfolio-front-tools-13: 124 files, 554303 bytes
-#   portfolio-front-tools-14: 137 files, 556312 bytes
-#   portfolio-front-tools-15: 125 files, 554971 bytes
-#   portfolio-front-tools-16: 122 files, 556580 bytes
-#   portfolio-front-tools-17: 123 files, 556089 bytes
+#   portfolio-front-tools-0: 145 files, 547900 bytes
+#   portfolio-front-tools-1: 92 files, 555377 bytes
+#   portfolio-front-tools-2: 144 files, 553169 bytes
+#   portfolio-front-tools-3: 128 files, 549627 bytes
+#   portfolio-front-tools-4: 136 files, 549200 bytes
+#   portfolio-front-tools-5: 132 files, 555044 bytes
+#   portfolio-front-tools-6: 123 files, 556754 bytes
+#   portfolio-front-tools-7: 122 files, 556087 bytes
+#   portfolio-front-tools-8: 133 files, 551526 bytes
+#   portfolio-front-tools-9: 138 files, 555818 bytes
+#   portfolio-front-tools-10: 133 files, 555303 bytes
+#   portfolio-front-tools-11: 127 files, 552049 bytes
+#   portfolio-front-tools-12: 128 files, 555689 bytes
+#   portfolio-front-tools-13: 124 files, 554308 bytes
+#   portfolio-front-tools-14: 137 files, 556316 bytes
+#   portfolio-front-tools-15: 125 files, 555066 bytes
+#   portfolio-front-tools-16: 122 files, 556610 bytes
+#   portfolio-front-tools-17: 123 files, 556122 bytes
 #   portfolio-front-tools-18: 124 files, 554835 bytes
-#   portfolio-front-tools-19: 125 files, 553697 bytes
-#   portfolio-front-tools-20: 114 files, 556897 bytes
-#   portfolio-front-tools-21: 113 files, 549433 bytes
-#   portfolio-front-tools-22: 134 files, 553150 bytes
-#   portfolio-front-tools-23: 127 files, 556960 bytes
-#   portfolio-front-tools-24: 138 files, 548687 bytes
-#   portfolio-front-tools-25: 119 files, 554259 bytes
-#   portfolio-front-tools-26: 125 files, 556634 bytes
-#   portfolio-front-tools-27: 133 files, 549945 bytes
-#   portfolio-front-tools-28: 120 files, 553587 bytes
-#   portfolio-front-tools-29: 130 files, 556760 bytes
-#   portfolio-front-tools-30: 124 files, 556800 bytes
-#   portfolio-front-tools-31: 94 files, 554977 bytes
-#   portfolio-front-tools-32: 123 files, 551524 bytes
-#   portfolio-front-tools-33: 121 files, 555849 bytes
-#   portfolio-front-tools-34: 127 files, 554785 bytes
-#   portfolio-front-tools-35: 125 files, 556570 bytes
-#   portfolio-front-tools-36: 134 files, 554512 bytes
-#   portfolio-front-tools-37: 122 files, 553355 bytes
-#   portfolio-front-tools-38: 59 files, 319312 bytes
-#   portfolio-front-tools-39: 48 files, 264164 bytes
+#   portfolio-front-tools-19: 125 files, 553702 bytes
+#   portfolio-front-tools-20: 114 files, 556901 bytes
+#   portfolio-front-tools-21: 113 files, 549435 bytes
+#   portfolio-front-tools-22: 134 files, 553225 bytes
+#   portfolio-front-tools-23: 127 files, 556981 bytes
+#   portfolio-front-tools-24: 140 files, 554041 bytes
+#   portfolio-front-tools-25: 119 files, 557012 bytes
+#   portfolio-front-tools-26: 125 files, 556025 bytes
+#   portfolio-front-tools-27: 135 files, 554645 bytes
+#   portfolio-front-tools-28: 120 files, 553501 bytes
+#   portfolio-front-tools-29: 130 files, 556997 bytes
+#   portfolio-front-tools-30: 124 files, 556713 bytes
+#   portfolio-front-tools-31: 94 files, 555011 bytes
+#   portfolio-front-tools-32: 123 files, 551545 bytes
+#   portfolio-front-tools-33: 121 files, 555854 bytes
+#   portfolio-front-tools-34: 127 files, 554841 bytes
+#   portfolio-front-tools-35: 125 files, 556588 bytes
+#   portfolio-front-tools-36: 134 files, 554473 bytes
+#   portfolio-front-tools-37: 122 files, 553360 bytes
+#   portfolio-front-tools-38: 59 files, 319275 bytes
+#   portfolio-front-tools-39: 48 files, 264132 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3390,6 +3390,10 @@ configMapGenerator:
       - owner-operator-per-diem-calculator__can-an-owner-operator-deduct-per-diem.html.gz=owner-operator-per-diem-calculator__can-an-owner-operator-deduct-per-diem.html.gz
       - owner-operator-per-diem-calculator__index.html.gz=owner-operator-per-diem-calculator__index.html.gz
       - owner-operator-per-diem-calculator__usage.mjs.gz=owner-operator-per-diem-calculator__usage.mjs.gz
+      - oyster-farm-grow-out-calculator__calc.mjs.gz=oyster-farm-grow-out-calculator__calc.mjs.gz
+      - oyster-farm-grow-out-calculator__cli.mjs.gz=oyster-farm-grow-out-calculator__cli.mjs.gz
+      - oyster-farm-grow-out-calculator__index.html.gz=oyster-farm-grow-out-calculator__index.html.gz
+      - oyster-farm-grow-out-calculator__usage.mjs.gz=oyster-farm-grow-out-calculator__usage.mjs.gz
       - package-exports-drift-check__cli.mjs.gz=package-exports-drift-check__cli.mjs.gz
       - package-exports-drift-check__engine.mjs.gz=package-exports-drift-check__engine.mjs.gz
       - package-exports-drift-check__index.html.gz=package-exports-drift-check__index.html.gz
@@ -3400,13 +3404,13 @@ configMapGenerator:
       - paddle-payout-to-journal__calc.mjs.gz=paddle-payout-to-journal__calc.mjs.gz
       - paddle-payout-to-journal__index.html.gz=paddle-payout-to-journal__index.html.gz
       - paddle-payout-to-journal__usage.mjs.gz=paddle-payout-to-journal__usage.mjs.gz
-      - parcel-dim-weight-calculator__calc.mjs.gz=parcel-dim-weight-calculator__calc.mjs.gz
-      - parcel-dim-weight-calculator__how-dimensional-weight-is-billed.html.gz=parcel-dim-weight-calculator__how-dimensional-weight-is-billed.html.gz
   - name: portfolio-front-tools-25
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - parcel-dim-weight-calculator__calc.mjs.gz=parcel-dim-weight-calculator__calc.mjs.gz
+      - parcel-dim-weight-calculator__how-dimensional-weight-is-billed.html.gz=parcel-dim-weight-calculator__how-dimensional-weight-is-billed.html.gz
       - parcel-dim-weight-calculator__index.html.gz=parcel-dim-weight-calculator__index.html.gz
       - parcel-dim-weight-calculator__levers.mjs.gz=parcel-dim-weight-calculator__levers.mjs.gz
       - parcel-dim-weight-calculator__share.mjs.gz=parcel-dim-weight-calculator__share.mjs.gz
@@ -3524,13 +3528,13 @@ configMapGenerator:
       - photo-addon-pricing-calculator__index.html.gz=photo-addon-pricing-calculator__index.html.gz
       - photo-addon-pricing-calculator__is-a-second-shooter-worth-it.html.gz=photo-addon-pricing-calculator__is-a-second-shooter-worth-it.html.gz
       - photo-addon-pricing-calculator__share.mjs.gz=photo-addon-pricing-calculator__share.mjs.gz
-      - photo-addon-pricing-calculator__usage.mjs.gz=photo-addon-pricing-calculator__usage.mjs.gz
-      - photo-addon-pricing-calculator__vs-pricing-by-comparing-to-other-studios.html.gz=photo-addon-pricing-calculator__vs-pricing-by-comparing-to-other-studios.html.gz
   - name: portfolio-front-tools-26
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - photo-addon-pricing-calculator__usage.mjs.gz=photo-addon-pricing-calculator__usage.mjs.gz
+      - photo-addon-pricing-calculator__vs-pricing-by-comparing-to-other-studios.html.gz=photo-addon-pricing-calculator__vs-pricing-by-comparing-to-other-studios.html.gz
       - photo-booth-event-quote__calc.mjs.gz=photo-booth-event-quote__calc.mjs.gz
       - photo-booth-event-quote__how-much-to-charge-for-a-photo-booth-rental.html.gz=photo-booth-event-quote__how-much-to-charge-for-a-photo-booth-rental.html.gz
       - photo-booth-event-quote__index.html.gz=photo-booth-event-quote__index.html.gz
@@ -3654,13 +3658,13 @@ configMapGenerator:
       - price-elasticity-estimator__calc.mjs.gz=price-elasticity-estimator__calc.mjs.gz
       - price-elasticity-estimator__index.html.gz=price-elasticity-estimator__index.html.gz
       - price-elasticity-estimator__usage.mjs.gz=price-elasticity-estimator__usage.mjs.gz
-      - price-increase-breakeven-calculator__cli.mjs.gz=price-increase-breakeven-calculator__cli.mjs.gz
-      - price-increase-breakeven-calculator__engine.mjs.gz=price-increase-breakeven-calculator__engine.mjs.gz
   - name: portfolio-front-tools-27
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - price-increase-breakeven-calculator__cli.mjs.gz=price-increase-breakeven-calculator__cli.mjs.gz
+      - price-increase-breakeven-calculator__engine.mjs.gz=price-increase-breakeven-calculator__engine.mjs.gz
       - price-increase-breakeven-calculator__index.html.gz=price-increase-breakeven-calculator__index.html.gz
       - price-increase-breakeven-calculator__price-increase-guide.html.gz=price-increase-breakeven-calculator__price-increase-guide.html.gz
       - price-increase-breakeven-calculator__usage.mjs.gz=price-increase-breakeven-calculator__usage.mjs.gz
