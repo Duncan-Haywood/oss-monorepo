@@ -1,0 +1,43 @@
+name: payment-processor-fee-comparison-calculator
+description: >-
+  Free browser calculator for small merchants: enter monthly card sales, average sale and one or more payment processor quotes (flat rate,
+  interchange-plus, subscription) and get the monthly cost, yearly cost and effective rate side by side, plus how the rate changes with
+  average sale size. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. No existing venture compares processor quotes; nearest are card-surcharge-vs-cash-discount-calculator
+# (passing fees on to customers) and merchant-of-record-fee-calculator (software sellers).
+#
+# First visitor: small merchants searching "credit card processing fee calculator", "stripe vs square fees", "flat rate vs interchange plus".
+# Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; not financial advice; says what is not modelled
+# (per-card interchange, PCI and add-on fees) and carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a processor-referral model would need owner approval.
+
+hypotheses:
+  - claim: >-
+      Small merchants will type their sales and a quote into a no-signup calculator to see the effective rate behind a headline "2.9% + 30c",
+      because the fixed fee and monthly fees make quotes hard to compare by eye.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/payment-processor-fee-comparison-calculator/
+  analytics: null

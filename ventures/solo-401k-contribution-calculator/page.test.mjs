@@ -117,3 +117,7 @@ test("comparison page carries disclaimers, names no product, and is linked and i
 test("index links one hop to the mileage-deduction-method-calculator sibling", () => {
   assert.match(page("index.html"), /href="\.\.\/mileage-deduction-method-calculator\/"/);
 });
+
+test("index links one hop to the 401k-plan-fee-calculator sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/401k-plan-fee-calculator\/"/);
+});

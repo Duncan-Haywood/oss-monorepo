@@ -1515,7 +1515,10 @@ const RELATIVE_SELF = relative(
 // +1: `form-2290-hvut-calculator` graduated.
 // +1: `eu-pay-gap-report-calculator` graduated.
 // +1: `401k-plan-fee-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 992;
+// +1: `stocker-cattle-margin-calculator` graduated.
+// +1: `payment-processor-fee-comparison-calculator` graduated.
+// +1: `clergy-housing-allowance-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 994;
 // +1: `retreat-profit-pricing-calculator` graduated.
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
