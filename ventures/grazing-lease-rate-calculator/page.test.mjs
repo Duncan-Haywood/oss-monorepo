@@ -37,7 +37,7 @@ test("JSON-LD blocks parse and the inline module script is syntactically valid",
 
 test("sibling links resolve to real ventures", async () => {
   const { existsSync } = await import("node:fs");
-  for (const s of ["cow-calf-breakeven-calculator", "farmland-lease-cash-rent-vs-crop-share-calculator", "hay-baling-own-vs-hire-calculator"]) {
+  for (const s of ["pollination-contract-checker", "cow-calf-breakeven-calculator", "farmland-lease-cash-rent-vs-crop-share-calculator", "hay-baling-own-vs-hire-calculator"]) {
     assert.match(page("index.html"), new RegExp(`href="\\.\\./${s}/"`));
     assert.ok(existsSync(new URL(`../${s}/index.html`, import.meta.url)));
   }
