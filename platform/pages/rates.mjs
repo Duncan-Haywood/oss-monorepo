@@ -371,6 +371,8 @@ export const REVIEWED_NOT_CARRIED = {
     'it compares ways of collecting a treatment fee (merchant fee, instalments, defaults, discount) from rates the user types; there is no shop labour rate, overhead-on-cost or markup field for a job quote.',
   'veterinary-wellness-plan-pricing-calculator':
     'it prices a monthly wellness-plan fee from per-service list prices and costs the user types, with billing fees as a rate on plan payments; there is no shop labour rate, overhead-on-cost or markup field for a job quote.',
+  'veterinary-dental-estimate-calculator':
+    "it costs a dental procedure by grade of disease from per-hour staff and room rates and per-tooth supplies the user types; those hourly costs are applied to anesthesia time, not a shop labour rate for a job quote, and the target margin prices each grade rather than a job markup.",
   'demand-charge-interval-analyzer':
     'it analyses pasted utility interval data against a demand rate in dollars per kW the user types; there is no labour rate, overhead-on-cost, markup or job-quote field.',
   'therapy-8-minute-rule-calculator':

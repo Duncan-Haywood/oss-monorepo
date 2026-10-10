@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 978 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 979 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -22,6 +22,14 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free Postgres index auditor: run one read-only query, paste the result, and see unused, duplicate, redundant and invalid indexes, the disk they waste and DROP INDEX statements to review. Runs in your browser, never touches your database.</summary>
+  </entry>
+  <entry>
+    <title>Veterinary Dental Estimate Calculator — Cost and Profit by Grade 1-4</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/veterinary-dental-estimate-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/veterinary-dental-estimate-calculator</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free calculator for veterinary clinics: itemised dental estimate and clinic profit for each grade of dental disease, profit per anesthesia hour, the price that hits your margin and what a flat dental quote loses. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>Wholesale vs Retail Pricing Calculator for Makers — Direct, Wholesale, Consignment</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free restaurant table mix tool: enter your floor area, table sizes and party-size mix, and get the number of 2-tops, 4-tops and 6-tops that seats the most guests, from simulated busy services. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>DMARC Report Reader — Free, Private DMARC XML Analyzer</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dmarc-report-reader/"/>
-    <id>tag:marisstella.dev,2026:tool/dmarc-report-reader</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Drop your DMARC aggregate reports (.xml, .gz or .zip) and see which senders pass SPF and DKIM alignment, which fail and exactly why, and when it is safe to move from p=none to quarantine or reject. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>
