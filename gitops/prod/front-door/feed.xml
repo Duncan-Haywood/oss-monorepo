@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 985 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 986 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -72,6 +72,14 @@
     <summary type="text">Free Postgres index auditor: run one read-only query, paste the result, and see unused, duplicate, redundant and invalid indexes, the disk they waste and DROP INDEX statements to review. Runs in your browser, never touches your database.</summary>
   </entry>
   <entry>
+    <title>Real Estate Photographer Shoot Profit Calculator — Hourly Earnings by Package</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/real-estate-photographer-shoot-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/real-estate-photographer-shoot-profit-calculator</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free calculator for real estate photographers: what each listing package really earns per hour after drive, shoot, editing and admin time, the fee that hits your hourly target, add-on profit and whether to outsource editing. Runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Veterinary Dental Estimate Calculator — Cost and Profit by Grade 1-4</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/veterinary-dental-estimate-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/veterinary-dental-estimate-calculator</id>
@@ -84,7 +92,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/wholesale-vs-retail-pricing-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/wholesale-vs-retail-pricing-calculator</id>
     <updated>2026-10-10T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Marketplace seller tools"/>
     <summary type="text">Free calculator for makers and small brands: what you keep per unit and per order selling direct, wholesale or on consignment, after fees, shipping, your time and payment terms. Runs in your browser.</summary>
   </entry>
   <entry>
@@ -158,13 +166,5 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free chargeback ratio monitor: drop in your Stripe payments CSV and see your dispute rate by month, headroom to your warning lines, the trend, and what is driving disputes. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Childcare Enrollment Mix Optimizer: Best Children per Age Group — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/childcare-enrollment-mix-optimizer/"/>
-    <id>tag:marisstella.dev,2026:tool/childcare-enrollment-mix-optimizer</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free tool for childcare center and daycare owners: enter floor space, ratios, tuition and waiting lists by age group and get the enrolment mix with the highest weekly profit, checked exactly, with every staffing step shown. Nothing uploaded.</summary>
   </entry>
 </feed>
