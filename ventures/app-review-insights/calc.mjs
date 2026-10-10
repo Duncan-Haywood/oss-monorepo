@@ -16,6 +16,8 @@ export const DEFAULT_OPTIONS = {
   minVersionReviews: 5, // a version with fewer reviews is too thin to compare
   regressionDrop: 0.5, // stars lost versus the previous qualifying version
   minTermCount: 3, // an unhappy-review term must appear in this many reviews
+  recentDays: 30, // window for "rising": the newest review back this far, against the same span before it
+  support: "your support email", // filled into draft replies
 };
 
 // Plain keyword themes. A review can match several. These are starting
@@ -36,19 +38,40 @@ export const THEMES = [
   { key: "privacy", label: "Privacy and permissions", re: /\b(privacy|permission\w*|tracking|tracks|spy\w*|personal data|location)\b/i },
 ];
 
+// One short, promise-free draft per theme. They ask for details and never name a date or a fix.
+export const REPLIES = {
+  crashes: "Thanks for telling us, and sorry about the crashes. Could you send your device model, OS version and app version to {support}? That is what lets us reproduce it.",
+  bugs: "Sorry something is not working. Please email {support} with what you tapped and what you saw, and the app version, so we can look into it.",
+  login: "Sorry you could not get into your account. Please email {support} from the address on the account and tell us what you see when you try.",
+  billing: "Thanks for the honest feedback. App store purchases are handled by the store, so we cannot see your card, but email {support} with the order number and we will help with what we can.",
+  ads: "Thanks for the feedback on ads. We hear this and weigh it against what belongs in the free version.",
+  performance: "Thanks for the report. Which screen is slow, and on which device? That helps us find where the time goes.",
+  sync: "We are sorry about the missing data. Please email {support} before reinstalling or deleting anything, so we can check whether it can be recovered.",
+  design: "Thank you, this kind of detail helps. Which screen or step was confusing?",
+  support: "You are right to expect an answer, and we are sorry you did not get one. Please write to {support} and we will reply personally.",
+  requests: "Thank you for the idea. It goes on our list; we cannot promise a date, but requests we hear more than once move up.",
+  update: "Sorry the latest update made things worse for you. Tell us your app version and what changed for you at {support}.",
+  privacy: "We take this seriously. Our privacy policy lists what we collect, and we are glad to answer questions about any permission at {support}.",
+};
+const GENERIC_REPLY = "Thanks for the feedback. Could you tell us a little more about what happened? You can reach us at {support}.";
+
 const STOP = new Set(("the and for are but not you your this that with have has had was were its it's it i'm i've im ive can cant can't dont don't did didn't doesn't does just very really too get got one all out use used using from they them their there here what when which will would could should about into than then also been being because only some any more most much even still every let make made after before over again while where why how our out off app apps application please thanks thank good great love like need want").split(/\s+/));
 
 export function parseCsv(text) {
   const rows = [];
   let row = [], field = "", quoted = false;
   const src = String(text ?? "").replace(/^﻿/, "");
+  // Some exports are tab or semicolon separated; take the delimiter the header line uses most.
+  const head = src.split(/\r?\n/, 1)[0] || "";
+  const count = (ch) => (head.match(new RegExp(ch === "\t" ? "\\t" : ch, "g")) || []).length;
+  const delim = count("\t") > count(",") ? "\t" : count(";") > count(",") ? ";" : ",";
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
       else field += c;
     } else if (c === '"') quoted = true;
-    else if (c === ",") { row.push(field); field = ""; }
+    else if (c === delim) { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
@@ -204,7 +227,28 @@ export function analyze(reviews, options = {}) {
   const unanswered = hasReply ? reviews.filter((r) => r.rating <= opts.lowStar && !r.reply).sort((a, b) => (a.date?.getTime() ?? 0) - (b.date?.getTime() ?? 0)) : [];
   const answeredLow = hasReply ? reviews.filter((r) => r.rating <= opts.lowStar && r.reply).length : 0;
 
+  // Rising: a theme's share of reviews in the newest window against the window before it, measured back from the
+  // newest review in the file (not today). Needs three mentions in the newest window so one angry user cannot start one.
+  let rising = [];
+  if (dated.length) {
+    const DAY = 86400000, newest = Math.max(...dated.map((r) => r.date.getTime()));
+    const cut = newest - opts.recentDays * DAY, cut2 = cut - opts.recentDays * DAY;
+    const recent = dated.filter((r) => r.date.getTime() > cut), prior = dated.filter((r) => r.date.getTime() > cut2 && r.date.getTime() <= cut);
+    rising = THEMES.map((t) => {
+      const a = recent.filter((r) => t.re.test(r.text)).length, b = prior.filter((r) => t.re.test(r.text)).length;
+      const rs = recent.length ? a / recent.length : 0, ps = prior.length ? b / prior.length : 0;
+      return { key: t.key, label: t.label, recent: a, prior: b, recentTotal: recent.length, priorTotal: prior.length, recentShare: rs, priorShare: ps };
+    }).filter((t) => t.recent >= 3 && (t.priorShare === 0 || t.recentShare >= 1.5 * t.priorShare)).sort((a, b) => b.recent - a.recent);
+  }
+  for (const u of unanswered) {
+    const t = THEMES.find((x) => x.key !== "requests" && x.re.test(u.text)) || THEMES.find((x) => x.re.test(u.text));
+    u.draft = (t && REPLIES[t.key] ? REPLIES[t.key] : GENERIC_REPLY).replace("{support}", opts.support);
+  }
+
   const findings = [];
+  for (const t of rising.slice(0, 3)) {
+    findings.push({ severity: "high", title: `"${t.label}" is rising`, detail: `${t.recent} of the ${t.recentTotal} reviews in the newest ${opts.recentDays} days mention it (${(t.recentShare * 100).toFixed(0)}%), against ${t.prior} of ${t.priorTotal} in the ${opts.recentDays} days before (${(t.priorShare * 100).toFixed(0)}%).` });
+  }
   for (const g of regressions) {
     findings.push({ severity: "high", title: `Version ${g.to} averages ${g.toAvg.toFixed(2)}, down ${g.drop.toFixed(2)} stars from ${g.from}`,
       detail: g.topTheme ? `Among the unhappy reviews of ${g.to}, the most common theme is "${g.topTheme}" (${g.themeCount}). Read those reviews first.` : `Read the unhappy reviews of ${g.to} first.` });
@@ -219,7 +263,7 @@ export function analyze(reviews, options = {}) {
   }
   if (!findings.length) findings.push({ severity: "info", title: "No version drop or costly theme stands out", detail: "Nothing in this file crosses the thresholds. Lower the thresholds or add more reviews if you expected a finding." });
 
-  return { summary, dist, byMonth, byVersion, regressions, themes, terms, unanswered, answeredLow, hasReply, findings, options: opts };
+  return { summary, dist, byMonth, byVersion, regressions, rising, themes, terms, unanswered, answeredLow, hasReply, findings, options: opts };
 }
 
 export const stars = (x) => (x === null || x === undefined ? "–" : x.toFixed(2));
