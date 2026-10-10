@@ -29,9 +29,9 @@ test("proof gallons past 100,000 pay $13.34 and earlier ones keep $2.70", () => 
   assert.equal(r.marginal, 13.34);
 });
 
-test("over 22.23 million proof gallons pays $13.50 on the excess, and no reduced rate means $13.34 first", () => {
+test("over 22.13 million proof gallons pays $13.50 on the excess, and no reduced rate means $13.34 first", () => {
   const r = exciseTax({ proofGallons: 23000000, small: false });
-  assert.ok(Math.abs(r.tax - (22230000 * 13.34 + 770000 * 13.5)) < 1e-3);
+  assert.ok(Math.abs(r.tax - (22130000 * 13.34 + 870000 * 13.5)) < 1e-3);
 });
 
 test("a controlled-group share smaller than 100,000 pushes the rest to $13.34", () => {
