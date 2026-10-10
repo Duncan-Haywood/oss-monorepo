@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'sawmill-custom-sawing-calculator':
+    'the helper wage and owner wage build a cost per sawing hour for a portable mill priced per board foot or per hour, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, and the margin is a share of the quote.',
   'hearing-aid-dispensing-margin-calculator':
     'the clinician wage and payroll-extras percentage price the fitting and follow-up minutes on each hearing aid sale, not a shop labour rate for a job quote; there is no overhead-on-cost field, fixed costs are a monthly dollar total, and the target margin is a share of what the patient and plan pay.',
   'optical-dispensary-margin-calculator':
