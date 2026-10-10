@@ -33,45 +33,45 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547927 bytes
-#   portfolio-front-tools-1: 92 files, 555380 bytes
-#   portfolio-front-tools-2: 144 files, 553171 bytes
-#   portfolio-front-tools-3: 128 files, 549655 bytes
-#   portfolio-front-tools-4: 136 files, 549253 bytes
-#   portfolio-front-tools-5: 132 files, 555015 bytes
-#   portfolio-front-tools-6: 123 files, 556662 bytes
-#   portfolio-front-tools-7: 122 files, 556111 bytes
+#   portfolio-front-tools-0: 145 files, 547913 bytes
+#   portfolio-front-tools-1: 92 files, 555381 bytes
+#   portfolio-front-tools-2: 144 files, 553169 bytes
+#   portfolio-front-tools-3: 128 files, 549650 bytes
+#   portfolio-front-tools-4: 136 files, 549248 bytes
+#   portfolio-front-tools-5: 132 files, 555014 bytes
+#   portfolio-front-tools-6: 123 files, 556603 bytes
+#   portfolio-front-tools-7: 122 files, 556140 bytes
 #   portfolio-front-tools-8: 133 files, 551543 bytes
-#   portfolio-front-tools-9: 138 files, 555876 bytes
-#   portfolio-front-tools-10: 133 files, 555354 bytes
-#   portfolio-front-tools-11: 127 files, 551913 bytes
+#   portfolio-front-tools-9: 138 files, 555877 bytes
+#   portfolio-front-tools-10: 133 files, 555412 bytes
+#   portfolio-front-tools-11: 127 files, 551900 bytes
 #   portfolio-front-tools-12: 128 files, 555846 bytes
 #   portfolio-front-tools-13: 124 files, 554334 bytes
-#   portfolio-front-tools-14: 137 files, 556269 bytes
-#   portfolio-front-tools-15: 125 files, 554669 bytes
-#   portfolio-front-tools-16: 121 files, 554812 bytes
-#   portfolio-front-tools-17: 122 files, 555428 bytes
-#   portfolio-front-tools-18: 121 files, 549806 bytes
-#   portfolio-front-tools-19: 125 files, 553482 bytes
-#   portfolio-front-tools-20: 113 files, 555080 bytes
-#   portfolio-front-tools-21: 115 files, 556975 bytes
-#   portfolio-front-tools-22: 135 files, 556490 bytes
-#   portfolio-front-tools-23: 129 files, 555073 bytes
-#   portfolio-front-tools-24: 136 files, 556295 bytes
-#   portfolio-front-tools-25: 120 files, 556053 bytes
-#   portfolio-front-tools-26: 123 files, 551293 bytes
-#   portfolio-front-tools-27: 133 files, 544410 bytes
-#   portfolio-front-tools-28: 117 files, 554596 bytes
-#   portfolio-front-tools-29: 135 files, 553848 bytes
-#   portfolio-front-tools-30: 117 files, 554744 bytes
-#   portfolio-front-tools-31: 94 files, 554557 bytes
-#   portfolio-front-tools-32: 125 files, 555654 bytes
-#   portfolio-front-tools-33: 119 files, 552448 bytes
-#   portfolio-front-tools-34: 128 files, 555716 bytes
-#   portfolio-front-tools-35: 120 files, 551502 bytes
-#   portfolio-front-tools-36: 135 files, 552884 bytes
-#   portfolio-front-tools-37: 119 files, 546693 bytes
-#   portfolio-front-tools-38: 95 files, 517555 bytes
+#   portfolio-front-tools-14: 137 files, 556271 bytes
+#   portfolio-front-tools-15: 125 files, 554671 bytes
+#   portfolio-front-tools-16: 121 files, 554799 bytes
+#   portfolio-front-tools-17: 122 files, 555348 bytes
+#   portfolio-front-tools-18: 121 files, 549786 bytes
+#   portfolio-front-tools-19: 125 files, 553498 bytes
+#   portfolio-front-tools-20: 113 files, 555051 bytes
+#   portfolio-front-tools-21: 115 files, 557002 bytes
+#   portfolio-front-tools-22: 135 files, 556487 bytes
+#   portfolio-front-tools-23: 129 files, 555118 bytes
+#   portfolio-front-tools-24: 136 files, 556261 bytes
+#   portfolio-front-tools-25: 120 files, 556057 bytes
+#   portfolio-front-tools-26: 123 files, 551307 bytes
+#   portfolio-front-tools-27: 133 files, 544376 bytes
+#   portfolio-front-tools-28: 117 files, 554509 bytes
+#   portfolio-front-tools-29: 135 files, 553819 bytes
+#   portfolio-front-tools-30: 117 files, 554803 bytes
+#   portfolio-front-tools-31: 94 files, 554577 bytes
+#   portfolio-front-tools-32: 125 files, 555655 bytes
+#   portfolio-front-tools-33: 119 files, 552445 bytes
+#   portfolio-front-tools-34: 128 files, 555667 bytes
+#   portfolio-front-tools-35: 122 files, 556697 bytes
+#   portfolio-front-tools-36: 136 files, 555318 bytes
+#   portfolio-front-tools-37: 120 files, 551179 bytes
+#   portfolio-front-tools-38: 95 files, 517526 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -4705,6 +4705,10 @@ configMapGenerator:
       - tile-layout-planner__how-many-tiles-do-i-need.html.gz=tile-layout-planner__how-many-tiles-do-i-need.html.gz
       - tile-layout-planner__index.html.gz=tile-layout-planner__index.html.gz
       - tile-layout-planner__usage.mjs.gz=tile-layout-planner__usage.mjs.gz
+      - timber-sale-offer-checker__calc.mjs.gz=timber-sale-offer-checker__calc.mjs.gz
+      - timber-sale-offer-checker__cli.mjs.gz=timber-sale-offer-checker__cli.mjs.gz
+      - timber-sale-offer-checker__index.html.gz=timber-sale-offer-checker__index.html.gz
+      - timber-sale-offer-checker__usage.mjs.gz=timber-sale-offer-checker__usage.mjs.gz
       - time-off-request-planner__calc.mjs.gz=time-off-request-planner__calc.mjs.gz
       - time-off-request-planner__how-to-approve-vacation-requests-fairly.html.gz=time-off-request-planner__how-to-approve-vacation-requests-fairly.html.gz
       - time-off-request-planner__index.html.gz=time-off-request-planner__index.html.gz
@@ -4782,13 +4786,13 @@ configMapGenerator:
       - turo-earnings-report-analyzer__calc.mjs.gz=turo-earnings-report-analyzer__calc.mjs.gz
       - turo-earnings-report-analyzer__index.html.gz=turo-earnings-report-analyzer__index.html.gz
       - turo-earnings-report-analyzer__usage.mjs.gz=turo-earnings-report-analyzer__usage.mjs.gz
-      - turo-host-payout-calculator__calc.mjs.gz=turo-host-payout-calculator__calc.mjs.gz
-      - turo-host-payout-calculator__how-much-does-turo-take-from-hosts.html.gz=turo-host-payout-calculator__how-much-does-turo-take-from-hosts.html.gz
   - name: portfolio-front-tools-36
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - turo-host-payout-calculator__calc.mjs.gz=turo-host-payout-calculator__calc.mjs.gz
+      - turo-host-payout-calculator__how-much-does-turo-take-from-hosts.html.gz=turo-host-payout-calculator__how-much-does-turo-take-from-hosts.html.gz
       - turo-host-payout-calculator__index.html.gz=turo-host-payout-calculator__index.html.gz
       - turo-host-payout-calculator__usage.mjs.gz=turo-host-payout-calculator__usage.mjs.gz
       - turo-host-payout-calculator__vs-a-spreadsheet.html.gz=turo-host-payout-calculator__vs-a-spreadsheet.html.gz
@@ -4923,12 +4927,12 @@ configMapGenerator:
       - vscode-extension-drift-check__engine.mjs.gz=vscode-extension-drift-check__engine.mjs.gz
       - vscode-extension-drift-check__index.html.gz=vscode-extension-drift-check__index.html.gz
       - vscode-extension-drift-check__usage.mjs.gz=vscode-extension-drift-check__usage.mjs.gz
-      - vscode-extension-drift-check__vs-vscan.html.gz=vscode-extension-drift-check__vs-vscan.html.gz
   - name: portfolio-front-tools-37
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vscode-extension-drift-check__vs-vscan.html.gz=vscode-extension-drift-check__vs-vscan.html.gz
       - vscode-extension-drift-check__vs-vsix-audit.html.gz=vscode-extension-drift-check__vs-vsix-audit.html.gz
       - vscode-extension-drift-check__why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html.gz=vscode-extension-drift-check__why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html.gz
       - w2-efw2-file-validator__calc.mjs.gz=w2-efw2-file-validator__calc.mjs.gz

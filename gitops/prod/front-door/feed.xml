@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 984 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 985 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -62,6 +62,14 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free Postgres index auditor: run one read-only query, paste the result, and see unused, duplicate, redundant and invalid indexes, the disk they waste and DROP INDEX statements to review. Runs in your browser, never touches your database.</summary>
+  </entry>
+  <entry>
+    <title>Timber Sale Offer Checker — Is the Logger&#39;s Offer Fair?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/timber-sale-offer-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/timber-sale-offer-checker</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free timber sale offer checker for landowners: enter your logs and a logger&#39;s offer, see board feet under Doyle, Scribner and International rules, the value at your own prices, and whether the offer looks low. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>Veterinary Dental Estimate Calculator — Cost and Profit by Grade 1-4</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free tool for childcare center and daycare owners: enter floor space, ratios, tuition and waiting lists by age group and get the enrolment mix with the highest weekly profit, checked exactly, with every staffing step shown. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Class Price and Minimum Optimizer: What to Charge Per Seat — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/class-price-and-minimum-optimizer/"/>
-    <id>tag:marisstella.dev,2026:tool/class-price-and-minimum-optimizer</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free class price optimizer for tutoring centers, music schools, studios and workshops: enter past prices and sign-ups, set capacity, minimum to run and costs, and get the per-seat price with the highest expected profit. Nothing uploaded.</summary>
   </entry>
 </feed>
