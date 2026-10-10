@@ -1,0 +1,47 @@
+name: mobile-vet-house-call-fee-calculator
+description: >-
+  Free browser calculator for mobile veterinarians: what a house call really costs after drive time, mileage, supplies, assistant time
+  and no-shows, the visit fee and travel-zone surcharge that reach a target margin, and profit per day for N visits.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. duplicate_check.py top score 0.28 (farrier-visit-pricing-calculator, mobile-mechanic-visit-pricing-calculator);
+# no veterinary house-call pricing tool exists. veterinary-dental-estimate-calculator and veterinary-wellness-plan-pricing-calculator price
+# in-clinic work; neither carries drive time, travel zones or a day plan.
+#
+# Why this niche: a house call spends more unbilled hours on the road than on the pet, and a flat visit fee that works two miles out loses
+# money thirty miles out. Mobile practice owners have money, a real margin problem and no free worksheet that does the zone arithmetic.
+#
+# First visitor: mobile and house-call vets on r/Veterinary, r/vetmed, VIN message boards and mobile-practice Facebook groups asking
+# "what do you charge for a house call" and "travel fee tiers". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on numbers the user types. No clinical advice, no stated benchmark fees, nothing uploaded.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. The natural paid layer is route-batched scheduling that clusters
+# visits by zone; not built.
+
+hypotheses:
+  - claim: >-
+      Mobile vets setting or revising a house-call fee will use a no-signup worksheet that shows cost by travel zone and profit per
+      day, and return when fuel, staffing or service-area costs change.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a figure that differs from the stated formulas for the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mobile-vet-house-call-fee-calculator/
+  analytics: null

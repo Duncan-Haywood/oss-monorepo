@@ -51,3 +51,7 @@ test("the inline module script parses", async () => {
   writeFileSync(file, page("index.html").match(/<script type="module">([\s\S]*?)<\/script>/)[1]);
   assert.doesNotThrow(() => execFileSync(process.execPath, ["--check", file], { stdio: "pipe" }));
 });
+
+test("footer links to the mobile vet house-call fee calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/mobile-vet-house-call-fee-calculator\/"/);
+});

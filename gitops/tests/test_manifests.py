@@ -3026,7 +3026,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `surety-bond-capacity-calculator` graduated (browser surety bond premium priced into the bid, bonding capacity from working capital, and the bids to submit).
     # +1: `optical-dispensary-margin-calculator` graduated (browser eyeglass sale margin after frame, lenses, remakes, plan and card fees and optician time).
     # +1: `therapy-8-minute-rule-calculator` graduated (browser Medicare 8-minute rule billable units from timed therapy minutes, assigned to CPT codes, with a per-code comparison and revenue).
-    total = 979  # `infra/OWNER_CHECKLIST.md`'s own "N of the 979 tools" wording.
+    # +1: `mobile-vet-house-call-fee-calculator` graduated (browser mobile-vet drive time, mileage, supplies, assistant time and no-shows to house-call cost, visit fee and travel-zone surcharge for a target margin, and profit per day).
+    total = 980  # `infra/OWNER_CHECKLIST.md`'s own "N of the 980 tools" wording.
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
     # +1: `ag-spray-drone-quote-calculator` graduated (browser spray-drone fields, tank, battery and cost inputs to real time per field, cost per acre, recommended quote and break-even).
     # +1: `stump-grinding-price-calculator` graduated (browser stump diameters, wood hardness, grinder speed, crew and drive time to a price, per-stump prices and a per-inch quote check).

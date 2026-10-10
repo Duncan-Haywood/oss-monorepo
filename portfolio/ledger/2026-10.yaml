@@ -3343,3 +3343,14 @@ entries:
         year at the clinic's case mix. Hand-computed defaults pinned by tests. First visitor: practice managers asking how to price
         dentals on r/Veterinary, r/vetmed and VIN boards; volume unmeasured.
     mrr_end: 0
+  - venture: mobile-vet-house-call-fee-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built mobile-vet-house-call-fee-calculator: a browser-local worksheet for mobile and house-call veterinarians
+        giving the loaded cost of a visit (drive both ways, mileage at loaded vehicle cost, on-site time, supplies, assistant time,
+        forgone clinic-slot value, no-show drag), the visit fee and travel-zone surcharge that reach a target margin, multi-pet and
+        in-home euthanasia presets, and profit per day for N visits on a chained route. Hand-computed cases pinned by tests. First
+        visitor: mobile vets asking about house-call fees and travel tiers on r/Veterinary, r/vetmed and VIN boards; volume unmeasured.
+    mrr_end: 0
