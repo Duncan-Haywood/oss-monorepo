@@ -80,6 +80,14 @@
     <summary type="text">Free calculator for the EU Pay Transparency Directive: paste your payroll table and get the mean and median gender pay gap, variable pay gap, pay quartiles and the gap by job category with the 5% joint assessment flag. Runs in your browser.</summary>
   </entry>
   <entry>
+    <title>Experience Mod Calculator — Workers&#39; Comp X-Mod and What Each Claim Costs</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/experience-mod-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/experience-mod-calculator</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free workers&#39; comp experience mod (x-mod) calculator for contractors and small employers: estimate your mod from your rating worksheet and claims, see the premium impact and what each claim costs over three years. Runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Fixed-Bid Overrun Forecaster — Will This Job Finish Inside the Price?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fixed-bid-overrun-forecaster/"/>
     <id>tag:marisstella.dev,2026:tool/fixed-bid-overrun-forecaster</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free on-call load analyzer: paste a PagerDuty, Opsgenie or Grafana OnCall incident CSV and see who carries the pager, night and weekend pages, noisy and self-resolving alerts, and the hours a cleanup would give back. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Oyster Farm Growout Planner — Net Per Crop and Break-Even Price</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/oyster-farm-growout-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/oyster-farm-growout-planner</id>
-    <updated>2026-10-10T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free oyster farm planner: enter seed, survival, growout months, gear, lease and prices by grade, and see net per crop, break-even price and survival, and the cash needed before the first sale. Runs in your browser.</summary>
   </entry>
 </feed>
