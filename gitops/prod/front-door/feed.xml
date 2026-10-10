@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1019 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1020 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -52,7 +52,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cake-pricing-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/cake-pricing-calculator</id>
     <updated>2026-10-10T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free cake pricing calculator for home bakers and cake decorators: ingredients, decoration, hours, delivery, overhead and fees in, a price per cake and per serving out, with break-even, target and premium tiers. Runs in your browser.</summary>
   </entry>
   <entry>
@@ -78,6 +78,14 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free calculator for mobile coffee cart owners: compare a booking fee, a percentage of sales and a prepaid drink guarantee for an event, with break-even drinks and net per hour. Runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Construction Delay Claim Calculator — Time, Eichleay and Liquidated Damages</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/construction-delay-claim-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/construction-delay-claim-calculator</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free construction delay claim calculator: sort delay days by cause, see the time extension you earn, the compensable cost with an Eichleay home-office share, and the liquidated damages left. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>Distillery Excise Tax Calculator — Federal Spirits Tax per Bottle</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free house hacking calculator for a duplex, triplex or fourplex: FHA or conventional payment with mortgage insurance, the rent you need to live free, the FHA self-sufficiency test, and the 10-year return versus renting. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Hunting Lease Income Calculator — What Will My Land Net?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hunting-lease-income-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/hunting-lease-income-calculator</id>
-    <updated>2026-10-10T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free hunting lease income calculator for landowners: compare a flat club lease, per-hunter seasonal leases and paid day hunts after insurance, upkeep and lost use, and see the break-even rate per acre. Runs in your browser.</summary>
   </entry>
 </feed>
