@@ -1,0 +1,55 @@
+name: oyster-farm-growout-planner
+description: >-
+  Free browser tool and CLI for oyster growers: net for a crop, net per 1,000 oysters sold, break-even price and survival, and the
+  cash needed before the first sale, after seed, gear wear, labour, boat, lease, packaging, interest and distributor cut. Nothing
+  leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. duplicate_check.py "oyster farm lease gear" scored 0.31 against
+# farmland-lease-cash-rent-vs-crop-share-calculator (a different business); nearest shellfish-adjacent venture is
+# fishing-crew-share-settlement-calculator (wild catch). Not in screened-out.md.
+#
+# Why this niche: aquaculture start-ups (oyster, clam, kelp) are being pushed by state grant and working-waterfront programmes, the
+# crop takes 12-24 months with no income, and the first-year decisions (seed count, bags per acre, grade mix, whether to sell to a
+# distributor at a cut) are made on a napkin. A loan or a grant application needs a number for cash before first sale.
+#
+# First visitor: growers and applicants searching "oyster farm startup cost", "how profitable is oyster farming", "oyster farming
+# break even". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user enters. No market data is shipped. Not business, legal or financial advice;
+# the page says so and carries the no-warranty and no-SLA clauses. No data leaves the browser.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. The natural paid layer is a hosted multi-lease crop
+# tracker (planting dates, tumbling log, mortality counts, harvest tags) which needs accounts and storage, so an owner decision;
+# not built.
+
+hypotheses:
+  - claim: >-
+      Prospective and early-stage oyster growers will type their numbers into a no-signup planner to see cash needed before first sale.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing break-even survival next to expected mortality changes how much seed a grower orders or whether they sell through a distributor.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - Growers report that a single-gear, single-cohort crop misses how they stage seed through nurseries and upweller sizes, at which point the tool should model staged growout.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/oyster-farm-growout-planner/
+  analytics: null
