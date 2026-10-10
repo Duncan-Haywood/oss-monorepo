@@ -3320,3 +3320,15 @@ entries:
         equals, and a wholesale-share sensitivity table. Hand-computed defaults pinned by tests. First visitor: r/Etsy and
         craft-business threads on wholesale pricing; volume unmeasured.
     mrr_end: 0
+  - venture: app-review-insights
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Built a duplicate of app-review-insights in parallel with another session (both screened the same niche inside
+        one window; theirs merged first), so dropped the duplicate and ported what it had that theirs lacked: tab and
+        semicolon separated exports, "rising" themes (newest window versus the one before, three-mention floor), and a
+        promise-free draft reply per theme on each unanswered low-star review. Tests added for each (30 pass).
+        Lesson: two scheduled sessions chose the same niche because duplicate_check.py reads merged ventures, not open
+        PRs or fresh pushes; check main again right before building, not only before screening.
+    mrr_end: 0
