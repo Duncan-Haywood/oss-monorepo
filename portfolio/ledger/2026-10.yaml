@@ -3430,3 +3430,15 @@ entries:
         guidance. First visitor: winemakers, cidermakers and bookkeepers searching wine excise tax / CBMA wine credit, and
         threads on r/winemaking and cider-association forums; volume unmeasured.
     mrr_end: 0
+  - venture: form-2290-hvut-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built form-2290-hvut-calculator: a browser-local Form 2290 heavy highway vehicle use tax calculator for
+        owner-operators and small fleets. Per truck it gives the weight category (A-V, W when suspended), annual tax ($100 at 55,000 lb,
+        +$22 per 1,000 lb, $550 cap above 75,000 lb, 75% for logging), whole-month proration from the first-use month, the filing
+        deadline, the 5,000 / 7,500-mile suspension, the cost of the next weight bracket and cost per mile, with CSV export. Rate
+        boundaries and proration hand-computed and pinned by tests. First visitor: truckers searching form 2290 calculator / hvut tax
+        for 80000 lbs; volume unmeasured.
+    mrr_end: 0
