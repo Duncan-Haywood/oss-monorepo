@@ -1,0 +1,53 @@
+name: coffee-cart-event-quote-calculator
+description: >-
+  Free browser tool and CLI for mobile coffee cart owners: compare a booking fee, a share of sales and a host-prepaid
+  drink guarantee for an event on the cart's own costs, with break-even drinks and net per hour. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. Repo search of ventures/ for "coffee", "espresso", "cart", "barista" found
+# coffee-roaster-margin-calculator (roasting wholesale), food-truck-event-margin-calculator (food trucks) and
+# catering-quote-calculator (per-guest catering); none prices a drink cart's event deal. Not in screened-out.md.
+#
+# Why this niche: mobile coffee carts and espresso trailers book weddings, corporate events and markets, and the host
+# usually proposes a flat fee, a percentage or a minimum guarantee. The owner has no view of which pays at the crowd they
+# expect, or of fixed cost once setup and drive time are counted. Income tool for a small-business owner.
+#
+# First visitor: owners searching "coffee cart event pricing", "coffee cart flat fee vs percentage", "mobile coffee wedding quote".
+# Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user enters. No price data is shipped. Not tax or financial advice; the page
+# says so and carries the no-warranty and no-SLA clauses. No data leaves the browser.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. A paid layer (hosted quote sheets, booking calendar) needs
+# accounts and payments, so an owner decision; not built.
+
+hypotheses:
+  - claim: >-
+      Coffee cart owners with a host's offer in hand will type their costs into a no-signup calculator to compare deals.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing break-even drinks per deal changes which offer a cart owner accepts or counters.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - Users report that tips and add-ons dominate event profit, at which point the tool should model them.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/coffee-cart-event-quote-calculator/
+  analytics: null
