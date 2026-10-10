@@ -1265,7 +1265,7 @@ const CATEGORY_RULES = [
     // `self-storage-unit-mix-optimizer` joined 2026-10-09 on its first commit: a storage owner sizing a building's unit mix is a warehousing-space
     // decision beside the 3PL and freight tools; filed here because the catch-all is at its bound and the back-office bundle is over the 3 MB ceiling (build.test.mjs).
     // `car-hauler-load-planner` joined 2026-10-09 on its first commit: an auto-transport owner-operator choosing which vehicles share a trailer, beside `owner-operator` and `truck-detention`.
-    test: (slug) => /^(car-hauler-load-planner|fleet-ev-vs-diesel|self-storage-unit-mix-optimizer|3pl|freight|cloud-egress|ifta-|form-2290-hvut|ucr-fee|invoice-factoring|hos-trip-planner|ltl-|owner-operator|truck-detention|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club|tow-truck-rate|mobile-tire-van|route-stop-optimizer|shipping-box-size|container-load-planner|container-demurrage-detention-calculator|warehouse-slotting-optimizer)/.test(
+    test: (slug) => /^(fuel-surcharge-schedule|car-hauler-load-planner|fleet-ev-vs-diesel|self-storage-unit-mix-optimizer|3pl|freight|cloud-egress|ifta-|form-2290-hvut|ucr-fee|invoice-factoring|hos-trip-planner|ltl-|owner-operator|truck-detention|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club|tow-truck-rate|mobile-tire-van|route-stop-optimizer|shipping-box-size|container-load-planner|container-demurrage-detention-calculator|warehouse-slotting-optimizer)/.test(
       slug,
     ),
   },
@@ -3159,6 +3159,8 @@ const CATEGORY_RULES = [
         // bound; a self-employed filer's vehicle deduction and a freelancer's proposal are one person earning from their own work.
         'mileage-deduction-calculator',
         'proposal-maker',
+        // `clergy-housing-allowance-calculator` joined 2026-10-10 on its first commit: one minister working out the tax-free share of their own pay.
+        'clergy-housing-allowance-calculator',
         // `retreat-profit-pricing-calculator` joined 2026-10-09 on its first commit: one teacher or coach costing and pricing their own event.
         'retreat-profit-pricing-calculator',
         // `card-bonus-planner` joined 2026-10-09 on its first commit. Back-office is over its 3 MB offline bound on main; one person scheduling their own sign-up bonuses is an individual earning from their own spending, not a business back office.
