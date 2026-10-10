@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1009 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1010 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -128,6 +128,14 @@
     <summary type="text">Free hunting lease income calculator for landowners: compare a flat club lease, per-hunter seasonal leases and paid day hunts after insurance, upkeep and lost use, and see the break-even rate per acre. Runs in your browser.</summary>
   </entry>
   <entry>
+    <title>Invoice Factoring Cost Calculator — True Cost and APR of a Factoring Offer</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/invoice-factoring-cost-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/invoice-factoring-cost-calculator</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free invoice factoring calculator: enter advance rate, fee per period and days to pay, and see the true cost, percent of invoice, annualised rate and rebate. Compare several factors side by side. Runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Mobile Vet House-Call Fee Calculator — Cost, Zone Surcharge and Daily Profit</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mobile-vet-house-call-fee-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/mobile-vet-house-call-fee-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free pg_stat_statements analyzer: run one read-only query, paste the result, and see which Postgres queries use the most database time, which look like N+1 loops, and which miss cache or spill to disk. Runs in your browser, never touches your database.</summary>
-  </entry>
-  <entry>
-    <title>Pollination Contract Checker — Is the Fee Per Hive Worth It?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pollination-contract-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/pollination-contract-checker</id>
-    <updated>2026-10-10T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free pollination contract checker for beekeepers: enter the fee per hive, miles, inspection failures, feed and losses, and see your net per hive and break-even fee. Growers can see cost per acre. Runs in your browser.</summary>
   </entry>
 </feed>
