@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 993 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 994 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -46,6 +46,14 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free grazing lease calculator for ranchers and landowners: AUMs and head your pasture carries, rent per AUM, per head and per acre, the hay-feeding break-even, and the rent range where both sides win. Runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Hay Sale Price Calculator — Break-Even and Best Bale Type</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hay-sale-price-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/hay-sale-price-calculator</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free hay pricing calculator for hay producers: compare small squares, large squares and round bales on net profit per ton and per acre, with break-even price per bale. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>Hunting Lease Income Calculator — What Will My Land Net?</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free adjunct pay calculator: enter the per-course pay, prep, grading, unpaid office hours, commute and cancellation risk to see what a course really pays per hour, compare up to three offers and find the largest class worth accepting. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Auto Detailing Service Menu Picker: Which Services Should I Sell? — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/auto-detailing-service-menu-picker/"/>
-    <id>tag:marisstella.dev,2026:tool/auto-detailing-service-menu-picker</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free tool for auto detailers and mobile detailing shops with limited bay hours: get the exact most profitable set of services to sell after product cost, booking and card fees, consumables and labour. Nothing uploaded.</summary>
   </entry>
 </feed>
