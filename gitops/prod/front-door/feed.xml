@@ -20,7 +20,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/postgres-index-auditor/"/>
     <id>tag:marisstella.dev,2026:tool/postgres-index-auditor</id>
     <updated>2026-10-10T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free Postgres index auditor: run one read-only query, paste the result, and see unused, duplicate, redundant and invalid indexes, the disk they waste and DROP INDEX statements to review. Runs in your browser, never touches your database.</summary>
   </entry>
   <entry>
