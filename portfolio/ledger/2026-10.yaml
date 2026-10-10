@@ -3410,3 +3410,15 @@ entries:
         Hand-computed cases pinned by tests. First visitor: shop owners and merch sellers searching screen printing pricing
         calculator, and r/screenprinting pricing threads; volume unmeasured.
     mrr_end: 0
+  - venture: sports-official-game-fee-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built sports-official-game-fee-calculator: a browser-local pay calculator for referees, umpires and game
+        officials that turns fee, assignor cut, round-trip miles, hours on site and games per trip into pay per hour after the
+        drive, a distance ladder, the value of a second game on the same trip, season take-home after self-employment tax (IRS
+        mileage rate for the deduction, real cost per mile for cash), games needed for a take-home goal and the lowest fee worth
+        driving for. Hand-computed cases pinned by tests. First visitor: officials searching referee pay calculator and is
+        refereeing worth it, and r/Referees fee-and-drive threads; volume unmeasured.
+    mrr_end: 0
