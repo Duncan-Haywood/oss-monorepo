@@ -16,6 +16,14 @@
     <summary type="text">Free app review analyzer: drop in your Google Play or App Store review CSV and see which release dropped your rating, which complaints cost the most stars, and which unhappy reviews you have not answered. Runs in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Postgres Index Auditor — Find Unused, Duplicate and Redundant Indexes</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/postgres-index-auditor/"/>
+    <id>tag:marisstella.dev,2026:tool/postgres-index-auditor</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free Postgres index auditor: run one read-only query, paste the result, and see unused, duplicate, redundant and invalid indexes, the disk they waste and DROP INDEX statements to review. Runs in your browser, never touches your database.</summary>
+  </entry>
+  <entry>
     <title>Adjunct Pay Calculator: What a Course Really Pays Per Hour — Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/adjunct-course-offer-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/adjunct-course-offer-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free tool for small businesses with several 2/10 net 30 style supplier discounts and not enough cash to take them all: get the exact set of invoices to pay early after your cost of cash, compared with highest-rate-first and other rules. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>EV Charging Station ROI Calculator: Payback, NPV, Break-Even — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ev-charging-site-roi-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/ev-charging-site-roi-calculator</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free EV charging station ROI calculator: enter ports, costs, price, utilization and demand charges to get payback, NPV, IRR and the break-even utilization for a Level 2 or DC fast site. Nothing uploaded.</summary>
   </entry>
 </feed>
