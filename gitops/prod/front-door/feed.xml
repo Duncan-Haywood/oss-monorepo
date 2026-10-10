@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 983 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 985 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -22,6 +22,22 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free AWS IAM policy checker: paste a policy, trust policy or bucket policy and see admin wildcards, privilege-escalation actions, NotAction grants and public principals with fixes to review. Runs in your browser, no AWS access needed.</summary>
+  </entry>
+  <entry>
+    <title>Bid Leveling Worksheet — Compare Subcontractor Bids on the Same Scope</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bid-leveling-worksheet/"/>
+    <id>tag:marisstella.dev,2026:tool/bid-leveling-worksheet</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free bid leveling worksheet: paste subcontractor bids, price the excluded and unaddressed scope at your estimate, and see whether the low bid is still lowest. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Mobile Vet House-Call Fee Calculator — Cost, Zone Surcharge and Daily Profit</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mobile-vet-house-call-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/mobile-vet-house-call-fee-calculator</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free calculator for mobile veterinarians: what a house call really costs after drive time, mileage, supplies, assistant time and no-shows, the visit fee and travel-zone surcharge that reach your margin, and profit per day. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>On-Call Load Analyzer — Is Your Pager Rotation Fair and Quiet?</title>
@@ -150,21 +166,5 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free tool for childcare center and daycare owners: enter floor space, ratios, tuition and waiting lists by age group and get the enrolment mix with the highest weekly profit, checked exactly, with every staffing step shown. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Class Price and Minimum Optimizer: What to Charge Per Seat — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/class-price-and-minimum-optimizer/"/>
-    <id>tag:marisstella.dev,2026:tool/class-price-and-minimum-optimizer</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free class price optimizer for tutoring centers, music schools, studios and workshops: enter past prices and sign-ups, set capacity, minimum to run and costs, and get the per-seat price with the highest expected profit. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Commercial Solar: Buy vs PPA vs Lease Calculator — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/commercial-solar-ppa-lease-buy-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/commercial-solar-ppa-lease-buy-calculator</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="More free tools"/>
-    <summary type="text">Free calculator for businesses, farms, nonprofits and landlords: compare buying commercial solar, a PPA and a lease on one set of after-tax cash flows. NPV, payback, break-even PPA rate and utility escalation sensitivity. Nothing uploaded.</summary>
   </entry>
 </feed>
