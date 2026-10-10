@@ -33,45 +33,45 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 547873 bytes
-#   portfolio-front-tools-1: 92 files, 555382 bytes
-#   portfolio-front-tools-2: 144 files, 553157 bytes
-#   portfolio-front-tools-3: 128 files, 549646 bytes
-#   portfolio-front-tools-4: 136 files, 549240 bytes
-#   portfolio-front-tools-5: 132 files, 555018 bytes
-#   portfolio-front-tools-6: 123 files, 556659 bytes
-#   portfolio-front-tools-7: 121 files, 556975 bytes
-#   portfolio-front-tools-8: 134 files, 556128 bytes
-#   portfolio-front-tools-9: 137 files, 550222 bytes
-#   portfolio-front-tools-10: 133 files, 556350 bytes
-#   portfolio-front-tools-11: 128 files, 554439 bytes
-#   portfolio-front-tools-12: 127 files, 549844 bytes
-#   portfolio-front-tools-13: 126 files, 556789 bytes
-#   portfolio-front-tools-14: 135 files, 555389 bytes
-#   portfolio-front-tools-15: 123 files, 546796 bytes
-#   portfolio-front-tools-16: 121 files, 555632 bytes
-#   portfolio-front-tools-17: 121 files, 551438 bytes
-#   portfolio-front-tools-18: 121 files, 549833 bytes
-#   portfolio-front-tools-19: 125 files, 553442 bytes
-#   portfolio-front-tools-20: 113 files, 555075 bytes
-#   portfolio-front-tools-21: 115 files, 556875 bytes
-#   portfolio-front-tools-22: 135 files, 556641 bytes
-#   portfolio-front-tools-23: 129 files, 554879 bytes
-#   portfolio-front-tools-24: 134 files, 547637 bytes
-#   portfolio-front-tools-25: 120 files, 555762 bytes
-#   portfolio-front-tools-26: 124 files, 556175 bytes
-#   portfolio-front-tools-27: 134 files, 554697 bytes
-#   portfolio-front-tools-28: 117 files, 551873 bytes
-#   portfolio-front-tools-29: 137 files, 556414 bytes
-#   portfolio-front-tools-30: 115 files, 555081 bytes
-#   portfolio-front-tools-31: 93 files, 549717 bytes
-#   portfolio-front-tools-32: 126 files, 548984 bytes
-#   portfolio-front-tools-33: 117 files, 551420 bytes
-#   portfolio-front-tools-34: 128 files, 552170 bytes
-#   portfolio-front-tools-35: 119 files, 548934 bytes
-#   portfolio-front-tools-36: 135 files, 553051 bytes
-#   portfolio-front-tools-37: 119 files, 546694 bytes
-#   portfolio-front-tools-38: 95 files, 517555 bytes
+#   portfolio-front-tools-0: 145 files, 547938 bytes
+#   portfolio-front-tools-1: 92 files, 555387 bytes
+#   portfolio-front-tools-2: 144 files, 553166 bytes
+#   portfolio-front-tools-3: 128 files, 549653 bytes
+#   portfolio-front-tools-4: 136 files, 549254 bytes
+#   portfolio-front-tools-5: 132 files, 555024 bytes
+#   portfolio-front-tools-6: 123 files, 556668 bytes
+#   portfolio-front-tools-7: 122 files, 556069 bytes
+#   portfolio-front-tools-8: 133 files, 551564 bytes
+#   portfolio-front-tools-9: 138 files, 555834 bytes
+#   portfolio-front-tools-10: 133 files, 555284 bytes
+#   portfolio-front-tools-11: 127 files, 551861 bytes
+#   portfolio-front-tools-12: 128 files, 555909 bytes
+#   portfolio-front-tools-13: 124 files, 554374 bytes
+#   portfolio-front-tools-14: 137 files, 556262 bytes
+#   portfolio-front-tools-15: 125 files, 554672 bytes
+#   portfolio-front-tools-16: 121 files, 554757 bytes
+#   portfolio-front-tools-17: 122 files, 555498 bytes
+#   portfolio-front-tools-18: 121 files, 549738 bytes
+#   portfolio-front-tools-19: 125 files, 553516 bytes
+#   portfolio-front-tools-20: 113 files, 555139 bytes
+#   portfolio-front-tools-21: 115 files, 556969 bytes
+#   portfolio-front-tools-22: 135 files, 556518 bytes
+#   portfolio-front-tools-23: 129 files, 554826 bytes
+#   portfolio-front-tools-24: 134 files, 547639 bytes
+#   portfolio-front-tools-25: 120 files, 555902 bytes
+#   portfolio-front-tools-26: 124 files, 556404 bytes
+#   portfolio-front-tools-27: 134 files, 554725 bytes
+#   portfolio-front-tools-28: 117 files, 551852 bytes
+#   portfolio-front-tools-29: 137 files, 556293 bytes
+#   portfolio-front-tools-30: 115 files, 555280 bytes
+#   portfolio-front-tools-31: 93 files, 549758 bytes
+#   portfolio-front-tools-32: 126 files, 549067 bytes
+#   portfolio-front-tools-33: 117 files, 551405 bytes
+#   portfolio-front-tools-34: 128 files, 552151 bytes
+#   portfolio-front-tools-35: 119 files, 549027 bytes
+#   portfolio-front-tools-36: 135 files, 552977 bytes
+#   portfolio-front-tools-37: 119 files, 546706 bytes
+#   portfolio-front-tools-38: 95 files, 517458 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1097,6 +1097,10 @@ configMapGenerator:
       - beef-cattle-ration-optimizer__how-to-formulate-a-low-cost-cattle-ration.html.gz=beef-cattle-ration-optimizer__how-to-formulate-a-low-cost-cattle-ration.html.gz
       - beef-cattle-ration-optimizer__index.html.gz=beef-cattle-ration-optimizer__index.html.gz
       - beef-cattle-ration-optimizer__usage.mjs.gz=beef-cattle-ration-optimizer__usage.mjs.gz
+      - bid-leveling-worksheet__calc.mjs.gz=bid-leveling-worksheet__calc.mjs.gz
+      - bid-leveling-worksheet__cli.mjs.gz=bid-leveling-worksheet__cli.mjs.gz
+      - bid-leveling-worksheet__index.html.gz=bid-leveling-worksheet__index.html.gz
+      - bid-leveling-worksheet__usage.mjs.gz=bid-leveling-worksheet__usage.mjs.gz
       - bid-win-rate-optimizer__calc.mjs.gz=bid-win-rate-optimizer__calc.mjs.gz
       - bid-win-rate-optimizer__index.html.gz=bid-win-rate-optimizer__index.html.gz
       - bid-win-rate-optimizer__usage.mjs.gz=bid-win-rate-optimizer__usage.mjs.gz
@@ -1147,14 +1151,14 @@ configMapGenerator:
       - bookkeeping-client-fee-calculator__cli.mjs.gz=bookkeeping-client-fee-calculator__cli.mjs.gz
       - bookkeeping-client-fee-calculator__engine.mjs.gz=bookkeeping-client-fee-calculator__engine.mjs.gz
       - bookkeeping-client-fee-calculator__how-to-price-bookkeeping-services-monthly-retainer.html.gz=bookkeeping-client-fee-calculator__how-to-price-bookkeeping-services-monthly-retainer.html.gz
-      - bookkeeping-client-fee-calculator__index.html.gz=bookkeeping-client-fee-calculator__index.html.gz
-      - bookkeeping-client-fee-calculator__usage.mjs.gz=bookkeeping-client-fee-calculator__usage.mjs.gz
-      - bounce-house-rental-calculator__calc.mjs.gz=bounce-house-rental-calculator__calc.mjs.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - bookkeeping-client-fee-calculator__index.html.gz=bookkeeping-client-fee-calculator__index.html.gz
+      - bookkeeping-client-fee-calculator__usage.mjs.gz=bookkeeping-client-fee-calculator__usage.mjs.gz
+      - bounce-house-rental-calculator__calc.mjs.gz=bounce-house-rental-calculator__calc.mjs.gz
       - bounce-house-rental-calculator__how-much-to-charge-for-a-bounce-house-rental.html.gz=bounce-house-rental-calculator__how-much-to-charge-for-a-bounce-house-rental.html.gz
       - bounce-house-rental-calculator__index.html.gz=bounce-house-rental-calculator__index.html.gz
       - bounce-house-rental-calculator__share.mjs.gz=bounce-house-rental-calculator__share.mjs.gz
@@ -1285,15 +1289,15 @@ configMapGenerator:
       - card-bonus-planner__usage.mjs.gz=card-bonus-planner__usage.mjs.gz
       - card-grading-submission-picker__cli.mjs.gz=card-grading-submission-picker__cli.mjs.gz
       - card-grading-submission-picker__engine.mjs.gz=card-grading-submission-picker__engine.mjs.gz
-      - card-grading-submission-picker__index.html.gz=card-grading-submission-picker__index.html.gz
-      - card-grading-submission-picker__is-it-worth-grading-a-card.html.gz=card-grading-submission-picker__is-it-worth-grading-a-card.html.gz
-      - card-grading-submission-picker__usage.mjs.gz=card-grading-submission-picker__usage.mjs.gz
-      - card-processing-fee-audit__calc.mjs.gz=card-processing-fee-audit__calc.mjs.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - card-grading-submission-picker__index.html.gz=card-grading-submission-picker__index.html.gz
+      - card-grading-submission-picker__is-it-worth-grading-a-card.html.gz=card-grading-submission-picker__is-it-worth-grading-a-card.html.gz
+      - card-grading-submission-picker__usage.mjs.gz=card-grading-submission-picker__usage.mjs.gz
+      - card-processing-fee-audit__calc.mjs.gz=card-processing-fee-audit__calc.mjs.gz
       - card-processing-fee-audit__index.html.gz=card-processing-fee-audit__index.html.gz
       - card-processing-fee-audit__usage.mjs.gz=card-processing-fee-audit__usage.mjs.gz
       - card-processing-fee-audit__vs-comparing-effective-rates.html.gz=card-processing-fee-audit__vs-comparing-effective-rates.html.gz
@@ -1428,14 +1432,14 @@ configMapGenerator:
       - claude-code-hooks-security-check__vs-reading-the-hooks-config-by-eye.html.gz=claude-code-hooks-security-check__vs-reading-the-hooks-config-by-eye.html.gz
       - claude-code-hooks-security-check__why-a-clean-scan-isnt-a-safety-guarantee.html.gz=claude-code-hooks-security-check__why-a-clean-scan-isnt-a-safety-guarantee.html.gz
       - claude-code-settings-check__calc.mjs.gz=claude-code-settings-check__calc.mjs.gz
-      - claude-code-settings-check__index.html.gz=claude-code-settings-check__index.html.gz
-      - claude-code-settings-check__usage.mjs.gz=claude-code-settings-check__usage.mjs.gz
-      - claude-code-settings-check__vs-reading-the-settings-json-by-eye.html.gz=claude-code-settings-check__vs-reading-the-settings-json-by-eye.html.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - claude-code-settings-check__index.html.gz=claude-code-settings-check__index.html.gz
+      - claude-code-settings-check__usage.mjs.gz=claude-code-settings-check__usage.mjs.gz
+      - claude-code-settings-check__vs-reading-the-settings-json-by-eye.html.gz=claude-code-settings-check__vs-reading-the-settings-json-by-eye.html.gz
       - claude-code-subagent-check__calc.mjs.gz=claude-code-subagent-check__calc.mjs.gz
       - claude-code-subagent-check__index.html.gz=claude-code-subagent-check__index.html.gz
       - claude-code-subagent-check__usage.mjs.gz=claude-code-subagent-check__usage.mjs.gz
@@ -1566,14 +1570,14 @@ configMapGenerator:
       - cors-misconfig-check__probe.mjs.gz=cors-misconfig-check__probe.mjs.gz
       - cors-misconfig-check__reflected-origin-cors-vulnerability.html.gz=cors-misconfig-check__reflected-origin-cors-vulnerability.html.gz
       - cors-misconfig-check__usage.mjs.gz=cors-misconfig-check__usage.mjs.gz
-      - cors-misconfig-check__vs-burp-suite.html.gz=cors-misconfig-check__vs-burp-suite.html.gz
-      - cors-misconfig-check__vs-checking-cors-by-hand.html.gz=cors-misconfig-check__vs-checking-cors-by-hand.html.gz
-      - cost-segregation-study-calculator__calc.mjs.gz=cost-segregation-study-calculator__calc.mjs.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cors-misconfig-check__vs-burp-suite.html.gz=cors-misconfig-check__vs-burp-suite.html.gz
+      - cors-misconfig-check__vs-checking-cors-by-hand.html.gz=cors-misconfig-check__vs-checking-cors-by-hand.html.gz
+      - cost-segregation-study-calculator__calc.mjs.gz=cost-segregation-study-calculator__calc.mjs.gz
       - cost-segregation-study-calculator__index.html.gz=cost-segregation-study-calculator__index.html.gz
       - cost-segregation-study-calculator__usage.mjs.gz=cost-segregation-study-calculator__usage.mjs.gz
       - cottage-food-pricing-calculator__calc.mjs.gz=cottage-food-pricing-calculator__calc.mjs.gz
@@ -1698,15 +1702,15 @@ configMapGenerator:
       - datadog-bill-estimator__cli.mjs.gz=datadog-bill-estimator__cli.mjs.gz
       - datadog-bill-estimator__engine.mjs.gz=datadog-bill-estimator__engine.mjs.gz
       - datadog-bill-estimator__how-to-reduce-your-datadog-bill.html.gz=datadog-bill-estimator__how-to-reduce-your-datadog-bill.html.gz
-      - datadog-bill-estimator__index.html.gz=datadog-bill-estimator__index.html.gz
-      - datadog-bill-estimator__usage.mjs.gz=datadog-bill-estimator__usage.mjs.gz
-      - deck-bid-calculator__calc.mjs.gz=deck-bid-calculator__calc.mjs.gz
-      - deck-bid-calculator__how-much-to-charge.html.gz=deck-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - datadog-bill-estimator__index.html.gz=datadog-bill-estimator__index.html.gz
+      - datadog-bill-estimator__usage.mjs.gz=datadog-bill-estimator__usage.mjs.gz
+      - deck-bid-calculator__calc.mjs.gz=deck-bid-calculator__calc.mjs.gz
+      - deck-bid-calculator__how-much-to-charge.html.gz=deck-bid-calculator__how-much-to-charge.html.gz
       - deck-bid-calculator__index.html.gz=deck-bid-calculator__index.html.gz
       - deck-bid-calculator__share.mjs.gz=deck-bid-calculator__share.mjs.gz
       - deck-bid-calculator__usage.mjs.gz=deck-bid-calculator__usage.mjs.gz
@@ -1831,14 +1835,14 @@ configMapGenerator:
       - dog-boarding-daycare-pricing__share.mjs.gz=dog-boarding-daycare-pricing__share.mjs.gz
       - dog-boarding-daycare-pricing__usage.mjs.gz=dog-boarding-daycare-pricing__usage.mjs.gz
       - dog-boarding-daycare-pricing__vs-a-flat-nightly-rate.html.gz=dog-boarding-daycare-pricing__vs-a-flat-nightly-rate.html.gz
-      - dog-grooming-day-planner__cli.mjs.gz=dog-grooming-day-planner__cli.mjs.gz
-      - dog-grooming-day-planner__engine.mjs.gz=dog-grooming-day-planner__engine.mjs.gz
-      - dog-grooming-day-planner__how-much-to-charge-for-dog-grooming.html.gz=dog-grooming-day-planner__how-much-to-charge-for-dog-grooming.html.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - dog-grooming-day-planner__cli.mjs.gz=dog-grooming-day-planner__cli.mjs.gz
+      - dog-grooming-day-planner__engine.mjs.gz=dog-grooming-day-planner__engine.mjs.gz
+      - dog-grooming-day-planner__how-much-to-charge-for-dog-grooming.html.gz=dog-grooming-day-planner__how-much-to-charge-for-dog-grooming.html.gz
       - dog-grooming-day-planner__index.html.gz=dog-grooming-day-planner__index.html.gz
       - dog-grooming-day-planner__usage.mjs.gz=dog-grooming-day-planner__usage.mjs.gz
       - dog-grooming-price-calculator__cli.mjs.gz=dog-grooming-price-calculator__cli.mjs.gz
@@ -1960,16 +1964,16 @@ configMapGenerator:
       - einvoice-preflight__adjustment.mjs.gz=einvoice-preflight__adjustment.mjs.gz
       - einvoice-preflight__bic.mjs.gz=einvoice-preflight__bic.mjs.gz
       - einvoice-preflight__breakdown.mjs.gz=einvoice-preflight__breakdown.mjs.gz
-      - einvoice-preflight__checks.mjs.gz=einvoice-preflight__checks.mjs.gz
-      - einvoice-preflight__cii.mjs.gz=einvoice-preflight__cii.mjs.gz
-      - einvoice-preflight__document.mjs.gz=einvoice-preflight__document.mjs.gz
-      - einvoice-preflight__endpoint.mjs.gz=einvoice-preflight__endpoint.mjs.gz
-      - einvoice-preflight__facturx.mjs.gz=einvoice-preflight__facturx.mjs.gz
   - name: portfolio-front-tools-14
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - einvoice-preflight__checks.mjs.gz=einvoice-preflight__checks.mjs.gz
+      - einvoice-preflight__cii.mjs.gz=einvoice-preflight__cii.mjs.gz
+      - einvoice-preflight__document.mjs.gz=einvoice-preflight__document.mjs.gz
+      - einvoice-preflight__endpoint.mjs.gz=einvoice-preflight__endpoint.mjs.gz
+      - einvoice-preflight__facturx.mjs.gz=einvoice-preflight__facturx.mjs.gz
       - einvoice-preflight__how-do-you-calculate-a-mixed-vat-rate-tax-breakdown.html.gz=einvoice-preflight__how-do-you-calculate-a-mixed-vat-rate-tax-breakdown.html.gz
       - einvoice-preflight__iban.mjs.gz=einvoice-preflight__iban.mjs.gz
       - einvoice-preflight__index.html.gz=einvoice-preflight__index.html.gz
@@ -2102,14 +2106,14 @@ configMapGenerator:
       - estimate-maker__calc.mjs.gz=estimate-maker__calc.mjs.gz
       - estimate-maker__index.html.gz=estimate-maker__index.html.gz
       - estimate-maker__usage.mjs.gz=estimate-maker__usage.mjs.gz
-      - estimated-tax-penalty-calculator__calc.mjs.gz=estimated-tax-penalty-calculator__calc.mjs.gz
-      - estimated-tax-penalty-calculator__index.html.gz=estimated-tax-penalty-calculator__index.html.gz
-      - estimated-tax-penalty-calculator__usage.mjs.gz=estimated-tax-penalty-calculator__usage.mjs.gz
   - name: portfolio-front-tools-15
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - estimated-tax-penalty-calculator__calc.mjs.gz=estimated-tax-penalty-calculator__calc.mjs.gz
+      - estimated-tax-penalty-calculator__index.html.gz=estimated-tax-penalty-calculator__index.html.gz
+      - estimated-tax-penalty-calculator__usage.mjs.gz=estimated-tax-penalty-calculator__usage.mjs.gz
       - etsy-ads-roi-analyzer__calc.mjs.gz=etsy-ads-roi-analyzer__calc.mjs.gz
       - etsy-ads-roi-analyzer__index.html.gz=etsy-ads-roi-analyzer__index.html.gz
       - etsy-ads-roi-analyzer__usage.mjs.gz=etsy-ads-roi-analyzer__usage.mjs.gz
@@ -2232,12 +2236,12 @@ configMapGenerator:
       - firebase-rules-check__vs-requesting-the-url-by-hand.html.gz=firebase-rules-check__vs-requesting-the-url-by-hand.html.gz
       - firebase-rules-check__why-does-firebase-test-mode-expose-my-data.html.gz=firebase-rules-check__why-does-firebase-test-mode-expose-my-data.html.gz
       - fireplace-insert-bid-calculator__calc.mjs.gz=fireplace-insert-bid-calculator__calc.mjs.gz
-      - fireplace-insert-bid-calculator__how-much-to-charge-to-install-a-fireplace-insert.html.gz=fireplace-insert-bid-calculator__how-much-to-charge-to-install-a-fireplace-insert.html.gz
   - name: portfolio-front-tools-16
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - fireplace-insert-bid-calculator__how-much-to-charge-to-install-a-fireplace-insert.html.gz=fireplace-insert-bid-calculator__how-much-to-charge-to-install-a-fireplace-insert.html.gz
       - fireplace-insert-bid-calculator__index.html.gz=fireplace-insert-bid-calculator__index.html.gz
       - fireplace-insert-bid-calculator__share.mjs.gz=fireplace-insert-bid-calculator__share.mjs.gz
       - fireplace-insert-bid-calculator__usage.mjs.gz=fireplace-insert-bid-calculator__usage.mjs.gz
@@ -2358,12 +2362,12 @@ configMapGenerator:
       - freelance-platform-fee-calculator__vs-checking-each-platforms-fee-page-separately.html.gz=freelance-platform-fee-calculator__vs-checking-each-platforms-fee-page-separately.html.gz
       - freelance-platform-fee-calculator__vs-tracking-it-in-a-spreadsheet.html.gz=freelance-platform-fee-calculator__vs-tracking-it-in-a-spreadsheet.html.gz
       - freelance-project-picker__cli.mjs.gz=freelance-project-picker__cli.mjs.gz
-      - freelance-project-picker__engine.mjs.gz=freelance-project-picker__engine.mjs.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - freelance-project-picker__engine.mjs.gz=freelance-project-picker__engine.mjs.gz
       - freelance-project-picker__index.html.gz=freelance-project-picker__index.html.gz
       - freelance-project-picker__usage.mjs.gz=freelance-project-picker__usage.mjs.gz
       - freelance-project-picker__which-freelance-project-to-take.html.gz=freelance-project-picker__which-freelance-project-to-take.html.gz
