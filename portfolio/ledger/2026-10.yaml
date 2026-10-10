@@ -3442,3 +3442,16 @@ entries:
         boundaries and proration hand-computed and pinned by tests. First visitor: truckers searching form 2290 calculator / hvut tax
         for 80000 lbs; volume unmeasured.
     mrr_end: 0
+  - venture: eu-pay-gap-report-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built eu-pay-gap-report-calculator: a browser-local calculator that turns a pasted payroll table (gender,
+        category, base, bonus, hours) into the EU Pay Transparency Directive (2023/970) Art. 9 indicators: mean and median hourly
+        pay gap, variable pay gap among recipients, share receiving variable pay, women and men per pay quartile, and the gap per
+        job category with the Art. 10 five-percent joint pay assessment flag, plus the reporting obligation by headcount (first
+        report 7 June 2027 for 150+ workers). Hand-computed gap, hourly-conversion, quartile and threshold cases pinned by tests.
+        Screened with duplicate_check.py (nearest 0.29). First visitor: HR and payroll leads searching gender pay gap calculator
+        EU / pay transparency directive reporting; volume unmeasured.
+    mrr_end: 0

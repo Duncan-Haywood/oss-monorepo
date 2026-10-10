@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1007 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1008 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -62,6 +62,14 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free federal spirits excise tax calculator for craft distillers: enter bottles and their proof, see proof gallons, the CBMA $2.70 and $13.34 tax, the cost per bottle and pour, and what growing past 100,000 proof gallons does. Runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>EU Pay Gap Report Calculator — Pay Transparency Directive Indicators</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-pay-gap-report-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/eu-pay-gap-report-calculator</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free calculator for the EU Pay Transparency Directive: paste your payroll table and get the mean and median gender pay gap, variable pay gap, pay quartiles and the gap by job category with the 5% joint assessment flag. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>Fixed-Bid Overrun Forecaster — Will This Job Finish Inside the Price?</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free pollination contract checker for beekeepers: enter the fee per hive, miles, inspection failures, feed and losses, and see your net per hive and break-even fee. Growers can see cost per acre. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Postgres Index Auditor — Find Unused, Duplicate and Redundant Indexes</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/postgres-index-auditor/"/>
-    <id>tag:marisstella.dev,2026:tool/postgres-index-auditor</id>
-    <updated>2026-10-10T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free Postgres index auditor: run one read-only query, paste the result, and see unused, duplicate, redundant and invalid indexes, the disk they waste and DROP INDEX statements to review. Runs in your browser, never touches your database.</summary>
   </entry>
 </feed>

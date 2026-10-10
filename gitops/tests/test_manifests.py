@@ -3032,7 +3032,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `pollination-contract-checker` graduated (browser pollination-contract checker: net per hive and break-even fee for beekeepers, cost per acre for growers).
     # +1: `oyster-farm-growout-planner` graduated (browser oyster-crop planner: seed, survival, gear, lease and grade prices to net per crop, break-even price and survival, and cash before first sale).
     # +1: `form-2290-hvut-calculator` graduated (browser Form 2290 heavy vehicle use tax per truck: weight category, proration, suspension and due date).
-    total = 1007  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1007 tools" wording.
+    # +1: `eu-pay-gap-report-calculator` graduated (browser EU Pay Transparency Directive indicators: mean and median pay gap, variable pay, quartiles and 5% category flags from a pasted payroll table).
+    total = 1008  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1008 tools" wording.
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
     # +1: `ag-spray-drone-quote-calculator` graduated (browser spray-drone fields, tank, battery and cost inputs to real time per field, cost per acre, recommended quote and break-even).
     # +1: `stump-grinding-price-calculator` graduated (browser stump diameters, wood hardness, grinder speed, crew and drive time to a price, per-stump prices and a per-inch quote check).
