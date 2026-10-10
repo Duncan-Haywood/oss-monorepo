@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Experience Mod Calculator — Workers' Comp X-Mod and What Each Claim Costs</title>
+  <meta name="description" content="Free workers' comp experience mod (x-mod) calculator for contractors and small employers: estimate your mod from your rating worksheet and claims, see the premium impact and what each claim costs over three years. Runs in your browser.">
+  <meta property="og:title" content="Experience Mod Calculator — free, private">
+  <meta property="og:description" content="Estimate your workers' comp experience mod and see which claims cost you the most.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Experience Mod Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free workers' comp experience modification factor calculator: enter your rating worksheet values and claims to estimate the mod, the premium impact and what each claim costs you."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is an experience modification factor?", "acceptedAnswer": {"@type": "Answer", "text": "A multiplier, usually near 1.00, that your workers' compensation rating bureau applies to your manual premium. It compares your own claims over roughly three policy years with what is expected for businesses of your size and class. Below 1.00 is a credit; above 1.00 is a debit."}}, {"@type": "Question", "name": "How is the experience mod calculated?", "acceptedAnswer": {"@type": "Answer", "text": "In NCCI states: mod = (Ap + W x Ae + (1 - W) x Ee + B) / (E + B), where Ap and Ae are your actual primary and excess losses, Ee the expected excess losses, E the total expected losses, W the weighting value and B the ballast. Primary losses are the first slice of each claim up to the split point. This tool applies that formula to the values you type from your worksheet."}}, {"@type": "Question", "name": "Does one big claim or several small ones hurt more?", "acceptedAnswer": {"@type": "Answer", "text": "Primary losses count at full weight, and each claim's first dollars up to the split point are primary, so frequency hurts. Excess dollars are weighted down by W, so a single large claim is partly cushioned. Several claims of a few thousand dollars can cost more in mod than one larger claim."}}, {"@type": "Question", "name": "How long does a claim stay in my mod?", "acceptedAnswer": {"@type": "Answer", "text": "Normally three policy years, excluding the most recent year. This tool shows what each claim costs per year and over three years if you enter your manual premium."}}, {"@type": "Question", "name": "Does this work in California, New York, Pennsylvania or other independent-bureau states?", "acceptedAnswer": {"@type": "Answer", "text": "Those states use their own rating plans and formulas. This tool is NCCI-style arithmetic: use it for a rough picture there, and rely on your bureau's worksheet."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts."}}, {"@type": "Question", "name": "Is this insurance, legal or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a planning estimate from numbers you enter. The mod you are charged is set by your rating bureau. It does not file, dispute or change anything."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .big { font-size: 2.4rem; font-weight: 800; color: #0b2e55; margin: 4px 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">EXPERIENCE MOD CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What is your workers' comp experience mod, and which claims are costing you?</h1>
+    <p>Type the values from your experience rating worksheet and list your claims. You get <strong>an estimate of your experience mod, the premium it adds or saves, and what each claim costs you per year and over the three years it stays in the calculation</strong>, plus what one more claim would do. Useful before you bid work that asks for a mod under 1.00, and before you decide whether to fight a claim.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. A planning estimate, not your bureau's mod.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your rating worksheet</h2>
+    <p class="note">These come from your bureau's worksheet (or your broker). They change by state, payroll and year, so none are assumed.</p>
+    <div class="grid">
+      <div><label for="expected">Expected losses, E ($)</label><input type="number" id="expected" min="0" step="1" value="62000"></div>
+      <div><label for="dRatio">D-ratio (0 to 1)</label><input type="number" id="dRatio" min="0" max="1" step="0.01" value="0.36"></div>
+      <div><label for="weight">Weighting value, W (0 to 1)</label><input type="number" id="weight" min="0" max="1" step="0.01" value="0.19"></div>
+      <div><label for="ballast">Ballast, B ($)</label><input type="number" id="ballast" min="0" step="1" value="34000"></div>
+      <div><label for="manualPremium">Annual manual premium ($, optional)</label><input type="number" id="manualPremium" min="0" step="1" value="48000"></div>
+      <div><label for="splitPoint">Split point ($)</label><input type="number" id="splitPoint" min="1" step="1" value="20500"></div>
+      <div><label for="claimLimit">Per-claim accident limit ($)</label><input type="number" id="claimLimit" min="1" step="1" value="250000"></div>
+      <div><label for="era">Medical-only discount (ERA)</label><select id="era"><option value="on" selected>On: medical-only counted at 30%</option><option value="off">Off</option></select></div>
+    </div>
+    <h2 style="margin-top:22px">2. Your claims</h2>
+    <p class="note">One per line: <code>policy year, medical-only or indemnity, total incurred</code>.</p>
+    <label for="claims">Claims</label>
+    <textarea id="claims" rows="5" spellcheck="false">2024, indemnity, 31200
+2023, medical-only, 4800
+2023, indemnity, 9100
+2022, medical-only, 1200</textarea>
+    <p class="note">Defaults for the split point and claim limit are example values; use your state's figures.</p>
+    <p>
+      <button type="button" id="analyze">Estimate my mod</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+    </p>
+    <p class="note" id="form-status">Enter your worksheet values and claims, or load the example, then click Estimate my mod.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="big" id="modBig"></p>
+    <div id="advice"></div>
+    <h3>What each claim costs you</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Year</th><th scope="col">Type</th><th scope="col">Incurred</th><th scope="col">Counted</th><th scope="col">Mod without it</th><th scope="col">Mod points</th><th scope="col">Per year</th><th scope="col">Over 3 years</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <h3>If one more indemnity claim lands</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Claim size</th><th scope="col">New mod</th><th scope="col">Extra premium per year</th></tr></thead><tbody id="hypo"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The rules this applies, and what it leaves out</h2>
+    <ul>
+      <li>NCCI-style formula: <strong>mod = (Ap + W·Ae + (1−W)·Ee + B) / (E + B)</strong>. Primary losses are each claim's first dollars up to the split point; the rest is excess, weighted down by W.</li>
+      <li>Each claim is capped at the per-claim accident limit, and medical-only claims can be counted at a discount (ERA) where your state allows it.</li>
+      <li><strong>Not modelled:</strong> independent-bureau plans (California, New York, Pennsylvania, New Jersey, Michigan and others), the exact W and B tables, expected loss rates, ownership changes, subrogation and claim valuation dates. The mod you pay is the one on your bureau's worksheet.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is an experience modification factor?</h3>
+    <p>A multiplier, usually near 1.00, that your workers' compensation rating bureau applies to your manual premium. It compares your own claims over roughly three policy years with what is expected for businesses of your size and class. Below 1.00 is a credit; above 1.00 is a debit.</p>
+    <h3>How is the experience mod calculated?</h3>
+    <p>In NCCI states: mod = (Ap + W x Ae + (1 - W) x Ee + B) / (E + B), where Ap and Ae are your actual primary and excess losses, Ee the expected excess losses, E the total expected losses, W the weighting value and B the ballast. Primary losses are the first slice of each claim up to the split point. This tool applies that formula to the values you type from your worksheet.</p>
+    <h3>Does one big claim or several small ones hurt more?</h3>
+    <p>Primary losses count at full weight, and each claim's first dollars up to the split point are primary, so frequency hurts. Excess dollars are weighted down by W, so a single large claim is partly cushioned. Several claims of a few thousand dollars can cost more in mod than one larger claim.</p>
+    <h3>How long does a claim stay in my mod?</h3>
+    <p>Normally three policy years, excluding the most recent year. This tool shows what each claim costs per year and over three years if you enter your manual premium.</p>
+    <h3>Does this work in California, New York, Pennsylvania or other independent-bureau states?</h3>
+    <p>Those states use their own rating plans and formulas. This tool is NCCI-style arithmetic: use it for a rough picture there, and rely on your bureau's worksheet.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts.</p>
+    <h3>Is this insurance, legal or financial advice?</h3>
+    <p>No. It is a planning estimate from numbers you enter. The mod you are charged is set by your rating bureau. It does not file, dispute or change anything.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your rating bureau, your carrier or your broker. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including before bidding work or disputing a worksheet.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>mod_estimated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../workers-comp-premium-calculator/">workers' comp premium and audit</a>, <a href="../osha-trir-dart-calculator/">OSHA TRIR and DART rates</a>, <a href="../surety-bond-capacity-calculator/">surety bond capacity</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["expected", "dRatio", "weight", "ballast", "manualPremium", "splitPoint", "claimLimit", "era", "claims"];
+    const usd = (x) => x === null ? "—" : "$" + x.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run() {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#modBig").textContent = "Estimated mod " + r.mod.toFixed(3);
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#rows").innerHTML = r.perClaim.map((c) => `<tr><th scope="row">${esc(c.year)}</th><td>${esc(c.type)}</td><td>${usd(c.incurred)}</td><td>${usd(c.counted)}</td><td>${c.modWithout.toFixed(3)}</td><td>${c.modPoints.toFixed(3)}</td><td>${usd(c.perYear)}</td><td>${usd(c.threeYear)}</td></tr>`).join("") || '<tr><td colspan="8">No claims entered.</td></tr>';
+      $("#hypo").innerHTML = r.hypo.map((h) => `<tr><th scope="row">${usd(h.amount)}</th><td>${h.mod.toFixed(3)}</td><td>${usd(h.perYear)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Estimated mod " + r.mod.toFixed(3) + ".";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("mod_estimated"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleInput();
+      for (const k of keys) $("#" + k).value = s[k];
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "experience-mod.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
