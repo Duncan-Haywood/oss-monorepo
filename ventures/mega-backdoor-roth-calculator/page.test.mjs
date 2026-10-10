@@ -167,3 +167,14 @@ test('index links one hop to the backdoor-roth-pro-rata-calculator sibling', () 
     'index must link ../backdoor-roth-pro-rata-calculator/ so crawlers reach it in one hop',
   );
 });
+
+// 401k-plan-fee-calculator graduated on 2026-10-10 with no inbound link of its
+// own (a brand-new venture's first commit) -- this link is what keeps it off
+// siblings.test.mjs's committed orphan budget (0).
+test('index links one hop to the 401k-plan-fee-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/401k-plan-fee-calculator\/"/,
+    'index must link ../401k-plan-fee-calculator/ so crawlers reach it in one hop',
+  );
+});
