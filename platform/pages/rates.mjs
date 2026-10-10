@@ -419,6 +419,8 @@ export const REVIEWED_NOT_CARRIED = {
     'the wage and burden are the pay behind each hour a price book is built from, but overhead is four annual dollar totals (truck, insurance, tools, other) spread over billable hours rather than a percentage of direct cost, and the target margin is a share of the time charge only, with parts marked up on their own tiers; the tool solves a flat-rate price for each job in a book instead of being quoted a shop rate',
   'embroidery-shop-quote-calculator':
     'the labor rate is the operator\'s hourly cost applied to the clock time of one job and overhead is a dollar figure per machine hour, not a percentage of direct cost; the target margin is a share of the quote, and there is no burden field -- the tool quotes a decorated piece from machine time rather than being handed a shop rate',
+  'screen-print-job-quote-calculator':
+    'labor and overhead are dollars per hour applied to setup and press hours of one job, not a percentage of direct cost, and there is no burden field; the target margin is a share of the quote -- the tool prices a print job from screens, garments and press time rather than being handed a shop rate',
   'course-launch-revenue-calculator':
     'there is no labor rate or job pricing: the tool turns a course creator\'s own list, conversion rates, price and fees into launch profit; nothing is quoted to a customer',
   'freelance-rate-increase-calculator':
