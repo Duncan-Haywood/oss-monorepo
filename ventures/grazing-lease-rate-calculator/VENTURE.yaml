@@ -1,0 +1,54 @@
+name: grazing-lease-rate-calculator
+description: >-
+  Free browser tool and CLI for ranchers and landowners pricing a pasture lease: AUMs and head carried, rent per AUM, head-month
+  and acre, the hay-feeding break-even for the rancher, the owner's break-even against the land's alternative use, and a drought
+  table. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. Repo search of ventures/ for "graz", "pasture", "aum" found no lease pricer; nearest
+# are cow-calf-breakeven-calculator (herd economics), farmland-lease-cash-rent-vs-crop-share-calculator (cropland) and
+# hay-baling-own-vs-hire-calculator. Not in screened-out.md.
+#
+# Why this niche: pasture leases are priced per AUM, per head-month or per acre by handshake, and both sides lack a quick way to
+# see carrying capacity, the hay alternative and the other party's floor or ceiling. A lease that shows the overlap range is
+# easier to agree.
+#
+# First visitor: ranchers and landowners searching "grazing lease rate per AUM", "how many cows per acre pasture", "pasture rent
+# calculator". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user enters. No rate survey or forage data is shipped. Not legal, tax or
+# financial advice; the page says so and carries the no-warranty and no-SLA clauses. No data leaves the browser.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. A natural paid layer is a hosted lease-record and
+# stocking-rate log for land agents; needs accounts and payments, so an owner decision; not built.
+
+hypotheses:
+  - claim: >-
+      Ranchers and landowners with a lease offer in hand will type their numbers into a no-signup calculator to find the rent range.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the hay-feeding ceiling and the owner's floor side by side changes the rent either party asks for.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - Users report that a flat per-AUM model misses how their leases really pay (gain-based or cattle-price-indexed rent), at which point the tool should model those.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/grazing-lease-rate-calculator/
+  analytics: null
