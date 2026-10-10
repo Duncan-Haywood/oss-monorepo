@@ -110,3 +110,7 @@ test("related-tool links point at ventures that exist", () => {
 test("links to its video sibling", () => {
   assert.match(page("index.html"), /href="\.\.\/wedding-videographer-profit-calculator\/"/);
 });
+
+test("links to the real estate photographer sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/real-estate-photographer-shoot-profit-calculator\/"/);
+});
