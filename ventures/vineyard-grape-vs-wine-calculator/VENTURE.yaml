@@ -1,0 +1,55 @@
+name: vineyard-grape-vs-wine-calculator
+description: >-
+  Free browser tool and CLI for vineyard owners and grape growers: net profit from selling the crop at a per-ton price versus
+  making and selling your own wine, all-in cost per bottle, the grape price that matches the wine, and the direct-sales share
+  at which bottling wins. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. Repo search of ventures/ for "vineyard", "winery", "wine", "grape" found no
+# venture; craft-brewery-batch-margin-calculator and coffee-roaster-margin-calculator price a made product but not a
+# grow-or-make choice. Not in screened-out.md.
+#
+# Why this niche: a small grower holds a grape offer per ton and a temptation to bottle, and the two outcomes differ by tens of
+# thousands of dollars a year in either direction. The deciding numbers (direct-sales share, unsold inventory, fixed overhead)
+# are the ones growers least often model. Income tool for a land-based operator.
+#
+# First visitor: growers searching "sell grapes or make wine", "vineyard profit per acre", "winery break-even cost per bottle".
+# Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user enters. No price, tax or permit data is shipped; excise is a user-entered
+# figure. Not tax, legal or financial advice; the page says so and carries the no-warranty and no-SLA clauses. No data leaves
+# the browser.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. A paid layer (hosted vintage and inventory planner) needs
+# accounts and payments, so an owner decision; not built.
+
+hypotheses:
+  - claim: >-
+      Growers holding a per-ton offer will type their numbers into a no-signup calculator to compare it with bottling their own wine.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the break-even direct-sales share changes whether a grower commits to a label.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - Users report that capital cost and cash-flow timing, not annual margin, decide the choice, at which point the tool should model start-up capital and inventory carrying cost.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/vineyard-grape-vs-wine-calculator/
+  analytics: null
