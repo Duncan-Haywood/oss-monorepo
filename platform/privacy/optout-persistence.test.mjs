@@ -1497,7 +1497,8 @@ const RELATIVE_SELF = relative(
 // +1: `pg-stat-statements-analyzer` graduated.
 // +1: `oncall-load-analyzer` graduated.
 // +1: `bid-leveling-worksheet` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 962;
+// +1: `mobile-vet-house-call-fee-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 963;
 // +1: `retreat-profit-pricing-calculator` graduated.
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
