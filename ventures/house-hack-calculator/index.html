@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>House Hack Calculator — Can the Rent Pay Your Mortgage?</title>
+  <meta name="description" content="Free house hacking calculator for a duplex, triplex or fourplex: FHA or conventional payment with mortgage insurance, the rent you need to live free, the FHA self-sufficiency test, and the 10-year return versus renting. Runs in your browser.">
+  <meta property="og:title" content="House Hack Calculator — free, private">
+  <meta property="og:description" content="See what living in a 2-4 unit building really costs after rent, whether it passes the FHA test, and what it returns versus renting. Nothing is uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "House Hack Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free house hacking calculator for a 2-4 unit purchase: FHA or conventional payment with mortgage insurance, the rent needed to live free, the FHA self-sufficiency test, and the 10-year return versus renting."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is house hacking?", "acceptedAnswer": {"@type": "Answer", "text": "House hacking means buying a small multi-unit building (a duplex, triplex or fourplex), living in one unit and renting the others, so the tenants' rent pays most or all of your mortgage and costs. Because you will live there, you can use owner-occupied financing with a much smaller down payment than an investor loan."}}, {"@type": "Question", "name": "How much down payment does a house hack need?", "acceptedAnswer": {"@type": "Answer", "text": "An FHA loan allows as little as 3.5% down on a 1-4 unit home you will live in, and some conventional loans allow 3% to 5%. You also pay closing costs, usually 2-5% of the price. This tool shows the cash to close and the FHA upfront premium, which is added to the loan rather than paid in cash."}}, {"@type": "Question", "name": "What is the FHA self-sufficiency test?", "acceptedAnswer": {"@type": "Answer", "text": "On a 3- or 4-unit FHA purchase, lenders require that 75% of the rent from all units, including the one you will live in, covers the full monthly payment (principal, interest, taxes, insurance and mortgage insurance). A 2-unit purchase does not have this test, but many lenders still count about 75% of the other unit's rent toward your qualifying income."}}, {"@type": "Question", "name": "Do I have to live there?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. FHA and other owner-occupied loans expect you to move in within about 60 days and live there for at least a year. After that many owners move out and rent their own unit too, which is the second phase this tool models."}}, {"@type": "Question", "name": "How does the return compare to renting?", "acceptedAnswer": {"@type": "Answer", "text": "Each year the tool compares your cash position with what renting a place yourself would have cost, then adds the sale proceeds (after selling costs) at the end. The annual return is the internal rate of return on the cash you put in. A small down payment makes this number look large, so the tool also shows a flat-prices stress case."}}, {"@type": "Question", "name": "What does it leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Income taxes and depreciation, the cost of a bad tenant or a long vacancy beyond the percentage you enter, big repairs beyond your maintenance reserve, rent control, local limits on rent, refinancing, and county FHA loan limits. Mortgage insurance rates, loan limits and lender rules change, so confirm them with a lender."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is an arithmetic illustration of the numbers you enter, not advice about a loan, a property or an investment. Talk to a lender and a licensed adviser before you buy."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f7f4; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b5a3a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b3d28; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b3d28; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d3e2d9; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b3d2810; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bfb2; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b5a3a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e1efe7; color: #0b3d28; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e3eee7; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    .finding { border-bottom: 1px solid #e3eee7; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .big { font-size: 1.6rem; font-weight: 800; color: #0b3d28; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 8px; }
+    .stat span { display: block; font-size: .8rem; color: #46566a; text-transform: uppercase; letter-spacing: .03em; }
+    footer { margin-top: 28px; border-top: 1px solid #d3e2d9; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">HOUSE HACK CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>If you buy a duplex, triplex or fourplex and live in one unit, what does it really cost you?</h1>
+    <p>Enter the building and its rents. You get <strong>your monthly cost after rent, the rent you would need to live free, whether a 3-4 unit FHA loan passes the self-sufficiency test, the highest price at which you live free, and the 10-year return versus renting</strong> — including the year you move out and rent your own unit too.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example numbers are made up. Illustration only, not financial or lending advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The building and the loan</h2>
+    <div class="grid">
+      <div><label for="loanType">Loan type</label><select id="loanType"><option value="fha" selected>FHA (owner-occupied)</option><option value="conv">Conventional (owner-occupied)</option></select></div>
+      <div><label for="price">Purchase price ($)</label><input type="number" id="price" step="1000" value="400000" min="0"></div>
+      <div><label for="downPct">Down payment (%)</label><input type="number" id="downPct" step="0.5" value="3.5" min="0" max="99"></div>
+      <div><label for="rate">Interest rate (%)</label><input type="number" id="rate" step="0.125" value="6.5" min="0" max="25"></div>
+      <div><label for="termYears">Loan term</label><select id="termYears"><option value="30" selected>30 years</option><option value="25">25 years</option><option value="20">20 years</option><option value="15">15 years</option></select></div>
+      <div><label for="units">Units in the building</label><select id="units"><option value="2">2 (duplex)</option><option value="3" selected>3 (triplex)</option><option value="4">4 (fourplex)</option></select></div>
+      <div><label for="closingPct">Closing costs (% of price)</label><input type="number" id="closingPct" step="0.25" value="3" min="0"></div>
+      <div><label for="pmiOverridePct">Conventional PMI override (% per year, blank = estimate)</label><input type="number" id="pmiOverridePct" step="0.05" value="" min="0"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Rents and running costs</h2>
+    <div class="grid">
+      <div><label for="ownerUnitRent">Market rent of the unit you will live in ($/month)</label><input type="number" id="ownerUnitRent" step="50" value="1500" min="0"></div>
+      <div><label for="otherRents">Total rent from the other units ($/month)</label><input type="number" id="otherRents" step="50" value="3100" min="0"></div>
+      <div><label for="vacancyPct">Vacancy on rented units (%)</label><input type="number" id="vacancyPct" step="1" value="5" min="0" max="100"></div>
+      <div><label for="taxPct">Property tax (% of price per year)</label><input type="number" id="taxPct" step="0.05" value="1.2" min="0"></div>
+      <div><label for="insuranceYr">Insurance ($/year)</label><input type="number" id="insuranceYr" step="100" value="2100" min="0"></div>
+      <div><label for="hoaMo">HOA ($/month)</label><input type="number" id="hoaMo" step="10" value="0" min="0"></div>
+      <div><label for="utilitiesMo">Utilities you pay for the building ($/month)</label><input type="number" id="utilitiesMo" step="10" value="150" min="0"></div>
+      <div><label for="maintPct">Repairs and capital reserve (% of value per year)</label><input type="number" id="maintPct" step="0.1" value="1.5" min="0"></div>
+      <div><label for="mgmtPct">Property manager (% of rent, 0 if self-managed)</label><input type="number" id="mgmtPct" step="1" value="0" min="0"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. Your plan</h2>
+    <div class="grid">
+      <div><label for="rentIfRenting">Rent you would pay otherwise ($/month)</label><input type="number" id="rentIfRenting" step="50" value="1800" min="0"></div>
+      <div><label for="liveYears">Years you live there before moving out</label><input type="number" id="liveYears" step="1" value="2" min="0" max="30"></div>
+      <div><label for="holdYears">Years you own it before selling</label><input type="number" id="holdYears" step="1" value="10" min="1" max="30"></div>
+      <div><label for="rentGrowthPct">Rent growth (% per year)</label><input type="number" id="rentGrowthPct" step="0.5" value="3"></div>
+      <div><label for="appreciationPct">Price growth (% per year)</label><input type="number" id="appreciationPct" step="0.5" value="3"></div>
+      <div><label for="sellCostPct">Selling costs (% of price)</label><input type="number" id="sellCostPct" step="0.5" value="6" min="0"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Calculate</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+    </p>
+    <p class="note" id="form-status">Enter your numbers, or load the example, then click Calculate.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div class="stats">
+      <div class="stat"><span>Cash to close</span><div class="big" id="s-cash"></div></div>
+      <div class="stat"><span>Monthly payment incl. insurance</span><div class="big" id="s-piti"></div></div>
+      <div class="stat"><span>Your monthly cost after rent</span><div class="big" id="s-net"></div></div>
+      <div class="stat"><span>Rent needed to live free</span><div class="big" id="s-free"></div></div>
+      <div class="stat"><span>Highest price to live free</span><div class="big" id="s-price"></div></div>
+      <div class="stat"><span>Annual return vs renting</span><div class="big" id="s-irr"></div></div>
+    </div>
+    <div id="advice"></div>
+    <h3>First month, line by line</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Item</th><th scope="col">Per month</th></tr></thead><tbody id="breakdown"></tbody></table></div>
+    <h3>Year by year</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Year</th><th scope="col">Living there?</th><th scope="col">Rent collected</th><th scope="col">Costs</th><th scope="col">Property cash flow</th><th scope="col">Better than renting by</th><th scope="col">Loan balance</th><th scope="col">Equity</th></tr></thead><tbody id="years"></tbody></table></div>
+    <h3>What if it goes worse? (first-year monthly cost after rent)</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Scenario</th><th scope="col">You pay per month</th></tr></thead><tbody id="sens"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How it works, and what it leaves out</h2>
+    <ul>
+      <li><strong>FHA loan</strong> = price × (1 − down payment) plus the 1.75% upfront mortgage insurance premium, which is financed. Annual mortgage insurance is charged monthly on the balance at the rate for your loan size and down payment.</li>
+      <li><strong>Conventional PMI</strong> is estimated from loan-to-value (or use your own quote) and stops when the balance reaches 80% of the purchase price.</li>
+      <li><strong>Your cost after rent</strong> = payment + mortgage insurance + tax + insurance + utilities + HOA + repairs reserve + management, minus rent collected after vacancy. The unit you live in earns nothing until you move out.</li>
+      <li><strong>Better than renting</strong>: while you live there, the rent you avoid counts in your favour; after you move out you pay rent elsewhere, so only the property's own cash flow counts. The sale adds the price after selling costs minus the loan.</li>
+      <li><strong>Annual return</strong> is the internal rate of return on cash to close. It is magnified by the tiny down payment, which also magnifies losses.</li>
+      <li><strong>Not modelled:</strong> income tax and depreciation, county loan limits, rent control, major repairs, refinancing, lender-specific rules. Expenses grow at 3% a year. Rates and rules change; confirm them with a lender.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is house hacking?</h3>
+    <p>House hacking means buying a small multi-unit building (a duplex, triplex or fourplex), living in one unit and renting the others, so the tenants' rent pays most or all of your mortgage and costs. Because you will live there, you can use owner-occupied financing with a much smaller down payment than an investor loan.</p>
+    <h3>How much down payment does a house hack need?</h3>
+    <p>An FHA loan allows as little as 3.5% down on a 1-4 unit home you will live in, and some conventional loans allow 3% to 5%. You also pay closing costs, usually 2-5% of the price. This tool shows the cash to close and the FHA upfront premium, which is added to the loan rather than paid in cash.</p>
+    <h3>What is the FHA self-sufficiency test?</h3>
+    <p>On a 3- or 4-unit FHA purchase, lenders require that 75% of the rent from all units, including the one you will live in, covers the full monthly payment (principal, interest, taxes, insurance and mortgage insurance). A 2-unit purchase does not have this test, but many lenders still count about 75% of the other unit's rent toward your qualifying income.</p>
+    <h3>Do I have to live there?</h3>
+    <p>Yes. FHA and other owner-occupied loans expect you to move in within about 60 days and live there for at least a year. After that many owners move out and rent their own unit too, which is the second phase this tool models.</p>
+    <h3>How does the return compare to renting?</h3>
+    <p>Each year the tool compares your cash position with what renting a place yourself would have cost, then adds the sale proceeds (after selling costs) at the end. The annual return is the internal rate of return on the cash you put in. A small down payment makes this number look large, so the tool also shows a flat-prices stress case.</p>
+    <h3>What does it leave out?</h3>
+    <p>Income taxes and depreciation, the cost of a bad tenant or a long vacancy beyond the percentage you enter, big repairs beyond your maintenance reserve, rent control, local limits on rent, refinancing, and county FHA loan limits. Mortgage insurance rates, loan limits and lender rules change, so confirm them with a lender.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It is an arithmetic illustration of the numbers you enter, not advice about a loan, a property or an investment. Talk to a lender and a licensed adviser before you buy.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it is not a loan offer or a lending decision. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> Mortgage insurance rates, loan limits and underwriting rules change and differ by lender; projections are illustrations based on the numbers you enter and real results vary.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../brrrr-calculator/">BRRRR calculator</a>, <a href="../rental-dscr-calculator/">rental DSCR calculator</a>, <a href="../adu-payback-calculator/">ADU payback</a>, <a href="../rent-vs-buy-breakeven-calculator/">rent vs buy</a>, <a href="../coast-fire-calculator/">Coast FIRE</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv, usd } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["loanType", "price", "downPct", "rate", "termYears", "units", "closingPct", "pmiOverridePct", "ownerUnitRent", "otherRents", "vacancyPct", "taxPct", "insuranceYr", "hoaMo", "utilitiesMo", "maintPct", "mgmtPct", "rentIfRenting", "liveYears", "holdYears", "rentGrowthPct", "appreciationPct", "sellCostPct"];
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run() {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      const c = r.month1.costs;
+      $("#s-cash").textContent = usd(r.cashToClose);
+      $("#s-piti").textContent = usd(r.pitiMi);
+      $("#s-net").textContent = r.livesFree ? "Free (+" + usd(-r.livingMonth1) + ")" : usd(r.livingMonth1);
+      $("#s-free").textContent = usd(r.neededGross);
+      $("#s-price").textContent = usd(r.liveFreePrice);
+      $("#s-irr").textContent = Number.isFinite(r.irr) ? (r.irr * 100).toFixed(1) + "%" : "n/a";
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      const rows = [["Principal and interest", c.pi], ["Mortgage insurance", c.mi], ["Property tax", c.tax], ["Insurance", c.insurance], ["HOA", c.hoa], ["Utilities", c.utilities], ["Repairs reserve", c.maintenance], ["Management", c.management], ["Total costs", r.month1.total], ["Rent collected after vacancy", -r.month1.effectiveRent], ["Your cost after rent", r.livingMonth1]];
+      $("#breakdown").innerHTML = rows.map(([n, v]) => `<tr><th scope="row">${esc(n)}</th><td>${usd(v)}</td></tr>`).join("");
+      $("#years").innerHTML = r.years.map((y) => `<tr><th scope="row">${y.year}</th><td>${y.living ? "Yes" : "Moved out"}</td><td>${usd(y.rentIn)}</td><td>${usd(y.costs)}</td><td>${usd(y.propertyNet)}</td><td>${usd(y.advantage)}</td><td>${usd(y.balance)}</td><td>${usd(y.equity)}</td></tr>`).join("");
+      $("#sens").innerHTML = r.sens.map((s) => `<tr><th scope="row">${esc(s.label)}</th><td>${usd(s.net)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = r.livesFree ? "The rent covers the building's costs." : "The rent does not cover all of the building's costs.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("plan_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleInput();
+      for (const k of keys) if (s[k] !== undefined) $("#" + k).value = s[k];
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "house-hack-years.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

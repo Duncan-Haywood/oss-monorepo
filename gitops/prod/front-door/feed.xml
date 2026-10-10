@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1003 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1004 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -96,6 +96,14 @@
     <summary type="text">Free hours-of-service trip planner for owner-operators and dispatchers: enter your remaining drive, window and cycle clocks and your stops, and see the schedule with required breaks, 10-hour resets and the real arrival time. Runs in your browser.</summary>
   </entry>
   <entry>
+    <title>House Hack Calculator — Can the Rent Pay Your Mortgage?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/house-hack-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/house-hack-calculator</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free house hacking calculator for a duplex, triplex or fourplex: FHA or conventional payment with mortgage insurance, the rent you need to live free, the FHA self-sufficiency test, and the 10-year return versus renting. Runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Hunting Lease Income Calculator — What Will My Land Net?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hunting-lease-income-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/hunting-lease-income-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator for real estate photographers: what each listing package really earns per hour after drive, shoot, editing and admin time, the fee that hits your hourly target, add-on profit and whether to outsource editing. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Sawmill Custom Sawing Calculator — What to Charge per Board Foot</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sawmill-custom-sawing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/sawmill-custom-sawing-calculator</id>
-    <updated>2026-10-10T00:00:00Z</updated>
-    <category term="More free tools"/>
-    <summary type="text">Free custom sawing rate calculator for portable sawmill operators: true cost per sawing hour, break-even and target quote per board foot or per hour, and which log sizes lose money. Runs in your browser.</summary>
   </entry>
 </feed>
