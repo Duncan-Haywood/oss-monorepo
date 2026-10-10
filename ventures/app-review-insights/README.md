@@ -35,3 +35,12 @@ Open `index.html` in a browser (or serve the folder). Tests: `node --test`.
 ## Licence
 
 MIT, see `LICENSE`. No warranty; not legal, tax or financial advice.
+
+## Also
+
+Tab and semicolon separated files are read. A theme is flagged **rising** when
+it has at least three mentions in the newest 30 days of the file and at least
+one and a half times its share in the 30 days before (measured back from the
+newest review, not today). Each unanswered low-star review gets a short draft
+reply for its theme (`REPLIES` in `calc.mjs`); drafts promise no dates and ask
+for details by email, and are meant to be edited.

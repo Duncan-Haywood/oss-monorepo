@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseCsv, normalizeRows, analyze, parseRating, parseDate, sampleCsv, distinctiveTerms, THEMES } from "./calc.mjs";
+import { REPLIES, parseCsv, normalizeRows, analyze, parseRating, parseDate, sampleCsv, distinctiveTerms, THEMES } from "./calc.mjs";
 
 const load = (csv) => normalizeRows(parseCsv(csv));
 
@@ -108,4 +108,33 @@ test("a file with no dates and no versions still analyses", () => {
   assert.equal(r.byMonth.length, 0);
   assert.equal(r.byVersion.length, 0);
   assert.equal(r.summary.from, null);
+});
+
+test("tab and semicolon separated exports are read", () => {
+  assert.equal(load("Star Rating\tReview Text\n1\tcrashes on launch\n5\tlove it").reviews.length, 2);
+  assert.equal(load("Star Rating;Review Text\n1;crashes on launch\n5;love it").reviews.length, 2);
+  assert.equal(parseCsv("a,b\n\"x;y\",2")[1][0], "x;y");
+});
+
+test("a theme that appears three times in the newest window and not before is rising; one angry user is not", () => {
+  const rows = ["Date,Star Rating,Review Text"];
+  for (let i = 0; i < 10; i++) rows.push(`2026-08-${String(1 + i).padStart(2, "0")},5,love it`);
+  for (let i = 0; i < 3; i++) rows.push(`2026-09-${String(10 + i).padStart(2, "0")},1,keeps crashing`);
+  rows.push("2026-09-14,1,login broke");
+  const r = analyze(load(rows.join("\n")).reviews);
+  assert.ok(r.rising.some((t) => t.key === "crashes"));
+  assert.ok(!r.rising.some((t) => t.key === "login"));
+  assert.ok(r.findings.some((f) => /rising/.test(f.title)));
+});
+
+test("a file with no dates has nothing rising", () => {
+  assert.deepEqual(analyze(load("Star Rating,Review Text\n1,crash\n1,crash\n1,crash\n5,ok").reviews).rising, []);
+});
+
+test("every unanswered review gets a draft with the support address filled in and no unfilled placeholder", () => {
+  const r = analyze(load("Date,Star Rating,Review Text,Developer Reply Text\n2026-01-01,1,app crashes,\n2026-01-02,1,wrong charge billing,\n2026-01-03,1,meh,\n2026-01-04,5,great,Thanks").reviews, { support: "help@example.com" });
+  assert.equal(r.unanswered.length, 3);
+  for (const u of r.unanswered) { assert.ok(u.draft.length > 20); assert.ok(!u.draft.includes("{support}")); }
+  assert.ok(r.unanswered[0].draft.includes("help@example.com"));
+  assert.ok(Object.values(REPLIES).every((x) => !/\b(will fix|by (monday|friday|next)|within \d+)/i.test(x)));
 });

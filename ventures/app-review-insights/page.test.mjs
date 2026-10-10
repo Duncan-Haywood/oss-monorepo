@@ -42,3 +42,8 @@ test("robots and sitemap let crawlers find the page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
 });
+
+test("the page links the neighbouring app-listing check", () => {
+  // One-hop inbound link from app-listing-metadata-check keeps this page from being a crawlable orphan.
+  assert.match(page("index.html"), /app-listing-metadata-check|app-subscription-proceeds-calculator/);
+});

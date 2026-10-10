@@ -66,6 +66,8 @@
     <div class="grid">
       <div><label for="low">Count as unhappy at or below (stars)</label><input type="number" id="low" min="1" max="4" step="1" value="2"></div>
       <div><label for="drop">Flag a release that loses (stars)</label><input type="number" id="drop" min="0.1" max="4" step="0.1" value="0.5"></div>
+      <div><label for="days">Rising window (days)</label><input type="number" id="days" min="7" max="180" step="1" value="30"></div>
+      <div><label for="support">Support email for draft replies</label><input type="text" id="support" placeholder="support@yourapp.com"></div>
       <div><label for="minv">Minimum reviews per version</label><input type="number" id="minv" min="2" max="500" step="1" value="5"></div>
     </div>
     <p>
@@ -89,7 +91,7 @@
     <h3>Words and phrases that mark unhappy reviews</h3>
     <div class="scroll"><table><thead><tr><th scope="col">Phrase</th><th class="n" scope="col">In unhappy reviews</th><th class="n" scope="col">In 4–5 star reviews</th></tr></thead><tbody id="terms"></tbody></table></div>
     <h3>Unhappy reviews with no reply, oldest first</h3>
-    <div class="scroll"><table><thead><tr><th scope="col">Date</th><th class="n" scope="col">Stars</th><th scope="col">Version</th><th scope="col">Review</th></tr></thead><tbody id="queue"></tbody></table></div>
+    <div class="scroll"><table><thead><tr><th scope="col">Date</th><th class="n" scope="col">Stars</th><th scope="col">Version</th><th scope="col">Review</th><th scope="col">Draft reply (edit before sending)</th></tr></thead><tbody id="queue"></tbody></table></div>
     <p class="note" id="skipped"></p>
     <p><button type="button" class="secondary" id="download">Download the reply queue as CSV</button></p>
   </section>
@@ -148,6 +150,7 @@
       const r = analyze(n.reviews, {
         lowStar: Math.min(4, Math.max(1, Math.round(num("#low", 2)))), regressionDrop: Math.max(0.1, num("#drop", 0.5)),
         minVersionReviews: Math.max(2, Math.round(num("#minv", 5))),
+        recentDays: Math.max(7, Math.round(num("#days", 30))), support: $("#support").value.trim() || "your support email",
       });
       const s = r.summary;
       lastQueue = r.unanswered;
@@ -157,7 +160,7 @@
       $("#by-version").innerHTML = r.byVersion.length ? r.byVersion.map((v) => `<tr><th scope="row">${esc(v.key)}</th><td class="n">${v.reviews}</td><td class="n">${stars(v.avg)}</td><td class="n">${pct(v.lowShare)}</td></tr>`).join("") : '<tr><td colspan="4">No version column in the file.</td></tr>';
       $("#by-month").innerHTML = r.byMonth.length ? r.byMonth.map((v) => `<tr><th scope="row">${v.key}</th><td class="n">${v.reviews}</td><td class="n">${stars(v.avg)}</td><td class="n">${pct(v.lowShare)}</td></tr>`).join("") : '<tr><td colspan="4">No date column in the file.</td></tr>';
       $("#terms").innerHTML = r.terms.length ? r.terms.map((t) => `<tr><th scope="row">${esc(t.term)}</th><td class="n">${t.low}</td><td class="n">${t.high}</td></tr>`).join("") : '<tr><td colspan="3">Not enough unhappy reviews to say.</td></tr>';
-      $("#queue").innerHTML = !r.hasReply ? '<tr><td colspan="4">No developer reply column in the file, so this list is left out.</td></tr>' : r.unanswered.length ? r.unanswered.slice(0, 50).map((x) => `<tr><td>${day(x.date)}</td><td class="n">${x.rating}</td><td>${esc(x.version || "–")}</td><td>${esc(x.text.slice(0, 240))}</td></tr>`).join("") : '<tr><td colspan="4">Every unhappy review has a reply.</td></tr>';
+      $("#queue").innerHTML = !r.hasReply ? '<tr><td colspan="5">No developer reply column in the file, so this list is left out.</td></tr>' : r.unanswered.length ? r.unanswered.slice(0, 50).map((x) => `<tr><td>${day(x.date)}</td><td class="n">${x.rating}</td><td>${esc(x.version || "–")}</td><td>${esc(x.text.slice(0, 240))}</td><td class="note">${esc(x.draft)}</td></tr>`).join("") : '<tr><td colspan="5">Every unhappy review has a reply.</td></tr>';
       const notes = [];
       if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
       if (r.unanswered.length > 50) notes.push(`Showing the oldest 50 of ${r.unanswered.length} unanswered; the download has all of them.`);
