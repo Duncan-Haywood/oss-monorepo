@@ -45,3 +45,7 @@ test("the page's example matches sample.txt", async () => {
   const m = /const EXAMPLE_SOURCE = `([\s\S]*?)`;/.exec(page);
   assert.equal(m[1].trim(), (await read("sample.txt")).trim());
 });
+
+test("footer links to the Postgres index auditor", async () => {
+  assert.match(await read("index.html"), /href="\.\.\/postgres-index-auditor\/"/);
+});

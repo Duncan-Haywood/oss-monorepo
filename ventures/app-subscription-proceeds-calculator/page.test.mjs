@@ -58,3 +58,7 @@ test("the guide's worked numbers match the engine", async () => {
   const idx = await read("index.html");
   assert.ok(idx.includes('$("#churn").value = 20; $("#cac").value = 40; $("#fee1").value = 30;'));
 });
+
+test("footer links to the app review insights tool", async () => {
+  assert.match(await read("index.html"), /href="\.\.\/app-review-insights\/"/);
+});
