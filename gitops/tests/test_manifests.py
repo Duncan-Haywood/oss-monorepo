@@ -3029,7 +3029,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `bid-leveling-worksheet` graduated (browser subcontractor bid table leveled to one scope: excluded and unaddressed items priced at the buyer's estimate, a ranking, and whether the low bid survives).
     # +1: `fixed-bid-overrun-forecaster` graduated (browser fixed-price project price, cost budget, percent complete and cost to date to earned value, CPI/SPI, three finish forecasts, projected margin and the point the job stops paying).
     # +1: `timber-sale-offer-checker` graduated (browser timber-offer checker: logs scaled under Doyle, Scribner and International rules, valued at the owner's own prices, compared with a logger's offer).
-    total = 988  # `infra/OWNER_CHECKLIST.md`'s own "N of the 988 tools" wording.
+    # +1: `pollination-contract-checker` graduated (browser pollination-contract checker: net per hive and break-even fee for beekeepers, cost per acre for growers).
+    total = 989  # `infra/OWNER_CHECKLIST.md`'s own "N of the 989 tools" wording.
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
     # +1: `ag-spray-drone-quote-calculator` graduated (browser spray-drone fields, tank, battery and cost inputs to real time per field, cost per acre, recommended quote and break-even).
     # +1: `stump-grinding-price-calculator` graduated (browser stump diameters, wood hardness, grinder speed, crew and drive time to a price, per-stump prices and a per-inch quote check).
