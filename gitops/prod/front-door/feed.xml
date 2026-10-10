@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 986 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 988 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -30,6 +30,14 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free bid leveling worksheet: paste subcontractor bids, price the excluded and unaddressed scope at your estimate, and see whether the low bid is still lowest. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Fixed-Bid Overrun Forecaster — Will This Job Finish Inside the Price?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fixed-bid-overrun-forecaster/"/>
+    <id>tag:marisstella.dev,2026:tool/fixed-bid-overrun-forecaster</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free fixed-price project forecaster: enter price, cost budget, percent complete and cost to date to see projected final cost, margin, CPI and SPI, and when the job stops paying. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Mobile Vet House-Call Fee Calculator — Cost, Zone Surcharge and Daily Profit</title>
@@ -70,6 +78,14 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator for real estate photographers: what each listing package really earns per hour after drive, shoot, editing and admin time, the fee that hits your hourly target, add-on profit and whether to outsource editing. Runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>SOC 2 Readiness Checker — Free Gap Score and Timeline</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/soc2-readiness-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/soc2-readiness-checker</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free SOC 2 readiness checker: answer the controls auditors test, get a readiness score, the gaps ranked by value per day of effort, and a rough timeline to a Type I date and a Type II report. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Timber Sale Offer Checker — Is the Logger&#39;s Offer Fair?</title>
@@ -150,21 +166,5 @@
     <updated>2026-10-09T00:00:00Z</updated>
     <category term="Logistics, freight &amp; cloud cost"/>
     <summary type="text">Free car hauler load planner: paste the vehicles on your dispatch board with pickup and drop miles, describe your two-deck trailer, and get the cars to carry, the deck for each, the lowest pay worth taking per car, and the net. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Card Bonus Planner — Sign-Up Bonus Tracker, 5/24 and Spend Scheduler</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/card-bonus-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/card-bonus-planner</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Plan credit card sign-up bonuses: track minimum-spend deadlines, see your 5/24 count and issuer velocity limits, compare net value after the annual fee, and get an application schedule that fits your monthly spending. Free, private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Chargeback Ratio Monitor — Free Dispute Rate Check from a Stripe CSV</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/chargeback-ratio-monitor/"/>
-    <id>tag:marisstella.dev,2026:tool/chargeback-ratio-monitor</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free chargeback ratio monitor: drop in your Stripe payments CSV and see your dispute rate by month, headroom to your warning lines, the trend, and what is driving disputes. Runs in your browser, the file is never uploaded.</summary>
   </entry>
 </feed>
