@@ -72,6 +72,14 @@
     <summary type="text">Free on-call load analyzer: paste a PagerDuty, Opsgenie or Grafana OnCall incident CSV and see who carries the pager, night and weekend pages, noisy and self-resolving alerts, and the hours a cleanup would give back. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Oyster Farm Growout Planner — Net Per Crop and Break-Even Price</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/oyster-farm-growout-planner/"/>
+    <id>tag:marisstella.dev,2026:tool/oyster-farm-growout-planner</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free oyster farm planner: enter seed, survival, growout months, gear, lease and prices by grade, and see net per crop, break-even price and survival, and the cash needed before the first sale. Runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>pg_stat_statements Analyzer — Find the Postgres Queries Using the Most Time</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pg-stat-statements-analyzer/"/>
     <id>tag:marisstella.dev,2026:tool/pg-stat-statements-analyzer</id>
