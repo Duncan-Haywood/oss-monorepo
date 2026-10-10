@@ -1,7 +1,7 @@
 // Federal excise tax on distilled spirits for a domestic distillery (IRC 5001, Craft Beverage Modernization Act rates).
 // Pure arithmetic over the volumes the distiller types in. A planning estimate, not a TTB return.
 export const RATES = { reduced: 2.7, standard: 13.34, top: 13.5 };
-export const TIERS = { reducedPG: 100000, standardCap: 22230000 };
+export const TIERS = { reducedPG: 100000, standardCap: 22130000 };
 export const QUARTERLY_LIMIT = 50000;
 const ML_PER_GAL = 3785.411784;
 
@@ -37,8 +37,8 @@ export function exciseTax({ proofGallons, allotment = TIERS.reducedPG, small = t
   const t3 = Math.max(proofGallons - TIERS.standardCap, 0);
   const tiers = [
     { label: `Reduced rate, first ${fmt(reducedCap)} proof gal`, proofGallons: t1, rate: RATES.reduced },
-    { label: "Middle rate, up to 22.23 million proof gal", proofGallons: t2, rate: RATES.standard },
-    { label: "Full rate, over 22.23 million proof gal", proofGallons: t3, rate: RATES.top },
+    { label: "Middle rate, up to 22.13 million proof gal", proofGallons: t2, rate: RATES.standard },
+    { label: "Full rate, over 22.13 million proof gal", proofGallons: t3, rate: RATES.top },
   ].map((t) => ({ ...t, tax: t.proofGallons * t.rate }));
   const tax = tiers.reduce((a, t) => a + t.tax, 0);
   const marginal = proofGallons < reducedCap ? RATES.reduced : proofGallons < TIERS.standardCap ? RATES.standard : RATES.top;
@@ -82,7 +82,7 @@ export function plan(input) {
   if (small) advice.push(`The reduced rates save about $${fmt(r2(saved))} compared with the full $${RATES.top} rate.`);
   if (small && headroom > 0) advice.push(`You have ${fmt(Math.round(headroom))} proof gallons left at $${RATES.reduced}. Beyond that, each proof gallon is taxed at $${RATES.standard}, which is ${(RATES.standard / RATES.reduced).toFixed(1)}x as much (+$${(RATES.standard - RATES.reduced).toFixed(2)} per proof gallon).`);
   if (small && headroom <= 0) advice.push(`You are past the reduced-rate allotment, so your marginal rate is $${base.marginal} per proof gallon.`);
-  if (!small) advice.push("Producers above 22.23 million proof gallons a year do not get the reduced rates; the full $13.50 applies.");
+  if (!small) advice.push("Producers above 22.13 million proof gallons a year do not get the reduced rates; the full $13.50 applies.");
   if (small && base.reducedCap < TIERS.reducedPG) advice.push(`Your share of the 100,000-proof-gallon allotment is ${fmt(base.reducedCap)}. Distilleries under common control divide one allotment.`);
   advice.push(filingFrequency(base.tax));
   return { ...base, proofGallons, saved, perUnits, perShot, headroom, growth, advice, small, proof };
