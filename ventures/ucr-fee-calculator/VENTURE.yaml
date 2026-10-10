@@ -1,0 +1,44 @@
+name: ucr-fee-calculator
+description: >-
+  Free browser calculator for truckers, brokers and small fleets: enter each registrant's vehicle count and get the Unified Carrier
+  Registration fee bracket, the fee, the headroom before the next bracket and cost per vehicle and per mile, with an editable fee
+  table. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. No existing venture covers UCR; nearest are form-2290-hvut-calculator (federal HVUT)
+# and ifta-quarterly-fuel-tax-calculator. Same buyer, a different yearly bill every carrier pays by December 31.
+#
+# First visitor: owner-operators, brokers and dispatchers searching "ucr fee calculator", "ucr registration cost 2026",
+# "how much is ucr for 5 trucks". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over a fee table the user can edit; nothing stored; not legal or tax advice; says what is not
+# modelled (state fees, whether registration is required, penalties) and carries the no-warranty and no-SLA clauses. The default
+# table is the 2025 schedule and is labelled as needing verification at ucr.gov; fees change by year.
+#
+# Path to revenue (payment rails stay off): lead magnet into the trucking cluster plus donations.
+
+hypotheses:
+  - claim: >-
+      Small carriers and brokers will type their fleet into a no-signup calculator to see the UCR fee and where the next bracket starts,
+      because ucr.gov shows a table and not the cost of growing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ucr-fee-calculator/
+  analytics: null
