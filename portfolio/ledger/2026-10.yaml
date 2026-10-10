@@ -3410,11 +3410,18 @@ entries:
         Hand-computed cases pinned by tests. First visitor: shop owners and merch sellers searching screen printing pricing
         calculator, and r/screenprinting pricing threads; volume unmeasured.
     mrr_end: 0
+  - venture: sports-official-game-fee-calculator
   - venture: winery-excise-tax-calculator
     agent_spend_usd: 0
     human_hours: 0
     outcomes:
       - >-
+        Graduated and built sports-official-game-fee-calculator: a browser-local pay calculator for referees, umpires and game
+        officials that turns fee, assignor cut, round-trip miles, hours on site and games per trip into pay per hour after the
+        drive, a distance ladder, the value of a second game on the same trip, season take-home after self-employment tax (IRS
+        mileage rate for the deduction, real cost per mile for cash), games needed for a take-home goal and the lowest fee worth
+        driving for. Hand-computed cases pinned by tests. First visitor: officials searching referee pay calculator and is
+        refereeing worth it, and r/Referees fee-and-drive threads; volume unmeasured.
         Graduated and built winery-excise-tax-calculator: a browser-local calculator for wineries and cideries turning cases,
         bottles and bulk gallons by category (still, fortified, sparkling, carbonated, hard cider) into federal excise tax at the
         IRC 5041(b) rates, less the CBMA credit tiers ($1.00 / $0.90 / $0.535 per wine gallon over 30,000 / 130,000 / 750,000,
