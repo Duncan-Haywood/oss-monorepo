@@ -20,7 +20,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/aws-iam-policy-risk-check/"/>
     <id>tag:marisstella.dev,2026:tool/aws-iam-policy-risk-check</id>
     <updated>2026-10-10T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free AWS IAM policy checker: paste a policy, trust policy or bucket policy and see admin wildcards, privilege-escalation actions, NotAction grants and public principals with fixes to review. Runs in your browser, no AWS access needed.</summary>
   </entry>
   <entry>

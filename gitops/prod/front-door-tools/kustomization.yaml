@@ -37,41 +37,41 @@
 #   portfolio-front-tools-1: 92 files, 555403 bytes
 #   portfolio-front-tools-2: 144 files, 553175 bytes
 #   portfolio-front-tools-3: 128 files, 549658 bytes
-#   portfolio-front-tools-4: 136 files, 549267 bytes
-#   portfolio-front-tools-5: 132 files, 555058 bytes
-#   portfolio-front-tools-6: 123 files, 556719 bytes
-#   portfolio-front-tools-7: 121 files, 557011 bytes
-#   portfolio-front-tools-8: 134 files, 556156 bytes
-#   portfolio-front-tools-9: 137 files, 550443 bytes
-#   portfolio-front-tools-10: 133 files, 556272 bytes
+#   portfolio-front-tools-4: 136 files, 549257 bytes
+#   portfolio-front-tools-5: 132 files, 555027 bytes
+#   portfolio-front-tools-6: 123 files, 556715 bytes
+#   portfolio-front-tools-7: 120 files, 553421 bytes
+#   portfolio-front-tools-8: 134 files, 555500 bytes
+#   portfolio-front-tools-9: 138 files, 554659 bytes
+#   portfolio-front-tools-10: 133 files, 556288 bytes
 #   portfolio-front-tools-11: 128 files, 554347 bytes
-#   portfolio-front-tools-12: 127 files, 549738 bytes
-#   portfolio-front-tools-13: 126 files, 556727 bytes
-#   portfolio-front-tools-14: 135 files, 555374 bytes
-#   portfolio-front-tools-15: 123 files, 546779 bytes
-#   portfolio-front-tools-16: 121 files, 555691 bytes
-#   portfolio-front-tools-17: 121 files, 551358 bytes
-#   portfolio-front-tools-18: 121 files, 550006 bytes
-#   portfolio-front-tools-19: 125 files, 553345 bytes
-#   portfolio-front-tools-20: 113 files, 555083 bytes
-#   portfolio-front-tools-21: 115 files, 556786 bytes
-#   portfolio-front-tools-22: 135 files, 556814 bytes
-#   portfolio-front-tools-23: 129 files, 555006 bytes
-#   portfolio-front-tools-24: 133 files, 553842 bytes
+#   portfolio-front-tools-12: 127 files, 549898 bytes
+#   portfolio-front-tools-13: 126 files, 556786 bytes
+#   portfolio-front-tools-14: 135 files, 555355 bytes
+#   portfolio-front-tools-15: 123 files, 546748 bytes
+#   portfolio-front-tools-16: 121 files, 555663 bytes
+#   portfolio-front-tools-17: 121 files, 551379 bytes
+#   portfolio-front-tools-18: 121 files, 549878 bytes
+#   portfolio-front-tools-19: 125 files, 553347 bytes
+#   portfolio-front-tools-20: 113 files, 555251 bytes
+#   portfolio-front-tools-21: 115 files, 556819 bytes
+#   portfolio-front-tools-22: 135 files, 556699 bytes
+#   portfolio-front-tools-23: 129 files, 554955 bytes
+#   portfolio-front-tools-24: 133 files, 553905 bytes
 #   portfolio-front-tools-25: 121 files, 553381 bytes
-#   portfolio-front-tools-26: 125 files, 556873 bytes
-#   portfolio-front-tools-27: 133 files, 556837 bytes
-#   portfolio-front-tools-28: 118 files, 554056 bytes
-#   portfolio-front-tools-29: 136 files, 554761 bytes
-#   portfolio-front-tools-30: 114 files, 554767 bytes
+#   portfolio-front-tools-26: 125 files, 556889 bytes
+#   portfolio-front-tools-27: 133 files, 556702 bytes
+#   portfolio-front-tools-28: 118 files, 553997 bytes
+#   portfolio-front-tools-29: 136 files, 554764 bytes
+#   portfolio-front-tools-30: 114 files, 554830 bytes
 #   portfolio-front-tools-31: 93 files, 540992 bytes
-#   portfolio-front-tools-32: 129 files, 551988 bytes
-#   portfolio-front-tools-33: 114 files, 553436 bytes
-#   portfolio-front-tools-34: 130 files, 556048 bytes
-#   portfolio-front-tools-35: 121 files, 553505 bytes
-#   portfolio-front-tools-36: 131 files, 552070 bytes
-#   portfolio-front-tools-37: 119 files, 552389 bytes
-#   portfolio-front-tools-38: 85 files, 459150 bytes
+#   portfolio-front-tools-32: 129 files, 552133 bytes
+#   portfolio-front-tools-33: 114 files, 553472 bytes
+#   portfolio-front-tools-34: 130 files, 555989 bytes
+#   portfolio-front-tools-35: 121 files, 553558 bytes
+#   portfolio-front-tools-36: 131 files, 552107 bytes
+#   portfolio-front-tools-37: 119 files, 552403 bytes
+#   portfolio-front-tools-38: 85 files, 459038 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1149,12 +1149,12 @@ configMapGenerator:
       - bookkeeping-client-fee-calculator__how-to-price-bookkeeping-services-monthly-retainer.html.gz=bookkeeping-client-fee-calculator__how-to-price-bookkeeping-services-monthly-retainer.html.gz
       - bookkeeping-client-fee-calculator__index.html.gz=bookkeeping-client-fee-calculator__index.html.gz
       - bookkeeping-client-fee-calculator__usage.mjs.gz=bookkeeping-client-fee-calculator__usage.mjs.gz
-      - bounce-house-rental-calculator__calc.mjs.gz=bounce-house-rental-calculator__calc.mjs.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - bounce-house-rental-calculator__calc.mjs.gz=bounce-house-rental-calculator__calc.mjs.gz
       - bounce-house-rental-calculator__how-much-to-charge-for-a-bounce-house-rental.html.gz=bounce-house-rental-calculator__how-much-to-charge-for-a-bounce-house-rental.html.gz
       - bounce-house-rental-calculator__index.html.gz=bounce-house-rental-calculator__index.html.gz
       - bounce-house-rental-calculator__share.mjs.gz=bounce-house-rental-calculator__share.mjs.gz
@@ -1288,12 +1288,12 @@ configMapGenerator:
       - card-grading-submission-picker__index.html.gz=card-grading-submission-picker__index.html.gz
       - card-grading-submission-picker__is-it-worth-grading-a-card.html.gz=card-grading-submission-picker__is-it-worth-grading-a-card.html.gz
       - card-grading-submission-picker__usage.mjs.gz=card-grading-submission-picker__usage.mjs.gz
-      - card-processing-fee-audit__calc.mjs.gz=card-processing-fee-audit__calc.mjs.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - card-processing-fee-audit__calc.mjs.gz=card-processing-fee-audit__calc.mjs.gz
       - card-processing-fee-audit__index.html.gz=card-processing-fee-audit__index.html.gz
       - card-processing-fee-audit__usage.mjs.gz=card-processing-fee-audit__usage.mjs.gz
       - card-processing-fee-audit__vs-comparing-effective-rates.html.gz=card-processing-fee-audit__vs-comparing-effective-rates.html.gz
