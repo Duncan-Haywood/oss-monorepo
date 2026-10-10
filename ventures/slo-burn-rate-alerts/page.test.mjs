@@ -44,3 +44,7 @@ test("the page's default inputs produce a clean, valid rule file (dogfooding)", 
 test("the 90% example the page loads really is flagged unreachable", () => {
   assert.ok(lint(90, 30).some((f) => f.rule === "unreachable-threshold"));
 });
+
+test('links to the on-call load analyzer', async () => {
+  assert.match(await readFile(new URL('./index.html', import.meta.url), 'utf8'), /href="\.\.\/oncall-load-analyzer\/"/);
+});

@@ -72,3 +72,7 @@ test('index links one hop to sibling checks that exist', () => {
     assert.ok(readdirSync(new URL(`../${s}/`, import.meta.url)).includes('index.html'));
   }
 });
+
+test('links to the on-call load analyzer', async () => {
+  assert.match(await readFile(new URL('./index.html', import.meta.url), 'utf8'), /href="\.\.\/oncall-load-analyzer\/"/);
+});
