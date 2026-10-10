@@ -3309,3 +3309,14 @@ entries:
         calculator" / "dispute rate" searchers and r/stripe, r/ecommerce threads; volume unmeasured. Browser
         checks pass (7 ran, highlight skipped). Registered launch date, opt-out count, mirror count.
     mrr_end: 0
+  - venture: wholesale-vs-retail-pricing-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built wholesale-vs-retail-pricing-calculator: a browser-local tool for makers comparing direct, wholesale and
+        consignment. Gives profit per unit and per order after fees, shipping, handling time and net-terms cost of money, the
+        wholesale price that reaches a target margin, break-even consignment sell-through, how many direct sales one wholesale order
+        equals, and a wholesale-share sensitivity table. Hand-computed defaults pinned by tests. First visitor: r/Etsy and
+        craft-business threads on wholesale pricing; volume unmeasured.
+    mrr_end: 0
