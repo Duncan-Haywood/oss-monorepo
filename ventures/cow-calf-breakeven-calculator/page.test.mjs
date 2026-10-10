@@ -57,3 +57,7 @@ test("the guide's worked numbers match the engine", async () => {
   const idx = await read("index.html");
   assert.ok(idx.includes('$("#hayprice").value = 220; $("#calfprice").value = 200; $("#weanpct").value = 82;'));
 });
+
+test("links to the stocker margin calculator, the buy-and-sell side of cattle", async () => {
+  assert.match(await read("index.html"), /href="\.\.\/stocker-cattle-margin-calculator\/"/);
+});
