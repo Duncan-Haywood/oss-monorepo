@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1005 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1006 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -62,6 +62,14 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free federal spirits excise tax calculator for craft distillers: enter bottles and their proof, see proof gallons, the CBMA $2.70 and $13.34 tax, the cost per bottle and pour, and what growing past 100,000 proof gallons does. Runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>EU Pay Gap Report Calculator — Pay Transparency Directive Indicators</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-pay-gap-report-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/eu-pay-gap-report-calculator</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator for the EU Pay Transparency Directive: paste your payroll table and get the mean and median gender pay gap, variable pay gap, pay quartiles and the gap by job category with the 5% joint assessment flag. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>Fixed-Bid Overrun Forecaster — Will This Job Finish Inside the Price?</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free Postgres index auditor: run one read-only query, paste the result, and see unused, duplicate, redundant and invalid indexes, the disk they waste and DROP INDEX statements to review. Runs in your browser, never touches your database.</summary>
-  </entry>
-  <entry>
-    <title>Real Estate Photographer Shoot Profit Calculator — Hourly Earnings by Package</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/real-estate-photographer-shoot-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/real-estate-photographer-shoot-profit-calculator</id>
-    <updated>2026-10-10T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free calculator for real estate photographers: what each listing package really earns per hour after drive, shoot, editing and admin time, the fee that hits your hourly target, add-on profit and whether to outsource editing. Runs in your browser.</summary>
   </entry>
 </feed>
