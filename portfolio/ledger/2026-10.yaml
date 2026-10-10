@@ -3387,3 +3387,15 @@ entries:
         hint. Hand-computed tier cases pinned by tests. First visitor: brewers and bookkeepers searching brewery excise tax / CBMA
         calculator, and brewery-owner threads on r/craftbeer and Brewers Association forums; volume unmeasured.
     mrr_end: 0
+  - venture: distillery-excise-tax-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built distillery-excise-tax-calculator: a browser-local calculator for craft distillers turning bottles by size
+        and ABV into proof gallons and federal distilled spirits excise tax at the CBMA rates ($2.70 to 100,000 proof gal, $13.34 to
+        22.23M, $13.50 above, shared controlled-group allotment), the tax inside each bottle size, and a growth table showing the rate
+        cliff. Hand-computed tier cases pinned by tests. duplicate_check nearest 0.29 (the beer sibling). First visitor: distillers and
+        bookkeepers searching distillery excise tax / federal excise tax per proof gallon / CBMA spirits rate, and craft-distiller
+        threads on r/distilling and American Craft Spirits Association forums; volume unmeasured.
+    mrr_end: 0
