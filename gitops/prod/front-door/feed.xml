@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 994 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 995 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -152,19 +152,19 @@
     <summary type="text">Free calculator for veterinary clinics: itemised dental estimate and clinic profit for each grade of dental disease, profit per anesthesia hour, the price that hits your margin and what a flat dental quote loses. Runs in your browser.</summary>
   </entry>
   <entry>
+    <title>Sell Grapes or Make Wine Calculator — Vineyard Profit Per Acre</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/vineyard-grape-vs-wine-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/vineyard-grape-vs-wine-calculator</id>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free vineyard calculator: compare selling grapes by the ton with making and selling your own wine. Net profit, cost per bottle, and the direct-sales share where bottling wins. Runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Wholesale vs Retail Pricing Calculator for Makers — Direct, Wholesale, Consignment</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/wholesale-vs-retail-pricing-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/wholesale-vs-retail-pricing-calculator</id>
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free calculator for makers and small brands: what you keep per unit and per order selling direct, wholesale or on consignment, after fees, shipping, your time and payment terms. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Adjunct Pay Calculator: What a Course Really Pays Per Hour — Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/adjunct-course-offer-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/adjunct-course-offer-calculator</id>
-    <updated>2026-10-09T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free adjunct pay calculator: enter the per-course pay, prep, grading, unpaid office hours, commute and cancellation risk to see what a course really pays per hour, compare up to three offers and find the largest class worth accepting. Nothing uploaded.</summary>
   </entry>
 </feed>
