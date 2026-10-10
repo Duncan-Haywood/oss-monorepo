@@ -1495,7 +1495,7 @@ const RELATIVE_SELF = relative(
 // +1: `app-review-insights` graduated.
 // +1: `postgres-index-auditor` graduated.
 // +1: `pg-stat-statements-analyzer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 958;
+const SWITCHES_IN_THE_CATALOGUE = 960;
 // +1: `retreat-profit-pricing-calculator` graduated.
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
