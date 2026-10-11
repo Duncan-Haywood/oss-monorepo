@@ -533,6 +533,8 @@ export const REVIEWED_NOT_CARRIED = {
     'the labour rate carries burden with it and there is no overhead percentage',
   'drone-mapping-job-calculator':
     'the field and processing rates are billed rates, not wages',
+  'home-inspection-business-profit-calculator':
+    'labour is the owner\'s own dollars per hour applied to each job\'s on-site, report and drive hours, or an associate\'s flat pay per completed inspection, and the insurance, software and equipment are weekly fixed costs, not a percentage of direct cost; the margin is a share of the fee -- the tool costs an inspection business from its own hours, mileage and fixed costs rather than being quoted a shop rate',
   'home-inspection-fee-calculator':
     'the hourly rate is a single billed rate rather than a wage plus burden, and overhead is a flat dollar allowance per job rather than a percentage of direct cost',
   'staffing-markup-calculator':

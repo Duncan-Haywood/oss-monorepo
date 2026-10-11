@@ -1,0 +1,44 @@
+name: home-inspection-business-profit-calculator
+description: >-
+  Free browser calculator for independent home inspectors: enter inspections per week by type (standard, sewer scope, radon, WDO or mold add-ons, re-inspection), fees by home size,
+  on-site, report and drive hours, mileage, fall-through, E&O, software and equipment, and see profit per inspection and per hour all-in, the fee each type needs for a target margin,
+  break-even inspections per month, what each add-on earns per hour, and solo versus hiring an associate inspector paid per inspection. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. `ls ventures | grep -i inspect` shows home-inspection-fee-calculator (prices one job from size, stories, foundation and age) and
+# home-inspection-report-builder (writes the report); neither models the business: profit per hour after drive and report time, deals that fall through, fixed cost, or the
+# solo versus associate decision. Not in screened-out.md. This one is the business view that sits beside the per-job fee tool rather than duplicating it.
+#
+# First visitor: independent home inspectors searching "home inspector profit per inspection", "how many inspections to break even" and "should I hire an associate inspector".
+# Timing: year-round, busiest in spring and summer buying seasons. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not an estimate of record; says what is not modelled; carries the no-warranty and
+# no-SLA clauses; does not advise on associate licensing or worker classification.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Independent home inspectors will type a typical week's inspections, hours and fixed cost into a no-signup calculator to see profit per hour and decide on add-on pricing and
+      hiring an associate, because most price by square footage alone and never cost the drive, the report or the deals that fall through.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/home-inspection-business-profit-calculator/
+  analytics: null
