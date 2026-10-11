@@ -777,6 +777,9 @@ const CATEGORY_RULES = [
       // `vegetable-garden-planting-calendar` joined 2026-10-11 on its first commit: a home or market gardener's dated sow/transplant/harvest plan from two frost dates,
       // the calendar step beside `fertilizer-blend-optimizer` and `market-garden-bed-planner` on the same grower category.
       'vegetable-garden-planting-calendar',
+      // `secret-santa-draw` joined 2026-10-11 on its first commit: a no-email gift-exchange draw for families and offices; the catch-all was at its bound,
+      // so it files beside the other seasonal consumer planner on this list rather than raising it.
+      'secret-santa-draw',
       // `wedding-day-timeline-builder` joined 2026-10-11 on its first commit: couples, planners and photographers building the day-of schedule with sunset worked out,
       // the scheduling step beside `wedding-photographer-profit-calculator` and `bridal-hair-makeup-pricing-calculator` on the same wedding category.
       'wedding-day-timeline-builder',
@@ -3227,6 +3230,10 @@ const CATEGORY_RULES = [
         'covered-call-wheel-calculator',
         // `rent-vs-buy-breakeven-calculator` joined 2026-10-08 on its first commit: one household deciding whether to buy, beside the home-sale and mortgage tools.
         'rent-vs-buy-breakeven-calculator',
+        // `car-lease-deal-checker` joined 2026-10-11 on its first commit: one shopper checking their own lease quote, beside the other single-household money-decision tools.
+        'car-lease-deal-checker',
+        // `home-sale-net-proceeds-calculator` joined 2026-10-11 on its first commit: one seller's net sheet and tax estimate, beside the other single-household money-decision tools.
+        'home-sale-net-proceeds-calculator',
         // `roommate-rent-splitter` joined 2026-10-11 on its first commit: roommates dividing their own rent, beside the other single-household money-decision tools.
         'roommate-rent-splitter',
         // `cd-treasury-ladder-planner` joined 2026-10-08 on its first commit: one saver laddering their own cash, beside the other single-person investing and income-timing tools.
