@@ -1,0 +1,44 @@
+name: bike-shop-repair-profit-calculator
+description: >-
+  Free browser calculator for independent bike repair shops: enter flat-fix, tune-up and overhaul prices, bench minutes, parts, mechanic pay, stands and rent,
+  and see profit per job and per bench hour, the price each job needs for a target margin, what a care-plan membership earns, break-even volume and the
+  busy season at different volumes against the bench hours available. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. duplicate_check.py scored the nearest venture (ski-snowboard-tune-shop-profit-calculator) 0.57 on shape only;
+# no venture models a bike repair shop: three services with very different bench minutes, a spring rush that fixes the bench hours, tools amortised over
+# years, and a prepaid care plan consumed later. Not in screened-out.md.
+#
+# First visitor: independent bike shop owners and mobile-mechanic startups searching "how much to charge for a bike tune-up", "bike shop profit margin"
+# and "bike shop service plan pricing". Timing: the spring rush starts in March. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not an estimate of record; says what is not modelled; carries
+# the no-warranty and no-SLA clauses. Gives no bicycle-safety or mechanical advice.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Bike shop owners will type a season's services, bench minutes and fixed costs into a no-signup calculator to set repair prices and decide on a care
+      plan, because most price by copying the shop down the road and never cost the bench hour or the stand.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/bike-shop-repair-profit-calculator/
+  analytics: null
