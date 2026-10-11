@@ -1533,7 +1533,7 @@ const RELATIVE_SELF = relative(
 // +1: `paintless-dent-repair-quote-calculator` graduated.
 // +1: `fundraising-event-net-calculator` graduated.
 // +1: `private-chef-service-price-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1015;
+const SWITCHES_IN_THE_CATALOGUE = 1016;
 // +1: `retreat-profit-pricing-calculator` graduated.
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
@@ -1555,6 +1555,7 @@ const SWITCHES_IN_THE_CATALOGUE = 1015;
 // +1: `bike-shop-repair-profit-calculator` graduated.
 // +1: `tailor-alterations-shop-profit-calculator` graduated.
 // +1: `upholstery-shop-job-profit-calculator` graduated.
+// +1: `hydroseeding-job-bid-calculator` graduated.
 
 let counter = 0;
 function fixture(source) {
