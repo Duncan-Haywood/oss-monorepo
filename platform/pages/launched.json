@@ -983,6 +983,7 @@
     "warehouse-slotting-optimizer": "2026-10-09",
     "wash-and-fold-price-calculator": "2026-09-10",
     "wash-sale-checker": "2026-10-06",
+    "water-damage-drying-estimate-calculator": "2026-10-11",
     "water-heater-bid-calculator": "2026-08-26",
     "water-softener-bid-calculator": "2026-08-26",
     "water-well-drilling-bid-calculator": "2026-10-09",
@@ -1020,7 +1021,6 @@
     "xero-contacts-csv-check": "2026-10-04",
     "xero-invoice-csv-check": "2026-10-04",
     "youtube-adsense-payout-to-journal": "2026-10-06",
-    "water-damage-drying-estimate-calculator": "2026-10-11",
     "youtube-chapters-check": "2026-10-05",
     "youtube-revenue-rpm-analyzer": "2026-09-29",
     "zoho-crm-import-csv-check": "2026-10-04"
