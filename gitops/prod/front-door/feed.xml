@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1041 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1042 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -30,6 +30,14 @@
     <updated>2026-10-11T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free bike repair shop calculator: enter job prices, bench minutes, materials, technician pay, tools and rent, and see profit per job and per bench hour, break-even volume and the plan result. Runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Braiding Studio Profit Calculator — Braiding appointment Price, Booth Rent vs Commission</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/braiding-studio-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/braiding-studio-profit-calculator</id>
+    <updated>2026-10-11T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free braiding studio calculator: enter knotless, cornrow and twist prices, chair minutes, supplies, no-show rate, rent and commission, and see profit per style and per chair hour, the price for your target margin, break-even styles per week and whether to rent the chair or employ a braider. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>Fundraising Event Net Calculator — Net Proceeds and Cost per Dollar Raised</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free 401(k) plan fee calculator for small-business owners and plan committees: all-in cost as a percent of assets and per participant, recordkeeper, advisor and fund fees, an editable size benchmark, and what the excess costs a participant over 20 years. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>App Review Insights — Free App Store and Google Play Review Analyzer</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/app-review-insights/"/>
-    <id>tag:marisstella.dev,2026:tool/app-review-insights</id>
-    <updated>2026-10-10T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free app review analyzer: drop in your Google Play or App Store review CSV and see which release dropped your rating, which complaints cost the most stars, and which unhappy reviews you have not answered. Runs in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

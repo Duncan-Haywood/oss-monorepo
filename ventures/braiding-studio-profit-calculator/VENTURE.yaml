@@ -1,0 +1,46 @@
+name: braiding-studio-profit-calculator
+description: >-
+  Free browser calculator for independent braiding studio owners: enter knotless, cornrow and twist prices, chair minutes, supplies, no-show rate, rent, equipment and retail
+  attach, and see profit per style and per chair hour, the price each service needs for a target margin, break-even styles per week, what no-shows cost, and what the same chair
+  nets braided by the owner, employing a braider on commission, or rented by the week. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. No venture models a braiding studio or braider chair (checked ventures/ by name: `ls ventures | grep -i braid` is empty).
+# Knotless braids, cornrows and twists share one chair's hours, a share of customers never show, and the owner's recurring decision is whether to braid, employ a braider
+# on commission or rent the chair out by the week. Not in screened-out.md. Sits beside nail-tech-booth-rent-calculator (the booth-rent side) rather than duplicating it:
+# braiding appointments run 2-8 hours, so one no-show empties half a day; this one prices the styles and compares the three ways to run a chair.
+#
+# First visitor: independent braiding studio owners searching "braiding studio profit per chair", "booth rent vs commission braider" and "how much to charge for a braiding appointment".
+# Timing: year-round, with peaks before back-to-school, holidays and summer. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not an estimate of record; says what is not modelled; tips are ignored;
+# carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Independent braiding studio owners will type a typical week's bookings, chair minutes and rent into a no-signup calculator to set knotless, cornrow and twist prices and to
+      decide between braiding, employing a braider on commission and renting the chair, because most set prices by copying the studio down the road and never cost the chair hour
+      or the no-shows.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/braiding-studio-profit-calculator/
+  analytics: null
