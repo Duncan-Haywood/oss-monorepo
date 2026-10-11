@@ -1,0 +1,45 @@
+name: swim-lesson-pool-rental-profit-calculator
+description: >-
+  Free browser calculator for independent swim instructors and small swim schools that rent pool or lane time by the hour: enter private, semi-private and group lesson prices, class sizes,
+  lesson minutes, pool rental rate, hours rented, instructor pay, cancellations and card fees, and see profit per lesson and per pool hour, the price each format needs for a target margin,
+  the swimmers per class needed to break even, and what rented-but-empty pool hours cost per week. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. `duplicate_check.py` top match 0.30 (driving-instructor-lesson-pricing-calculator); no venture models pool rental against lesson format.
+# The recurring decision of an independent swim instructor renting a pool by the hour: a private lesson puts the whole pool hour on one swimmer, a group spreads it, and unfilled rented hours are
+# paid for regardless. Not in screened-out.md.
+#
+# First visitor: independent swim instructors and small swim-school owners searching "how much to charge for private swim lessons", "group vs private swim lessons profit" and
+# "swim instructor pool rental cost per hour"; swim-coach and aquatics-instructor communities. Volume not measured with an external tool.
+# Timing: peaks in spring ahead of summer and again in early autumn.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not an estimate of record; says what is not modelled; tips are ignored;
+# carries the no-warranty and no-SLA clauses. It does not advise on water safety, lifeguarding or instructor certification.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Independent swim instructors who rent pool time will type a typical week's classes and the pool rate into a no-signup calculator to set lesson prices and choose between private,
+      semi-private and group formats, because most price by what other instructors charge and never cost the rented pool hour or the empty ones.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/swim-lesson-pool-rental-profit-calculator/
+  analytics: null

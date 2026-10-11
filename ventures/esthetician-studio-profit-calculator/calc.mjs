@@ -203,6 +203,6 @@ export function decodeShare(text) {
 }
 
 export function toCsv(result) {
-  const head = "volume_pct,booked_per_week,chair_hours,utilization_pct,owner_braids_after_pay,employ_esthetician,rent_chair";
+  const head = "volume_pct,booked_per_week,chair_hours,utilization_pct,owner_after_pay,employ_esthetician,rent_chair";
   return [head, ...result.table.map((r) => [r.pct, r.booked, r.hours, r.utilizationPct, r.owner, r.employ, r.rent].join(","))].join("\n");
 }
