@@ -94,3 +94,9 @@ test("the guide's worked times are the engine's times", () => {
   assert.ok(html.includes(`guests wait an extra ${extra} minutes`));
   assert.ok(html.includes("15 + 30 + 26 + 35 = 106 minutes"));
 });
+
+test("footer links to the sibling wedding tools", () => {
+  const html = page("index.html");
+  assert.match(html, /href="\.\.\/wedding-photographer-profit-calculator\/"/);
+  assert.match(html, /href="\.\.\/bridal-hair-makeup-pricing-calculator\/"/);
+});

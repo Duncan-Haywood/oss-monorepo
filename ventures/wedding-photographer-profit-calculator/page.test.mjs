@@ -114,3 +114,7 @@ test("links to its video sibling", () => {
 test("links to the real estate photographer sibling", () => {
   assert.match(page("index.html"), /href="\.\.\/real-estate-photographer-shoot-profit-calculator\/"/);
 });
+
+test("footer links to the wedding day timeline builder", () => {
+  assert.match(page("index.html"), /href="\.\.\/wedding-day-timeline-builder\/"/);
+});
