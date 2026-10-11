@@ -160,3 +160,9 @@ test("the guide carries the clauses, links both ways, and its worked table match
   assert.ok(guide.includes(rows), "worked table does not match what the solver computes");
   assert.equal(x.sortieLimit, "tank size");
 });
+
+test("footer links the grain store-or-sell calculator sibling", async () => {
+  const { readFileSync } = await import("node:fs");
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /href="\.\.\/grain-store-or-sell-calculator\/"/);
+});

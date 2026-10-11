@@ -72,3 +72,9 @@ test("the guide's worked example is the engine's output", () => {
   for (const s of [money(R.r.closingNet).replace(".00", ""), money(R.r.sellingCosts).replace(".00", ""), money(R.r.gain).replace(".00", ""), money(R.r.tax), money(R.r.afterTax), money(Math.round(R.target)).replace(".00", "")]) assert.ok(html.includes(s), s);
   assert.ok(html.includes("6.6%"));
 });
+
+test("footer links the seller net sheet sibling", async () => {
+  const { readFileSync } = await import("node:fs");
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /href="\.\.\/seller-net-sheet\/"/);
+});
