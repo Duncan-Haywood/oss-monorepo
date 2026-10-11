@@ -1532,7 +1532,8 @@ const RELATIVE_SELF = relative(
 // +1: `ppf-ceramic-coating-price-calculator` graduated.
 // +1: `paintless-dent-repair-quote-calculator` graduated.
 // +1: `fundraising-event-net-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1010;
+// +1: `private-chef-service-price-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1011;
 // +1: `retreat-profit-pricing-calculator` graduated.
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
