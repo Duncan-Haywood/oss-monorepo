@@ -1,0 +1,44 @@
+name: mobile-phlebotomy-route-profit-calculator
+description: >-
+  Free browser calculator for independent mobile phlebotomists: enter draws per week by type (routine home or office, STAT, facility or batch visit), fees, on-site and drive minutes, supplies,
+  the rate of trips that fail at the door, mileage and fixed costs, and see profit per draw and per working hour including drive time, break-even draws per week, the fee each type needs for a
+  target margin, what failed trips cost, what batching stops does to profit per hour, and solo against an agency contractor against employed. Arithmetic only; nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. duplicate_check: closest existing venture scored 0.41 (a sibling mobile-visit pricing tool: mobile-vet-house-call-fee-calculator / notary-trip-quote / medical-courier-route-margin);
+# none models a blood-draw route (`ls ventures | grep -i phleb` is empty). Not in screened-out.md. Mobile phlebotomists are paid per draw by labs, insurance-exam firms and trial sponsors, drive between every stop,
+# lose some trips at the door, and decide between working independently, contracting through an agency that keeps a take, and taking a wage. This prices the draw types and compares the three.
+#
+# First visitor source: independent mobile phlebotomists searching "mobile phlebotomist pricing per draw", "how much to charge for mobile blood draw", "mobile phlebotomy mileage and drive time",
+# plus posts in r/phlebotomy and Facebook mobile phlebotomy groups. Timing: year-round. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not an estimate of record and not medical advice; says it does not model licensure, certification rules, CLIA or any state
+# or payer rule; carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Independent mobile phlebotomists will type a typical week's draws, drive and failed trips into a no-signup calculator to set per-draw and trip fees and to weigh working solo against an agency's
+      per-draw rate or a job, because most price by what the lab or the agency down the road pays and never cost the drive, the supplies or the trips that fail at the door.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mobile-phlebotomy-route-profit-calculator/
+  analytics: null
