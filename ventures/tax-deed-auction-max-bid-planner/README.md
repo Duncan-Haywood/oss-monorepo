@@ -1,4 +1,4 @@
-# Tax Deed Auction Max Bid Calculator
+# Tax Deed Auction Max Bid Planner
 
 Free, browser-only calculator for tax deed auction buyers. Enter the resale price and
 what winning will really cost (buyer's premium, surviving liens, quiet title, occupant

@@ -35,7 +35,7 @@ test("JSON-LD blocks parse and every FAQ question is on the page", () => {
 
 test("SEO basics", () => {
   const html = page("index.html");
-  assert.match(html, /<title>Tax Deed Auction Max Bid Calculator/);
+  assert.match(html, /<title>Tax Deed Auction Max Bid Planner/);
   assert.match(html, /<meta name="description" content="[^"]{80,}/);
   assert.match(html, /<link rel="canonical" href="\.\/index\.html">/);
   assert.match(html, /<h1>/);

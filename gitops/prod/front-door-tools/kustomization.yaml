@@ -38,12 +38,12 @@
 #   portfolio-front-tools-2: 144 files, 553334 bytes
 #   portfolio-front-tools-3: 128 files, 549579 bytes
 #   portfolio-front-tools-4: 138 files, 556724 bytes
-#   portfolio-front-tools-5: 131 files, 556089 bytes
+#   portfolio-front-tools-5: 131 files, 556098 bytes
 #   portfolio-front-tools-6: 124 files, 556448 bytes
 #   portfolio-front-tools-7: 119 files, 552837 bytes
 #   portfolio-front-tools-8: 136 files, 553705 bytes
 #   portfolio-front-tools-9: 137 files, 555836 bytes
-#   portfolio-front-tools-10: 132 files, 555258 bytes
+#   portfolio-front-tools-10: 132 files, 555265 bytes
 #   portfolio-front-tools-11: 132 files, 554891 bytes
 #   portfolio-front-tools-12: 129 files, 553486 bytes
 #   portfolio-front-tools-13: 129 files, 551186 bytes
@@ -64,16 +64,16 @@
 #   portfolio-front-tools-28: 130 files, 551207 bytes
 #   portfolio-front-tools-29: 126 files, 555764 bytes
 #   portfolio-front-tools-30: 130 files, 554706 bytes
-#   portfolio-front-tools-31: 131 files, 553100 bytes
+#   portfolio-front-tools-31: 131 files, 553113 bytes
 #   portfolio-front-tools-32: 93 files, 550786 bytes
 #   portfolio-front-tools-33: 117 files, 550344 bytes
 #   portfolio-front-tools-34: 119 files, 553145 bytes
-#   portfolio-front-tools-35: 126 files, 553871 bytes
-#   portfolio-front-tools-36: 126 files, 545035 bytes
+#   portfolio-front-tools-35: 126 files, 553925 bytes
+#   portfolio-front-tools-36: 126 files, 545085 bytes
 #   portfolio-front-tools-37: 128 files, 557005 bytes
 #   portfolio-front-tools-38: 125 files, 555440 bytes
 #   portfolio-front-tools-39: 121 files, 551280 bytes
-#   portfolio-front-tools-40: 80 files, 432208 bytes
+#   portfolio-front-tools-40: 80 files, 432225 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -4855,10 +4855,10 @@ configMapGenerator:
       - tattoo-piece-profit-calculator__calc.mjs.gz=tattoo-piece-profit-calculator__calc.mjs.gz
       - tattoo-piece-profit-calculator__index.html.gz=tattoo-piece-profit-calculator__index.html.gz
       - tattoo-piece-profit-calculator__usage.mjs.gz=tattoo-piece-profit-calculator__usage.mjs.gz
-      - tax-deed-auction-max-bid-calculator__calc.mjs.gz=tax-deed-auction-max-bid-calculator__calc.mjs.gz
-      - tax-deed-auction-max-bid-calculator__how-to-set-a-max-bid-at-a-tax-deed-auction.html.gz=tax-deed-auction-max-bid-calculator__how-to-set-a-max-bid-at-a-tax-deed-auction.html.gz
-      - tax-deed-auction-max-bid-calculator__index.html.gz=tax-deed-auction-max-bid-calculator__index.html.gz
-      - tax-deed-auction-max-bid-calculator__usage.mjs.gz=tax-deed-auction-max-bid-calculator__usage.mjs.gz
+      - tax-deed-auction-max-bid-planner__calc.mjs.gz=tax-deed-auction-max-bid-planner__calc.mjs.gz
+      - tax-deed-auction-max-bid-planner__how-to-set-a-max-bid-at-a-tax-deed-auction.html.gz=tax-deed-auction-max-bid-planner__how-to-set-a-max-bid-at-a-tax-deed-auction.html.gz
+      - tax-deed-auction-max-bid-planner__index.html.gz=tax-deed-auction-max-bid-planner__index.html.gz
+      - tax-deed-auction-max-bid-planner__usage.mjs.gz=tax-deed-auction-max-bid-planner__usage.mjs.gz
       - tax-lien-certificate-yield-calculator__calc.mjs.gz=tax-lien-certificate-yield-calculator__calc.mjs.gz
       - tax-lien-certificate-yield-calculator__index.html.gz=tax-lien-certificate-yield-calculator__index.html.gz
       - tax-lien-certificate-yield-calculator__usage.mjs.gz=tax-lien-certificate-yield-calculator__usage.mjs.gz

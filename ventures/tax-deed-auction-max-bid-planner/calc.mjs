@@ -134,11 +134,11 @@ export function resultCsv(r) {
   return [head, ...r.options.map((o) => [o.label, o.amount, o.premium, o.allIn, o.carrying, o.net, o.roi, o.annual, o.clears, o.stress10, o.stress20].map(f).join(","))].join("\n");
 }
 
-export function serializeState(input) { return JSON.stringify({ app: "tax-deed-auction-max-bid-calculator", version: 1, input }, null, 2); }
+export function serializeState(input) { return JSON.stringify({ app: "tax-deed-auction-max-bid-planner", version: 1, input }, null, 2); }
 export function parseState(text) {
   let d;
   try { d = JSON.parse(text); } catch { return { error: "That file is not valid JSON." }; }
-  if (!d || d.app !== "tax-deed-auction-max-bid-calculator" || !d.input) return { error: "That file is not a saved max-bid scenario." };
+  if (!d || d.app !== "tax-deed-auction-max-bid-planner" || !d.input) return { error: "That file is not a saved max-bid scenario." };
   const errs = validateInput(d.input);
   if (errs.length) return { error: errs[0] };
   return { state: d.input };

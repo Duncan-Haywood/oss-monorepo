@@ -1,4 +1,4 @@
-name: tax-deed-auction-max-bid-calculator
+name: tax-deed-auction-max-bid-planner
 description: >-
   Free browser tool for tax deed auction buyers: enter the resale price and the costs of
   winning (buyer's premium, surviving liens, quiet title, occupant removal, repairs,
@@ -48,5 +48,5 @@ kill_criteria:
   - A user reports a profit at the maximum bid that does not equal their stated target, or a cost the tool double-counts.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/tax-deed-auction-max-bid-calculator/
+  production: https://duncan-haywood.github.io/monorepo-projects/tax-deed-auction-max-bid-planner/
   analytics: null
