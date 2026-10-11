@@ -3469,3 +3469,18 @@ entries:
         cancellation and mode cases pinned by 27 tests. First visitor: owners searching how much to charge to rent my boat / jet ski
         rental break even; volume unmeasured.
     mrr_end: 0
+  - venture: json-ld-rich-result-validator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built json-ld-rich-result-validator: a browser-local validator for pasted page HTML or JSON-LD that finds every
+        entity (including @graph) and lists missing required and recommended properties for Product, Article, LocalBusiness,
+        Organization, Recipe, Event, JobPosting, FAQPage, BreadcrumbList, SoftwareApplication and VideoObject, with format traps
+        named (price with a currency symbol, lowercase currency, non-ISO dates and durations, string author, remote job without
+        applicant location) and the 2023 FAQ rich-result restriction stated. A builder makes starter FAQ, Product, local business,
+        article and breadcrumb markup that is re-checked live, with script-tag escaping. The page's own JSON-LD is tested against
+        the validator. 30 tests; page driven in Chromium. Screened against structured-data-drift-check (complementary: that checks
+        text match, this checks required properties). First visitor: site owners searching json-ld validator / schema markup
+        checker / why is my structured data not showing; volume unmeasured.
+    mrr_end: 0

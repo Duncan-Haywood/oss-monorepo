@@ -1,0 +1,55 @@
+name: json-ld-rich-result-validator
+description: >-
+  Free browser tool for site owners, SEOs and agencies: paste a page's HTML or
+  JSON-LD and get every missing required and recommended property for Product,
+  Article, LocalBusiness, Recipe, Event, JobPosting, FAQ, Breadcrumb, Video and
+  Software markup, plus a starter-markup builder. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a new-venture-first session with an empty build-now
+# pipeline. Closest in the catalogue: structured-data-drift-check, which tests
+# that JSON-LD text appears in the visible page; it does not check required
+# properties, formats or eligibility and does not generate markup, so this is
+# the complementary half rather than a duplicate. The free incumbent is the
+# vendor's own hosted test, which fetches a live URL and cannot take a draft;
+# the differentiators are pasting unpublished markup, plain-language fixes for
+# format traps, an honest note on which rich results still exist, and a
+# generator in the same page.
+#
+# First visitor: searches "json-ld validator", "schema markup checker", "product
+# schema price invalid", "faq schema generator", "local business schema
+# generator"; Stack Overflow and r/SEO / r/TechSEO threads on "why is my
+# structured data not showing". Volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; the
+# agency audience is the route to a later paid bulk/URL-batch CLI. Liability:
+# lints supplied markup against public documentation; never promises a rich
+# result. Unverified: rules written from public docs, unit tests only.
+
+hypotheses:
+  - claim: >-
+      Site owners and SEOs with markup that Google ignores will paste it into
+      a no-signup checker that names the exact missing property, and will
+      return to build markup for each new page type.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a rule that contradicts the vendor's current documentation and it is not corrected within 14 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/json-ld-rich-result-validator/
+  analytics: null
