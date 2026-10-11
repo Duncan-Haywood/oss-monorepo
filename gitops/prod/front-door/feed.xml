@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1064 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1065 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-10-11T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Amusement Route Location Calculator — is each arcade, pool table or claw machine location worth the drive?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/amusement-route-location-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/amusement-route-location-calculator</id>
+    <updated>2026-10-11T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free calculator for coin-op route operators. Enter each location&#39;s weekly take, commission, visits and miles; it shows profit per route hour, the weekly take you need, and the highest commission you can pay and still earn your target. Private, in your browser.</summary>
+  </entry>
   <entry>
     <title>Barbershop Chair Profit Calculator — Haircut Price, Booth Rent vs Commission</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/barbershop-chair-profit-calculator/"/>
@@ -158,13 +166,5 @@
     <updated>2026-10-11T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free mobile oil change calculator: enter jobs per week by service type, prices, oil, filter and disposal cost, on-site and drive minutes, no-shows and van costs, and see profit per job and per working hour, break-even jobs per week, the price for your target margin, what batching fleet stops does, and solo versus franchise versus employed. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Mobile Phlebotomy Route Profit Calculator — Price per Draw, Batching, Solo vs Agency</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mobile-phlebotomy-route-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/mobile-phlebotomy-route-profit-calculator</id>
-    <updated>2026-10-11T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free mobile phlebotomy calculator: enter draws per week by type, fees, on-site and drive minutes, supplies, failed trips and fixed costs, and see profit per draw and per working hour, break-even draws per week, the fee for your target margin, what batching stops does, and solo versus agency contractor versus employed. Runs in your browser.</summary>
   </entry>
 </feed>
