@@ -1,0 +1,45 @@
+name: mobile-oil-change-route-profit-calculator
+description: >-
+  Free browser calculator for independent mobile oil-change operators: enter jobs per week by service type (conventional, synthetic, fleet or commercial stop), prices, quarts and oil and filter cost,
+  used-oil disposal, on-site and drive minutes, the no-show rate, mileage and van, insurance and tool costs, and see profit per job and per working hour including drive time, break-even jobs per week,
+  the price each service type needs for a target margin, what no-shows cost, what batching fleet stops does to profit per hour, and solo against a franchise fee against employed. Arithmetic only; nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. duplicate_check: closest existing venture is mobile-mechanic-visit-pricing-calculator (a general mobile repair visit price), plus sibling mobile-visit route tools
+# (mobile-phlebotomy-route-profit-calculator, mobile-vet-house-call-fee-calculator, notary-trip-quote); none models an oil-change route with quarts, filter and used-oil disposal per vehicle, fleet batching and a franchise comparison.
+# Not in screened-out.md. Mobile oil-change operators sell a low-ticket service from a van, drive between every stop, lose some stops to no-shows, buy oil and filters by the case and pay to haul used oil, and decide between
+# working independently, paying a franchise fee on revenue, and taking a wage. This prices the service types and compares the three. Every default number is an editable placeholder, not a market rate.
+#
+# First visitor source: independent mobile oil-change operators and people thinking of starting one searching "mobile oil change business profit", "how much to charge for mobile oil change",
+# "mobile oil change van startup cost", plus posts in r/Entrepreneur and r/smallbusiness and mobile oil change Facebook groups. Timing: year-round. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not an estimate of record and not legal, tax or environmental advice; says it does not model used-oil disposal regulations,
+# EPA or state rules; carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Independent mobile oil-change operators will type a typical week's jobs, drive and no-shows into a no-signup calculator to set prices per service type and to weigh batching fleet stops
+      or joining a franchise against working solo, because most price by what the shop down the road charges and never cost the drive, the oil, the disposal or the stops that no-show.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mobile-oil-change-route-profit-calculator/
+  analytics: null

@@ -3034,7 +3034,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `form-2290-hvut-calculator` graduated (browser Form 2290 heavy vehicle use tax per truck: weight category, proration, suspension and due date).
     # +1: `eu-pay-gap-report-calculator` graduated (browser EU Pay Transparency Directive indicators: mean and median pay gap, variable pay, quartiles and 5% category flags from a pasted payroll table).
     # +1: `laser-cutting-engraving-job-price-calculator` graduated (browser laser cut and engrave job price: nesting, laser time, labour and setup to a price per piece, quantity breaks and a target-price check).
-    total = 1049  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1049 tools" wording.
+    total = 1050  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1050 tools" wording.
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
     # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
