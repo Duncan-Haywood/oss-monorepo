@@ -136,6 +136,14 @@
     <summary type="text">Free JSON-LD and schema markup validator. Paste a page&#39;s HTML or JSON-LD and see every missing required and recommended property for Product, Article, LocalBusiness, Recipe, Event, JobPosting and more. Builds starter markup too. Nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Lash Studio Profit Calculator — price lash sets and fills to hit your hourly</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/lash-studio-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/lash-studio-profit-calculator</id>
+    <updated>2026-10-11T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free lash studio pricing calculator. Enter your price list, supplies, card fees, no-shows and overhead; it shows profit per chair hour for every set and fill, the price that hits your target hourly, and what a client is worth over a lifetime of fills. Private, in your browser.</summary>
+  </entry>
+  <entry>
     <title>Mobile Oil Change Route Profit Calculator — Price per Job, Batching, Solo vs Franchise</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mobile-oil-change-route-profit-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/mobile-oil-change-route-profit-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-11T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free music teacher calculator: real hourly rate after prep, travel and cancellations, and private vs school vs rented room.</summary>
-  </entry>
-  <entry>
-    <title>Paintless Dent Repair Quote Calculator — Hail Price Per Dent and Per Tech Day</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/paintless-dent-repair-quote-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/paintless-dent-repair-quote-calculator</id>
-    <updated>2026-10-11T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free paintless dent repair and hail quote calculator: enter dents by size, aluminum and body-line share, tech time and comeback rate, and check your per-dent matrix against cost. Runs in your browser.</summary>
   </entry>
 </feed>

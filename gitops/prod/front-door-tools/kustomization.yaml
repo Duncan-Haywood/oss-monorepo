@@ -37,43 +37,43 @@
 #   portfolio-front-tools-1: 92 files, 555473 bytes
 #   portfolio-front-tools-2: 144 files, 553334 bytes
 #   portfolio-front-tools-3: 128 files, 549579 bytes
-#   portfolio-front-tools-4: 138 files, 556724 bytes
-#   portfolio-front-tools-5: 131 files, 556087 bytes
-#   portfolio-front-tools-6: 124 files, 556448 bytes
-#   portfolio-front-tools-7: 119 files, 552837 bytes
-#   portfolio-front-tools-8: 136 files, 553705 bytes
-#   portfolio-front-tools-9: 137 files, 555836 bytes
-#   portfolio-front-tools-10: 132 files, 555258 bytes
-#   portfolio-front-tools-11: 132 files, 554891 bytes
-#   portfolio-front-tools-12: 129 files, 553486 bytes
-#   portfolio-front-tools-13: 129 files, 551186 bytes
-#   portfolio-front-tools-14: 127 files, 556638 bytes
-#   portfolio-front-tools-15: 123 files, 556034 bytes
-#   portfolio-front-tools-16: 133 files, 554505 bytes
-#   portfolio-front-tools-17: 120 files, 549838 bytes
+#   portfolio-front-tools-4: 138 files, 556737 bytes
+#   portfolio-front-tools-5: 131 files, 556129 bytes
+#   portfolio-front-tools-6: 124 files, 556429 bytes
+#   portfolio-front-tools-7: 119 files, 552877 bytes
+#   portfolio-front-tools-8: 136 files, 553730 bytes
+#   portfolio-front-tools-9: 137 files, 555825 bytes
+#   portfolio-front-tools-10: 132 files, 555256 bytes
+#   portfolio-front-tools-11: 132 files, 554861 bytes
+#   portfolio-front-tools-12: 129 files, 553505 bytes
+#   portfolio-front-tools-13: 129 files, 551230 bytes
+#   portfolio-front-tools-14: 127 files, 556612 bytes
+#   portfolio-front-tools-15: 123 files, 555975 bytes
+#   portfolio-front-tools-16: 133 files, 554433 bytes
+#   portfolio-front-tools-17: 120 files, 549733 bytes
 #   portfolio-front-tools-18: 125 files, 556805 bytes
 #   portfolio-front-tools-19: 124 files, 556592 bytes
 #   portfolio-front-tools-20: 126 files, 555995 bytes
-#   portfolio-front-tools-21: 114 files, 547286 bytes
-#   portfolio-front-tools-22: 119 files, 550477 bytes
-#   portfolio-front-tools-23: 129 files, 550282 bytes
-#   portfolio-front-tools-24: 128 files, 556018 bytes
+#   portfolio-front-tools-21: 114 files, 547293 bytes
+#   portfolio-front-tools-22: 119 files, 550529 bytes
+#   portfolio-front-tools-23: 129 files, 550259 bytes
+#   portfolio-front-tools-24: 128 files, 555987 bytes
 #   portfolio-front-tools-25: 139 files, 555858 bytes
-#   portfolio-front-tools-26: 119 files, 556962 bytes
-#   portfolio-front-tools-27: 127 files, 554324 bytes
-#   portfolio-front-tools-28: 131 files, 550658 bytes
+#   portfolio-front-tools-26: 118 files, 556198 bytes
+#   portfolio-front-tools-27: 128 files, 555203 bytes
+#   portfolio-front-tools-28: 131 files, 550512 bytes
 #   portfolio-front-tools-29: 126 files, 553612 bytes
-#   portfolio-front-tools-30: 128 files, 552608 bytes
-#   portfolio-front-tools-31: 131 files, 554667 bytes
-#   portfolio-front-tools-32: 95 files, 553864 bytes
-#   portfolio-front-tools-33: 117 files, 552885 bytes
-#   portfolio-front-tools-34: 119 files, 554742 bytes
-#   portfolio-front-tools-35: 127 files, 556587 bytes
-#   portfolio-front-tools-36: 128 files, 555892 bytes
-#   portfolio-front-tools-37: 128 files, 556234 bytes
+#   portfolio-front-tools-30: 128 files, 552620 bytes
+#   portfolio-front-tools-31: 131 files, 554664 bytes
+#   portfolio-front-tools-32: 95 files, 553909 bytes
+#   portfolio-front-tools-33: 117 files, 553021 bytes
+#   portfolio-front-tools-34: 119 files, 554698 bytes
+#   portfolio-front-tools-35: 127 files, 556890 bytes
+#   portfolio-front-tools-36: 128 files, 556013 bytes
+#   portfolio-front-tools-37: 128 files, 556278 bytes
 #   portfolio-front-tools-38: 123 files, 549615 bytes
-#   portfolio-front-tools-39: 120 files, 545890 bytes
-#   portfolio-front-tools-40: 77 files, 417799 bytes
+#   portfolio-front-tools-39: 120 files, 546009 bytes
+#   portfolio-front-tools-40: 77 files, 417742 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3667,12 +3667,12 @@ configMapGenerator:
       - pg-stat-statements-analyzer__usage.mjs.gz=pg-stat-statements-analyzer__usage.mjs.gz
       - phone-repair-shop-profit-calculator__calc.mjs.gz=phone-repair-shop-profit-calculator__calc.mjs.gz
       - phone-repair-shop-profit-calculator__index.html.gz=phone-repair-shop-profit-calculator__index.html.gz
-      - phone-repair-shop-profit-calculator__usage.mjs.gz=phone-repair-shop-profit-calculator__usage.mjs.gz
   - name: portfolio-front-tools-27
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - phone-repair-shop-profit-calculator__usage.mjs.gz=phone-repair-shop-profit-calculator__usage.mjs.gz
       - photo-addon-pricing-calculator__calc.mjs.gz=photo-addon-pricing-calculator__calc.mjs.gz
       - photo-addon-pricing-calculator__index.html.gz=photo-addon-pricing-calculator__index.html.gz
       - photo-addon-pricing-calculator__is-a-second-shooter-worth-it.html.gz=photo-addon-pricing-calculator__is-a-second-shooter-worth-it.html.gz
