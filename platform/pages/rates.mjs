@@ -437,6 +437,8 @@ export const REVIEWED_NOT_CARRIED = {
     'labour is dollars per upholsterer hour applied to each job\'s bench minutes with a payroll-extras percentage on top, and the tools and rent are fixed costs, not a percentage of direct cost; the margin is a share of the price -- the tool costs an upholstery shop from its own bench minutes, materials and fixed costs rather than being quoted a shop rate',
   'tailor-alterations-shop-profit-calculator':
     'labour is dollars per tailor hour applied to each job\'s bench minutes with a payroll-extras percentage on top, and the machines and rent are fixed costs, not a percentage of direct cost; the margin is a share of the price -- the tool costs an alterations shop from its own bench minutes and fixed costs rather than being quoted a shop rate',
+  'phone-repair-shop-profit-calculator':
+    'labour is dollars per technician hour applied to each job\'s bench minutes with a payroll-extras percentage on top, and a warranty redo percentage adds the labour and parts of jobs redone free; equipment and rent are fixed costs, not a percentage of direct cost; the margin is a share of the price -- the tool costs a phone repair shop from its own bench minutes and fixed costs rather than being quoted a shop rate',
   'shoe-repair-shop-profit-calculator':
     'labour is dollars per tailor hour applied to each job\'s bench minutes with a payroll-extras percentage on top, and the machines and rent are fixed costs, not a percentage of direct cost; the margin is a share of the price -- the tool costs an shoe repair shop from its own bench minutes and fixed costs rather than being quoted a shop rate',
   'ski-snowboard-tune-shop-profit-calculator':
