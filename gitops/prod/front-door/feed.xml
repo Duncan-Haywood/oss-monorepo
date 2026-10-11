@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1050 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1051 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -96,6 +96,14 @@
     <summary type="text">Free hydroseeding bid calculator: enter seed, mulch, water, tank size, crew, travel and equipment and see the cost and profit of a job, the price per 1,000 sq ft for your target margin, and the season result. Runs in your browser.</summary>
   </entry>
   <entry>
+    <title>Mobile Oil Change Route Profit Calculator — Price per Job, Batching, Solo vs Franchise</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mobile-oil-change-route-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/mobile-oil-change-route-profit-calculator</id>
+    <updated>2026-10-11T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free mobile oil change calculator: enter jobs per week by service type, prices, oil, filter and disposal cost, on-site and drive minutes, no-shows and van costs, and see profit per job and per working hour, break-even jobs per week, the price for your target margin, what batching fleet stops does, and solo versus franchise versus employed. Runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Mobile Phlebotomy Route Profit Calculator — Price per Draw, Batching, Solo vs Agency</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mobile-phlebotomy-route-profit-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/mobile-phlebotomy-route-profit-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-11T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free shoe repair shop calculator: enter heel, repair and rework prices, bench minutes, supplies, cobbler pay and rent, and see profit per job and per bench hour, break-even volume and the season result. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Ski and Snowboard Tune Shop Profit Calculator — Tune Price, Break-Even, Bench Hours</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ski-snowboard-tune-shop-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/ski-snowboard-tune-shop-profit-calculator</id>
-    <updated>2026-10-11T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free ski and snowboard tune shop calculator: enter tune prices, bench minutes, materials, technician pay, grinder and rent, and see profit per tune and per bench hour, break-even volume and the season result. Runs in your browser.</summary>
   </entry>
 </feed>
