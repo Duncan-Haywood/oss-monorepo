@@ -773,6 +773,9 @@ const CATEGORY_RULES = [
       // `fertilizer-blend-optimizer` joined 2026-10-07 on its first commit: row-crop, hay and garden growers on the same farm
       // category, the input-cost step beside `beef-cattle-ration-optimizer`.
       'fertilizer-blend-optimizer',
+      // `vegetable-garden-planting-calendar` joined 2026-10-11 on its first commit: a home or market gardener's dated sow/transplant/harvest plan from two frost dates,
+      // the calendar step beside `fertilizer-blend-optimizer` and `market-garden-bed-planner` on the same grower category.
+      'vegetable-garden-planting-calendar',
       // `farm-crop-mix-optimizer` joined 2026-10-09 on its first commit: growers choosing acres per crop under land, labor and capital limits,
       // the planning step before `fertilizer-blend-optimizer` on the same row-crop farm.
       'farm-crop-mix-optimizer',
