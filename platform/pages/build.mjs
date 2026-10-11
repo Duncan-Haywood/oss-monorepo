@@ -776,6 +776,9 @@ const CATEGORY_RULES = [
       // `vegetable-garden-planting-calendar` joined 2026-10-11 on its first commit: a home or market gardener's dated sow/transplant/harvest plan from two frost dates,
       // the calendar step beside `fertilizer-blend-optimizer` and `market-garden-bed-planner` on the same grower category.
       'vegetable-garden-planting-calendar',
+      // `wedding-day-timeline-builder` joined 2026-10-11 on its first commit: couples, planners and photographers building the day-of schedule with sunset worked out,
+      // the scheduling step beside `wedding-photographer-profit-calculator` and `bridal-hair-makeup-pricing-calculator` on the same wedding category.
+      'wedding-day-timeline-builder',
       // `farm-crop-mix-optimizer` joined 2026-10-09 on its first commit: growers choosing acres per crop under land, labor and capital limits,
       // the planning step before `fertilizer-blend-optimizer` on the same row-crop farm.
       'farm-crop-mix-optimizer',
