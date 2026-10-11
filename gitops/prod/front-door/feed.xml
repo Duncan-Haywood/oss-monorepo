@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1062 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1063 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -144,6 +144,14 @@
     <summary type="text">Free JSON-LD and schema markup validator. Paste a page&#39;s HTML or JSON-LD and see every missing required and recommended property for Product, Article, LocalBusiness, Recipe, Event, JobPosting and more. Builds starter markup too. Nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Lash Studio Profit Calculator — price lash sets and fills to hit your hourly</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/lash-studio-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/lash-studio-profit-calculator</id>
+    <updated>2026-10-11T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free lash studio pricing calculator. Enter your price list, supplies, card fees, no-shows and overhead; it shows profit per chair hour for every set and fill, the price that hits your target hourly, and what a client is worth over a lifetime of fills. Private, in your browser.</summary>
+  </entry>
+  <entry>
     <title>Mobile Oil Change Route Profit Calculator — Price per Job, Batching, Solo vs Franchise</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mobile-oil-change-route-profit-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/mobile-oil-change-route-profit-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-11T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free mobile phlebotomy calculator: enter draws per week by type, fees, on-site and drive minutes, supplies, failed trips and fixed costs, and see profit per draw and per working hour, break-even draws per week, the fee for your target margin, what batching stops does, and solo versus agency contractor versus employed. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Music Teacher Studio Profit Calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/music-teacher-studio-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/music-teacher-studio-profit-calculator</id>
-    <updated>2026-10-11T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free music teacher calculator: real hourly rate after prep, travel and cancellations, and private vs school vs rented room.</summary>
   </entry>
 </feed>
