@@ -1259,6 +1259,9 @@ workflows:
 - workflow: job-offer-total-comp-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: json-ld-rich-result-validator-ci.yml
+  classification: none
+  publishes: []
 - workflow: junk-removal-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -1443,6 +1446,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: midterm-rental-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: mileage-deduction-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: mileage-deduction-method-calculator-ci.yml
@@ -1760,6 +1766,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: property-tax-appeal-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: proposal-maker-ci.yml
   classification: none
   publishes: []
 - workflow: proposal-module-ci.yml
@@ -2357,6 +2366,9 @@ workflows:
 - workflow: tiktok-shop-settlement-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: tile-layout-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: tile-layout-planner-ci.yml
   classification: none
   publishes: []
@@ -2601,15 +2613,6 @@ workflows:
   classification: none
   publishes: []
 - workflow: zoho-crm-import-csv-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: proposal-maker-ci.yml
-  classification: none
-  publishes: []
-- workflow: tile-layout-optimizer-ci.yml
-  classification: none
-  publishes: []
-- workflow: mileage-deduction-calculator-ci.yml
   classification: none
   publishes: []
 gitops:
