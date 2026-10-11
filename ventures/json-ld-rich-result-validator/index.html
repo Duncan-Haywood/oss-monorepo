@@ -86,7 +86,7 @@
     <label for="btype">Type</label>
     <select id="btype">
       <option value="FAQPage">FAQ page</option><option value="Product">Product</option><option value="LocalBusiness">Local business</option>
-      <option value="Article">Article / blog post</option><option value="BreadcrumbList">Breadcrumbs</option>
+      <option value="Article">Article / blog post</option><option value="Breadcrumbs">Breadcrumbs</option>
     </select>
     <div id="bfields" class="grid"></div>
     <button type="button" id="build">Build JSON-LD</button>
@@ -138,7 +138,7 @@
       Product: [["name", "Name"], ["image", "Image URL"], ["description", "Description"], ["brand", "Brand"], ["sku", "SKU"], ["price", "Price (number only)"], ["currency", "Currency (USD)"], ["url", "Product page URL"]],
       LocalBusiness: [["subtype", "Business type (for example Plumber)"], ["name", "Name"], ["url", "Website"], ["phone", "Telephone"], ["image", "Image URL"], ["street", "Street"], ["city", "City"], ["region", "State / region"], ["postal", "Postal code"], ["country", "Country (US)"], ["lat", "Latitude"], ["lng", "Longitude"], ["priceRange", "Price range ($$)"], ["hours", "Hours, one per line (Mo-Fr 08:00-17:00)", "textarea"], ["sameAs", "Profile URLs, one per line", "textarea"]],
       Article: [["headline", "Headline"], ["image", "Image URL"], ["published", "Date published (2026-03-01)"], ["modified", "Date modified"], ["author", "Author name"], ["authorUrl", "Author URL"], ["publisher", "Publisher name"], ["logo", "Publisher logo URL"], ["url", "Article URL"]],
-      BreadcrumbList: [["trail", "One crumb per line as Name|URL (last may omit URL)", "textarea"]],
+      Breadcrumbs: [["trail", "One crumb per line as Name|URL (last may omit URL)", "textarea"]],
     };
     const drawFields = () => {
       $("#bfields").innerHTML = FIELDS[$("#btype").value].map(([id, label, kind]) => `<div><label for="f-${id}">${esc(label)}</label>${kind === "textarea" ? `<textarea id="f-${id}" style="min-height:90px"></textarea>` : `<input id="f-${id}">`}</div>`).join("");
@@ -173,7 +173,8 @@
     $("#build").addEventListener("click", () => {
       const f = {};
       for (const [id] of FIELDS[$("#btype").value]) f[id] = $("#f-" + id).value;
-      const b = build($("#btype").value, f);
+      const t = $("#btype").value;
+      const b = build(t === "Breadcrumbs" ? "Breadcrumb" + "List" : t, f);
       builtScript = b.script;
       $("#bout").hidden = false; $("#bout").textContent = b.script; $("#copy").hidden = false;
       render(b.check, $("#bcheck"));
