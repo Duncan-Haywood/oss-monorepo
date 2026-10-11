@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1052 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1054 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -62,6 +62,14 @@
     <updated>2026-10-11T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free esthetician studio calculator: enter facial, waxing and peel prices, chair minutes, supplies, no-show rate, rent and commission, and see profit per treatment and per chair hour, the price for your target margin, break-even treatments per week and whether to rent the chair or employ an esthetician. Runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Fair Workweek Schedule Checker — free predictive scheduling premium pay check</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fair-workweek-schedule-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/fair-workweek-schedule-checker</id>
+    <updated>2026-10-11T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free fair workweek and predictive scheduling checker for restaurants and retail. Paste your posted schedule and later changes, see late postings, short-notice change premiums, cancellation pay and clopening rest violations. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Fundraising Event Net Calculator — Net Proceeds and Cost per Dollar Raised</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-11T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free PPF and ceramic coating bid calculator: enter vehicle size, film coverage, roll cost and waste, paint correction, bay days and redo rate, and get a price and profit per bay day. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Private Chef Service Price Calculator — Price Per Visit and Per Guest</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/private-chef-service-price-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/private-chef-service-price-calculator</id>
-    <updated>2026-10-11T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free private chef and meal-prep price calculator: enter guests, shopping, prep, cooking, cleanup and travel hours, groceries and overhead, and see a cost-plus price per visit and per guest. Runs in your browser.</summary>
   </entry>
 </feed>
