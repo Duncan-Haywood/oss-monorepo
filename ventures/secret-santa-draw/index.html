@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Secret Santa Draw — free, no emails, organizer can play</title>
+  <meta name="description" content="Free Secret Santa generator with no sign-up and no emails. Keep couples apart, skip last year's pairs, forbid swaps or force one big loop, and let the organizer play without seeing the results. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Secret Santa Draw — free, private, in your browser">
+  <meta property="og:description" content="Draw names without emails or accounts. Couples kept apart, no repeats from last year, and the organizer can play too.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Secret Santa Draw","applicationCategory":"LifestyleApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free Secret Santa generator with no sign-up and no emails. Keep couples apart, skip last year's pairs, forbid swaps or force one big loop, and let the organizer play without seeing the results. Runs in your browser; nothing is uploaded.","featureList":"secret santa generator, couples exclusions, no repeat pairs from last year, organizer can participate, pass the phone mode, shareable group link, no email needed, calendar file"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can the organizer join without seeing who got whom?","acceptedAnswer":{"@type":"Answer","text":"Yes. Make a group link and share it in your group chat: the organizer never sees the pairings, and each person opens the link, picks their own name and sees only their person. The draw is worked out in each browser from a random number inside the link, so there is no server that could leak it."}},{"@type":"Question","name":"How do I stop couples from drawing each other?","acceptedAnswer":{"@type":"Answer","text":"Type each couple or family on its own line under Can't draw each other, for example Ann, Ben. Everyone on a line is kept apart from everyone else on that line. If the rules leave someone with no one to give to, the page names the people who are stuck and says what to loosen."}},{"@type":"Question","name":"How do I avoid repeating last year's pairs?","acceptedAnswer":{"@type":"Answer","text":"Paste last year's group link into the next-year box and the new draw avoids every pairing from that draw without anyone reading them. Or type last year's pairs as Giver > Receiver, one per line."}},{"@type":"Question","name":"What is the no swaps rule?","acceptedAnswer":{"@type":"Answer","text":"It means if Ann gives to Ben then Ben cannot also give to Ann, so nobody buys for the person who buys for them. The single loop rule goes further and makes one big circle: Ann gives to Ben, Ben to Cara, and so on until the last person gives to Ann."}},{"@type":"Question","name":"Is this really private?","acceptedAnswer":{"@type":"Answer","text":"The names and the draw never leave your browser and there are no accounts. A group link works on the honor system, like a hat on a table: anyone who is determined and knows how to read the link could work out every pairing. For an airtight version use Pass the phone, which reveals one person at a time on one device."}},{"@type":"Question","name":"Does it cost anything?","acceptedAnswer":{"@type":"Answer","text":"No. It is free and open source with no ads, no sign-up and no email addresses collected."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #2a1f1f; background: #fbf5f2; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #9a1d2c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #6e1420; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #6e1420; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5a4646; }
+    .card { background: #fff; border: 1px solid #e6d3cf; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #6e142012; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=text], input[type=date], select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #7a5f5f; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 96px; resize: vertical; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a1d2c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #f1e1de; color: #6e1420; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .bad { background: #fbe0e0; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #6b1212; }
+    .reveal { text-align: center; }
+    .reveal .who { font-size: clamp(2rem, 7vw, 3.2rem); font-weight: 800; color: #9a1d2c; margin: 10px 0; overflow-wrap: anywhere; }
+    .names { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .names button { margin: 0; }
+    .names button.done { text-decoration: line-through; opacity: .5; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #f1e1de; }
+    footer { margin-top: 28px; border-top: 1px solid #e6d3cf; padding-top: 16px; }
+    code { background: #f6ebe8; padding: 1px 5px; border-radius: 4px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SECRET SANTA DRAW · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Secret Santa generator: no emails, couples kept apart, organizer plays too</h1>
+    <p>Type the names, say who must not draw each other and who drew whom last year, then share <strong>one link</strong> in your group chat. Each person opens it, picks their own name and sees only their person. The organizer never sees the pairings, so the organizer can play. No sign-up, no email addresses, no ads.</p>
+    <p class="note">Running a draw with couples or family groups? Read <a href="./secret-santa-rules-for-couples-and-no-repeats.html">how the rules work, with a worked example</a>.</p>
+  </header>
+
+  <main>
+  <section class="card" id="reveal-card" hidden>
+    <div class="reveal">
+      <h2 id="reveal-title">Find your person</h2>
+      <p id="reveal-sub" class="note"></p>
+      <div id="reveal-pick" class="names" role="group" aria-label="Choose your name"></div>
+      <div id="reveal-out" hidden>
+        <p>You are buying for</p>
+        <div class="who" id="reveal-who"></div>
+        <p id="reveal-meta" class="note"></p>
+        <button type="button" id="reveal-hide">Hide and go back</button>
+        <button type="button" class="secondary" id="reveal-ics" hidden>Add the exchange date to my calendar</button>
+      </div>
+      <p id="reveal-status" role="status" class="note"></p>
+    </div>
+  </section>
+
+  <section class="card" id="setup">
+    <h2>1. Who is playing</h2>
+    <label for="title">Name of the exchange (optional)</label>
+    <input type="text" id="title" maxlength="80" placeholder="Smith family Christmas">
+    <label for="names">Names, one per line (or separated by commas)</label>
+    <textarea id="names" placeholder="Ann&#10;Ben&#10;Cara&#10;Dev"></textarea>
+    <label for="groups">Can't draw each other, one group per line (couples, siblings)</label>
+    <textarea id="groups" placeholder="Ann, Ben&#10;Cara, Dev"></textarea>
+    <h2 style="margin-top:20px">2. Rules</h2>
+    <div class="row">
+      <div>
+        <label for="mode">Pairing rule</label>
+        <select id="mode">
+          <option value="noswap" selected>No swaps (if A gives to B, B does not give to A)</option>
+          <option value="loop">One big loop (A to B to C ... back to A)</option>
+          <option value="any">Swaps allowed</option>
+        </select>
+      </div>
+      <div>
+        <label for="budget">Spending limit (optional)</label>
+        <input type="text" id="budget" maxlength="40" placeholder="$25">
+      </div>
+      <div>
+        <label for="date">Exchange date (optional)</label>
+        <input type="date" id="date">
+      </div>
+    </div>
+    <label for="note">Note to everyone (optional)</label>
+    <input type="text" id="note" maxlength="300" placeholder="Wrap it, no names on the tag">
+    <label for="previous">Last year's pairs, one per line as Giver &gt; Receiver (optional)</label>
+    <textarea id="previous" placeholder="Ann > Cara&#10;Cara > Ben"></textarea>
+    <label for="prevlink">Or paste last year's group link (optional)</label>
+    <input type="text" id="prevlink" placeholder="https://.../#d=...">
+    <p class="note">A pasted link brings back its names and rules and avoids every pairing from that draw, without anyone reading them.</p>
+
+    <button type="button" id="make-link">Make group link</button>
+    <button type="button" class="secondary" id="pass-phone">Pass the phone</button>
+    <button type="button" class="secondary" id="show-list">Show the full list</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <p id="form-status" role="status" class="note">Add at least three names, then choose how to hand out the results.</p>
+  </section>
+
+  <section class="card" id="result" hidden>
+    <h2 id="result-title">Your group link</h2>
+    <div id="result-body"></div>
+  </section>
+
+  <section class="card">
+    <h2>How it works</h2>
+    <p><strong>The draw.</strong> The page first checks, with an exact matching algorithm, that the rules leave a valid draw at all, and if not it names the people who are stuck. Then it shuffles until a draw satisfies every rule, and falls back to a depth-first search for tight rule sets. One loop covering everyone is a uniformly random circle.</p>
+    <p><strong>The link.</strong> The group link holds the names, the rules and one random number. Opening it recomputes the same draw in the visitor's browser. Nothing is stored on a server, so there is nothing to leak, and also nothing to recover: save the link.</p>
+    <p><strong>Honor system.</strong> Because the link contains everything needed to recompute the draw, someone determined and technical could work out every pairing. It is the hat on a table. For an airtight version on one device use Pass the phone.</p>
+    <p><strong>Checked:</strong> the test suite draws thousands of random groups and confirms that nobody draws themselves, couples are kept apart, last year's pairs are not repeated, the no-swap and single-loop rules hold, and a link always reproduces the same draw.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Can the organizer join without seeing who got whom?</h3>
+    <p>Yes. Make a group link and share it in your group chat: the organizer never sees the pairings, and each person opens the link, picks their own name and sees only their person. The draw is worked out in each browser from a random number inside the link, so there is no server that could leak it.</p>
+    <h3>How do I stop couples from drawing each other?</h3>
+    <p>Type each couple or family on its own line under Can't draw each other, for example Ann, Ben. Everyone on a line is kept apart from everyone else on that line. If the rules leave someone with no one to give to, the page names the people who are stuck and says what to loosen.</p>
+    <h3>How do I avoid repeating last year's pairs?</h3>
+    <p>Paste last year's group link into the next-year box and the new draw avoids every pairing from that draw without anyone reading them. Or type last year's pairs as Giver > Receiver, one per line.</p>
+    <h3>What is the no swaps rule?</h3>
+    <p>It means if Ann gives to Ben then Ben cannot also give to Ann, so nobody buys for the person who buys for them. The single loop rule goes further and makes one big circle: Ann gives to Ben, Ben to Cara, and so on until the last person gives to Ann.</p>
+    <h3>Is this really private?</h3>
+    <p>The names and the draw never leave your browser and there are no accounts. A group link works on the honor system, like a hat on a table: anyone who is determined and knows how to read the link could work out every pairing. For an airtight version use Pass the phone, which reveals one person at a time on one device.</p>
+    <h3>Does it cost anything?</h3>
+    <p>No. It is free and open source with no ads, no sign-up and no email addresses collected.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It draws names at random for a friendly gift exchange. It is not legal, financial or tax advice, and you are responsible for anything you buy, spend or agree to because of it.</p>
+    <p><strong>Independent.</strong> Not affiliated with any gift-exchange service, retailer or brand, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. A group link contains your draw inside the link itself, so save it somewhere safe.</p>
+    <p>Everything runs in your browser. Names, rules and results are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>draw_made</code>, <code>link_made</code>, <code>link_opened</code>, <code>revealed</code>, <code>pass_started</code>, <code>list_shown</code>, <code>example_loaded</code>, <code>next_year_loaded</code>) are counted in your own browser's local storage and are never sent anywhere.</p>
+    <p>Related tools: the <a href="../event-seating-chart-optimizer/">event seating chart optimizer</a> for wedding and party tables, and the <a href="../volunteer-shift-scheduler/">volunteer shift scheduler</a> for rotas.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseNames, parseGroups, parsePrevious, buildAllowed, draw, mulberry32, encodeGroup, decodeGroup, resolveGroup, pairsOf, pairsText, pairsCsv, exchangeIcs, EXAMPLE } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const newSeed = () => { try { return crypto.getRandomValues(new Uint32Array(1))[0]; } catch { return Math.floor(Math.random() * 4294967296); } };
+    const download = (name, text, type) => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); };
+    const stamp = () => new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
+
+    // Read the form into a group. Returns {group} or {errors}.
+    function readForm() {
+      const errors = [];
+      let names = [];
+      let groups = [];
+      let previous = [];
+      const link = $("#prevlink").value.trim();
+      let carried = null;
+      if (link) {
+        const frag = link.includes("#") ? link.slice(link.indexOf("#") + 1) : link;
+        const d = decodeGroup(frag);
+        if (d.error) errors.push("Last year's link: " + d.error);
+        else {
+          carried = d.group;
+          const r = resolveGroup(carried);
+          if (!r.ok) errors.push("Last year's link could not be replayed.");
+          else previous = r.assign.map((to, from) => [from, to]);
+        }
+      }
+      const parsed = parseNames($("#names").value);
+      names = parsed.names;
+      errors.push(...parsed.errors);
+      if (carried && !names.length) names = carried.names.slice();
+      if (carried && !$("#groups").value.trim()) groups = carried.groups.slice();
+      const g = parseGroups($("#groups").value, names);
+      if ($("#groups").value.trim()) { groups = g.groups; errors.push(...g.errors); }
+      if (carried) {
+        // Last year's pairs are by index into last year's list; map them onto this year's names by name.
+        const at = new Map(names.map((n, i) => [n.toLowerCase(), i]));
+        previous = previous.map(([a, b]) => [at.get(carried.names[a].toLowerCase()), at.get(carried.names[b].toLowerCase())]).filter(([a, b]) => a !== undefined && b !== undefined);
+      }
+      const p = parsePrevious($("#previous").value, names);
+      previous = previous.concat(p.pairs);
+      errors.push(...p.errors);
+      if (names.length < 3) errors.push("Add at least three names.");
+      if (errors.length) return { errors };
+      return { group: { title: $("#title").value.trim(), names, groups, previous, mode: $("#mode").value, seed: newSeed(), budget: $("#budget").value.trim(), date: $("#date").value, note: $("#note").value.trim() }, usedLink: Boolean(carried) };
+    }
+
+    function ready() {
+      const f = readForm();
+      if (f.errors) { status.textContent = f.errors.join(" "); return null; }
+      const r = resolveGroup(f.group);
+      if (!r.ok) { status.textContent = r.message; return null; }
+      status.textContent = "";
+      record("draw_made");
+      if (f.usedLink) record("next_year_loaded");
+      return { group: f.group, assign: r.assign };
+    }
+
+    function showResult(title, html) {
+      $("#result").hidden = false;
+      $("#result-title").textContent = title;
+      $("#result-body").innerHTML = html;
+      $("#result").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#make-link").addEventListener("click", () => {
+      const out = ready();
+      if (!out) return;
+      const url = location.href.split("#")[0] + "#d=" + encodeGroup(out.group);
+      record("link_made");
+      showResult("Your group link", `<p>Share this link in your group chat. <strong>You have not seen who drew whom, and this page will not show you</strong>, so you can play too.</p>
+        <label for="link-out">Group link</label><input type="text" id="link-out" readonly value="${esc(url)}">
+        <button type="button" id="copy-link">Copy link</button>
+        <p id="copy-status" role="status" class="note"></p>
+        <p class="note">Save this link. Next year, paste it into the last-year box to avoid repeating this year's pairs. Anyone holding it can open the reveal page; it works on the honor system.</p>`);
+      $("#copy-link").addEventListener("click", async () => {
+        try { await navigator.clipboard.writeText(url); $("#copy-status").textContent = "Copied."; }
+        catch { $("#link-out").select(); $("#copy-status").textContent = "Select the link and copy it."; }
+      });
+    });
+
+    $("#pass-phone").addEventListener("click", () => {
+      const out = ready();
+      if (!out) return;
+      record("pass_started");
+      startReveal(out.group, out.assign, true);
+      $("#reveal-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    $("#show-list").addEventListener("click", () => {
+      const out = ready();
+      if (!out) return;
+      record("list_shown");
+      const rows = pairsOf(out.group.names, out.assign).map(([a, b]) => `<tr><td>${esc(a)}</td><td>${esc(b)}</td></tr>`).join("");
+      showResult("Full list (spoils the surprise)", `<p class="warn">Everyone's pairing is shown below. If you are playing, do not look.</p>
+        <table><thead><tr><th>Gives to</th><th>Receiver</th></tr></thead><tbody>${rows}</tbody></table>
+        <button type="button" id="dl-csv">Download CSV</button><button type="button" class="secondary" id="copy-list">Copy as text</button>
+        <p id="copy-status" role="status" class="note"></p>`);
+      $("#dl-csv").addEventListener("click", () => download("secret-santa.csv", pairsCsv(out.group.names, out.assign), "text/csv"));
+      $("#copy-list").addEventListener("click", async () => { try { await navigator.clipboard.writeText(pairsText(out.group.names, out.assign)); $("#copy-status").textContent = "Copied."; } catch { $("#copy-status").textContent = "Your browser blocked copying. Use Download CSV."; } });
+    });
+
+    $("#load-example").addEventListener("click", () => {
+      $("#title").value = EXAMPLE.title; $("#names").value = EXAMPLE.names; $("#groups").value = EXAMPLE.groups;
+      $("#previous").value = EXAMPLE.previous; $("#mode").value = EXAMPLE.mode; $("#budget").value = EXAMPLE.budget;
+      $("#prevlink").value = ""; $("#date").value = ""; $("#note").value = "";
+      record("example_loaded");
+      status.textContent = "Example loaded: eight colleagues, two couples kept apart, last year's pairs avoided. Choose how to hand out the results.";
+    });
+
+    // ---- the reveal view: used for group links and for Pass the phone ----
+    let R = null;
+    function startReveal(group, assign, pass) {
+      R = { group, assign, pass, seen: new Set() };
+      $("#reveal-card").hidden = false;
+      $("#reveal-title").textContent = group.title ? group.title : "Find your person";
+      $("#reveal-sub").textContent = pass ? "Pass the phone: each person taps their own name, looks, then hides it. A name disappears once it has been used." : "Pick your own name. Please do not pick anyone else's: this is the honor system.";
+      $("#reveal-out").hidden = true;
+      $("#reveal-status").textContent = "";
+      drawPicker();
+    }
+    function drawPicker() {
+      const box = $("#reveal-pick");
+      box.hidden = false;
+      box.innerHTML = "";
+      R.group.names.forEach((n, i) => {
+        if (R.pass && R.seen.has(i)) return;
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = n;
+        b.addEventListener("click", () => reveal(i));
+        box.appendChild(b);
+      });
+      if (!box.children.length) $("#reveal-status").textContent = "Everyone has seen their person. Happy gifting.";
+    }
+    function reveal(i) {
+      const g = R.group;
+      const to = g.names[R.assign[i]];
+      record("revealed");
+      R.seen.add(i);
+      $("#reveal-pick").hidden = true;
+      $("#reveal-out").hidden = false;
+      $("#reveal-who").textContent = to;
+      const bits = [];
+      if (g.budget) bits.push("Spending limit: " + g.budget);
+      if (g.date) bits.push("Exchange date: " + g.date);
+      if (g.note) bits.push(g.note);
+      $("#reveal-meta").textContent = bits.join(" · ");
+      const ics = $("#reveal-ics");
+      ics.hidden = !g.date;
+      ics.onclick = () => download("gift-exchange.ics", exchangeIcs({ title: g.title || "Gift exchange", date: g.date, stamp: stamp(), giftee: to }), "text/calendar");
+    }
+    $("#reveal-hide").addEventListener("click", () => {
+      $("#reveal-out").hidden = true;
+      $("#reveal-who").textContent = "";
+      drawPicker();
+    });
+
+    function openFromHash() {
+      const h = location.hash;
+      if (!h.startsWith("#d=")) return;
+      const d = decodeGroup(h.slice(1));
+      if (d.error) { $("#reveal-card").hidden = false; $("#reveal-status").textContent = d.error; return; }
+      const r = resolveGroup(d.group);
+      if (!r.ok) { $("#reveal-card").hidden = false; $("#reveal-status").textContent = r.message; return; }
+      record("link_opened");
+      startReveal(d.group, r.assign, false);
+    }
+    window.addEventListener("hashchange", openFromHash);
+    openFromHash();
+
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
