@@ -1541,7 +1541,7 @@ const RELATIVE_SELF = relative(
 // +1: `roommate-rent-splitter` graduated.
 // +1: `car-lease-deal-checker` graduated.
 // +1: `home-sale-net-proceeds-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1039;
+const SWITCHES_IN_THE_CATALOGUE = 1040;
 // +1: `retreat-profit-pricing-calculator` graduated.
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
