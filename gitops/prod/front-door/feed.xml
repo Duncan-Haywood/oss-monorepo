@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1052 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1053 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -160,11 +160,11 @@
     <summary type="text">Free private chef and meal-prep price calculator: enter guests, shopping, prep, cooking, cleanup and travel hours, groceries and overhead, and see a cost-plus price per visit and per guest. Runs in your browser.</summary>
   </entry>
   <entry>
-    <title>Shoe Repair Shop Profit Calculator — Heel Price, Break-Even, Bench Hours</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/shoe-repair-shop-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/shoe-repair-shop-profit-calculator</id>
+    <title>Roommate Rent Splitter — fair rent for unequal rooms, nobody envies</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/roommate-rent-splitter/"/>
+    <id>tag:marisstella.dev,2026:tool/roommate-rent-splitter</id>
     <updated>2026-10-11T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free shoe repair shop calculator: enter heel, repair and rework prices, bench minutes, supplies, cobbler pay and rent, and see profit per job and per bench hour, break-even volume and the season result. Runs in your browser.</summary>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free roommate rent calculator for rooms that are not equal. Everyone says what each room is worth to them; the tool assigns rooms and sets rents that add up to the total so that no one would swap. Private, in your browser, nothing uploaded.</summary>
   </entry>
 </feed>
