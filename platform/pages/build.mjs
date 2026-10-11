@@ -3234,6 +3234,8 @@ const CATEGORY_RULES = [
         'rent-vs-buy-breakeven-calculator',
         // `car-lease-deal-checker` joined 2026-10-11 on its first commit: one shopper checking their own lease quote, beside the other single-household money-decision tools.
         'car-lease-deal-checker',
+        // `home-sale-net-proceeds-calculator` joined 2026-10-11 on its first commit: one seller's net sheet and tax estimate, beside the other single-household money-decision tools.
+        'home-sale-net-proceeds-calculator',
         // `roommate-rent-splitter` joined 2026-10-11 on its first commit: roommates dividing their own rent, beside the other single-household money-decision tools.
         'roommate-rent-splitter',
         // `cd-treasury-ladder-planner` joined 2026-10-08 on its first commit: one saver laddering their own cash, beside the other single-person investing and income-timing tools.
