@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Driving School Profit Calculator — Lesson Price, Employ vs Lease the Car</title>
+  <meta name="description" content="Free driving school calculator: enter lesson, block-lesson and road-test prices, car minutes, fuel and wear, cancellation rate, rent and instructor pay, and see profit per lesson and per car hour, the price for your target margin, break-even lessons per week and whether to employ an instructor or lease the car. Runs in your browser.">
+  <meta property="og:title" content="Driving School Profit Calculator — free, private">
+  <meta property="og:description" content="Find out what a driving lesson really earns after your time, fuel, insurance and cancellations, and whether an employed instructor or a leased car pays the car better.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Driving School Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free driving school calculator: turn lesson, block-lesson and road-test prices, car minutes, fuel and wear, cancellation rate, rent and instructor pay into profit per lesson, profit per car hour, break-even lessons per week and an employ-an-instructor versus lease-the-car comparison."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should a driving school charge per lesson?", "acceptedAnswer": {"@type": "Answer", "text": "Add the car minutes at what your time is worth, the fuel and wear the lesson burns, and the lesson's share of office rent, insurance and the car, then divide by one minus the margin you want. A student who cancels late leaves you with an empty hour, so the lessons that do happen carry that time. Type your own minutes, costs and cancellation rate and read the price off."}}, {"@type": "Question", "name": "Is it better to employ driving instructors or lease them the car?", "acceptedAnswer": {"@type": "Answer", "text": "Leasing gives a fixed weekly amount whatever the independent instructor books, and they carry the empty hours, fuel and cancellations. Employing pays the instructor a share of each lesson that happens, plus payroll tax and extras, but you carry the bookings, the fuel and the cancellations. The calculator prints what each option nets the school per week after office rent and the car, the lease at which the two pay the same, and the pay share at which they pay the same. Whether an instructor can lawfully be treated as independent depends on your state and the facts, and this tool does not decide that."}}, {"@type": "Question", "name": "How many lessons a week does a driving school car need to break even?", "acceptedAnswer": {"@type": "Answer", "text": "The car's weekly fixed cost (its share of office rent, the car's cost net of resale spread over the years you keep it, insurance and other fixed cost) divided by what each completed lesson leaves after fuel and wear, your own pay for the car time and the road-test car hire margin. The result gives the completed lessons needed per week and the number you would have to book at your cancellation rate."}}, {"@type": "Question", "name": "How much do late cancellations cost a driving school?", "acceptedAnswer": {"@type": "Answer", "text": "Each empty slot loses the lesson margin (price less fuel and wear, plus any road-test car hire you would have sold) unless you can fill it. The calculator multiplies your cancellation rate by the week's bookings and prints the cost per week and per year, and what halving the rate with a deposit or a reminder text would be worth."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Tips, which belong to whoever earned them, your own pay beyond the hourly figure you type, state licensing and bond costs, sales tax, card fees, advertising, an instructor who books fewer students than you do, seasonality, and income tax. It is a planning aid, not an estimate of record."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    tr.drive td:first-child { border-left: 4px solid #0b4f9c; }
+    tr.break td:first-child, tr.dwell td:first-child { border-left: 4px solid #b7791f; }
+    tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DRIVING SCHOOL PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What does one driving-school car really earn, and should you instruct, employ or lease it out?</h1>
+    <p>Enter your lesson, block-lesson and road-test prices, car minutes, fuel and wear, cancellation rate, office rent and the car's cost. You get <strong>profit per lesson and per car hour, the price each offer needs for your target margin, break-even lessons per week, what late cancellations cost, and what the same car nets you instructing it yourself, employing an instructor on a share of each lesson, or leasing it to an independent instructor by the week</strong>.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. Tips are left out on purpose. A planning estimate, not a contract or an estimate of record.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. What the car books in a typical week</h2>
+    <div class="grid">
+      <div><label for="lessonQty">Standard in-car lessons booked per week</label><input type="number" id="lessonQty" min="0" step="1" value="20"></div>
+      <div><label for="lessonPrice">Standard in-car lesson price ($)</label><input type="number" id="lessonPrice" min="0" step="any" value="65"></div>
+      <div><label for="lessonMin">Standard in-car lesson car minutes</label><input type="number" id="lessonMin" min="0" step="any" value="60"></div>
+      <div><label for="lessonMat">Standard in-car lesson fuel and wear ($ each)</label><input type="number" id="lessonMat" min="0" step="any" value="6"></div>
+      <div><label for="blockQty">Long block lessons booked per week</label><input type="number" id="blockQty" min="0" step="1" value="4"></div>
+      <div><label for="blockPrice">Long block lesson (2 hours or more) price ($)</label><input type="number" id="blockPrice" min="0" step="any" value="120"></div>
+      <div><label for="blockMin">Long block lesson (2 hours or more) car minutes</label><input type="number" id="blockMin" min="0" step="any" value="120"></div>
+      <div><label for="blockMat">Long block lesson (2 hours or more) fuel and wear ($ each)</label><input type="number" id="blockMat" min="0" step="any" value="11"></div>
+      <div><label for="testQty">Road-test packages booked per week</label><input type="number" id="testQty" min="0" step="1" value="3"></div>
+      <div><label for="testPrice">Road-test package (warm-up lesson plus test day) price ($)</label><input type="number" id="testPrice" min="0" step="any" value="150"></div>
+      <div><label for="testMin">Road-test package (warm-up lesson plus test day) car minutes</label><input type="number" id="testMin" min="0" step="any" value="90"></div>
+      <div><label for="testMat">Road-test package (warm-up lesson plus test day) fuel and wear ($ each)</label><input type="number" id="testMat" min="0" step="any" value="9"></div>
+    </div>
+    <h2 style="margin-top:22px">2. The car and your time</h2>
+    <div class="grid">
+      <div><label for="carHoursPerWeek">Car hours available per week</label><input type="number" id="carHoursPerWeek" min="0" step="any" value="36"></div>
+      <div><label for="noShowPct">Late-cancellation and no-show rate (% of booked lessons)</label><input type="number" id="noShowPct" min="0" step="any" value="10"></div>
+      <div><label for="ownerRate">What your own instructing hour should pay you ($)</label><input type="number" id="ownerRate" min="0" step="any" value="30"></div>
+      <div><label for="targetMarginPct">Target margin on each offer (%)</label><input type="number" id="targetMarginPct" min="0" step="any" value="35"></div>
+    </div>
+    <h2 style="margin-top:22px">3. Office, car and road-test hire</h2>
+    <div class="grid">
+      <div><label for="officeRentPerMonth">This car's share of office rent and utilities ($ per month)</label><input type="number" id="officeRentPerMonth" min="0" step="any" value="400"></div>
+      <div><label for="carCost">Car cost net of expected resale, with dual brakes fitted ($)</label><input type="number" id="carCost" min="0" step="any" value="14000"></div>
+      <div><label for="carYears">Years you will keep the car</label><input type="number" id="carYears" min="0" step="any" value="5"></div>
+      <div><label for="otherFixedMonth">Insurance, licensing, marketing and other fixed cost for this car ($ per month)</label><input type="number" id="otherFixedMonth" min="0" step="any" value="450"></div>
+      <div><label for="addonAttachPct">Completed lessons that end in a road-test car hire (%)</label><input type="number" id="addonAttachPct" min="0" step="any" value="10"></div>
+      <div><label for="addonPrice">Road-test car hire price ($)</label><input type="number" id="addonPrice" min="0" step="any" value="75"></div>
+      <div><label for="addonCost">Road-test car hire cost to you ($)</label><input type="number" id="addonCost" min="0" step="any" value="8"></div>
+    </div>
+    <h2 style="margin-top:22px">4. Employ an instructor or lease the car</h2>
+    <div class="grid">
+      <div><label for="instructorPayPct">Instructor pay (% of the lesson price)</label><input type="number" id="instructorPayPct" min="0" step="any" value="40"></div>
+      <div><label for="payrollPct">Payroll tax and extras on that pay (%)</label><input type="number" id="payrollPct" min="0" step="any" value="10"></div>
+      <div><label for="carLeaseWeek">Car lease an independent instructor would pay ($ per week)</label><input type="number" id="carLeaseWeek" min="0" step="any" value="450"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Work out the car</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="share">Copy a share link</button>
+    </p>
+    <p class="note" id="form-status">Enter your numbers or load the example, then click Work out the car.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>Each offer</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Offer</th><th scope="col">Price</th><th scope="col">Cost</th><th scope="col">Profit per lesson</th><th scope="col">Margin</th><th scope="col">Per car hour</th><th scope="col">Price for target</th></tr></thead><tbody id="lines"></tbody></table></div>
+    <h3>The week at different volumes: what the car nets three ways</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Volume</th><th scope="col">Booked</th><th scope="col">Car hours</th><th scope="col">Car used</th><th scope="col">You instruct, after your pay</th><th scope="col">Employ an instructor</th><th scope="col">Lease the car</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The arithmetic, and what it leaves out</h2>
+    <ul>
+      <li>Only lessons that happen earn money or burn fuel. A late cancellation empties the slot, and because you still hold the hour, your own time for it is spread over the lessons that did happen.</li>
+      <li>A lesson costs its car minutes at the hourly figure you type, plus its fuel and wear, plus its share of the car's weekly fixed cost: office rent, the car spread over the years you will keep it, and other fixed cost such as insurance.</li>
+      <li>Profit per car hour is what a booked hour is expected to bring in (the price less fuel and wear, plus the road-test hire margin, after cancellations) before fixed cost and before anyone is paid, so it compares offers on the thing the car runs out of: hours.</li>
+      <li>An employed instructor costs a share of every completed lesson plus payroll tax and extras on it; you still pay fuel and wear, office rent and the car and you keep the road-test hire margin. An independent instructor pays a flat weekly lease, buys their own fuel and keeps their own road-test hire.</li>
+      <li><strong>Not modelled:</strong> tips, any pay to you beyond the hourly figure, state licensing and bond costs, sales tax, card fees, advertising, an instructor who books fewer students than you do, seasonality and slow weeks, whether an instructor can lawfully be treated as independent, and income tax.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should a driving school charge per lesson?</h3>
+    <p>Add the car minutes at what your time is worth, the fuel and wear the lesson burns, and the lesson's share of office rent, insurance and the car, then divide by one minus the margin you want. A student who cancels late leaves you with an empty hour, so the lessons that do happen carry that time. Type your own minutes, costs and cancellation rate and read the price off.</p>
+    <h3>Is it better to employ driving instructors or lease them the car?</h3>
+    <p>Leasing gives a fixed weekly amount whatever the independent instructor books, and they carry the empty hours, fuel and cancellations. Employing pays the instructor a share of each lesson that happens, plus payroll tax and extras, but you carry the bookings, the fuel and the cancellations. The calculator prints what each option nets the school per week after office rent and the car, the lease at which the two pay the same, and the pay share at which they pay the same. Whether an instructor can lawfully be treated as independent depends on your state and the facts, and this tool does not decide that.</p>
+    <h3>How many lessons a week does a driving school car need to break even?</h3>
+    <p>The car's weekly fixed cost (its share of office rent, the car's cost net of resale spread over the years you keep it, insurance and other fixed cost) divided by what each completed lesson leaves after fuel and wear, your own pay for the car time and the road-test car hire margin. The result gives the completed lessons needed per week and the number you would have to book at your cancellation rate.</p>
+    <h3>How much do late cancellations cost a driving school?</h3>
+    <p>Each empty slot loses the lesson margin (price less fuel and wear, plus any road-test car hire you would have sold) unless you can fill it. The calculator multiplies your cancellation rate by the week's bookings and prints the cost per week and per year, and what halving the rate with a deposit or a reminder text would be worth.</p>
+    <h3>What does this leave out?</h3>
+    <p>Tips, which belong to whoever earned them, your own pay beyond the hourly figure you type, state licensing and bond costs, sales tax, card fees, advertising, an instructor who books fewer students than you do, seasonality, and income tax. It is a planning aid, not an estimate of record.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your own books, a written agreement or an advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the prices you set.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>car_planned</code>, <code>example_loaded</code>, <code>link_shared</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../barbershop-chair-profit-calculator/">barbershop chair profit</a>, <a href="../tutor-effective-hourly-rate-calculator/">tutor effective hourly rate</a>, <a href="../personal-trainer-package-pricing-calculator/">personal trainer package pricing</a>, <a href="../massage-therapist-profit-calculator/">massage therapist profit</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv, encodeShare, decodeShare } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["lessonQty", "lessonPrice", "lessonMin", "lessonMat", "blockQty", "blockPrice", "blockMin", "blockMat", "testQty", "testPrice", "testMin", "testMat", "noShowPct", "carHoursPerWeek", "ownerRate", "instructorPayPct", "payrollPct", "carLeaseWeek", "officeRentPerMonth", "carCost", "carYears", "otherFixedMonth", "addonAttachPct", "addonPrice", "addonCost", "targetMarginPct"];
+    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run(scroll = true) {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#lines").innerHTML = r.season.lines.map((l) => `<tr><th scope="row">${esc(l.label)}</th><td>${usd(l.price)}</td><td>${usd(l.cost)}</td><td>${usd(l.profit)}</td><td>${l.marginPct}%</td><td>${usd(l.perCarHour)}</td><td>${usd(l.targetPrice)}</td></tr>`).join("");
+      $("#rows").innerHTML = r.table.map((x) => `<tr><th scope="row">${x.pct}%</th><td>${x.booked}</td><td>${x.hours}</td><td>${x.utilizationPct}%</td><td>${usd(x.owner)}</td><td>${usd(x.employ)}</td><td>${usd(x.rent)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Weekly result with you instructing: ${usd(r.season.ownerAfterPay)} after your pay.`;
+      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function fill(values) { for (const k of keys) if (values[k] !== undefined) $("#" + k).value = values[k]; }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("car_planned"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#share").addEventListener("click", async () => {
+      const url = location.href.split("#")[0] + "#" + encodeShare(read());
+      try { history.replaceState(null, "", url); } catch { /* optional */ }
+      try { await navigator.clipboard.writeText(url); status.textContent = "Link copied. It contains your numbers, so send it only to people you want to see them."; }
+      catch { status.textContent = "Copy the address bar: it now contains your numbers."; }
+      record("link_shared");
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "driving-school-car-week.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    if (location.hash.length > 1) { const shared = decodeShare(location.hash); if (Object.keys(shared).length) { fill(shared); run(false); } }
+  </script>
+</body>
+</html>
