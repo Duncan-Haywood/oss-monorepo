@@ -168,3 +168,7 @@ test("the FAQPage JSON-LD on index matches visible copy exactly", () => {
   assert.ok(app, "missing SoftwareApplication JSON-LD on index");
   assert.equal(app.offers.price, "0");
 });
+
+test("footer links the sibling tool car-lease-deal-checker", () => {
+  assert.match(page("index.html"), /href="\.\.\/car-lease-deal-checker\/"/);
+});

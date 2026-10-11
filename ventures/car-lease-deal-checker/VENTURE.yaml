@@ -1,0 +1,55 @@
+name: car-lease-deal-checker
+description: >-
+  Free browser tool for people shopping a car lease: turns a money factor into
+  APR, works the money factor out of a quoted payment when the dealer will not
+  say, prices markup over the base rate in dollars, counts fees into an
+  effective APR, and compares leasing with buying. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a new-venture session. duplicate_check.py: top score 0.18,
+# no lease-quote venture and no screened-out row. The nearest neighbours
+# (commercial-solar-ppa-lease-buy-calculator, auto-loan-interest-deduction-calculator)
+# serve different buyers.
+#
+# Why this niche: "money factor to apr", "money factor calculator" and "is this a
+# good lease deal" are high-intent searches by people with a quote in hand and a
+# four-figure decision, and the dealer controls the one number (the markup) that
+# the buyer cannot see. Many lease calculators compute a
+# payment; few (not verified exhaustively) run the formula backwards to expose the rate or
+# price markup against a base rate and fees.
+#
+# First visitor: car-buying and personal-finance communities, which field lease
+# "is this a good deal" threads daily. Search volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed numbers using the public lease
+# formula. No advice, no lender or dealer data, no rates scraped. Says so.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural
+# front end for a referral or a lease-contract checker later.
+
+hypotheses:
+  - claim: >-
+      People holding a lease quote will paste its numbers into a no-signup tool
+      to find the hidden rate, and will share the result when it shows markup.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a payment or money factor that disagrees with their written lease contract by more than rounding.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/car-lease-deal-checker/
+  analytics: null
