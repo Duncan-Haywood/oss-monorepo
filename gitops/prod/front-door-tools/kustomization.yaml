@@ -33,46 +33,46 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548168 bytes
-#   portfolio-front-tools-1: 92 files, 555404 bytes
-#   portfolio-front-tools-2: 144 files, 553315 bytes
-#   portfolio-front-tools-3: 128 files, 549674 bytes
-#   portfolio-front-tools-4: 138 files, 556546 bytes
-#   portfolio-front-tools-5: 131 files, 555899 bytes
-#   portfolio-front-tools-6: 124 files, 556348 bytes
-#   portfolio-front-tools-7: 122 files, 555462 bytes
+#   portfolio-front-tools-0: 145 files, 548167 bytes
+#   portfolio-front-tools-1: 92 files, 555405 bytes
+#   portfolio-front-tools-2: 144 files, 553325 bytes
+#   portfolio-front-tools-3: 128 files, 549676 bytes
+#   portfolio-front-tools-4: 138 files, 556547 bytes
+#   portfolio-front-tools-5: 131 files, 555898 bytes
+#   portfolio-front-tools-6: 124 files, 556388 bytes
+#   portfolio-front-tools-7: 122 files, 555511 bytes
 #   portfolio-front-tools-8: 135 files, 553996 bytes
-#   portfolio-front-tools-9: 138 files, 556276 bytes
-#   portfolio-front-tools-10: 132 files, 553081 bytes
-#   portfolio-front-tools-11: 129 files, 546743 bytes
-#   portfolio-front-tools-12: 127 files, 555135 bytes
-#   portfolio-front-tools-13: 127 files, 553802 bytes
-#   portfolio-front-tools-14: 134 files, 555507 bytes
-#   portfolio-front-tools-15: 124 files, 553803 bytes
-#   portfolio-front-tools-16: 125 files, 555851 bytes
-#   portfolio-front-tools-17: 121 files, 551685 bytes
-#   portfolio-front-tools-18: 127 files, 555934 bytes
-#   portfolio-front-tools-19: 124 files, 552760 bytes
-#   portfolio-front-tools-20: 115 files, 533284 bytes
-#   portfolio-front-tools-21: 114 files, 543258 bytes
-#   portfolio-front-tools-22: 128 files, 554239 bytes
-#   portfolio-front-tools-23: 128 files, 554848 bytes
-#   portfolio-front-tools-24: 136 files, 556838 bytes
-#   portfolio-front-tools-25: 126 files, 549135 bytes
-#   portfolio-front-tools-26: 122 files, 556793 bytes
-#   portfolio-front-tools-27: 129 files, 546068 bytes
-#   portfolio-front-tools-28: 133 files, 553647 bytes
-#   portfolio-front-tools-29: 115 files, 552103 bytes
-#   portfolio-front-tools-30: 137 files, 554126 bytes
-#   portfolio-front-tools-31: 111 files, 553329 bytes
-#   portfolio-front-tools-32: 100 files, 554199 bytes
-#   portfolio-front-tools-33: 128 files, 551714 bytes
-#   portfolio-front-tools-34: 117 files, 551569 bytes
-#   portfolio-front-tools-35: 132 files, 556349 bytes
-#   portfolio-front-tools-36: 123 files, 553476 bytes
-#   portfolio-front-tools-37: 130 files, 555823 bytes
-#   portfolio-front-tools-38: 119 files, 550986 bytes
-#   portfolio-front-tools-39: 83 files, 443230 bytes
+#   portfolio-front-tools-9: 138 files, 556304 bytes
+#   portfolio-front-tools-10: 132 files, 553080 bytes
+#   portfolio-front-tools-11: 129 files, 546776 bytes
+#   portfolio-front-tools-12: 127 files, 555131 bytes
+#   portfolio-front-tools-13: 127 files, 553867 bytes
+#   portfolio-front-tools-14: 134 files, 555503 bytes
+#   portfolio-front-tools-15: 124 files, 553805 bytes
+#   portfolio-front-tools-16: 125 files, 555847 bytes
+#   portfolio-front-tools-17: 121 files, 551687 bytes
+#   portfolio-front-tools-18: 127 files, 555958 bytes
+#   portfolio-front-tools-19: 124 files, 551606 bytes
+#   portfolio-front-tools-20: 118 files, 547098 bytes
+#   portfolio-front-tools-21: 114 files, 543234 bytes
+#   portfolio-front-tools-22: 128 files, 554214 bytes
+#   portfolio-front-tools-23: 128 files, 555057 bytes
+#   portfolio-front-tools-24: 136 files, 556844 bytes
+#   portfolio-front-tools-25: 126 files, 549075 bytes
+#   portfolio-front-tools-26: 122 files, 556625 bytes
+#   portfolio-front-tools-27: 129 files, 546067 bytes
+#   portfolio-front-tools-28: 133 files, 553790 bytes
+#   portfolio-front-tools-29: 115 files, 551980 bytes
+#   portfolio-front-tools-30: 137 files, 554049 bytes
+#   portfolio-front-tools-31: 112 files, 557008 bytes
+#   portfolio-front-tools-32: 99 files, 550469 bytes
+#   portfolio-front-tools-33: 128 files, 551629 bytes
+#   portfolio-front-tools-34: 117 files, 551638 bytes
+#   portfolio-front-tools-35: 132 files, 556425 bytes
+#   portfolio-front-tools-36: 123 files, 553393 bytes
+#   portfolio-front-tools-37: 130 files, 555844 bytes
+#   portfolio-front-tools-38: 119 files, 550979 bytes
+#   portfolio-front-tools-39: 83 files, 443068 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2661,6 +2661,9 @@ configMapGenerator:
       - hoa-reserve-fund-calculator__usage.mjs.gz=hoa-reserve-fund-calculator__usage.mjs.gz
       - hoa-reserve-fund-calculator__vs-spreadsheet.html.gz=hoa-reserve-fund-calculator__vs-spreadsheet.html.gz
       - hoa-reserve-fund-calculator__why-did-our-hoa-get-hit-with-a-special-assessment.html.gz=hoa-reserve-fund-calculator__why-did-our-hoa-get-hit-with-a-special-assessment.html.gz
+      - hoarding-cleanout-bid-calculator__calc.mjs.gz=hoarding-cleanout-bid-calculator__calc.mjs.gz
+      - hoarding-cleanout-bid-calculator__index.html.gz=hoarding-cleanout-bid-calculator__index.html.gz
+      - hoarding-cleanout-bid-calculator__usage.mjs.gz=hoarding-cleanout-bid-calculator__usage.mjs.gz
       - holiday-light-bid-calculator__calc.mjs.gz=holiday-light-bid-calculator__calc.mjs.gz
       - holiday-light-bid-calculator__how-much-to-charge-to-hang-christmas-lights.html.gz=holiday-light-bid-calculator__how-much-to-charge-to-hang-christmas-lights.html.gz
       - holiday-light-bid-calculator__index.html.gz=holiday-light-bid-calculator__index.html.gz
@@ -2754,14 +2757,14 @@ configMapGenerator:
       - hunting-lease-income-calculator__usage.mjs.gz=hunting-lease-income-calculator__usage.mjs.gz
       - hvac-repair-tier-price-calculator__engine.mjs.gz=hvac-repair-tier-price-calculator__engine.mjs.gz
       - hvac-repair-tier-price-calculator__how-to-price-hvac-good-better-best-repairs.html.gz=hvac-repair-tier-price-calculator__how-to-price-hvac-good-better-best-repairs.html.gz
-      - hvac-repair-tier-price-calculator__index.html.gz=hvac-repair-tier-price-calculator__index.html.gz
-      - hvac-repair-tier-price-calculator__usage.mjs.gz=hvac-repair-tier-price-calculator__usage.mjs.gz
-      - hvac-repair-tier-price-calculator__vs-quoting-one-repair-price.html.gz=hvac-repair-tier-price-calculator__vs-quoting-one-repair-price.html.gz
   - name: portfolio-front-tools-20
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - hvac-repair-tier-price-calculator__index.html.gz=hvac-repair-tier-price-calculator__index.html.gz
+      - hvac-repair-tier-price-calculator__usage.mjs.gz=hvac-repair-tier-price-calculator__usage.mjs.gz
+      - hvac-repair-tier-price-calculator__vs-quoting-one-repair-price.html.gz=hvac-repair-tier-price-calculator__vs-quoting-one-repair-price.html.gz
       - iban-list-check__calc.mjs.gz=iban-list-check__calc.mjs.gz
       - iban-list-check__index.html.gz=iban-list-check__index.html.gz
       - iban-list-check__usage.mjs.gz=iban-list-check__usage.mjs.gz
@@ -4311,12 +4314,12 @@ configMapGenerator:
       - shift-roster-builder__index.html.gz=shift-roster-builder__index.html.gz
       - shift-roster-builder__usage.mjs.gz=shift-roster-builder__usage.mjs.gz
       - shipping-box-size-optimizer__calc.mjs.gz=shipping-box-size-optimizer__calc.mjs.gz
+      - shipping-box-size-optimizer__how-many-box-sizes-to-stock.html.gz=shipping-box-size-optimizer__how-many-box-sizes-to-stock.html.gz
   - name: portfolio-front-tools-32
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - shipping-box-size-optimizer__how-many-box-sizes-to-stock.html.gz=shipping-box-size-optimizer__how-many-box-sizes-to-stock.html.gz
       - shipping-box-size-optimizer__index.html.gz=shipping-box-size-optimizer__index.html.gz
       - shipping-box-size-optimizer__usage.mjs.gz=shipping-box-size-optimizer__usage.mjs.gz
       - shop-rate-calculator__calc.mjs.gz=shop-rate-calculator__calc.mjs.gz

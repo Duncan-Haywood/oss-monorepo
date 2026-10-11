@@ -1,0 +1,44 @@
+name: hoarding-cleanout-bid-calculator
+description: >-
+  Free browser calculator for hoarding and heavy-clutter cleanout contractors: enter the floor area, how full the space is, the work rate, crew, containers and
+  dump fees, and see the price, the crew days and containers needed, a change-order rate per cubic yard, and how far the real volume can overrun the
+  walkthrough estimate before the quote loses money. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. Nothing in ventures/ or screened-out.md prices hoarding cleanouts. junk-removal-bid-calculator (weight-based dump
+# tickets for ordinary loads) and dumpster-rental-margin-calculator are the nearest shapes; none derives debris volume from floor area and fill, rounds crew days
+# and containers up, or solves for the overrun a quoted price can absorb.
+#
+# First visitor: small cleanout, estate cleanout and junk-hauling companies searching "how much to charge for a hoarder house cleanout", "hoarding cleanup
+# cost per square foot", "estate cleanout pricing" and "change order clause cleanout". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not legal advice and not a statement of biohazard, disposal or
+# licensing rules; says what is not modelled; carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Small cleanout contractors will type a house's floor area and fill level into a no-signup calculator to set a price and a change-order rate, because most
+      quote a per-square-foot special that cannot see that a house 50% fuller than the walkthrough turns the job into a loss.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/hoarding-cleanout-bid-calculator/
+  analytics: null
