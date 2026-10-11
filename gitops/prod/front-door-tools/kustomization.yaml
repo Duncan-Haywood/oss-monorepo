@@ -33,46 +33,46 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548139 bytes
+#   portfolio-front-tools-0: 145 files, 548140 bytes
 #   portfolio-front-tools-1: 92 files, 555406 bytes
 #   portfolio-front-tools-2: 144 files, 553316 bytes
 #   portfolio-front-tools-3: 128 files, 549640 bytes
 #   portfolio-front-tools-4: 138 files, 556570 bytes
-#   portfolio-front-tools-5: 131 files, 555888 bytes
+#   portfolio-front-tools-5: 131 files, 555892 bytes
 #   portfolio-front-tools-6: 124 files, 556352 bytes
-#   portfolio-front-tools-7: 120 files, 549926 bytes
+#   portfolio-front-tools-7: 120 files, 549928 bytes
 #   portfolio-front-tools-8: 135 files, 551634 bytes
 #   portfolio-front-tools-9: 138 files, 556381 bytes
-#   portfolio-front-tools-10: 134 files, 554297 bytes
+#   portfolio-front-tools-10: 134 files, 554298 bytes
 #   portfolio-front-tools-11: 128 files, 553292 bytes
 #   portfolio-front-tools-12: 128 files, 555210 bytes
 #   portfolio-front-tools-13: 128 files, 554118 bytes
-#   portfolio-front-tools-14: 132 files, 552513 bytes
-#   portfolio-front-tools-15: 124 files, 554676 bytes
+#   portfolio-front-tools-14: 132 files, 552514 bytes
+#   portfolio-front-tools-15: 124 files, 554657 bytes
 #   portfolio-front-tools-16: 125 files, 554556 bytes
-#   portfolio-front-tools-17: 121 files, 551549 bytes
+#   portfolio-front-tools-17: 121 files, 551577 bytes
 #   portfolio-front-tools-18: 125 files, 551704 bytes
 #   portfolio-front-tools-19: 126 files, 554506 bytes
 #   portfolio-front-tools-20: 119 files, 550984 bytes
 #   portfolio-front-tools-21: 114 files, 543288 bytes
 #   portfolio-front-tools-22: 128 files, 554283 bytes
-#   portfolio-front-tools-23: 128 files, 554884 bytes
+#   portfolio-front-tools-23: 128 files, 554908 bytes
 #   portfolio-front-tools-24: 136 files, 556876 bytes
 #   portfolio-front-tools-25: 126 files, 549053 bytes
 #   portfolio-front-tools-26: 122 files, 556799 bytes
 #   portfolio-front-tools-27: 129 files, 546000 bytes
 #   portfolio-front-tools-28: 133 files, 553939 bytes
 #   portfolio-front-tools-29: 115 files, 551953 bytes
-#   portfolio-front-tools-30: 137 files, 554154 bytes
-#   portfolio-front-tools-31: 112 files, 556998 bytes
+#   portfolio-front-tools-30: 137 files, 554148 bytes
+#   portfolio-front-tools-31: 112 files, 557001 bytes
 #   portfolio-front-tools-32: 99 files, 550511 bytes
-#   portfolio-front-tools-33: 128 files, 551719 bytes
-#   portfolio-front-tools-34: 118 files, 557053 bytes
-#   portfolio-front-tools-35: 133 files, 555122 bytes
-#   portfolio-front-tools-36: 121 files, 551885 bytes
+#   portfolio-front-tools-33: 128 files, 551712 bytes
+#   portfolio-front-tools-34: 118 files, 556965 bytes
+#   portfolio-front-tools-35: 133 files, 555119 bytes
+#   portfolio-front-tools-36: 121 files, 551868 bytes
 #   portfolio-front-tools-37: 129 files, 553811 bytes
-#   portfolio-front-tools-38: 121 files, 547774 bytes
-#   portfolio-front-tools-39: 88 files, 469928 bytes
+#   portfolio-front-tools-38: 121 files, 547771 bytes
+#   portfolio-front-tools-39: 88 files, 469931 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
