@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1032 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1033 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -62,6 +62,14 @@
     <updated>2026-10-11T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free private chef and meal-prep price calculator: enter guests, shopping, prep, cooking, cleanup and travel hours, groceries and overhead, and see a cost-plus price per visit and per guest. Runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Ski and Snowboard Tune Shop Profit Calculator — Tune Price, Break-Even, Bench Hours</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ski-snowboard-tune-shop-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/ski-snowboard-tune-shop-profit-calculator</id>
+    <updated>2026-10-11T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free ski and snowboard tune shop calculator: enter tune prices, bench minutes, materials, technician pay, grinder and rent, and see profit per tune and per bench hour, break-even volume and the season result. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>Standby Generator Install Price Calculator — Quote the Whole Job</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free construction delay claim calculator: sort delay days by cause, see the time extension you earn, the compensable cost with an Eichleay home-office share, and the liquidated damages left. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Distillery Excise Tax Calculator — Federal Spirits Tax per Bottle</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/distillery-excise-tax-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/distillery-excise-tax-calculator</id>
-    <updated>2026-10-10T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free federal spirits excise tax calculator for craft distillers: enter bottles and their proof, see proof gallons, the CBMA $2.70 and $13.34 tax, the cost per bottle and pour, and what growing past 100,000 proof gallons does. Runs in your browser.</summary>
   </entry>
 </feed>
