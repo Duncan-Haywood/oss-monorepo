@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Yoga &amp; Pilates Studio Class Profit Calculator — Teach, Hire or Rent a Room</title>
+  <meta name="description" content="Free yoga, pilates and barre studio calculator: enter classes, reservations, the drop-in, pack and membership mix, late cancels, teacher pay and rent, and see profit per class and per room hour, break-even attendance and whether to teach yourself, hire teachers or rent a room by the hour. Runs in your browser.">
+  <meta property="og:title" content="Yoga &amp; Pilates Studio Class Profit Calculator — free, private">
+  <meta property="og:description" content="Find out what one class and one room hour earn after teacher pay, rent and late cancels, and which of teaching, hiring or renting a room leaves a studio owner the most.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Yoga & Pilates Studio Class Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free yoga, pilates and barre studio calculator: turn classes per week, reservations, the drop-in, pack and membership mix, late cancels, teacher pay and rent into profit per class and per room hour, break-even attendance and a teach-it-yourself versus hire-teachers versus rent-a-room comparison."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much profit does a yoga or pilates class make?", "acceptedAnswer": {"@type": "Answer", "text": "Take the revenue the class actually brings in, which depends on how the people in the room pay (drop-in price, a class pack's price divided by the classes in it, or a membership spread over the classes a member books), subtract card processing and the teacher, then take its share of rent, utilities, software and insurance. Divide by the number of classes for profit per class, and by the room hours used, changeover included, for profit per room hour. Type your own timetable and read both off."}}, {"@type": "Question", "name": "Should a studio pay yoga teachers per class, per head or a share of revenue?", "acceptedAnswer": {"@type": "Answer", "text": "A flat fee protects the teacher and leaves the studio carrying every thin class. Per-head pay with a minimum rises and falls with attendance, so the studio pays less when a class is empty and more when it is full. A revenue share does the same but also tracks what each person paid, so it pays less for a room full of members than for a room full of drop-ins. The calculator prices all three on your timetable, shows what each leaves you per week, and prints the most a flat fee can be while still clearing your target margin. Whether a teacher can be paid as an independent contractor depends on your state and the facts, and this tool does not decide that."}}, {"@type": "Question", "name": "Is it cheaper to rent a room by the hour than to lease a yoga studio?", "acceptedAnswer": {"@type": "Answer", "text": "Renting turns rent, utilities and upkeep into a charge for the hours you use, plus changeover time, and drops them for the hours you do not. You keep your booking software and insurance, you usually draw fewer people because there is no home of your own, and you do your own teaching. The calculator prints what the same timetable nets under a lease, with hired teachers, and in a rented room at your hourly rate and your own estimate of how much of your crowd follows you."}}, {"@type": "Question", "name": "How much do late cancels and no-shows cost a studio?", "acceptedAnswer": {"@type": "Answer", "text": "Members pay their monthly price whether or not they turn up, so their no-shows cost nothing in revenue. A drop-in or pack reservation that cancels late earns nothing unless you keep a fee or forfeit the credit. The calculator multiplies the rate by the week's reservations, nets off the late fees you actually keep, and prints the cost per week and per year, and what halving the rate would be worth."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Retail, workshops and teacher trainings, tips, sales tax, advertising, winning new members, seasonality, waitlists that refill a late cancel, whether a teacher can lawfully be treated as a contractor, and income tax. It is a planning aid, not an estimate of record."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+      select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">YOGA &amp; PILATES STUDIO CLASS PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What does one class and one room hour earn, and should you teach, hire or rent a room?</h1>
+    <p>Enter your timetable, how reservations pay, your late-cancel rate, teacher pay and the room's costs. You get <strong>profit per class and per room hour, the attendance each setup needs to break even, the drop-in price for your target margin, what late cancels cost, and what the same timetable nets with you teaching it, with hired teachers on a flat, per-head or revenue-share deal, or in a room rented by the hour</strong>.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. Retail, workshops and tips are left out on purpose. A planning estimate, not a contract or an estimate of record.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The timetable and the room</h2>
+    <div class="grid">
+      <div><label for="classesPerWeek">Classes you run per week</label><input type="number" id="classesPerWeek" min="0" step="1" value="24"></div>
+      <div><label for="capacity">Room capacity (spots per class)</label><input type="number" id="capacity" min="0" step="1" value="14"></div>
+      <div><label for="bookedPerClass">Average reservations per class</label><input type="number" id="bookedPerClass" min="0" step="any" value="9"></div>
+      <div><label for="lateCancelPct">Late-cancel and no-show rate (% of reservations)</label><input type="number" id="lateCancelPct" min="0" step="any" value="8"></div>
+      <div><label for="classMin">Class length (minutes)</label><input type="number" id="classMin" min="0" step="any" value="55"></div>
+      <div><label for="turnoverMin">Changeover between classes (minutes)</label><input type="number" id="turnoverMin" min="0" step="any" value="15"></div>
+      <div><label for="roomHoursAvailable">Room hours you could open per week</label><input type="number" id="roomHoursAvailable" min="0" step="any" value="40"></div>
+    </div>
+    <h2 style="margin-top:22px">2. How reservations pay</h2>
+    <div class="grid">
+      <div><label for="dropInPct">Reservations paid by drop-in (%)</label><input type="number" id="dropInPct" min="0" step="any" value="25"></div>
+      <div><label for="packPct">Reservations paid from a class pack (%)</label><input type="number" id="packPct" min="0" step="any" value="35"></div>
+      <div><label for="dropInPrice">Drop-in price ($)</label><input type="number" id="dropInPrice" min="0" step="any" value="26"></div>
+      <div><label for="packPrice">Class pack price ($)</label><input type="number" id="packPrice" min="0" step="any" value="200"></div>
+      <div><label for="packClasses">Classes in a pack</label><input type="number" id="packClasses" min="0" step="any" value="10"></div>
+      <div><label for="packBreakagePct">Pack classes never used (%)</label><input type="number" id="packBreakagePct" min="0" step="any" value="8"></div>
+      <div><label for="membershipPrice">Monthly membership price ($)</label><input type="number" id="membershipPrice" min="0" step="any" value="140"></div>
+      <div><label for="memberBookingsPerMonth">Classes a member books per month</label><input type="number" id="memberBookingsPerMonth" min="0" step="any" value="8"></div>
+      <div><label for="lateFee">Late-cancel fee ($)</label><input type="number" id="lateFee" min="0" step="any" value="10"></div>
+      <div><label for="lateFeeEnforcePct">Late cancels where you keep the fee or credit (%)</label><input type="number" id="lateFeeEnforcePct" min="0" step="any" value="60"></div>
+      <div><label for="processingPct">Card processing (% of revenue)</label><input type="number" id="processingPct" min="0" step="any" value="3"></div>
+    </div>
+    <h2 style="margin-top:22px">3. Teacher pay (used when you hire)</h2>
+    <div class="grid">
+      <div><label for="payModel">Teacher pay model</label><select id="payModel"><option value="flat" selected>Flat fee per class</option><option value="perHead">Per student who attends (with a minimum)</option><option value="share">Share of the class's revenue</option></select></div>
+      <div><label for="flatPay">Flat fee per class ($)</label><input type="number" id="flatPay" min="0" step="any" value="55"></div>
+      <div><label for="perHeadPay">Pay per student who attends ($)</label><input type="number" id="perHeadPay" min="0" step="any" value="5"></div>
+      <div><label for="perHeadMin">Per-head pay minimum per class ($)</label><input type="number" id="perHeadMin" min="0" step="any" value="35"></div>
+      <div><label for="sharePct">Revenue-share pay (% of class revenue)</label><input type="number" id="sharePct" min="0" step="any" value="30"></div>
+      <div><label for="payrollPct">Payroll tax and extras on teacher pay (%)</label><input type="number" id="payrollPct" min="0" step="any" value="8"></div>
+    </div>
+    <h2 style="margin-top:22px">4. Premises and your own time</h2>
+    <div class="grid">
+      <div><label for="rentMonth">Studio rent ($ per month)</label><input type="number" id="rentMonth" min="0" step="any" value="3200"></div>
+      <div><label for="utilitiesMonth">Utilities ($ per month)</label><input type="number" id="utilitiesMonth" min="0" step="any" value="380"></div>
+      <div><label for="softwareMonth">Booking and payment software ($ per month)</label><input type="number" id="softwareMonth" min="0" step="any" value="180"></div>
+      <div><label for="insuranceMonth">Liability insurance ($ per month)</label><input type="number" id="insuranceMonth" min="0" step="any" value="120"></div>
+      <div><label for="otherMonth">Cleaning, laundry, props and other upkeep ($ per month)</label><input type="number" id="otherMonth" min="0" step="any" value="260"></div>
+      <div><label for="ownerRate">What an hour of your time should pay you ($)</label><input type="number" id="ownerRate" min="0" step="any" value="35"></div>
+      <div><label for="adminHours">Hours a week you spend running the studio</label><input type="number" id="adminHours" min="0" step="any" value="12"></div>
+      <div><label for="ownerMaxTeachHours">Hours a week you are willing to teach</label><input type="number" id="ownerMaxTeachHours" min="0" step="any" value="24"></div>
+    </div>
+    <h2 style="margin-top:22px">5. Renting a room by the hour instead</h2>
+    <div class="grid">
+      <div><label for="roomRentHour">Room rental ($ per hour)</label><input type="number" id="roomRentHour" min="0" step="any" value="30"></div>
+      <div><label for="rentedFillPct">Attendance in a rented room, against your studio (%)</label><input type="number" id="rentedFillPct" min="0" step="any" value="85"></div>
+      <div><label for="rentedAdminHours">Hours a week of admin if you only rent</label><input type="number" id="rentedAdminHours" min="0" step="any" value="3"></div>
+      <div><label for="targetMarginPct">Target margin after your pay (% of revenue)</label><input type="number" id="targetMarginPct" min="0" step="any" value="25"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Work out the timetable</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="share">Copy a share link</button>
+    </p>
+    <p class="note" id="form-status">Enter your numbers or load the example, then click Work out the timetable.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>Three ways to run the same timetable, per week</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Setup</th><th scope="col">Before your pay</th><th scope="col">Your hours</th><th scope="col">After your pay</th><th scope="col">Per class</th><th scope="col">Per room hour</th><th scope="col">Break-even reservations</th></tr></thead><tbody id="setups"></tbody></table></div>
+    <h3>Where the revenue comes from</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Payer</th><th scope="col">Share of reservations</th><th scope="col">Per week</th><th scope="col">Per person who attends</th></tr></thead><tbody id="mix"></tbody></table></div>
+    <h3>The three teacher pay models</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Pay model</th><th scope="col">Teacher cost per class</th><th scope="col">Teacher cost per week</th><th scope="col">You keep after your pay</th></tr></thead><tbody id="models"></tbody></table></div>
+    <h3>The week at different attendance: what it nets three ways, after your pay</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Attendance</th><th scope="col">Reservations per class</th><th scope="col">Room filled</th><th scope="col">You teach</th><th scope="col">Hire teachers</th><th scope="col">Rent a room</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The arithmetic, and what it leaves out</h2>
+    <ul>
+      <li>A reservation is worth what its payer pays. A drop-in pays the drop-in price, a pack reservation pays the pack price divided by the classes in it (and a little more if some pack classes are never used), and a member pays their monthly price spread over the classes they book.</li>
+      <li>A drop-in or pack reservation that cancels late earns nothing unless you keep a fee. A member who skips a class has already paid, so only non-member cancels cost revenue.</li>
+      <li>Hired teachers cost their pay plus payroll tax and extras. When you teach, you pay no one but yourself, and your hours (teaching plus running the place) are priced at the hourly figure you type so the setups compare on what is left for you.</li>
+      <li>A rented room trades rent, utilities and upkeep for an hourly charge on each class plus its changeover, keeps your software and insurance, and draws the share of your usual crowd that you enter.</li>
+      <li><strong>Not modelled:</strong> retail, workshops and teacher trainings, tips, sales tax, advertising, winning new members, seasonality and slow weeks, waitlists that refill a late cancel, whether a teacher can lawfully be treated as a contractor, and income tax.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much profit does a yoga or pilates class make?</h3>
+    <p>Take the revenue the class actually brings in, which depends on how the people in the room pay (drop-in price, a class pack's price divided by the classes in it, or a membership spread over the classes a member books), subtract card processing and the teacher, then take its share of rent, utilities, software and insurance. Divide by the number of classes for profit per class, and by the room hours used, changeover included, for profit per room hour. Type your own timetable and read both off.</p>
+    <h3>Should a studio pay yoga teachers per class, per head or a share of revenue?</h3>
+    <p>A flat fee protects the teacher and leaves the studio carrying every thin class. Per-head pay with a minimum rises and falls with attendance, so the studio pays less when a class is empty and more when it is full. A revenue share does the same but also tracks what each person paid, so it pays less for a room full of members than for a room full of drop-ins. The calculator prices all three on your timetable, shows what each leaves you per week, and prints the most a flat fee can be while still clearing your target margin. Whether a teacher can be paid as an independent contractor depends on your state and the facts, and this tool does not decide that.</p>
+    <h3>Is it cheaper to rent a room by the hour than to lease a yoga studio?</h3>
+    <p>Renting turns rent, utilities and upkeep into a charge for the hours you use, plus changeover time, and drops them for the hours you do not. You keep your booking software and insurance, you usually draw fewer people because there is no home of your own, and you do your own teaching. The calculator prints what the same timetable nets under a lease, with hired teachers, and in a rented room at your hourly rate and your own estimate of how much of your crowd follows you.</p>
+    <h3>How much do late cancels and no-shows cost a studio?</h3>
+    <p>Members pay their monthly price whether or not they turn up, so their no-shows cost nothing in revenue. A drop-in or pack reservation that cancels late earns nothing unless you keep a fee or forfeit the credit. The calculator multiplies the rate by the week's reservations, nets off the late fees you actually keep, and prints the cost per week and per year, and what halving the rate would be worth.</p>
+    <h3>What does this leave out?</h3>
+    <p>Retail, workshops and teacher trainings, tips, sales tax, advertising, winning new members, seasonality, waitlists that refill a late cancel, whether a teacher can lawfully be treated as a contractor, and income tax. It is a planning aid, not an estimate of record.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your own books, a written agreement or an advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the prices and pay you set.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>timetable_planned</code>, <code>example_loaded</code>, <code>link_shared</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../boutique-fitness-studio-pricing-planner/">boutique fitness studio pricing</a>, <a href="../fitness-studio-membership-calculator/">fitness studio membership</a>, <a href="../studio-class-slot-optimizer/">studio class slot optimizer</a>, <a href="../massage-therapist-profit-calculator/">massage therapist profit</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv, encodeShare, decodeShare } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["classesPerWeek", "capacity", "bookedPerClass", "lateCancelPct", "classMin", "turnoverMin", "roomHoursAvailable", "dropInPct", "packPct", "dropInPrice", "packPrice", "packClasses", "packBreakagePct", "membershipPrice", "memberBookingsPerMonth", "lateFee", "lateFeeEnforcePct", "processingPct", "flatPay", "perHeadPay", "perHeadMin", "sharePct", "payrollPct", "rentMonth", "utilitiesMonth", "softwareMonth", "insuranceMonth", "otherMonth", "ownerRate", "adminHours", "ownerMaxTeachHours", "roomRentHour", "rentedFillPct", "rentedAdminHours", "targetMarginPct", "payModel"];
+    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const be = (x) => (x === null ? "not even full" : x);
+    const SETUPS = [["owner", "You teach every class"], ["hire", "Hire teachers"], ["rent", "Rent a room by the hour"]];
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run(scroll = true) {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      const s = r.season;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#setups").innerHTML = SETUPS.map(([id, label]) => { const x = s.setups[id]; return `<tr><th scope="row">${esc(label)}</th><td>${usd(x.net)}</td><td>${x.ownerHours}</td><td>${usd(x.afterPay)}</td><td>${usd(x.perClass)}</td><td>${usd(x.perRoomHour)}</td><td>${be(x.breakEvenBooked)}</td></tr>`; }).join("");
+      $("#mix").innerHTML = s.mix.map((m) => `<tr><th scope="row">${esc(m.label)}</th><td>${m.share}%</td><td>${usd(m.weekly)}</td><td>${usd(m.perVisit)}</td></tr>`).join("");
+      $("#models").innerHTML = s.models.map((m) => `<tr><th scope="row">${esc(m.label)}</th><td>${usd(m.perClass)}</td><td>${usd(m.weekly)}</td><td>${usd(m.net)}</td></tr>`).join("");
+      $("#rows").innerHTML = r.table.map((x) => `<tr><th scope="row">${x.pct}%</th><td>${x.booked}</td><td>${x.fillPct}%</td><td>${usd(x.owner)}</td><td>${usd(x.hire)}</td><td>${usd(x.rent)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Weekly result after your pay: you teach ${usd(s.setups.owner.afterPay)}, hire teachers ${usd(s.setups.hire.afterPay)}, rent a room ${usd(s.setups.rent.afterPay)}.`;
+      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function fill(values) { for (const k of keys) if (values[k] !== undefined) $("#" + k).value = values[k]; }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("timetable_planned"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#share").addEventListener("click", async () => {
+      const url = location.href.split("#")[0] + "#" + encodeShare(read());
+      try { history.replaceState(null, "", url); } catch { /* optional */ }
+      try { await navigator.clipboard.writeText(url); status.textContent = "Link copied. It contains your numbers, so send it only to people you want to see them."; }
+      catch { status.textContent = "Copy the address bar: it now contains your numbers."; }
+      record("link_shared");
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "yoga-pilates-studio-week.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    if (location.hash.length > 1) { const shared = decodeShare(location.hash); if (Object.keys(shared).length) { fill(shared); run(false); } }
+  </script>
+</body>
+</html>
