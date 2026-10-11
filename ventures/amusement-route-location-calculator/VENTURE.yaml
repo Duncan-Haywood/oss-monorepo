@@ -1,0 +1,55 @@
+name: amusement-route-location-calculator
+description: >-
+  Free browser tool for coin-op amusement route operators (arcade, pool table, claw
+  machine, kiddie ride): enter each location's weekly take, commission, visits and
+  miles and see profit per route hour, the weekly take each machine needs, and the
+  highest commission that still earns your target hourly. Copy, CSV, save and load.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a new-venture session. duplicate_check.py: coin-op route
+# scored 0.20 against music-distribution-fee-calculator (noise); the nearest real
+# neighbour is vending-machine-route-margin, which prices snacks and restocking,
+# not a commission split with a location owner.
+#
+# Why this niche: route operators set a commission split once (40-60% is customary)
+# and rarely revisit it per location, while the same split is profitable at one stop
+# and a loss at another once drive time and fixed per-machine costs come off. The
+# per-location commission ceiling is a concrete negotiation number. Searches such as
+# "arcade machine commission split" and "how much to pay a location for a pool table"
+# are steady. Willingness to pay is real (route software is paid per machine), so
+# this is the lead magnet for a later paid route-collection log (payment rails stay off).
+#
+# First visitor: coin-op operator forums and Facebook groups, state amusement
+# operator association newsletters. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed numbers. Not business, tax or legal
+# advice; says so. Names no machine maker, route software or processor. No data
+# fetched, no accounts, nothing stored.
+
+hypotheses:
+  - claim: >-
+      Route operators will enter their locations into a no-signup tool and use the
+      highest-commission and take-needed numbers to renegotiate or drop a stop.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a highest-commission or take-needed figure that does not reproduce the tool's own profit-per-hour result when typed back in.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/amusement-route-location-calculator/
+  analytics: null
