@@ -425,6 +425,8 @@ export const REVIEWED_NOT_CARRIED = {
     'labour and truck cost are dollars per hour applied to one visit\'s drive, setup, pumping and dump-trip minutes, not a percentage of direct cost, and there is no burden or overhead field; the margin is a share of the price -- the tool prices a pump-out visit and sets a pump-out interval rather than being quoted a shop rate',
   'bed-bug-heat-treatment-price-calculator':
     'labour is dollars per person-hour applied to one job\'s prep, heat-up, hold and pack-out hours, and fuel and heater wear are dollars per heater hour, not a percentage of direct cost, and there is no burden or overhead field; the margin is a share of the price -- the tool prices a heat treatment from heaters, clutter and callback risk rather than being quoted a shop rate',
+  'water-damage-drying-estimate-calculator':
+    'labour and technician cost are dollars per hour applied to one loss\'s set, monitoring, drive, extraction and demo hours, not a percentage of direct cost, and there is no burden or overhead field; the margin is a share of the billed amount -- the tool sizes drying equipment and checks a job against the carrier\'s approved days rather than being quoted a shop rate',
   'powder-coating-job-price-calculator':
     'labour and overhead are dollars per labour hour applied to one job\'s prep, spray and setup minutes, not a percentage of direct cost, and there is no burden field; the margin is a share of the price -- the tool prices a coating job from powder use, oven batches and setup rather than from a shop rate',
   'laser-cutting-engraving-job-price-calculator':
