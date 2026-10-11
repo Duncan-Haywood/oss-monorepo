@@ -425,6 +425,8 @@ export const REVIEWED_NOT_CARRIED = {
     'labour and truck cost are dollars per hour applied to one visit\'s drive, setup, pumping and dump-trip minutes, not a percentage of direct cost, and there is no burden or overhead field; the margin is a share of the price -- the tool prices a pump-out visit and sets a pump-out interval rather than being quoted a shop rate',
   'bed-bug-heat-treatment-price-calculator':
     'labour is dollars per person-hour applied to one job\'s prep, heat-up, hold and pack-out hours, and fuel and heater wear are dollars per heater hour, not a percentage of direct cost, and there is no burden or overhead field; the margin is a share of the price -- the tool prices a heat treatment from heaters, clutter and callback risk rather than being quoted a shop rate',
+  'standby-generator-install-price-calculator':
+    'labour is dollars per person-hour applied to one job\'s install and drive hours, not a percentage of direct cost, and there is no burden or overhead field; the margin is a share of the price -- the tool prices a standby generator install from equipment, runs and callback risk rather than being quoted a shop rate',
   'pool-opening-closing-price-calculator':
     'labour is dollars per person-hour applied to one visit\'s setup, line, cover and drive hours, and chemical is dollars per 10,000 gallons, not a percentage of direct cost, and there is no burden or overhead field; the margin is a share of the price -- the tool prices a seasonal pool opening and closing from gallons, cover and water condition rather than being quoted a shop rate',
   'water-damage-drying-estimate-calculator':
