@@ -40,3 +40,7 @@ test("robots and sitemap let crawlers find the page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
 });
+
+test("footer links the sibling tool investor-update-builder", () => {
+  assert.match(page("index.html"), /href="\.\.\/investor-update-builder\/"/);
+});
