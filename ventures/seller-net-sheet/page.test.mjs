@@ -56,3 +56,9 @@ test("the copy-status message is announced, matching the role=\"status\" convent
 test("links to the STR host payout calculator", () => {
   assert.match(index, /href="\.\.\/str-host-payout-calculator\/"/, "the sibling-tool link is missing");
 });
+
+test("footer links the home sale net proceeds calculator sibling", async () => {
+  const { readFileSync } = await import("node:fs");
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /href="\.\.\/home-sale-net-proceeds-calculator\/"/);
+});

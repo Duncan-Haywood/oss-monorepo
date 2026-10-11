@@ -86,3 +86,7 @@ test("the guide's worked example is the engine's answer", () => {
   const jul = r.options.find((o) => o.label === "Jul");
   assert.ok(jul.price === Math.max(...r.options.map((o) => o.price)));
 });
+
+test("footer links the ag spray drone quote calculator sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/ag-spray-drone-quote-calculator\/"/);
+});

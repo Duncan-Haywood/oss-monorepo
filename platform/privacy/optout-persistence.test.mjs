@@ -1540,6 +1540,7 @@ const RELATIVE_SELF = relative(
 // +1: `json-ld-rich-result-validator` graduated.
 // +1: `roommate-rent-splitter` graduated.
 // +1: `car-lease-deal-checker` graduated.
+// +1: `grain-store-or-sell-calculator` graduated.
 // +1: `home-sale-net-proceeds-calculator` graduated.
 // +1: `investor-update-builder` graduated.
 const SWITCHES_IN_THE_CATALOGUE = 1040;

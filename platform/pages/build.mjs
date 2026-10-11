@@ -750,6 +750,9 @@ const CATEGORY_RULES = [
       // growers planning a 12-24 month crop, same farm category, one hop from `apiary-profit-planner`.
       'pollination-contract-checker',
       'oyster-farm-growout-planner',
+      // `grain-store-or-sell-calculator` joined 2026-10-11 on its first commit: row-crop farmers deciding to store or sell,
+      // same farm category, one hop from `cow-calf-breakeven` style own-numbers costing.
+      'grain-store-or-sell-calculator',
       // `christmas-tree-farm-profit-planner` joined 2026-10-07 on its first commit: land-based growers on the same farm
       // category, the longest-horizon sibling of `u-pick-farm-profit-planner`.
       'christmas-tree-farm-profit-planner',
