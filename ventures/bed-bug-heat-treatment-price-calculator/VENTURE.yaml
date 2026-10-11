@@ -1,0 +1,43 @@
+name: bed-bug-heat-treatment-price-calculator
+description: >-
+  Free browser calculator for pest control operators: enter the floor area, ceiling and clutter, heaters, crew, fuel, follow-up inspection and
+  callback rate, and see the price per job and per square foot, the heater count and day length, the expected warranty cost, and how a heat price
+  compares with a chemical programme. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. pest-control-bid-calculator is the generic recurring-service shape (duplicate_check 0.30); none models a
+# one-day heat job from heaters, clutter-driven heat-up time and the callback warranty as a priced risk.
+#
+# First visitor: pest control owners searching "how much to charge for bed bug heat treatment", "bed bug heat treatment cost per square foot" and
+# "bed bug heat treatment pricing for pest control companies", and bed bug / PCO operator forums. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not legal advice and not treatment guidance; says what is
+# not modelled; carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Small pest control operators will type a unit's size, clutter and their heater and warranty costs into a no-signup calculator to set a heat
+      treatment price, because most quote a flat per-room number that ignores clutter and callbacks.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/bed-bug-heat-treatment-price-calculator/
+  analytics: null
