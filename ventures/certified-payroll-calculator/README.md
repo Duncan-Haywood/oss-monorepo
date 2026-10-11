@@ -109,9 +109,10 @@ never changes what the tool does.
   determination, or a worker's classification.** Those come from the
   contracting officer's wage determination on SAM.gov and the project's own
   solicitation — entered here, never guessed.
-- **Does not generate a filed WH-347 report.** It computes the underlying
-  arithmetic so you can check or fill in a report correctly; it does not know
-  your project name, contract number, or DOL's exact form layout.
+- **Does not generate the signed WH-347 filing.** `wh347-report.html` fills
+  the weekly payroll columns for every worker and checks each row against the
+  wage determination you enter; the Statement of Compliance and the official
+  form stay yours to complete and sign.
 - **Does not look up an approved apprentice ratio.** That comes from the
   specific registered apprenticeship program.
 - One worker classification, one week, at a time.
@@ -132,3 +133,13 @@ you check. To the maximum extent permitted by law, the authors accept no
 liability for any loss or damage arising from its use.
 
 MIT licensed — see [`LICENSE`](LICENSE).
+
+## WH-347 report builder
+
+`wh347-report.html` (logic in `wh347.mjs`, tests in `wh347.test.mjs`) takes a
+crew for one workweek: hours by day, hours on other jobs, wage determination
+base and fringe, base paid, fringe paid to a plan or in cash, and deductions.
+It returns the payroll sheet in WH-347 column order, overtime that treats cash
+fringe correctly (reusing `calc.mjs`), an underpayment check per row, flags, a
+printable page and a CSV. Names and IDs are never put in a link or stored; the
+ID field takes four digits only.
