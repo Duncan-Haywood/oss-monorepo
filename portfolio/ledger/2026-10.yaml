@@ -3455,3 +3455,17 @@ entries:
         Screened with duplicate_check.py (nearest 0.29). First visitor: HR and payroll leads searching gender pay gap calculator
         EU / pay transparency directive reporting; volume unmeasured.
     mrr_end: 0
+  - venture: boat-rental-fleet-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built boat-rental-fleet-profit-calculator: a browser-local calculator for owners who rent out a boat, pontoon, jet ski
+        or paddleboards. Three offers (hourly, half-day, full-day) with fuel and wear per engine hour, dock turnaround time, a weather
+        cancellation rate, and a year of dock, insurance and boat cost spread over a short season, giving profit per rental and per boat
+        hour, target-margin prices, break-even rentals per week and cancellation cost; compares renting direct, a marketplace listing
+        (commission against extra bookings, with the lift at which they are equal) and a captained charter (premium against captain pay,
+        with the premium at which the captain pays for himself), with a volume table, share link and CSV. Hand-computed fixed-cost,
+        cancellation and mode cases pinned by 27 tests. First visitor: owners searching how much to charge to rent my boat / jet ski
+        rental break even; volume unmeasured.
+    mrr_end: 0
