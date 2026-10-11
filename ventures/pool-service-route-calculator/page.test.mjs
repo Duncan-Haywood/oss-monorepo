@@ -78,7 +78,7 @@ test("the guide's worked numbers match the engine", async () => {
 
 test("index links to sibling tools", async () => {
   const idx = await read("index.html");
-  for (const s of ["pool-route-pricing", "route-account-pruner", "pool-plaster-bid-calculator", "lawn-care-bid-calculator"]) {
+  for (const s of ["pool-opening-closing-price-calculator", "pool-route-pricing", "route-account-pruner", "pool-plaster-bid-calculator", "lawn-care-bid-calculator"]) {
     assert.ok(idx.includes(`href="../${s}/"`), s);
     assert.ok((await readFile(new URL(`../${s}/VENTURE.yaml`, import.meta.url), "utf8")).length > 0, s);
   }
