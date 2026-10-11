@@ -166,7 +166,7 @@
     };
     const EXAMPLE = JSON.stringify({ "@context": "https://schema.org", "@type": "Product", name: "Trail Mug", offers: { "@type": "Offer", price: "$14.00", priceCurrency: "usd" }, aggregateRating: { ratingValue: 4.6 } }, null, 2);
     $("#check").addEventListener("click", run);
-    $("#load-example").addEventListener("click", () => { $("#input").value = `<script type="application/ld+json">\n${EXAMPLE}\n<\/script>`; run(); record("example_loaded"); $("#form-status").textContent = "Sample markup with deliberate mistakes — an invented product."; });
+    $("#load-example").addEventListener("click", () => { $("#input").value = "<scr" + "ipt type=\"application/ld+json\">\n" + EXAMPLE + "\n</scr" + "ipt>"; run(); record("example_loaded"); $("#form-status").textContent = "Sample markup with deliberate mistakes — an invented product."; });
     $("#clear-all").addEventListener("click", () => { $("#input").value = ""; $("#report").hidden = true; last = null; $("#form-status").textContent = "Paste markup, then click Check markup."; });
     $("#btype").addEventListener("change", drawFields);
     let builtScript = "";

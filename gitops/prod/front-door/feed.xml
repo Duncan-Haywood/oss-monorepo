@@ -96,6 +96,14 @@
     <summary type="text">Free hydroseeding bid calculator: enter seed, mulch, water, tank size, crew, travel and equipment and see the cost and profit of a job, the price per 1,000 sq ft for your target margin, and the season result. Runs in your browser.</summary>
   </entry>
   <entry>
+    <title>JSON-LD Rich Result Validator — Schema Markup Checker and Generator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/json-ld-rich-result-validator/"/>
+    <id>tag:marisstella.dev,2026:tool/json-ld-rich-result-validator</id>
+    <updated>2026-10-11T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free JSON-LD and schema markup validator. Paste a page&#39;s HTML or JSON-LD and see every missing required and recommended property for Product, Article, LocalBusiness, Recipe, Event, JobPosting and more. Builds starter markup too. Nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Mobile Oil Change Route Profit Calculator — Price per Job, Batching, Solo vs Franchise</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mobile-oil-change-route-profit-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/mobile-oil-change-route-profit-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-11T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free private chef and meal-prep price calculator: enter guests, shopping, prep, cooking, cleanup and travel hours, groceries and overhead, and see a cost-plus price per visit and per guest. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Shoe Repair Shop Profit Calculator — Heel Price, Break-Even, Bench Hours</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/shoe-repair-shop-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/shoe-repair-shop-profit-calculator</id>
-    <updated>2026-10-11T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free shoe repair shop calculator: enter heel, repair and rework prices, bench minutes, supplies, cobbler pay and rent, and see profit per job and per bench hour, break-even volume and the season result. Runs in your browser.</summary>
   </entry>
 </feed>
