@@ -166,6 +166,10 @@ const NO_SHARED_SHOP_RATES = {
     'as `targetMargin` -- aliased too. It has no separate payroll-burden field, and its overhead ' +
     '("Booth / shop overhead") is a flat dollar figure per job rather than a percentage of direct ' +
     'cost, so it carries two of the four: see PARTIAL_SHOP_RATE_PAGES.',
+  'hoarding-cleanout-bid-calculator':
+    'it has no payroll-burden or overhead field: labour is a per-person hourly rate applied to whole paid crew days, ' +
+    'and its risk allowance is a share of cost for pests and sharps rather than overhead, so sharing the four ' +
+    'canonical rates would prefill figures that mean different things.',
 };
 
 test('every trade bid calculator on main carries all four shop-rate fields', async () => {
