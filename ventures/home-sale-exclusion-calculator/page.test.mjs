@@ -102,3 +102,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("LICENSE"), /MIT License/);
   assert.match(page("VENTURE.yaml"), /^name: home-sale-exclusion-calculator$/m);
 });
+
+test("index links ../home-sale-net-proceeds-calculator/ so a seller reaches it in one hop", () => {
+  assert.match(page("index.html"), /href="\.\.\/home-sale-net-proceeds-calculator\/"/);
+});

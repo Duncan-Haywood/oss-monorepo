@@ -135,3 +135,7 @@ test("the guide carries the clauses, links both ways, and its worked example mat
     assert.ok(guide.includes(row), `row for ${key}: ${row}`);
   }
 });
+
+test("the footer names the grain store-or-sell calculator, a farm sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/grain-store-or-sell-calculator\/"/);
+});

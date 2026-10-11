@@ -119,3 +119,7 @@ test("Clear resets the interest fields along with the deposit and deductions", (
   assert.match(body, /depositEls\.interestRate\.value = "";/);
   assert.match(body, /depositEls\.interestDays\.value = "";/);
 });
+
+test("index links ../roommate-rent-splitter/ so a shared-lease reader reaches it in one hop", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/roommate-rent-splitter\/"/);
+});
