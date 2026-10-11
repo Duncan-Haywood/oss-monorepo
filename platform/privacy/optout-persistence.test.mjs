@@ -1525,7 +1525,7 @@ const RELATIVE_SELF = relative(
 // +1: `powder-coating-job-price-calculator` graduated.
 // +1: `grease-trap-pumping-price-calculator` graduated.
 // +1: `laser-cutting-engraving-job-price-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1002;
+const SWITCHES_IN_THE_CATALOGUE = 1003;
 // +1: `retreat-profit-pricing-calculator` graduated.
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
