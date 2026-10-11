@@ -1,4 +1,4 @@
-name: ppf-ceramic-coating-bid-calculator
+name: ppf-ceramic-coating-price-calculator
 description: >-
   Free browser calculator for paint protection film and ceramic coating shops: enter the vehicle size, film package, roll cost and waste, paint
   correction, techs, cure days, bay overhead and redo rate, and see the price, the film to buy, the bay days, and which package earns the most per
@@ -40,5 +40,5 @@ kill_criteria:
   - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/ppf-ceramic-coating-bid-calculator/
+  production: https://duncan-haywood.github.io/monorepo-projects/ppf-ceramic-coating-price-calculator/
   analytics: null

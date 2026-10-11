@@ -1,8 +1,8 @@
-const KEY = "ppf-ceramic-coating-bid-calculator-usage";
+const KEY = "ppf-ceramic-coating-price-calculator-usage";
 // Separate from the counters on purpose: opting out *removes* the
 // counters, so a flag stored inside them would be deleted by the very
 // act it records.
-const OPT_OUT = "ppf-ceramic-coating-bid-calculator-usage-opt-out";
+const OPT_OUT = "ppf-ceramic-coating-price-calculator-usage-opt-out";
 
 // The in-memory flag is only a same-page fast path. `globalThis` is a
 // fresh realm on every page load, so without the stored key the switch

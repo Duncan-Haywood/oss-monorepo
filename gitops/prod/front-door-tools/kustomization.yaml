@@ -38,41 +38,41 @@
 #   portfolio-front-tools-2: 144 files, 553316 bytes
 #   portfolio-front-tools-3: 128 files, 549640 bytes
 #   portfolio-front-tools-4: 138 files, 556570 bytes
-#   portfolio-front-tools-5: 131 files, 555892 bytes
-#   portfolio-front-tools-6: 124 files, 556380 bytes
-#   portfolio-front-tools-7: 120 files, 549971 bytes
+#   portfolio-front-tools-5: 131 files, 555890 bytes
+#   portfolio-front-tools-6: 124 files, 556352 bytes
+#   portfolio-front-tools-7: 120 files, 549926 bytes
 #   portfolio-front-tools-8: 135 files, 551634 bytes
-#   portfolio-front-tools-9: 138 files, 556383 bytes
+#   portfolio-front-tools-9: 138 files, 556381 bytes
 #   portfolio-front-tools-10: 134 files, 554298 bytes
-#   portfolio-front-tools-11: 128 files, 553280 bytes
+#   portfolio-front-tools-11: 128 files, 553292 bytes
 #   portfolio-front-tools-12: 128 files, 555210 bytes
-#   portfolio-front-tools-13: 128 files, 554187 bytes
+#   portfolio-front-tools-13: 128 files, 554118 bytes
 #   portfolio-front-tools-14: 132 files, 552440 bytes
 #   portfolio-front-tools-15: 124 files, 554676 bytes
 #   portfolio-front-tools-16: 125 files, 554556 bytes
 #   portfolio-front-tools-17: 121 files, 551549 bytes
-#   portfolio-front-tools-18: 125 files, 551687 bytes
-#   portfolio-front-tools-19: 126 files, 554529 bytes
+#   portfolio-front-tools-18: 125 files, 551704 bytes
+#   portfolio-front-tools-19: 126 files, 554506 bytes
 #   portfolio-front-tools-20: 119 files, 550984 bytes
-#   portfolio-front-tools-21: 114 files, 543233 bytes
+#   portfolio-front-tools-21: 114 files, 543288 bytes
 #   portfolio-front-tools-22: 128 files, 554283 bytes
-#   portfolio-front-tools-23: 128 files, 554949 bytes
-#   portfolio-front-tools-24: 136 files, 556882 bytes
+#   portfolio-front-tools-23: 128 files, 554884 bytes
+#   portfolio-front-tools-24: 136 files, 556876 bytes
 #   portfolio-front-tools-25: 126 files, 549053 bytes
-#   portfolio-front-tools-26: 122 files, 556821 bytes
-#   portfolio-front-tools-27: 131 files, 548352 bytes
-#   portfolio-front-tools-28: 130 files, 550791 bytes
+#   portfolio-front-tools-26: 122 files, 556799 bytes
+#   portfolio-front-tools-27: 131 files, 548430 bytes
+#   portfolio-front-tools-28: 130 files, 550822 bytes
 #   portfolio-front-tools-29: 116 files, 553684 bytes
-#   portfolio-front-tools-30: 137 files, 552667 bytes
+#   portfolio-front-tools-30: 137 files, 552670 bytes
 #   portfolio-front-tools-31: 111 files, 547692 bytes
 #   portfolio-front-tools-32: 98 files, 551259 bytes
-#   portfolio-front-tools-33: 128 files, 550930 bytes
+#   portfolio-front-tools-33: 128 files, 550956 bytes
 #   portfolio-front-tools-34: 116 files, 543267 bytes
 #   portfolio-front-tools-35: 129 files, 550320 bytes
 #   portfolio-front-tools-36: 121 files, 553100 bytes
-#   portfolio-front-tools-37: 134 files, 551794 bytes
+#   portfolio-front-tools-37: 134 files, 551785 bytes
 #   portfolio-front-tools-38: 120 files, 553515 bytes
-#   portfolio-front-tools-39: 92 files, 492914 bytes
+#   portfolio-front-tools-39: 92 files, 492958 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3723,9 +3723,9 @@ configMapGenerator:
       - powder-coating-job-price-calculator__calc.mjs.gz=powder-coating-job-price-calculator__calc.mjs.gz
       - powder-coating-job-price-calculator__index.html.gz=powder-coating-job-price-calculator__index.html.gz
       - powder-coating-job-price-calculator__usage.mjs.gz=powder-coating-job-price-calculator__usage.mjs.gz
-      - ppf-ceramic-coating-bid-calculator__calc.mjs.gz=ppf-ceramic-coating-bid-calculator__calc.mjs.gz
-      - ppf-ceramic-coating-bid-calculator__index.html.gz=ppf-ceramic-coating-bid-calculator__index.html.gz
-      - ppf-ceramic-coating-bid-calculator__usage.mjs.gz=ppf-ceramic-coating-bid-calculator__usage.mjs.gz
+      - ppf-ceramic-coating-price-calculator__calc.mjs.gz=ppf-ceramic-coating-price-calculator__calc.mjs.gz
+      - ppf-ceramic-coating-price-calculator__index.html.gz=ppf-ceramic-coating-price-calculator__index.html.gz
+      - ppf-ceramic-coating-price-calculator__usage.mjs.gz=ppf-ceramic-coating-price-calculator__usage.mjs.gz
       - pressure-washing-bid-calculator__calc.mjs.gz=pressure-washing-bid-calculator__calc.mjs.gz
       - pressure-washing-bid-calculator__how-much-to-charge.html.gz=pressure-washing-bid-calculator__how-much-to-charge.html.gz
       - pressure-washing-bid-calculator__index.html.gz=pressure-washing-bid-calculator__index.html.gz
