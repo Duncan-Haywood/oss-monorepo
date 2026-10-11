@@ -1540,9 +1540,12 @@ const RELATIVE_SELF = relative(
 // +1: `json-ld-rich-result-validator` graduated.
 // +1: `roommate-rent-splitter` graduated.
 // +1: `car-lease-deal-checker` graduated.
+// +1: `grain-store-or-sell-calculator` graduated.
 // +1: `home-sale-net-proceeds-calculator` graduated.
 // +1: `tax-deed-auction-max-bid-planner` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1040;
+// +1: `investor-update-builder` graduated.
+// +1: `private-school-tuition-discount-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1043;
 // +1: `retreat-profit-pricing-calculator` graduated.
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.

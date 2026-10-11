@@ -1,0 +1,56 @@
+name: private-school-tuition-discount-calculator
+description: >-
+  Free browser tool for independent-school business offices: enter sticker tuition and
+  students by financial-aid group, get the discount rate, net tuition per student,
+  break-even enrollment, the highest award that still adds money, and what a tuition
+  increase brings in with aid held or growing and some families lost. Copy, CSV, save
+  and load. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a new-venture session. duplicate_check.py: no row above 0.34
+# for private-school tuition discount; nearest neighbours are childcare-center
+# break-even and childcare-tuition (a different buyer and model).
+#
+# Why this niche: US independent schools run on net tuition, and the discount rate
+# is the number boards review every budget season. Schools buy enrollment-management
+# and aid-assessment services (tens of thousands of schools worldwide), and the
+# budget model is usually a hand-built spreadsheet. Searches such as "tuition
+# discount rate calculator" and "net tuition revenue" come from business officers and
+# trustees, with a peak in the winter budget cycle. Volume not measured with an
+# external tool. Willingness to pay is real: this is the lead magnet for a later
+# paid multi-year enrollment and aid forecast (payment rails stay off for now).
+#
+# First visitor: business-officer and head-of-school forums and newsletters, school
+# finance committee volunteers, Facebook and LinkedIn groups for independent-school
+# business managers.
+#
+# Liability boundary: arithmetic on user-typed numbers. Not financial, accounting or
+# enrollment advice; says so. No student data is collected: the groups are counts and
+# average dollars, nothing stored, nothing uploaded.
+
+hypotheses:
+  - claim: >-
+      Business officers will enter their aid groups and use the discount rate and
+      increase scenarios in a budget presentation without signing up.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a discount rate or net tuition figure that does not reproduce the plain arithmetic of the tool's own inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/private-school-tuition-discount-calculator/
+  analytics: null
