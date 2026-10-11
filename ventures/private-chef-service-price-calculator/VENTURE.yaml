@@ -1,0 +1,45 @@
+name: private-chef-service-price-calculator
+description: >-
+  Free browser calculator for private chefs and meal-prep businesses: enter guests, courses, groceries, shopping, prep, cooking, cleanup and travel
+  hours, the dietary load and overhead, and see a cost-plus price per visit and per guest, what the price you quote today earns per hour, and how the
+  price moves with the size of the table. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. duplicate_check.py scored every venture below 0.31 for "private chef weekly dinner service price per client";
+# catering-quote-calculator, mobile-bartender-event-quote and food-truck-event-margin-calculator price adjacent food work, none models a private chef visit:
+# shopping and travel hours that do not shrink with a small table, a dietary-needs prep multiplier, assistants, a grocery markup, and a price per guest that
+# falls as the table grows. Personal chefs and meal-prep businesses quote from a per-person rate and rarely cost the visit. Not in screened-out.md.
+#
+# First visitor: private chefs and meal-prep owners searching "how much to charge as a private chef", "personal chef pricing per person" and "meal prep
+# service pricing". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not an estimate of record; says what is not modelled; carries
+# the no-warranty and no-SLA clauses. Gives no food-safety or allergen advice.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Private chefs and meal-prep owners will type a visit's guests, hours and costs into a no-signup calculator to set a price, because most quote a
+      per-person rate that ignores shopping, travel, cleanup and dietary prep, which is why small tables lose money.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/private-chef-service-price-calculator/
+  analytics: null
