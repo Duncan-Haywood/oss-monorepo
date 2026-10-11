@@ -1,4 +1,4 @@
-name: bed-bug-heat-treatment-bid-calculator
+name: bed-bug-heat-treatment-price-calculator
 description: >-
   Free browser calculator for pest control operators: enter the floor area, ceiling and clutter, heaters, crew, fuel, follow-up inspection and
   callback rate, and see the price per job and per square foot, the heater count and day length, the expected warranty cost, and how a heat price
@@ -39,5 +39,5 @@ kill_criteria:
   - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/bed-bug-heat-treatment-bid-calculator/
+  production: https://duncan-haywood.github.io/monorepo-projects/bed-bug-heat-treatment-price-calculator/
   analytics: null

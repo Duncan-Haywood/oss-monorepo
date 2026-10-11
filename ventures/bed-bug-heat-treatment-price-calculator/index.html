@@ -185,7 +185,7 @@
       if (!last) return;
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
-      a.download = "bed-bug-heat-treatment-bid.csv";
+      a.download = "bed-bug-heat-treatment-price.csv";
       a.click();
     });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
