@@ -776,6 +776,9 @@ const CATEGORY_RULES = [
       // `vegetable-garden-planting-calendar` joined 2026-10-11 on its first commit: a home or market gardener's dated sow/transplant/harvest plan from two frost dates,
       // the calendar step beside `fertilizer-blend-optimizer` and `market-garden-bed-planner` on the same grower category.
       'vegetable-garden-planting-calendar',
+      // `secret-santa-draw` joined 2026-10-11 on its first commit: a no-email gift-exchange draw for families and offices; the catch-all was at its bound,
+      // so it files beside the other seasonal consumer planner on this list rather than raising it.
+      'secret-santa-draw',
       // `farm-crop-mix-optimizer` joined 2026-10-09 on its first commit: growers choosing acres per crop under land, labor and capital limits,
       // the planning step before `fertilizer-blend-optimizer` on the same row-crop farm.
       'farm-crop-mix-optimizer',
