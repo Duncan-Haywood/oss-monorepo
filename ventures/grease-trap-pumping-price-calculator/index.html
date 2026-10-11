@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Grease Trap Pumping Price Calculator — Price Per Visit and Pump-Out Interval</title>
+  <meta name="description" content="Free grease trap pumping bid calculator: enter the trap, truck, dump trip, labour and disposal fee, and get a price per visit, the pump-out interval under the 25 percent rule and the annual price by interval. Runs in your browser.">
+  <meta property="og:title" content="Grease Trap Pumping Price Calculator — free, private">
+  <meta property="og:description" content="Bid a grease trap from the dump trips, disposal fee and pump-out interval it really needs.">
+  <link rel="canonical" href="./index.html">
+      <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Grease Trap Pumping Price Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free grease trap pumping bid calculator: turn trap size, truck, dump trip, labour and disposal cost into a price per visit, the pump-out interval and the annual price by interval."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I price grease trap pumping?", "acceptedAnswer": {"@type": "Answer", "text": "Add the drive, the setup and cleaning time, the pumping time, your share of the dump trip, crew and truck cost per hour, the disposal fee per gallon and a paperwork cost, then divide by one minus your margin. This tool does that and shows the price per visit and per gallon."}}, {"@type": "Question", "name": "How often should a grease trap be pumped?", "acceptedAnswer": {"@type": "Answer", "text": "Many local rules require pumping before grease and solids fill 25 percent of the trap's liquid depth. Measure how full it is at a pump-out and divide the limit by the weekly fill rate: a trap 20 percent full after 8 weeks fills 2.5 percent a week and reaches 25 percent at 10 weeks. Check your own local ordinance."}}, {"@type": "Question", "name": "What is the 25 percent rule for grease traps?", "acceptedAnswer": {"@type": "Answer", "text": "A common requirement that a trap is pumped before the floating grease plus settled solids reach 25 percent of the liquid depth. Rules and limits differ by authority, so the limit is an input here."}}, {"@type": "Question", "name": "Why does a small trap cost more per gallon than a large one?", "acceptedAnswer": {"@type": "Answer", "text": "The drive, setup and a share of the dump trip are the same whether you pump 500 gallons or 1,500. A trap that fills the truck carries the whole dump trip alone; three traps per load split it three ways."}}, {"@type": "Question", "name": "Why is the disposal fee a separate sensitivity table?", "acceptedAnswer": {"@type": "Answer", "text": "It is the cost most likely to change under you. The table shows the visit price if the fee per gallon moves from 75 percent to 300 percent of what you entered."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Sales tax, permits and local pretreatment fees, emergency call-outs, jetting or camera work, penalties from the local authority and local rates. It is a bidding aid, not a quote, and not a statement of what your local rules require."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    tr.drive td:first-child { border-left: 4px solid #0b4f9c; }
+    tr.break td:first-child, tr.dwell td:first-child { border-left: 4px solid #b7791f; }
+    tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">GREASE TRAP PUMPING BID CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What should you charge to pump this grease trap?</h1>
+    <p>Enter the trap, the truck and your costs. You get <strong>a price per visit and per gallon, the pump-out interval that keeps the trap under the grease-and-solids limit, the annual price at each interval, and how the disposal fee moves the bid</strong>. Small traps, long drives and trucks that dump after every stop are where pumping jobs quietly lose money.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. A planning estimate, not a quote.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Trap and inspection</h2>
+    <div class="grid">
+      <div><label for="trapGal">Trap liquid capacity (gallons)</label><input type="number" id="trapGal" min="0" step="any" value="1000"></div>
+      <div><label for="fogPct">Grease and solids at the last pump-out (% of the trap)</label><input type="number" id="fogPct" min="0" step="any" value="20"></div>
+      <div><label for="weeksSince">Weeks since the pump-out before that</label><input type="number" id="weeksSince" min="0" step="any" value="8"></div>
+      <div><label for="limitPct">Pump-out limit (% of the trap, usually 25)</label><input type="number" id="limitPct" min="0" step="any" value="25"></div>
+      <div><label for="targetAnnual">Customer's annual budget ($, optional)</label><input type="number" id="targetAnnual" min="0" step="any" value="1500"></div>
+    </div>
+    <h2 style="margin-top:22px">2. Truck and site</h2>
+    <div class="grid">
+      <div><label for="truckGal">Truck tank (gallons)</label><input type="number" id="truckGal" min="0" step="any" value="3000"></div>
+      <div><label for="driveMin">Driving to the site and back (minutes)</label><input type="number" id="driveMin" min="0" step="any" value="30"></div>
+      <div><label for="siteMin">Setup, hoses, scraping and paperwork on site (minutes)</label><input type="number" id="siteMin" min="0" step="any" value="25"></div>
+      <div><label for="pumpGpm">Pump rate (gallons per minute)</label><input type="number" id="pumpGpm" min="0" step="any" value="60"></div>
+      <div><label for="dumpMin">Dump trip, round trip with unloading (minutes)</label><input type="number" id="dumpMin" min="0" step="any" value="70"></div>
+      <div><label for="workdayHours">Hours in a working day</label><input type="number" id="workdayHours" min="0" step="any" value="8"></div>
+    </div>
+    <h2 style="margin-top:22px">3. Costs and margin</h2>
+    <div class="grid">
+      <div><label for="disposalPerGal">Disposal fee ($ per gallon)</label><input type="number" id="disposalPerGal" min="0" step="any" value="0.12"></div>
+      <div><label for="crew">People on the truck</label><input type="number" id="crew" min="0" step="any" value="1"></div>
+      <div><label for="laborRate">Labour ($/hour per person)</label><input type="number" id="laborRate" min="0" step="any" value="32"></div>
+      <div><label for="truckRate">Truck cost ($/hour, fuel, upkeep, depreciation)</label><input type="number" id="truckRate" min="0" step="any" value="55"></div>
+      <div><label for="manifestFee">Manifest and paperwork per visit ($)</label><input type="number" id="manifestFee" min="0" step="any" value="4"></div>
+      <div><label for="marginPct">Margin wanted (% of the price)</label><input type="number" id="marginPct" min="0" step="any" value="30"></div>
+      <div><label for="minCharge">Minimum charge ($)</label><input type="number" id="minCharge" min="0" step="any" value="250"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Price this trap</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="share">Copy a share link</button>
+    </p>
+    <p class="note" id="form-status">Enter the trap and your costs, or load the example, then click Price this trap.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>Annual price by pump-out interval</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Every (weeks)</th><th scope="col">Visits a year</th><th scope="col">Annual price</th><th scope="col">Under the limit?</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <h3>The visit as the disposal fee changes</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Fee per gallon</th><th scope="col">Cost</th><th scope="col">Price per visit</th><th scope="col">Per gallon</th></tr></thead><tbody id="sens"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The arithmetic, and what it leaves out</h2>
+    <ul>
+      <li>Visit time is the drive, the setup, the trap's gallons over the pump rate, and a share of the dump trip: the dump trip divided by the number of traps this size the truck holds.</li>
+      <li>Labour is visit hours times people times the hourly rate. Truck cost is visit hours times its hourly cost. Disposal is gallons times the fee per gallon.</li>
+      <li>Price is cost divided by one minus your margin, never below your minimum charge.</li>
+      <li>The interval is the limit divided by the weekly fill rate. The fill rate is the percent full at the last pump-out divided by the weeks it took, so it assumes the trap fills at a steady rate.</li>
+      <li><strong>Not modelled:</strong> sales tax, permits and local pretreatment fees, emergency call-outs, jetting or camera work, penalties from the local authority, and local rates. Your local FOG ordinance sets the real limit and interval; check it.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I price grease trap pumping?</h3>
+    <p>Add the drive, the setup and cleaning time, the pumping time, your share of the dump trip, crew and truck cost per hour, the disposal fee per gallon and a paperwork cost, then divide by one minus your margin. This tool does that and shows the price per visit and per gallon.</p>
+    <h3>How often should a grease trap be pumped?</h3>
+    <p>Many local rules require pumping before grease and solids fill 25 percent of the trap's liquid depth. Measure how full it is at a pump-out and divide the limit by the weekly fill rate: a trap 20 percent full after 8 weeks fills 2.5 percent a week and reaches 25 percent at 10 weeks. Check your own local ordinance.</p>
+    <h3>What is the 25 percent rule for grease traps?</h3>
+    <p>A common requirement that a trap is pumped before the floating grease plus settled solids reach 25 percent of the liquid depth. Rules and limits differ by authority, so the limit is an input here.</p>
+    <h3>Why does a small trap cost more per gallon than a large one?</h3>
+    <p>The drive, setup and a share of the dump trip are the same whether you pump 500 gallons or 1,500. A trap that fills the truck carries the whole dump trip alone; three traps per load split it three ways.</p>
+    <h3>Why is the disposal fee a separate sensitivity table?</h3>
+    <p>It is the cost most likely to change under you. The table shows the visit price if the fee per gallon moves from 75 percent to 300 percent of what you entered.</p>
+    <h3>What does this leave out?</h3>
+    <p>Sales tax, permits and local pretreatment fees, emergency call-outs, jetting or camera work, penalties from the local authority and local rates. It is a bidding aid, not a quote, and not a statement of what your local rules require.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your own costing, a written quote, your local ordinance or an advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the prices you quote.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>trap_priced</code>, <code>example_loaded</code>, <code>link_shared</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../septic-pumping-bid-calculator/">septic pumping bid</a>, <a href="../dumpster-rental-margin-calculator/">dumpster rental margin</a>, <a href="../hvac-maintenance-contract-calculator/">maintenance contract</a>, <a href="../shop-rate-calculator/">shop rate</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv, encodeShare, decodeShare } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["trapGal", "fogPct", "weeksSince", "limitPct", "targetAnnual", "truckGal", "driveMin", "siteMin", "pumpGpm", "dumpMin", "workdayHours", "disposalPerGal", "crew", "laborRate", "truckRate", "manifestFee", "marginPct", "minCharge"];
+    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run(scroll = true) {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#rows").innerHTML = r.table.map((x) => `<tr class="${x.recommended ? "drive" : x.compliant === false ? "off" : ""}"><th scope="row">${x.weeks}${x.recommended ? " (longest that fits)" : ""}</th><td>${x.visitsPerYear}</td><td>${usd(x.annual)}</td><td>${x.compliant === null ? "" : x.compliant ? "yes" : "no"}</td></tr>`).join("");
+      $("#sens").innerHTML = r.sensitivity.map((x) => `<tr><th scope="row">${usd(x.disposalPerGal)}</th><td>${usd(x.cost)}</td><td>${usd(x.price)}</td><td>${usd(x.perGal)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Quote ${usd(r.visit.price)} per visit.`;
+      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function fill(values) { for (const k of keys) if (values[k] !== undefined) $("#" + k).value = values[k]; }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("trap_priced"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#share").addEventListener("click", async () => {
+      const url = location.href.split("#")[0] + "#" + encodeShare(read());
+      try { history.replaceState(null, "", url); } catch { /* optional */ }
+      try { await navigator.clipboard.writeText(url); status.textContent = "Link copied. It contains your numbers, so send it only to people you want to see them."; }
+      catch { status.textContent = "Copy the address bar: it now contains your numbers."; }
+      record("link_shared");
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "grease-trap-pumping-bid.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    if (location.hash.length > 1) { const shared = decodeShare(location.hash); if (Object.keys(shared).length) { fill(shared); run(false); } }
+  </script>
+</body>
+</html>

@@ -421,6 +421,8 @@ export const REVIEWED_NOT_CARRIED = {
     'the wage and burden are the pay behind each hour a price book is built from, but overhead is four annual dollar totals (truck, insurance, tools, other) spread over billable hours rather than a percentage of direct cost, and the target margin is a share of the time charge only, with parts marked up on their own tiers; the tool solves a flat-rate price for each job in a book instead of being quoted a shop rate',
   'embroidery-shop-quote-calculator':
     'the labor rate is the operator\'s hourly cost applied to the clock time of one job and overhead is a dollar figure per machine hour, not a percentage of direct cost; the target margin is a share of the quote, and there is no burden field -- the tool quotes a decorated piece from machine time rather than being handed a shop rate',
+  'grease-trap-pumping-price-calculator':
+    'labour and truck cost are dollars per hour applied to one visit\'s drive, setup, pumping and dump-trip minutes, not a percentage of direct cost, and there is no burden or overhead field; the margin is a share of the price -- the tool prices a pump-out visit and sets a pump-out interval rather than being quoted a shop rate',
   'powder-coating-job-price-calculator':
     'labour and overhead are dollars per labour hour applied to one job\'s prep, spray and setup minutes, not a percentage of direct cost, and there is no burden field; the margin is a share of the price -- the tool prices a coating job from powder use, oven batches and setup rather than from a shop rate',
   'laser-cutting-engraving-job-price-calculator':
