@@ -424,6 +424,7 @@ const CATEGORY_RULES = [
     // manifest-driven sibling: an auction hammer plus buyer's premium for goods
     // the winner resells, so it files with the marketplace tools, not with the
     // trades section its `bid-calculator` suffix would otherwise sweep it into.
+    // `tax-deed-auction-max-bid-planner` joined 2026-10-11: the same hammer-plus-premium max bid, for real property.
     // `storage-auction-max-bid-calculator` is `whatnot-seller-payout`'s buy
     // side rather than its sell side: a hammer bid plus a buyer's premium
     // (the auction-house equivalent of processing on checkout), for contents
