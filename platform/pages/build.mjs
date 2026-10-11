@@ -4071,7 +4071,7 @@ const SUBCATEGORY_RULES = {
       // the buyer is the same mobile/in-shop auto tech as `mobile-detailing`,
       // `vehicle-wrap`, and `window-tinting`, working on the vehicle's own
       // surface rather than a fixed building product.
-      test: (slug) => /^(hoarding-cleanout|janitorial|window-cleaning|solar-panel-cleaning|pressure-washing|carpet-cleaning|cleaning-dilution|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|vehicle-wrap|window-tinting|auto-glass|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|asbestos-abatement|crawl-space|basement-waterproofing|attic-insulation|spray-foam|pet-grooming|wildlife-exclusion|bed-bug-heat-treatment|biohazard-cleanup|pool-opening-closing)/.test(slug),
+      test: (slug) => /^(upholstery-shop|hoarding-cleanout|janitorial|window-cleaning|solar-panel-cleaning|pressure-washing|carpet-cleaning|cleaning-dilution|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|vehicle-wrap|window-tinting|auto-glass|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|asbestos-abatement|crawl-space|basement-waterproofing|attic-insulation|spray-foam|pet-grooming|wildlife-exclusion|bed-bug-heat-treatment|biohazard-cleanup|pool-opening-closing)/.test(slug),
     },
     {
       id: 'trades-roof',
