@@ -1,0 +1,44 @@
+name: hydroseeding-job-bid-calculator
+description: >-
+  Free browser calculator for hydroseeding contractors: enter job area, seed, mulch and water per 1,000 sq ft, tank size, crew, travel and the hydroseeder,
+  and see the cost and profit of a job, tank loads and crew hours, the price per 1,000 sq ft for a target margin, a table of job sizes showing where
+  small jobs lose money, break-even jobs and the season. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. duplicate_check.py scored the nearest ventures (artificial-turf-bid-calculator, lawn-care-bid-calculator)
+# near 0.2 for "hydroseeding bid": none models slurry gallons against tank size, so the number of tank loads and refill time drive crew hours, nor the
+# way setup and travel make small lots lose money. Not in screened-out.md.
+#
+# First visitor: hydroseeding and erosion-control contractors and landscapers adding hydroseeding, searching "hydroseeding cost per square foot",
+# "how to bid a hydroseeding job" and "hydroseeding pricing". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not a bid of record; says what is not modelled; carries the
+# no-warranty and no-SLA clauses. Gives no agronomic, seed-mix or erosion-control compliance advice.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Hydroseeding contractors will type a job's size and their costs into a no-signup calculator to set a per-1,000-sq-ft price and a minimum charge,
+      because most price by copying a competitor's per-square-foot figure and never cost the tank loads, the setup or the drive.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/hydroseeding-job-bid-calculator/
+  analytics: null

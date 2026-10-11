@@ -1,0 +1,43 @@
+name: upholstery-shop-job-profit-calculator
+description: >-
+  Free browser calculator for independent upholstery shops: enter dining chair seat, armchair and sofa prices, bench minutes, fabric and foam cost, upholsterer pay, tools and rent, and see
+  profit per job and per bench hour, the price each piece needs for a target margin, what a prepaid designer trade block earns per job, break-even volume and the
+  season at different volumes against the bench hours available. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. No venture models an upholstery shop (checked ventures/ by name). Seat, armchair and sofa jobs share one
+# upholsterer's bench hours, a single sofa can hold the bench for a week, and shops that serve interior designers often sell a prepaid block of seat jobs. Not in screened-out.md.
+#
+# First visitor: independent upholsterers searching "how much to charge to reupholster a chair", "upholstery shop pricing" and "reupholster sofa cost".
+# Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not an estimate of record; says what is not modelled; carries
+# the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Upholstery shop owners will type a season's jobs, bench hours and fixed costs into a no-signup calculator to set seat, armchair and sofa prices and to decide
+      on a designer trade block, because most price by copying the shop down the road and never cost the bench hour.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/upholstery-shop-job-profit-calculator/
+  analytics: null
