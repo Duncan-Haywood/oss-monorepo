@@ -34,46 +34,46 @@
 #
 # Shards as generated:
 #   portfolio-front-tools-0: 145 files, 548290 bytes
-#   portfolio-front-tools-1: 92 files, 555478 bytes
+#   portfolio-front-tools-1: 92 files, 555479 bytes
 #   portfolio-front-tools-2: 144 files, 553351 bytes
-#   portfolio-front-tools-3: 128 files, 549583 bytes
-#   portfolio-front-tools-4: 138 files, 556729 bytes
-#   portfolio-front-tools-5: 131 files, 556113 bytes
-#   portfolio-front-tools-6: 122 files, 547429 bytes
+#   portfolio-front-tools-3: 128 files, 549584 bytes
+#   portfolio-front-tools-4: 138 files, 556730 bytes
+#   portfolio-front-tools-5: 131 files, 556107 bytes
+#   portfolio-front-tools-6: 122 files, 547432 bytes
 #   portfolio-front-tools-7: 119 files, 556886 bytes
-#   portfolio-front-tools-8: 137 files, 554157 bytes
-#   portfolio-front-tools-9: 136 files, 554244 bytes
-#   portfolio-front-tools-10: 130 files, 542259 bytes
-#   portfolio-front-tools-11: 133 files, 549730 bytes
-#   portfolio-front-tools-12: 127 files, 554922 bytes
-#   portfolio-front-tools-13: 129 files, 554755 bytes
-#   portfolio-front-tools-14: 127 files, 554995 bytes
-#   portfolio-front-tools-15: 122 files, 553731 bytes
-#   portfolio-front-tools-16: 133 files, 552797 bytes
-#   portfolio-front-tools-17: 121 files, 547113 bytes
+#   portfolio-front-tools-8: 137 files, 554155 bytes
+#   portfolio-front-tools-9: 136 files, 554251 bytes
+#   portfolio-front-tools-10: 130 files, 542257 bytes
+#   portfolio-front-tools-11: 133 files, 549733 bytes
+#   portfolio-front-tools-12: 127 files, 554921 bytes
+#   portfolio-front-tools-13: 129 files, 554759 bytes
+#   portfolio-front-tools-14: 127 files, 555000 bytes
+#   portfolio-front-tools-15: 122 files, 553732 bytes
+#   portfolio-front-tools-16: 133 files, 552799 bytes
+#   portfolio-front-tools-17: 121 files, 547114 bytes
 #   portfolio-front-tools-18: 124 files, 550304 bytes
-#   portfolio-front-tools-19: 123 files, 550421 bytes
-#   portfolio-front-tools-20: 126 files, 555546 bytes
-#   portfolio-front-tools-21: 115 files, 556068 bytes
-#   portfolio-front-tools-22: 116 files, 556119 bytes
-#   portfolio-front-tools-23: 135 files, 554205 bytes
-#   portfolio-front-tools-24: 126 files, 550484 bytes
-#   portfolio-front-tools-25: 139 files, 555877 bytes
-#   portfolio-front-tools-26: 114 files, 544246 bytes
-#   portfolio-front-tools-27: 126 files, 549241 bytes
-#   portfolio-front-tools-28: 136 files, 553333 bytes
-#   portfolio-front-tools-29: 124 files, 544584 bytes
-#   portfolio-front-tools-30: 123 files, 556957 bytes
-#   portfolio-front-tools-31: 135 files, 552440 bytes
-#   portfolio-front-tools-32: 105 files, 553804 bytes
-#   portfolio-front-tools-33: 105 files, 556278 bytes
-#   portfolio-front-tools-34: 125 files, 555565 bytes
-#   portfolio-front-tools-35: 125 files, 554651 bytes
-#   portfolio-front-tools-36: 128 files, 551377 bytes
-#   portfolio-front-tools-37: 122 files, 553339 bytes
-#   portfolio-front-tools-38: 131 files, 553702 bytes
-#   portfolio-front-tools-39: 119 files, 556660 bytes
-#   portfolio-front-tools-40: 99 files, 522326 bytes
+#   portfolio-front-tools-19: 123 files, 550416 bytes
+#   portfolio-front-tools-20: 126 files, 555545 bytes
+#   portfolio-front-tools-21: 115 files, 556072 bytes
+#   portfolio-front-tools-22: 115 files, 549694 bytes
+#   portfolio-front-tools-23: 135 files, 556600 bytes
+#   portfolio-front-tools-24: 128 files, 554889 bytes
+#   portfolio-front-tools-25: 136 files, 555280 bytes
+#   portfolio-front-tools-26: 118 files, 553617 bytes
+#   portfolio-front-tools-27: 128 files, 556010 bytes
+#   portfolio-front-tools-28: 136 files, 553331 bytes
+#   portfolio-front-tools-29: 124 files, 544617 bytes
+#   portfolio-front-tools-30: 123 files, 557056 bytes
+#   portfolio-front-tools-31: 135 files, 552467 bytes
+#   portfolio-front-tools-32: 105 files, 553807 bytes
+#   portfolio-front-tools-33: 105 files, 556336 bytes
+#   portfolio-front-tools-34: 125 files, 555575 bytes
+#   portfolio-front-tools-35: 125 files, 554747 bytes
+#   portfolio-front-tools-36: 128 files, 551362 bytes
+#   portfolio-front-tools-37: 122 files, 553201 bytes
+#   portfolio-front-tools-38: 131 files, 553678 bytes
+#   portfolio-front-tools-39: 119 files, 556615 bytes
+#   portfolio-front-tools-40: 99 files, 522350 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3081,6 +3081,10 @@ configMapGenerator:
       - late-invoice-collections-kit__calc.mjs.gz=late-invoice-collections-kit__calc.mjs.gz
       - late-invoice-collections-kit__index.html.gz=late-invoice-collections-kit__index.html.gz
       - late-invoice-collections-kit__usage.mjs.gz=late-invoice-collections-kit__usage.mjs.gz
+      - laundromat-acquisition-offer-calculator__calc.mjs.gz=laundromat-acquisition-offer-calculator__calc.mjs.gz
+      - laundromat-acquisition-offer-calculator__how-to-value-a-laundromat-before-you-make-an-offer.html.gz=laundromat-acquisition-offer-calculator__how-to-value-a-laundromat-before-you-make-an-offer.html.gz
+      - laundromat-acquisition-offer-calculator__index.html.gz=laundromat-acquisition-offer-calculator__index.html.gz
+      - laundromat-acquisition-offer-calculator__usage.mjs.gz=laundromat-acquisition-offer-calculator__usage.mjs.gz
       - laundromat-machine-payback-calculator__calc.mjs.gz=laundromat-machine-payback-calculator__calc.mjs.gz
       - laundromat-machine-payback-calculator__index.html.gz=laundromat-machine-payback-calculator__index.html.gz
       - laundromat-machine-payback-calculator__usage.mjs.gz=laundromat-machine-payback-calculator__usage.mjs.gz
@@ -3119,16 +3123,16 @@ configMapGenerator:
       - like-kind-exchange-1031-calculator__index.html.gz=like-kind-exchange-1031-calculator__index.html.gz
       - like-kind-exchange-1031-calculator__usage.mjs.gz=like-kind-exchange-1031-calculator__usage.mjs.gz
       - liquidation-pallet-bid-calculator__calc.mjs.gz=liquidation-pallet-bid-calculator__calc.mjs.gz
-      - liquidation-pallet-bid-calculator__index.html.gz=liquidation-pallet-bid-calculator__index.html.gz
-      - liquidation-pallet-bid-calculator__usage.mjs.gz=liquidation-pallet-bid-calculator__usage.mjs.gz
-      - llm-api-pricing-calculator__calc.mjs.gz=llm-api-pricing-calculator__calc.mjs.gz
-      - llm-api-pricing-calculator__index.html.gz=llm-api-pricing-calculator__index.html.gz
-      - llm-api-pricing-calculator__usage.mjs.gz=llm-api-pricing-calculator__usage.mjs.gz
   - name: portfolio-front-tools-23
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - liquidation-pallet-bid-calculator__index.html.gz=liquidation-pallet-bid-calculator__index.html.gz
+      - liquidation-pallet-bid-calculator__usage.mjs.gz=liquidation-pallet-bid-calculator__usage.mjs.gz
+      - llm-api-pricing-calculator__calc.mjs.gz=llm-api-pricing-calculator__calc.mjs.gz
+      - llm-api-pricing-calculator__index.html.gz=llm-api-pricing-calculator__index.html.gz
+      - llm-api-pricing-calculator__usage.mjs.gz=llm-api-pricing-calculator__usage.mjs.gz
       - llm-api-pricing-calculator__vs-a-blended-per-token-rate.html.gz=llm-api-pricing-calculator__vs-a-blended-per-token-rate.html.gz
       - llm-api-pricing-calculator__why-prompt-caching-changes-the-math.html.gz=llm-api-pricing-calculator__why-prompt-caching-changes-the-math.html.gz
       - llm-call-cost-scan__cli.mjs.gz=llm-call-cost-scan__cli.mjs.gz
@@ -3259,16 +3263,16 @@ configMapGenerator:
       - merchant-cash-advance-true-cost-calculator__calc.mjs.gz=merchant-cash-advance-true-cost-calculator__calc.mjs.gz
       - merchant-cash-advance-true-cost-calculator__index.html.gz=merchant-cash-advance-true-cost-calculator__index.html.gz
       - merchant-cash-advance-true-cost-calculator__usage.mjs.gz=merchant-cash-advance-true-cost-calculator__usage.mjs.gz
-      - merchant-feed-check__cli.mjs.gz=merchant-feed-check__cli.mjs.gz
-      - merchant-feed-check__engine.mjs.gz=merchant-feed-check__engine.mjs.gz
-      - merchant-feed-check__index.html.gz=merchant-feed-check__index.html.gz
-      - merchant-feed-check__usage.mjs.gz=merchant-feed-check__usage.mjs.gz
-      - merchant-feed-check__vs-datafeedwatch.html.gz=merchant-feed-check__vs-datafeedwatch.html.gz
   - name: portfolio-front-tools-24
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - merchant-feed-check__cli.mjs.gz=merchant-feed-check__cli.mjs.gz
+      - merchant-feed-check__engine.mjs.gz=merchant-feed-check__engine.mjs.gz
+      - merchant-feed-check__index.html.gz=merchant-feed-check__index.html.gz
+      - merchant-feed-check__usage.mjs.gz=merchant-feed-check__usage.mjs.gz
+      - merchant-feed-check__vs-datafeedwatch.html.gz=merchant-feed-check__vs-datafeedwatch.html.gz
       - merchant-feed-check__vs-eyeballing-the-feed-in-a-spreadsheet.html.gz=merchant-feed-check__vs-eyeballing-the-feed-in-a-spreadsheet.html.gz
       - merchant-feed-check__why-products-get-disapproved-in-google-merchant-center.html.gz=merchant-feed-check__why-products-get-disapproved-in-google-merchant-center.html.gz
       - merchant-of-record-fee-calculator__cli.mjs.gz=merchant-of-record-fee-calculator__cli.mjs.gz
@@ -3392,14 +3396,14 @@ configMapGenerator:
       - music-distribution-fee-calculator__calc.mjs.gz=music-distribution-fee-calculator__calc.mjs.gz
       - music-distribution-fee-calculator__index.html.gz=music-distribution-fee-calculator__index.html.gz
       - music-distribution-fee-calculator__usage.mjs.gz=music-distribution-fee-calculator__usage.mjs.gz
-      - music-teacher-studio-profit-calculator__calc.mjs.gz=music-teacher-studio-profit-calculator__calc.mjs.gz
-      - music-teacher-studio-profit-calculator__index.html.gz=music-teacher-studio-profit-calculator__index.html.gz
-      - music-teacher-studio-profit-calculator__usage.mjs.gz=music-teacher-studio-profit-calculator__usage.mjs.gz
   - name: portfolio-front-tools-25
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - music-teacher-studio-profit-calculator__calc.mjs.gz=music-teacher-studio-profit-calculator__calc.mjs.gz
+      - music-teacher-studio-profit-calculator__index.html.gz=music-teacher-studio-profit-calculator__index.html.gz
+      - music-teacher-studio-profit-calculator__usage.mjs.gz=music-teacher-studio-profit-calculator__usage.mjs.gz
       - nacha-file-validator__calc.mjs.gz=nacha-file-validator__calc.mjs.gz
       - nacha-file-validator__index.html.gz=nacha-file-validator__index.html.gz
       - nacha-file-validator__usage.mjs.gz=nacha-file-validator__usage.mjs.gz
@@ -3533,17 +3537,17 @@ configMapGenerator:
       - owner-operator-per-diem-calculator__can-an-owner-operator-deduct-per-diem.html.gz=owner-operator-per-diem-calculator__can-an-owner-operator-deduct-per-diem.html.gz
       - owner-operator-per-diem-calculator__index.html.gz=owner-operator-per-diem-calculator__index.html.gz
       - owner-operator-per-diem-calculator__usage.mjs.gz=owner-operator-per-diem-calculator__usage.mjs.gz
+  - name: portfolio-front-tools-26
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - oyster-farm-growout-planner__calc.mjs.gz=oyster-farm-growout-planner__calc.mjs.gz
       - oyster-farm-growout-planner__cli.mjs.gz=oyster-farm-growout-planner__cli.mjs.gz
       - oyster-farm-growout-planner__index.html.gz=oyster-farm-growout-planner__index.html.gz
       - oyster-farm-growout-planner__usage.mjs.gz=oyster-farm-growout-planner__usage.mjs.gz
       - package-exports-drift-check__cli.mjs.gz=package-exports-drift-check__cli.mjs.gz
       - package-exports-drift-check__engine.mjs.gz=package-exports-drift-check__engine.mjs.gz
-  - name: portfolio-front-tools-26
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - package-exports-drift-check__index.html.gz=package-exports-drift-check__index.html.gz
       - package-exports-drift-check__usage.mjs.gz=package-exports-drift-check__usage.mjs.gz
       - package-exports-drift-check__vs-manually-checking-exports-targets.html.gz=package-exports-drift-check__vs-manually-checking-exports-targets.html.gz
@@ -3656,13 +3660,13 @@ configMapGenerator:
       - pest-control-bid-calculator__usage.mjs.gz=pest-control-bid-calculator__usage.mjs.gz
       - pest-control-bid-calculator__vs-a-flat-quote-by-house-size.html.gz=pest-control-bid-calculator__vs-a-flat-quote-by-house-size.html.gz
       - pest-control-bid-calculator__vs-pestpac.html.gz=pest-control-bid-calculator__vs-pestpac.html.gz
-      - pet-grooming-bid-calculator__calc.mjs.gz=pet-grooming-bid-calculator__calc.mjs.gz
-      - pet-grooming-bid-calculator__how-much-to-charge.html.gz=pet-grooming-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-27
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - pet-grooming-bid-calculator__calc.mjs.gz=pet-grooming-bid-calculator__calc.mjs.gz
+      - pet-grooming-bid-calculator__how-much-to-charge.html.gz=pet-grooming-bid-calculator__how-much-to-charge.html.gz
       - pet-grooming-bid-calculator__index.html.gz=pet-grooming-bid-calculator__index.html.gz
       - pet-grooming-bid-calculator__share.mjs.gz=pet-grooming-bid-calculator__share.mjs.gz
       - pet-grooming-bid-calculator__usage.mjs.gz=pet-grooming-bid-calculator__usage.mjs.gz

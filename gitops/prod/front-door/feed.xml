@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1065 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1066 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -160,11 +160,11 @@
     <summary type="text">Free lash studio pricing calculator. Enter your price list, supplies, card fees, no-shows and overhead; it shows profit per chair hour for every set and fill, the price that hits your target hourly, and what a client is worth over a lifetime of fills. Private, in your browser.</summary>
   </entry>
   <entry>
-    <title>Mobile Oil Change Route Profit Calculator — Price per Job, Batching, Solo vs Franchise</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mobile-oil-change-route-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/mobile-oil-change-route-profit-calculator</id>
+    <title>Laundromat Acquisition Offer Calculator — what to pay and what the loan can carry</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/laundromat-acquisition-offer-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/laundromat-acquisition-offer-calculator</id>
     <updated>2026-10-11T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free mobile oil change calculator: enter jobs per week by service type, prices, oil, filter and disposal cost, on-site and drive minutes, no-shows and van costs, and see profit per job and per working hour, break-even jobs per week, the price for your target margin, what batching fleet stops does, and solo versus franchise versus employed. Runs in your browser.</summary>
+    <category term="More free tools"/>
+    <summary type="text">Free laundromat valuation calculator. Enter revenue and costs, a manager and machine reserve, and your loan terms; it shows adjusted cash flow, the most to offer, debt coverage and cash-on-cash. Private, in your browser.</summary>
   </entry>
 </feed>
