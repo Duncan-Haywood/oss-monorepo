@@ -1,0 +1,58 @@
+name: secret-santa-draw
+description: >-
+  Free browser Secret Santa generator with no sign-up and no emails. Keep couples
+  and family groups apart, avoid last year's pairs (paste last year's link), pick
+  no-swaps or one big loop, and share a single group link so the organizer can
+  play without seeing the results. Pass-the-phone mode, exchange date as a
+  calendar file. If the rules leave no valid draw, it names the people who are
+  stuck. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a new-venture session. duplicate_check.py: no row above
+# 0.20 for the Secret Santa draw. screened-out.md has no gift-exchange row.
+#
+# Why this niche: a huge seasonal search ("secret santa generator", "secret santa
+# name picker", "secret santa with couples") that peaks every Oct-Dec. The
+# incumbents (Elfster, DrawNames and clones) are free because they collect emails
+# and sell upgrades or gift referrals, and most make the organizer see or email
+# the results. A no-email tool whose link lets the organizer play, and that
+# remembers last year without a database, is a real wedge and a natural lead
+# magnet for a gift-guide or registry product.
+#
+# First visitor: the person organizing an office, family or friends exchange who
+# has already hit the "I know everyone's name" problem. r/secretsanta and the
+# family group chat. Volume not measured with an external tool.
+#
+# Liability boundary: random assignment of names typed by the visitor. No
+# payments, no accounts, nothing stored or uploaded. The honor-system limit of
+# a link-based draw is stated on the page and in the README.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural
+# front end for gift-guide, wishlist or gift-card referrals later.
+
+hypotheses:
+  - claim: >-
+      Organizers will prefer a no-email group link where they can play too, and
+      will come back next year to paste last year's link.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a draw in which someone drew themselves, a partner in the same group, or a pairing the rules forbid.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/secret-santa-draw/
+  analytics: null
