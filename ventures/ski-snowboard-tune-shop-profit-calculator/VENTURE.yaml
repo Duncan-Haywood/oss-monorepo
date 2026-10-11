@@ -1,0 +1,45 @@
+name: ski-snowboard-tune-shop-profit-calculator
+description: >-
+  Free browser calculator for ski and snowboard tune shops: enter tune prices, bench minutes, materials, technician pay, grinder and rent, and see profit per
+  tune and per bench hour, the price each tune needs for a target margin, what a season wax pass earns, break-even volume and the season at different
+  volumes against the bench hours available. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. duplicate_check.py scored every venture below 0.12 for "ski snowboard tune shop"; the nearest services
+# (laundromat-machine-payback-calculator, dog-grooming-profit-calculator) share only the machine-and-bench shape. No venture models a seasonal tune shop:
+# a short winter that fixes the bench hours, a grinder amortised over seasons, three services with very different minutes, and a season wax pass sold up
+# front and consumed later. Not in screened-out.md.
+#
+# First visitor: ski and snowboard shop owners and mountain-town tune-bench startups searching "how much to charge for a ski tune", "ski tune shop
+# profit" and "season wax pass pricing". Timing: tune season starts in October. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not an estimate of record; says what is not modelled; carries
+# the no-warranty and no-SLA clauses. Gives no equipment-safety or binding-adjustment advice.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Tune shop owners will type a season's services, bench minutes and fixed costs into a no-signup calculator to set tune prices and decide on a season
+      pass, because most price by copying the shop down the road and never cost the bench hour or the grinder.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ski-snowboard-tune-shop-profit-calculator/
+  analytics: null

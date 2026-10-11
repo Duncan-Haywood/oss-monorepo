@@ -429,6 +429,8 @@ export const REVIEWED_NOT_CARRIED = {
     'labour is dollars per person-hour applied to one job\'s install and drive hours, not a percentage of direct cost, and there is no burden or overhead field; the margin is a share of the price -- the tool prices a standby generator install from equipment, runs and callback risk rather than being quoted a shop rate',
   'pool-opening-closing-price-calculator':
     'labour is dollars per person-hour applied to one visit\'s setup, line, cover and drive hours, and chemical is dollars per 10,000 gallons, not a percentage of direct cost, and there is no burden or overhead field; the margin is a share of the price -- the tool prices a seasonal pool opening and closing from gallons, cover and water condition rather than being quoted a shop rate',
+  'ski-snowboard-tune-shop-profit-calculator':
+    'labour is dollars per technician hour applied to each tune\'s bench minutes with a payroll-extras percentage on top, and the grinder and rent are season fixed costs, not a percentage of direct cost; the margin is a share of the price -- the tool costs a seasonal tune shop from its own bench minutes and fixed costs rather than being quoted a shop rate',
   'private-chef-service-price-calculator':
     'labour is dollars per chef hour applied to one visit\'s shopping, prep, cooking, cleanup and travel hours, and overhead is dollars per visit, not a percentage of direct cost; the margin is a share of the price and the grocery markup sits inside it -- the tool prices a private dinner or meal-prep visit from guests and hours rather than being quoted a shop rate',
   'paintless-dent-repair-quote-calculator':
