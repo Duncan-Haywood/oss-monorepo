@@ -3144,7 +3144,9 @@ test("a category's offline bundle stays small enough to fetch on mobile data", a
       `addOfflineSupport reported a different gzipped total for ${category.id}`,
     );
     assert.ok(
-      bytes < 3 * 1024 * 1024,
+      // 3.25 MiB since 2026-10-11: `backoffice` sat 131 bytes under 3 MiB, and the related-tool strip reshuffles on every new tool, moving that
+      // category by +/-300 bytes at random, so any venture anywhere could turn this red. Headroom for ~100 more backoffice tools' worth of noise, not a growth licence.
+      bytes < 3.25 * 1024 * 1024,
       `gzipped offline bundle for category ${category.id} is ${(bytes / 1e6).toFixed(1)} MB`,
     );
   }
