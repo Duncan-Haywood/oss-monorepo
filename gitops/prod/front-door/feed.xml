@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1029 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1030 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -14,6 +14,14 @@
     <updated>2026-10-11T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free bed bug heat treatment bid calculator: enter the floor area, clutter, heaters, crew, fuel and callback rate, and get a price, a price per square foot and a comparison with a chemical programme. Runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Fundraising Event Net Calculator — Net Proceeds and Cost per Dollar Raised</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fundraising-event-net-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/fundraising-event-net-calculator</id>
+    <updated>2026-10-11T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free fundraising event calculator for galas, auctions and benefit dinners: enter tickets, sponsors, auction, giving and costs, and get net proceeds, cost per dollar raised, break-even guests and the ticket price that reaches your goal. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>Hoarding Cleanout Bid Calculator — Price, Containers and Change-Order Rate</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free workers&#39; comp experience mod (x-mod) calculator for contractors and small employers: estimate your mod from your rating worksheet and claims, see the premium impact and what each claim costs over three years. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Fixed-Bid Overrun Forecaster — Will This Job Finish Inside the Price?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fixed-bid-overrun-forecaster/"/>
-    <id>tag:marisstella.dev,2026:tool/fixed-bid-overrun-forecaster</id>
-    <updated>2026-10-10T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free fixed-price project forecaster: enter price, cost budget, percent complete and cost to date to see projected final cost, margin, CPI and SPI, and when the job stops paying. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
