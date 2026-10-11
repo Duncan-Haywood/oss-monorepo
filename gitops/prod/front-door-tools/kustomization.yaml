@@ -33,46 +33,46 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548167 bytes
-#   portfolio-front-tools-1: 92 files, 555405 bytes
-#   portfolio-front-tools-2: 144 files, 553325 bytes
-#   portfolio-front-tools-3: 128 files, 549676 bytes
-#   portfolio-front-tools-4: 138 files, 556547 bytes
-#   portfolio-front-tools-5: 131 files, 555898 bytes
-#   portfolio-front-tools-6: 124 files, 556388 bytes
-#   portfolio-front-tools-7: 122 files, 555511 bytes
-#   portfolio-front-tools-8: 135 files, 553996 bytes
-#   portfolio-front-tools-9: 138 files, 556304 bytes
-#   portfolio-front-tools-10: 132 files, 553080 bytes
-#   portfolio-front-tools-11: 129 files, 546776 bytes
-#   portfolio-front-tools-12: 127 files, 555131 bytes
-#   portfolio-front-tools-13: 127 files, 553867 bytes
-#   portfolio-front-tools-14: 134 files, 555503 bytes
-#   portfolio-front-tools-15: 124 files, 553805 bytes
-#   portfolio-front-tools-16: 125 files, 555847 bytes
-#   portfolio-front-tools-17: 121 files, 551687 bytes
-#   portfolio-front-tools-18: 127 files, 555958 bytes
-#   portfolio-front-tools-19: 124 files, 551606 bytes
-#   portfolio-front-tools-20: 118 files, 547098 bytes
-#   portfolio-front-tools-21: 114 files, 543234 bytes
-#   portfolio-front-tools-22: 128 files, 554214 bytes
-#   portfolio-front-tools-23: 128 files, 555057 bytes
-#   portfolio-front-tools-24: 136 files, 556844 bytes
-#   portfolio-front-tools-25: 126 files, 549075 bytes
-#   portfolio-front-tools-26: 122 files, 556625 bytes
-#   portfolio-front-tools-27: 129 files, 546067 bytes
-#   portfolio-front-tools-28: 133 files, 553790 bytes
-#   portfolio-front-tools-29: 115 files, 551980 bytes
-#   portfolio-front-tools-30: 137 files, 554049 bytes
-#   portfolio-front-tools-31: 112 files, 557008 bytes
-#   portfolio-front-tools-32: 99 files, 550469 bytes
-#   portfolio-front-tools-33: 128 files, 551629 bytes
-#   portfolio-front-tools-34: 117 files, 551638 bytes
-#   portfolio-front-tools-35: 132 files, 556425 bytes
-#   portfolio-front-tools-36: 123 files, 553393 bytes
-#   portfolio-front-tools-37: 130 files, 555844 bytes
-#   portfolio-front-tools-38: 119 files, 550979 bytes
-#   portfolio-front-tools-39: 83 files, 443068 bytes
+#   portfolio-front-tools-0: 145 files, 548165 bytes
+#   portfolio-front-tools-1: 92 files, 555404 bytes
+#   portfolio-front-tools-2: 144 files, 553310 bytes
+#   portfolio-front-tools-3: 128 files, 549663 bytes
+#   portfolio-front-tools-4: 138 files, 556544 bytes
+#   portfolio-front-tools-5: 131 files, 555899 bytes
+#   portfolio-front-tools-6: 124 files, 556385 bytes
+#   portfolio-front-tools-7: 122 files, 555516 bytes
+#   portfolio-front-tools-8: 135 files, 553922 bytes
+#   portfolio-front-tools-9: 138 files, 556226 bytes
+#   portfolio-front-tools-10: 132 files, 553008 bytes
+#   portfolio-front-tools-11: 129 files, 546784 bytes
+#   portfolio-front-tools-12: 127 files, 555127 bytes
+#   portfolio-front-tools-13: 127 files, 553876 bytes
+#   portfolio-front-tools-14: 134 files, 555509 bytes
+#   portfolio-front-tools-15: 124 files, 553753 bytes
+#   portfolio-front-tools-16: 125 files, 555902 bytes
+#   portfolio-front-tools-17: 121 files, 551695 bytes
+#   portfolio-front-tools-18: 127 files, 555947 bytes
+#   portfolio-front-tools-19: 124 files, 551542 bytes
+#   portfolio-front-tools-20: 118 files, 547113 bytes
+#   portfolio-front-tools-21: 114 files, 543263 bytes
+#   portfolio-front-tools-22: 128 files, 554239 bytes
+#   portfolio-front-tools-23: 128 files, 555115 bytes
+#   portfolio-front-tools-24: 136 files, 556851 bytes
+#   portfolio-front-tools-25: 126 files, 549037 bytes
+#   portfolio-front-tools-26: 122 files, 556747 bytes
+#   portfolio-front-tools-27: 129 files, 546049 bytes
+#   portfolio-front-tools-28: 133 files, 553852 bytes
+#   portfolio-front-tools-29: 115 files, 551969 bytes
+#   portfolio-front-tools-30: 137 files, 554132 bytes
+#   portfolio-front-tools-31: 112 files, 557001 bytes
+#   portfolio-front-tools-32: 99 files, 550452 bytes
+#   portfolio-front-tools-33: 128 files, 551633 bytes
+#   portfolio-front-tools-34: 117 files, 551584 bytes
+#   portfolio-front-tools-35: 132 files, 556410 bytes
+#   portfolio-front-tools-36: 123 files, 553374 bytes
+#   portfolio-front-tools-37: 130 files, 555901 bytes
+#   portfolio-front-tools-38: 120 files, 553583 bytes
+#   portfolio-front-tools-39: 85 files, 452508 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -5102,6 +5102,9 @@ configMapGenerator:
       - wash-sale-checker__calc.mjs.gz=wash-sale-checker__calc.mjs.gz
       - wash-sale-checker__index.html.gz=wash-sale-checker__index.html.gz
       - wash-sale-checker__usage.mjs.gz=wash-sale-checker__usage.mjs.gz
+      - water-damage-drying-estimate-calculator__calc.mjs.gz=water-damage-drying-estimate-calculator__calc.mjs.gz
+      - water-damage-drying-estimate-calculator__index.html.gz=water-damage-drying-estimate-calculator__index.html.gz
+      - water-damage-drying-estimate-calculator__usage.mjs.gz=water-damage-drying-estimate-calculator__usage.mjs.gz
       - water-heater-bid-calculator__calc.mjs.gz=water-heater-bid-calculator__calc.mjs.gz
       - water-heater-bid-calculator__how-much-to-charge.html.gz=water-heater-bid-calculator__how-much-to-charge.html.gz
       - water-heater-bid-calculator__index.html.gz=water-heater-bid-calculator__index.html.gz
@@ -5196,13 +5199,13 @@ configMapGenerator:
       - which-job-first__index.html.gz=which-job-first__index.html.gz
       - which-job-first__rank.mjs.gz=which-job-first__rank.mjs.gz
       - which-job-first__vs-jobber.html.gz=which-job-first__vs-jobber.html.gz
-      - which-job-first__vs-scoring-every-job-out-of-ten.html.gz=which-job-first__vs-scoring-every-job-out-of-ten.html.gz
-      - wholesale-line-sheet-maker__calc.mjs.gz=wholesale-line-sheet-maker__calc.mjs.gz
   - name: portfolio-front-tools-39
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - which-job-first__vs-scoring-every-job-out-of-ten.html.gz=which-job-first__vs-scoring-every-job-out-of-ten.html.gz
+      - wholesale-line-sheet-maker__calc.mjs.gz=wholesale-line-sheet-maker__calc.mjs.gz
       - wholesale-line-sheet-maker__index.html.gz=wholesale-line-sheet-maker__index.html.gz
       - wholesale-line-sheet-maker__usage.mjs.gz=wholesale-line-sheet-maker__usage.mjs.gz
       - wholesale-real-estate-offer-calculator__calc.mjs.gz=wholesale-real-estate-offer-calculator__calc.mjs.gz
