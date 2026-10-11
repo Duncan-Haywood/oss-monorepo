@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1035 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1036 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -38,6 +38,14 @@
     <updated>2026-10-11T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free hoarding and heavy-clutter cleanout bid calculator: enter floor area, how full the space is, crew, containers and dump fees, and get a price, the days and containers needed, a change-order rate per cubic yard and how far the volume can overrun. Runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Hydroseeding Job Bid Calculator — Price per 1,000 Sq Ft, Tank Loads, Profit</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hydroseeding-job-bid-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/hydroseeding-job-bid-calculator</id>
+    <updated>2026-10-11T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free hydroseeding bid calculator: enter seed, mulch, water, tank size, crew, travel and equipment and see the cost and profit of a job, the price per 1,000 sq ft for your target margin, and the season result. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>Paintless Dent Repair Quote Calculator — Hail Price Per Dent and Per Tech Day</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-10T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free minister housing allowance calculator: find your section 107 exclusion (the least of designated, actual cost and fair rental value), income tax saved, self-employment tax, and a board resolution template. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Coast FIRE Calculator — Do You Already Have Enough to Coast?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/coast-fire-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/coast-fire-calculator</id>
-    <updated>2026-10-10T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free Coast FIRE and Barista FIRE calculator: see the savings you need today to coast to retirement, the age you cross that line, and the part-time income you need while coasting. Runs in your browser.</summary>
   </entry>
 </feed>
