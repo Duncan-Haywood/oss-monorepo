@@ -1536,7 +1536,8 @@ const RELATIVE_SELF = relative(
 // +1: `tournament-pairing-manager` graduated.
 // +1: `fair-workweek-schedule-checker` graduated.
 // +1: `vegetable-garden-planting-calendar` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1032;
+// +1: `json-ld-rich-result-validator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1033;
 // +1: `retreat-profit-pricing-calculator` graduated.
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.

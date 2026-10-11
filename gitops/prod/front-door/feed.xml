@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1053 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1054 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -104,6 +104,14 @@
     <summary type="text">Free hydroseeding bid calculator: enter seed, mulch, water, tank size, crew, travel and equipment and see the cost and profit of a job, the price per 1,000 sq ft for your target margin, and the season result. Runs in your browser.</summary>
   </entry>
   <entry>
+    <title>JSON-LD Rich Result Validator — Schema Markup Checker and Generator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/json-ld-rich-result-validator/"/>
+    <id>tag:marisstella.dev,2026:tool/json-ld-rich-result-validator</id>
+    <updated>2026-10-11T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free JSON-LD and schema markup validator. Paste a page&#39;s HTML or JSON-LD and see every missing required and recommended property for Product, Article, LocalBusiness, Recipe, Event, JobPosting and more. Builds starter markup too. Nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Mobile Oil Change Route Profit Calculator — Price per Job, Batching, Solo vs Franchise</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mobile-oil-change-route-profit-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/mobile-oil-change-route-profit-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-11T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free PPF and ceramic coating bid calculator: enter vehicle size, film coverage, roll cost and waste, paint correction, bay days and redo rate, and get a price and profit per bay day. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Private Chef Service Price Calculator — Price Per Visit and Per Guest</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/private-chef-service-price-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/private-chef-service-price-calculator</id>
-    <updated>2026-10-11T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free private chef and meal-prep price calculator: enter guests, shopping, prep, cooking, cleanup and travel hours, groceries and overhead, and see a cost-plus price per visit and per guest. Runs in your browser.</summary>
   </entry>
 </feed>
