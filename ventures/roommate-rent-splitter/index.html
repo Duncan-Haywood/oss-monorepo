@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Roommate Rent Splitter — fair rent for unequal rooms, nobody envies</title>
+  <meta name="description" content="Free roommate rent calculator for rooms that are not equal. Everyone says what each room is worth to them; the tool assigns rooms and sets rents that add up to the total so that no one would swap. Private, in your browser, nothing uploaded.">
+  <meta property="og:title" content="Roommate Rent Splitter — fair rent for unequal rooms">
+  <meta property="og:description" content="Envy-free rent division: rooms assigned and prices set so nobody would rather have another room. Free, private, in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Roommate Rent Splitter","applicationCategory":"UtilitiesApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free roommate rent splitter for unequal rooms. Each person values every room, and the tool assigns rooms and sets prices so that nobody would trade (envy-free rent division). Runs in your browser; nothing is uploaded.","featureList":"roommate rent calculator, split rent by room size, envy-free rent division, fair rent split unequal rooms, shared utilities split, csv export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you split rent fairly when the rooms are different sizes?","acceptedAnswer":{"@type":"Answer","text":"Do not split by square feet alone, because a small room with a private bathroom can be worth more than a big one with none. Give each roommate the same amount of money to spread across the rooms to say what each room is worth to them. The tool gives the rooms to the people who value them most in total and sets prices so that nobody would rather have someone else's room at that room's price."}},{"@type":"Question","name":"What does envy-free mean?","acceptedAnswer":{"@type":"Answer","text":"At the prices shown, every person is at least as happy with the room and price they got as with any other room at its price. Nobody can say they would be better off swapping, so there is nothing to argue about afterwards."}},{"@type":"Question","name":"Do I have to be honest with my values?","acceptedAnswer":{"@type":"Answer","text":"Yes, and it works best when everyone enters them privately before comparing. Each person spreads the same total rent across the rooms, so putting more on one room means putting less on the others. Inflating a favourite room raises its price and can cost you the room, so honest values are the safest strategy."}},{"@type":"Question","name":"Why does one person pay less than an equal split?","acceptedAnswer":{"@type":"Answer","text":"Equal splits ignore that rooms differ. A person who values the smallest room at less than an equal share pays less for it, and the people with the better rooms pay more. All three are better off than under an equal split because the extra value of each room goes to whoever values it most."}},{"@type":"Question","name":"What if two people want the same room?","acceptedAnswer":{"@type":"Answer","text":"The tool compares every possible way of giving out the rooms and picks the one with the highest total value, then raises the price of the contested room until the person who values it less is happier elsewhere. A tie is broken by the order of the names, so the outcome is the same every time you run it."}},{"@type":"Question","name":"Is my information uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is calculated in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a file if you want to reopen the split later."}},{"@type":"Question","name":"Is this legal or tenancy advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type. Your lease, local law and landlord decide what you owe the landlord; this only helps roommates divide it between themselves."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ROOMMATE RENT SPLITTER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Split rent fairly when the rooms are not equal</h1>
+    <p>Everyone says what <strong>each room is worth to them</strong>. The tool gives the rooms to the people who want them most and sets the rent for each so the total is exactly right and <strong>nobody would rather have someone else's room</strong>. No more arguing about the master bedroom, and no more splitting by square feet when one small room has the private bath.</p>
+    <p class="note">How it works, with a worked example: <a href="./how-to-split-rent-with-unequal-rooms.html">how to split rent with unequal rooms</a>.</p>
+  </header>
+
+  <main>
+  <section class="card" id="setup">
+    <h2>1. The household</h2>
+    <div class="row3">
+      <div><label for="rent">Total monthly rent ($)</label><input type="number" id="rent" min="0.01" step="0.01" max="1000000" value="3000"></div>
+      <div><label for="shared">Shared costs to split evenly ($, optional)</label><input type="number" id="shared" min="0" step="0.01" max="1000000" value="240"></div>
+      <div><label for="count">People (and rooms)</label><select id="count"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></div>
+    </div>
+    <label style="display:flex;gap:8px;align-items:center;font-weight:400"><input type="checkbox" id="cents" style="width:auto"> Show rents to the cent (otherwise whole dollars)</label>
+
+    <h2 style="margin-top:20px">2. What each room is worth to each person</h2>
+    <p class="note">Each row is one person. Spread any amount across the rooms: only the proportions matter, and each person's numbers are scaled to the total rent. Putting more on one room means putting less on the others. Fill in your row privately before comparing.</p>
+    <div class="scroll"><table id="bids"><thead></thead><tbody></tbody></table></div>
+    <button type="button" id="solve">Split the rent</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="load-file-btn">Load saved split</button>
+    <input type="file" id="load-file" accept=".json,application/json" hidden aria-label="Saved split file">
+    <p id="form-status" role="status" class="note">Fill in the grid, then click Split the rent.</p>
+  </section>
+
+  <section id="result" class="card" hidden>
+    <h2>The split</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div class="scroll"><table id="out"><thead><tr><th>Person</th><th>Room</th><th class="num">Rent</th><th class="num">Shared</th><th class="num">Total</th><th class="num">Better off than their own value by</th></tr></thead><tbody></tbody></table></div>
+    <p class="note" id="vs-equal"></p>
+    <button type="button" id="copy-text">Copy as text</button>
+    <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="save-file">Save split</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Rooms:</strong> the tool tries every way of giving each person one room and keeps the one with the highest total stated value.</p>
+    <p><strong>Prices:</strong> it then finds prices that add up to the rent where no person prefers another room at its price, and among those it makes the least-happy person as happy as possible. This is the envy-free rent division of Su (1999) and Gal et al. (2017), solved with shortest paths and a bisection.</p>
+    <p><strong>Checked:</strong> the test suite runs hundreds of random households of two to eight people and confirms that the rent always adds up exactly, every room is held by one person and nobody envies anyone, and compares the room assignment with a brute-force search.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do you split rent fairly when the rooms are different sizes?</h3>
+    <p>Do not split by square feet alone, because a small room with a private bathroom can be worth more than a big one with none. Give each roommate the same amount of money to spread across the rooms to say what each room is worth to them. The tool gives the rooms to the people who value them most in total and sets prices so that nobody would rather have someone else's room at that room's price.</p>
+    <h3>What does envy-free mean?</h3>
+    <p>At the prices shown, every person is at least as happy with the room and price they got as with any other room at its price. Nobody can say they would be better off swapping, so there is nothing to argue about afterwards.</p>
+    <h3>Do I have to be honest with my values?</h3>
+    <p>Yes, and it works best when everyone enters them privately before comparing. Each person spreads the same total rent across the rooms, so putting more on one room means putting less on the others. Inflating a favourite room raises its price and can cost you the room, so honest values are the safest strategy.</p>
+    <h3>Why does one person pay less than an equal split?</h3>
+    <p>Equal splits ignore that rooms differ. A person who values the smallest room at less than an equal share pays less for it, and the people with the better rooms pay more. All three are better off than under an equal split because the extra value of each room goes to whoever values it most.</p>
+    <h3>What if two people want the same room?</h3>
+    <p>The tool compares every possible way of giving out the rooms and picks the one with the highest total value, then raises the price of the contested room until the person who values it less is happier elsewhere. A tie is broken by the order of the names, so the outcome is the same every time you run it.</p>
+    <h3>Is my information uploaded?</h3>
+    <p>No. Everything is calculated in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a file if you want to reopen the split later.</p>
+    <h3>Is this legal or tenancy advice?</h3>
+    <p>No. It is arithmetic on the numbers you type. Your lease, local law and landlord decide what you owe the landlord; this only helps roommates divide it between themselves.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type, not legal, tenancy, tax or financial advice. <strong>You are responsible for your lease, your landlord's terms and local law</strong> and for agreeing the split with your roommates. To the maximum extent permitted by law the authors are not liable for any loss arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any landlord, property manager, rental platform or rent-splitting service, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere, so use Save split and keep the file.</p>
+    <p>Everything runs in your browser. Names and values are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>split_run</code>, <code>example_loaded</code>, <code>text_copied</code>, <code>csv_downloaded</code>, <code>file_saved</code>) are counted only in local storage on your device, never with any of your inputs, and are never sent anywhere. Switching them off below removes them and stays off on your next visit.</p>
+    <p>Related tools: the <a href="../rent-vs-buy-breakeven-calculator/">rent vs buy break-even calculator</a> and the <a href="../rent-increase-notice-checker/">rent increase notice checker</a>.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { solve, money, resultText, resultCsv, serializeState, parseState, sampleInput, MAX_PEOPLE } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let R = null, INPUT = null;
+
+    function grid(n, state) {
+      const rooms = Array.from({ length: n }, (_, j) => state?.rooms?.[j] ?? "Room " + (j + 1));
+      const people = Array.from({ length: n }, (_, i) => state?.people?.[i] ?? { name: "Person " + (i + 1), bids: Array(n).fill(100) });
+      $("#bids thead").innerHTML = "<tr><th>Person</th>" + rooms.map((r, j) => '<th><input type="text" class="room" value="' + esc(r) + '" aria-label="Name of room ' + (j + 1) + '"></th>').join("") + "</tr>";
+      $("#bids tbody").innerHTML = people.map((p, i) => '<tr><td><input type="text" class="pname" value="' + esc(p.name) + '" aria-label="Name of person ' + (i + 1) + '"></td>' + Array.from({ length: n }, (_, j) => '<td><input type="number" class="bid" min="0" step="any" max="1000000" value="' + (p.bids?.[j] ?? 100) + '" aria-label="' + esc((p.name || "Person " + (i + 1)) + " value for " + rooms[j]) + '"></td>').join("") + "</tr>").join("");
+    }
+
+    function read() {
+      const n = Number($("#count").value);
+      const rows = [...document.querySelectorAll("#bids tbody tr")];
+      return {
+        totalRent: Number($("#rent").value), sharedCosts: Number($("#shared").value) || 0, cents: $("#cents").checked,
+        rooms: [...document.querySelectorAll("#bids thead .room")].map((e) => e.value.trim() || "Room"),
+        people: rows.slice(0, n).map((r) => ({ name: r.querySelector(".pname").value.trim(), bids: [...r.querySelectorAll(".bid")].map((b) => Number(b.value)) })),
+      };
+    }
+
+    function fill(s) {
+      $("#rent").value = s.totalRent; $("#shared").value = s.sharedCosts || 0; $("#cents").checked = Boolean(s.cents);
+      $("#count").value = String(s.people.length);
+      grid(s.people.length, s);
+    }
+
+    function run() {
+      INPUT = read();
+      const res = solve(INPUT);
+      if (!res.ok) { status.textContent = res.errors.join(" "); return false; }
+      R = res;
+      status.textContent = "Done. Scroll down.";
+      render();
+      return true;
+    }
+
+    function render() {
+      $("#result").hidden = false;
+      $("#notices").innerHTML = R.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("") + (R.envyFree ? "" : '<div class="warn">After rounding, someone could be up to a dollar better off in another room. Turn on cents for the exact figures.</div>');
+      const top = R.rows.slice().sort((a, b) => b.rent - a.rent)[0];
+      $("#big").innerHTML = [[money(R.totalRent), "total rent"], [money(top.rent), "highest room: " + esc(top.roomName)], [R.envyFree ? "Yes" : "Nearly", "nobody would swap"], [money(Math.min(...R.rows.map((r) => r.surplus))), "least-happy person's gain"]].map(([a, b]) => "<div><strong>" + esc(a) + "</strong>" + b + "</div>").join("");
+      $("#out tbody").innerHTML = R.rows.map((r) => "<tr><td>" + esc(r.person) + "</td><td>" + esc(r.roomName) + '</td><td class="num">' + money(r.rent) + '</td><td class="num">' + money(r.sharedShare) + '</td><td class="num"><strong>' + money(r.total) + '</strong></td><td class="num">' + money(r.surplus) + "</td></tr>").join("");
+      const w = R.equalSplit.worstSurplus;
+      $("#vs-equal").textContent = "An equal split would be " + money(R.equalSplit.each) + " each" + (w < 0 ? ", which would have someone paying " + money(-w) + " more than their room is worth to them." : ".");
+    }
+
+    function download(fileName, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = fileName;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    grid(3, sampleInput());
+    $("#count").addEventListener("change", () => grid(Number($("#count").value), read()));
+    $("#solve").addEventListener("click", () => setTimeout(() => { if (run()) record("split_run"); }, 0));
+    $("#load-example").addEventListener("click", () => { fill(sampleInput()); setTimeout(() => { if (run()) { record("example_loaded"); status.textContent = "Example: three roommates, invented numbers. Enter yours above."; } }, 0); });
+    $("#copy-text").addEventListener("click", async () => {
+      if (!R) return;
+      try { await navigator.clipboard.writeText(resultText(R, INPUT)); status.textContent = "Copied. Paste it into your group chat."; record("text_copied"); }
+      catch { status.textContent = "Your browser blocked copying. Use Download CSV instead."; }
+    });
+    $("#dl-csv").addEventListener("click", () => { if (!R) return; download("rent-split.csv", resultCsv(R), "text/csv"); record("csv_downloaded"); });
+    $("#save-file").addEventListener("click", () => { if (!R) return; download("rent-split.json", serializeState(INPUT), "application/json"); record("file_saved"); });
+    $("#load-file-btn").addEventListener("click", () => $("#load-file").click());
+    $("#load-file").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const out = parseState(await f.text());
+      if (out.error) { status.textContent = out.error; return; }
+      if (out.state.people.length < 2 || out.state.people.length > MAX_PEOPLE) { status.textContent = "The saved split has an unsupported number of people."; return; }
+      fill(out.state);
+      run();
+    });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
