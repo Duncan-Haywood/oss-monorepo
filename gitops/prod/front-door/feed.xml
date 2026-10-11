@@ -88,6 +88,14 @@
     <summary type="text">Free fundraising event calculator for galas, auctions and benefit dinners: enter tickets, sponsors, auction, giving and costs, and get net proceeds, cost per dollar raised, break-even guests and the ticket price that reaches your goal. Runs in your browser.</summary>
   </entry>
   <entry>
+    <title>Grain Store or Sell Calculator — break-even price for storing corn and soybeans</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/grain-store-or-sell-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/grain-store-or-sell-calculator</id>
+    <updated>2026-10-11T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free store-or-sell calculator for grain farmers. Enter harvest moisture, drying, storage and interest costs and later bids; it shows what each later price nets versus selling at harvest and the break-even price. Private, in your browser.</summary>
+  </entry>
+  <entry>
     <title>Hoarding Cleanout Bid Calculator — Price, Containers and Change-Order Rate</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hoarding-cleanout-bid-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/hoarding-cleanout-bid-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-11T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free phone repair shop calculator: enter screen, port and micro-soldering prices, bench minutes, supplies, technician pay and rent, and see profit per job and per bench hour, break-even volume and the season result. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Pool Opening and Closing Price Calculator — Season Price, Bundle and Stops per Day</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pool-opening-closing-price-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/pool-opening-closing-price-calculator</id>
-    <updated>2026-10-11T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free pool opening and closing price calculator: enter the pool size, cover, water condition, crew and chemical costs, and get a price for each visit, a season bundle and stops per day. Runs in your browser.</summary>
   </entry>
 </feed>
