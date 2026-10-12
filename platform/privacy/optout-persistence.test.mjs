@@ -1569,8 +1569,9 @@ const RELATIVE_SELF = relative(
 // +1: `ppp-pricing-table-generator` graduated.
 // +1: `3pl-invoice-audit-checker` graduated.
 // +1: `glamping-unit-payback-calculator` graduated.
+// +1: `str-arbitrage-lease-calculator` graduated.
 // +1: `npm-lockfile-duplicates-check` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1083;
+const SWITCHES_IN_THE_CATALOGUE = 1084;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.

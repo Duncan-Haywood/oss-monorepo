@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>STR Arbitrage Lease Calculator — Furnish, Sublet, Earn It Back</title>
+  <meta name="description" content="Free rental arbitrage calculator: rent, utilities, furnishing, nightly rate, occupancy, commission and turnovers become monthly profit, break-even occupancy, the month furnishing is earned back and what the lease nets. Private, runs in your browser.">
+  <meta property="og:title" content="Rental arbitrage calculator: will a sublet Airbnb earn back its furniture? Free, private">
+  <meta property="og:description" content="Rent, furnishing, nightly rate and occupancy in; monthly profit, break-even occupancy and lease payback out.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "STR Arbitrage Lease Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is subletting an apartment on Airbnb legal?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on your lease and your city. Many leases forbid subletting or short-term rental without the landlord's written consent, and many cities require a permit, a registration number or a primary-residence rule. This page does not know either, so check your lease and local rules before you spend on furniture."}}, {"@type": "Question", "name": "How much does rental arbitrage make?", "acceptedAnswer": {"@type": "Answer", "text": "It depends entirely on your rent against what nights sell for. Enter your own rent, nightly rate and occupancy; the page works out the profit in a steady month, when furnishing and setup are earned back, and what is left over the months remaining on the lease."}}, {"@type": "Question", "name": "What occupancy do I need to break even on a rental arbitrage unit?", "acceptedAnswer": {"@type": "Answer", "text": "Break-even occupancy is where a steady month earns zero after rent, utilities, other fixed costs, commission, turnovers and supplies. A second figure shows the occupancy needed to earn back furnishing and setup before the lease ends."}}, {"@type": "Question", "name": "Why does the lease length matter?", "acceptedAnswer": {"@type": "Answer", "text": "Furniture and setup are a fixed spend you only earn back while you still hold the lease. The fewer months left, the higher the occupancy or rate you need. The page shows the net over the months you enter, with the deposit returned and any resale value you choose to count."}}, {"@type": "Question", "name": "What if the landlord raises the rent?", "acceptedAnswer": {"@type": "Answer", "text": "The rent table shows monthly profit and the lease total at rent increases of 5% to 20%, so you can see how little room you have before the unit stops paying."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">STR ARBITRAGE LEASE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will a rental-arbitrage unit earn back its furniture before the lease ends?</h1>
+    <p>Enter the rent, what you spend to furnish and set up, and your nightly rate and occupancy. You get <strong>profit in a steady month</strong>, <strong>break-even occupancy</strong>, <strong>the month furnishing is earned back</strong>, <strong>what the lease nets</strong> after ramp-up and resale, the <strong>occupancy and rate</strong> needed to net zero, and what a rent increase does.</p>
+    <p class="note">It works from your own figures. It does not know what comparable listings charge, whether your lease allows subletting, or whether your city requires a permit.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>Your unit</h2>
+    <div class="grid">
+      <div><label for="rent">Monthly rent you pay the landlord, dollars</label><input id="rent" inputmode="decimal" value="" placeholder="2200"></div>
+      <div><label for="utilities">Utilities and internet per month, dollars</label><input id="utilities" inputmode="decimal" value="" placeholder="250"></div>
+      <div><label for="othermonthly">Other monthly costs: insurance, software, supplies stock, dollars</label><input id="othermonthly" inputmode="decimal" value="" placeholder="150"></div>
+      <div><label for="deposit">Security deposit (returned at the end), dollars</label><input id="deposit" inputmode="decimal" value="" placeholder="2200"></div>
+      <div><label for="furnish">Furnishing cost: furniture, bedding, kitchen, TV, dollars</label><input id="furnish" inputmode="decimal" value="" placeholder="9000"></div>
+      <div><label for="setup">Other setup cost: photos, lock, smart devices, permit fee, dollars</label><input id="setup" inputmode="decimal" value="" placeholder="800"></div>
+      <div><label for="resalepct">What the furniture would resell for at the end, % of cost</label><input id="resalepct" inputmode="decimal" value="" placeholder="30"></div>
+      <div><label for="adr">Average nightly rate, dollars</label><input id="adr" inputmode="decimal" value="" placeholder="165"></div>
+      <div><label for="occ">Occupancy, % of nights booked</label><input id="occ" inputmode="decimal" value="" placeholder="68"></div>
+      <div><label for="avgstay">Average stay, nights</label><input id="avgstay" inputmode="decimal" value="" placeholder="3.2"></div>
+      <div><label for="cleaningfee">Cleaning fee guests pay per stay, dollars</label><input id="cleaningfee" inputmode="decimal" value="" placeholder="95"></div>
+      <div><label for="turncost">What a turnover costs you: cleaner, laundry, restock, dollars</label><input id="turncost" inputmode="decimal" value="" placeholder="70"></div>
+      <div><label for="varnight">Supplies per occupied night, dollars</label><input id="varnight" inputmode="decimal" value="" placeholder="4"></div>
+      <div><label for="platformpct">Booking-site commission, % of guest revenue</label><input id="platformpct" inputmode="decimal" value="" placeholder="15.5"></div>
+      <div><label for="leasemonths">Months left on the lease</label><input id="leasemonths" inputmode="decimal" value="" placeholder="12"></div>
+      <div><label for="rampmonths">Ramp-up months before bookings settle</label><input id="rampmonths" inputmode="decimal" value="" placeholder="2"></div>
+      <div><label for="ramppct">Occupancy during ramp-up, % of your steady figure</label><input id="ramppct" inputmode="decimal" value="" placeholder="50"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out the lease</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in your unit, then click Work out the lease.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>If occupancy runs above or below plan</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Versus plan</th><th scope="col" class="n">Occupancy</th><th scope="col" class="n">Profit per month</th><th scope="col" class="n">Net over the lease</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <h3>If the landlord raises the rent</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Rent increase</th><th scope="col" class="n">Rent</th><th scope="col" class="n">Profit per month</th><th scope="col" class="n">Net over the lease</th></tr></thead><tbody id="rent-rows"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download occupancy table (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Counts:</strong> occupied nights per month = 365 / 12 x occupancy; stays = nights / average stay; guest revenue = nights x nightly rate + stays x cleaning fee; commission is a percent of guest revenue; profit = guest revenue - commission - (stays x turnover cost + nights x supplies) - rent - utilities - other monthly costs.</li>
+      <li><strong>Over the lease:</strong> ramp-up months run at the share of steady occupancy you enter; net = the sum of monthly profit - furnishing - setup + resale value of the furniture. The deposit comes back, so it is cash at risk and not a cost. <strong>Earned back</strong> is the first month the running total covers furnishing and setup, with no resale counted.</li>
+      <li><strong>Break-even occupancy</strong> is where a steady month earns zero. <strong>Net zero over the lease</strong> solves for the steady occupancy (or nightly rate) at which the whole lease nets zero. Both ignore growth in rates, seasonality and a lease renewal.</li>
+      <li><strong>Not decided:</strong> whether your lease or your city allows short-term subletting, permits and registration, lodging and sales taxes (normally collected from guests and passed on), income tax, insurance quotes, your own time, damage and refunds, seasonality, and what comparable listings charge or how often they book.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>Is subletting an apartment on Airbnb legal?</h3>
+    <p>It depends on your lease and your city. Many leases forbid subletting or short-term rental without the landlord's written consent, and many cities require a permit, a registration number or a primary-residence rule. This page does not know either, so check your lease and local rules before you spend on furniture.</p>
+    <h3>How much does rental arbitrage make?</h3>
+    <p>It depends entirely on your rent against what nights sell for. Enter your own rent, nightly rate and occupancy; the page works out the profit in a steady month, when furnishing and setup are earned back, and what is left over the months remaining on the lease.</p>
+    <h3>What occupancy do I need to break even on a rental arbitrage unit?</h3>
+    <p>Break-even occupancy is where a steady month earns zero after rent, utilities, other fixed costs, commission, turnovers and supplies. A second figure shows the occupancy needed to earn back furnishing and setup before the lease ends.</p>
+    <h3>Why does the lease length matter?</h3>
+    <p>Furniture and setup are a fixed spend you only earn back while you still hold the lease. The fewer months left, the higher the occupancy or rate you need. The page shows the net over the months you enter, with the deposit returned and any resale value you choose to count.</p>
+    <h3>What if the landlord raises the rent?</h3>
+    <p>The rent table shows monthly profit and the lease total at rent increases of 5% to 20%, so you can see how little room you have before the unit stops paying.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output before signing a lease, buying furniture or changing a rate. Treat it as a worksheet to check, not an investment recommendation.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../midterm-rental-calculator/">midterm rental calculator</a>, the <a href="../str-nightly-rate-optimizer/">short-term rental nightly rate optimizer</a> and the <a href="../str-host-payout-calculator/">STR host payout calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, sweepCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { rent: "rent", utilities: "utilities", othermonthly: "otherMonthly", deposit: "deposit", furnish: "furnish", setup: "setup", resalepct: "resalePct", adr: "adr", occ: "occ", avgstay: "avgStay", cleaningfee: "cleaningFee", turncost: "turnCost", varnight: "varNight", platformpct: "platformPct", leasemonths: "leaseMonths", rampmonths: "rampMonths", ramppct: "rampPct" };
+    const IDLE = "Fill in your unit, then click Work out the lease.";
+    const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `${whole(r.totals.profit)} a month at steady occupancy; furnishing earned back ${r.paybackMonth === null ? "not within the lease" : "in month " + r.paybackMonth}; ${whole(r.netLease)} net over ${r.input.leaseMonths} months`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#rows").innerHTML = r.sweep.map((x) => `<tr><td class="n">${Math.round(x.scale * 100)}%</td><td class="n">${x.occ.toFixed(0)}%</td><td class="n">${whole(x.monthly)}</td><td class="n">${whole(x.lease)}</td></tr>`).join("");
+      $("#rent-rows").innerHTML = r.rentSweep.map((x) => `<tr><td class="n">+${x.pct}%</td><td class="n">${whole(x.rent)}</td><td class="n">${whole(x.monthly)}</td><td class="n">${whole(x.lease)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: $2,200 rent, $9,800 to furnish and set up, $165 a night at 68%. Illustrative figures, not market rates.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("arbitrage-lease.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("arbitrage-lease-by-occupancy.csv", sweepCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
