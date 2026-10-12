@@ -3648,3 +3648,17 @@ entries:
         laser-cutting-engraving-job-price-calculator; scrap-gold-buy-price-calculator covers jewelry gold, not a hauled load).
         First visitor: people searching whether stripping copper wire is worth it and which scrap yard to use; volume unmeasured.
     mrr_end: 0
+  - venture: sales-quota-capacity-planner
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built sales-quota-capacity-planner: a browser-only planner for sales and RevOps leaders that takes the
+        annual bookings target, per-rep quota, ramp (linear or cliff), share of reps at or over quota and attainment of the
+        rest, monthly attrition, hiring lead time, existing reps with start dates and pipeline coverage, and returns
+        month-by-month ramped-rep-equivalents, expected bookings and gap, the fewest hires that close it, the latest start
+        and requisition-open date per hire cohort (reverse-planned from lead time and ramp), an attainment-by-attrition
+        sensitivity grid, and hire-early vs hire-late cost and downside shortfall. CSV export and shareable URL state.
+        Hand-computed unit tests for ramp, attrition, reverse planning and edge cases. First visitor: people searching how
+        many sales reps to hire or for a sales capacity planning model; volume unmeasured.
+    mrr_end: 0

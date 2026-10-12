@@ -1,0 +1,57 @@
+name: sales-quota-capacity-planner
+description: >-
+  Free browser tool for sales and RevOps leaders: enter the annual bookings target, quota, ramp, attainment, attrition, hiring lead time
+  and existing reps, and see month-by-month ramped capacity, the gap to target, how many reps to hire, the latest start and
+  requisition date for each hire cohort, sensitivity to attainment and attrition, and the cost of hiring early versus late. Nothing is
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Inspiration only, not copied and not named on any page: capacity-planning modules in commercial sales-performance and planning
+# suites (Clari, Xactly, Anaplan) and the quota-capacity spreadsheets RevOps teams build by hand. Those cover territories, comp and
+# connected CRM data; this is the one-question, no-signup version.
+#
+# Why this niche: a VP Sales or RevOps lead has to turn a bookings target into a hiring plan, and the usual spreadsheet divides target
+# by quota and forgets ramp, attrition, attainment below 100% and recruiting lead time -- which is why hiring plans are late. The money
+# question (how many reps, by when) is arithmetic on numbers they already hold.
+#
+# First visitor: someone searching "sales capacity planning model", "how many sales reps do I need", "quota capacity planning
+# spreadsheet". Volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a multi-scenario compare and a printable board slide
+# behind an env-var switch. Neither is built.
+#
+# Liability: the risk is a plan read as a guarantee or as an employment decision. Mitigations: every figure is a deterministic
+# function of the user's own inputs and is hand-counted in unit tests, bad input throws instead of clamping, the page lists what it
+# does not model, and it says it is not financial, business or employment advice. It stores nothing and contacts no one.
+
+hypotheses:
+  - claim: >-
+      A sales or RevOps leader will use a free no-upload tool that turns a bookings target into a hiring schedule with a requisition-open
+      date per cohort, because spreadsheets that divide target by quota omit ramp, attrition and recruiting lead time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the cost of hiring early against the shortfall of hiring late under lower attainment changes when a leader opens requisitions.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports relying on the tool's hiring count instead of their own forecast and finance review, despite the disclaimer -- at that point the wording needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/sales-quota-capacity-planner/
+  analytics: null
