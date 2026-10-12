@@ -3779,3 +3779,16 @@ entries:
         tables, text summary and CSV. 15 hand-computed unit tests plus page and usage tests. Screened with duplicate_check.py
         (nearest venture 0.18). First visitor: people searching RV storage business ROI; volume unmeasured.
     mrr_end: 0
+  - venture: self-serve-dog-wash-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built self-serve-dog-wash-profit-calculator: a browser-only pro forma for people planning a self-serve or
+        full-service dog wash. Tubs, wash price, washes per tub by weekday, weekend and season, water, supplies, labor, rent,
+        build-out and a loan become tub capacity checks, break-even washes per day, operating profit, yield on start-up cost, the
+        price for a target yield, a month-by-month ramp with lowest cash point and payback month, and an equity view with an optional
+        sale, with traffic and price sensitivity tables, text summary and CSV. Hand-computed unit tests plus page and usage tests.
+        Screened with duplicate_check.py (nearest venture 0.19, shared word "wash" only). First visitor: people searching
+        self-serve dog wash business plan; volume unmeasured.
+    mrr_end: 0
