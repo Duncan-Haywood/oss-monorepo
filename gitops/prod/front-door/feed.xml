@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1099 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1100 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -120,6 +120,14 @@
     <summary type="text">Paste a funeral home&#39;s price list or quote and see which charges you cannot decline, which are your choice, which are paid to others, and which the FTC Funeral Rule questions, such as casket handling fees. Compare two homes. Free, in your browser.</summary>
   </entry>
   <entry>
+    <title>Glamping Unit Payback Calculator — Yurts, Domes and Cabins</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/glamping-unit-payback-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/glamping-unit-payback-calculator</id>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free payback calculator for glamping and cabin sites: build cost, shared infrastructure, seasonal nightly rates and occupancy, commission, turnovers and a loan become operating income, debt coverage, cash after the loan, payback in years and break-even occupancy. Private, runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Golf Simulator Bay Profit Calculator — monthly profit, payback and break-even utilization</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/golf-simulator-bay-profit-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/golf-simulator-bay-profit-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-12T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste package.json, .nvmrc, .tool-versions, a Dockerfile and a GitHub Actions workflow and see whether your Node.js versions drifted: a pin that breaks engines.node, majors that disagree across files, end-of-life Node.js, or an unbounded engines range. Free, deterministic, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>npm Lockfile Duplicates Check — Find Duplicate Packages in package-lock.json</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/npm-lockfile-duplicates-check/"/>
-    <id>tag:marisstella.dev,2026:tool/npm-lockfile-duplicates-check</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your package-lock.json and see every package installed at more than one version, who pulls each copy in, and which ones npm dedupe can remove. Free duplicate dependency finder, runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>
