@@ -1572,7 +1572,8 @@ const RELATIVE_SELF = relative(
 // +1: `str-arbitrage-lease-calculator` graduated.
 // +1: `npm-lockfile-duplicates-check` graduated.
 // +1: `subscription-proration-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1085;
+// +1: `mini-golf-course-profit-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1086;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
