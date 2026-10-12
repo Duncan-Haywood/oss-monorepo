@@ -144,6 +144,14 @@
     <summary type="text">Paste package.json, .nvmrc, .tool-versions, a Dockerfile and a GitHub Actions workflow and see whether your Node.js versions drifted: a pin that breaks engines.node, majors that disagree across files, end-of-life Node.js, or an unbounded engines range. Free, deterministic, runs in your browser.</summary>
   </entry>
   <entry>
+    <title>npm Lockfile Duplicates Check — Find Duplicate Packages in package-lock.json</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/npm-lockfile-duplicates-check/"/>
+    <id>tag:marisstella.dev,2026:tool/npm-lockfile-duplicates-check</id>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your package-lock.json and see every package installed at more than one version, who pulls each copy in, and which ones npm dedupe can remove. Free duplicate dependency finder, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Party Bus Charter Profit Calculator — true profit, margin and lowest quote per charter</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/party-bus-charter-profit-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/party-bus-charter-profit-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-12T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free tool for retail and restaurant tenants: recompute your landlord&#39;s percentage rent statement from your lease breakpoint, exclusions and your own sales, see the overcharge in dollars, and copy a dispute note.</summary>
-  </entry>
-  <entry>
-    <title>Pilot Car Escort Run Profit Calculator — true profit, margin and lowest quote per run</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pilot-car-escort-run-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/pilot-car-escort-run-profit-calculator</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free calculator for pilot car and oversize-load escort operators. Enter your quote (flat, day rate or per loaded mile), minimum charge, loaded and deadhead miles, driver hours, fuel, per diem and yearly overhead; it shows true profit per run, profit per driver hour and the lowest quote for your margin. Nothing is uploaded.</summary>
   </entry>
 </feed>
