@@ -3687,3 +3687,17 @@ entries:
         freight-accessorial-auditor audits carrier charges and 3pl-quote-normalizer compares quotes, neither checks a warehouse
         invoice). First visitor: people searching 3PL invoice audit or 3PL billing errors; volume unmeasured.
     mrr_end: 0
+  - venture: patent-maintenance-fee-planner
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built patent-maintenance-fee-planner: a browser-only planner for inventors, startups and small IP teams.
+        Paste US patents with grant date and entity size and it returns, for the next fee on each, the window-open date,
+        no-surcharge due date, surcharge deadline and expiry date (weekend deadlines rolled to Monday, month-end clamping),
+        flags fees already in the surcharge period, budgets fees by year over a chosen horizon, prices letting marked patents
+        lapse, and exports CSV and an .ics calendar of reminders. The fee table is user-editable because the USPTO schedule
+        could not be re-verified from the session. Hand-computed unit tests for stage boundaries, leap day, weekend rolls and
+        budget arithmetic. No patent or trademark docketing tool existed in the catalogue. First visitor: people searching
+        when a patent maintenance fee is due; volume unmeasured.
+    mrr_end: 0
