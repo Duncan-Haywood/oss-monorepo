@@ -3037,7 +3037,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `fair-workweek-schedule-checker` graduated (browser predictive scheduling check: late postings, short-notice add, move and cancel premium pay, and rest-period violations from a pasted schedule and change log).
     # +1: `json-ld-rich-result-validator` graduated (browser JSON-LD validator and builder).
     # +1: `amusement-route-location-calculator` graduated (browser coin-op route location check: take, commission, visits and miles to profit per route hour, the weekly take needed and the highest commission worth paying).
-    total = 1065  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1065 tools" wording.
+    # +1: `node-version-drift-check` graduated (browser and CLI Node.js version drift check: engines.node vs .nvmrc, Dockerfile and setup-node pins, majors that disagree, end-of-life majors).
+    total = 1066  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1066 tools" wording.
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
     # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).

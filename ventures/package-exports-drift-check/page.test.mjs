@@ -75,3 +75,9 @@ test("parsePackageJson round-trips the worked example's literal JSON form too", 
     "./esm/index.js",
   ]);
 });
+
+test("index links to node-version-drift-check so crawlers reach the sibling in one hop", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /href="\.\.\/node-version-drift-check\/"/);
+});

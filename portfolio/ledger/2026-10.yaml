@@ -3484,3 +3484,16 @@ entries:
         text match, this checks required properties). First visitor: site owners searching json-ld validator / schema markup
         checker / why is my structured data not showing; volume unmeasured.
     mrr_end: 0
+  - venture: node-version-drift-check
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built node-version-drift-check: a zero-dependency CLI plus browser page that reads a repo's Node.js version
+        declarations (package.json engines.node and volta.node, .nvmrc, .node-version, .tool-versions, Dockerfile FROM node: tags
+        with ARG defaults, GitHub Actions setup-node scalar, matrix and node-version-file) and flags a pin that cannot satisfy
+        engines.node, majors that disagree across files, end-of-life majors against a dated table (--today override), and an
+        unbounded engines range with nothing pinned. Hand-written semver range parser (caret, tilde, comparators, hyphen, x-ranges,
+        AND, OR) pinned by tests; --fail-on-risk exits 2. Screened with duplicate_check.py (nearest 0.18). First visitor:
+        developers searching why does CI use a different node version than .nvmrc / is node 20 end of life; volume unmeasured.
+    mrr_end: 0
