@@ -53,3 +53,9 @@ test("related-tool links point at ventures that exist", () => {
   assert.ok(links.length >= 2);
   for (const m of links) assert.ok(existsSync(new URL(`../${m[1]}/VENTURE.yaml`, import.meta.url)), m[1]);
 });
+
+test('links one hop to the prop-firm-challenge-calculator sibling', async () => {
+  const { readFileSync } = await import('node:fs');
+  assert.match(readFileSync(new URL('./index.html', import.meta.url), 'utf8'), /href="\.\.\/prop-firm-challenge-calculator\/"/);
+  assert.match(readFileSync(new URL('../prop-firm-challenge-calculator/index.html', import.meta.url), 'utf8'), /href="\.\.\/wash-sale-checker\/"/);
+});
