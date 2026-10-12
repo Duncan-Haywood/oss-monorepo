@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1096 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1097 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -152,19 +152,19 @@
     <summary type="text">Free calculator for party bus, limo and shuttle charter operators. Enter the charter price, hours and minimum, driver and deadhead time, miles, fuel, vehicle cost and yearly overhead; it shows true profit per charter, profit per vehicle hour and the lowest quote for your margin. Nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Patent Maintenance Fee Planner — Due Dates, Surcharges and a Fee Budget for Your Portfolio</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/patent-maintenance-fee-planner/"/>
+    <id>tag:marisstella.dev,2026:tool/patent-maintenance-fee-planner</id>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">When is each US patent maintenance fee due, when does the surcharge start, and when does the patent expire? Paste your patents and grant dates for every deadline, a multi-year fee budget, what dropping a patent saves, and a calendar file. Free, runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Percentage Rent Audit Checker — Free, Runs in Your Browser</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/percentage-rent-audit-checker/"/>
     <id>tag:marisstella.dev,2026:tool/percentage-rent-audit-checker</id>
     <updated>2026-10-12T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free tool for retail and restaurant tenants: recompute your landlord&#39;s percentage rent statement from your lease breakpoint, exclusions and your own sales, see the overcharge in dollars, and copy a dispute note.</summary>
-  </entry>
-  <entry>
-    <title>Pilot Car Escort Run Profit Calculator — true profit, margin and lowest quote per run</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pilot-car-escort-run-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/pilot-car-escort-run-profit-calculator</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free calculator for pilot car and oversize-load escort operators. Enter your quote (flat, day rate or per loaded mile), minimum charge, loaded and deadhead miles, driver hours, fuel, per diem and yearly overhead; it shows true profit per run, profit per driver hour and the lowest quote for your margin. Nothing is uploaded.</summary>
   </entry>
 </feed>
