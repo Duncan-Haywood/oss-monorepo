@@ -102,8 +102,10 @@ discreet variant is secondary (see the guardrails below). When should an always-
 speak, and how fast and cheap can the pipeline run on the device?
 
 **Prior work.** Horvitz (1999), "Principles of mixed-initiative user interfaces", CHI, on when
-to interrupt. Radford et al. (2023), Whisper, ICML. whisper.cpp. Silero VAD. Piper TTS. Omi, an
-open-source AI wearable. Lu et al. (2024), "Proactive Agent".
+to interrupt. Lu et al. (2025), "Proactive Agent", ICLR. Radford et al. (2023), Whisper, ICML.
+whisper.cpp (MIT). Silero VAD (MIT). Omi (MIT), an open-source AI wearable. For speech
+synthesis, Piper's original MIT repository is archived; its successor is GPL-3.0, so check the
+licence before bundling it.
 
 **Milestones.**
 1. `ambient-pipeline`: run a streaming pipeline on recorded audio in the container, using open
@@ -149,7 +151,8 @@ performance and area).
 et al. (2023), ChipNeMo, arXiv. Blocklove et al. (2023), Chip-Chat, MLCAD. On learned placement
 and the debate over reproducing it: Mirhoseini et al. (2021), *Nature*, and Cheng et al.
 (2023), ISPD. Tools: Yosys, Icarus Verilog, Verilator, cocotb, OpenROAD and the SkyWater SKY130
-open PDK. Tiny Tapeout is the path to a real chip.
+open PDK. Tiny Tapeout is the path to a real chip. Since Efabless shut down in 2025, its
+shuttles run on SKY130, IHP SG13G2 and GF180MCU.
 
 **Milestones.**
 1. `chip-toolchain`: install the open flow reproducibly in the container (Yosys, Icarus or
@@ -236,7 +239,7 @@ exosuit, *Science*. Seth et al. (2018), OpenSim. Poupyrev et al. (2016), "Projec
 CHI. Hsu et al. (2016), a radiative-cooling textile, *Science*. Zhang et al. (2019), a textile
 that gates infrared, *Science*. Thys et al. (2019) and Xu et al. (2020), adversarial patterns
 against person detectors. Gagge et al.'s two-node thermoregulation model and ISO 7730 for
-thermal comfort.
+thermal comfort. The Clean Clothes Campaign on where a garment's retail price goes.
 
 **Milestones.**
 1. `garment-teardown`: build a cost model for a garment: fabric area from the pattern times
@@ -270,11 +273,78 @@ Building it is an owner step.
 
 **Guardrails.**
 - *No counterfeits.* Copy no logos, brand names, signature prints or trade dress, and make
-  nothing that could be sold as, or mistaken for, the original. In the US, a garment's cut and
-  construction are largely unprotected; copyright reaches only artistic features separable
-  from the garment (*Star Athletica v. Varsity Brands*, 2017). The EU protects new designs for
-  three years from first disclosure even when unregistered. Say which applies.
+  nothing that could be sold as, or mistaken for, the original. In the US, copyright does not
+  cover a garment's cut or shape, only artistic features separable from it (*Star Athletica v.
+  Varsity Brands*, 2017). A design patent can still protect a particular garment, though. In
+  the EU, a new design is protected against copying for three years from first disclosure even
+  when unregistered (the unregistered EU design). Check which applies before copying a
+  distinctive piece.
 - *No protection claims from simulation.* A garment is armour only after certified testing,
-  such as to NIJ ballistic and stab standards, and the README must say so. Some US states also
-  restrict civilian body armour.
+  such as to NIJ Standard 0101.07 (ballistic) or 0115.00 (stab), and the README must say so.
+  Some US states restrict civilian body armour; New York is one (Penal Law § 270.21).
 - *Adversarial patterns are privacy research.* Test them against open models only.
+
+## References
+
+These were checked on 2026-10-12. Check them again before citing one, as `prompt.md` requires.
+
+**Track 1.**
+- von Neumann, ed. Burks (1966). *Theory of Self-Reproducing Automata*. Univ. of Illinois Press. <https://archive.org/details/theoryofselfrepr00vonn_0>
+- Freitas and Gilbreath, eds. (1982). *Advanced Automation for Space Missions*. NASA CP-2255. <https://ntrs.nasa.gov/citations/19830007077>
+- Freitas and Merkle (2004). *Kinematic Self-Replicating Machines*. Landes Bioscience. <http://www.molecularassembler.com/KSRM.htm>
+- Jones et al. (2011). RepRap – the replicating rapid prototyper. *Robotica* 29(1):177–191. <https://doi.org/10.1017/S026357471000069X>
+- Zykov, Mytilinaios, Adams and Lipson (2005). Self-reproducing machines. *Nature* 435:163–164. <https://doi.org/10.1038/435163a>
+- Lackner and Wendt (1995). Exponential growth of large self-reproducing machine systems. *Math. Comput. Modelling* 21(10):55–81. <https://doi.org/10.1016/0895-7177(95)00071-9>
+- Open Source Ecology, Global Village Construction Set. <https://wiki.opensourceecology.org/wiki/Global_Village_Construction_Set>
+
+**Track 2.**
+- Horvitz (1999). Principles of mixed-initiative user interfaces. CHI '99, 159–166. <https://doi.org/10.1145/302979.303030>
+- Lu et al. (2025). Proactive Agent: Shifting LLM Agents from Reactive Responses to Active Assistance. ICLR. <https://arxiv.org/abs/2410.12361>
+- Radford et al. (2023). Robust Speech Recognition via Large-Scale Weak Supervision. ICML, PMLR 202. <https://proceedings.mlr.press/v202/radford23a.html>
+- whisper.cpp <https://github.com/ggml-org/whisper.cpp>; Silero VAD <https://github.com/snakers4/silero-vad>; Omi <https://github.com/BasedHardware/omi>; Piper, successor repository <https://github.com/OHF-Voice/piper1-gpl>
+- 18 U.S.C. § 2511(2)(d) <https://www.law.cornell.edu/uscode/text/18/2511>; Cal. Penal Code § 632 <https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=PEN&sectionNum=632>
+
+**Track 3.**
+- Liu, Pinckney, Khailany and Ren (2023). Invited Paper: VerilogEval: Evaluating Large Language Models for Verilog Code Generation. ICCAD. <https://doi.org/10.1109/ICCAD57390.2023.10323812>
+- Lu, Liu, Zhang and Xie (2024). RTLLM: An Open-Source Benchmark for Design RTL Generation with Large Language Model. ASP-DAC, 722–727. <https://doi.org/10.1109/ASP-DAC58780.2024.10473904>
+- Liu et al. (2023). ChipNeMo: Domain-Adapted LLMs for Chip Design. arXiv. <https://arxiv.org/abs/2311.00176>
+- Blocklove, Garg, Karri and Pearce (2023). Chip-Chat: Challenges and Opportunities in Conversational Hardware Design. MLCAD. <https://doi.org/10.1109/MLCAD58807.2023.10299874>
+- Mirhoseini et al. (2021). A graph placement methodology for fast chip design. *Nature* 594:207–212. <https://doi.org/10.1038/s41586-021-03544-w>
+- Cheng, Kahng, Kundu, Wang and Wang (2023). Assessment of Reinforcement Learning for Macro Placement. ISPD, 158–166. <https://doi.org/10.1145/3569052.3578926>
+- Yosys <https://yosyshq.net/yosys/>; OpenROAD <https://theopenroadproject.org/>; Verilator <https://www.veripool.org/verilator/>; cocotb <https://www.cocotb.org/>; SKY130 PDK <https://github.com/google/skywater-pdk>; Tiny Tapeout <https://tinytapeout.com/>
+
+**Track 4.**
+- Liang et al. (2023). Code as Policies: Language Model Programs for Embodied Control. ICRA, 9493–9500. <https://doi.org/10.1109/ICRA48891.2023.10160591>
+- Narang et al. (2022). Factory: Fast Contact for Robotic Assembly. RSS. <https://doi.org/10.15607/RSS.2022.XVIII.035>
+- Tang, Lin et al. (2023). IndustReal: Transferring Contact-Rich Assembly Tasks from Simulation to Reality. RSS. <https://doi.org/10.15607/RSS.2023.XIX.039>
+- Tian et al. (2024). ASAP: Automated Sequence Planning for Complex Robotic Assembly with Physical Feasibility. ICRA, 4380–4386. <https://doi.org/10.1109/ICRA57147.2024.10611595>
+- Todorov, Erez and Tassa (2012). MuJoCo: A physics engine for model-based control. IROS, 5026–5033. <https://doi.org/10.1109/IROS.2012.6386109>
+- LeRobot <https://github.com/huggingface/lerobot>; SO-100 and SO-101 arms <https://github.com/TheRobotStudio/SO-ARM100>
+
+**Track 5.**
+- Sigmund (2001). A 99 line topology optimization code written in Matlab. *Struct. Multidisc. Optim.* 21(2):120–127. <https://doi.org/10.1007/s001580050176>
+- Gustafsson and McBain (2020). scikit-fem: A Python package for finite element assembly. *JOSS* 5(52):2369. <https://doi.org/10.21105/joss.02369>
+- CadQuery <https://github.com/CadQuery/cadquery>; build123d <https://github.com/gumyr/build123d>
+
+**Track 6.**
+- FreeSewing <https://github.com/freesewing/freesewing>
+- Baraff and Witkin (1998). Large steps in cloth simulation. SIGGRAPH '98, 43–54. <https://doi.org/10.1145/280814.280821>
+- Bennell and Oliveira (2008). The geometry of nesting problems: A tutorial. *EJOR* 184(2):397–415. <https://doi.org/10.1016/j.ejor.2006.11.038>
+- Cunniff (1999). Dimensionless parameters for optimization of textile-based body armor systems. Proc. 18th Int. Symposium on Ballistics, San Antonio. Print proceedings only.
+- Lee, Wetzel and Wagner (2003). The ballistic impact characteristics of Kevlar woven fabrics impregnated with a colloidal shear thickening fluid. *J. Mater. Sci.* 38(13):2825–2833. <https://doi.org/10.1023/A:1024424200221>
+- Collins, Wiggin and Sawicki (2015). Reducing the energy cost of human walking using an unpowered exoskeleton. *Nature* 522:212–215. <https://doi.org/10.1038/nature14288>
+- Kim et al. (2019). Reducing the metabolic rate of walking and running with a versatile, portable exosuit. *Science* 365(6454):668–672. <https://doi.org/10.1126/science.aav7536>
+- Seth et al. (2018). OpenSim: Simulating musculoskeletal dynamics and neuromuscular control to study human and animal movement. *PLOS Comput. Biol.* 14(7):e1006223. <https://doi.org/10.1371/journal.pcbi.1006223>
+- Caggiano et al. (2022). MyoSuite: A contact-rich simulation suite for musculoskeletal motor control. L4DC, PMLR 168:492–507. <https://proceedings.mlr.press/v168/caggiano22a.html>
+- Poupyrev et al. (2016). Project Jacquard: Interactive Digital Textiles at Scale. CHI '16, 4216–4227. <https://doi.org/10.1145/2858036.2858176>
+- Hsu et al. (2016). Radiative human body cooling by nanoporous polyethylene textile. *Science* 353(6303):1019–1023. <https://doi.org/10.1126/science.aaf5471>
+- Zhang et al. (2019). Dynamic gating of infrared radiation in a textile. *Science* 363(6427):619–623. <https://doi.org/10.1126/science.aau1217>
+- Thys, Van Ranst and Goedemé (2019). Fooling automated surveillance cameras: adversarial patches to attack person detection. CVPR Workshops, 49–55. <https://doi.org/10.1109/CVPRW.2019.00012>
+- Xu et al. (2020). Adversarial T-Shirt! Evading Person Detectors in a Physical World. ECCV, 665–681. <https://doi.org/10.1007/978-3-030-58558-7_39>
+- Gagge, Stolwijk and Nishi (1971). An effective temperature scale based on a simple model of human physiological regulatory response. *ASHRAE Trans.* 77(1). <https://hdl.handle.net/2115/37901>
+- ISO 7730:2025, Ergonomics of the thermal environment. <https://www.iso.org/standard/85803.html>
+- Clean Clothes Campaign, living-wage FAQ. <https://cleanclothes.org/faq/pay-living-wages>
+- *Star Athletica, L.L.C. v. Varsity Brands, Inc.*, 580 U.S. 405 (2017). <https://www.supremecourt.gov/opinions/16pdf/15-866_0971.pdf>
+- Regulation (EU) 2024/2822, amending Council Regulation (EC) No 6/2002 on designs. <https://eur-lex.europa.eu/eli/reg/2024/2822/oj>
+- NIJ Standard 0101.07, Ballistic Resistance of Body Armor (2023) <https://nij.ojp.gov/library/publications/ballistic-resistance-body-armor-nij-standard-010107>; NIJ Standard 0115.00, Stab Resistance of Personal Body Armor (2000) <https://www.ojp.gov/pdffiles1/nij/183652.pdf>
+- New York Penal Law § 270.21. <https://www.nysenate.gov/legislation/laws/PEN/270.21>
