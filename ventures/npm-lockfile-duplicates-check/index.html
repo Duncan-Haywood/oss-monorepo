@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>npm Lockfile Duplicates Check — Find Duplicate Packages in package-lock.json</title>
+  <meta name="description" content="Paste your package-lock.json and see every package installed at more than one version, who pulls each copy in, and which ones npm dedupe can remove. Free duplicate dependency finder, runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Why is node_modules installing the same package five times?">
+  <meta property="og:description" content="Paste a package-lock.json and get every duplicated package, who requires each copy, and the dedupe or overrides fix.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"npm Lockfile Duplicates Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Finds packages installed at more than one version in a package-lock.json, ranks same-major copies that npm dedupe can remove ahead of cross-major ones, shows which dependants pull in each copy, and can fail CI past a limit. Runs in the browser or as a zero-dependency CLI; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a duplicate package in package-lock.json?","acceptedAnswer":{"@type":"Answer","text":"The same package installed at more than one version, usually one copy at the top of node_modules and others nested under the packages that need a different version. Each extra copy costs disk space, install time and, in a front-end build, bundle size."}},{"@type":"Question","name":"Can npm dedupe remove them?","acceptedAnswer":{"@type":"Answer","text":"Often, when the copies share a major version. Running npm dedupe lets npm move a compatible version up the tree so one copy satisfies several dependants. Copies at different major versions cannot be merged that way: the dependant has to be upgraded, or you can force one version with an overrides entry in package.json and test that nothing breaks."}},{"@type":"Question","name":"Does this tool upload my package-lock.json?","acceptedAnswer":{"@type":"Answer","text":"No. The lockfile is read in this page and never leaves your device. The page makes no network calls, and the CLI reads one local file."}},{"@type":"Question","name":"Does it measure how many bytes the duplicates cost?","acceptedAnswer":{"@type":"Answer","text":"No. A lockfile records versions, not sizes, so the report counts extra copies and shows who requires each one. Use your bundler's analyser to see the byte cost of the ones that reach a browser bundle."}},{"@type":"Question","name":"Is a duplicate always a problem?","acceptedAnswer":{"@type":"Answer","text":"No. Many are harmless, and a few matter, for example two copies of a library that keeps global state, or two copies of a UI framework in one bundle. The report is a list to review, not a finding that anything is broken."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 170px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; width: min(100%, 360px); }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a3412; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.25rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: #e3e9ef; color: #17324a; }
+    .pill.cross-major { background: #fde8e8; color: #9a3412; }
+    .pill.same-major { background: #fdf1d8; color: #7a4a05; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">NPM LOCKFILE DUPLICATES CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Why is node_modules installing the same package five times?</h1>
+    <p>Paste your <code>package-lock.json</code> and get every package that resolves to more than one version, the dependant that pulls in each copy, and a fix: <strong>same-major</strong> copies that <code>npm dedupe</code> can usually collapse are listed first, then <strong>cross-major</strong> copies that need an upgrade or an <code>overrides</code> entry.</p>
+    <p class="note">Nothing is uploaded. The lockfile you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own. A lockfile has versions, not sizes, so it counts copies; it does not measure bytes.</p>
+  </header>
+
+  <section class="card">
+    <h2>Paste your lockfile</h2>
+    <textarea id="lock" spellcheck="false" placeholder='{"lockfileVersion":3,"packages":{ ... }}'></textarea>
+    <p><label>Ignore packages (optional, comma separated): <input type="text" id="ignore" placeholder="react, tslib"></label>
+    <label><input type="checkbox" id="nodev"> skip devDependencies</label></p>
+    <p>
+      <button type="button" id="check">Find duplicates</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste a package-lock.json above and click Find duplicates.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th>Package</th><th>Versions</th><th>Required by</th><th>Kind</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <p class="note" id="hint"></p>
+  </section>
+
+  <section class="card">
+    <h2>Want it as a CI gate?</h2>
+    <p>Same logic, zero dependencies, one file plus the shared module. It reads one local file and nothing else:</p>
+    <pre class="cmd"><code>node dupes-check.mjs                          # audit ./package-lock.json
+node dupes-check.mjs --max 25                 # exit 1 if more than 25 packages are duplicated
+node dupes-check.mjs --max-same-major 0       # exit 1 if npm dedupe would still remove something
+node dupes-check.mjs --ignore react --no-dev  # skip packages / devDependencies
+node dupes-check.mjs --json                   # machine-readable</code></pre>
+    <p class="note">Get <a href="dupes-check.mjs" rel="noopener">dupes-check.mjs</a> and <a href="dupes.mjs" rel="noopener">dupes.mjs</a> from the repo. Node 18+, nothing to install, no network calls.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a duplicate package in package-lock.json?</h3>
+    <p>The same package installed at more than one version, usually one copy at the top of node_modules and others nested under the packages that need a different version. Each extra copy costs disk space, install time and, in a front-end build, bundle size.</p>
+    <h3>Can npm dedupe remove them?</h3>
+    <p>Often, when the copies share a major version. Running npm dedupe lets npm move a compatible version up the tree so one copy satisfies several dependants. Copies at different major versions cannot be merged that way: the dependant has to be upgraded, or you can force one version with an overrides entry in package.json and test that nothing breaks.</p>
+    <h3>Does this tool upload my package-lock.json?</h3>
+    <p>No. The lockfile is read in this page and never leaves your device. The page makes no network calls, and the CLI reads one local file.</p>
+    <h3>Does it measure how many bytes the duplicates cost?</h3>
+    <p>No. A lockfile records versions, not sizes, so the report counts extra copies and shows who requires each one. Use your bundler's analyser to see the byte cost of the ones that reach a browser bundle.</p>
+    <h3>Is a duplicate always a problem?</h3>
+    <p>No. Many are harmless, and a few matter, for example two copies of a library that keeps global state, or two copies of a UI framework in one bundle. The report is a list to review, not a finding that anything is broken.</p>
+    <p>More: <a href="duplicate-packages-npm-guide.html">how to remove duplicate packages from node_modules</a></p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reads version metadata from a lockfile and can be wrong or out of date. It is not engineering advice of record. <strong>You are responsible for reviewing and verifying its output, and for testing any change to your dependencies, before relying on it.</strong></p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="dupes-check.mjs" rel="noopener">dupes-check.mjs from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The lockfile you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks: <a href="../lockfile-license-check/">Lockfile License Check</a> and <a href="../npm-lifecycle-script-check/">npm Lifecycle Script Check</a>.</p>
+    <p class="support">Free and open source. If this shrank your install, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, summaryLine, overridesHint } from "./dupes.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = { lock: $("#lock"), status: $("#status"), reportCard: $("#report-card"), verdict: $("#verdict"), rows: $("#rows"), hint: $("#hint") };
+
+    // Synthetic lockfile, fictional packages.
+    const EXAMPLE = JSON.stringify({ lockfileVersion: 3, packages: {
+      "": { name: "demo" },
+      "node_modules/tiny-id": { version: "2.1.3" },
+      "node_modules/web-kit": { version: "4.3.4" },
+      "node_modules/web-kit/node_modules/tiny-id": { version: "2.0.0" },
+      "node_modules/old-ui": { version: "1.0.0" },
+      "node_modules/old-ui/node_modules/web-kit": { version: "3.9.0" },
+      "node_modules/@acme/core": { version: "5.0.0" },
+      "node_modules/plugin-a": { version: "1.2.0" },
+      "node_modules/plugin-a/node_modules/@acme/core": { version: "5.1.2" },
+      "node_modules/test-runner": { version: "9.0.0", dev: true }
+    } }, null, 1);
+
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+    function run(text) {
+      if (!text.trim()) { els.status.innerHTML = `<span class="error">Paste a package-lock.json first.</span>`; return false; }
+      const ignore = $("#ignore").value.split(",").map((s) => s.trim()).filter(Boolean);
+      const result = analyze(text, { ignore, includeDev: !$("#nodev").checked });
+      if (result.error) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(result.error)}.</span>`;
+        els.reportCard.hidden = true;
+        return false;
+      }
+      els.verdict.className = `verdict ${result.duplicates.length ? "risk" : ""}`;
+      els.verdict.textContent = summaryLine(result);
+      els.rows.innerHTML = result.duplicates.map((d) => `
+        <tr><td><code>${escapeHtml(d.name)}</code></td>
+        <td>${d.versions.map((v) => `<code>${escapeHtml(v)}</code>`).join(", ")}</td>
+        <td>${d.versions.map((v) => `<code>${escapeHtml(v)}</code> ← ${d.byVersion[v].map(escapeHtml).join(", ")}`).join("<br>")}
+          ${d.kind === "cross-major" ? `<br><span class="note"><code>${escapeHtml(overridesHint(d))}</code></span>` : ""}</td>
+        <td><span class="pill ${d.kind}">${d.kind}</span></td></tr>`).join("")
+        || `<tr><td colspan="4" class="note">Nothing to review: every package resolves to one version.</td></tr>`;
+      els.hint.textContent = result.counts["same-major"] ? "Try npm dedupe first, then re-run this check. Test before committing the new lockfile." : "";
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#check").addEventListener("click", () => run(els.lock.value));
+    $("#load-example").addEventListener("click", () => {
+      els.lock.value = EXAMPLE;
+      if (run(EXAMPLE)) {
+        record("example_loaded");
+        els.status.textContent = "Worked example: two same-major duplicates that npm dedupe can usually remove, and one cross-major copy of web-kit that needs old-ui upgraded.";
+      }
+    });
+    $("#clear").addEventListener("click", () => {
+      els.lock.value = "";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste a package-lock.json above and click Find duplicates.";
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      usageControl.textContent = "Usage counting is off";
+      usageControl.disabled = true;
+    }
+  </script>
+</body>
+</html>
