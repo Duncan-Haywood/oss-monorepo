@@ -114,3 +114,7 @@ test("links to its sibling the massage therapist profit calculator", () => {
 test("links to its sibling the dog grooming price calculator", () => {
   assert.match(page("index.html"), /href="\.\.\/dog-grooming-price-calculator\/"/);
 });
+
+test("links to the self-serve dog wash profit calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/self-serve-dog-wash-profit-calculator\/"/);
+});
