@@ -850,6 +850,9 @@ const CATEGORY_RULES = [
       // `weekly-staff-schedule-maker` joined 2026-10-12 on its first commit: a rules-checked weekly rota solver (roles, rest, fair hours);
       // the same owner as the shift tools above.
       'weekly-staff-schedule-maker',
+      // `shift-rotation-schedule-generator` joined 2026-10-12 on its first commit: fixed-rotation (Pitman, DuPont, 24/48) calendars for the crews
+      // whose rosters the shift tools above build week by week.
+      'shift-rotation-schedule-generator',
       // `fair-workweek-schedule-checker` joined 2026-10-11 on its first commit: checks the schedule the shift tools above build against
       // predictive-scheduling law; the same restaurant and retail owner.
       'fair-workweek-schedule-checker',

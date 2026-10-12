@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1090 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1091 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -160,11 +160,11 @@
     <summary type="text">Free scrap metal calculator: type your lots, each yard&#39;s per-pound or per-ton prices, the miles and minutes to get there, and see what the load nets at each yard after fuel, time and fees, whether to split it, and whether to strip copper wire. Private, in your browser.</summary>
   </entry>
   <entry>
-    <title>Tent Rental Job Profit Calculator — true profit, margin and lowest quote per job</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tent-rental-job-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/tent-rental-job-profit-calculator</id>
+    <title>Rotating Shift Schedule Generator — Pitman, 4-on-4-off, DuPont, 24/48 Calendar</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/shift-rotation-schedule-generator/"/>
+    <id>tag:marisstella.dev,2026:tool/shift-rotation-schedule-generator</id>
     <updated>2026-10-12T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free calculator for tent and party rental companies. Enter the rental price, delivery fee, crew hours, truck miles, tent cost and yearly overhead; it shows true profit per job, margin, profit per crew hour, the lowest quote that hits your target margin, how many rentals a tent needs to pay for itself, and compares two jobs. Private, in your browser.</summary>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Generate a rotating shift schedule for Pitman 2-2-3, 4-on-4-off, 3-on-3-off, DuPont and 24/48 patterns: see hours per week, weekends off and days off per year, find your crew, and export an .ics calendar. Free, in your browser.</summary>
   </entry>
 </feed>
