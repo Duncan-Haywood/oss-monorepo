@@ -3767,3 +3767,15 @@ entries:
         golf-simulator-bay-profit-calculator, an indoor bay-hour business) and screened-out.md (no mini-golf entry); cross-linked from
         that page. First visitor: people searching mini golf course profit or putt putt business plan; volume unmeasured.
     mrr_end: 0
+  - venture: rv-boat-storage-lot-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built rv-boat-storage-lot-calculator: a browser-only pro forma for landowners and small investors planning an
+        outdoor RV, boat and trailer storage lot. Acres, usable share, space size, land, surfacing, fencing and permit cost, rent,
+        occupancy, lease-up, operating costs and a loan become spaces, NOI, yield on cost, debt coverage, break-even occupancy, the
+        rent for a target yield, a monthly lease-up with payback and equity IRR on a sale, with occupancy and rent sensitivity
+        tables, text summary and CSV. 15 hand-computed unit tests plus page and usage tests. Screened with duplicate_check.py
+        (nearest venture 0.18). First visitor: people searching RV storage business ROI; volume unmeasured.
+    mrr_end: 0
