@@ -847,6 +847,9 @@ const CATEGORY_RULES = [
       // `fair-workweek-schedule-checker` joined 2026-10-11 on its first commit: checks the schedule the shift tools above build against
       // predictive-scheduling law; the same restaurant and retail owner.
       'fair-workweek-schedule-checker',
+      // `ca-meal-rest-break-premium-checker` joined 2026-10-12 on its first commit: the other California-style wage claim the same
+      // restaurant and retail owner hits, meal and rest break premium, checked from timecards.
+      'ca-meal-rest-break-premium-checker',
       // `time-off-request-planner` joined 2026-10-01 on its first commit: decides which
       // leave requests fit a team's minimum cover; the same owner as the shift tools above.
       'time-off-request-planner',
