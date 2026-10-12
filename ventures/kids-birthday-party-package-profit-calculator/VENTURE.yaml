@@ -1,0 +1,54 @@
+name: kids-birthday-party-package-profit-calculator
+description: >-
+  Free browser tool for trampoline parks, bounce gyms, play cafes and family entertainment
+  centers: enter the birthday party package price, children included, party length and setup,
+  hosts and pay, food and goodie cost per child, card fees, the open-play margin the party
+  displaces and yearly rent, and see true profit per party, margin, profit per room hour,
+  the lowest package price that earns a target margin (and per child), break-even parties a
+  year, and a two-package comparison. Copy, CSV, save and load. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture session. No kids party venue venture existed
+# (`ls ventures | grep -iE 'birthday|party|entertainment|play'` found only party-bus-charter and a
+# Google Play report analyzer; duplicate_check.py nearest 0.14). Why this niche: birthday parties are
+# the most reliable weekend revenue for a play venue and are typically priced off the pizza cost or a
+# competitor's package, while the real costs are two or three host hours including setup and cleanup,
+# per-child food and goodies, the open-play guests the floor could have served during the party, and
+# a share of rent. Searches like "how to price birthday party packages trampoline park" recur.
+# Venue management software charges monthly per location and does not answer the pricing question,
+# so this is the lead magnet for a later paid package-mix and Saturday-slot planner (payment rails
+# stay off for now).
+#
+# First visitor: play venue and trampoline park owner groups and forums. Volume not measured with an
+# external tool.
+#
+# Liability boundary: arithmetic on user-typed numbers. Not tax, legal, insurance or financial
+# advice; says so. Names no venue chain or brand. No data fetched, no accounts, nothing stored.
+
+hypotheses:
+  - claim: >-
+      Play venue owners will enter a party package and their host, food and open-play costs into a
+      no-signup tool and use the lowest-price and profit-per-room-hour numbers to reprice a package
+      or choose which package to push for Saturday slots.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a lowest price that does not reproduce the tool's own target margin when typed back in as the package price.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/kids-birthday-party-package-profit-calculator/
+  analytics: null
