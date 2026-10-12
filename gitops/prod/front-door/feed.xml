@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1089 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1090 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -144,6 +144,14 @@
     <summary type="text">Free calculator for pilot car and oversize-load escort operators. Enter your quote (flat, day rate or per loaded mile), minimum charge, loaded and deadhead miles, driver hours, fuel, per diem and yearly overhead; it shows true profit per run, profit per driver hour and the lowest quote for your margin. Nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Release Notes Generator — Changelog From Git Commits, Free and Private</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/release-notes-generator/"/>
+    <id>tag:marisstella.dev,2026:tool/release-notes-generator</id>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Generate release notes and a CHANGELOG.md entry from git log: grouped by Conventional Commit type, breaking changes first, with a suggested semantic version bump. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Scrap Metal Yard Payout Calculator — which yard nets more, split the load, strip the wire</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/scrap-metal-yard-payout-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/scrap-metal-yard-payout-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-12T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator for tent and party rental companies. Enter the rental price, delivery fee, crew hours, truck miles, tent cost and yearly overhead; it shows true profit per job, margin, profit per crew hour, the lowest quote that hits your target margin, how many rentals a tent needs to pay for itself, and compares two jobs. Private, in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Trampoline Park Profit Calculator — monthly profit, payback and break-even fill</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/trampoline-park-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/trampoline-park-profit-calculator</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free calculator for trampoline parks and family entertainment centers. Enter jumper capacity, sessions, fill, ticket price, birthday parties, memberships, staff, rent and the build; it shows monthly profit, margin, payback, break-even fill and the lowest ticket for your target margin and payback. Private, in your browser.</summary>
   </entry>
 </feed>
