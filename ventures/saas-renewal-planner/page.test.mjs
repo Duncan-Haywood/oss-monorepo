@@ -55,7 +55,7 @@ test("the guide's worked list matches the engine", async () => {
 
 test("index links to sibling tools", async () => {
   const idx = await read("index.html");
-  for (const s of ["saas-seat-true-up", "subscription-price-impact", "saas-annual-plan-discount-calculator"]) {
+  for (const s of ["saas-seat-true-up", "subscription-price-impact", "saas-annual-plan-discount-calculator", "vendor-contract-clause-reader"]) {
     assert.ok(idx.includes(`href="../${s}/"`), s);
   }
 });
