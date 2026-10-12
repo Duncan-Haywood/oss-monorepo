@@ -2030,6 +2030,9 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Compares against "reviewing 3PL invoices in a spreadsheet" -- a manual review habit any brand with a 3PL already has, not a
   // company or product this could be mistaken for. The page names no product or company.
   '3pl-invoice-audit-checker/vs-reviewing-3pl-invoices-in-a-spreadsheet.html',
+  // Compares against "a trading spreadsheet" -- a manual modelling habit any challenge entrant already has, not a company or
+  // product this could be mistaken for. The page names no product or company.
+  'prop-firm-challenge-calculator/vs-a-trading-spreadsheet.html',
   // Compares against "reading the SKILL.md by hand" -- a manual review
   // habit every skill author already has, not a company or product this
   // could be mistaken for. Same reasoning as the other vs-reading-*-by-hand
