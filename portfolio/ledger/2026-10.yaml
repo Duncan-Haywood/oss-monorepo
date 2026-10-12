@@ -3597,3 +3597,17 @@ entries:
         window-tinting-bid-calculator on a loosely worded query; check with the trade's own words. First visitor: prospective
         simulator-lounge owners searching how much a golf simulator business makes; volume unmeasured.
     mrr_end: 0
+  - venture: trampoline-park-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built trampoline-park-profit-calculator: a browser-only calculator for people planning or running a
+        trampoline park or family entertainment center that takes jumper capacity, sessions, fill, ticket price, birthday
+        parties, members, snacks, floor staff, rent, insurance and the build cost and returns monthly profit, margin, months
+        to pay back the build, break-even fill and the lowest ticket for a target margin and for a payback target (both solved
+        exactly and verified by round-trip over random parks), a 10%/20% attendance sensitivity and a two-scenario comparison.
+        Guide page whose worked example the tests recompute. Screened with duplicate_check.py (nearest 0.45,
+        kids-birthday-party-package-profit-calculator, which prices a single party; no whole-park venture existed). First
+        visitor: owners searching how much a trampoline park makes; volume unmeasured.
+    mrr_end: 0

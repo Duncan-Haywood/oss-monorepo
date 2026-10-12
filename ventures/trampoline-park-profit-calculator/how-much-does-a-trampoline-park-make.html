@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How much does a trampoline park make: a worked example</title>
+  <meta name="description" content="How to work out what a trampoline park earns: jumper slots, fill, ticket price, birthday parties, memberships, staff and rent, with a worked 80-jumper example, its payback on a $600,000 build, the break-even fill and the ticket price for a 20% margin.">
+  <meta property="og:title" content="How much does a trampoline park make: a worked example">
+  <meta property="og:description" content="How to work out what a trampoline park earns: jumper slots, fill, ticket price, birthday parties, memberships, staff and rent, with a worked 80-jumper example, its payback on a $600,000 build, the break-even fill and the ticket price for a 20% margin.">
+  <link rel="canonical" href="./how-much-does-a-trampoline-park-make.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What fill rate does a trampoline park need to break even?","acceptedAnswer":{"@type":"Answer","text":"It depends on rent, staff and ticket price, so the calculator solves it: it scales attendance up or down until monthly profit is exactly zero and reports that as a percentage of all jumper slots. Parties and memberships pay for part of the fixed costs before a single walk-in buys a ticket, so the break-even fill is lower than most owners guess."}},{"@type":"Question","name":"How much of a trampoline park's income comes from birthday parties?","acceptedAnswer":{"@type":"Answer","text":"Often a quarter or more of revenue, and the most reliable part because it is booked in advance. The calculator counts parties as a flat package price minus the food, host and supplies each one costs, and warns when parties are over a third of revenue, because party income is capped by your party rooms and weekend hours."}},{"@type":"Question","name":"What ticket price do I need to reach my target margin?","acceptedAnswer":{"@type":"Answer","text":"The calculator solves for the ticket that makes margin equal your target and shows it, next to the ticket that reaches your payback target. The test suite checks that charging exactly those prices earns the target for hundreds of random parks."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note"><a href="./index.html">← Trampoline Park Profit Calculator</a></p>
+    <h1>How much does a trampoline park make?</h1>
+    <p>A park with 80 jumpers a session and six sessions a day can sell 14,560 jumper slots a month. At a realistic 20.0% filled, with birthday parties on weekends, it keeps about one dollar in ten, and the build takes over five years to come back.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>The worked example</h2>
+    <p>A park with 80 jumpers per session, 6 sessions a day, 7 days a week has <strong>14560</strong> jumper slots a month. At a 20% average fill that is <strong>2912</strong> visits. Tickets are $18, so tickets bring in <strong>$52416.00</strong>, and $4 of snacks per visit adds <strong>$11648.00</strong>.</p>
+    <p>70 birthday parties at $320 bring in <strong>$22400.00</strong> and 60 members at $40 add <strong>$2400.00</strong>.</p>
+    <p>Six floor staff on duty cost <strong>$32104.80</strong> a month at $15 an hour plus 12% payroll cost. With rent, utilities, insurance and other costs, fixed costs are <strong>$63304.80</strong>.</p>
+    <table><thead><tr><th>Line</th><th>Per month</th></tr></thead><tbody>
+<tr><td>Revenue</td><td><strong>$88864.00</strong></td></tr>
+<tr><td>Total costs</td><td><strong>$79552.08</strong></td></tr>
+<tr><td>Profit</td><td><strong>$9311.92</strong></td></tr>
+<tr><td>Margin</td><td>10.5%</td></tr>
+<tr><td>Profit per visit</td><td>$3.20</td></tr>
+    </tbody></table>
+    <p>Equipment and fit-out cost <strong>$600,000</strong>, so payback is <strong>64.4</strong> months, 5.4 years. Profit would reach zero at 16.6% fill.</p>
+  </section>
+  <section class="card">
+    <h2>The ticket a 20% margin needs</h2>
+    <p>The park earns 10.5%, short of 20%. With everything else unchanged, the lowest ticket that reaches 20% is <strong>$21.98</strong>, $3.98 more than the $18 entered.</p>
+    <h2 style="margin-top:20px">Hitting a 48-month payback</h2>
+    <p>At 64.4 months the park is past a 48-month payback target. The lowest ticket that reaches 48 months is <strong>$19.18</strong>, $1.18 more than now. Payback is measured before any loan payment, so borrowing does not flatter it; a loan still comes out of monthly profit.</p>
+    <h2 style="margin-top:20px">If attendance comes in under plan</h2>
+    <p>Rent, staff and insurance do not shrink when the floor is quiet. With 10% fewer visits, monthly profit falls from $9,312 to $3,762 and payback stretches to 159.5 months. With 20% fewer, profit is -$1,789 a month, a loss.</p>
+    <h2 style="margin-top:20px">A higher ticket with fewer jumpers</h2>
+    <p>Charging $22 and filling 16% of slots makes <strong>$6877.49</strong> a month against <strong>$9311.92</strong>, and pays back in <strong>87.2</strong> months against 64.4. Raising price does not rescue the park if it costs more visits than the extra dollars bring in; the second scenario in the calculator tests exactly that.</p>
+    <p>Run your own numbers: <a href="./index.html">open the calculator</a>.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What fill rate does a trampoline park need to break even?</h3>
+    <p>It depends on rent, staff and ticket price, so the calculator solves it: it scales attendance up or down until monthly profit is exactly zero and reports that as a percentage of all jumper slots. Parties and memberships pay for part of the fixed costs before a single walk-in buys a ticket, so the break-even fill is lower than most owners guess.</p>
+    <h3>How much of a trampoline park's income comes from birthday parties?</h3>
+    <p>Often a quarter or more of revenue, and the most reliable part because it is booked in advance. The calculator counts parties as a flat package price minus the food, host and supplies each one costs, and warns when parties are over a third of revenue, because party income is capped by your party rooms and weekend hours.</p>
+    <h3>What ticket price do I need to reach my target margin?</h3>
+    <p>The calculator solves for the ticket that makes margin equal your target and shows it, next to the ticket that reaches your payback target. The test suite checks that charging exactly those prices earns the target for hundreds of random parks.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Arithmetic on the numbers you type, not tax, legal, lending or financial advice. Not affiliated with any trampoline park chain, franchise or equipment maker. Best-effort hosting, no SLA. Everything runs in your browser.</p>
+  </footer>
+</body>
+</html>
