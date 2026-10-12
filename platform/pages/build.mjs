@@ -847,6 +847,9 @@ const CATEGORY_RULES = [
       // `shift-roster-builder` joined 2026-10-01 on its first commit: assigns named
       // people to the shifts `shift-cover-optimizer` sizes; the same owner, next door.
       'shift-roster-builder',
+      // `weekly-staff-schedule-maker` joined 2026-10-12 on its first commit: a rules-checked weekly rota solver (roles, rest, fair hours);
+      // the same owner as the shift tools above.
+      'weekly-staff-schedule-maker',
       // `fair-workweek-schedule-checker` joined 2026-10-11 on its first commit: checks the schedule the shift tools above build against
       // predictive-scheduling law; the same restaurant and retail owner.
       'fair-workweek-schedule-checker',
