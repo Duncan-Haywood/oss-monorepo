@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1101 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1102 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -166,13 +166,5 @@
     <updated>2026-10-12T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free calculator for lawn-care operators pricing core aeration and overseeding. Enter lot size, beds and hardscape, aerator passes and speed, seed and fertilizer rates, crew hours, truck miles and your machine cost; it shows true profit per job, margin, profit per crew hour, the lowest quote that hits your target margin, price per 1,000 sq ft, break-even jobs a season, and compares two jobs. Private, in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Node Version Drift Check — Do Your package.json, .nvmrc, Dockerfile and CI Agree on Node.js?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/node-version-drift-check/"/>
-    <id>tag:marisstella.dev,2026:tool/node-version-drift-check</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste package.json, .nvmrc, .tool-versions, a Dockerfile and a GitHub Actions workflow and see whether your Node.js versions drifted: a pin that breaks engines.node, majors that disagree across files, end-of-life Node.js, or an unbounded engines range. Free, deterministic, runs in your browser.</summary>
   </entry>
 </feed>
