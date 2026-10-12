@@ -80,6 +80,14 @@
     <summary type="text">Free e-bike rental business calculator: enter your bikes, busy and quiet days, utilization, half-day and full-day prices, staff, rent, batteries and any loan, and see season profit, payback, break-even utilization and the lowest rental prices. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Equipment Lease vs Buy Calculator — After-Tax Cost of Each, Break-Even Resale Value</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/equipment-lease-vs-buy-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/equipment-lease-vs-buy-calculator</id>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Should your business lease or buy the equipment? Compare the after-tax present-value cost of a loan purchase (with Section 179, bonus or MACRS depreciation and resale value) against a lease, with the lease&#39;s implied interest rate and the break-even resale value. Free, private, in your browser.</summary>
+  </entry>
+  <entry>
     <title>Event Rental Inventory Payback Calculator — which chairs, tables and linens to buy next</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/event-rental-inventory-payback-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/event-rental-inventory-payback-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-12T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free tool for retail and restaurant tenants: recompute your landlord&#39;s percentage rent statement from your lease breakpoint, exclusions and your own sales, see the overcharge in dollars, and copy a dispute note.</summary>
-  </entry>
-  <entry>
-    <title>Pilot Car Escort Run Profit Calculator — true profit, margin and lowest quote per run</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pilot-car-escort-run-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/pilot-car-escort-run-profit-calculator</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free calculator for pilot car and oversize-load escort operators. Enter your quote (flat, day rate or per loaded mile), minimum charge, loaded and deadhead miles, driver hours, fuel, per diem and yearly overhead; it shows true profit per run, profit per driver hour and the lowest quote for your margin. Nothing is uploaded.</summary>
   </entry>
 </feed>
