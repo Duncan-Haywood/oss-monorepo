@@ -79,6 +79,9 @@ test("the guide's worked example is the engine's answer", () => {
   }
   for (const v of [pct(r.margin), pct(r.utilization), pct(r.breakevenUtil), cents(r.profitPerBay), r.paybackYears.toFixed(1), cents(r.minOffPeakRate), money(c.b.capex)]) assert.ok(html.includes(v), v);
   assert.equal(r.meets, false);
+  assert.ok(html.includes(`<strong>${cents(r.minPaybackPeakRate)}</strong>`));
+  assert.ok(html.includes(cents(r.minPaybackPeakRate - sampleInput().peakRate)));
+  for (const s of r.sensitivity) for (const v of [money(s.profit), s.paybackMonths.toFixed(1)]) assert.ok(html.includes(v), v);
   assert.equal(c.winnerProfit, "B");
   assert.equal(c.winnerPayback, "A");
 });

@@ -9,15 +9,33 @@
 //   avail      = bays * hoursPerDay * daysPerWeek * 52 / 12            (bay-hours a month)
 //   booked     = availPeak * peakUtil + availOff * offUtil              (bay-hours sold)
 //   walkIn     = max(0, booked - memberHours)  priced at the blended rate
-//   revenue    = walkInRevenue + members * fee + booked * players * spendPerPlayerHour
-//   profit     = revenue - fb cost - card fees - repair reserve - fixed monthly costs
-//   payback    = capex / profit   (months)
+//   revenue    = walkInRevenue + members * fee + leagueNights * leagueRevenue + booked * players * spendPerPlayerHour
+//   profit     = revenue - fb cost - card fees - repair reserve - fixed monthly costs - loan payment
+//   payback    = capex / (profit + loan payment)   (months; before the loan, so borrowing does not flatter it)
+//   minPaybackPeakRate = peak rate at which payback equals the target (exact; operating profit is linear in it)
+//   sensitivity = the same room with every booked hour cut by 10% and 20%
 //   minRates   = peak and off-peak rates scaled by k so margin = target   (exact)
 //   breakeven  = utilization multiplier s with profit(s) = 0, as % of available bay-hours
 
 export const SCENARIO_KEYS = ["bays", "peakRate", "offPeakRate", "peakUtil", "offPeakUtil", "members", "memberFee"];
 
-export function validateInput(i) {
+// Fields added after the first version; a saved file or caller without them gets neutral values.
+const NEW_DEFAULTS = { leagueNights: 0, leagueRevenue: 0, financedPct: 0, aprPct: 0, termMonths: 60, targetPaybackMonths: 18 };
+const norm = (i) => ({ ...NEW_DEFAULTS, ...i });
+
+export function loanPayment(principal, aprPct, months) {
+  if (!(principal > 0)) return 0;
+  const r = aprPct / 1200;
+  if (r === 0) return principal / months;
+  return (principal * r) / (1 - Math.pow(1 + r, -months));
+}
+
+function loanOf(i) {
+  return loanPayment(((i.bays * i.bayCost + i.buildout) * i.financedPct) / 100, i.aprPct, i.termMonths);
+}
+
+export function validateInput(raw) {
+  const i = norm(raw);
   const e = [];
   const nonneg = (v, max) => Number.isFinite(v) && v >= 0 && v <= max;
   const pos = (v, max) => Number.isFinite(v) && v > 0 && v <= max;
@@ -47,6 +65,12 @@ export function validateInput(i) {
   if (!nonneg(i.bayCost, 1000000)) e.push("Cost per bay must be between $0 and $1,000,000.");
   if (!nonneg(i.buildout, 10000000)) e.push("Shared buildout cost must be between $0 and $10,000,000.");
   if (!nonneg(i.targetMargin, 90)) e.push("Target margin must be between 0% and 90%.");
+  if (!nonneg(i.leagueNights, 120)) e.push("League nights must be between 0 and 120 a month.");
+  if (!nonneg(i.leagueRevenue, 1000000)) e.push("Revenue per league night must be between $0 and $1,000,000.");
+  if (!nonneg(i.financedPct, 100)) e.push("Financed share of the build must be between 0% and 100%.");
+  if (!nonneg(i.aprPct, 60)) e.push("Interest rate must be between 0% and 60%.");
+  if (!(Number.isInteger(i.termMonths) && i.termMonths >= 1 && i.termMonths <= 360)) e.push("Loan term must be a whole number of months between 1 and 360.");
+  if (!(Number.isFinite(i.targetPaybackMonths) && i.targetPaybackMonths >= 1 && i.targetPaybackMonths <= 240)) e.push("Target payback must be between 1 and 240 months.");
   if (e.length === 0 && i.processPct + i.reservePct + i.targetMargin >= 100) e.push("Card fees plus repair reserve plus target margin must be under 100%.");
   return e;
 }
@@ -66,18 +90,18 @@ function parts(i, s) {
   // blended rate is independent of s: both bookings scale together
   const blend = wPeak + wOff > 0 ? (wPeak * i.peakRate + wOff * i.offPeakRate) / (wPeak + wOff) : i.peakRate * (i.peakShare / 100) + i.offPeakRate * (1 - i.peakShare / 100);
   const memberHours = i.members * i.hoursPerMember;
-  return { avail, availPeak, availOff, bookedPeak, bookedOff, booked, blend, memberHours };
+  return { avail, availPeak, availOff, bookedPeak, bookedOff, booked, blend, memberHours, wPeak, wOff };
 }
 
-function profitAt(i, s) {
+function profitAt(i, s, clamp = false) {
   const p = parts(i, s);
-  const walkInRevenue = p.blend * (p.booked - p.memberHours);
+  const walkInRevenue = p.blend * (clamp ? Math.max(0, p.booked - p.memberHours) : p.booked - p.memberHours);
   const memberRevenue = i.members * i.memberFee;
   const fbRevenue = p.booked * i.players * i.fbSpend;
-  const revenue = walkInRevenue + memberRevenue + fbRevenue;
+  const revenue = walkInRevenue + memberRevenue + i.leagueNights * i.leagueRevenue + fbRevenue;
   const fbCost = fbRevenue * (i.cogsPct / 100);
   const variable = revenue * (i.processPct / 100 + i.reservePct / 100);
-  return revenue - fbCost - variable - fixedCosts(i, p.avail);
+  return revenue - fbCost - variable - fixedCosts(i, p.avail) - loanOf(i);
 }
 
 function fixedCosts(i, avail) {
@@ -87,6 +111,8 @@ function fixedCosts(i, avail) {
 }
 
 function figures(i) {
+  const leagueRevenue = i.leagueNights * i.leagueRevenue;
+  const payment = loanOf(i);
   const p = parts(i, 1);
   const f = i.processPct / 100;
   const r = i.reservePct / 100;
@@ -95,26 +121,27 @@ function figures(i) {
   const walkInRevenue = p.blend * walkInHours;
   const memberRevenue = i.members * i.memberFee;
   const fbRevenue = p.booked * i.players * i.fbSpend;
-  const revenue = walkInRevenue + memberRevenue + fbRevenue;
+  const revenue = walkInRevenue + memberRevenue + leagueRevenue + fbRevenue;
   const fbCost = fbRevenue * (i.cogsPct / 100);
   const cardFees = revenue * f;
   const reserve = revenue * r;
   const openHours = p.avail / i.bays;
   const staffCost = openHours * i.staff * i.wage * (1 + i.burdenPct / 100);
   const fixed = fixedCosts(i, p.avail);
-  const costs = fbCost + cardFees + reserve + fixed;
+  const costs = fbCost + cardFees + reserve + fixed + payment;
   const profit = revenue - costs;
   const margin = revenue > 0 ? profit / revenue : null;
   const capex = i.bays * i.bayCost + i.buildout;
-  const paybackMonths = profit > 0 ? capex / profit : null;
+  const operating = profit + payment;
+  const paybackMonths = operating > 0 ? capex / operating : null;
   const utilization = p.booked / p.avail;
   const revenuePerBookedHour = p.booked > 0 ? revenue / p.booked : null;
   const profitPerBay = profit / i.bays;
   // lowest rates for the target margin: scale both walk-in rates by k
   let rateScale = null;
   if (walkInRevenue > 0) {
-    const needed = (fbCost + fixed) / (1 - f - r - m);
-    rateScale = (needed - memberRevenue - fbRevenue) / walkInRevenue;
+    const needed = (fbCost + fixed + payment) / (1 - f - r - m);
+    rateScale = (needed - memberRevenue - leagueRevenue - fbRevenue) / walkInRevenue;
   }
   const minPeakRate = rateScale === null ? null : Math.max(0, rateScale * i.peakRate);
   const minOffPeakRate = rateScale === null ? null : Math.max(0, rateScale * i.offPeakRate);
@@ -126,7 +153,20 @@ function figures(i) {
     const s = -p0 / (p1 - p0);
     breakevenUtil = s > 0 ? (s * p.booked) / p.avail : 0;
   }
+  // lowest peak rate for the payback target: operating profit is linear in the peak rate
+  const peakWeight = p.wPeak + p.wOff > 0 ? p.wPeak / (p.wPeak + p.wOff) : 0;
+  const peakWalkIn = peakWeight * walkInHours;
+  const needOperating = capex / i.targetPaybackMonths;
+  const minPaybackPeakRate = peakWalkIn > 0 && capex > 0 ? Math.max(0, i.peakRate + (needOperating - operating) / (peakWalkIn * (1 - f - r))) : null;
+  const meetsPayback = paybackMonths !== null && paybackMonths <= i.targetPaybackMonths + 1e-9;
+  const sensitivity = [-10, -20].map((d) => {
+    const s = 1 + d / 100;
+    const sp = profitAt(i, s, true);
+    const op = sp + payment;
+    return { change: d, utilization: utilization * s, profit: sp, annualProfit: sp * 12, operating: op, paybackMonths: op > 0 ? capex / op : null };
+  });
   return {
+    leagueRevenue, loanPayment: payment, financed: (capex * i.financedPct) / 100, operating, minPaybackPeakRate, meetsPayback, needOperating, sensitivity,
     avail: p.avail, openHours, booked: p.booked, bookedPeak: p.bookedPeak, bookedOff: p.bookedOff, memberHours: p.memberHours, walkInHours,
     blendRate: p.blend, utilization, walkInRevenue, memberRevenue, fbRevenue, revenue, fbCost, cardFees, reserve, staffCost, fixed, costs, profit, margin,
     profitPerBay, revenuePerBookedHour, capex, paybackMonths, paybackYears: paybackMonths === null ? null : paybackMonths / 12,
@@ -135,7 +175,8 @@ function figures(i) {
   };
 }
 
-export function solve(input) {
+export function solve(raw) {
+  const input = norm(raw);
   const errors = validateInput(input);
   if (errors.length) return { ok: false, errors };
   const f = figures(input);
@@ -148,6 +189,9 @@ function buildNotes(i, f) {
   else if (f.meets) n.push(`Margin is ${pct(f.margin)}, which clears your target of ${i.targetMargin}%.`);
   else n.push(`Margin is ${pct(f.margin)}, below your target of ${i.targetMargin}%. Lifting both walk-in rates by ${pct(f.rateScale - 1)} (peak ${cents(f.minPeakRate)}, off-peak ${cents(f.minOffPeakRate)}) would reach it.`);
   if (f.memberOverbooked) n.push(`Members use ${f.memberHours.toFixed(0)} bay hours a month but only ${f.booked.toFixed(0)} are booked in total. Raise utilization or lower the hours per member; walk-in revenue is counted as zero until then.`);
+  if (f.paybackMonths !== null && !f.meetsPayback && f.minPaybackPeakRate !== null) n.push(`Payback is ${f.paybackMonths.toFixed(1)} months, past your ${i.targetPaybackMonths}-month target. A peak rate of at least ${cents(f.minPaybackPeakRate)} reaches it, ${cents(f.minPaybackPeakRate - i.peakRate)} more than now.`);
+  if (f.profit < 0 && f.operating > 0) n.push(`The room covers its running costs but not the loan: after the ${money(f.loanPayment)} monthly payment it loses ${money(-f.profit)} a month.`);
+  if (f.sensitivity[1].profit < 0 && f.profit >= 0) n.push(`If bookings come in 20% under plan, the room loses ${money(-f.sensitivity[1].profit)} a month.`);
   if (f.paybackMonths === null) n.push("The room makes no profit at these numbers, so the build never pays back.");
   else if (f.paybackMonths > 60) n.push(`Payback is ${(f.paybackMonths / 12).toFixed(1)} years. Most lenders and landlords want to see less than five.`);
   if (f.revenue > 0 && f.fbRevenue / f.revenue > 0.4) n.push(`Food and drink is ${((f.fbRevenue / f.revenue) * 100).toFixed(0)}% of revenue. Check the spend per player hour against what your own bar and kitchen can serve in a booked hour.`);
@@ -190,6 +234,7 @@ export function sampleInput() {
     members: 25, memberFee: 150, hoursPerMember: 3, players: 2.5, fbSpend: 12, cogsPct: 30,
     staff: 1, wage: 17, burdenPct: 12, rent: 6500, utilities: 900, softwarePerBay: 150, otherFixed: 700,
     processPct: 3, reservePct: 4, bayCost: 28000, buildout: 45000, targetMargin: 30,
+    leagueNights: 0, leagueRevenue: 0, financedPct: 0, aprPct: 9, termMonths: 60, targetPaybackMonths: 18,
   };
 }
 
@@ -205,6 +250,9 @@ export function resultText(r) {
     `Profit ${cents(r.profit)} a month, margin ${r.margin === null ? "n/a" : pct(r.margin)}, ${cents(r.profitPerBay)} per bay`,
     `Build cost ${money(r.capex)}; payback ${r.paybackMonths === null ? "never at these numbers" : `${r.paybackMonths.toFixed(1)} months (${r.paybackYears.toFixed(1)} years)`}`,
     `Break-even utilization: ${r.breakevenUtil === null ? "n/a" : pct(r.breakevenUtil)} of bay hours`,
+    r.loanPayment > 0 ? `Loan payment ${cents(r.loanPayment)} a month is included in costs; payback is measured before it.` : "No loan payment entered.",
+    `Lowest peak rate for a ${r.input.targetPaybackMonths}-month payback: ${r.minPaybackPeakRate === null ? "n/a" : cents(r.minPaybackPeakRate)}`,
+    ...r.sensitivity.map((s) => `Bookings ${s.change}%: profit ${cents(s.profit)} a month, payback ${s.paybackMonths === null ? "never" : s.paybackMonths.toFixed(1) + " months"}`),
     `Lowest rates for a ${r.input.targetMargin}% margin: ${r.minPeakRate === null ? "n/a" : `peak ${cents(r.minPeakRate)}, off-peak ${cents(r.minOffPeakRate)}`}`,
     "Arithmetic on the numbers entered, not tax, legal, lending or financial advice.",
   ].join("\n");
@@ -218,6 +266,8 @@ export function resultCsv(r) {
     ["profit_per_bay", r.profitPerBay], ["build_cost", r.capex], ["payback_months", r.paybackMonths === null ? "" : r.paybackMonths],
     ["breakeven_utilization", r.breakevenUtil === null ? "" : r.breakevenUtil], ["minimum_peak_rate", r.minPeakRate === null ? "" : r.minPeakRate],
     ["minimum_off_peak_rate", r.minOffPeakRate === null ? "" : r.minOffPeakRate], ["annual_profit", r.annualProfit],
+    ["league_revenue", r.leagueRevenue], ["loan_payment", r.loanPayment], ["operating_profit_before_loan", r.operating], ["minimum_peak_rate_for_payback_target", r.minPaybackPeakRate === null ? "" : r.minPaybackPeakRate],
+    ...r.sensitivity.flatMap((s) => [[`profit_at_${-s.change}pct_fewer_bookings`, s.profit], [`payback_months_at_${-s.change}pct_fewer_bookings`, s.paybackMonths === null ? "" : s.paybackMonths]]),
   ];
   return ["item,amount", ...rows.map(([k, v]) => `${k},${typeof v === "number" ? Math.round(v * 10000) / 10000 : v}`)].join("\n");
 }
