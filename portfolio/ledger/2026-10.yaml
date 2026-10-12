@@ -3540,3 +3540,16 @@ entries:
         AND, OR) pinned by tests; --fail-on-risk exits 2. Screened with duplicate_check.py (nearest 0.18). First visitor:
         developers searching why does CI use a different node version than .nvmrc / is node 20 end of life; volume unmeasured.
     mrr_end: 0
+  - venture: party-bus-charter-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built party-bus-charter-profit-calculator: a browser-only calculator for party bus, limo and shuttle operators
+        turning a charter price, booked hours with a minimum, driver and deadhead hours, miles, cleaning, gratuity share, card fees,
+        vehicle cost and yearly overhead into true profit per charter, margin, profit per vehicle hour, the lowest quote that
+        earns a target margin, vehicle payback in charters and years, break-even charters a year and a two-charter comparison.
+        Guide page whose worked example the tests recompute; 300 random charters confirm the lowest quote reproduces the target
+        margin. Screened against ls ventures (no party bus or limo venture). First visitor: party bus operator groups searching
+        how to price a party bus charter; volume unmeasured.
+    mrr_end: 0
