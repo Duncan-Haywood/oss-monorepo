@@ -3043,7 +3043,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `percentage-rent-audit-checker` graduated (browser percentage-rent statement check for retail and restaurant tenants: natural or stated breakpoint, landlord versus own sales, lease exclusions, cap and estimates paid to the overcharge, line by line, with a review note).
     # +1: `release-notes-generator` graduated (browser and zero-dependency CLI that turn git log into grouped release notes with a suggested semver bump).
     # +1: `3pl-invoice-audit-checker` graduated (browser 3PL invoice audit: rate card, WMS and order-export counts and invoice lines to recoverable overcharges, proving records and a dispute note).
-    total = 1098  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1098 tools" wording.
+    total = 1100  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1100 tools" wording.
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
     # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
@@ -3067,6 +3067,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `worker-classification-checker` graduated (browser-local 1099-vs-W-2 screen: IRS, DOL and ABC tests, facts to fix, back-tax and overtime exposure range).
     # +1: `ad-slot-sell-through-planner` graduated (browser-local newsletter/podcast ad-slot sell-through, price-response and booking-pace planner).
     # +1: `ca-meal-rest-break-premium-checker` graduated (browser California meal and rest break premium audit: late, short and missed meals, rest shortfalls, waivers and the Labor Code 226.7 premium per workday from pasted timecards).
+    # +1: `prop-firm-challenge-calculator` graduated (browser Monte Carlo of a funded-trader challenge: pass probability, expected fees to pass, funded payouts, break-even win rate).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
