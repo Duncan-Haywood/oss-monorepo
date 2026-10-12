@@ -3611,3 +3611,17 @@ entries:
         kids-birthday-party-package-profit-calculator, which prices a single party; no whole-park venture existed). First
         visitor: owners searching how much a trampoline park makes; volume unmeasured.
     mrr_end: 0
+  - venture: axe-throwing-bar-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built axe-throwing-bar-profit-calculator: a browser-only calculator for people planning or running an
+        axe throwing bar that takes throwers per session, sessions, fill, ticket price, private events, league players, food
+        and drink, staff, rent, insurance and the build cost and returns monthly profit, margin, months to pay back the
+        build, break-even fill and the lowest ticket for a target margin and for a payback target (both solved exactly and
+        verified by round-trip over random bars), a 10%/20% attendance sensitivity and a two-scenario comparison. Guide page
+        whose worked example the tests recompute. Screened with duplicate_check.py (nearest 0.28,
+        golf-simulator-bay-profit-calculator, a different venue; no axe throwing venture existed). First visitor: owners
+        searching how much an axe throwing bar makes; volume unmeasured.
+    mrr_end: 0
