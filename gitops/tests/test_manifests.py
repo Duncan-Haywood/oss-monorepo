@@ -3042,7 +3042,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `climbing-gym-profit-calculator` graduated (browser climbing and bouldering gym day passes, members, youth programs, parties, staff, route setting and rent to monthly profit, build payback, break-even members and the lowest day pass and membership fee for a target margin).
     # +1: `percentage-rent-audit-checker` graduated (browser percentage-rent statement check for retail and restaurant tenants: natural or stated breakpoint, landlord versus own sales, lease exclusions, cap and estimates paid to the overcharge, line by line, with a review note).
     # +1: `release-notes-generator` graduated (browser and zero-dependency CLI that turn git log into grouped release notes with a suggested semver bump).
-    total = 1097  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1097 tools" wording.
+    total = 1098  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1098 tools" wording.
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
     # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
