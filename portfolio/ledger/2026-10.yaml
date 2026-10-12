@@ -3634,3 +3634,17 @@ entries:
         recompute. Screened with duplicate_check.py (nearest 0.23, pickleball-facility-pro-forma; no climbing or membership-led gym
         venture existed). First visitor: owners searching how much a climbing gym makes; volume unmeasured.
     mrr_end: 0
+  - venture: scrap-metal-yard-payout-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built scrap-metal-yard-payout-calculator: a browser-only calculator for scrappers and trade crews that
+        takes lots in pounds, kilograms or tons, two yards' per-pound or per-ton prices, miles, trip minutes, fees and grading
+        deductions and returns what the load nets at each yard after fuel and time, a split-the-load option charged for both
+        trips, the percentage the lower yard must pay to catch up (verified by round-trip over random loads), a 10%/20% price
+        drop check, and a strip-or-sell-insulated wire analysis with the break-even recovery (also verified by round-trip). Guide
+        page whose worked example the tests recompute. Screened with duplicate_check.py (nearest 0.27,
+        laser-cutting-engraving-job-price-calculator; scrap-gold-buy-price-calculator covers jewelry gold, not a hauled load).
+        First visitor: people searching whether stripping copper wire is worth it and which scrap yard to use; volume unmeasured.
+    mrr_end: 0
