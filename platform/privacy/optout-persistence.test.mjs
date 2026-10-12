@@ -1562,7 +1562,8 @@ const RELATIVE_SELF = relative(
 // +1: `percentage-rent-audit-checker` graduated.
 // +1: `release-notes-generator` graduated.
 // +1: `bail-bond-agency-exposure-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1070;
+// +1: `shift-rotation-schedule-generator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1071;
 // +1: `retreat-profit-pricing-calculator` graduated.
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
