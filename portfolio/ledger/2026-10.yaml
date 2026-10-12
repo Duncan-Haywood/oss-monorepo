@@ -3779,3 +3779,15 @@ entries:
         tables, text summary and CSV. 15 hand-computed unit tests plus page and usage tests. Screened with duplicate_check.py
         (nearest venture 0.18). First visitor: people searching RV storage business ROI; volume unmeasured.
     mrr_end: 0
+  - venture: coworking-space-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built coworking-space-profit-calculator: a browser-only model for coworking and flex-office operators. Floor area,
+        a mix of private offices, dedicated desks and hot-desk memberships (checked against the rentable floor), day passes, meeting
+        rooms, lease, staff, fit-out and a loan become monthly profit and margin, break-even occupancy (operating and with the loan),
+        the price change that reaches a target margin, a sixty-month ramp-up with the cash reserve and payback, and occupancy and price
+        sweeps, with text summary and CSV. 11 hand-computed unit tests plus page and usage tests. No coworking tool existed in
+        ventures/. First visitor: people searching coworking break-even occupancy; volume unmeasured.
+    mrr_end: 0
