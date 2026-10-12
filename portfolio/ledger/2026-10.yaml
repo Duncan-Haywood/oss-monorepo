@@ -3648,3 +3648,17 @@ entries:
         laser-cutting-engraving-job-price-calculator; scrap-gold-buy-price-calculator covers jewelry gold, not a hauled load).
         First visitor: people searching whether stripping copper wire is worth it and which scrap yard to use; volume unmeasured.
     mrr_end: 0
+  - venture: ppp-pricing-table-generator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built ppp-pricing-table-generator: a browser-only tool and zero-dependency CLI for indie app and SaaS
+        developers that turns one base price into a purchasing-power price table for about 50 countries (damping strength,
+        floor, cap, .99 / whole / ends-in-9 rounding, optional price tiers that keep the reference market at full price),
+        prints the regional discount groups to enter in a payment processor, shows the extra conversion each discount needs to
+        break even, and models revenue per 1,000 visitors against the visitor's own traffic mix and an elasticity assumption,
+        with CSV/JSON export and user-overridable price-level indexes. Guide page on regional pricing. Screened with
+        duplicate_check.py (nearest 0.22, eu-vat-oss-calculator; no per-country price table existed). Linked from
+        saas-tier-price-optimizer. First visitor: developers searching PPP or regional pricing for SaaS; volume unmeasured.
+    mrr_end: 0
