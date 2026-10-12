@@ -3711,3 +3711,16 @@ entries:
         budget arithmetic. No patent or trademark docketing tool existed in the catalogue. First visitor: people searching
         when a patent maintenance fee is due; volume unmeasured.
     mrr_end: 0
+  - venture: subscription-proration-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built subscription-proration-calculator: a browser-only worksheet for SaaS founders and support teams.
+        Billing period, amount billed and any number of mid-cycle changes (upgrade, downgrade, seat change, cancellation) become
+        day-count segments, the credit or charge due, tax, the next renewal, in keep-the-renewal-date or restart-the-period mode,
+        plus a balance-by-change-date table, text summary and CSV. Hand-computed unit tests (12) for upgrade, downgrade,
+        cancellation, reset, multi-change, leap February and input rejection; a thousands-comma amount bug found and fixed
+        while testing. Screened with duplicate_check.py (nearest venture 0.16). First visitor: people searching how to prorate a
+        subscription upgrade; volume unmeasured.
+    mrr_end: 0

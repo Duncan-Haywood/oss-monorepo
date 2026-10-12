@@ -3044,8 +3044,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `release-notes-generator` graduated (browser and zero-dependency CLI that turn git log into grouped release notes with a suggested semver bump).
     # +1: `3pl-invoice-audit-checker` graduated (browser 3PL invoice audit: rate card, WMS and order-export counts and invoice lines to recoverable overcharges, proving records and a dispute note).
     # +1: `glamping-unit-payback-calculator` graduated (browser glamping worksheet: build and shared cost, seasonal rates and occupancy, loan, to payback, debt coverage and break-even occupancy).
-    total = 1103  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1103 tools" wording.
-    total = 1103  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1103 tools" wording.
+    total = 1104  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1104 tools" wording.
+    total = 1104  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1104 tools" wording.
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
     # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).

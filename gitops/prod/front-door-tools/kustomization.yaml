@@ -34,47 +34,47 @@
 #
 # Shards as generated:
 #   portfolio-front-tools-0: 145 files, 548263 bytes
-#   portfolio-front-tools-1: 92 files, 555567 bytes
+#   portfolio-front-tools-1: 92 files, 555563 bytes
 #   portfolio-front-tools-2: 144 files, 553475 bytes
-#   portfolio-front-tools-3: 128 files, 549672 bytes
+#   portfolio-front-tools-3: 128 files, 549673 bytes
 #   portfolio-front-tools-4: 136 files, 554024 bytes
-#   portfolio-front-tools-5: 130 files, 549852 bytes
-#   portfolio-front-tools-6: 124 files, 554929 bytes
-#   portfolio-front-tools-7: 122 files, 554616 bytes
-#   portfolio-front-tools-8: 133 files, 555679 bytes
-#   portfolio-front-tools-9: 137 files, 556654 bytes
-#   portfolio-front-tools-10: 134 files, 553571 bytes
-#   portfolio-front-tools-11: 134 files, 553996 bytes
-#   portfolio-front-tools-12: 128 files, 554612 bytes
-#   portfolio-front-tools-13: 128 files, 552795 bytes
+#   portfolio-front-tools-5: 130 files, 549845 bytes
+#   portfolio-front-tools-6: 124 files, 554927 bytes
+#   portfolio-front-tools-7: 122 files, 554611 bytes
+#   portfolio-front-tools-8: 133 files, 555681 bytes
+#   portfolio-front-tools-9: 137 files, 556655 bytes
+#   portfolio-front-tools-10: 134 files, 553568 bytes
+#   portfolio-front-tools-11: 134 files, 553986 bytes
+#   portfolio-front-tools-12: 128 files, 554606 bytes
+#   portfolio-front-tools-13: 128 files, 552799 bytes
 #   portfolio-front-tools-14: 130 files, 557024 bytes
-#   portfolio-front-tools-15: 122 files, 548485 bytes
-#   portfolio-front-tools-16: 134 files, 556116 bytes
-#   portfolio-front-tools-17: 123 files, 556973 bytes
-#   portfolio-front-tools-18: 125 files, 551704 bytes
-#   portfolio-front-tools-19: 125 files, 555966 bytes
-#   portfolio-front-tools-20: 122 files, 556645 bytes
-#   portfolio-front-tools-21: 116 files, 535922 bytes
-#   portfolio-front-tools-22: 118 files, 550090 bytes
-#   portfolio-front-tools-23: 128 files, 550333 bytes
-#   portfolio-front-tools-24: 120 files, 543096 bytes
-#   portfolio-front-tools-25: 132 files, 547231 bytes
-#   portfolio-front-tools-26: 134 files, 553494 bytes
-#   portfolio-front-tools-27: 122 files, 552601 bytes
-#   portfolio-front-tools-28: 126 files, 552696 bytes
+#   portfolio-front-tools-15: 122 files, 548487 bytes
+#   portfolio-front-tools-16: 134 files, 556118 bytes
+#   portfolio-front-tools-17: 123 files, 556975 bytes
+#   portfolio-front-tools-18: 125 files, 551703 bytes
+#   portfolio-front-tools-19: 125 files, 555971 bytes
+#   portfolio-front-tools-20: 122 files, 556647 bytes
+#   portfolio-front-tools-21: 116 files, 535915 bytes
+#   portfolio-front-tools-22: 118 files, 550082 bytes
+#   portfolio-front-tools-23: 128 files, 550327 bytes
+#   portfolio-front-tools-24: 120 files, 543093 bytes
+#   portfolio-front-tools-25: 132 files, 547232 bytes
+#   portfolio-front-tools-26: 134 files, 553488 bytes
+#   portfolio-front-tools-27: 122 files, 552598 bytes
+#   portfolio-front-tools-28: 126 files, 552690 bytes
 #   portfolio-front-tools-29: 135 files, 555695 bytes
-#   portfolio-front-tools-30: 124 files, 557051 bytes
-#   portfolio-front-tools-31: 128 files, 548043 bytes
-#   portfolio-front-tools-32: 131 files, 553532 bytes
-#   portfolio-front-tools-33: 108 files, 555115 bytes
+#   portfolio-front-tools-30: 124 files, 557050 bytes
+#   portfolio-front-tools-31: 128 files, 548040 bytes
+#   portfolio-front-tools-32: 131 files, 553519 bytes
+#   portfolio-front-tools-33: 108 files, 555120 bytes
 #   portfolio-front-tools-34: 104 files, 551084 bytes
-#   portfolio-front-tools-35: 125 files, 556092 bytes
-#   portfolio-front-tools-36: 124 files, 550274 bytes
-#   portfolio-front-tools-37: 129 files, 547969 bytes
-#   portfolio-front-tools-38: 118 files, 554451 bytes
-#   portfolio-front-tools-39: 135 files, 556840 bytes
-#   portfolio-front-tools-40: 121 files, 547554 bytes
-#   portfolio-front-tools-41: 64 files, 351316 bytes
+#   portfolio-front-tools-35: 125 files, 556090 bytes
+#   portfolio-front-tools-36: 124 files, 550272 bytes
+#   portfolio-front-tools-37: 130 files, 555948 bytes
+#   portfolio-front-tools-38: 119 files, 554530 bytes
+#   portfolio-front-tools-39: 134 files, 551285 bytes
+#   portfolio-front-tools-40: 123 files, 556540 bytes
+#   portfolio-front-tools-41: 64 files, 351353 bytes
 #   portfolio-front-tools-42: 50 files, 263728 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -4961,6 +4961,9 @@ configMapGenerator:
       - subscription-audit-from-statement__calc.mjs.gz=subscription-audit-from-statement__calc.mjs.gz
       - subscription-audit-from-statement__index.html.gz=subscription-audit-from-statement__index.html.gz
       - subscription-audit-from-statement__usage.mjs.gz=subscription-audit-from-statement__usage.mjs.gz
+      - subscription-proration-calculator__calc.mjs.gz=subscription-proration-calculator__calc.mjs.gz
+      - subscription-proration-calculator__index.html.gz=subscription-proration-calculator__index.html.gz
+      - subscription-proration-calculator__usage.mjs.gz=subscription-proration-calculator__usage.mjs.gz
       - substack-subscriber-export-analyzer__calc.mjs.gz=substack-subscriber-export-analyzer__calc.mjs.gz
       - substack-subscriber-export-analyzer__index.html.gz=substack-subscriber-export-analyzer__index.html.gz
       - substack-subscriber-export-analyzer__usage.mjs.gz=substack-subscriber-export-analyzer__usage.mjs.gz
@@ -5081,13 +5084,13 @@ configMapGenerator:
       - ticket-resale-profit-calculator__cli.mjs.gz=ticket-resale-profit-calculator__cli.mjs.gz
       - ticket-resale-profit-calculator__engine.mjs.gz=ticket-resale-profit-calculator__engine.mjs.gz
       - ticket-resale-profit-calculator__index.html.gz=ticket-resale-profit-calculator__index.html.gz
-      - ticket-resale-profit-calculator__ticket-resale-guide.html.gz=ticket-resale-profit-calculator__ticket-resale-guide.html.gz
-      - ticket-resale-profit-calculator__usage.mjs.gz=ticket-resale-profit-calculator__usage.mjs.gz
   - name: portfolio-front-tools-38
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - ticket-resale-profit-calculator__ticket-resale-guide.html.gz=ticket-resale-profit-calculator__ticket-resale-guide.html.gz
+      - ticket-resale-profit-calculator__usage.mjs.gz=ticket-resale-profit-calculator__usage.mjs.gz
       - tiktok-shop-settlement-analyzer__calc.mjs.gz=tiktok-shop-settlement-analyzer__calc.mjs.gz
       - tiktok-shop-settlement-analyzer__index.html.gz=tiktok-shop-settlement-analyzer__index.html.gz
       - tiktok-shop-settlement-analyzer__usage.mjs.gz=tiktok-shop-settlement-analyzer__usage.mjs.gz
@@ -5205,12 +5208,12 @@ configMapGenerator:
       - tutor-weekly-schedule-optimizer__index.html.gz=tutor-weekly-schedule-optimizer__index.html.gz
       - tutor-weekly-schedule-optimizer__usage.mjs.gz=tutor-weekly-schedule-optimizer__usage.mjs.gz
       - twitch-payout-calculator__calc.mjs.gz=twitch-payout-calculator__calc.mjs.gz
-      - twitch-payout-calculator__does-a-mobile-subscription-pay-me-less.html.gz=twitch-payout-calculator__does-a-mobile-subscription-pay-me-less.html.gz
   - name: portfolio-front-tools-39
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - twitch-payout-calculator__does-a-mobile-subscription-pay-me-less.html.gz=twitch-payout-calculator__does-a-mobile-subscription-pay-me-less.html.gz
       - twitch-payout-calculator__index.html.gz=twitch-payout-calculator__index.html.gz
       - twitch-payout-calculator__share.mjs.gz=twitch-payout-calculator__share.mjs.gz
       - twitch-payout-calculator__usage.mjs.gz=twitch-payout-calculator__usage.mjs.gz
@@ -5344,13 +5347,13 @@ configMapGenerator:
       - vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz=vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz
       - vscode-extension-drift-check__cli.mjs.gz=vscode-extension-drift-check__cli.mjs.gz
       - vscode-extension-drift-check__engine.mjs.gz=vscode-extension-drift-check__engine.mjs.gz
-      - vscode-extension-drift-check__index.html.gz=vscode-extension-drift-check__index.html.gz
-      - vscode-extension-drift-check__usage.mjs.gz=vscode-extension-drift-check__usage.mjs.gz
   - name: portfolio-front-tools-40
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vscode-extension-drift-check__index.html.gz=vscode-extension-drift-check__index.html.gz
+      - vscode-extension-drift-check__usage.mjs.gz=vscode-extension-drift-check__usage.mjs.gz
       - vscode-extension-drift-check__vs-vscan.html.gz=vscode-extension-drift-check__vs-vscan.html.gz
       - vscode-extension-drift-check__vs-vsix-audit.html.gz=vscode-extension-drift-check__vs-vsix-audit.html.gz
       - vscode-extension-drift-check__why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html.gz=vscode-extension-drift-check__why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html.gz
