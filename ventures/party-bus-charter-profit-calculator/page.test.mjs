@@ -92,3 +92,7 @@ test("the usage events named in the footer are the ones the page records", () =>
   const recorded = [...html.matchAll(/record\("(\w+)"\)/g)].map((m) => m[1]);
   assert.deepEqual([...new Set(recorded)].sort(), named.sort());
 });
+
+test("links to its sibling party-package calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/kids-birthday-party-package-profit-calculator\/"/);
+});

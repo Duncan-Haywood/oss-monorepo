@@ -3553,11 +3553,19 @@ entries:
         margin. Screened against ls ventures (no party bus or limo venture). First visitor: party bus operator groups searching
         how to price a party bus charter; volume unmeasured.
     mrr_end: 0
+  - venture: kids-birthday-party-package-profit-calculator
   - venture: event-rental-inventory-payback-calculator
     agent_spend_usd: 0
     human_hours: 0
     outcomes:
       - >-
+        Graduated and built kids-birthday-party-package-profit-calculator: a browser-only calculator for trampoline parks, bounce
+        gyms and play cafes turning a birthday party package price, children, party length with setup and cleanup, hosts, food and
+        goodie cost per child, card fees, the open-play margin the party displaces and yearly rent into true profit per party, margin,
+        profit per room hour, the lowest package price (and per child) for a target margin, break-even parties a year and a
+        two-package comparison. Guide page whose worked example the tests recompute; 300 random parties confirm the lowest price
+        reproduces the target margin. Screened with duplicate_check.py (nearest 0.14). First visitor: play venue owners searching
+        how to price birthday party packages; volume unmeasured.
         Graduated and built event-rental-inventory-payback-calculator: a browser-only calculator for party, tent and event
         rental companies that takes each inventory item (units, cost, price per rental, rentals per unit a year, handling,
         loss and damage, storage, life) and returns payback, yearly return on money tied up, break-even rentals per unit,

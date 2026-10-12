@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1075 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1076 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -46,6 +46,14 @@
     <updated>2026-10-12T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free franchise Item 19 reality check. Enter the earnings tiers from a franchise disclosure document and see owner earnings after royalty and ad fund, payback, the average versus the median, and how many units fall below your salary target. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Kids Birthday Party Package Profit Calculator — true profit, margin and lowest price per party</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/kids-birthday-party-package-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/kids-birthday-party-package-profit-calculator</id>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free calculator for trampoline parks, bounce gyms, play cafes and family entertainment centers. Enter the package price, children, party length, hosts, food and goodie cost, card fees, the open-play revenue given up and yearly rent; it shows true profit per party, profit per room hour and the lowest package price for your margin. Nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Lawn Aeration and Overseeding Bid Calculator — true profit, margin and lowest quote per job</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-11T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free fair workweek and predictive scheduling checker for restaurants and retail. Paste your posted schedule and later changes, see late postings, short-notice change premiums, cancellation pay and clopening rest violations. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Fundraising Event Net Calculator — Net Proceeds and Cost per Dollar Raised</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fundraising-event-net-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/fundraising-event-net-calculator</id>
-    <updated>2026-10-11T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free fundraising event calculator for galas, auctions and benefit dinners: enter tickets, sponsors, auction, giving and costs, and get net proceeds, cost per dollar raised, break-even guests and the ticket price that reaches your goal. Runs in your browser.</summary>
   </entry>
 </feed>
