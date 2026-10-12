@@ -67,10 +67,16 @@
     <input type="file" id="rfile" accept=".csv,.tsv,.txt,text/csv">
     <label for="rpaste">…or paste the reimbursements text</label>
     <textarea id="rpaste" spellcheck="false" placeholder="approval-date,reimbursement-id,reason,sku,...,quantity-reimbursed-total,amount-total"></textarea>
+    <label for="sfile">Inbound shipments CSV (optional)</label>
+    <p class="note">One row per shipment and SKU with <strong>Shipment ID</strong>, <strong>Created</strong> date, <strong>MSKU</strong>, <strong>Units expected</strong> (what you sent) and <strong>Units located</strong> (what Amazon counted in). Seller Central → Shipping Queue → a shipment → Track shipment shows both counts; paste them into a sheet and export it as CSV. The tool lists shipments that arrived short and are still inside the claim window.</p>
+    <input type="file" id="sfile" accept=".csv,.tsv,.txt,text/csv">
+    <label for="spaste">…or paste the shipments text</label>
+    <textarea id="spaste" spellcheck="false" placeholder="Shipment ID,Created,MSKU,Units expected,Units located"></textarea>
     <div class="grid">
       <div><label for="value">Default value per unit, $ (when a SKU has no reimbursement to average)</label><input type="number" id="value" value="20" min="0" step="0.01"></div>
       <div><label for="window">Claim window, months</label><input type="number" id="window" value="18" min="1" max="60" step="1"></div>
       <div><label for="wait">Wait before claiming, days</label><input type="number" id="wait" value="45" min="0" max="365" step="1"></div>
+      <div><label for="iwindow">Inbound shipment claim window, months</label><input type="number" id="iwindow" value="9" min="1" max="60" step="1"></div>
     </div>
     <p>
       <button type="button" id="analyze">Find claims</button>
@@ -86,6 +92,16 @@
     <div id="report-findings"></div>
     <h3>By SKU</h3>
     <div class="scroll"><table><thead><tr><th scope="col">SKU</th><th class="n" scope="col">Lost</th><th class="n" scope="col">Damaged</th><th class="n" scope="col">Found</th><th class="n" scope="col">Reimbursed</th><th class="n" scope="col">Unclaimed</th><th class="n" scope="col">Claim now</th><th class="n" scope="col">Expiring</th><th class="n" scope="col">Too new</th><th class="n" scope="col">Past window</th><th class="n" scope="col">Value / unit</th><th class="n" scope="col">Claim value</th><th class="n" scope="col">File by</th></tr></thead><tbody id="by-sku"></tbody></table></div>
+    <div id="inbound" hidden>
+      <h3>Inbound shipments that arrived short</h3>
+      <p class="stats" id="inbound-stats"></p>
+      <div class="scroll"><table><thead><tr><th scope="col">Shipment / SKU</th><th class="n" scope="col">Sent</th><th class="n" scope="col">Received</th><th class="n" scope="col">Reimbursed</th><th class="n" scope="col">Open</th><th class="n" scope="col">Value</th><th scope="col">Status</th><th scope="col">File by</th></tr></thead><tbody id="inbound-rows"></tbody></table></div>
+      <label for="inbound-pick">Draft case text for the shipment you pick</label>
+      <select id="inbound-pick"></select>
+      <label for="inbound-claim">Case text</label>
+      <textarea id="inbound-claim" readonly spellcheck="false"></textarea>
+      <p><button type="button" class="secondary" id="copy-inbound">Copy case text</button></p>
+    </div>
     <p class="note" id="skipped"></p>
     <label for="claim-sku">Draft case text for the SKU you pick</label>
     <select id="claim-sku"></select>
@@ -104,7 +120,7 @@
       <li><strong>Value</strong> is the average amount per unit of that SKU's own reimbursements, or the default you type. The default is a placeholder, not a measurement, and Amazon's actual payment can differ.</li>
       <li><strong>Too new</strong> means younger than the wait you set: Amazon often pays on its own after an investigation. <strong>Expiring</strong> means the claim window closes within three months. <strong>Past window</strong> units are not counted in the claim total.</li>
       <li><strong>Reconciles.</strong> The SKU rows add up to the totals at the top: lost + damaged − found − reimbursed, floored at zero per SKU, equals unclaimed.</li>
-      <li><strong>Not modelled:</strong> inbound shipment shortages that never reach the ledger, removal-order and customer-return disputes, fee overcharges (dimension errors), Amazon's own case decisions, the tax treatment of reimbursements, and anything not in the two files.</li>
+      <li><strong>Inbound shortages</strong> (optional file) are units sent minus units Amazon counted in, per shipment and SKU, netted oldest-first against that SKU's “Inbound” reimbursements, and aged against their own window (9 months by default, editable) with the same too-new, expiring and past-window states. They are kept apart from warehouse losses so a payment for one never hides the other. <li><strong>Not modelled:</strong> removal-order and customer-return disputes, fee overcharges (dimension errors), Amazon's own case decisions, the tax treatment of reimbursements, and anything not in the two files.</li>
       <li><strong>Unverified:</strong> column names are matched by alias and no real Seller Central export was available when this was written. If a file is not read the page lists the rows skipped and why.</li>
     </ul>
   </section>
@@ -136,7 +152,7 @@
   </footer>
 
   <script type="module">
-    import { parseCsv, detectDelimiter, decodeBuffer, normalizeLedger, normalizeReimbursements, analyze, claimText, summaryText, sampleCsv, money, dateStr } from "./calc.mjs";
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeLedger, normalizeReimbursements, normalizeShipments, analyzeInbound, inboundClaimText, analyze, claimText, summaryText, sampleCsv, money, dateStr } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -147,13 +163,18 @@
     const table = (text, norm) => { const d = detectDelimiter(text); return norm(parseCsv(text, d), { decimalComma: d === ";" }); };
     const num = (id, dflt) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : dflt; };
 
-    function run(ledgerText, reimbText) {
+    function run(ledgerText, reimbText, shipText = "") {
       const l = table(ledgerText, normalizeLedger);
       if (l.error) { status.textContent = l.error; report.hidden = true; return false; }
       let r = null;
       if (reimbText.trim()) {
         r = table(reimbText, normalizeReimbursements);
         if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      }
+      let sh = null;
+      if (shipText.trim()) {
+        sh = table(shipText, normalizeShipments);
+        if (sh.error) { status.textContent = sh.error; report.hidden = true; return false; }
       }
       const a = analyze(l.items, r ? r.items : null, { asOf: Date.now(), defaultUnitValue: num("#value", 20), windowMonths: num("#window", 18), waitDays: num("#wait", 45) });
       if (a.invalid) { status.textContent = a.invalid; report.hidden = true; return false; }
@@ -167,14 +188,27 @@
       const showClaim = () => { const x = claimable.find((q) => q.sku === $("#claim-sku").value); $("#claim").value = x ? claimText(x) : ""; };
       $("#claim-sku").onchange = showClaim;
       showClaim();
+      const ib = sh ? analyzeInbound(sh.items, r ? r.items : null, { asOf: Date.now(), defaultUnitValue: num("#value", 20), windowMonths: num("#iwindow", 9) }) : null;
+      const LABEL = { claim: "Claim now", expiring: "Expiring soon", wait: "Too new", expired: "Past window", paid: "Reimbursed" };
+      $("#inbound").hidden = !ib;
+      if (ib) {
+        const t = ib.summary;
+        $("#inbound-stats").innerHTML = ib.rows.length ? `${ib.rows.length} short line(s), ${t.short} unit(s) short in total. <strong>${t.claimUnits} unit(s) worth about $${money(t.claimValue)} look claimable now</strong> (${t.expiringUnits} expiring within three months), ${t.waitUnits} too new, ${t.expiredUnits} past the ${t.windowMonths}-month window, ${t.paidUnits} already reimbursed.` : "No shipment in this file arrived short.";
+        $("#inbound-rows").innerHTML = ib.rows.map((x) => `<tr><th scope="row">${esc(x.id || "–")}<br><span class="note">${esc(x.sku)}</span></th><td class="n">${x.shipped}</td><td class="n">${x.received}</td><td class="n">${x.reimbursed}</td><td class="n">${x.open}</td><td class="n">$${money(x.value)}</td><td>${LABEL[x.state]}</td><td>${x.state === "claim" || x.state === "expiring" ? dateStr(x.end) : "–"}</td></tr>`).join("");
+        const pick = ib.rows.filter((x) => x.state === "claim" || x.state === "expiring");
+        $("#inbound-pick").innerHTML = pick.map((x, i) => `<option value="${i}">${esc(x.id || x.sku)} / ${esc(x.sku)} — ${x.open} unit(s)</option>`).join("") || `<option value="">No claimable shipment</option>`;
+        const showIb = () => { const x = pick[Number($("#inbound-pick").value)]; $("#inbound-claim").value = x ? inboundClaimText(x) : ""; };
+        $("#inbound-pick").onchange = showIb;
+        showIb();
+      }
       const notes = [];
-      const skipped = l.skipped.concat(r ? r.skipped : []);
+      const skipped = l.skipped.concat(r ? r.skipped : [], sh ? sh.skipped : []);
       if (skipped.length) notes.push(`${skipped.length} row(s) were skipped: ` + skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (skipped.length > 5 ? "; …" : ""));
       if (l.dmy) notes.push("Ledger dates were read day-first.");
       $("#skipped").textContent = notes.join(" ");
       $("#summary").value = summaryText(a);
       report.hidden = false;
-      status.textContent = `Read ${l.items.length} ledger rows` + (r ? ` and ${r.items.length} reimbursement rows.` : ".");
+      status.textContent = `Read ${l.items.length} ledger rows` + (r ? `, ${r.items.length} reimbursement rows` : "") + (sh ? `, ${sh.items.length} shipment rows` : "") + ".";
       report.scrollIntoView({ behavior: "smooth", block: "start" });
       return true;
     }
@@ -183,14 +217,14 @@
     $("#analyze").addEventListener("click", async () => {
       const lt = await fileText("#file", "#paste");
       if (!lt.trim()) { status.textContent = "Choose the ledger file or paste it first."; return; }
-      if (run(lt, await fileText("#rfile", "#rpaste"))) record("csv_analyzed");
+      if (run(lt, await fileText("#rfile", "#rpaste"), await fileText("#sfile", "#spaste"))) record("csv_analyzed");
     });
     $("#load-example").addEventListener("click", () => {
       const s = sampleCsv(Date.now());
-      $("#paste").value = s.ledger; $("#rpaste").value = s.reimbursements; $("#file").value = ""; $("#rfile").value = "";
-      if (run(s.ledger, s.reimbursements)) { record("example_loaded"); status.textContent = "Worked example: synthetic ledger and reimbursements for an invented seller. Not a real business."; }
+      $("#paste").value = s.ledger; $("#rpaste").value = s.reimbursements; $("#spaste").value = s.shipments; $("#file").value = ""; $("#rfile").value = ""; $("#sfile").value = "";
+      if (run(s.ledger, s.reimbursements, s.shipments)) { record("example_loaded"); status.textContent = "Worked example: synthetic ledger and reimbursements for an invented seller. Not a real business."; }
     });
-    $("#clear-all").addEventListener("click", () => { for (const id of ["#paste", "#rpaste", "#file", "#rfile", "#summary", "#claim"]) $(id).value = ""; report.hidden = true; last = null; status.textContent = "Choose the ledger file or paste it, then click Find claims."; });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#paste", "#rpaste", "#spaste", "#file", "#rfile", "#sfile", "#summary", "#claim", "#inbound-claim"]) $(id).value = ""; report.hidden = true; last = null; status.textContent = "Choose the ledger file or paste it, then click Find claims."; });
     const copy = (id, what) => async () => {
       const box = $(id);
       try { await navigator.clipboard.writeText(box.value); status.textContent = `${what} copied.`; }
@@ -198,6 +232,7 @@
     };
     $("#copy").addEventListener("click", copy("#summary", "Summary"));
     $("#copy-claim").addEventListener("click", copy("#claim", "Case text"));
+    $("#copy-inbound").addEventListener("click", copy("#inbound-claim", "Case text"));
     $("#download").addEventListener("click", () => {
       if (!last) return;
       const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
