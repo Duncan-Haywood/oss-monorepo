@@ -3611,3 +3611,17 @@ entries:
         kids-birthday-party-package-profit-calculator, which prices a single party; no whole-park venture existed). First
         visitor: owners searching how much a trampoline park makes; volume unmeasured.
     mrr_end: 0
+  - venture: axe-throwing-venue-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built axe-throwing-venue-profit-calculator: a browser-only calculator for people planning or running an
+        axe-throwing or throwing-sports venue that takes lanes, hours, fill, price per thrower, league seasons (recurring per
+        season, with the lane time a league night uses taken out of walk-in capacity), corporate events, drinks and snacks,
+        coaches, rent, insurance, an axe and target replacement reserve and the build cost and returns monthly profit, margin,
+        months to pay back the build, break-even fill and the lowest price per thrower for a target margin and for a payback
+        target (both solved exactly and verified by round-trip over random venues), a 10%/20% walk-in sensitivity and a
+        two-scenario comparison. Guide page whose worked example the tests recompute. Screened with duplicate_check.py
+        (nearest 0.33, niche clear). First visitor: owners searching how much an axe-throwing business makes; volume unmeasured.
+    mrr_end: 0

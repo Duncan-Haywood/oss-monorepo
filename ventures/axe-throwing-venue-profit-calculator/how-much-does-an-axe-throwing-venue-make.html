@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How much does an axe-throwing venue make: a worked example</title>
+  <meta name="description" content="How to work out what an axe-throwing venue earns: lane slots, fill, price per thrower, league seasons, corporate events, coaches and rent, with a worked 10-lane example, its payback on a $400,000 build, the break-even fill and the price for a 20% margin.">
+  <meta property="og:title" content="How much does an axe-throwing venue make: a worked example">
+  <meta property="og:description" content="How to work out what an axe-throwing venue earns: lane slots, fill, price per thrower, league seasons, corporate events, coaches and rent, with a worked 10-lane example, its payback on a $400,000 build, the break-even fill and the price for a 20% margin.">
+  <link rel="canonical" href="./how-much-does-an-axe-throwing-venue-make.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What fill does an axe-throwing venue need to break even?","acceptedAnswer":{"@type":"Answer","text":"It depends on rent, coaches and price per thrower, so the calculator solves it: it scales walk-in bookings up or down until monthly profit is exactly zero and reports that as a percentage of walk-in lane slots. League seasons and corporate events pay for part of the fixed costs before a single walk-in books a lane, so the break-even fill is lower than most owners guess."}},{"@type":"Question","name":"How much of an axe-throwing venue's income comes from leagues and corporate events?","acceptedAnswer":{"@type":"Answer","text":"Often a third or more of revenue, and the most predictable part because leagues are paid per season and events are booked ahead. The calculator counts a league as players times a season fee, repeated each season, and takes the lane time a league night uses out of walk-in capacity. It warns when leagues or events grow past a third of revenue."}},{"@type":"Question","name":"What price per thrower do I need to reach my target margin?","acceptedAnswer":{"@type":"Answer","text":"The calculator solves for the price that makes margin equal your target and shows it, next to the price that reaches your payback target. The test suite checks that charging exactly those prices earns the target for hundreds of random venues."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note"><a href="./index.html">← Axe Throwing Venue Profit Calculator</a></p>
+    <h1>How much does an axe-throwing venue make?</h1>
+    <p>A venue with 10 lanes open 8 hours, 6 days a week can sell 2080 lane bookings a month. With 18% of walk-in slots filled, three league nights and a dozen corporate events, it keeps about one dollar in eight, and the build takes over five years to come back.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>The worked example</h2>
+    <p>A venue with 10 lanes, 8 hours a day, 6 days a week and one booking per lane-hour has <strong>2080</strong> lane slots a month. Three league nights a week of 40 players each, two hours long, take 10 lanes for two hours each night, which leaves <strong>1820</strong> walk-in slots. At an 18% fill with 4 throwers a booking that is <strong>1310</strong> walk-in throwers. Tickets are $22, so walk-ins bring in <strong>$28828.80</strong>.</p>
+    <p>The leagues enrol 120 players paying $100 a season, four seasons a year, which is <strong>$4000.00</strong> a month. Twelve corporate events at $600 bring in <strong>$7200.00</strong>. With league and event guests there are <strong>1870</strong> throwers in all, and $6 of drinks and snacks each adds <strong>$11222.40</strong>.</p>
+    <p>Four coaches on the floor cost <strong>$15841.28</strong> a month at $17 an hour plus 12% payroll cost. With rent, utilities, insurance and other costs, fixed costs are <strong>$37041.28</strong>.</p>
+    <table><thead><tr><th>Line</th><th>Per month</th></tr></thead><tbody>
+<tr><td>Revenue</td><td><strong>$51251.20</strong></td></tr>
+<tr><td>Total costs</td><td><strong>$44867.78</strong></td></tr>
+<tr><td>Profit</td><td><strong>$6383.42</strong></td></tr>
+<tr><td>Margin</td><td>12.5%</td></tr>
+<tr><td>Profit per thrower</td><td>$3.41</td></tr>
+    </tbody></table>
+    <p>Lanes, targets, axes, safety netting and fit-out cost <strong>$400,000</strong>, so payback is <strong>62.7</strong> months, 5.2 years. Profit would reach zero at 14.5% fill.</p>
+  </section>
+  <section class="card">
+    <h2>The price a 20% margin needs</h2>
+    <p>The venue earns 12.5%, short of 20%. With everything else unchanged, the lowest price per thrower that reaches 20% is <strong>$25.83</strong>, $3.83 more than the $22 entered.</p>
+    <h2 style="margin-top:20px">Hitting a 36-month payback</h2>
+    <p>At 62.7 months the venue is past a 36-month payback target. The lowest price that reaches 36 months is <strong>$25.72</strong>, $3.72 more than now. Payback is measured before any loan payment, so borrowing does not flatter it; a loan still comes out of monthly profit.</p>
+    <h2 style="margin-top:20px">If walk-in visits come in under plan</h2>
+    <p>Rent and coaches do not shrink when the lanes are quiet. With 10% fewer walk-in visits, monthly profit falls from $6,383 to $3,139 and payback stretches to 127.4 months. With 20% fewer, profit is -$106 a month, a loss.</p>
+    <h2 style="margin-top:20px">A higher price with fewer bookings</h2>
+    <p>Charging $26 and filling 12% of walk-in slots makes <strong>$3287.42</strong> a month against <strong>$6383.42</strong>, and pays back in <strong>121.7</strong> months against 62.7. Raising price does not rescue the venue if it costs more bookings than the extra dollars bring in; the second scenario in the calculator tests exactly that.</p>
+    <p>Run your own numbers: <a href="./index.html">open the calculator</a>.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What fill does an axe-throwing venue need to break even?</h3>
+    <p>It depends on rent, coaches and price per thrower, so the calculator solves it: it scales walk-in bookings up or down until monthly profit is exactly zero and reports that as a percentage of walk-in lane slots. League seasons and corporate events pay for part of the fixed costs before a single walk-in books a lane, so the break-even fill is lower than most owners guess.</p>
+    <h3>How much of an axe-throwing venue's income comes from leagues and corporate events?</h3>
+    <p>Often a third or more of revenue, and the most predictable part because leagues are paid per season and events are booked ahead. The calculator counts a league as players times a season fee, repeated each season, and takes the lane time a league night uses out of walk-in capacity. It warns when leagues or events grow past a third of revenue.</p>
+    <h3>What price per thrower do I need to reach my target margin?</h3>
+    <p>The calculator solves for the price that makes margin equal your target and shows it, next to the price that reaches your payback target. The test suite checks that charging exactly those prices earns the target for hundreds of random venues.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Arithmetic on the numbers you type, not tax, legal, lending or financial advice. Not affiliated with any axe-throwing league, franchise or equipment maker. Best-effort hosting, no SLA. Everything runs in your browser.</p>
+  </footer>
+</body>
+</html>

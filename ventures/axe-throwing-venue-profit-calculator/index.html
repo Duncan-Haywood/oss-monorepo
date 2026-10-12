@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Axe Throwing Venue Profit Calculator — monthly profit, payback and break-even fill</title>
+  <meta name="description" content="Free calculator for axe-throwing and throwing-sports venues. Enter lanes, hours, fill, price per thrower, league nights, corporate events, drinks, coaches, rent and the build; it shows monthly profit, margin, payback, break-even fill and the lowest price for your target margin and payback. Private, in your browser.">
+  <meta property="og:title" content="Axe Throwing Venue Profit Calculator — monthly profit, payback and break-even fill">
+  <meta property="og:description" content="Free calculator for axe-throwing and throwing-sports venues. Enter lanes, hours, fill, price per thrower, league nights, corporate events, drinks, coaches, rent and the build; it shows monthly profit, margin, payback, break-even fill and the lowest price for your target margin and payback. Private, in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Axe Throwing Venue Profit Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free calculator for axe-throwing venues: monthly profit, margin, payback on the build, break-even fill, the lowest price per thrower for a target margin and payback, and a two-scenario comparison. Runs in your browser; nothing is uploaded.","featureList":"axe throwing business calculator, axe throwing venue profit, throwing lane payback, league season revenue, break-even fill"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does it cost to open an axe-throwing venue?","acceptedAnswer":{"@type":"Answer","text":"Plan on roughly $60,000 to $250,000 for lanes, targets, axes and safety netting, plus a fit-out for flooring, a bar or lounge, a front desk and restrooms, on top of the lease deposit. Enter your own quotes for both and the calculator adds them into one build cost and divides it by monthly operating profit to give a payback."}},{"@type":"Question","name":"What fill does an axe-throwing venue need to break even?","acceptedAnswer":{"@type":"Answer","text":"It depends on rent, coaches and price per thrower, so the calculator solves it: it scales walk-in bookings up or down until monthly profit is exactly zero and reports that as a percentage of walk-in lane slots. League seasons and corporate events pay for part of the fixed costs before a single walk-in books a lane, so the break-even fill is lower than most owners guess."}},{"@type":"Question","name":"How much of an axe-throwing venue's income comes from leagues and corporate events?","acceptedAnswer":{"@type":"Answer","text":"Often a third or more of revenue, and the most predictable part because leagues are paid per season and events are booked ahead. The calculator counts a league as players times a season fee, repeated each season, and takes the lane time a league night uses out of walk-in capacity. It warns when leagues or events grow past a third of revenue."}},{"@type":"Question","name":"What price per thrower do I need to reach my target margin?","acceptedAnswer":{"@type":"Answer","text":"The calculator solves for the price that makes margin equal your target and shows it, next to the price that reaches your payback target. The test suite checks that charging exactly those prices earns the target for hundreds of random venues."}},{"@type":"Question","name":"Is my data uploaded, and is this financial advice?","acceptedAnswer":{"@type":"Answer","text":"Nothing is uploaded: it runs in your browser with no accounts. It is arithmetic on the numbers you type, not tax, legal, lending or financial advice. Lease terms, licences, waivers, insurance and safety rules depend on where you operate."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">AXE THROWING VENUE PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will an axe-throwing venue make money? Monthly profit, payback and break-even fill</h1>
+    <p>For anyone planning or running an axe-throwing or throwing-sports venue. Type your lanes, hours, price per thrower and costs. The tool counts <strong>lane bookings actually filled, league seasons, corporate events, drinks and snacks, coaches, rent, insurance and an axe and target replacement reserve</strong>, then shows monthly profit, <strong>how many months the build takes to pay back</strong>, the <strong>fill you need to break even</strong>, and the <strong>lowest price per thrower</strong> that reaches your margin and payback targets.</p>
+    <p class="note">The method with a worked example: <a href="./how-much-does-an-axe-throwing-venue-make.html">how much does an axe-throwing venue make</a>.</p>
+  </header>
+  <main>
+  <section class="card" id="setup">
+    <h2 style="margin-top:0px">1. Lanes and walk-in bookings</h2>
+    <div class="row3">
+      <div><label for="ln">Throwing lanes</label><input type="number" id="ln" min="1" step="1" max="500" value="10"></div>
+      <div><label for="hd">Hours open a day (average)</label><input type="number" id="hd" min="1" step="0.5" max="24" value="8"></div>
+      <div><label for="dw">Open days per week</label><input type="number" id="dw" min="1" step="1" max="7" value="6"></div>
+      <div><label for="sl">Bookings per lane-hour</label><input type="number" id="sl" min="0.5" step="0.5" max="4" value="1"></div>
+      <div><label for="tl">Throwers per lane booking</label><input type="number" id="tl" min="1" step="1" max="20" value="4"></div>
+      <div><label for="fl">Average fill (% of walk-in lane slots booked)</label><input type="number" id="fl" min="0" step="1" max="100" value="18"></div>
+      <div><label for="pr">Price per thrower ($ per booking)</label><input type="number" id="pr" min="0" step="0.5" max="500" value="22"></div>
+      <div><label for="bs">Drinks and snacks spend per thrower ($)</label><input type="number" id="bs" min="0" step="0.5" max="200" value="6"></div>
+      <div><label for="bc">Drinks and snacks cost (%)</label><input type="number" id="bc" min="0" step="1" max="100" value="30"></div>
+    </div>
+    <h2 style="margin-top:20px">2. League nights and corporate events</h2>
+    <div class="row3">
+      <div><label for="ln2">League nights per week</label><input type="number" id="ln2" min="0" step="1" max="7" value="3"></div>
+      <div><label for="lp">Players per league night</label><input type="number" id="lp" min="0" step="1" max="5000" value="40"></div>
+      <div><label for="lh">League night length (hours)</label><input type="number" id="lh" min="0" step="0.5" max="12" value="2"></div>
+      <div><label for="sf">Season fee per player ($)</label><input type="number" id="sf" min="0" step="5" max="2000" value="100"></div>
+      <div><label for="sw">Weeks per season</label><input type="number" id="sw" min="1" step="1" max="52" value="8"></div>
+      <div><label for="sy">Seasons a year</label><input type="number" id="sy" min="0" step="1" max="12" value="4"></div>
+      <div><label for="ev">Corporate events and parties a month</label><input type="number" id="ev" min="0" step="1" max="2000" value="12"></div>
+      <div><label for="eg">Guests per event</label><input type="number" id="eg" min="0" step="1" max="5000" value="20"></div>
+      <div><label for="ep">Event package price ($)</label><input type="number" id="ep" min="0" step="25" max="100000" value="600"></div>
+      <div><label for="ec">Cost per event: food, host, supplies ($)</label><input type="number" id="ec" min="0" step="10" max="100000" value="150"></div>
+    </div>
+    <h2 style="margin-top:20px">3. Monthly costs</h2>
+    <div class="row3">
+      <div><label for="co">Coaches on the floor while open</label><input type="number" id="co" min="0" step="1" max="200" value="4"></div>
+      <div><label for="wg">Coach hourly wage ($)</label><input type="number" id="wg" min="0" step="0.5" max="500" value="17"></div>
+      <div><label for="bd">Payroll tax and workers comp (%)</label><input type="number" id="bd" min="0" step="1" max="100" value="12"></div>
+      <div><label for="rt">Monthly rent ($)</label><input type="number" id="rt" min="0" step="100" max="1000000" value="14000"></div>
+      <div><label for="ut">Monthly utilities ($)</label><input type="number" id="ut" min="0" step="50" max="1000000" value="1800"></div>
+      <div><label for="in">Monthly insurance ($)</label><input type="number" id="in" min="0" step="50" max="1000000" value="2400"></div>
+      <div><label for="of">Software, marketing and other fixed costs a month ($)</label><input type="number" id="of" min="0" step="50" max="1000000" value="3000"></div>
+      <div><label for="pc">Card and booking fees (%)</label><input type="number" id="pc" min="0" step="0.1" max="15" value="3"></div>
+      <div><label for="wr">Axe and target replacement reserve ($ per thrower)</label><input type="number" id="wr" min="0" step="0.05" max="100" value="0.6"></div>
+    </div>
+    <h2 style="margin-top:20px">4. The build and any loan</h2>
+    <div class="row3">
+      <div><label for="bl">Lanes, targets, axes and safety netting ($)</label><input type="number" id="bl" min="0" step="5000" max="50000000" value="180000"></div>
+      <div><label for="fo">Fit-out: flooring, bar, lounge, front desk ($)</label><input type="number" id="fo" min="0" step="5000" max="50000000" value="220000"></div>
+      <div><label for="tm">Margin you want (%)</label><input type="number" id="tm" min="0" step="1" max="90" value="20"></div>
+      <div><label for="fp">Share of the build financed (%)</label><input type="number" id="fp" min="0" step="5" max="100" value="0"></div>
+      <div><label for="ap">Loan interest rate (% a year)</label><input type="number" id="ap" min="0" step="0.25" max="60" value="9"></div>
+      <div><label for="tr">Loan term (months)</label><input type="number" id="tr" min="1" step="1" max="360" value="60"></div>
+      <div><label for="tp">Payback you want (months)</label><input type="number" id="tp" min="1" step="1" max="240" value="36"></div>
+    </div>
+    <button type="button" id="solve">Check this venue</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="load-file-btn">Load saved scenario</button>
+    <input type="file" id="load-file" accept=".json,application/json" hidden aria-label="Saved scenario file">
+    <p id="form-status" role="status" class="note">Fill in the numbers, then click Check this venue.</p>
+  </section>
+  <section id="result" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div class="scroll"><table id="out"><thead><tr><th>Line</th><th class="num">Per month</th></tr></thead><tbody></tbody></table></div>
+    <h2 style="margin-top:20px">If walk-in visits come in under plan</h2>
+    <div class="scroll"><table id="sens"><thead><tr><th>Walk-in visits</th><th class="num">Fill</th><th class="num">Profit a month</th><th class="num">Profit a year</th><th class="num">Payback (months)</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="copy-text">Copy as text</button>
+    <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="save-file">Save scenario</button>
+  </section>
+  <section class="card" id="compare-card">
+    <h2>5. Compare with a second scenario</h2>
+    <p class="note">Scenario A is everything above. Scenario B keeps your hours, coaches, rent and costs, and changes only the lanes, price, fill, league and event numbers below. The build cost stays the same, so compare scenarios that fit the same building.</p>
+    <div class="row3">
+      <div><label for="sca">Scenario B: lanes</label><input type="number" id="sca" min="1" step="1" max="500" value="10"></div>
+      <div><label for="spr">Scenario B: price per thrower ($)</label><input type="number" id="spr" min="0" step="0.5" max="500" value="26"></div>
+      <div><label for="sfl">Scenario B: average fill (%)</label><input type="number" id="sfl" min="0" step="1" max="100" value="12"></div>
+      <div><label for="slp">Scenario B: players per league night</label><input type="number" id="slp" min="0" step="1" max="5000" value="40"></div>
+      <div><label for="ssf">Scenario B: season fee per player ($)</label><input type="number" id="ssf" min="0" step="5" max="2000" value="120"></div>
+      <div><label for="sev">Scenario B: events a month</label><input type="number" id="sev" min="0" step="1" max="2000" value="16"></div>
+      <div><label for="sep">Scenario B: event package price ($)</label><input type="number" id="sep" min="0" step="25" max="100000" value="700"></div>
+    </div>
+    <button type="button" id="compare">Compare the two scenarios</button>
+    <div id="compare-out"></div>
+  </section>
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Slots:</strong> lane slots a month = lanes × hours open a day × bookings per lane-hour × open days × 52 ÷ 12. League nights take their lane time out first (players ÷ throwers per lane, rounded up, times the league night length), and the rest are <strong>walk-in slots</strong>. <strong>Walk-in throwers</strong> = walk-in slots × average fill × throwers per lane. <strong>Revenue:</strong> walk-in throwers × price, plus league players × season fee × seasons a year ÷ 12, plus events × package price, plus every thrower × drinks and snacks spend. <strong>Costs:</strong> drinks and snacks cost, event cost, an axe and target replacement reserve per thrower, card fees, coaches on the floor for every open hour, rent, utilities, insurance and other fixed costs, and any loan payment.</p>
+    <p><strong>Payback:</strong> build cost ÷ monthly profit before the loan payment. <strong>Lowest price:</strong> the price per thrower at which margin equals your target, and the price at which payback equals your target; typing either back reproduces the target. <strong>Sensitivity:</strong> the same venue with walk-in visits cut by 10% and 20% (leagues and events held). <strong>Break-even fill:</strong> profit is exactly linear in walk-in visits, so it is solved exactly.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much does it cost to open an axe-throwing venue?</h3>
+    <p>Plan on roughly $60,000 to $250,000 for lanes, targets, axes and safety netting, plus a fit-out for flooring, a bar or lounge, a front desk and restrooms, on top of the lease deposit. Enter your own quotes for both and the calculator adds them into one build cost and divides it by monthly operating profit to give a payback.</p>
+    <h3>What fill does an axe-throwing venue need to break even?</h3>
+    <p>It depends on rent, coaches and price per thrower, so the calculator solves it: it scales walk-in bookings up or down until monthly profit is exactly zero and reports that as a percentage of walk-in lane slots. League seasons and corporate events pay for part of the fixed costs before a single walk-in books a lane, so the break-even fill is lower than most owners guess.</p>
+    <h3>How much of an axe-throwing venue's income comes from leagues and corporate events?</h3>
+    <p>Often a third or more of revenue, and the most predictable part because leagues are paid per season and events are booked ahead. The calculator counts a league as players times a season fee, repeated each season, and takes the lane time a league night uses out of walk-in capacity. It warns when leagues or events grow past a third of revenue.</p>
+    <h3>What price per thrower do I need to reach my target margin?</h3>
+    <p>The calculator solves for the price that makes margin equal your target and shows it, next to the price that reaches your payback target. The test suite checks that charging exactly those prices earns the target for hundreds of random venues.</p>
+    <h3>Is my data uploaded, and is this financial advice?</h3>
+    <p>Nothing is uploaded: it runs in your browser with no accounts. It is arithmetic on the numbers you type, not tax, legal, lending or financial advice. Lease terms, licences, waivers, insurance and safety rules depend on where you operate.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type, not tax, legal, lending or financial advice. <strong>Use at your own risk.</strong> A lease, a loan or a build is a large commitment: check the numbers, permits, insurance and contracts with an accountant or adviser.</p>
+    <p><strong>Independent.</strong> Not affiliated with any axe-throwing league, franchise, equipment maker or software vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or backups of anything you enter.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>venue_run</code>, <code>example_loaded</code>, <code>scenarios_compared</code>, <code>text_copied</code>, <code>csv_downloaded</code>, <code>file_saved</code>) are counted in this browser only, and you can switch that off below.</p>
+    <p>Related tools: the <a href="../trampoline-park-profit-calculator/">trampoline park profit calculator</a>, the <a href="../golf-simulator-bay-profit-calculator/">golf simulator bay profit calculator</a> and the <a href="../escape-room-pricing-capacity-planner/">escape room pricing and capacity planner</a>.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+  <script type="module">
+    import { solve, compareScenarios, money, cents, pct, resultText, resultCsv, serializeState, parseState, sampleInput, sampleScenario } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const A = {"lanes":"ln","hoursPerDay":"hd","daysPerWeek":"dw","sessionsPerLaneHour":"sl","throwersPerLane":"tl","fill":"fl","price":"pr","barSpend":"bs","barCogsPct":"bc","leagueNights":"ln2","leaguePlayers":"lp","leagueHours":"lh","seasonFee":"sf","seasonWeeks":"sw","seasonsPerYear":"sy","events":"ev","eventGuests":"eg","eventPrice":"ep","eventCost":"ec","coaches":"co","wage":"wg","burdenPct":"bd","rent":"rt","utilities":"ut","insurance":"in","otherFixed":"of","processPct":"pc","wearPerThrower":"wr","buildCost":"bl","fitout":"fo","targetMargin":"tm","financedPct":"fp","aprPct":"ap","termMonths":"tr","targetPaybackMonths":"tp"};
+    const B = {"lanes":"sca","price":"spr","fill":"sfl","leaguePlayers":"slp","seasonFee":"ssf","events":"sev","eventPrice":"sep"};
+    let R = null;
+    const readMap = (m) => Object.fromEntries(Object.entries(m).map(([k, id]) => [k, Number($("#" + id).value)]));
+    const fillMap = (m, s) => { for (const [k, id] of Object.entries(m)) if (s[k] !== undefined) $("#" + id).value = s[k]; };
+    function run() {
+      const res = solve(readMap(A));
+      if (!res.ok) { status.textContent = res.errors.join(" "); return false; }
+      R = res; status.textContent = "Done. Scroll down."; render(); return true;
+    }
+    function render() {
+      $("#result").hidden = false;
+      $("#notices").innerHTML = R.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("");
+      $("#big").innerHTML = [[cents(R.profit), "profit a month, before tax"], [R.margin === null ? "n/a" : pct(R.margin), "margin"], [R.paybackMonths === null ? "never" : R.paybackMonths.toFixed(1), "months to pay back the build"], [R.breakevenFill === null ? "n/a" : pct(R.breakevenFill), "break-even fill"], [R.minPrice === null ? "n/a" : cents(R.minPrice), "lowest price for your margin"], [R.minPaybackPrice === null ? "n/a" : cents(R.minPaybackPrice), "lowest price for your payback"]].map(([v, l]) => "<div><strong>" + esc(v) + "</strong>" + esc(l) + "</div>").join("");
+      const row = (a, b) => "<tr><td>" + a + '</td><td class="num">' + b + "</td></tr>";
+      $("#out tbody").innerHTML = [
+        row("Walk-in lane slots a month", R.avail.toFixed(0)), row("Walk-in throwers", R.visits.toFixed(0) + " (" + pct(R.fillRate) + " fill)"), row("All throwers (walk-in, league, events)", R.throwers.toFixed(0)),
+        row("Walk-in revenue", cents(R.walkRevenue)), row("League revenue", cents(R.leagueRevenue)), row("Corporate event revenue", cents(R.eventRevenue)), row("Drinks and snacks revenue", cents(R.barRevenue)), row("<strong>Revenue</strong>", "<strong>" + cents(R.revenue) + "</strong>"),
+        row("Drinks and snacks cost", cents(R.barCost)), row("Event cost", cents(R.eventCost)), row("Axe and target replacement", cents(R.wear)), row("Card and booking fees", cents(R.cardFees)), row("Coaches", cents(R.staffCost)), row("All fixed costs (incl. coaches)", cents(R.fixed)), row("Loan payment", cents(R.loanPayment)),
+        row("<strong>Total costs</strong>", "<strong>" + cents(R.costs) + "</strong>"), row("<strong>Profit a month</strong>", "<strong>" + cents(R.profit) + "</strong>"), row("Profit per thrower", R.profitPerThrower === null ? "n/a" : cents(R.profitPerThrower)),
+        row("Build cost (lanes + fit-out)", money(R.capex)), row("Operating profit before the loan", cents(R.operating)), row("Payback (years)", R.paybackYears === null ? "never" : R.paybackYears.toFixed(1)), row("Profit a year", money(R.annualProfit)),
+      ].join("");
+      $("#sens tbody").innerHTML = R.sensitivity.map((s) => "<tr><td>" + s.change + '%</td><td class="num">' + pct(s.fill) + '</td><td class="num">' + money(s.profit) + '</td><td class="num">' + money(s.annualProfit) + '</td><td class="num">' + (s.paybackMonths === null ? "never" : s.paybackMonths.toFixed(1)) + "</td></tr>").join("");
+    }
+    function download(name, text, type) {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    function compare() {
+      const c = compareScenarios(readMap(A), readMap(B));
+      if (!c.ok) { status.textContent = c.errors.join(" "); $("#compare-out").innerHTML = ""; return false; }
+      const col = (x) => "<td class=\"num\">" + x + "</td>";
+      const line = (n, f) => "<tr><td>" + n + "</td>" + col(f(c.a)) + col(f(c.b)) + "</tr>";
+      $("#compare-out").innerHTML = c.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("") + '<div class="scroll"><table><thead><tr><th>Per month</th><th class="num">Scenario A</th><th class="num">Scenario B</th></tr></thead><tbody>' +
+        line("Walk-in throwers", (x) => x.visits.toFixed(0)) + line("Price per thrower", (x) => cents(x.input.price)) + line("Revenue", (x) => cents(x.revenue)) + line("Total costs", (x) => cents(x.costs)) + line("Profit", (x) => cents(x.profit)) +
+        line("Payback (months)", (x) => (x.paybackMonths === null ? "never" : x.paybackMonths.toFixed(1))) + "</tbody></table></div>";
+      status.textContent = "Compared."; return true;
+    }
+    $("#solve").addEventListener("click", () => setTimeout(() => { if (run()) record("venue_run"); }, 0));
+    $("#load-example").addEventListener("click", () => { fillMap(A, sampleInput()); fillMap(B, sampleScenario()); setTimeout(() => { if (run()) { record("example_loaded"); status.textContent = "Example: a 10-lane venue with invented numbers. Enter yours above."; } }, 0); });
+    $("#compare").addEventListener("click", () => setTimeout(() => { if (compare()) record("scenarios_compared"); }, 0));
+    $("#copy-text").addEventListener("click", async () => { if (!R) return; try { await navigator.clipboard.writeText(resultText(R)); status.textContent = "Copied."; record("text_copied"); } catch { status.textContent = "Your browser blocked copying. Use Download CSV instead."; } });
+    $("#dl-csv").addEventListener("click", () => { if (!R) return; download("axe-throwing-venue-profit.csv", resultCsv(R), "text/csv"); record("csv_downloaded"); });
+    $("#save-file").addEventListener("click", () => { if (!R) return; download("axe-throwing-venue.json", serializeState(R.input, readMap(B)), "application/json"); record("file_saved"); });
+    $("#load-file-btn").addEventListener("click", () => $("#load-file").click());
+    $("#load-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; const out = parseState(await f.text()); if (out.error) { status.textContent = out.error; return; } fillMap(A, out.state); if (out.scenario) fillMap(B, out.scenario); run(); });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>
