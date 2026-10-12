@@ -1570,10 +1570,9 @@ const RELATIVE_SELF = relative(
 // +1: `3pl-invoice-audit-checker` graduated.
 // +1: `glamping-unit-payback-calculator` graduated.
 // +1: `npm-lockfile-duplicates-check` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1082;
+const SWITCHES_IN_THE_CATALOGUE = 1083;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1082;
 // +1: `retreat-profit-pricing-calculator` graduated.
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
@@ -1609,6 +1608,7 @@ const SWITCHES_IN_THE_CATALOGUE = 1082;
 // +1: `ca-meal-rest-break-premium-checker` graduated.
 // +1: `flsa-regular-rate-overtime-audit` graduated.
 // +1: `json-to-types-generator` graduated.
+// +1: `prop-firm-challenge-calculator` graduated.
 // +1: `csv-to-sql-generator` graduated.
 
 let counter = 0;

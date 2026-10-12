@@ -3371,6 +3371,8 @@ const CATEGORY_RULES = [
         'pottery-piece-pricing-calculator',
         'craft-fair-booth-calculator',
         'epk-generator',
+        // `prop-firm-challenge-calculator` joined 2026-10-12: a retail trader pricing a funded-account challenge fee against their own pass odds is one person deciding what their own risk-taking is worth.
+        'prop-firm-challenge-calculator',
         'freelance-writer-rate-calculator',
         'freelance-editor-quote-calculator',
         'gig-driver-net-pay-calculator',
