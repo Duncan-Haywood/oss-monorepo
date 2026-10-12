@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>RV and Boat Storage Lot Calculator — Spaces, Yield, Payback, IRR</title>
+  <meta name="description" content="Free RV and boat storage lot calculator: acres, land and site cost, rent per space and occupancy become the number of spaces, net operating income, yield on cost, loan coverage, lease-up cash, payback and the return if you sell. Private, runs in your browser.">
+  <meta property="og:title" content="RV and boat storage lot calculator: will the lot pay back? Free, private">
+  <meta property="og:description" content="Acres, land, site work, rent and occupancy in; spaces, NOI, yield on cost, debt coverage and equity IRR out.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "RV and Boat Storage Lot Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much does an RV and boat storage lot make?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the land price, what the site costs to surface and fence, and what spaces rent for near you. Enter your own figures; the page works out the net operating income, the yield on what you spend, the loan coverage, the cash left after the loan and the return if you sell after a number of years."}}, {"@type": "Question", "name": "How many RV spaces fit on an acre?", "acceptedAnswer": {"@type": "Answer", "text": "An acre is 43,560 square feet. Divide the usable part of it by the footprint of one space plus its share of the drive aisle. A 12 by 40 foot space with room to turn and back in is often several hundred square feet once the aisle is counted, so enter your own layout. Setbacks, drainage and the entrance take land out of use."}}, {"@type": "Question", "name": "What occupancy do I need to break even on a storage lot?", "acceptedAnswer": {"@type": "Answer", "text": "Two figures are shown: the occupancy that covers operating costs (tax, insurance, upkeep, fees) and the higher one that also covers the loan payment. Both are exact for your inputs and ignore the lease-up period, which is modelled separately."}}, {"@type": "Question", "name": "What is yield on cost and why does it matter?", "acceptedAnswer": {"@type": "Answer", "text": "Yield on cost is stabilized net operating income divided by everything you spent to build the lot. It is the number to compare with the cap rate buyers pay for finished lots: the wider the gap, the more value you create by building, and the more you stand to lose if the lot fills slowly."}}, {"@type": "Question", "name": "Does this tell me if I can build one?", "acceptedAnswer": {"@type": "Answer", "text": "No. Zoning, conditional-use permits, stormwater, fire-lane and screening rules decide whether a storage lot is allowed on a parcel at all, and they vary by city and county. Check them before you buy land."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">RV AND BOAT STORAGE LOT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will an outdoor RV and boat storage lot pay back what it costs to build?</h1>
+    <p>Enter the acres, the land and site cost, the rent per space and how full you expect it to get. You get <strong>how many spaces fit</strong>, <strong>net operating income</strong>, <strong>yield on cost</strong>, <strong>loan coverage</strong>, <strong>break-even occupancy</strong>, the <strong>rent that hits your target yield</strong>, and a month-by-month <strong>lease-up</strong> with payback and the <strong>equity IRR if you sell</strong>.</p>
+    <p class="note">It works from your own figures. It does not know what spaces rent for near you, whether the parcel is zoned for storage, or what your lender will require.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>Your lot</h2>
+    <div class="grid">
+      <div><label for="acres">Acres you are building on</label><input id="acres" inputmode="decimal" value="" placeholder="3"></div>
+      <div><label for="usablepct">Usable share of the land, % (after setbacks, drainage, entrance)</label><input id="usablepct" inputmode="decimal" value="" placeholder="70"></div>
+      <div><label for="spacesqft">Square feet per space, including its share of the aisle</label><input id="spacesqft" inputmode="decimal" value="" placeholder="600"></div>
+      <div><label for="land">Land cost, dollars</label><input id="land" inputmode="decimal" value="" placeholder="420000"></div>
+      <div><label for="sitepersqft">Surfacing cost per square foot: grading, gravel or paving, dollars</label><input id="sitepersqft" inputmode="decimal" value="" placeholder="4.5"></div>
+      <div><label for="developedpct">Share of the site that gets surfaced, %</label><input id="developedpct" inputmode="decimal" value="" placeholder="85"></div>
+      <div><label for="fencegate">Fencing, gate, lighting and cameras, dollars</label><input id="fencegate" inputmode="decimal" value="" placeholder="60000"></div>
+      <div><label for="permits">Permits, survey, engineering and legal, dollars</label><input id="permits" inputmode="decimal" value="" placeholder="35000"></div>
+      <div><label for="other">Other startup cost: utilities hookup, sign, contingency, dollars</label><input id="other" inputmode="decimal" value="" placeholder="20000"></div>
+      <div><label for="rate">Monthly rent per space, dollars</label><input id="rate" inputmode="decimal" value="" placeholder="85"></div>
+      <div><label for="stabocc">Stabilized occupancy, % of spaces rented</label><input id="stabocc" inputmode="decimal" value="" placeholder="85"></div>
+      <div><label for="startocc">Occupancy in month 1, %</label><input id="startocc" inputmode="decimal" value="" placeholder="20"></div>
+      <div><label for="rampmonths">Lease-up months to reach stabilized occupancy</label><input id="rampmonths" inputmode="decimal" value="" placeholder="18"></div>
+      <div><label for="baddebtpct">Late payers, discounts and bad debt, % of rent</label><input id="baddebtpct" inputmode="decimal" value="" placeholder="3"></div>
+      <div><label for="proptax">Property tax per year, dollars</label><input id="proptax" inputmode="decimal" value="" placeholder="9000"></div>
+      <div><label for="insurance">Insurance per year, dollars</label><input id="insurance" inputmode="decimal" value="" placeholder="5500"></div>
+      <div><label for="fixedmonthly">Other fixed costs per month: software, marketing, utilities, dollars</label><input id="fixedmonthly" inputmode="decimal" value="" placeholder="450"></div>
+      <div><label for="mgmtpct">Management and card fees, % of rent</label><input id="mgmtpct" inputmode="decimal" value="" placeholder="8"></div>
+      <div><label for="repairsperspace">Repairs and upkeep per space per year, dollars</label><input id="repairsperspace" inputmode="decimal" value="" placeholder="40"></div>
+      <div><label for="rategrowth">Rent growth per year, %</label><input id="rategrowth" inputmode="decimal" value="" placeholder="3"></div>
+      <div><label for="costgrowth">Cost growth per year, %</label><input id="costgrowth" inputmode="decimal" value="" placeholder="3"></div>
+      <div><label for="ltcpct">Loan as % of project cost (0 for all cash)</label><input id="ltcpct" inputmode="decimal" value="" placeholder="65"></div>
+      <div><label for="loanrate">Loan interest rate, %</label><input id="loanrate" inputmode="decimal" value="" placeholder="7.25"></div>
+      <div><label for="termyears">Loan term, years</label><input id="termyears" inputmode="decimal" value="" placeholder="25"></div>
+      <div><label for="holdyears">Years you hold the lot</label><input id="holdyears" inputmode="decimal" value="" placeholder="10"></div>
+      <div><label for="exitcap">Cap rate at sale, %</label><input id="exitcap" inputmode="decimal" value="" placeholder="8"></div>
+      <div><label for="sellpct">Selling costs, % of the price</label><input id="sellpct" inputmode="decimal" value="" placeholder="4"></div>
+      <div><label for="targetyield">Target yield on cost, %</label><input id="targetyield" inputmode="decimal" value="" placeholder="10"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out the lot</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in your lot, then click Work out the lot. Only acres, rent and stabilized occupancy are required; the rest default to zero or the neutral choice.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>If occupancy runs above or below plan</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Versus plan</th><th scope="col" class="n">Occupancy</th><th scope="col" class="n">NOI per year</th><th scope="col" class="n">Yield on cost</th><th scope="col" class="n">Loan coverage</th><th scope="col" class="n">Cash after loan</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <h3>If rent per space is higher or lower</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Rent change</th><th scope="col" class="n">Rent</th><th scope="col" class="n">NOI per year</th><th scope="col" class="n">Yield on cost</th><th scope="col" class="n">Loan coverage</th><th scope="col" class="n">Cash after loan</th></tr></thead><tbody id="rent-rows"></tbody></table></div>
+    <h3>Year by year over the hold</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Year</th><th scope="col" class="n">NOI</th><th scope="col" class="n">Cash after loan</th></tr></thead><tbody id="year-rows"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download occupancy table (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Counts:</strong> spaces = whole spaces that fit in acres x 43,560 x usable share, divided by square feet per space. Project cost = land + surfaced area x cost per square foot + fencing + permits + other. Rent collected = spaces x occupancy x rent x 12, less bad debt; NOI = rent collected - management and card fees - property tax - insurance - fixed costs - repairs per space.</li>
+      <li><strong>Return:</strong> yield on cost = stabilized NOI / project cost. Loan = share of cost, level payments over the term. Debt coverage = NOI / yearly payments. Cash after loan = NOI - payments.</li>
+      <li><strong>Hold:</strong> month by month, occupancy climbs in a straight line from the month-1 figure to the stabilized one over the lease-up months; rent and costs step up each year by the growth you enter. At the end the lot sells for the last year's NOI / the sale cap rate, less selling costs and the loan balance. Equity IRR is the annualized rate that discounts your equity and every month's cash to zero. Payback is the first month cumulative operating cash covers your equity, without the sale.</li>
+      <li><strong>Not decided:</strong> whether the parcel is zoned for storage and what conditional-use, stormwater, fire-lane and screening rules apply; the time and interest cost of the build itself (operations start in month 1); income tax and depreciation; what spaces rent for near you or how fast they fill; theft, damage and liability claims; and what a lender will actually offer.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How much does an RV and boat storage lot make?</h3>
+    <p>It depends on the land price, what the site costs to surface and fence, and what spaces rent for near you. Enter your own figures; the page works out the net operating income, the yield on what you spend, the loan coverage, the cash left after the loan and the return if you sell after a number of years.</p>
+    <h3>How many RV spaces fit on an acre?</h3>
+    <p>An acre is 43,560 square feet. Divide the usable part of it by the footprint of one space plus its share of the drive aisle. A 12 by 40 foot space with room to turn and back in is often several hundred square feet once the aisle is counted, so enter your own layout. Setbacks, drainage and the entrance take land out of use.</p>
+    <h3>What occupancy do I need to break even on a storage lot?</h3>
+    <p>Two figures are shown: the occupancy that covers operating costs (tax, insurance, upkeep, fees) and the higher one that also covers the loan payment. Both are exact for your inputs and ignore the lease-up period, which is modelled separately.</p>
+    <h3>What is yield on cost and why does it matter?</h3>
+    <p>Yield on cost is stabilized net operating income divided by everything you spent to build the lot. It is the number to compare with the cap rate buyers pay for finished lots: the wider the gap, the more value you create by building, and the more you stand to lose if the lot fills slowly.</p>
+    <h3>Does this tell me if I can build one?</h3>
+    <p>No. Zoning, conditional-use permits, stormwater, fire-lane and screening rules decide whether a storage lot is allowed on a parcel at all, and they vary by city and county. Check them before you buy land.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output before buying land, borrowing money or building. Treat it as a worksheet to check, not an investment recommendation.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../self-storage-unit-mix-optimizer/">self-storage unit mix optimizer</a>, the <a href="../mobile-home-park-valuation-calculator/">mobile home park valuation calculator</a> and the <a href="../pickleball-facility-pro-forma/">pickleball facility pro forma</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, sweepCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { acres: "acres", usablepct: "usablePct", spacesqft: "spaceSqft", land: "land", sitepersqft: "sitePerSqft", developedpct: "developedPct", fencegate: "fenceGate", permits: "permits", other: "other", rate: "rate", stabocc: "stabOcc", startocc: "startOcc", rampmonths: "rampMonths", baddebtpct: "badDebtPct", proptax: "propTax", insurance: "insurance", fixedmonthly: "fixedMonthly", mgmtpct: "mgmtPct", repairsperspace: "repairsPerSpace", rategrowth: "rateGrowth", costgrowth: "costGrowth", ltcpct: "ltcPct", loanrate: "loanRate", termyears: "termYears", holdyears: "holdYears", exitcap: "exitCap", sellpct: "sellPct", targetyield: "targetYield" };
+    const IDLE = "Fill in your lot, then click Work out the lot. Only acres, rent and stabilized occupancy are required; the rest default to zero or the neutral choice.";
+    const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+    const pct = (n) => (n * 100).toFixed(1) + "%";
+    const cov = (n) => (n === null ? "no loan" : n.toFixed(2));
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `${r.spaces} spaces; ${whole(r.steady.noi)} NOI a year, ${pct(r.yieldOnCost)} yield on ${whole(r.cost.total)}; equity IRR ${r.equityIrr === null ? "n/a" : pct(r.equityIrr)} over ${r.input.holdYears} years`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#rows").innerHTML = r.sweep.map((x) => `<tr><td class="n">${Math.round(x.scale * 100)}%</td><td class="n">${x.occ.toFixed(0)}%</td><td class="n">${whole(x.noi)}</td><td class="n">${pct(x.yoc)}</td><td class="n">${cov(x.dscr)}</td><td class="n">${whole(x.cash)}</td></tr>`).join("");
+      $("#rent-rows").innerHTML = r.rateSweep.map((x) => `<tr><td class="n">${x.pct > 0 ? "+" : ""}${x.pct}%</td><td class="n">${whole(x.rate)}</td><td class="n">${whole(x.noi)}</td><td class="n">${pct(x.yoc)}</td><td class="n">${cov(x.dscr)}</td><td class="n">${whole(x.cash)}</td></tr>`).join("");
+      $("#year-rows").innerHTML = r.noiByYear.map((v, i) => `<tr><td class="n">${i + 1}</td><td class="n">${whole(v)}</td><td class="n">${whole(r.cfByYear[i])}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: 3 acres, $85 a space, 85% full. Illustrative figures, not market rates or a forecast.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("storage-lot.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("storage-lot-by-occupancy.csv", sweepCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
