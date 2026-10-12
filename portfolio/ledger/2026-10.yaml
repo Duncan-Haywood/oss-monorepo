@@ -3499,6 +3499,20 @@ entries:
         duplicate_check.py: closest fair-workweek-schedule-checker 0.21, a different statute. First visitor: owners and
         bookkeepers searching california meal break violation calculator / 226.7 premium pay; volume unmeasured. Not run against
         real timecards.
+  - venture: flsa-regular-rate-overtime-audit
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built flsa-regular-rate-overtime-audit: a browser-local auditor for overtime paid on the wrong rate.
+        Paste payroll rows (hours, rate, nondiscretionary bonus, shift differential or commission, excluded pay, overtime
+        premium paid) and it computes the FLSA regular rate per employee per workweek (includable pay / hours), the half-time
+        premium owed over 40 hours, back pay against what was paid (or against the base-rate premium when left blank), per
+        employee roll-ups, and projected 2-year and 3-year willful lookback exposure with an optional damages multiplier.
+        Rules are editable; CSV and text export. Hand-computed cases (50h at 15 plus 100 bonus gives regular rate 17.00 and
+        premium 85.00, the 40 vs 40.5 hour boundary, excluded pay, mixed rates) pinned by calc, page and usage suites. Screened
+        with duplicate_check.py: closest overtime-pay-calculator 0.26. First visitor: owners and bookkeepers searching regular
+        rate of pay calculator / overtime with bonus; volume unmeasured. Not run against real payroll.
   - venture: laundromat-acquisition-offer-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -3512,4 +3526,17 @@ entries:
         example the tests recompute. Duplicate check found no laundromat purchase-pricing tool; the two laundromat ventures serve existing
         owners. 23 venture tests including 300 random stores confirming coverage equals the requirement at the debt limit. First visitor
         expected from "laundromat valuation calculator" and "how much is a laundromat worth" searches; volume unmeasured.
+    mrr_end: 0
+  - venture: node-version-drift-check
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built node-version-drift-check: a zero-dependency CLI plus browser page that reads a repo's Node.js version
+        declarations (package.json engines.node and volta.node, .nvmrc, .node-version, .tool-versions, Dockerfile FROM node: tags
+        with ARG defaults, GitHub Actions setup-node scalar, matrix and node-version-file) and flags a pin that cannot satisfy
+        engines.node, majors that disagree across files, end-of-life majors against a dated table (--today override), and an
+        unbounded engines range with nothing pinned. Hand-written semver range parser (caret, tilde, comparators, hyphen, x-ranges,
+        AND, OR) pinned by tests; --fail-on-risk exits 2. Screened with duplicate_check.py (nearest 0.18). First visitor:
+        developers searching why does CI use a different node version than .nvmrc / is node 20 end of life; volume unmeasured.
     mrr_end: 0
