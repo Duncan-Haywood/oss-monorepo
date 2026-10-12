@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1074 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1075 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -46,6 +46,14 @@
     <updated>2026-10-12T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free franchise Item 19 reality check. Enter the earnings tiers from a franchise disclosure document and see owner earnings after royalty and ad fund, payback, the average versus the median, and how many units fall below your salary target. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Lawn Aeration and Overseeding Bid Calculator — true profit, margin and lowest quote per job</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/lawn-aeration-overseeding-bid-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/lawn-aeration-overseeding-bid-calculator</id>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free calculator for lawn-care operators pricing core aeration and overseeding. Enter lot size, beds and hardscape, aerator passes and speed, seed and fertilizer rates, crew hours, truck miles and your machine cost; it shows true profit per job, margin, profit per crew hour, the lowest quote that hits your target margin, price per 1,000 sq ft, break-even jobs a season, and compares two jobs. Private, in your browser.</summary>
   </entry>
   <entry>
     <title>Node Version Drift Check — Do Your package.json, .nvmrc, Dockerfile and CI Agree on Node.js?</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-11T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free fundraising event calculator for galas, auctions and benefit dinners: enter tickets, sponsors, auction, giving and costs, and get net proceeds, cost per dollar raised, break-even guests and the ticket price that reaches your goal. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Grain Store or Sell Calculator — break-even price for storing corn and soybeans</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/grain-store-or-sell-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/grain-store-or-sell-calculator</id>
-    <updated>2026-10-11T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free store-or-sell calculator for grain farmers. Enter harvest moisture, drying, storage and interest costs and later bids; it shows what each later price nets versus selling at harvest and the break-even price. Private, in your browser.</summary>
   </entry>
 </feed>
