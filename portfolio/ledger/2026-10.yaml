@@ -3484,3 +3484,19 @@ entries:
         text match, this checks required properties). First visitor: site owners searching json-ld validator / schema markup
         checker / why is my structured data not showing; volume unmeasured.
     mrr_end: 0
+  - venture: ca-meal-rest-break-premium-checker
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built ca-meal-rest-break-premium-checker: a browser-local auditor for California meal and rest break
+        premium pay (Labor Code 226.7). Paste timecards (in, out, meal, second meal, rest breaks taken, rate, waiver) and it flags
+        first meals not begun by the end of hour five, meals under 30 minutes, missing meals, second meals after ten hours, rest
+        break shortfalls (10 minutes per 4 hours or major fraction), handles signed waivers (6 and 12 hour limits), and totals one
+        meal and one rest premium per employee per workday with by-day and by-employee roll-ups, violation rate, annualised
+        exposure and CSV/text export. Rules are editable. Hand-computed boundary cases (5:00 vs 5:01, 29 vs 30 minutes, 10 vs 10.01
+        hours, overnight shifts, formula-safe CSV) pinned by 17 calc tests plus page and usage suites. Screened with
+        duplicate_check.py: closest fair-workweek-schedule-checker 0.21, a different statute. First visitor: owners and
+        bookkeepers searching california meal break violation calculator / 226.7 premium pay; volume unmeasured. Not run against
+        real timecards.
+    mrr_end: 0

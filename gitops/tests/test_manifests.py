@@ -3037,7 +3037,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `fair-workweek-schedule-checker` graduated (browser predictive scheduling check: late postings, short-notice add, move and cancel premium pay, and rest-period violations from a pasted schedule and change log).
     # +1: `json-ld-rich-result-validator` graduated (browser JSON-LD validator and builder).
     # +1: `amusement-route-location-calculator` graduated (browser coin-op route location check: take, commission, visits and miles to profit per route hour, the weekly take needed and the highest commission worth paying).
-    total = 1065  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1065 tools" wording.
+    total = 1066  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1066 tools" wording.
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
     # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
@@ -3060,6 +3060,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `embroidery-shop-quote-calculator` graduated (browser + CLI embroidery job quote, quantity breaks and per-1000-stitches rule check).
     # +1: `worker-classification-checker` graduated (browser-local 1099-vs-W-2 screen: IRS, DOL and ABC tests, facts to fix, back-tax and overtime exposure range).
     # +1: `ad-slot-sell-through-planner` graduated (browser-local newsletter/podcast ad-slot sell-through, price-response and booking-pace planner).
+    # +1: `ca-meal-rest-break-premium-checker` graduated (browser California meal and rest break premium audit: late, short and missed meals, rest shortfalls, waivers and the Labor Code 226.7 premium per workday from pasted timecards).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

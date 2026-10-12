@@ -1,0 +1,59 @@
+name: ca-meal-rest-break-premium-checker
+description: >-
+  Free browser tool for California employers, bookkeepers and payroll staff:
+  paste timecards with meal periods and rest breaks and see late, short and
+  missed meals, rest break shortfalls, waivers, and the one-hour premium owed
+  per workday under Labor Code 226.7, by day and by employee. CSV and text
+  export. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture session asked for something deeper than a
+# calculator. duplicate_check.py: closest row was fair-workweek-schedule-checker
+# 0.21 (a different statute: schedule-change pay, not meal and rest breaks);
+# nothing near the 0.45 line.
+#
+# Why this niche: meal and rest break premiums are the most litigated wage claim in
+# California. Timekeeping suites sell a break-compliance report as a paid add-on;
+# a restaurant owner or their bookkeeper has a timecard export and nothing that
+# says which days owe a premium. A paste-in auditor with the rule behind every line
+# is the gap, and the output (exposure per period, per year, per employee) is what
+# an owner needs before a payroll correction or a conversation with counsel.
+#
+# First visitor: people searching "california meal break violation calculator",
+# "meal break premium pay calculator", "226.7 premium pay", "late meal break
+# california". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed timecards and user-editable numbers.
+# No payments, no accounts, nothing stored or uploaded. Not legal advice; the preset
+# is a summary the user must verify, and the page says so.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural
+# front end for a paid multi-state rules pack or timekeeping-export importer.
+
+hypotheses:
+  - claim: >-
+      California restaurant, retail and healthcare employers and their bookkeepers
+      will paste a pay period of timecards into a private auditor to see the break
+      premium owed, and return each pay period.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a result that disagrees with the statute or wage order for the preset, and the preset is not corrected within a week.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ca-meal-rest-break-premium-checker/
+  analytics: null
