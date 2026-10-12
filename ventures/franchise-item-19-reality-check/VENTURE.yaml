@@ -1,0 +1,58 @@
+name: franchise-item-19-reality-check
+description: >-
+  Free browser tool for people weighing a franchise purchase: enter the earnings tiers
+  from Item 19 of a franchise disclosure document and see the average against the median,
+  how much of the system the figures cover, owner earnings per tier after royalty, ad fund
+  and your own costs, payback, and the share of units that would not pay you a salary.
+  CSV and text export. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a scheduled new-venture session. duplicate_check.py: closest was
+# franchise-unit-economics-calculator at 0.11, which builds a cash plan from the buyer's own
+# assumptions; this reads the franchisor's earnings claim instead and tests whether it
+# describes a typical new unit. Nothing near the 0.45 line.
+#
+# Why this niche: a franchise purchase is a 100k-1M commitment made largely on one
+# table. Item 19 is optional, covers some units, and reports sales rather than profit.
+# Brokers are paid on signing and review services charge hundreds of dollars. A free,
+# private reader that shows mean versus median, coverage and per-tier owner earnings
+# is the gap, and the output (share of units below a salary) is what a buyer takes to an
+# independent attorney or accountant.
+#
+# First visitor: people searching "franchise item 19 analysis", "how to read an FDD
+# earnings claim", "franchise payback calculator". Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed numbers and user-editable assumptions.
+# No payments, no accounts, nothing stored or uploaded. Not financial, legal or investment
+# advice; the page says so, names no franchisor, and ranks none.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural front end
+# for a paid multi-document FDD comparison or an item-by-item checklist.
+
+hypotheses:
+  - claim: >-
+      Prospective franchise buyers will type an Item 19 table into a private reader to see
+      the median, coverage and per-tier owner earnings, and return when comparing a second
+      brand.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a result that disagrees with the arithmetic in the guide and it is not corrected within a week.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/franchise-item-19-reality-check/
+  analytics: null

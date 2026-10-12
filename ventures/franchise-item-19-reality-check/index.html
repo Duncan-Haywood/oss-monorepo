@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Franchise Item 19 Reality Check — what the earnings claim leaves out</title>
+  <meta name="description" content="Free franchise Item 19 reality check. Enter the earnings tiers from a franchise disclosure document and see owner earnings after royalty and ad fund, payback, the average versus the median, and how many units fall below your salary target. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Franchise Item 19 Reality Check — free, private, in your browser">
+  <meta property="og:description" content="Turn a franchise earnings claim into owner earnings and payback, tier by tier, before you sign.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Franchise Item 19 Reality Check","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free franchise Item 19 reality check. Enter the earnings tiers from a franchise disclosure document and see owner earnings, payback and how many units fall below your salary target. Runs in your browser; nothing is uploaded.","featureList":"franchise item 19 analysis, franchise earnings claim check, franchise payback calculator, royalty and ad fund impact, survivorship adjustment, csv export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is Item 19 in a franchise disclosure document?","acceptedAnswer":{"@type":"Answer","text":"Item 19 is the section of the Franchise Disclosure Document where a franchisor may state what its franchised or company units earn, such as average sales, quartiles or profit. It is optional, so many franchisors say nothing, and the figures usually cover only some units over some period, with footnotes that define which ones."}},{"@type":"Question","name":"How do I read Item 19 figures without being misled?","acceptedAnswer":{"@type":"Answer","text":"Start with how many units the figures cover compared with the whole system, then compare the average with the median. A high average over a small share of units, or an average far above the median, describes the best operators rather than a typical new buyer. This page shows both, and what each tier earns after royalty, ad fund and your own costs."}},{"@type":"Question","name":"Are Item 19 sales figures the same as profit?","acceptedAnswer":{"@type":"Answer","text":"No. Most Item 19 tables report gross sales or revenue. Royalty, ad fund, cost of goods, labor, rent and your own pay all come out of that figure, so two units with the same sales can have very different owner earnings. Enter your own cost assumptions and the page converts each tier from sales to owner earnings."}},{"@type":"Question","name":"What if only some units are included in Item 19?","acceptedAnswer":{"@type":"Answer","text":"Franchisors often exclude new units, closed units, company-owned units or units that were not open a full year. If the figures cover well under the whole system, the page lets you assume the missing units earn a share of the reported average and shows the system-wide figure that implies. That share is your assumption, not a fact from the document."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is calculated in your browser, nothing is sent to a server, and there are no accounts."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2330; background: #f3f5f8; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #1d3f8f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a4a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a4a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46506a; }
+    .card { background: #fff; border: 1px solid #d3d9e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a4a12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5b6784; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d3f8f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2e7f2; color: #1b2a4a; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px 6px; border-bottom: 1px solid #e2e7f2; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #46506a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td select { width: auto; min-width: 140px; }
+    tr.wd td { color: #6b7388; text-decoration: line-through; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .pill.tie { background: #fdf0d5; color: #5c4508; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #eaeef7; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1b2a4a; }
+    footer { margin-top: 28px; border-top: 1px solid #d3d9e6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .row4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .check[hidden] { display: none; }
+    .sum { font-size: 1.3rem; font-weight: 800; color: #1b2a4a; background: #e8f3e6; border-radius: 10px; padding: 12px 16px; margin: 12px 0; }
+    .win { font-weight: 700; }
+    pre { background: #eaeef7; border-radius: 10px; padding: 12px; overflow-x: auto; white-space: pre-wrap; font-size: .9rem; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FRANCHISE ITEM 19 REALITY CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does that franchise earnings claim mean for you?</h1>
+    <p>Type in the <strong>tiers from Item 19</strong> of a franchise disclosure document. The page shows the <strong>average against the median</strong>, how much of the system the figures cover, what each tier keeps after <strong>royalty, ad fund and your own costs</strong>, the <strong>payback</strong> on your investment, and the share of units that would not pay you a salary.</p>
+    <p class="note">For people weighing a franchise purchase. New to the document? Read <a href="./how-to-read-franchise-item-19-earnings-claims.html">how to read an Item 19 earnings claim, with a worked example</a>.</p>
+  </header>
+
+  <main>
+  <section class="card" id="setup">
+    <h2>1. Item 19 tiers</h2>
+    <label for="tiers">One tier per line: <code>label, number of units, average revenue</code>. Quartile tables, "units above and below the average" tables and a single average all work: enter each row as its own line. Lines starting with # are ignored.</label>
+    <textarea id="tiers" rows="6" placeholder="Top quartile, 24, 1450000&#10;Bottom quartile, 24, 560000"></textarea>
+    <div class="row4">
+      <div><label for="systemUnits">Units in the whole system (optional)</label><input id="systemUnits" inputmode="decimal" value=""></div>
+      <div><label for="nonReportingPct">Units left out earn this % of the reported average</label><input id="nonReportingPct" inputmode="decimal" value="60"></div>
+    </div>
+
+    <h2 style="margin-top:18px">2. Your costs and investment</h2>
+    <div class="row4">
+      <div><label for="royaltyPct">Royalty (% of revenue)</label><input id="royaltyPct" inputmode="decimal" value="6"></div>
+      <div><label for="adFundPct">Ad fund (% of revenue)</label><input id="adFundPct" inputmode="decimal" value="2"></div>
+      <div><label for="cogsPct">Cost of goods (% of revenue)</label><input id="cogsPct" inputmode="decimal" value="30"></div>
+      <div><label for="variableLaborPct">Labor that scales with sales (%)</label><input id="variableLaborPct" inputmode="decimal" value="0"></div>
+      <div><label for="otherVariablePct">Card fees, supplies, other (%)</label><input id="otherVariablePct" inputmode="decimal" value="3"></div>
+      <div><label for="fixedPerYear">Fixed costs per year ($): rent, base labor, insurance, tech fees</label><input id="fixedPerYear" inputmode="decimal" value="180000"></div>
+      <div><label for="investment">Total investment ($)</label><input id="investment" inputmode="decimal" value="350000"></div>
+      <div><label for="ownerSalary">What you need to pay yourself per year ($)</label><input id="ownerSalary" inputmode="decimal" value="70000"></div>
+    </div>
+    <p class="note">Item 7 of the document lists the investment range; Items 5 and 6 list the fees. Item 19 sales figures usually exclude all of this, and some include or exclude owner labor, so read its footnotes.</p>
+
+    <button type="button" id="run">Check the claim</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Enter the tiers, then click Check the claim.</p>
+  </section>
+
+  <section id="out" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h3>Tier by tier</h3>
+    <div class="scroll"><table id="tier-table"><thead><tr><th>Tier</th><th class="n">Units</th><th class="n">Revenue</th><th class="n">Royalty + ad fund</th><th class="n">Owner earnings</th><th class="n">After your salary</th><th class="n">Payback</th></tr></thead><tbody></tbody></table></div>
+    <h3>Sales you would need</h3>
+    <div id="needs"></div>
+    <button type="button" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="copy-text">Copy as plain text</button>
+    <button type="button" class="secondary" id="dl-text">Download text</button>
+  </section>
+
+  <section class="card">
+    <h2>How it works</h2>
+    <p><strong>Average and median:</strong> the average is total reported revenue over reporting units. The median is the tier containing the middle unit. When the average is well above the median, a few strong units are lifting the headline number.</p>
+    <p><strong>Coverage:</strong> if you enter the number of units in the system, the page shows what share the figures describe. You can assume the missing units earn a fraction of the reported average to see the system-wide figure that implies. That fraction is your assumption.</p>
+    <p><strong>Owner earnings:</strong> revenue minus the percentage costs (royalty, ad fund, cost of goods, scaling labor, other) minus fixed costs. Payback is investment divided by owner earnings, before tax, debt service and any ramp-up period.</p>
+    <p><strong>Not modelled:</strong> a first-year ramp, loan payments, taxes, working capital, renewal and transfer fees, required remodels, and whether the document's figures include owner labor. Read the footnotes to Item 19 and talk to current and former franchisees listed in Item 20.</p>
+    <p>Related tool: the <a href="../franchise-unit-economics-calculator/">franchise unit economics calculator</a> builds a month-by-month cash plan from your own assumptions.</p>
+    <p><strong>Checked:</strong> the test suite recomputes hand-worked cases for owner earnings, break-even, payback and the coverage adjustment.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is Item 19 in a franchise disclosure document?</h3>
+    <p>Item 19 is the section of the Franchise Disclosure Document where a franchisor may state what its franchised or company units earn, such as average sales, quartiles or profit. It is optional, so many franchisors say nothing, and the figures usually cover only some units over some period, with footnotes that define which ones.</p>
+    <h3>How do I read Item 19 figures without being misled?</h3>
+    <p>Start with how many units the figures cover compared with the whole system, then compare the average with the median. A high average over a small share of units, or an average far above the median, describes the best operators rather than a typical new buyer. This page shows both, and what each tier earns after royalty, ad fund and your own costs.</p>
+    <h3>Are Item 19 sales figures the same as profit?</h3>
+    <p>No. Most Item 19 tables report gross sales or revenue. Royalty, ad fund, cost of goods, labor, rent and your own pay all come out of that figure, so two units with the same sales can have very different owner earnings. Enter your own cost assumptions and the page converts each tier from sales to owner earnings.</p>
+    <h3>What if only some units are included in Item 19?</h3>
+    <p>Franchisors often exclude new units, closed units, company-owned units or units that were not open a full year. If the figures cover well under the whole system, the page lets you assume the missing units earn a share of the reported average and shows the system-wide figure that implies. That share is your assumption, not a fact from the document.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser, nothing is sent to a server, and there are no accounts.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or investment advice and does not replace the franchise disclosure document, an independent franchise attorney or an accountant. <strong>You are responsible for verifying every figure and every assumption</strong> before you sign, pay or borrow anything. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Results are arithmetic on the numbers you type and may be wrong, incomplete or out of date.</p>
+    <p><strong>Independent.</strong> Not affiliated with any franchisor, franchise broker, lender or government agency, and none is named or ranked here. The example figures are invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>text_shared</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, fieldsToCosts, toCsv, toText, EXAMPLE_TIERS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (n) => (n == null || !Number.isFinite(n) ? "n/a" : (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString("en-US"));
+    const yrs = (n) => (n == null ? "never" : n.toFixed(1) + " yrs");
+    const IDS = ["systemUnits", "nonReportingPct", "royaltyPct", "adFundPct", "cogsPct", "variableLaborPct", "otherVariablePct", "fixedPerYear", "investment", "ownerSalary"];
+    let last = null;
+
+    function run() {
+      if (!$("#tiers").value.trim()) { status.textContent = "Enter at least one tier."; return false; }
+      const costs = fieldsToCosts(Object.fromEntries(IDS.map((k) => [k, $("#" + k).value])));
+      last = analyze({ text: $("#tiers").value, costs });
+      $("#out").hidden = false;
+      $("#notices").innerHTML = [...last.errors.map((e) => '<div class="warn">' + esc(e) + "</div>"), ...(last.notices || []).map((e) => '<div class="warn">' + esc(e) + "</div>")].join("");
+      if (!last.tiers.length) { $("#big").innerHTML = ""; $("#tier-table tbody").innerHTML = ""; $("#needs").innerHTML = ""; status.textContent = "Fix the problems above."; return false; }
+      const tiles = [[usd(last.average), "average revenue"], [usd(last.median), "median tier revenue"], [usd(last.atMedian.ownerEarnings), "owner earnings at the median"], [yrs(last.atMedian.paybackYears), "payback at the median"], [Math.round(last.belowSalaryPct) + "%", "of units below your salary target"]];
+      if (last.coveragePct != null) tiles.push([Math.round(last.coveragePct) + "%", "of the system is in the figures"]);
+      if (last.atSystemWide) tiles.push([usd(last.atSystemWide.ownerEarnings), "owner earnings system-wide (your assumption)"]);
+      $("#big").innerHTML = tiles.map(([x, y]) => "<div><strong>" + esc(x) + "</strong>" + esc(y) + "</div>").join("");
+      $("#tier-table tbody").innerHTML = last.tiers.map((t) => "<tr><td>" + esc(t.label) + '</td><td class="n">' + t.units + '</td><td class="n">' + usd(t.revenue) + '</td><td class="n">' + usd(t.royalty + t.adFund) + '</td><td class="n">' + usd(t.ownerEarnings) + '</td><td class="n">' + usd(t.afterSalary) + '</td><td class="n">' + yrs(t.paybackYears) + "</td></tr>").join("");
+      const need = [];
+      if (last.breakEvenRevenue != null) need.push("Break-even: <strong>" + usd(last.breakEvenRevenue) + "</strong> a year.");
+      if (last.salaryRevenue != null) need.push("To also pay yourself " + usd(last.costs.ownerSalary) + ": <strong>" + usd(last.salaryRevenue) + "</strong>.");
+      if (last.paybackRevenue5y != null) need.push("To earn the investment back in five years: <strong>" + usd(last.paybackRevenue5y) + "</strong>.");
+      $("#needs").innerHTML = need.map((x) => "<p>" + x + "</p>").join("");
+      status.textContent = "Checked. Scroll down for the result.";
+      return true;
+    }
+
+    function download(fileName, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = fileName;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    $("#run").addEventListener("click", () => { if (run()) record("check_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#tiers").value = EXAMPLE_TIERS;
+      $("#systemUnits").value = "160";
+      status.textContent = "Example loaded. Click Check the claim.";
+      record("example_loaded");
+    });
+    $("#clear-all").addEventListener("click", () => { $("#tiers").value = ""; $("#out").hidden = true; last = null; status.textContent = "Cleared."; });
+    $("#dl-csv").addEventListener("click", () => { if (!last || !last.tiers.length) return; download("item-19-check.csv", toCsv(last), "text/csv"); record("csv_downloaded"); });
+    $("#dl-text").addEventListener("click", () => { if (!last || !last.tiers.length) return; download("item-19-check.txt", toText(last), "text/plain"); record("text_shared"); });
+    $("#copy-text").addEventListener("click", async () => {
+      if (!last || !last.tiers.length) return;
+      try { await navigator.clipboard.writeText(toText(last)); status.textContent = "Copied."; record("text_shared"); }
+      catch { status.textContent = "Your browser blocked copying. Use Download text instead."; }
+    });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

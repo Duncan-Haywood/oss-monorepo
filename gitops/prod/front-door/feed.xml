@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1070 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1072 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -22,6 +22,22 @@
     <updated>2026-10-12T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator for independent delivery van contractors. Enter route pay, stops, packages, miles, fuel, van payment, insurance and tax set-aside; it shows true profit per route, per hour and per stop, break-even stops, the lowest route pay that hits your hourly target, and compares two route offers. Private, in your browser.</summary>
+  </entry>
+  <entry>
+    <title>FLSA Regular-Rate Overtime Audit — free payroll check</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/flsa-regular-rate-overtime-audit/"/>
+    <id>tag:marisstella.dev,2026:tool/flsa-regular-rate-overtime-audit</id>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free FLSA regular rate of pay and overtime audit for restaurants, retailers, staffing agencies and bookkeepers. Paste payroll rows, see the regular rate with bonuses and shift differentials, the half-time premium owed, back pay and lookback exposure. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Franchise Item 19 Reality Check — what the earnings claim leaves out</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/franchise-item-19-reality-check/"/>
+    <id>tag:marisstella.dev,2026:tool/franchise-item-19-reality-check</id>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free franchise Item 19 reality check. Enter the earnings tiers from a franchise disclosure document and see owner earnings after royalty and ad fund, payback, the average versus the median, and how many units fall below your salary target. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Node Version Drift Check — Do Your package.json, .nvmrc, Dockerfile and CI Agree on Node.js?</title>
@@ -150,21 +166,5 @@
     <updated>2026-10-11T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free home inspector calculator: enter inspections per week, fees by size, add-ons, on-site, report and drive hours, mileage, fall-through, E&amp;O and software, and see profit per inspection and per hour, the fee for your target margin, break-even inspections per month and whether to hire an associate. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Home Sale Net Proceeds Calculator — seller net sheet, capital gains and list price to net</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/home-sale-net-proceeds-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/home-sale-net-proceeds-calculator</id>
-    <updated>2026-10-11T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free home sale net proceeds calculator. See cash at closing after commissions, fees and payoff, estimate capital gains tax, find the list price that nets a target, and compare offers with concessions. Private, in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Hydroseeding Job Bid Calculator — Price per 1,000 Sq Ft, Tank Loads, Profit</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hydroseeding-job-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/hydroseeding-job-bid-calculator</id>
-    <updated>2026-10-11T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free hydroseeding bid calculator: enter seed, mulch, water, tank size, crew, travel and equipment and see the cost and profit of a job, the price per 1,000 sq ft for your target margin, and the season result. Runs in your browser.</summary>
   </entry>
 </feed>

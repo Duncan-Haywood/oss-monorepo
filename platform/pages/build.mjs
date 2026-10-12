@@ -805,6 +805,9 @@ const CATEGORY_RULES = [
       // `franchise-unit-economics-calculator` joined 2026-10-08 on its first commit: a buyer sizing the cash, loan and payback of a franchise
       // unit sits beside `sba-loan-capacity-calculator` and `business-loan-offer-comparator`, the same fund-a-business-purchase job.
       'franchise-unit-economics-calculator',
+      // `franchise-item-19-reality-check` joined 2026-10-12 on its first commit: the franchisor's earnings claim read before the buyer's own cash plan,
+      // beside `franchise-unit-economics-calculator`.
+      'franchise-item-19-reality-check',
       // `microgreens-tray-planner` joined 2026-10-06 on its first commit: growers who sell at the same markets and
       // restaurants, one hop from `backyard-honey-profit-calculator`.
       'microgreens-tray-planner',
@@ -850,6 +853,9 @@ const CATEGORY_RULES = [
       // `ca-meal-rest-break-premium-checker` joined 2026-10-12 on its first commit: the other California-style wage claim the same
       // restaurant and retail owner hits, meal and rest break premium, checked from timecards.
       'ca-meal-rest-break-premium-checker',
+      // `flsa-regular-rate-overtime-audit` joined 2026-10-12 on its first commit: the federal overtime half of the same payroll-claim
+      // exposure, regular rate with bonuses and differentials, for the same restaurant, retail and staffing owner.
+      'flsa-regular-rate-overtime-audit',
       // `time-off-request-planner` joined 2026-10-01 on its first commit: decides which
       // leave requests fit a team's minimum cover; the same owner as the shift tools above.
       'time-off-request-planner',
