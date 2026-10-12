@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'ebike-rental-fleet-profit-calculator':
+    'the hourly wage and payroll extras price counter staff for every open day of a rental season, not a shop labour rate for a job quote; the target margin is a pricing goal for half-day and full-day rental prices, and there is no overhead-on-cost or markup field for a job quote.',
   'cake-pricing-calculator':
     "the hourly wage is the baker's own take-home pay for one custom cake, not a shop labour rate for a job quote; overhead is a percentage of materials plus labor for one order, and the target margin is a share of the final price (fees and margin come out of the price), not a markup on cost.",
   'sawmill-custom-sawing-calculator':
