@@ -3582,3 +3582,18 @@ entries:
         quote reproduces the target margin. Screened against ls ventures (no pilot car or escort venture). First visitor: escort
         operator groups searching how much a pilot car should charge per mile; volume unmeasured.
     mrr_end: 0
+  - venture: golf-simulator-bay-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built golf-simulator-bay-profit-calculator: a browser-only calculator for people planning or running an
+        indoor golf simulator lounge that takes bays, open hours, peak and off-peak rates and utilization, members (whose hours
+        come out of the booked pool), food and drink, staff, rent and the build cost and returns monthly profit, margin, months
+        to pay back the build, break-even utilization (solved exactly, profit is linear in booked hours), the lowest peak and
+        off-peak rates for a target margin and a two-scenario comparison such as three bays against five. Guide page whose
+        worked example the tests recompute; 300 random rooms confirm the lowest rates reproduce the target margin. Screened
+        with duplicate_check.py (nearest 0.30). A first draft in window tinting was dropped after the check missed an existing
+        window-tinting-bid-calculator on a loosely worded query; check with the trade's own words. First visitor: prospective
+        simulator-lounge owners searching how much a golf simulator business makes; volume unmeasured.
+    mrr_end: 0
