@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Courier Van Route Profit Calculator — true profit per route, per hour and per stop</title>
+  <meta name="description" content="Free calculator for independent delivery van contractors. Enter route pay, stops, packages, miles, fuel, van payment, insurance and tax set-aside; it shows true profit per route, per hour and per stop, break-even stops, the lowest route pay that hits your hourly target, and compares two route offers. Private, in your browser.">
+  <meta property="og:title" content="Courier Van Route Profit Calculator — true profit per route, per hour and per stop">
+  <meta property="og:description" content="Free calculator for independent delivery van contractors. Enter route pay, stops, packages, miles, fuel, van payment, insurance and tax set-aside; it shows true profit per route, per hour and per stop, break-even stops, the lowest route pay that hits your hourly target, and compares two route offers. Private, in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Courier Van Route Profit Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free calculator for independent delivery van contractors: true profit per route, per hour and per stop, cost per mile, break-even stops, the minimum route pay for a target hourly after tax set-aside, weekly and annual take-home, and a two-offer comparison. Runs in your browser; nothing is uploaded.","featureList":"delivery van route profit calculator, courier contractor profit per route, cost per mile for a delivery van, break-even stops per route, compare two route offers"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I work out whether a delivery route is worth driving?","acceptedAnswer":{"@type":"Answer","text":"Subtract every cost of running the van on that route from the route pay: fuel for the miles, maintenance and depreciation per mile, tolls and parking, a reserve for tickets and damage claims, and the van payment and insurance spread over the routes you actually drive. What is left is true profit. Divide by the hours on the road and then take out your tax set-aside to get a real hourly take-home."}},{"@type":"Question","name":"What is a good profit per route for a van contractor?","acceptedAnswer":{"@type":"Answer","text":"There is no single number, because routes differ in hours and miles. Compare take-home per hour after the tax set-aside with the hourly you would accept, and compare annual take-home between offers. This tool solves for the lowest route pay that reaches your hourly target."}},{"@type":"Question","name":"How do I include the van payment and insurance in each route?","acceptedAnswer":{"@type":"Answer","text":"Add the monthly van payment or lease and monthly insurance, multiply by 12, and divide by routes per week times weeks per year. A van that works 5 routes a week for 48 weeks carries each route's share of the full year of payments, including the weeks you do not drive."}},{"@type":"Question","name":"How many stops do I need to break even on a route?","acceptedAnswer":{"@type":"Answer","text":"Break-even stops are the stops at which route pay equals route costs: the costs left after any flat route pay, divided by what each stop pays including its share of per-package pay. Miles are held fixed, so treat it as a guide for a route of this length."}},{"@type":"Question","name":"Should I take the route that pays more per hour or more per year?","acceptedAnswer":{"@type":"Answer","text":"Look at both. A shorter route can pay more per hour worked yet put less in your pocket across the year if it fills fewer hours. The compare mode shows take-home per hour and per year for both offers side by side."}},{"@type":"Question","name":"Is my data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Everything runs in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file."}},{"@type":"Question","name":"Is this tax or business advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type. The set-aside is only a percentage you choose; your actual self-employment tax, deductions and insurance needs depend on where you live and how you file. Check with an accountant."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">COURIER VAN ROUTE PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is your delivery route worth driving? True profit per route, per hour and per stop</h1>
+    <p>For independent contractors who own or lease the van. Type the route pay and what the route costs to run. The tool takes out <strong>fuel, van payment, insurance, maintenance, depreciation, tolls and a claims reserve</strong>, then shows what you keep per route, per hour and per stop, the <strong>lowest route pay that hits your hourly target</strong>, and lets you compare two offers.</p>
+    <p class="note">The method with a worked example: <a href="./how-much-profit-per-route-for-delivery-van-contractors.html">how much profit per route delivery van contractors make</a>.</p>
+  </header>
+  <main>
+  <section class="card" id="setup">
+    <h2>1. What the route pays</h2>
+    <p class="note">Use any mix. Route pay = flat + per stop × stops + per package × packages. Leave the ones that do not apply at 0.</p>
+    <div class="row3">
+      <div><label for="pr">Pay per route, flat ($)</label><input type="number" id="pr" min="0" step="1" max="5000" value="90"></div>
+<div><label for="ps">Pay per stop ($)</label><input type="number" id="ps" min="0" step="0.05" max="100" value="1.1"></div>
+<div><label for="pp">Pay per package ($)</label><input type="number" id="pp" min="0" step="0.05" max="100" value="0.4"></div>
+    </div>
+    <h2 style="margin-top:20px">2. The route</h2>
+    <div class="row3">
+      <div><label for="st">Stops on the route</label><input type="number" id="st" min="1" step="1" max="1000" value="120"></div>
+      <div><label for="pk">Packages on the route</label><input type="number" id="pk" min="0" step="1" max="5000" value="160"></div>
+      <div><label for="hr">Route hours (load, drive, deliver, return)</label><input type="number" id="hr" min="0.5" step="0.25" max="20" value="10"></div>
+      <div><label for="mi">Miles driven on the route</label><input type="number" id="mi" min="1" step="1" max="1000" value="95"></div>
+      <div><label for="tl">Tolls and parking per route ($)</label><input type="number" id="tl" min="0" step="1" max="500" value="6"></div>
+    </div>
+    <h2 style="margin-top:20px">3. Your van</h2>
+    <div class="row3">
+      <div><label for="fp">Fuel price ($ per gallon)</label><input type="number" id="fp" min="0.5" step="0.05" max="20" value="3.7"></div>
+      <div><label for="mg">Van miles per gallon</label><input type="number" id="mg" min="1" step="0.5" max="100" value="15"></div>
+      <div><label for="vp">Van payment or lease ($ per month)</label><input type="number" id="vp" min="0" step="10" max="10000" value="650"></div>
+      <div><label for="ins">Insurance ($ per month)</label><input type="number" id="ins" min="0" step="10" max="10000" value="300"></div>
+      <div><label for="mt">Maintenance and tires ($ per mile)</label><input type="number" id="mt" min="0" step="0.01" max="5" value="0.1"></div>
+      <div><label for="dp">Depreciation ($ per mile)</label><input type="number" id="dp" min="0" step="0.01" max="5" value="0.12"></div>
+      <div><label for="rs">Tickets and damage claims reserve ($ per route)</label><input type="number" id="rs" min="0" step="1" max="1000" value="8"></div>
+    </div>
+    <h2 style="margin-top:20px">4. Your week, your year and your target</h2>
+    <div class="row3">
+      <div><label for="tx">Tax set-aside (% of profit)</label><input type="number" id="tx" min="0" step="1" max="60" value="25"></div>
+      <div><label for="rw">Routes you drive per week</label><input type="number" id="rw" min="0.5" step="0.5" max="7" value="5"></div>
+      <div><label for="wy">Weeks you work per year</label><input type="number" id="wy" min="1" step="1" max="52" value="48"></div>
+      <div><label for="th">Hourly you want to take home after set-aside ($)</label><input type="number" id="th" min="0" step="1" max="500" value="18"></div>
+    </div>
+    <button type="button" id="solve">Check this route</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="load-file-btn">Load saved scenario</button>
+    <input type="file" id="load-file" accept=".json,application/json" hidden aria-label="Saved scenario file">
+    <p id="form-status" role="status" class="note">Fill in the numbers, then click Check this route.</p>
+  </section>
+  <section id="result" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div class="scroll"><table id="out"><thead><tr><th>Line</th><th class="num">Per route</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="copy-text">Copy as text</button>
+    <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="save-file">Save scenario</button>
+  </section>
+  <section class="card" id="compare-card">
+    <h2>5. Compare with a second route offer</h2>
+    <p class="note">Offer A is everything above. Offer B shares your van, fuel, insurance, reserve, tax set-aside and weeks per year, and has its own pay, stops, hours, miles, tolls and routes per week.</p>
+    <div class="row3">
+      <div><label for="bpr">Offer B: pay per route, flat ($)</label><input type="number" id="bpr" min="0" step="1" max="5000" value="260"></div>
+<div><label for="bps">Offer B: pay per stop ($)</label><input type="number" id="bps" min="0" step="0.05" max="100" value="0"></div>
+<div><label for="bpp">Offer B: pay per package ($)</label><input type="number" id="bpp" min="0" step="0.05" max="100" value="0"></div>
+<div><label for="bst">Offer B: stops</label><input type="number" id="bst" min="1" step="1" max="1000" value="90"></div>
+<div><label for="bpk">Offer B: packages</label><input type="number" id="bpk" min="0" step="1" max="5000" value="120"></div>
+<div><label for="bhr">Offer B: route hours</label><input type="number" id="bhr" min="0.5" step="0.25" max="20" value="9"></div>
+<div><label for="bmi">Offer B: miles</label><input type="number" id="bmi" min="1" step="1" max="1000" value="70"></div>
+<div><label for="btl">Offer B: tolls and parking ($)</label><input type="number" id="btl" min="0" step="1" max="500" value="2"></div>
+<div><label for="brw">Offer B: routes per week</label><input type="number" id="brw" min="0.5" step="0.5" max="7" value="5"></div>
+    </div>
+    <button type="button" id="compare">Compare the two offers</button>
+    <div id="compare-out"></div>
+  </section>
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Route costs:</strong> fuel (miles ÷ mpg × price), maintenance and depreciation per mile, tolls and parking, the claims reserve, and a fixed share: (van payment + insurance) × 12 ÷ (routes per week × weeks per year). <strong>True profit</strong> is route pay minus those costs, before tax.</p>
+    <p><strong>Tax set-aside</strong> is the percentage you choose applied to a positive profit, a savings target and not a tax calculation. <strong>Minimum route pay:</strong> costs plus target hourly × hours ÷ (1 − set-aside). The test suite checks that paying that amount earns the target to the cent for hundreds of random routes.</p>
+    <p><strong>Break-even stops:</strong> (costs − flat pay) ÷ pay per stop including each stop's share of per-package pay, with miles held fixed.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I work out whether a delivery route is worth driving?</h3>
+    <p>Subtract every cost of running the van on that route from the route pay: fuel for the miles, maintenance and depreciation per mile, tolls and parking, a reserve for tickets and damage claims, and the van payment and insurance spread over the routes you actually drive. What is left is true profit. Divide by the hours on the road and then take out your tax set-aside to get a real hourly take-home.</p>
+    <h3>What is a good profit per route for a van contractor?</h3>
+    <p>There is no single number, because routes differ in hours and miles. Compare take-home per hour after the tax set-aside with the hourly you would accept, and compare annual take-home between offers. This tool solves for the lowest route pay that reaches your hourly target.</p>
+    <h3>How do I include the van payment and insurance in each route?</h3>
+    <p>Add the monthly van payment or lease and monthly insurance, multiply by 12, and divide by routes per week times weeks per year. A van that works 5 routes a week for 48 weeks carries each route's share of the full year of payments, including the weeks you do not drive.</p>
+    <h3>How many stops do I need to break even on a route?</h3>
+    <p>Break-even stops are the stops at which route pay equals route costs: the costs left after any flat route pay, divided by what each stop pays including its share of per-package pay. Miles are held fixed, so treat it as a guide for a route of this length.</p>
+    <h3>Should I take the route that pays more per hour or more per year?</h3>
+    <p>Look at both. A shorter route can pay more per hour worked yet put less in your pocket across the year if it fills fewer hours. The compare mode shows take-home per hour and per year for both offers side by side.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file.</p>
+    <h3>Is this tax or business advice?</h3>
+    <p>No. It is arithmetic on the numbers you type. The set-aside is only a percentage you choose; your actual self-employment tax, deductions and insurance needs depend on where you live and how you file. Check with an accountant.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type, not tax, legal, insurance or financial advice. <strong>Use at your own risk.</strong> Check taxes, insurance and your contract with an accountant or adviser.</p>
+    <p><strong>Independent.</strong> Not affiliated with any delivery platform, carrier, retailer or van manufacturer, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or backups of anything you enter.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>scenario_run</code>, <code>example_loaded</code>, <code>offers_compared</code>, <code>text_copied</code>, <code>csv_downloaded</code>, <code>file_saved</code>) are counted in this browser only, and you can switch that off below.</p>
+    <p>Related tools: the <a href="../mobile-oil-change-route-profit-calculator/">mobile oil change route profit calculator</a>, the <a href="../pet-waste-removal-route-calculator/">pet waste removal route calculator</a> and the <a href="../propane-delivery-route-margin/">propane delivery route margin calculator</a>.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+  <script type="module">
+    import { solve, compareOffers, money, cents, resultText, resultCsv, serializeState, parseState, sampleInput, sampleOffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const A = { payRoute: "pr", payStop: "ps", payPackage: "pp", stops: "st", packages: "pk", hours: "hr", miles: "mi", tolls: "tl", fuelPrice: "fp", mpg: "mg", vanPayment: "vp", insurance: "ins", maintPerMile: "mt", deprPerMile: "dp", reserve: "rs", taxPct: "tx", routesPerWeek: "rw", weeksPerYear: "wy", targetHourly: "th" };
+    const B = { payRoute: "bpr", payStop: "bps", payPackage: "bpp", stops: "bst", packages: "bpk", hours: "bhr", miles: "bmi", tolls: "btl", routesPerWeek: "brw" };
+    let R = null;
+    const readMap = (m) => Object.fromEntries(Object.entries(m).map(([k, id]) => [k, Number($("#" + id).value)]));
+    const fillMap = (m, s) => { for (const [k, id] of Object.entries(m)) if (s[k] !== undefined) $("#" + id).value = s[k]; };
+    function run() {
+      const res = solve(readMap(A));
+      if (!res.ok) { status.textContent = res.errors.join(" "); return false; }
+      R = res; status.textContent = "Done. Scroll down."; render(); return true;
+    }
+    function render() {
+      $("#result").hidden = false;
+      $("#notices").innerHTML = R.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("");
+      $("#big").innerHTML = [[cents(R.profit), "true profit per route, before tax"], [money(R.profitPerHour), "profit per hour, before tax"], [cents(R.takeHomePerHour), "take-home per hour after set-aside"], [cents(R.minPay), "lowest route pay for your target"], [money(R.annualTakeHome), "take-home a year"]].map((x) => "<div><strong>" + x[0] + "</strong>" + x[1] + "</div>").join("");
+      const row = (a, b) => "<tr><td>" + a + '</td><td class="num">' + b + "</td></tr>";
+      $("#out tbody").innerHTML = [
+        row("Route pay", cents(R.pay)), row("Fuel", cents(R.fuel)), row("Maintenance", cents(R.maintenance)), row("Depreciation", cents(R.depreciation)),
+        row("Tolls and parking", cents(R.tolls)), row("Tickets and damage reserve", cents(R.reserve)), row("Van payment and insurance share", cents(R.fixed)),
+        row("<strong>Total costs</strong>", "<strong>" + cents(R.costs) + "</strong>"), row("Cost per mile (all-in)", cents(R.costPerMile)),
+        row("<strong>True profit per route</strong>", "<strong>" + cents(R.profit) + "</strong>"), row("Profit per stop", cents(R.profitPerStop)),
+        row("Tax set-aside", cents(R.setAside)), row("Take-home per route", cents(R.takeHome)),
+        row("Break-even stops", R.breakevenStops === null ? "n/a" : R.breakevenStops.toFixed(1)),
+        row("Weekly take-home", money(R.weeklyTakeHome)), row("Annual take-home", money(R.annualTakeHome)),
+      ].join("");
+    }
+    function download(name, text, type) {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    function compare() {
+      const c = compareOffers(readMap(A), readMap(B));
+      if (!c.ok) { status.textContent = c.errors.join(" "); $("#compare-out").innerHTML = ""; return false; }
+      const col = (x) => "<td class=\"num\">" + x + "</td>";
+      const line = (n, f) => "<tr><td>" + n + "</td>" + col(f(c.a)) + col(f(c.b)) + "</tr>";
+      $("#compare-out").innerHTML = c.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("") + '<div class="scroll"><table><thead><tr><th>Per</th><th class="num">Offer A</th><th class="num">Offer B</th></tr></thead><tbody>' +
+        line("Route pay", (x) => cents(x.pay)) + line("Total costs", (x) => cents(x.costs)) + line("True profit per route", (x) => cents(x.profit)) + line("Take-home per route", (x) => cents(x.takeHome)) +
+        line("Take-home per hour", (x) => cents(x.takeHomePerHour)) + line("Hours a year", (x) => x.annualHours.toFixed(0)) + line("Take-home a year", (x) => money(x.annualTakeHome)) + "</tbody></table></div>";
+      status.textContent = "Compared."; return true;
+    }
+    $("#solve").addEventListener("click", () => setTimeout(() => { if (run()) record("scenario_run"); }, 0));
+    $("#load-example").addEventListener("click", () => { fillMap(A, sampleInput()); fillMap(B, sampleOffer()); setTimeout(() => { if (run()) { record("example_loaded"); status.textContent = "Example: a van contractor, invented numbers. Enter yours above."; } }, 0); });
+    $("#compare").addEventListener("click", () => setTimeout(() => { if (compare()) record("offers_compared"); }, 0));
+    $("#copy-text").addEventListener("click", async () => { if (!R) return; try { await navigator.clipboard.writeText(resultText(R)); status.textContent = "Copied."; record("text_copied"); } catch { status.textContent = "Your browser blocked copying. Use Download CSV instead."; } });
+    $("#dl-csv").addEventListener("click", () => { if (!R) return; download("van-route-profit.csv", resultCsv(R), "text/csv"); record("csv_downloaded"); });
+    $("#save-file").addEventListener("click", () => { if (!R) return; download("van-route.json", serializeState(R.input, readMap(B)), "application/json"); record("file_saved"); });
+    $("#load-file-btn").addEventListener("click", () => $("#load-file").click());
+    $("#load-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; const out = parseState(await f.text()); if (out.error) { status.textContent = out.error; return; } fillMap(A, out.state); if (out.offer) fillMap(B, out.offer); run(); });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>
