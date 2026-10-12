@@ -3044,6 +3044,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `release-notes-generator` graduated (browser and zero-dependency CLI that turn git log into grouped release notes with a suggested semver bump).
     # +1: `3pl-invoice-audit-checker` graduated (browser 3PL invoice audit: rate card, WMS and order-export counts and invoice lines to recoverable overcharges, proving records and a dispute note).
     # +1: `glamping-unit-payback-calculator` graduated (browser glamping worksheet: build and shared cost, seasonal rates and occupancy, loan, to payback, debt coverage and break-even occupancy).
+    # +1: `mini-golf-course-profit-calculator` graduated (browser mini-golf and small fun-center pro forma).
     # +1: `rv-boat-storage-lot-calculator` graduated (browser RV and boat storage lot: acres, land, site cost, rent and occupancy to spaces, NOI, yield on cost, debt coverage, lease-up cash and equity IRR).
     total = 1107  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1107 tools" wording.
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
