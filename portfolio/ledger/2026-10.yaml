@@ -3612,6 +3612,7 @@ entries:
         visitor: owners searching how much a trampoline park makes; volume unmeasured.
     mrr_end: 0
   - venture: axe-throwing-bar-profit-calculator
+  - venture: climbing-gym-profit-calculator
     agent_spend_usd: 0
     human_hours: 0
     outcomes:
@@ -3624,4 +3625,12 @@ entries:
         whose worked example the tests recompute. Screened with duplicate_check.py (nearest 0.28,
         golf-simulator-bay-profit-calculator, a different venue; no axe throwing venture existed). First visitor: owners
         searching how much an axe throwing bar makes; volume unmeasured.
+        Graduated and built climbing-gym-profit-calculator: a browser-only calculator for people planning or running a climbing
+        or bouldering gym that takes day passes, members, membership fee, visits per member, youth programs, parties, shop spend,
+        front desk staff, route setting, rent and the build cost and returns monthly profit, margin, months to pay back the build,
+        break-even members and day passes, the lowest day pass and the lowest membership fee for a target margin and the lowest
+        day pass for a payback target (all solved exactly and verified by round-trip over random gyms), a crowding check against
+        comfortable capacity, a 10%/20% demand sensitivity and a two-scenario comparison. Guide page whose worked example the tests
+        recompute. Screened with duplicate_check.py (nearest 0.23, pickleball-facility-pro-forma; no climbing or membership-led gym
+        venture existed). First visitor: owners searching how much a climbing gym makes; volume unmeasured.
     mrr_end: 0
