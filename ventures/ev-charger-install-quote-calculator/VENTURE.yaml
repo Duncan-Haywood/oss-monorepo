@@ -1,0 +1,53 @@
+name: ev-charger-install-quote-calculator
+description: >-
+  Free browser tool for electricians quoting EV charger installs: enter charger amps, supply voltage, run length, service size and
+  existing demand, and material, permit, labor, overhead and margin figures, and see the breaker and copper conductor at 125% of a
+  continuous load, the voltage drop and the wire size that holds it within 3%, panel headroom, a price at the target margin, and the
+  price at other margins and longer runs. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture-first session. duplicate_check.py nearest was ag-spray-drone-quote-calculator (0.30); no EV
+# charger or residential electrical quoting tool exists in the catalogue. Not in screened-out.md.
+#
+# First visitor: an electrician or solar/electrical contractor adding EV charger installs; search phrases "ev charger installation
+# quote calculator", "ev charger wire size calculator", "ev charger breaker size", "ev charger voltage drop". Volume not measured
+# with an external tool.
+#
+# Who: small electrical contractors. Charger installs are a growing, repeatable job where a long run, a thin panel or a margin
+# calculated as markup quietly eats the profit; a free worksheet that shows circuit, drop, panel room and price together is a lead
+# magnet for a later saved-quotes / customer-proposal version.
+#
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. A branded customer proposal PDF and saved
+# quote templates behind an env-var switch is the possible paid version, not built.
+#
+# Liability: arithmetic on the user's own figures with every rule visible on the page. The ampacity table is the 75 C copper column
+# of NEC Table 310.16; the page says it is not a code determination and lists what it leaves out (code edition, derating, conduit,
+# grounding, GFCI, load management, aluminum). The sample figures are labelled illustrative, bad input is rejected instead of
+# clamped, and the page carries the no-warranty and not-advice clauses.
+
+hypotheses:
+  - claim: >-
+      An electrician quoting an EV charger install will enter amps, run length and costs into a free worksheet, because the circuit
+      size, voltage drop, panel room and margin-correct price otherwise live in four separate places.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that the sizing, voltage-drop or price arithmetic differs from the stated rules on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ev-charger-install-quote-calculator/
+  analytics: null

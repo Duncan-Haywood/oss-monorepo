@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EV Charger Install Quote Calculator — Circuit, Voltage Drop, Price</title>
+  <meta name="description" content="Free EV charger installation quote calculator for electricians: charger amps and run length become breaker and wire size, voltage drop, panel headroom, and a price at your target margin. Private, runs in your browser.">
+  <meta property="og:title" content="EV charger install quote calculator for electricians. Free, private">
+  <meta property="og:description" content="Charger amps and run length in; breaker, wire size, voltage drop, panel headroom and a margin-based price out.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "EV Charger Install Quote Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do you size a circuit for an EV charger?", "acceptedAnswer": {"@type": "Answer", "text": "An EV charger is a continuous load, so the breaker and conductors are sized at 125% of the charger's rated amps. A 32 A charger needs a 40 A circuit, a 48 A charger needs 60 A. This worksheet does that arithmetic and picks the next standard breaker size; your adopted code and the charger's manual decide."}}, {"@type": "Question", "name": "How much does it cost to quote an EV charger install?", "acceptedAnswer": {"@type": "Answer", "text": "Add the charger if you supply it, conductor by the foot, breaker and fittings, permit, and labor that grows with the run, then overhead. Price divides cost by one minus your target margin, so a 30% margin on $700 of cost is $1,000, not $910."}}, {"@type": "Question", "name": "What is voltage drop and why does it change the wire size?", "acceptedAnswer": {"@type": "Answer", "text": "Current through a long run loses voltage along the conductor. This page works it out as 2 x 12.9 x amps x one-way feet / circular mils for copper and steps the conductor up until the drop is within 3%, a common design target. It is guidance, not a code requirement for every branch circuit."}}, {"@type": "Question", "name": "Does the panel have room for the charger?", "acceptedAnswer": {"@type": "Answer", "text": "Enter the service size and the existing demand from your own load calculation. The page subtracts the charger's 125% load and flags when little or nothing is left, which is when load management or a service upgrade comes into the quote."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">EV CHARGER INSTALL QUOTE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Quote an EV charger install: circuit size, voltage drop, panel room and a price that holds your margin</h1>
+    <p>Enter the charger's amps, the run length, the panel and your costs. You get the <strong>breaker and copper conductor</strong> at 125% of a continuous load, the <strong>voltage drop</strong> and the wire size that keeps it within 3%, <strong>panel headroom</strong>, and a <strong>price at your target margin</strong> with the price at other margins and longer runs.</p>
+    <p class="note">It is arithmetic on your figures. It is not a code determination; the licensed electrician designs, permits and signs the install.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>The job</h2>
+    <div class="grid">
+      <div><label for="chargerAmps">Charger output, amps (nameplate)</label><input id="chargerAmps" inputmode="decimal" value="" placeholder="32"></div>
+      <div><label for="volts">Supply voltage</label><input id="volts" inputmode="decimal" value="" placeholder="240"></div>
+      <div><label for="runFt">One-way run, panel to charger, feet</label><input id="runFt" inputmode="decimal" value="" placeholder="60"></div>
+      <div><label for="serviceAmps">Service size, amps</label><input id="serviceAmps" inputmode="decimal" value="" placeholder="200"></div>
+      <div><label for="existingAmps">Existing calculated demand, amps (from your load calculation)</label><input id="existingAmps" inputmode="decimal" value="" placeholder="135"></div>
+      <div><label for="chargerCost">Charger cost if you supply it, dollars (0 if the customer does)</label><input id="chargerCost" inputmode="decimal" value="" placeholder="0"></div>
+      <div><label for="wirePerFt">Conductor cost per foot of run, whole set, dollars</label><input id="wirePerFt" inputmode="decimal" value="" placeholder="3.40"></div>
+      <div><label for="materials">Breaker, conduit fittings, box, other materials, dollars</label><input id="materials" inputmode="decimal" value="" placeholder="180"></div>
+      <div><label for="permit">Permit and inspection fees, dollars</label><input id="permit" inputmode="decimal" value="" placeholder="120"></div>
+      <div><label for="baseHours">Base labor hours (mount, terminate, test)</label><input id="baseHours" inputmode="decimal" value="" placeholder="3.5"></div>
+      <div><label for="hoursPer100Ft">Extra labor hours per 100 ft of run</label><input id="hoursPer100Ft" inputmode="decimal" value="" placeholder="2"></div>
+      <div><label for="laborRate">Labor cost per hour, dollars</label><input id="laborRate" inputmode="decimal" value="" placeholder="95"></div>
+      <div><label for="overheadPct">Overhead on cost, %</label><input id="overheadPct" inputmode="decimal" value="" placeholder="12"></div>
+      <div><label for="marginPct">Target margin on price, %</label><input id="marginPct" inputmode="decimal" value="" placeholder="30"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out the quote</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the job, then click Work out the quote.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>Price at other margins</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Margin</th><th scope="col" class="n">Price</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <h3>If the run is longer</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Extra feet</th><th scope="col" class="n">Run</th><th scope="col" class="n">Price</th></tr></thead><tbody id="run-rows"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download margin table (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Counts:</strong> required ampacity and breaker = 125% of charger amps, breaker rounded up to the next standard size; conductor = smallest copper size whose 75 C table ampacity covers it (12 to 1 AWG); voltage drop = 2 x 12.9 x amps x one-way feet / circular mils; the conductor steps up until the drop is 3% or less.</li>
+      <li><strong>Panel:</strong> service amps minus the existing demand you enter minus the charger's 125% load. The existing demand must come from your own load calculation.</li>
+      <li><strong>Price:</strong> cost = (charger + conductor per foot x run + materials + permit + labor) x (1 + overhead); price = cost / (1 - margin).</li>
+      <li><strong>Not decided:</strong> the adopted code edition and local amendments, conductor type and temperature derating, conduit fill and burial depth, grounding, GFCI and disconnect requirements, load-management rules, utility rebates and interconnection, aluminum conductors, and whether the charger's manual requires more.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How do you size a circuit for an EV charger?</h3>
+    <p>An EV charger is a continuous load, so the breaker and conductors are sized at 125% of the charger's rated amps. A 32 A charger needs a 40 A circuit, a 48 A charger needs 60 A. This worksheet does that arithmetic and picks the next standard breaker size; your adopted code and the charger's manual decide.</p>
+    <h3>How much does it cost to quote an EV charger install?</h3>
+    <p>Add the charger if you supply it, conductor by the foot, breaker and fittings, permit, and labor that grows with the run, then overhead. Price divides cost by one minus your target margin, so a 30% margin on $700 of cost is $1,000, not $910.</p>
+    <h3>What is voltage drop and why does it change the wire size?</h3>
+    <p>Current through a long run loses voltage along the conductor. This page works it out as 2 x 12.9 x amps x one-way feet / circular mils for copper and steps the conductor up until the drop is within 3%, a common design target. It is guidance, not a code requirement for every branch circuit.</p>
+    <h3>Does the panel have room for the charger?</h3>
+    <p>Enter the service size and the existing demand from your own load calculation. The page subtracts the charger's 125% load and flags when little or nothing is left, which is when load management or a service upgrade comes into the quote.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, electrical engineering, code-compliance, or financial advice, and it does not replace a licensed electrician or the authority having jurisdiction. You are responsible for reviewing and verifying its output before quoting or installing, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, sweepCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { chargerAmps: "chargerAmps", volts: "volts", runFt: "runFt", serviceAmps: "serviceAmps", existingAmps: "existingAmps", chargerCost: "chargerCost", wirePerFt: "wirePerFt", materials: "materials", permit: "permit", baseHours: "baseHours", hoursPer100Ft: "hoursPer100Ft", laborRate: "laborRate", overheadPct: "overheadPct", marginPct: "marginPct" };
+    const IDLE = "Fill in the job, then click Work out the quote.";
+    const money = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      const s = r.sizing;
+      $("#due").textContent = `${money(r.quote.price)} at ${r.input.marginPct}% margin; ${s.breaker} A breaker, ${s.chosen.awg} AWG copper; ${s.vd.pct.toFixed(1)}% drop`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#rows").innerHTML = r.marginSweep.map((x) => `<tr><td class="n">${x.margin}%</td><td class="n">${money(x.price)}</td></tr>`).join("");
+      $("#run-rows").innerHTML = r.runSweep.map((x) => `<tr><td class="n">+${x.extra} ft</td><td class="n">${x.run} ft</td><td class="n">${money(x.price)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: 32 A charger, 60 ft run, 200 A service. Illustrative figures, not prices or code advice.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("ev-charger-quote.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("ev-charger-quote-margins.csv", sweepCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -3733,3 +3733,16 @@ entries:
         midterm-rental-calculator, which is the landlord's furnished-versus-lease decision, not the tenant-operator's).
         First visitor: people searching rental arbitrage calculator; volume unmeasured.
     mrr_end: 0
+  - venture: ev-charger-install-quote-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built ev-charger-install-quote-calculator: a browser-only worksheet for electricians quoting EV charger
+        installs. Takes charger amps, voltage, run length, service size, existing demand and material, permit, labor, overhead
+        and margin figures, and returns the breaker and copper conductor at 125% of a continuous load, voltage drop with the
+        conductor stepped up until it is within 3%, panel headroom, a price at the target margin, and price tables across
+        margins and longer runs. Hand-computed unit tests (10) plus page and usage tests. Screened with duplicate_check.py
+        (nearest 0.30, ag-spray-drone-quote-calculator); no electrical-trade EV quoting tool existed. First visitor: electricians
+        searching ev charger installation quote or wire size; volume unmeasured.
+    mrr_end: 0
