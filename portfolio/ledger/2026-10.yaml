@@ -3711,3 +3711,17 @@ entries:
         budget arithmetic. No patent or trademark docketing tool existed in the catalogue. First visitor: people searching
         when a patent maintenance fee is due; volume unmeasured.
     mrr_end: 0
+  - venture: str-arbitrage-lease-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built str-arbitrage-lease-calculator: a browser-only worksheet for people who lease a unit to sublet it by
+        the night. Takes rent, utilities, furnishing and setup cost, deposit, nightly rate, occupancy, stay length, cleaning fee,
+        turnover cost, commission, months left on the lease and a ramp-up period, and returns profit in a steady month,
+        break-even occupancy, the month furnishing is earned back, net over the lease after resale, the steady occupancy and
+        nightly rate that net zero over the lease (closed form, checked by plugging the answer back in), an occupancy table and a
+        rent-increase table. Hand-computed unit tests (12). Screened with duplicate_check.py (nearest 0.56,
+        midterm-rental-calculator, which is the landlord's furnished-versus-lease decision, not the tenant-operator's).
+        First visitor: people searching rental arbitrage calculator; volume unmeasured.
+    mrr_end: 0
