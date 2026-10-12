@@ -1,0 +1,58 @@
+name: vendor-contract-clause-reader
+description: >-
+  Free browser tool for small-business buyers, finance and ops leads: paste a SaaS or vendor agreement and get the key commercial
+  terms (start, term, auto-renewal and renewal length, non-renewal notice, annual fee, price increase, payment terms, liability
+  cap), each shown with the sentence it came from, a dated calendar of price steps and the cancel-by deadline that downloads as
+  .ics, the fee schedule with what a missed deadline commits you to, and the clauses to negotiate (list-price renewal, vendor may
+  change terms, no exit, tiny liability cap without carve-outs, one-way indemnity, missing data terms). Read locally, never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture-first scheduled session. duplicate_check.py: closest venture 0.38 (saas-renewal-planner,
+# which tracks structured renewal rows the user already typed in; nothing reads contract text). Sibling of
+# commercial-lease-abstract-reader (same method, different document and buyer).
+#
+# Why this niche: every SaaS and services vendor ships an auto-renewing order form, and the buyer is a founder or office manager
+# with no counsel. Contract-review products (Ironclad, Juro, Spellbook, LegalOn) sell to legal teams; vendr and Tropic sell
+# procurement to larger companies; the small buyer with one 12-page order form has nothing. A missed 60 to 90 day notice window
+# commits a full renewal term, so the cancel-by date is the hook.
+#
+# First visitor: a founder or ops lead searching "saas contract auto renewal notice", "how to cancel auto renewal contract",
+# "limitation of liability clause saas", "then-current list price renewal". Volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet; paid version is a contract portfolio tracker with email reminders and
+# redline-ready counter-wording behind an env-var switch; a bring-your-own-key model extraction mode for unusual wording fits the
+# API-key switch in PRODUCT_PLAYBOOK.md section 3. Neither is built.
+#
+# Liability: reads the user's own text with fixed visible rules; shows the source sentence for every extracted value; never says a
+# contract is safe or fair; carries the no-warranty and not-legal-advice clauses; lists enforceability, fairness and the decision
+# to sign as not decided.
+#
+# Unverified: no buyer or attorney has run a real order form through it yet. Rules are regular expressions over normalized text,
+# so unusual wording, terms in separate exhibits, or linked online terms can be missed. First wrong-extraction report is priority.
+
+hypotheses:
+  - claim: >-
+      A small-business buyer handed an auto-renewing vendor agreement will paste it into a no-upload page to get the cancel-by date
+      and the clauses to push back on, because one missed notice window commits a full extra term of fees.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted contract structure) engage with the tool by 2027-03-15.
+  - A buyer or attorney reports a plain agreement whose dates or fees the page mis-reads, at which point the extraction rules need revisiting before more usage is sought.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/vendor-contract-clause-reader/
+  analytics: null
