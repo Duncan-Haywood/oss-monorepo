@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Equipment Lease vs Buy Calculator — After-Tax Cost of Each, Break-Even Resale Value</title>
+  <meta name="description" content="Should your business lease or buy the equipment? Compare the after-tax present-value cost of a loan purchase (with Section 179, bonus or MACRS depreciation and resale value) against a lease, with the lease's implied interest rate and the break-even resale value. Free, private, in your browser.">
+  <meta property="og:title" content="Equipment Lease vs Buy Calculator"><meta property="og:description" content="After-tax present-value cost of leasing versus buying equipment, with depreciation method, resale value, the lease's implied interest rate and the break-even resale value. Private, in your browser.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Equipment Lease vs Buy Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"After-tax present-value cost of lease and loan purchase, depreciation method comparison, implied lease interest rate, break-even resale value, sensitivity table, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is it cheaper to lease or buy business equipment?","acceptedAnswer":{"@type":"Answer","text":"It depends on four things: the interest rate hidden in the lease, how fast you can deduct a purchase, what the equipment is worth when you are finished with it, and your tax rate. Comparing monthly payments hides all four. This calculator turns both quotes into an after-tax present-value cost over the same period, so the comparison is one number you can sanity-check against your accountant's view."}},{"@type":"Question","name":"What interest rate is my equipment lease really charging?","acceptedAnswer":{"@type":"Answer","text":"A lease rarely quotes a rate. Find the rate at which your monthly payments, the amount due at signing and the value at the end of the term add up to the equipment price: that is the rate you are paying to use someone else's money. The calculator solves it for you using your resale estimate, or your buyout price if you plan to keep the equipment. Compare it with the loan APR you were offered; a lease can still win when it carries a higher rate, but only if resale value or tax treatment makes up the difference."}},{"@type":"Question","name":"How much does Section 179 or bonus depreciation change the answer?","acceptedAnswer":{"@type":"Answer","text":"Deducting the whole purchase in year one pulls tax savings forward, which lowers the present-value cost of buying; slower methods such as MACRS spread the same deduction over several years. The calculator re-runs your quotes under five methods so you can see how much of the result comes from the deduction itself. Whether you actually qualify for expensing depends on your business, your income and the equipment, so ask your tax preparer before relying on it."}},{"@type":"Question","name":"What resale value makes leasing and buying equal?","acceptedAnswer":{"@type":"Answer","text":"The break-even resale value is the end-of-term price at which both paths cost the same after tax. If you expect the equipment to fetch more, buying wins; if less, leasing does. It is usually the most useful number here, because resale value is the input you know least about and it is often easier to judge whether the equipment will beat a figure than to predict an exact price."}},{"@type":"Question","name":"Is my equipment quote uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator runs entirely in your browser. Your prices, rates and tax rate are never sent anywhere. The share link stores your inputs in the link itself, so anyone you send it to sees those numbers, and the optional usage counter records only which features were used and the day."}}]}</script>
+  <style>
+    :root{--bg:#eef1f6;--fg:#20232a;--card:#fff;--line:#c7d0dd;--field:#a7b2c4;--accent:#1f4fbf;--warn:#9a3d00;--ok:#0f6b3a;--res:#18233c;--res-fg:#f3f6ff;--res-warn:#ffd09c;--res-ok:#a9e6c3;--res-line:#ffffff2b;font-family:system-ui,sans-serif;color:var(--fg);background:var(--bg)}
+    @media (prefers-color-scheme:dark){:root{--bg:#12151c;--fg:#e6e9f0;--card:#1b202b;--line:#333c4d;--field:#4a566b;--accent:#8fb2ff;--warn:#ffb27a;--ok:#7fd9a6}}
+    body{max-width:1040px;margin:auto;padding:32px 16px;background:var(--bg);color:var(--fg)}
+    header{max-width:720px}h1{font-size:clamp(2rem,6vw,3.6rem);line-height:1;letter-spacing:-.04em;margin:8px 0 16px}
+    a{color:var(--accent)}
+    .layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:18px;align-items:start}
+    section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+    h2{font-size:1.1rem;margin-top:0}h3{font-size:1rem}
+    fieldset{border:0;padding:0;margin:0 0 16px;display:grid;gap:12px}legend{font-weight:700;margin-bottom:8px;padding:0}
+    label{display:grid;gap:4px;font-weight:650;font-size:.9rem}
+    .hint{font-weight:400;font-size:.8rem;opacity:.8}
+    input,select,textarea{font:inherit;padding:9px;border:1px solid var(--field);border-radius:7px;background:var(--card);color:var(--fg);min-width:0}
+    input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+    button{font:inherit;padding:9px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+    @media (prefers-color-scheme:dark){button{color:#0b1020}}
+    button.secondary{background:transparent;color:var(--accent)}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    #result{background:var(--res);color:var(--res-fg);border-color:var(--res)}#result a{color:#bcd7ff}
+    .hero{font-size:2.4rem;font-weight:800;letter-spacing:-.03em;margin:6px 0}.ok{color:var(--res-ok)}.warn{color:var(--res-warn)}
+    .err{color:var(--warn);font-weight:650}
+    .tablewrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;margin:8px 0 16px;font-size:.88rem}
+    th,td{padding:6px 5px;border-bottom:1px solid var(--res-line);text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left}
+    caption{text-align:left;font-weight:700;padding-bottom:4px}
+    dl{display:grid;grid-template-columns:1fr auto;gap:8px;margin:12px 0}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;text-align:right}
+    .note{font-size:.83rem;opacity:.85;line-height:1.45}
+    #faq,footer{max-width:1040px;margin:18px auto 0}footer{font-size:.83rem}
+    footer label{display:flex;align-items:center;gap:8px;font-weight:600}footer input[type=checkbox]{width:auto;padding:0}
+    #result button.secondary{color:#bcd7ff;border-color:#bcd7ff}
+    @media(max-width:760px){.layout{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header>
+    <p>FOR BUSINESS OWNERS AND OPERATORS</p>
+    <h1>Lease or buy the equipment? Compare the after-tax cost.</h1>
+    <p>Enter the quote you were given for a purchase loan and for a lease. The calculator puts both on one after-tax, present-value basis, shows the <strong>interest rate hiding in the lease</strong>, and finds the <strong>resale value at which the two cost the same</strong>. It runs privately in your browser.</p>
+  </header>
+  <main class="layout">
+    <section aria-labelledby="inputs-h">
+      <h2 id="inputs-h">Your two quotes</h2>
+      <form id="form" autocomplete="off" novalidate>
+        <fieldset><legend>Buying</legend>
+          <label for="price">Equipment price ($)<input id="price" type="number" min="0" step="100" value="80000" inputmode="decimal"></label>
+          <label for="salesTaxPct">Sales tax (%)<input id="salesTaxPct" type="number" min="0" max="20" step="any" value="6" inputmode="decimal"></label>
+          <label for="downPaymentPct">Down payment (% of price plus tax)<input id="downPaymentPct" type="number" min="0" max="100" step="any" value="10" inputmode="decimal"></label>
+          <label for="loanAprPct">Loan APR (%)<input id="loanAprPct" type="number" min="0" max="60" step="any" value="8" inputmode="decimal"></label>
+          <label for="loanTermMonths">Loan term (months)<input id="loanTermMonths" type="number" min="1" max="120" step="1" value="60" inputmode="numeric"></label>
+        </fieldset>
+        <fieldset><legend>Leasing</legend>
+          <label for="leaseMonthlyPayment">Lease payment per month ($)<input id="leaseMonthlyPayment" type="number" min="0" step="10" value="1550" inputmode="decimal"></label>
+          <label for="leaseTermMonths">Lease term (months) — also the comparison period<input id="leaseTermMonths" type="number" min="1" max="120" step="1" value="60" inputmode="numeric"></label>
+          <label for="leaseDueAtSigning">Due at signing, excluding monthly payments ($)<input id="leaseDueAtSigning" type="number" min="0" step="100" value="3300" inputmode="decimal"></label>
+          <label for="leaseEndBuyout">Buyout price if you keep it at the end ($)<span class="hint">0 means you return the equipment</span><input id="leaseEndBuyout" type="number" min="0" step="100" value="0" inputmode="decimal"></label>
+        </fieldset>
+        <fieldset><legend>Assumptions</legend>
+          <label for="resaleValue">Expected resale value at the end of the lease term ($)<input id="resaleValue" type="number" min="0" step="100" value="20000" inputmode="decimal"></label>
+          <label for="depreciation">How you would deduct a purchase
+            <select id="depreciation"><option value="expense" selected>Expense it all in year 1 (Section 179 or 100% bonus, if you qualify)</option><option value="macrs5">5-year MACRS (half-year convention)</option><option value="macrs7">7-year MACRS (half-year convention)</option><option value="sl5">5-year straight line (half-year convention)</option><option value="none">No tax deduction for depreciation</option></select></label>
+          <label for="taxRatePct">Marginal income tax rate on business profit (%)<input id="taxRatePct" type="number" min="0" max="60" step="any" value="25" inputmode="decimal"></label>
+          <label for="discountRatePct">Discount rate: what spare cash earns or costs you (%)<input id="discountRatePct" type="number" min="0" max="60" step="any" value="8" inputmode="decimal"></label>
+        </fieldset>
+      </form>
+      <p class="note">Payments are monthly in arrears. Interest and lease payments save tax as they are paid; depreciation saves tax at the end of each year. Any gain on the equipment's sale over its remaining tax basis is taxed at your rate. Not modelled: Section 179 dollar limits and income caps, business-use percentage, state differences, maintenance, insurance and downtime.</p>
+    </section>
+
+    <section id="result" aria-live="polite" aria-labelledby="result-h">
+      <h2 id="result-h">Result</h2>
+      <p id="errors" class="warn" role="alert" hidden></p>
+      <div id="out">
+        <div id="headline" class="hero"></div><div id="subhead"></div>
+        <dl>
+          <dt>After-tax present-value cost of buying</dt><dd id="buyCost"></dd>
+          <dt>After-tax present-value cost of leasing</dt><dd id="leaseCost"></dd>
+          <dt>Break-even resale value</dt><dd id="breakEven"></dd>
+          <dt>Interest rate implied by the lease</dt><dd id="impliedApr"></dd>
+          <dt>Monthly loan payment</dt><dd id="loanPay"></dd>
+          <dt>Cash out over the term, before tax (buy / lease)</dt><dd id="nominal"></dd>
+        </dl>
+        <p id="notes" class="warn" hidden></p>
+        <h3>Deduction method compared</h3>
+        <div class="tablewrap"><table><caption>Same quotes, five ways to deduct a purchase</caption><thead><tr><th scope="col">Method</th><th scope="col">Buy cost</th><th scope="col">Buying saves</th></tr></thead><tbody id="methods"></tbody></table></div>
+        <h3>Sensitivity</h3>
+        <div class="tablewrap"><table><caption>How much buying saves (negative: leasing is cheaper) by resale value and discount rate</caption><thead id="sensHead"></thead><tbody id="sens"></tbody></table></div>
+        <div class="actions"><button type="button" id="csv">Download CSV</button><button type="button" id="share" class="secondary">Copy shareable link</button></div>
+        <p id="shareMsg" class="note" role="status"></p>
+      </div>
+    </section>
+  </main>
+
+  <section id="faq">
+    <h2>Common questions</h2>
+
+    <h3>Is it cheaper to lease or buy business equipment?</h3>
+    <p>It depends on four things: the interest rate hidden in the lease, how fast you can deduct a purchase,
+      what the equipment is worth when you are finished with it, and your tax rate. Comparing monthly payments
+      hides all four. This calculator turns both quotes into an after-tax present-value cost over the same
+      period, so the comparison is one number you can sanity-check against your accountant's view.</p>
+
+    <h3>What interest rate is my equipment lease really charging?</h3>
+    <p>A lease rarely quotes a rate. Find the rate at which your monthly payments, the amount due at signing and
+      the value at the end of the term add up to the equipment price: that is the rate you are paying to use
+      someone else's money. The calculator solves it for you using your resale estimate, or your buyout price if
+      you plan to keep the equipment. Compare it with the loan APR you were offered; a lease can still win when
+      it carries a higher rate, but only if resale value or tax treatment makes up the difference.</p>
+
+    <h3>How much does Section 179 or bonus depreciation change the answer?</h3>
+    <p>Deducting the whole purchase in year one pulls tax savings forward, which lowers the present-value cost of
+      buying; slower methods such as MACRS spread the same deduction over several years. The calculator re-runs
+      your quotes under five methods so you can see how much of the result comes from the deduction itself. Whether
+      you actually qualify for expensing depends on your business, your income and the equipment, so ask your tax
+      preparer before relying on it.</p>
+
+    <h3>What resale value makes leasing and buying equal?</h3>
+    <p>The break-even resale value is the end-of-term price at which both paths cost the same after tax. If you
+      expect the equipment to fetch more, buying wins; if less, leasing does. It is usually the most useful number
+      here, because resale value is the input you know least about and it is often easier to judge whether the
+      equipment will beat a figure than to predict an exact price.</p>
+
+    <h3>Is my equipment quote uploaded anywhere?</h3>
+    <p>No. The calculator runs entirely in your browser. Your prices, rates and tax rate are never sent anywhere.
+      The share link stores your inputs in the link itself, so anyone you send it to sees those numbers, and the
+      optional usage counter records only which features were used and the day.</p>
+  </section>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendor. We count only anonymous feature events in local storage, and you can turn that off above. Do Not Track and Global Privacy Control disable counting automatically.</p>
+    <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+    <p>Already leasing and deciding whether to keep it? The <a href="../equipment-lease-buyout-calculator/">equipment lease buyout calculator</a> prices a lease-end payoff against replacing the equipment.</p>
+    <p>Want the deduction on its own? The <a href="../bonus-depreciation-calculator/">bonus depreciation calculator</a> and the <a href="../depreciation-recapture-calculator/">depreciation recapture calculator</a> cover each side of it.</p>
+    <p>Comparing loan offers? The <a href="../business-loan-offer-comparator/">business loan offer comparator</a> puts several quotes on the same footing.</p>
+  </footer>
+
+  <script type="module">
+    import { compareLeaseVsBuy, toCsv, encodeState, decodeState } from './calc.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const FIELDS = ['price','salesTaxPct','downPaymentPct','loanAprPct','loanTermMonths','leaseMonthlyPayment','leaseTermMonths','leaseDueAtSigning','leaseEndBuyout','resaleValue','depreciation','taxRatePct','discountRatePct'];
+    const $ = (id) => document.getElementById(id);
+    const usd = (n) => { const s = '$' + Math.round(Math.abs(n)).toLocaleString('en-US'); return n < -0.5 ? '-' + s : s; };
+    const pct = (n) => (Math.round(n * 10) / 10).toLocaleString('en-US') + '%';
+    let last = null;
+
+    const values = () => Object.fromEntries(FIELDS.map((id) => [id, $(id).value]));
+
+    try {
+      const saved = decodeState(location.hash.replace(/^#/, '') || location.search);
+      for (const [k, v] of Object.entries(saved)) if ($(k)) $(k).value = v;
+    } catch { /* a malformed link just falls back to the defaults */ }
+
+    function row(tbody, cells, header = false) {
+      const tr = document.createElement('tr');
+      cells.forEach((c, i) => {
+        const cell = document.createElement(header || i === 0 ? 'th' : 'td');
+        if (cell.tagName === 'TH') cell.scope = header ? 'col' : 'row';
+        cell.textContent = c;
+        tr.appendChild(cell);
+      });
+      tbody.appendChild(tr);
+    }
+
+    function render(count = true) {
+      const errors = $('errors'); const out = $('out');
+      try {
+        const r = compareLeaseVsBuy(values());
+        last = r;
+        errors.hidden = true; errors.textContent = ''; out.hidden = false;
+        const head = $('headline'); const sub = $('subhead');
+        if (r.winner === 'tie') { head.textContent = 'About even'; head.className = 'hero'; sub.textContent = 'The two paths cost the same after tax.'; }
+        else if (r.winner === 'buy') { head.textContent = 'Buying saves ' + usd(r.advantage); head.className = 'hero ok'; sub.textContent = 'After tax, in today\'s dollars, over the ' + r.inputs.leaseTermMonths + '-month term.'; }
+        else { head.textContent = 'Leasing saves ' + usd(-r.advantage); head.className = 'hero ok'; sub.textContent = 'After tax, in today\'s dollars, over the ' + r.inputs.leaseTermMonths + '-month term.'; }
+        $('buyCost').textContent = usd(r.buyCost);
+        $('leaseCost').textContent = usd(r.leaseCost);
+        $('breakEven').textContent = r.breakEvenResale === null ? 'none (one path wins at any value)' : usd(r.breakEvenResale);
+        $('impliedApr').textContent = r.impliedLeaseAprPct === null ? 'not computable' : pct(r.impliedLeaseAprPct) + ' vs ' + pct(r.inputs.loanAprPct) + ' loan';
+        $('loanPay').textContent = usd(r.monthlyLoanPayment);
+        $('nominal').textContent = usd(r.buyCashOutNominal) + ' / ' + usd(r.leaseCashOutNominal);
+        const nt = $('notes'); nt.hidden = r.notes.length === 0; nt.textContent = r.notes.join(' ');
+
+        const mb = $('methods'); mb.replaceChildren();
+        for (const m of r.methods) row(mb, [m.label, usd(m.buyCost), usd(m.advantage)]);
+
+        const sh = $('sensHead'); sh.replaceChildren();
+        const discounts = [...new Set(r.sensitivity.map((c) => c.discountRatePct))];
+        const mults = [...new Set(r.sensitivity.map((c) => c.residualMultiplier))];
+        row(sh, ['Resale value', ...discounts.map((d) => pct(d) + ' discount rate')], true);
+        const sb = $('sens'); sb.replaceChildren();
+        for (const m of mults) {
+          row(sb, [usd(r.inputs.resaleValue * m), ...discounts.map((d) => usd(r.sensitivity.find((x) => x.residualMultiplier === m && x.discountRatePct === d).advantage))]);
+        }
+        if (count) recordUsage('comparison_calculated', $('usageOptOut').checked);
+      } catch (e) {
+        // Hide the last valid readout so a stale comparison never sits next to an error.
+        last = null;
+        errors.textContent = e.message; errors.hidden = false; out.hidden = true;
+      }
+    }
+
+    FIELDS.forEach((id) => $(id).addEventListener('input', () => render()));
+    $('usageOptOut').addEventListener('change', () => render(false));
+
+    $('csv').addEventListener('click', () => {
+      if (!last) return;
+      const blob = new Blob([toCsv(last)], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = 'equipment-lease-vs-buy.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      recordUsage('csv_exported', $('usageOptOut').checked);
+    });
+
+    $('share').addEventListener('click', async () => {
+      const url = location.origin + location.pathname + '#' + encodeState(values());
+      try { history.replaceState(null, '', url); } catch { /* optional */ }
+      try { await navigator.clipboard.writeText(url); $('shareMsg').textContent = 'Link copied. It contains your inputs, so share it only with people who may see them.'; }
+      catch { $('shareMsg').textContent = 'Copy this link from the address bar. It contains your inputs.'; }
+      recordUsage('share_link_copied', $('usageOptOut').checked);
+    });
+
+    {
+      const control = $('usageOptOut');
+      try {
+        control.checked = readOptOut(localStorage);
+        control.addEventListener('change', () => writeOptOut(localStorage, control.checked));
+      } catch { /* storage blocked: counting stays off the persisted path */ }
+    }
+    render(false);
+  </script>
+</body>
+</html>
