@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Scrap Metal Yard Payout Calculator — which yard nets more, split the load, strip the wire</title>
+  <meta name="description" content="Free scrap metal calculator: type your lots, each yard&#x27;s per-pound or per-ton prices, the miles and minutes to get there, and see what the load nets at each yard after fuel, time and fees, whether to split it, and whether to strip copper wire. Private, in your browser.">
+  <meta property="og:title" content="Scrap Metal Yard Payout Calculator — which yard nets more, split the load, strip the wire">
+  <meta property="og:description" content="Free scrap metal calculator: type your lots, each yard&#x27;s per-pound or per-ton prices, the miles and minutes to get there, and see what the load nets at each yard after fuel, time and fees, whether to split it, and whether to strip copper wire. Private, in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Scrap Metal Yard Payout Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free calculator for scrappers, electricians, plumbers and demolition crews: what a load of scrap nets at each of two yards after the drive, whether to split it, what a price drop does, and whether stripping wire beats selling it insulated. Runs in your browser; nothing is uploaded.","featureList":"scrap metal payout calculator, scrap yard comparison, strip wire or sell insulated, net after fuel and time"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I strip copper wire or sell it insulated?","acceptedAnswer":{"@type":"Answer","text":"Compare what the stripped copper sells for, minus the insulated price you give up, minus the value of your time. The calculator does it for your wire: pounds, insulated price, bare copper price, the share of the weight that comes out as copper, and minutes per pound. It also shows the recovery percentage where stripping stops paying, so you can test a different yard price or a faster stripper."}},{"@type":"Question","name":"Is it worth driving farther to a yard that pays more per pound?","acceptedAnswer":{"@type":"Answer","text":"Only if the extra pay covers the extra miles, time and any handling fee. The calculator nets each yard after fuel and vehicle cost per mile, the minutes the round trip takes at your hourly value, and the fee, then tells you how much more the lower-netting yard would have to pay across the board to match the winner."}},{"@type":"Question","name":"When does it pay to split a load between two yards?","acceptedAnswer":{"@type":"Answer","text":"Rarely for small loads. Each lot can pay more at one yard, but a split means two trips. The calculator sends every lot to its higher payer, charges both trips, and shows split only when it nets more than keeping everything at one yard."}},{"@type":"Question","name":"How do I compare prices quoted per pound, per ton and per kilogram?","acceptedAnswer":{"@type":"Answer","text":"Pick the unit each price is quoted in and the unit you weighed in. The calculator converts everything to pounds (short ton 2,000 lb, long ton 2,240 lb, kilogram 2.2046 lb) before comparing, so a steel price per ton and a copper price per pound can sit in one load."}},{"@type":"Question","name":"Does this show live scrap prices, and is it financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It has no price feed: you type the prices from each yard's board and they change daily. It is arithmetic on your numbers, not tax, legal or financial advice, and nothing you type is uploaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f2420; background: #f4f6f2; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5a2e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b3a22; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b3a22; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #424a43; }
+    .card { background: #fff; border: 1px solid #d3dcd1; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b3a2212; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #55625a; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5a2e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2eae0; color: #1b3a22; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e2eae0; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #424a43; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e6f0e4; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b3a22; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dcd1; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SCRAP METAL YARD PAYOUT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which scrap yard nets you more? Payout after the drive, split or not, strip wire or not</h1>
+    <p>For scrappers, electricians, plumbers, HVAC techs and demolition crews. Type the lots you are hauling and what two yards pay for each. The tool takes off <strong>fuel and vehicle cost, the minutes the trip takes at your hourly value, handling fees and grading deductions</strong>, then shows what the load nets <strong>at each yard, whether splitting it is worth a second trip</strong>, how much the other yard would have to pay to catch up, what a 10% or 20% price drop does, and whether <strong>stripping copper wire beats selling it insulated</strong>.</p>
+    <p class="note">The method with a worked example: <a href="./is-a-farther-scrap-yard-worth-the-drive.html">is a farther scrap yard worth the drive</a>.</p>
+  </header>
+  <main>
+  <section class="card" id="setup">
+    <h2 style="margin-top:0px">1. Your lots</h2>
+    <p class="note">One row per kind of metal. Use the unit each price is quoted in on the yard's board. Prices below are invented; type your yards' own.</p>
+    <div class="scroll"><table id="lots"><thead><tr><th>Metal</th><th class="num">Weight</th><th>Unit</th><th class="num" id="hdrA">Yard A price</th><th class="num" id="hdrB">Yard B price</th><th>Price per</th><th></th></tr></thead><tbody></tbody></table></div>
+    <button type="button" class="secondary" id="add-lot">Add a lot</button>
+    <h2 style="margin-top:20px">2. The two yards</h2>
+    <div class="row3">
+      <div><label for="an">Yard A name</label><input type="text" id="an" maxlength="40" value="Yard A"></div>
+      <div><label for="am">Yard A: miles one way</label><input type="number" id="am" min="0" step="0.5" max="2000" value="9"></div>
+      <div><label for="at">Yard A: minutes for the round trip, including unloading</label><input type="number" id="at" min="0" step="5" max="2880" value="55"></div>
+      <div><label for="af">Yard A: visit or handling fee ($)</label><input type="number" id="af" min="0" step="0.5" max="100000" value="0"></div>
+      <div><label for="ad">Yard A: grading or dirt deduction (%)</label><input type="number" id="ad" min="0" step="0.5" max="100" value="0"></div>
+    </div>
+    <div class="row3">
+      <div><label for="bn">Yard B name</label><input type="text" id="bn" maxlength="40" value="Yard B"></div>
+      <div><label for="bm">Yard B: miles one way</label><input type="number" id="bm" min="0" step="0.5" max="2000" value="22"></div>
+      <div><label for="bt">Yard B: minutes for the round trip, including unloading</label><input type="number" id="bt" min="0" step="5" max="2880" value="85"></div>
+      <div><label for="bf">Yard B: visit or handling fee ($)</label><input type="number" id="bf" min="0" step="0.5" max="100000" value="5"></div>
+      <div><label for="bd">Yard B: grading or dirt deduction (%)</label><input type="number" id="bd" min="0" step="0.5" max="100" value="0"></div>
+    </div>
+    <h2 style="margin-top:20px">3. Your costs</h2>
+    <div class="row3">
+      <div><label for="pm">Truck cost per mile ($): fuel, wear, tires</label><input type="number" id="pm" min="0" step="0.01" max="50" value="0.7"></div>
+      <div><label for="hr">What an hour of your time is worth ($)</label><input type="number" id="hr" min="0" step="1" max="10000" value="25"></div>
+    </div>
+    <h2 style="margin-top:20px">4. Strip the wire or sell it insulated?</h2>
+    <div class="row3">
+      <div><label for="sw">Wire to deal with (lb)</label><input type="number" id="sw" min="0" step="1" max="10000000" value="60"></div>
+      <div><label for="si">Insulated wire price ($ per lb)</label><input type="number" id="si" min="0" step="0.05" max="10000" value="1.1"></div>
+      <div><label for="sb">Bare copper price ($ per lb)</label><input type="number" id="sb" min="0" step="0.05" max="10000" value="3.55"></div>
+      <div><label for="sr">Copper recovered from the insulated weight (%)</label><input type="number" id="sr" min="0" step="1" max="100" value="55"></div>
+      <div><label for="sm">Minutes to strip one pound</label><input type="number" id="sm" min="0" step="0.1" max="600" value="1.5"></div>
+    </div>
+    <button type="button" id="solve">Check this load</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="load-file-btn">Load saved load</button>
+    <input type="file" id="load-file" accept=".json,application/json" hidden aria-label="Saved load file">
+    <p id="form-status" role="status" class="note">Fill in the numbers, then click Check this load.</p>
+  </section>
+  <section id="result" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div class="scroll"><table id="out"><thead><tr><th>Option</th><th class="num">Gross payout</th><th class="num">Trip and fees</th><th class="num">Net</th></tr></thead><tbody></tbody></table></div>
+    <h2 style="margin-top:20px">Lot by lot</h2>
+    <div class="scroll"><table id="lotout"><thead><tr><th>Metal</th><th class="num">Pounds</th><th class="num" id="lgA">At Yard A</th><th class="num" id="lgB">At Yard B</th><th>Pays more</th></tr></thead><tbody></tbody></table></div>
+    <h2 style="margin-top:20px">If prices fall before you sell</h2>
+    <div class="scroll"><table id="sens"><thead><tr><th>Prices</th><th>Best option</th><th class="num">Net</th></tr></thead><tbody></tbody></table></div>
+    <h2 style="margin-top:20px">Wire: strip it or sell it insulated</h2>
+    <div id="wire"></div>
+    <button type="button" id="copy-text">Copy as text</button>
+    <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="save-file">Save this load</button>
+  </section>
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Units:</strong> everything is converted to pounds first: kilogram 2.2046 lb, short ton 2,000 lb, long ton 2,240 lb. <strong>Gross payout</strong> at a yard = pounds × that yard's price per pound × (1 − its grading deduction), summed over the lots. <strong>Trip cost</strong> = 2 × miles one way × cost per mile + round-trip minutes ÷ 60 × your hourly value + the yard's fee. <strong>Net</strong> = gross payout − trip cost.</p>
+    <p><strong>Split:</strong> every lot goes to the yard that pays more for it, and both trips are charged; the tool shows the split only when each yard gets at least one lot. <strong>Catch-up:</strong> the percentage by which the lower-netting single yard would have to raise all its prices to equal the best single yard, with its trip cost unchanged. <strong>Price drop:</strong> every price cut by 10% or 20% with the trip costs held. <strong>Wire:</strong> stripped copper pounds × bare price − pounds × insulated price − strip hours × your hourly value; the break-even recovery is the copper share at which that is zero.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Should I strip copper wire or sell it insulated?</h3>
+    <p>Compare what the stripped copper sells for, minus the insulated price you give up, minus the value of your time. The calculator does it for your wire: pounds, insulated price, bare copper price, the share of the weight that comes out as copper, and minutes per pound. It also shows the recovery percentage where stripping stops paying, so you can test a different yard price or a faster stripper.</p>
+    <h3>Is it worth driving farther to a yard that pays more per pound?</h3>
+    <p>Only if the extra pay covers the extra miles, time and any handling fee. The calculator nets each yard after fuel and vehicle cost per mile, the minutes the round trip takes at your hourly value, and the fee, then tells you how much more the lower-netting yard would have to pay across the board to match the winner.</p>
+    <h3>When does it pay to split a load between two yards?</h3>
+    <p>Rarely for small loads. Each lot can pay more at one yard, but a split means two trips. The calculator sends every lot to its higher payer, charges both trips, and shows split only when it nets more than keeping everything at one yard.</p>
+    <h3>How do I compare prices quoted per pound, per ton and per kilogram?</h3>
+    <p>Pick the unit each price is quoted in and the unit you weighed in. The calculator converts everything to pounds (short ton 2,000 lb, long ton 2,240 lb, kilogram 2.2046 lb) before comparing, so a steel price per ton and a copper price per pound can sit in one load.</p>
+    <h3>Does this show live scrap prices, and is it financial advice?</h3>
+    <p>No. It has no price feed: you type the prices from each yard's board and they change daily. It is arithmetic on your numbers, not tax, legal or financial advice, and nothing you type is uploaded.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type, not tax, legal or financial advice, and it is not a price quote: scrap prices change daily and every yard sets its own grades and deductions. <strong>Use at your own risk.</strong> Check the weight ticket and payout with the yard before you sell.</p>
+    <p><strong>Independent.</strong> Not affiliated with any scrap yard, recycler or price-reporting service, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or backups of anything you enter.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>load_run</code>, <code>example_loaded</code>, <code>text_copied</code>, <code>csv_downloaded</code>, <code>file_saved</code>) are counted in this browser only, and you can switch that off below.</p>
+    <p>Related tools: the <a href="../equipment-auction-buyer-premium-calculator/">equipment auction buyer premium calculator</a>, the <a href="../estate-sale-net-proceeds-calculator/">estate sale net proceeds calculator</a> and the <a href="../mileage-deduction-method-calculator/">mileage deduction method calculator</a>.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+  <script type="module">
+    import { solve, money, cents, pct, resultText, resultCsv, serializeState, parseState, sampleInput } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const Y = { yardA: { name: "an", oneWayMiles: "am", minutes: "at", fee: "af", deductPct: "ad" }, yardB: { name: "bn", oneWayMiles: "bm", minutes: "bt", fee: "bf", deductPct: "bd" } };
+    const S = { weightLb: "sw", insulatedPrice: "si", bareCopperPrice: "sb", recoveryPct: "sr", minutesPerLb: "sm" };
+    const G = { perMile: "pm", hourly: "hr" };
+    const WU = ["lb", "kg", "ton"], PU = ["lb", "kg", "ton", "longton"];
+    const PUL = { lb: "lb", kg: "kg", ton: "short ton", longton: "long ton" };
+    let R = null;
+    const sel = (opts, v, label, labels) => '<select aria-label="' + label + '">' + opts.map((o) => '<option value="' + o + '"' + (o === v ? " selected" : "") + ">" + (labels ? labels[o] : o) + "</option>").join("") + "</select>";
+    function addLot(l) {
+      l = l || { name: "", weight: 0, weightUnit: "lb", priceA: 0, priceB: 0, priceUnit: "lb" };
+      const n = $("#lots tbody").children.length + 1;
+      const tr = document.createElement("tr");
+      tr.innerHTML = '<td><input type="text" maxlength="40" aria-label="Lot ' + n + ' metal" value="' + esc(l.name) + '"></td>' +
+        '<td><input type="number" min="0" step="any" aria-label="Lot ' + n + ' weight" value="' + l.weight + '"></td><td>' + sel(WU, l.weightUnit, "Lot " + n + " weight unit") + "</td>" +
+        '<td><input type="number" min="0" step="any" aria-label="Lot ' + n + ' price at yard A" value="' + l.priceA + '"></td><td><input type="number" min="0" step="any" aria-label="Lot ' + n + ' price at yard B" value="' + l.priceB + '"></td>' +
+        "<td>" + sel(PU, l.priceUnit, "Lot " + n + " price unit", PUL) + '</td><td><button type="button" class="secondary" aria-label="Remove lot ' + n + '">Remove</button></td>';
+      tr.querySelector("button").addEventListener("click", () => { tr.remove(); });
+      $("#lots tbody").appendChild(tr);
+    }
+    function setLots(lots) { $("#lots tbody").innerHTML = ""; lots.forEach(addLot); }
+    const numOf = (id) => Number($("#" + id).value);
+    function read() {
+      const lots = [...$("#lots tbody").children].map((tr) => {
+        const c = tr.querySelectorAll("input, select");
+        return { name: c[0].value, weight: Number(c[1].value), weightUnit: c[2].value, priceA: Number(c[3].value), priceB: Number(c[4].value), priceUnit: c[5].value };
+      });
+      const yard = (m) => ({ name: $("#" + m.name).value.trim(), oneWayMiles: numOf(m.oneWayMiles), minutes: numOf(m.minutes), fee: numOf(m.fee), deductPct: numOf(m.deductPct) });
+      return { lots, yardA: yard(Y.yardA), yardB: yard(Y.yardB), perMile: numOf(G.perMile), hourly: numOf(G.hourly), strip: Object.fromEntries(Object.entries(S).map(([k, id]) => [k, numOf(id)])) };
+    }
+    function fill(s) {
+      setLots(s.lots);
+      for (const y of ["yardA", "yardB"]) for (const [k, id] of Object.entries(Y[y])) $("#" + id).value = s[y][k];
+      for (const [k, id] of Object.entries(G)) $("#" + id).value = s[k];
+      for (const [k, id] of Object.entries(S)) $("#" + id).value = s.strip[k];
+    }
+    function run() {
+      const res = solve(read());
+      if (!res.ok) { status.textContent = res.errors.join(" "); return false; }
+      R = res; status.textContent = "Done. Scroll down."; render(); return true;
+    }
+    function render() {
+      const a = R.input.yardA.name || "Yard A", b = R.input.yardB.name || "Yard B";
+      $("#result").hidden = false;
+      $("#lgA").textContent = "At " + a; $("#lgB").textContent = "At " + b;
+      $("#notices").innerHTML = R.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("");
+      const big = [[R.best.label, "best option"], [cents(R.best.net), "net for the load"], [R.netPerLb === null ? "n/a" : cents(R.netPerLb), "net per pound"]];
+      if (R.catchUp.factor !== null) big.push([Math.abs(R.catchUp.pctChange).toFixed(1) + "%", esc((R.catchUp.yard === "A" ? a : b)) + " must pay " + (R.catchUp.pctChange >= 0 ? "more" : "less") + " to match the best single yard"]);
+      big.push([cents(R.strip.gain), R.strip.strips ? "gained by stripping the wire" : "lost by stripping the wire"]);
+      $("#big").innerHTML = big.map(([x, y]) => "<div><strong>" + esc(x) + "</strong>" + y + "</div>").join("");
+      $("#out tbody").innerHTML = R.options.map((o) => "<tr><td>" + (o.key === R.best.key ? "<strong>" + esc(o.label) + "</strong>" : esc(o.label)) + '</td><td class="num">' + cents(o.gross) + '</td><td class="num">' + cents(o.cost) + '</td><td class="num">' + cents(o.net) + "</td></tr>").join("");
+      $("#lotout tbody").innerHTML = R.rows.map((x) => "<tr><td>" + esc(x.name) + '</td><td class="num">' + x.lb.toFixed(1) + '</td><td class="num">' + cents(x.grossA) + '</td><td class="num">' + cents(x.grossB) + "</td><td>" + (x.best === "A" ? esc(a) : x.best === "B" ? esc(b) : "same") + "</td></tr>").join("");
+      $("#sens tbody").innerHTML = R.sensitivity.map((s) => "<tr><td>" + s.change + '%</td><td>' + esc(s.bestLabel) + '</td><td class="num">' + cents(s.net) + "</td></tr>").join("");
+      const w = R.strip;
+      $("#wire").innerHTML = '<div class="scroll"><table><tbody>' + [["Sell it insulated", cents(w.sellInsulated)], ["Copper recovered (lb)", w.bareLb.toFixed(1)], ["Sell the stripped copper", cents(w.sellBare)], ["Hours to strip", w.hours.toFixed(2)], ["Your time at your hourly value", cents(w.timeCost)], ["<strong>Gain from stripping</strong>", "<strong>" + cents(w.gain) + "</strong>"], ["Extra money per hour of stripping", w.extraPerHour === null ? "n/a" : cents(w.extraPerHour)], ["Recovery needed to break even", w.breakevenRecoveryPct === null ? "n/a" : w.breakevenRecoveryPct.toFixed(1) + "%"]].map(([x, y]) => "<tr><td>" + x + '</td><td class="num">' + y + "</td></tr>").join("") + "</tbody></table></div>";
+    }
+    function download(name, text, type) {
+      const el = document.createElement("a"); el.href = URL.createObjectURL(new Blob([text], { type })); el.download = name; el.click(); setTimeout(() => URL.revokeObjectURL(el.href), 1000);
+    }
+    $("#add-lot").addEventListener("click", () => { if ($("#lots tbody").children.length < 8) addLot(); else status.textContent = "Eight lots is the limit; combine similar metals."; });
+    $("#solve").addEventListener("click", () => setTimeout(() => { if (run()) record("load_run"); }, 0));
+    $("#load-example").addEventListener("click", () => { fill(sampleInput()); setTimeout(() => { if (run()) { record("example_loaded"); status.textContent = "Example with invented prices. Enter your yards' own above."; } }, 0); });
+    $("#copy-text").addEventListener("click", async () => { if (!R) return; try { await navigator.clipboard.writeText(resultText(R)); status.textContent = "Copied."; record("text_copied"); } catch { status.textContent = "Your browser blocked copying. Use Download CSV instead."; } });
+    $("#dl-csv").addEventListener("click", () => { if (!R) return; download("scrap-load-payout.csv", resultCsv(R), "text/csv"); record("csv_downloaded"); });
+    $("#save-file").addEventListener("click", () => { if (!R) return; download("scrap-load.json", serializeState(R.input), "application/json"); record("file_saved"); });
+    $("#load-file-btn").addEventListener("click", () => $("#load-file").click());
+    $("#load-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; const out = parseState(await f.text()); if (out.error) { status.textContent = out.error; return; } fill(out.state); run(); });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+    fill(sampleInput());
+  </script>
+</body>
+</html>
