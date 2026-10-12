@@ -3553,3 +3553,16 @@ entries:
         margin. Screened against ls ventures (no party bus or limo venture). First visitor: party bus operator groups searching
         how to price a party bus charter; volume unmeasured.
     mrr_end: 0
+  - venture: event-rental-inventory-payback-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built event-rental-inventory-payback-calculator: a browser-only calculator for party, tent and event
+        rental companies that takes each inventory item (units, cost, price per rental, rentals per unit a year, handling,
+        loss and damage, storage, life) and returns payback, yearly return on money tied up, break-even rentals per unit,
+        a ranking of what to buy next and the lowest rental price that pays an item back in the target years. Guide page
+        whose worked example the tests recompute; 400 random items confirm the lowest price reproduces the payback target.
+        Screened with duplicate_check.py (nearest 0.24). First visitor: party rental owner groups searching how long a chair
+        rental takes to pay for itself and what to buy next; volume unmeasured.
+    mrr_end: 0
