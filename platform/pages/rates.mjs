@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'self-serve-dog-wash-profit-calculator':
+    'the attendant wage and payroll-extras percentage price staffed hours across every open day of a dog wash shop, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollars, and the pricing goal is a yield on start-up cost.',
   'ebike-rental-fleet-profit-calculator':
     'the hourly wage and payroll extras price counter staff for every open day of a rental season, not a shop labour rate for a job quote; the target margin is a pricing goal for half-day and full-day rental prices, and there is no overhead-on-cost or markup field for a job quote.',
   'cake-pricing-calculator':
