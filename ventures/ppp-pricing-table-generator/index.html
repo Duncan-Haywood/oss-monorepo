@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PPP Pricing Table Generator — Regional Prices for Your App or SaaS</title>
+  <meta name="description" content="Turn one price into a purchasing-power (PPP) price table for about 50 countries: damped discounts, a floor, .99 rounding, price tiers, regional discount groups and a revenue what-if for your own traffic mix. Free, in your browser.">
+  <meta property="og:title" content="PPP pricing table generator for apps and SaaS">
+  <meta property="og:description" content="Regional prices by country with a floor, tiers and a break-even check. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "PPP Pricing Table Generator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turn one base price into a regional price table for about 50 countries using purchasing-power price levels, with a floor, rounding, price tiers, regional discount groups, CSV/JSON export and a revenue what-if against your own traffic mix. Runs in the browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is purchasing-power (PPP) pricing?", "acceptedAnswer": {"@type": "Answer", "text": "Charging customers in lower-cost countries less, so the price feels the same relative to local incomes and prices. Software has almost no per-customer cost, so a smaller price from someone who would otherwise not buy at all can still add revenue."}}, {"@type": "Question", "name": "How much should I discount for India, Brazil or Nigeria?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on your product, so treat any number as a starting point. A common approach is to discount in proportion to the local price level but damp it, so a country at a quarter of the US price level pays more than a quarter of the US price. The strength slider does that, and the floor stops you going too low."}}, {"@type": "Question", "name": "Will people use a VPN to get the cheaper price?", "acceptedAnswer": {"@type": "Answer", "text": "Some will. Most processors and app stores decide the price from the billing country or card, which is harder to fake than an IP address. Keep the gap modest, stay above your floor, and check how many cheap-region sales come from cards issued elsewhere."}}, {"@type": "Question", "name": "Does a discount actually earn more money?", "acceptedAnswer": {"@type": "Answer", "text": "Only if enough extra people buy. The page shows the extra conversion a discount must win just to break even: a 50% discount needs conversion to double. The revenue model lets you try an elasticity assumption against your own traffic mix; it is a what-if, not a forecast."}}, {"@type": "Question", "name": "Where do the price-level numbers come from?", "acceptedAnswer": {"@type": "Answer", "text": "They are rounded estimates in the spirit of the World Bank International Comparison Program price levels, with the US at 100. They are not exact and they change. Paste your own index values to override any country before you publish a price."}}, {"@type": "Question", "name": "Does it convert to local currency?", "acceptedAnswer": {"@type": "Answer", "text": "No. Prices are in the same currency as your base price. Converting at today's exchange rate and snapping to the currency's usual price points is best left to your payment processor or app store."}}, {"@type": "Question", "name": "Is anything uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in this page and the page makes no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 110px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input, select { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; font: inherit; max-width: 100%; }
+    input[type=number] { width: 110px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f4e79; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+    label.block { display: block; font-weight: 600; margin: 4px 0; font-size: .9rem; }
+    .verdict { font-size: 1.2rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #7a4a05; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid #e6eaf0; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    td.amt { text-align: right; white-space: nowrap; }
+    .tableWrap { overflow-x: auto; }
+    .error { color: #9b1c1c; font-weight: 600; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PPP PRICING TABLE GENERATOR · RUNS IN YOUR BROWSER</p>
+    <h1>Price your app or SaaS for every country, not just the US</h1>
+    <p>Enter one <strong>base price</strong> and get a <strong>price for about 50 countries</strong>, scaled to local price levels with a floor you control, tidy rounding, optional price tiers and the <strong>regional discount groups</strong> you type into a payment processor. Then check, against your own traffic mix, how much extra conversion each discount has to win to pay for itself.</p>
+    <p class="note">Nothing is uploaded. The page makes no network calls. Price levels are rounded estimates; check them before you publish a price.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Set your base price and rules</h2>
+    <div class="grid">
+      <div><label class="block" for="base">Base price (US, any currency)</label><input id="base" type="number" min="0.01" step="0.01" value="29"></div>
+      <div><label class="block" for="strength">Strength (0 = one price, 1 = full proportional)</label><input id="strength" type="number" min="0" max="1" step="0.05" value="0.7"></div>
+      <div><label class="block" for="floor">Floor (fraction of base)</label><input id="floor" type="number" min="0.05" max="1" step="0.05" value="0.35"></div>
+      <div><label class="block" for="cap">Cap (1 = never above base)</label><input id="cap" type="number" min="1" max="2" step="0.05" value="1"></div>
+      <div><label class="block" for="rounding">Rounding</label><select id="rounding"><option value="charm">.99 endings</option><option value="whole">Whole numbers</option><option value="nine">Ends in 9 (19, 29, 39)</option><option value="none">None</option></select></div>
+      <div><label class="block" for="tiers">Price tiers (0 = per country)</label><input id="tiers" type="number" min="0" max="12" step="1" value="0"></div>
+    </div>
+    <details>
+      <summary>Use your own price-level numbers (optional)</summary>
+      <label class="block" for="overrides">One per line: country code and index, US = 100 (for example <code>IN 28</code>)</label>
+      <textarea id="overrides" spellcheck="false" placeholder="IN 28&#10;BR 45"></textarea>
+    </details>
+    <p>
+      <button type="button" id="build">Build the price table</button>
+      <button type="button" class="secondary" id="copy-csv">Copy CSV</button>
+      <button type="button" class="secondary" id="copy-json">Copy JSON</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="result-card" aria-live="polite" hidden>
+    <h2>2. Your price table</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap"><table id="prices"><thead><tr><th>Country</th><th>Price level</th><th>Price</th><th>Discount</th><th>Conversion needed to break even</th></tr></thead><tbody></tbody></table></div>
+    <p><strong>Regional discount groups</strong></p>
+    <p class="note">Enter these as country-specific discounts or codes in your payment processor or store.</p>
+    <ul id="groups"></ul>
+  </section>
+
+  <section class="card">
+    <h2>3. What would it do to revenue? (optional)</h2>
+    <p>Paste where your visitors or customers come from, as a rough share. Pick the conversion rate you get today and how sensitive buyers are to price. An elasticity of 1 leaves revenue flat; above 1 the discount earns more, below 1 it loses money.</p>
+    <label class="block" for="traffic">One per line: country code or name and a share (for example <code>US 40</code>)</label>
+    <textarea id="traffic" spellcheck="false" placeholder="US 40&#10;India 12&#10;BR 8"></textarea>
+    <div class="grid">
+      <div><label class="block" for="conv">Conversion today (%)</label><input id="conv" type="number" min="0.1" max="50" step="0.1" value="2"></div>
+      <div><label class="block" for="elasticity">Elasticity assumption</label><input id="elasticity" type="number" min="0.1" max="5" step="0.1" value="1.5"></div>
+    </div>
+    <p>
+      <button type="button" id="model">Run the what-if</button>
+      <button type="button" class="secondary" id="load-example">Load example traffic</button>
+    </p>
+    <p class="verdict" id="model-verdict" hidden></p>
+    <div class="tableWrap"><table id="model-table" hidden><thead><tr><th>Country</th><th>Share</th><th>Price</th><th>Per 1,000 visitors, one price</th><th>Regional</th></tr></thead><tbody></tbody></table></div>
+    <p class="note">A what-if with one elasticity for every market. It ignores VPN or card-country arbitrage, refunds, and customers who would have paid full price anyway. It is not a forecast.</p>
+  </section>
+
+  <section class="card">
+    <h2>Run it from the command line</h2>
+    <pre class="cmd"><code>node cli.mjs 29 --tiers 4
+node cli.mjs 49 --strength 0.6 --floor 0.4 --format csv
+node cli.mjs 29 --traffic shares.txt --elasticity 1.5</code></pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="ppp.mjs" rel="noopener">ppp.mjs</a> from the repo. Node 18+, no dependencies.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is purchasing-power (PPP) pricing?</h3>
+    <p>Charging customers in lower-cost countries less, so the price feels the same relative to local incomes and prices. Software has almost no per-customer cost, so a smaller price from someone who would otherwise not buy at all can still add revenue.</p>
+    <h3>How much should I discount for India, Brazil or Nigeria?</h3>
+    <p>It depends on your product, so treat any number as a starting point. A common approach is to discount in proportion to the local price level but damp it, so a country at a quarter of the US price level pays more than a quarter of the US price. The strength slider does that, and the floor stops you going too low.</p>
+    <h3>Will people use a VPN to get the cheaper price?</h3>
+    <p>Some will. Most processors and app stores decide the price from the billing country or card, which is harder to fake than an IP address. Keep the gap modest, stay above your floor, and check how many cheap-region sales come from cards issued elsewhere.</p>
+    <h3>Does a discount actually earn more money?</h3>
+    <p>Only if enough extra people buy. The page shows the extra conversion a discount must win just to break even: a 50% discount needs conversion to double. The revenue model lets you try an elasticity assumption against your own traffic mix; it is a what-if, not a forecast.</p>
+    <h3>Where do the price-level numbers come from?</h3>
+    <p>They are rounded estimates in the spirit of the World Bank International Comparison Program price levels, with the US at 100. They are not exact and they change. Paste your own index values to override any country before you publish a price.</p>
+    <h3>Does it convert to local currency?</h3>
+    <p>No. Prices are in the same currency as your base price. Converting at today's exchange rate and snapping to the currency's usual price points is best left to your payment processor or app store.</p>
+    <h3>Is anything uploaded?</h3>
+    <p>No. Everything runs in this page and the page makes no network calls.</p>
+    <p>More: <a href="how-to-set-regional-prices-for-software.html">How to set regional prices for software without losing money</a></p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. The price levels are rounded estimates and the revenue model is a what-if; the prices it suggests are a starting point for your own judgement, not financial, tax or legal advice. Sales tax, VAT and local consumer rules still apply to what you charge.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as the only copy of anything important.</p>
+    <p>Everything runs in your browser. The numbers you enter are never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>table_built</code>, <code>model_run</code>, <code>csv_copied</code>, <code>json_copied</code>, <code>example_loaded</code>) are counted in this browser's local storage only, never sent anywhere, and can be switched off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: <a href="../saas-tier-price-optimizer/">SaaS Tier Price Optimizer</a>, <a href="../app-store-commission-calculator/">App Store Commission Calculator</a> and <a href="../app-subscription-proceeds-calculator/">App Subscription Proceeds Calculator</a>.</p>
+    <p class="support">Free and open source. If this helped you price a product, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never required.</p>
+  </footer>
+  <script type="module">
+    import { buildTable, validate, parseIndexOverrides, parseShares, revenueModel, discountGroups, breakEvenLift, toCsv, toJson, money, pct, EXAMPLE_SHARES } from "./ppp.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let rows = [], opts = null;
+
+    function readOpts() {
+      return {
+        base: Number($("#base").value), strength: Number($("#strength").value), floor: Number($("#floor").value),
+        cap: Number($("#cap").value), rounding: $("#rounding").value, tiers: Number($("#tiers").value),
+      };
+    }
+
+    function build() {
+      const o = readOpts();
+      const errs = validate(o);
+      if (errs.length) {
+        $("#status").textContent = errs.join(" ");
+        $("#status").className = "note error";
+        $("#result-card").hidden = true;
+        return false;
+      }
+      const { overrides, bad } = parseIndexOverrides($("#overrides").value);
+      $("#status").className = "note";
+      $("#status").textContent = bad.length ? `Ignored index lines: ${bad.slice(0, 4).join(" · ")}` : "";
+      opts = o;
+      rows = buildTable(o, overrides);
+      const cheapest = rows[rows.length - 1];
+      $("#verdict").textContent = `${money(o.base)} base · ${rows.length} countries · from ${money(cheapest.price)} (${cheapest.name}) to ${money(rows[0].price)}`;
+      $("#prices tbody").innerHTML = rows.map((r) => `<tr><td>${esc(r.name)} (${r.code})</td><td class="amt">${r.index}</td><td class="amt">${money(r.price)}</td><td class="amt">${r.discount > 0.0001 ? "-" + pct(r.discount) : "base"}</td><td class="amt">${r.discount > 0.0001 ? "+" + pct(breakEvenLift(r.discount)) : "—"}</td></tr>`).join("");
+      $("#groups").innerHTML = discountGroups(rows).map((g) => `<li><strong>${g.pct}% off:</strong> ${g.codes.join(", ")}</li>`).join("") || "<li>No discounted markets with these settings.</li>";
+      $("#result-card").hidden = false;
+      record("table_built");
+      return true;
+    }
+
+    function model() {
+      if (!build()) return;
+      const { shares, bad } = parseShares($("#traffic").value);
+      const v = $("#model-verdict"), t = $("#model-table");
+      if (!Object.keys(shares).length) {
+        v.hidden = false; v.className = "verdict risk"; v.textContent = "No traffic lines recognised. Use a country code or name and a share, one per line.";
+        t.hidden = true; return;
+      }
+      const conv = Number($("#conv").value) / 100, e = Number($("#elasticity").value);
+      const m = revenueModel(rows, shares, { base: opts.base, baseConversion: conv, elasticity: e });
+      v.hidden = false;
+      v.className = m.change >= 0 ? "verdict" : "verdict risk";
+      v.textContent = `Per 1,000 visitors: ${money(m.before)} at one price → ${money(m.after)} regional (${m.change >= 0 ? "+" : ""}${pct(m.pct)}) at elasticity ${e}.` + (bad.length ? ` Ignored: ${bad.slice(0, 3).join(" · ")}` : "");
+      $("#model-table tbody").innerHTML = m.detail.map((d) => `<tr><td>${esc(d.name)}</td><td class="amt">${pct(d.share)}</td><td class="amt">${money(d.price)}</td><td class="amt">${money(d.before)}</td><td class="amt">${money(d.after)}</td></tr>`).join("");
+      t.hidden = false;
+      record("model_run");
+    }
+
+    async function copy(text, name, event) {
+      if (!rows.length && !build()) return;
+      try { await navigator.clipboard.writeText(text()); $("#status").className = "note"; $("#status").textContent = name + " copied."; }
+      catch { $("#status").textContent = "Copy is blocked here; use the table instead."; }
+      record(event);
+    }
+
+    $("#build").addEventListener("click", build);
+    $("#model").addEventListener("click", model);
+    $("#copy-csv").addEventListener("click", () => copy(() => toCsv(rows), "CSV", "csv_copied"));
+    $("#copy-json").addEventListener("click", () => copy(() => toJson(rows, opts), "JSON", "json_copied"));
+    $("#load-example").addEventListener("click", () => { $("#traffic").value = EXAMPLE_SHARES; model(); record("example_loaded"); });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      usageControl.textContent = "Usage counting is off";
+      usageControl.disabled = true;
+    }
+  </script>
+</body>
+</html>
