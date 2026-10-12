@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Write a Changelog People Read: Conventional Commits, Keep a Changelog and Semver</title>
+  <meta name="description" content="What belongs in a changelog, how Conventional Commits make release notes automatic, how to pick the next semantic version, and what to do with a messy history.">
+  <link rel="canonical" href="./how-to-write-a-changelog.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How to write a changelog people read","about":"changelogs and release notes","author":{"@type":"Organization","name":"Release Notes Generator"}}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.12; color: #17324a; }
+    h2 { font-size: 1.15rem; color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    code { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Release Notes Generator</a></p>
+  <h1>How to write a changelog people read</h1>
+  <p>A changelog answers one question for the person upgrading: <em>what changes for me?</em> A list of commit subjects usually answers a different one (what did the team do?). The fix is mostly editorial: keep what changes behaviour, say it from the user's side, and put anything that can break them first.</p>
+
+  <h2>What goes in, and what stays out</h2>
+  <table>
+    <tr><th>Section</th><th>Include?</th><th>Why</th></tr>
+    <tr><td>Breaking changes</td><td>Always, first</td><td>The only section a cautious upgrader must read</td></tr>
+    <tr><td>Features, Fixes, Performance, Security</td><td>Yes</td><td>User-visible behaviour</td></tr>
+    <tr><td>Docs</td><td>If notable</td><td>New guides help adopters</td></tr>
+    <tr><td>Refactor, tests, CI, chores</td><td>Usually skip</td><td>No change for the user (the CLI has <code>--skip</code>)</td></tr>
+  </table>
+
+  <h2>Conventional Commits make it mechanical</h2>
+  <p>Write each subject as <code>type(scope): description</code>, with <code>!</code> after the type or a <code>BREAKING CHANGE:</code> footer when behaviour breaks. Then the changelog is a grouping problem, not a writing problem, and the generator can also suggest the version.</p>
+
+  <h2>Picking the next version (Semantic Versioning)</h2>
+  <ol>
+    <li>Any breaking change: <strong>major</strong> (<strong>minor</strong> while you are below 1.0.0, by common convention).</li>
+    <li>Otherwise any new feature: <strong>minor</strong>.</li>
+    <li>Otherwise only fixes: <strong>patch</strong>.</li>
+  </ol>
+  <p>The tool's suggestion comes from commit messages, so it is only as honest as they are. A fix that changes documented behaviour is breaking whatever its prefix says.</p>
+
+  <h2>If your history is a mess</h2>
+  <p>Paste it anyway. Subjects that start with Add, Fix, Update, Refactor and similar verbs are sorted into sections, everything else lands under "Other changes", and the page tells you how many were guessed. Edit the result by hand: a human pass of five minutes beats a perfect convention nobody follows.</p>
+
+  <h2>Using the generator</h2>
+  <p>Paste commits into <a href="./">the tool</a> or run <code>node cli.mjs --from v1.2.0</code> in your repository, review the output, and commit it to <code>CHANGELOG.md</code>. For GitHub, choose the GitHub style and paste it into the release description.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is. This is general information about release practice, not professional advice. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Generate release notes</a>.</p>
+  </footer>
+</body>
+</html>
