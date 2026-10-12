@@ -805,6 +805,9 @@ const CATEGORY_RULES = [
       // `franchise-unit-economics-calculator` joined 2026-10-08 on its first commit: a buyer sizing the cash, loan and payback of a franchise
       // unit sits beside `sba-loan-capacity-calculator` and `business-loan-offer-comparator`, the same fund-a-business-purchase job.
       'franchise-unit-economics-calculator',
+      // `franchise-item-19-reality-check` joined 2026-10-12 on its first commit: the franchisor's earnings claim read before the buyer's own cash plan,
+      // beside `franchise-unit-economics-calculator`.
+      'franchise-item-19-reality-check',
       // `microgreens-tray-planner` joined 2026-10-06 on its first commit: growers who sell at the same markets and
       // restaurants, one hop from `backyard-honey-profit-calculator`.
       'microgreens-tray-planner',

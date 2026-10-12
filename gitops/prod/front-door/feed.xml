@@ -24,6 +24,14 @@
     <summary type="text">Free calculator for independent delivery van contractors. Enter route pay, stops, packages, miles, fuel, van payment, insurance and tax set-aside; it shows true profit per route, per hour and per stop, break-even stops, the lowest route pay that hits your hourly target, and compares two route offers. Private, in your browser.</summary>
   </entry>
   <entry>
+    <title>Franchise Item 19 Reality Check — what the earnings claim leaves out</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/franchise-item-19-reality-check/"/>
+    <id>tag:marisstella.dev,2026:tool/franchise-item-19-reality-check</id>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free franchise Item 19 reality check. Enter the earnings tiers from a franchise disclosure document and see owner earnings after royalty and ad fund, payback, the average versus the median, and how many units fall below your salary target. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Amusement Route Location Calculator — is each arcade, pool table or claw machine location worth the drive?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/amusement-route-location-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/amusement-route-location-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-11T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free monthly investor update builder for startup founders. Enter MRR, customers and cash for a few months and get growth, burn, runway, burn multiple, a default-alive check and a ready-to-send update. Private, in your browser.</summary>
-  </entry>
-  <entry>
-    <title>JSON-LD Rich Result Validator — Schema Markup Checker and Generator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/json-ld-rich-result-validator/"/>
-    <id>tag:marisstella.dev,2026:tool/json-ld-rich-result-validator</id>
-    <updated>2026-10-11T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free JSON-LD and schema markup validator. Paste a page&#39;s HTML or JSON-LD and see every missing required and recommended property for Product, Article, LocalBusiness, Recipe, Event, JobPosting and more. Builds starter markup too. Nothing is uploaded.</summary>
   </entry>
 </feed>
