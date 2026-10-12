@@ -144,6 +144,14 @@
     <summary type="text">Free calculator for trampoline parks and family entertainment centers. Enter jumper capacity, sessions, fill, ticket price, birthday parties, memberships, staff, rent and the build; it shows monthly profit, margin, payback, break-even fill and the lowest ticket for your target margin and payback. Private, in your browser.</summary>
   </entry>
   <entry>
+    <title>Vendor Contract Clause Reader</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/vendor-contract-clause-reader/"/>
+    <id>tag:marisstella.dev,2026:tool/vendor-contract-clause-reader</id>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free SaaS and vendor contract reader: paste an agreement and get the auto-renewal cancel-by date (downloadable .ics), the price steps and what a missed deadline commits you to, plus the clauses buyers push back on, such as list-price renewals, uncapped liability and one-way indemnity. Private, runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Weekly Staff Schedule Maker — free employee schedule generator for restaurants and shops</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/weekly-staff-schedule-maker/"/>
     <id>tag:marisstella.dev,2026:tool/weekly-staff-schedule-maker</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-11T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator for coin-op route operators. Enter each location&#39;s weekly take, commission, visits and miles; it shows profit per route hour, the weekly take you need, and the highest commission you can pay and still earn your target. Private, in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Barbershop Chair Profit Calculator — Haircut Price, Booth Rent vs Commission</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/barbershop-chair-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/barbershop-chair-profit-calculator</id>
-    <updated>2026-10-11T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free barbershop calculator: enter haircut, beard and combo prices, chair minutes, supplies, no-show rate, rent and commission, and see profit per cut and per chair hour, the price for your target margin, break-even cuts per week and whether to rent the chair or employ a barber. Runs in your browser.</summary>
   </entry>
 </feed>
