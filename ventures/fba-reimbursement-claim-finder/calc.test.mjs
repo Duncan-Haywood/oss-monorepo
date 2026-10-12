@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseCsv, normalizeLedger, normalizeReimbursements, reasonKind, analyze, claimText, summaryText, sampleCsv } from "./calc.mjs";
+import { parseCsv, normalizeLedger, normalizeReimbursements, reasonKind, normalizeShipments, analyzeInbound, inboundClaimText, analyze, claimText, summaryText, sampleCsv } from "./calc.mjs";
 
 const NOW = Date.UTC(2026, 8, 29);
 const DAY = 86400000;
@@ -129,4 +129,68 @@ test("the built-in example reads cleanly and shows every state", () => {
   const a = analyze(l.items, r.items, { asOf: NOW });
   assert.ok(a.summary.claimNowUnits > 0 && a.summary.waitUnits > 0 && a.summary.expiringUnits > 0);
   assert.equal(one(a, "TEA-SMP-004").unclaimed, 0);
+});
+
+const SH = "Shipment ID,Created,MSKU,Units expected,Units located\n";
+const ships = (body) => normalizeShipments(parseCsv(SH + body));
+
+test("inbound reimbursements are their own kind and never offset warehouse losses", () => {
+  assert.equal(reasonKind("Lost_Inbound"), "inbound");
+  assert.equal(reasonKind("Damaged_Inbound"), "inbound");
+  assert.equal(reasonKind("Lost_Warehouse"), "lost");
+  const l = ledger(`${day(200)},F,A,S1,Mug,S,0,-2,0,0\n`);
+  const r = reimb(`${day(100)},R1,Lost_Inbound,S1,2,10.00,20.00\n`);
+  assert.equal(one(analyze(l.items, r.items, { asOf: NOW }), "S1").unclaimed, 2);
+});
+
+test("shipment shortages are sent minus received, aged against the 9-month window", () => {
+  const s = ships(`FBA1,${day(100)},S1,100,90\nFBA2,${day(10)},S1,50,40\nFBA3,${day(300)},S1,20,15\nFBA4,${day(100)},S1,10,10\nFBA5,${day(100)},S1,10,12\n`);
+  assert.equal(s.items.length, 5);
+  const a = analyzeInbound(s.items, null, { asOf: NOW, defaultUnitValue: 10 });
+  const st = (id) => a.rows.find((r) => r.id === id);
+  assert.equal(st("FBA1").state, "claim");
+  assert.equal(st("FBA2").state, "wait");
+  assert.equal(st("FBA3").state, "expired");
+  assert.equal(st("FBA4"), undefined);
+  assert.equal(st("FBA5"), undefined);
+  assert.equal(a.summary.claimUnits, 10);
+  assert.equal(a.summary.claimValue, 100);
+  assert.equal(a.summary.waitUnits, 10);
+  assert.equal(a.summary.expiredUnits, 5);
+});
+
+test("an expiring shipment sorts first and inbound payments are netted oldest first", () => {
+  const s = ships(`OLD,${day(250)},S1,20,10\nNEW,${day(100)},S1,20,10\n`);
+  const r = reimb(`${day(50)},R1,Lost_Inbound,S1,12,8.00,96.00\n`);
+  const a = analyzeInbound(s.items, r.items, { asOf: NOW, defaultUnitValue: 99 });
+  const old = a.rows.find((x) => x.id === "OLD"), nw = a.rows.find((x) => x.id === "NEW");
+  assert.equal(old.state, "paid");
+  assert.equal(old.open, 0);
+  assert.equal(nw.reimbursed, 2);
+  assert.equal(nw.open, 8);
+  assert.equal(nw.unitValue, 8);
+  assert.equal(nw.value, 64);
+  assert.equal(a.summary.paidUnits, 12);
+  const e = analyzeInbound(ships(`E,${day(250)},S2,10,5\n`).items, null, { asOf: NOW });
+  assert.equal(e.rows[0].state, "expiring");
+});
+
+test("shipment files are read by alias, with skipped rows named and the claim text neutral", () => {
+  assert.match(normalizeShipments(parseCsv("a,b\n1,2")).error, /No header row/);
+  assert.match(normalizeShipments([]).error, /empty/);
+  const s = ships(`FBA1,${day(100)},S1,5,x\nFBA1,nope,S1,5,4\n,${day(100)},,5,4\nFBA1,${day(100)},S1,5,4\n`);
+  assert.equal(s.items.length, 1);
+  assert.deepEqual(s.skipped.map((q) => q.reason), ["unit count not readable", "date not readable", "no SKU"]);
+  const t = inboundClaimText(analyzeInbound(s.items, null, { asOf: NOW }).rows[0]);
+  assert.match(t, /Shipment ID: FBA1/);
+  assert.match(t, /I sent 5 unit\(s\)/);
+  assert.match(t, /or tell me where they were received/);
+});
+
+test("the example includes shipments in every state", () => {
+  const x = sampleCsv(NOW);
+  const s = normalizeShipments(parseCsv(x.shipments));
+  assert.equal(s.error, undefined);
+  const a = analyzeInbound(s.items, normalizeReimbursements(parseCsv(x.reimbursements)).items, { asOf: NOW });
+  assert.ok(a.summary.claimUnits > 0 && a.summary.waitUnits > 0 && a.summary.expiringUnits > 0);
 });
