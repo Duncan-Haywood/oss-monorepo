@@ -33,48 +33,48 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548314 bytes
-#   portfolio-front-tools-1: 92 files, 555572 bytes
-#   portfolio-front-tools-2: 144 files, 553316 bytes
-#   portfolio-front-tools-3: 128 files, 549737 bytes
-#   portfolio-front-tools-4: 138 files, 556609 bytes
-#   portfolio-front-tools-5: 131 files, 556249 bytes
-#   portfolio-front-tools-6: 122 files, 547518 bytes
-#   portfolio-front-tools-7: 123 files, 555432 bytes
-#   portfolio-front-tools-8: 134 files, 554645 bytes
-#   portfolio-front-tools-9: 133 files, 556221 bytes
-#   portfolio-front-tools-10: 133 files, 549814 bytes
-#   portfolio-front-tools-11: 131 files, 540353 bytes
-#   portfolio-front-tools-12: 126 files, 551512 bytes
-#   portfolio-front-tools-13: 128 files, 553904 bytes
-#   portfolio-front-tools-14: 127 files, 551107 bytes
-#   portfolio-front-tools-15: 124 files, 555422 bytes
-#   portfolio-front-tools-16: 133 files, 556214 bytes
-#   portfolio-front-tools-17: 125 files, 556355 bytes
-#   portfolio-front-tools-18: 121 files, 555117 bytes
-#   portfolio-front-tools-19: 128 files, 556505 bytes
-#   portfolio-front-tools-20: 121 files, 553224 bytes
-#   portfolio-front-tools-21: 117 files, 547711 bytes
-#   portfolio-front-tools-22: 116 files, 547684 bytes
-#   portfolio-front-tools-23: 130 files, 556781 bytes
-#   portfolio-front-tools-24: 128 files, 556750 bytes
-#   portfolio-front-tools-25: 135 files, 556673 bytes
-#   portfolio-front-tools-26: 126 files, 554413 bytes
-#   portfolio-front-tools-27: 121 files, 556966 bytes
-#   portfolio-front-tools-28: 133 files, 553948 bytes
-#   portfolio-front-tools-29: 132 files, 549720 bytes
-#   portfolio-front-tools-30: 120 files, 554849 bytes
-#   portfolio-front-tools-31: 137 files, 554007 bytes
-#   portfolio-front-tools-32: 117 files, 550512 bytes
-#   portfolio-front-tools-33: 97 files, 555302 bytes
-#   portfolio-front-tools-34: 122 files, 546051 bytes
-#   portfolio-front-tools-35: 121 files, 554844 bytes
-#   portfolio-front-tools-36: 126 files, 551695 bytes
-#   portfolio-front-tools-37: 124 files, 555861 bytes
-#   portfolio-front-tools-38: 132 files, 555658 bytes
-#   portfolio-front-tools-39: 122 files, 556275 bytes
-#   portfolio-front-tools-40: 118 files, 556504 bytes
-#   portfolio-front-tools-41: 70 files, 367936 bytes
+#   portfolio-front-tools-0: 145 files, 548301 bytes
+#   portfolio-front-tools-1: 92 files, 555577 bytes
+#   portfolio-front-tools-2: 144 files, 553310 bytes
+#   portfolio-front-tools-3: 128 files, 549711 bytes
+#   portfolio-front-tools-4: 138 files, 556603 bytes
+#   portfolio-front-tools-5: 131 files, 556274 bytes
+#   portfolio-front-tools-6: 122 files, 547485 bytes
+#   portfolio-front-tools-7: 123 files, 555049 bytes
+#   portfolio-front-tools-8: 134 files, 555949 bytes
+#   portfolio-front-tools-9: 132 files, 551476 bytes
+#   portfolio-front-tools-10: 134 files, 552763 bytes
+#   portfolio-front-tools-11: 134 files, 552414 bytes
+#   portfolio-front-tools-12: 126 files, 551481 bytes
+#   portfolio-front-tools-13: 128 files, 553924 bytes
+#   portfolio-front-tools-14: 127 files, 551134 bytes
+#   portfolio-front-tools-15: 124 files, 555598 bytes
+#   portfolio-front-tools-16: 133 files, 556224 bytes
+#   portfolio-front-tools-17: 125 files, 556417 bytes
+#   portfolio-front-tools-18: 121 files, 555169 bytes
+#   portfolio-front-tools-19: 128 files, 556480 bytes
+#   portfolio-front-tools-20: 121 files, 553165 bytes
+#   portfolio-front-tools-21: 117 files, 547715 bytes
+#   portfolio-front-tools-22: 116 files, 547765 bytes
+#   portfolio-front-tools-23: 130 files, 556914 bytes
+#   portfolio-front-tools-24: 128 files, 556643 bytes
+#   portfolio-front-tools-25: 135 files, 556846 bytes
+#   portfolio-front-tools-26: 126 files, 554521 bytes
+#   portfolio-front-tools-27: 121 files, 557048 bytes
+#   portfolio-front-tools-28: 133 files, 554034 bytes
+#   portfolio-front-tools-29: 132 files, 549655 bytes
+#   portfolio-front-tools-30: 120 files, 554810 bytes
+#   portfolio-front-tools-31: 137 files, 553968 bytes
+#   portfolio-front-tools-32: 117 files, 550552 bytes
+#   portfolio-front-tools-33: 97 files, 555327 bytes
+#   portfolio-front-tools-34: 122 files, 546161 bytes
+#   portfolio-front-tools-35: 121 files, 554955 bytes
+#   portfolio-front-tools-36: 126 files, 551785 bytes
+#   portfolio-front-tools-37: 124 files, 555763 bytes
+#   portfolio-front-tools-38: 132 files, 555600 bytes
+#   portfolio-front-tools-39: 122 files, 556269 bytes
+#   portfolio-front-tools-40: 118 files, 556659 bytes
+#   portfolio-front-tools-41: 70 files, 367931 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1072,6 +1072,9 @@ configMapGenerator:
       - bai2-to-ofx-converter__calc.mjs.gz=bai2-to-ofx-converter__calc.mjs.gz
       - bai2-to-ofx-converter__index.html.gz=bai2-to-ofx-converter__index.html.gz
       - bai2-to-ofx-converter__usage.mjs.gz=bai2-to-ofx-converter__usage.mjs.gz
+      - bail-bond-agency-exposure-calculator__calc.mjs.gz=bail-bond-agency-exposure-calculator__calc.mjs.gz
+      - bail-bond-agency-exposure-calculator__index.html.gz=bail-bond-agency-exposure-calculator__index.html.gz
+      - bail-bond-agency-exposure-calculator__usage.mjs.gz=bail-bond-agency-exposure-calculator__usage.mjs.gz
       - bakery-production-scheduler__calc.mjs.gz=bakery-production-scheduler__calc.mjs.gz
       - bakery-production-scheduler__index.html.gz=bakery-production-scheduler__index.html.gz
       - bakery-production-scheduler__usage.mjs.gz=bakery-production-scheduler__usage.mjs.gz
@@ -1152,14 +1155,14 @@ configMapGenerator:
       - boat-rental-fleet-profit-calculator__index.html.gz=boat-rental-fleet-profit-calculator__index.html.gz
       - boat-rental-fleet-profit-calculator__usage.mjs.gz=boat-rental-fleet-profit-calculator__usage.mjs.gz
       - boi-reporting-exemption-checker__calc.mjs.gz=boi-reporting-exemption-checker__calc.mjs.gz
-      - boi-reporting-exemption-checker__do-i-still-need-to-file-a-boi-report.html.gz=boi-reporting-exemption-checker__do-i-still-need-to-file-a-boi-report.html.gz
-      - boi-reporting-exemption-checker__index.html.gz=boi-reporting-exemption-checker__index.html.gz
-      - boi-reporting-exemption-checker__usage.mjs.gz=boi-reporting-exemption-checker__usage.mjs.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - boi-reporting-exemption-checker__do-i-still-need-to-file-a-boi-report.html.gz=boi-reporting-exemption-checker__do-i-still-need-to-file-a-boi-report.html.gz
+      - boi-reporting-exemption-checker__index.html.gz=boi-reporting-exemption-checker__index.html.gz
+      - boi-reporting-exemption-checker__usage.mjs.gz=boi-reporting-exemption-checker__usage.mjs.gz
       - boi-reporting-exemption-checker__vs-reading-fincens-guidance-yourself.html.gz=boi-reporting-exemption-checker__vs-reading-fincens-guidance-yourself.html.gz
       - boiler-replacement-bid-calculator__calc.mjs.gz=boiler-replacement-bid-calculator__calc.mjs.gz
       - boiler-replacement-bid-calculator__how-much-to-charge-to-replace-a-boiler.html.gz=boiler-replacement-bid-calculator__how-much-to-charge-to-replace-a-boiler.html.gz
@@ -1291,14 +1294,14 @@ configMapGenerator:
       - cake-pricing-calculator__usage.mjs.gz=cake-pricing-calculator__usage.mjs.gz
       - call-recording-consent-check__cli.mjs.gz=call-recording-consent-check__cli.mjs.gz
       - call-recording-consent-check__engine.mjs.gz=call-recording-consent-check__engine.mjs.gz
-      - call-recording-consent-check__index.html.gz=call-recording-consent-check__index.html.gz
-      - call-recording-consent-check__share.mjs.gz=call-recording-consent-check__share.mjs.gz
-      - call-recording-consent-check__usage.mjs.gz=call-recording-consent-check__usage.mjs.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - call-recording-consent-check__index.html.gz=call-recording-consent-check__index.html.gz
+      - call-recording-consent-check__share.mjs.gz=call-recording-consent-check__share.mjs.gz
+      - call-recording-consent-check__usage.mjs.gz=call-recording-consent-check__usage.mjs.gz
       - call-recording-consent-check__vs-checking-each-states-statute-by-hand.html.gz=call-recording-consent-check__vs-checking-each-states-statute-by-hand.html.gz
       - call-recording-consent-check__why-call-recording-consent-laws-differ-by-state.html.gz=call-recording-consent-check__why-call-recording-consent-laws-differ-by-state.html.gz
       - campground-site-profit-calculator__calc.mjs.gz=campground-site-profit-calculator__calc.mjs.gz
@@ -1428,15 +1431,15 @@ configMapGenerator:
       - cheap-meal-plan-optimizer__index.html.gz=cheap-meal-plan-optimizer__index.html.gz
       - cheap-meal-plan-optimizer__usage.mjs.gz=cheap-meal-plan-optimizer__usage.mjs.gz
       - child-tax-credit-calculator__calc.mjs.gz=child-tax-credit-calculator__calc.mjs.gz
-      - child-tax-credit-calculator__index.html.gz=child-tax-credit-calculator__index.html.gz
-      - child-tax-credit-calculator__usage.mjs.gz=child-tax-credit-calculator__usage.mjs.gz
-      - child-tax-credit-calculator__vs-doing-the-math-by-hand.html.gz=child-tax-credit-calculator__vs-doing-the-math-by-hand.html.gz
-      - childcare-center-break-even-calculator__calc.mjs.gz=childcare-center-break-even-calculator__calc.mjs.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - child-tax-credit-calculator__index.html.gz=child-tax-credit-calculator__index.html.gz
+      - child-tax-credit-calculator__usage.mjs.gz=child-tax-credit-calculator__usage.mjs.gz
+      - child-tax-credit-calculator__vs-doing-the-math-by-hand.html.gz=child-tax-credit-calculator__vs-doing-the-math-by-hand.html.gz
+      - childcare-center-break-even-calculator__calc.mjs.gz=childcare-center-break-even-calculator__calc.mjs.gz
       - childcare-center-break-even-calculator__index.html.gz=childcare-center-break-even-calculator__index.html.gz
       - childcare-center-break-even-calculator__usage.mjs.gz=childcare-center-break-even-calculator__usage.mjs.gz
       - childcare-enrollment-mix-optimizer__calc.mjs.gz=childcare-enrollment-mix-optimizer__calc.mjs.gz
@@ -1567,14 +1570,14 @@ configMapGenerator:
       - coffee-roaster-margin-calculator__index.html.gz=coffee-roaster-margin-calculator__index.html.gz
       - coffee-roaster-margin-calculator__usage.mjs.gz=coffee-roaster-margin-calculator__usage.mjs.gz
       - coi-expiry-gap-checker__calc.mjs.gz=coi-expiry-gap-checker__calc.mjs.gz
-      - coi-expiry-gap-checker__index.html.gz=coi-expiry-gap-checker__index.html.gz
-      - coi-expiry-gap-checker__usage.mjs.gz=coi-expiry-gap-checker__usage.mjs.gz
-      - collision-shop-drp-profit-calculator__calc.mjs.gz=collision-shop-drp-profit-calculator__calc.mjs.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - coi-expiry-gap-checker__index.html.gz=coi-expiry-gap-checker__index.html.gz
+      - coi-expiry-gap-checker__usage.mjs.gz=coi-expiry-gap-checker__usage.mjs.gz
+      - collision-shop-drp-profit-calculator__calc.mjs.gz=collision-shop-drp-profit-calculator__calc.mjs.gz
       - collision-shop-drp-profit-calculator__index.html.gz=collision-shop-drp-profit-calculator__index.html.gz
       - collision-shop-drp-profit-calculator__usage.mjs.gz=collision-shop-drp-profit-calculator__usage.mjs.gz
       - commercial-lease-abstract-reader__calc.mjs.gz=commercial-lease-abstract-reader__calc.mjs.gz
