@@ -1,14 +1,12 @@
 # Repo instructions
 
-**Frozen, and the move has not landed.** The research portfolio is moving to
-`Duncan-Haywood/fp-monorepo` under `research/`, in <https://github.com/Duncan-Haywood/fp-monorepo/pull/6143>. That pull
-request is still open, so fp-monorepo's `main` has no `research/` until it merges. Do not add,
-change or remove projects in this repository; it will be archived.
+**Active; the move is on hold.** The owner lifted the freeze on 2026-10-12. The portfolio was
+due to move to `Duncan-Haywood/fp-monorepo` under `research/`, in
+<https://github.com/Duncan-Haywood/fp-monorepo/pull/6143>. That pull request is still open, and
+its copy of `research/` dates from 2026-10-01. Work lands here, on this repository's `main`. If
+the move resumes, re-sync that copy from here first.
 
-While the freeze holds, a scheduled run (one that starts with "read ./prompt.md") leaves no
-trace. It creates no branch, commit, pull request or run-log line, and merges nothing. It replies
-in one line and stops. Most of the unmerged branches here are no-op runs that logged themselves
-on fresh branches.
+New projects come from the priority tracks in [`PROJECTS.md`](PROJECTS.md).
 
 ## Land what you push
 

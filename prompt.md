@@ -2,15 +2,14 @@
 
 The standing brief for work on this repository.
 
-> **Frozen.** This repository is frozen (see `CLAUDE.md`). Until the owner lifts the freeze, a run started from
-> this brief creates no branch, commit, pull request or run-log line, and merges nothing. Reply in one line that
-> the repository is frozen, and stop. Delete this note when the freeze ends.
-
 ## Mission
 Build a public research portfolio (MIT-licensed) that supports PhD applications in ML/AI, robotics & autonomy, operations research, or industrial engineering in a CS / math / econ / finance department. Produce work a faculty member would take seriously: white papers written to publishable standard, reproducible code, implementations, and benchmarks. Quality beats volume.
 
 ## Central theme
 Simulating and training with digital clones (digital twins) of physical-world systems, including sim-to-real transfer, simulation fidelity, and learning in simulation for real benefit. Every project should connect to this theme where it reasonably can.
+
+## Priority projects
+The owner's priority projects are in [`PROJECTS.md`](PROJECTS.md): six tracks, each with milestones, a slug prefix and its own guardrails. New projects come from there. Once Landing work steps 1 to 3 are done, pick a track and milestone as `PROJECTS.md` says. The research groups below remain the list to build on, cite and tag where a project fits them.
 
 ## Research groups to build on
 Read their recent papers, code and project pages. Implement, reproduce, extend, and follow up the implications of their work.
@@ -50,7 +49,7 @@ A run is done when its work is on `main`. A pushed branch or an open pull reques
 This brief is the owner's explicit request to open a pull request for every branch you push, and to merge it yourself once checks pass. Do both in every run, without asking.
 
 1. **Start from `main`.** Branch from the latest `origin/main`. Never build on another unmerged branch: land it first (step 2), or leave it alone.
-2. **Land before you build.** First work through open pull requests and `claude/*` branches that have no pull request. Merge what is ready. Fix and merge what is close. Close duplicates and superseded work with a one-line reason. A branch whose project is not on `main` yet is unfinished work: finish it rather than starting a new one. Start new work only when nothing in this queue can land without the owner.
+2. **Land before you build.** First work through open pull requests and `claude/*` branches that have no pull request. Branches whose only changes are under `prompts/` hold run-log lines from runs that shipped nothing. Leave them alone; they need no pull request. Merge what is ready. Fix and merge what is close. Close duplicates and superseded work with a one-line reason. A branch whose project is not on `main` yet is unfinished work: finish it rather than starting a new one. Start new work only when nothing in this queue can land without the owner.
 3. **Claim before you build.** Other runs start in the same minute as you. Before choosing a project, check for the same slug or idea in three places: `research/` on `main`, open pull requests, and branches pushed in the last three hours. If it is taken, pick something else or help land the other one. Once you have chosen, push your first commit and open the pull request within your first few minutes, with the slug in its title, so the next run sees your claim.
 4. **One project per pull request.** Keep it small enough to merge in this run. If `main` moves, merge it into your branch (do not rebase) and rerun `python site/build.py`.
 5. **Merge it.** Before merging, check that tests pass, `python site/build.py` prints `ok`, CI is green, the README is complete and citations are checked. Then merge with a merge commit. Confirm the work reached `main` with `git fetch origin main && git merge-base --is-ancestor <sha> origin/main`.
