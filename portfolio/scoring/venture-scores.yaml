@@ -29413,3 +29413,52 @@ ventures:
       warranty and no-advice disclaimers on the page.
       Ethics: purely informational, no scraped or personal data, nothing
       adversarial, zero externality.
+
+  - slug: node-version-drift-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 9
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic text classification of version declarations already
+      present in the repo's own files. There is nothing to infer: a pinned
+      version either does or does not fall inside engines.node, two pins
+      either do or do not name the same major, and a major is either past
+      the dated end-of-life table entry or it is not.
+    basis: >-
+      Screened 2026-10-12 per portfolio/pipeline/README.md's archetype note:
+      a zero-dependency CLI + browser page, not a <trade>-bid-calculator.
+      duplicate_check.py scored every existing venture, screened-out row and
+      pipeline candidate at or below 0.18 against the final description
+      (closest: docker-cache-order-check, shared Dockerfile/CLI vocabulary
+      only); no existing venture reads engines.node, .nvmrc or setup-node.
+      Autonomous ops 9 / gross margin 10: nothing to host, the page and CLI
+      are pure text analysis over files already on the user's disk or
+      pasted in; the one recurring chore is refreshing the dated
+      end-of-life table once or twice a year, hence 9 not 10. Distribution
+      6: the Node.js release-schedule page is where every "is Node 20 still
+      supported" search lands, and "works locally, fails in CI" version
+      mismatch threads recur on Stack Overflow and r/node, though no
+      external search-volume tool was queried to confirm magnitude. Time to
+      revenue 5, defensibility 3: donations-only; a transparent range
+      parser plus a dated table is easy to reimplement, so the only edge is
+      being a single cross-file pass with this portfolio's disclaimer and
+      usage conventions.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: a read-only static-text analysis over files the user already has
+      on disk or pastes in -- no network call of its own, never runs node,
+      npm, nvm or docker, no data leaving the browser or the user's machine.
+      The pages state that end-of-life dates come from a static table dated
+      2026-10-11 and must be confirmed on nodejs.org, and that a clean
+      result is evidence about declared versions only, not that the code
+      runs on any of them.
