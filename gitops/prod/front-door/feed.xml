@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1082 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1083 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -22,6 +22,14 @@
     <updated>2026-10-12T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free California meal and rest break premium pay checker for restaurants, retail and any hourly employer. Paste timecards, find late, short and missed meal periods and rest break shortfalls, and total the one-hour premium owed per workday. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Climbing Gym Profit Calculator — monthly profit, payback and break-even members</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/climbing-gym-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/climbing-gym-profit-calculator</id>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free calculator for climbing and bouldering gyms. Enter day passes, memberships, youth programs, parties, staff, route setting, rent and the build; it shows monthly profit, margin, payback, break-even members and the lowest day pass and membership fee for your target margin. Private, in your browser.</summary>
   </entry>
   <entry>
     <title>Courier Van Route Profit Calculator — true profit per route, per hour and per stop</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-11T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free bed bug heat treatment bid calculator: enter the floor area, clutter, heaters, crew, fuel and callback rate, and get a price, a price per square foot and a comparison with a chemical programme. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Bike Shop Repair Profit Calculator — Job Price, Break-Even, Bench Hours</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bike-shop-repair-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/bike-shop-repair-profit-calculator</id>
-    <updated>2026-10-11T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free bike repair shop calculator: enter job prices, bench minutes, materials, technician pay, tools and rent, and see profit per job and per bench hour, break-even volume and the plan result. Runs in your browser.</summary>
   </entry>
 </feed>
