@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1102 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1103 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -136,6 +136,14 @@
     <summary type="text">Paste a funeral home&#39;s price list or quote and see which charges you cannot decline, which are your choice, which are paid to others, and which the FTC Funeral Rule questions, such as casket handling fees. Compare two homes. Free, in your browser.</summary>
   </entry>
   <entry>
+    <title>Glamping Unit Payback Calculator — Yurts, Domes and Cabins</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/glamping-unit-payback-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/glamping-unit-payback-calculator</id>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free payback calculator for glamping and cabin sites: build cost, shared infrastructure, seasonal nightly rates and occupancy, commission, turnovers and a loan become operating income, debt coverage, cash after the loan, payback in years and break-even occupancy. Private, runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Golf Simulator Bay Profit Calculator — monthly profit, payback and break-even utilization</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/golf-simulator-bay-profit-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/golf-simulator-bay-profit-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-12T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator for trampoline parks, bounce gyms, play cafes and family entertainment centers. Enter the package price, children, party length, hosts, food and goodie cost, card fees, the open-play revenue given up and yearly rent; it shows true profit per party, profit per room hour and the lowest package price for your margin. Nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Lawn Aeration and Overseeding Bid Calculator — true profit, margin and lowest quote per job</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/lawn-aeration-overseeding-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/lawn-aeration-overseeding-bid-calculator</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free calculator for lawn-care operators pricing core aeration and overseeding. Enter lot size, beds and hardscape, aerator passes and speed, seed and fertilizer rates, crew hours, truck miles and your machine cost; it shows true profit per job, margin, profit per crew hour, the lowest quote that hits your target margin, price per 1,000 sq ft, break-even jobs a season, and compares two jobs. Private, in your browser.</summary>
   </entry>
 </feed>

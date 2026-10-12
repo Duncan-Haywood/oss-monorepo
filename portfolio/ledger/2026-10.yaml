@@ -3687,11 +3687,21 @@ entries:
         freight-accessorial-auditor audits carrier charges and 3pl-quote-normalizer compares quotes, neither checks a warehouse
         invoice). First visitor: people searching 3PL invoice audit or 3PL billing errors; volume unmeasured.
     mrr_end: 0
+  - venture: glamping-unit-payback-calculator
   - venture: patent-maintenance-fee-planner
     agent_spend_usd: 0
     human_hours: 0
     outcomes:
       - >-
+        Graduated and built glamping-unit-payback-calculator: a browser-only worksheet for people building or running glamping
+        sites (yurts, domes, cabins, safari tents). Takes unit and shared-infrastructure cost, nightly rate and occupancy for up to
+        three seasons, stay length, cleaning fee, turnover cost, commission, fixed costs, an upkeep reserve and a loan, and returns
+        operating income, debt coverage, cash after the loan, payback on the whole investment and on the owner's own money,
+        break-even occupancy, the across-the-board rate change that covers the loan or hits a payback target, an occupancy
+        sensitivity table and a unit-count table. Hand-computed unit tests (14), rate and occupancy solves checked by plugging
+        the answer back in. Screened with duplicate_check.py (nearest 0.16, laundromat-acquisition-offer-calculator;
+        campground-site-profit-calculator has no build-cost or loan model and rv-rental-host-profit-calculator is one vehicle).
+        First visitor: landowners searching glamping ROI or yurt rental income; volume unmeasured.
         Graduated and built patent-maintenance-fee-planner: a browser-only planner for inventors, startups and small IP teams.
         Paste US patents with grant date and entity size and it returns, for the next fee on each, the window-open date,
         no-surcharge due date, surcharge deadline and expiry date (weekend deadlines rolled to Monday, month-end clamping),
