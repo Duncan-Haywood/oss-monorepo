@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Band Tour Profit Planner — free tour budget and gig profit calculator</title>
+  <meta name="description" content="Free band tour profit planner. Enter your shows, venue deals (flat, door or versus), miles, rooms and merch and see profit per show and for the tour, break-even attendance, the guarantee to ask for and which dates to drop. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Band Tour Profit Planner — free, private, in your browser">
+  <meta property="og:description" content="Which dates make money, which lose it, and what to ask the venue for. Tour budget, door deals, merch and per-member payout. No sign-up.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Band Tour Profit Planner", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter your shows, venue deals, miles, rooms and merch and see profit per show and for the whole tour, break-even attendance, the guarantee to ask for and which dates to drop. Runs entirely in your browser; nothing is uploaded.", "featureList": "band tour budget calculator, gig profit calculator, door deal versus guarantee, break-even attendance, merch net, per member payout"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I know if a tour or a single show will make money?", "acceptedAnswer": {"@type": "Answer", "text": "List each show with its miles, expected paid attendance, ticket price and the venue deal, then add what the van, rooms and per diems cost. The planner adds the venue fee and merch you keep, subtracts the agent cut, driving, lodging, per diems and crew, and shows profit for every date and for the whole tour. A date is marked keep, on the way or drop."}}, {"@type": "Question", "name": "What do keep, on the way and drop mean?", "acceptedAnswer": {"@type": "Answer", "text": "Keep means the show makes money after driving. On the way means it loses money after driving but earns more than its own food, rooms and crew cost, so it only makes sense if you were driving that stretch anyway. Drop means the show loses money even before you count the drive. These are arithmetic labels, not advice: a date can matter for a fan base, a booker or a radio spot in ways the numbers cannot see."}}, {"@type": "Question", "name": "How do flat, door and versus deals work here?", "acceptedAnswer": {"@type": "Answer", "text": "A flat deal pays a guarantee. A door deal pays a percentage of ticket gross after the venue's stated expenses, and nothing if the door does not cover the expenses. A versus deal pays whichever is larger, the guarantee or the percentage of what is left after expenses. Enter them as flat 400, door 80 600 or vs 400 80 600."}}, {"@type": "Question", "name": "What attendance do I need to break even?", "acceptedAnswer": {"@type": "Answer", "text": "For every show the planner finds the smallest paid attendance at which profit reaches zero, and also the attendance for your own profit target. If the date cannot break even even at a packed room it says never, which usually means the drive or the deal is the problem rather than the crowd."}}, {"@type": "Question", "name": "What guarantee should I ask for?", "acceptedAnswer": {"@type": "Answer", "text": "The ask column shows the venue fee you would need to reach your profit target at the draw you expect, after your agent's cut. Use it as a floor for a conversation, not a number the venue owes you."}}, {"@type": "Question", "name": "Is anything uploaded or saved?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser, there are no accounts, and nothing is stored, so download the CSV if you want to keep a plan."}}, {"@type": "Question", "name": "Is this tax, legal or contract advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is planning arithmetic. It does not know your contracts, sales tax on merch, taxes on income, insurance or what a venue will actually pay. Check every figure against your contract before you rely on it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1b2d; background: #f5f3f8; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #5b2a9e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #2e1a52; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2e1a52; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4d4860; }
+    .card { background: #fff; border: 1px solid #d9d3e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2e1a5212; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #675f7d; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { font-family: ui-monospace, Menlo, monospace; font-size: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #5b2a9e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e7e2f0; color: #2e1a52; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px 6px; border-bottom: 1px solid #e7e2f0; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4d4860; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .pill.keep { background: #dcefdc; color: #1d5a24; }
+    .pill.way { background: #fdf0d5; color: #5c4508; }
+    .pill.drop { background: #f8d9d6; color: #7d1f16; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #efeaf6; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #2e1a52; }
+    footer { margin-top: 28px; border-top: 1px solid #d9d3e6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .row4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+    pre { background: #efeaf6; border-radius: 10px; padding: 12px; overflow-x: auto; white-space: pre-wrap; font-size: .9rem; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">BAND TOUR PROFIT PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will this tour make money? Find out before you book the van</h1>
+    <p>List your <strong>shows</strong> with miles, expected paid attendance and the <strong>venue deal</strong> (flat, door or versus). Add what the van, rooms and per diems cost. Get <strong>profit per show and for the tour</strong>, the <strong>attendance you need to break even</strong>, the <strong>guarantee to ask for</strong>, which dates to drop, and what each member takes home.</p>
+    <p class="note">For touring bands, solo acts and DJs. No sign-up, no app. New to this? Read <a href="./how-to-budget-a-band-tour.html">how to budget a band tour, step by step</a>.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>1. Your shows</h2>
+    <label for="shows">One per line: <code>Name: miles 280; draw 120; ticket 15; deal vs 400 80 600; merch 4.5; nights 1</code>. Deals: <code>flat 400</code>, <code>door 80 600</code> (percent, venue expenses), <code>vs 400 80 600</code> (guarantee, percent, expenses). Optional: <code>cut</code> (venue merch cut %), <code>other</code> (extra cost $).</label>
+    <textarea id="shows" rows="8" placeholder="Denver CO: miles 0; draw 140; ticket 15; deal vs 500 80 700; merch 5&#10;Salt Lake City UT: miles 520; draw 70; ticket 12; deal flat 350; nights 1"></textarea>
+
+    <h2 style="margin-top:18px">2. Your band and costs</h2>
+    <div class="row4">
+      <div><label for="members">Band members</label><input id="members" inputmode="numeric" value="4"></div>
+      <div><label for="crew">Crew / driver / merch</label><input id="crew" inputmode="numeric" value="0"></div>
+      <div><label for="costPerMile">Van cost per mile, $</label><input id="costPerMile" inputmode="decimal" value="0.60"></div>
+      <div><label for="roomCost">Room per night, $</label><input id="roomCost" inputmode="decimal" value="110"></div>
+      <div><label for="occupancy">People per room</label><input id="occupancy" inputmode="numeric" value="2"></div>
+      <div><label for="perDiem">Per diem per person per show, $</label><input id="perDiem" inputmode="decimal" value="25"></div>
+      <div><label for="crewPerShow">Pay per crew per show, $</label><input id="crewPerShow" inputmode="decimal" value="0"></div>
+      <div><label for="vanFlat">Fixed tour cost (rental, insurance), $</label><input id="vanFlat" inputmode="decimal" value="0"></div>
+      <div><label for="merchCogsPct">Merch cost of goods, % of sales</label><input id="merchCogsPct" inputmode="decimal" value="35"></div>
+      <div><label for="merchCutPct">Venue merch cut, % of sales</label><input id="merchCutPct" inputmode="decimal" value="15"></div>
+      <div><label for="agentPct">Agent / manager cut, % of venue fee</label><input id="agentPct" inputmode="decimal" value="10"></div>
+      <div><label for="target">Profit target per show, $</label><input id="target" inputmode="decimal" value="0"></div>
+    </div>
+
+    <button type="button" id="build">Plan the tour</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Enter your shows, then click Plan the tour.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Your tour</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="check-line"></p>
+    <div class="scroll"><table id="shows-table"><thead><tr><th>Show</th><th class="n">Venue fee</th><th class="n">Merch net</th><th class="n">Costs</th><th class="n">Profit</th><th class="n">Break-even draw</th><th class="n">Ask for</th><th>Verdict</th></tr></thead><tbody></tbody></table></div>
+    <h2 style="margin-top:22px">If the crowd is smaller or bigger</h2>
+    <div class="scroll"><table id="sens"><thead><tr><th>Show</th><th class="n">Half the draw</th><th class="n">75%</th><th class="n">As planned</th><th class="n">125%</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="dl-csv">Download plan (CSV)</button>
+    <button type="button" class="secondary" id="copy-text">Copy as plain text</button>
+    <button type="button" class="secondary" id="dl-text">Download text</button>
+    <button type="button" class="secondary" id="print">Print</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is worked out</h2>
+    <p><strong>Venue fee:</strong> flat pays the guarantee; door pays your percentage of ticket gross after the venue's expenses, and nothing if the door does not cover them; versus pays the larger of the two.</p>
+    <p><strong>Merch:</strong> expected paid attendance times merch spend per head, less the venue's cut and your cost of goods.</p>
+    <p><strong>Costs:</strong> miles times your van cost per mile, rooms for the nights you stay (people divided by people per room, rounded up), per diems, crew pay and anything extra. The agent takes their percentage of the venue fee only.</p>
+    <p><strong>Break-even draw</strong> is the smallest paid attendance that brings that show to zero, found by search and re-checked by a separate validator. <strong>Ask for</strong> is the venue fee that would reach your profit target at the draw you expect.</p>
+    <p><strong>Verdicts:</strong> keep (profitable), on the way (loses money after the drive but earns more than its own rooms, food and crew, so only worth it if you pass through anyway), drop (loses money even before the drive).</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I know if a tour or a single show will make money?</h3>
+    <p>List each show with its miles, expected paid attendance, ticket price and the venue deal, then add what the van, rooms and per diems cost. The planner adds the venue fee and merch you keep, subtracts the agent cut, driving, lodging, per diems and crew, and shows profit for every date and for the whole tour. A date is marked keep, on the way or drop.</p>
+    <h3>What do keep, on the way and drop mean?</h3>
+    <p>Keep means the show makes money after driving. On the way means it loses money after driving but earns more than its own food, rooms and crew cost, so it only makes sense if you were driving that stretch anyway. Drop means the show loses money even before you count the drive. These are arithmetic labels, not advice: a date can matter for a fan base, a booker or a radio spot in ways the numbers cannot see.</p>
+    <h3>How do flat, door and versus deals work here?</h3>
+    <p>A flat deal pays a guarantee. A door deal pays a percentage of ticket gross after the venue's stated expenses, and nothing if the door does not cover the expenses. A versus deal pays whichever is larger, the guarantee or the percentage of what is left after expenses. Enter them as flat 400, door 80 600 or vs 400 80 600.</p>
+    <h3>What attendance do I need to break even?</h3>
+    <p>For every show the planner finds the smallest paid attendance at which profit reaches zero, and also the attendance for your own profit target. If the date cannot break even even at a packed room it says never, which usually means the drive or the deal is the problem rather than the crowd.</p>
+    <h3>What guarantee should I ask for?</h3>
+    <p>The ask column shows the venue fee you would need to reach your profit target at the draw you expect, after your agent's cut. Use it as a floor for a conversation, not a number the venue owes you.</p>
+    <h3>Is anything uploaded or saved?</h3>
+    <p>No. Everything is calculated in your browser, there are no accounts, and nothing is stored, so download the CSV if you want to keep a plan.</p>
+    <h3>Is this tax, legal or contract advice?</h3>
+    <p>No. It is planning arithmetic. It does not know your contracts, sales tax on merch, taxes on income, insurance or what a venue will actually pay. Check every figure against your contract before you rely on it.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is planning arithmetic, not tax, legal, accounting or contract advice, and it does not know your venue contracts, merch sales tax, income tax, insurance or what a venue will actually pay. <strong>You are responsible for checking every figure</strong> against your contracts and receipts before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any booking agency, ticketing company, venue or music platform, and none is named or ranked here. The example tour is invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere, so download the CSV.</p>
+    <p>Everything runs in your browser. Your shows, deals and figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>tour_planned</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>text_shared</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../food-truck-event-margin-calculator/">food truck event margin calculator</a> and the <a href="../market-event-picker/">market event picker</a> for other event-by-event math.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { planFromFields, validatePlan, planCsv, planText, sampleFields, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const IDS = ["members", "crew", "costPerMile", "roomCost", "occupancy", "perDiem", "crewPerShow", "vanFlat", "merchCogsPct", "merchCutPct", "agentPct", "target"];
+    let last = null;
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const later = (fn) => setTimeout(fn, 0);
+    const LABEL = { keep: ["keep", "keep"], "on-the-way": ["way", "on the way"], drop: ["drop", "drop"] };
+
+    const readFields = () => Object.assign({ shows: $("#shows").value }, ...IDS.map((id) => ({ [id]: $("#" + id).value })));
+    function setFields(f) { $("#shows").value = f.shows; for (const id of IDS) $("#" + id).value = f[id]; }
+
+    function render(plan) {
+      last = plan;
+      $("#report").hidden = false;
+      const v = validatePlan(plan);
+      const worst = plan.rows.slice().sort((a, b) => a.profit - b.profit)[0];
+      $("#notices").innerHTML = plan.dropList.length
+        ? `<div class="warn">${esc(plan.dropList.join(", "))} lose${plan.dropList.length === 1 ? "s" : ""} money even before the drive. Dropping ${plan.dropList.length === 1 ? "it" : "them"} lifts the tour to ${esc(money(plan.netIfDropped))} if the miles they cost go away with them.</div>`
+        : "";
+      $("#big").innerHTML = [
+        [money(plan.net), "tour net"], [money(plan.perMember), `per member (${plan.settings.members})`], [plan.totals.miles, "miles"], [plan.rows.length, "shows"], [worst ? money(worst.profit) : "—", "weakest date"],
+      ].map(([a, b]) => `<div><strong>${esc(a)}</strong>${esc(b)}</div>`).join("");
+      $("#check-line").innerHTML = v.ok ? `<span class="pill keep">checked</span> Every show total recomputes and every break-even attendance is the smallest that works.` : `<span class="pill drop">problem</span> ${esc(v.errors.slice(0, 3).join(" "))}`;
+      $("#shows-table tbody").innerHTML = plan.rows.map((r) => {
+        const [cls, text] = LABEL[r.verdict];
+        return `<tr><td>${esc(r.show.name)}</td><td class="n">${money(r.fee)}</td><td class="n">${money(r.merchNet)}</td><td class="n">${money(r.costs)}</td><td class="n">${money(r.profit)}</td><td class="n">${r.breakEvenDraw === null ? "never" : r.breakEvenDraw}</td><td class="n">${money(r.ask)}</td><td><span class="pill ${cls}">${text}</span></td></tr>`;
+      }).join("");
+      $("#sens tbody").innerHTML = plan.rows.map((r) => `<tr><td>${esc(r.show.name)}</td>` + r.sens.map((s) => `<td class="n">${money(s.profit)} <span class="note">(${s.draw})</span></td>`).join("") + "</tr>").join("");
+    }
+
+    function run() {
+      const { errors, plan } = planFromFields(readFields());
+      if (errors.length) { status.textContent = errors.join(" "); return false; }
+      render(plan);
+      status.textContent = `Done. Tour net ${money(plan.net)}. Scroll down for each date.`;
+      return true;
+    }
+
+    function download(name, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    $("#build").addEventListener("click", () => later(() => { if (run()) record("tour_planned"); }));
+    $("#load-example").addEventListener("click", () => {
+      setFields(sampleFields());
+      later(() => { if (run()) { record("example_loaded"); status.textContent = "Sample tour: invented shows, not a real band."; } });
+    });
+    $("#clear-all").addEventListener("click", () => { $("#shows").value = ""; $("#report").hidden = true; last = null; status.textContent = "Cleared."; });
+    $("#dl-csv").addEventListener("click", () => { if (!last) return; download("tour-plan.csv", planCsv(last), "text/csv"); record("csv_downloaded"); });
+    $("#dl-text").addEventListener("click", () => { if (!last) return; download("tour-plan.txt", planText(last), "text/plain"); record("text_shared"); });
+    $("#copy-text").addEventListener("click", async () => {
+      if (!last) return;
+      try { await navigator.clipboard.writeText(planText(last)); status.textContent = "Copied. Paste it into your band chat."; record("text_shared"); }
+      catch { status.textContent = "Your browser blocked copying. Use Download text instead."; }
+    });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+name: band-tour-profit-planner
+description: >-
+  Free browser tool for touring bands, solo acts and DJs: list the shows with
+  miles, expected paid attendance and the venue deal (flat, door or versus),
+  add van, room, per diem, crew, agent and merch costs, and get profit per show
+  and per tour, break-even attendance, the guarantee to ask for, a keep / on the
+  way / drop verdict per date and per-member take-home. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture session.
+# duplicate_check.py: closest rows were food-truck-event-margin-calculator 0.31 and
+# market-event-picker 0.29 (other event-by-event math); the band-tour query scored 0.32
+# against atm-route-margin. Nothing near the 0.45 line. Gigging musicians had no tool.
+#
+# Why this niche: independent bands book tours from a spreadsheet and a gas guess, then
+# discover a flat fee that never covered the drive or a door deal where the venue's
+# expenses ate the door. The spreadsheet does not solve for break-even attendance or the
+# fee to ask for.
+#
+# First visitor: people searching "band tour budget", "gig profit calculator", "door deal
+# vs guarantee"; musicians in r/WeAreTheMusicMakers and r/booking. Volume not measured
+# with an external tool.
+#
+# Liability boundary: arithmetic only. No payments, no accounts, nothing stored or
+# uploaded, no tax, contract or legal advice. The user checks every figure against
+# their contracts.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Independent touring musicians will paste their dates and venue deals into a
+      private, no-signup planner before confirming a run, and will use the
+      break-even attendance and the ask it gives to renegotiate or drop dates.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a profit or break-even figure that does not follow from the inputs and the formulas the page states.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/band-tour-profit-planner/
+  analytics: null
