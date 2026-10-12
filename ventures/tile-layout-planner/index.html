@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tile Layout Planner — how many tiles, where to cut, and where to start</title>
+  <meta name="description" content="Free tile layout planner for installers and DIY. Enter a room, cut-outs and a tile; see the real layout, how many tiles to buy with offcut reuse, the cut list, and the starting position with the fewest thin cuts. Straight, running bond or diagonal. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Tile Layout Planner — free, private, in your browser">
+  <meta property="og:description" content="Lay out the actual tiles, find the start that avoids thin cuts, and count tiles to buy with leftover pieces reused. To-scale plan and cut list.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Tile Layout Planner", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter a room, obstacles and a tile, pick straight, running bond or diagonal, and the planner lays out the real tiles, searches starting positions for the fewest thin cuts and tiles, counts full and cut tiles with offcut reuse, and shows a to-scale plan, a cut list and a layout comparison. Runs entirely in your browser; nothing is uploaded.", "featureList": "Tile layout planning, tile quantity calculator, cut list, offcut reuse, running bond and diagonal patterns, obstacles and cut-outs, to-scale plan, layout comparison, metric and imperial units"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many tiles do I need for a room?", "acceptedAnswer": {"@type": "Answer", "text": "Divide the floor area by the area of one tile for a first figure, then add for cuts and breakage. The planner does the real count instead: it lays out the actual tiles on your room, counts the full tiles and the cut tiles, lets leftover pieces serve later cuts, and adds the overage you choose. The result can be a few tiles above or below the area rule depending on where the layout starts."}}, {"@type": "Question", "name": "How much extra tile should I buy?", "acceptedAnswer": {"@type": "Answer", "text": "Installers commonly allow roughly 10 percent for a straight layout and more for diagonal or patterned layouts, and keep a few spare tiles from the same lot for future repairs. The overage is an input here, so use the figure your installer or supplier recommends. Dye lots can differ between orders, so it is safer to buy everything at once."}}, {"@type": "Question", "name": "Why centre the layout instead of starting at a wall?", "acceptedAnswer": {"@type": "Answer", "text": "Starting at a wall leaves whatever is left over as a narrow strip at the opposite wall, which can be a sliver a few millimetres wide. Centring a tile or a joint splits the leftover between both walls so neither strip is very thin, though it makes more cut tiles. The planner compares both, and a search over many starting positions, so you can see the trade."}}, {"@type": "Question", "name": "How much more tile does a diagonal layout need?", "acceptedAnswer": {"@type": "Answer", "text": "Diagonal layouts waste more because every tile along a wall is cut at an angle and the offcuts rarely fit anywhere else. The planner counts them exactly for your room and assumes no reuse of diagonal offcuts, so the diagonal figure is conservative. Expect a noticeably larger overage than for a straight layout."}}, {"@type": "Question", "name": "What is running bond and how much offset should I use?", "acceptedAnswer": {"@type": "Answer", "text": "Running bond staggers each row against the one before, like brick. A half offset is common for square tiles. Many tile makers advise no more than about one third for long rectangular tiles because the ends can curl, so check the instructions for your tile. The planner lets you pick one half, one third or one quarter."}}, {"@type": "Question", "name": "Does it account for leftover pieces being reused?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, for straight and running bond layouts. A greedy cutting plan takes each cut piece from the smallest leftover that holds it, otherwise from a new tile, and splits what remains. It shows tiles to buy with and without reuse. It assumes you may turn a leftover to fit; untick that for tile with a one-way pattern. Real cutting loses a little to the blade and to breakage."}}, {"@type": "Question", "name": "How thin can a cut tile be?", "acceptedAnswer": {"@type": "Answer", "text": "Very thin cuts are hard to make cleanly and look poor, so installers usually try to avoid them. There is no single rule; a minimum cut of around 50 mm (2 inches) is a common planning figure and is an input here. The planner counts every cut thinner than that and ranks layouts by it first."}}, {"@type": "Question", "name": "Is my room data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The planner runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2330; background: #f4f2ee; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #1b5e7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #3b3a2e; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #3b3a2e; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #ddd8cc; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3b3a2e12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #7b7862; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1b5e7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #ebe8dd; color: #3b3a2e; }
+    button.small { padding: 6px 10px; margin: 0; font-size: .85rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px 6px; border-bottom: 1px solid #ece8dc; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    #obst td { padding: 4px 3px; }
+    #obst input { padding: 6px 6px; font-size: 14px; width: 90px; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.info { background: #e6e9ef; color: #2c3e50; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f6f3ea; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #3b3a2e; }
+    footer { margin-top: 28px; border-top: 1px solid #ddd8cc; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .row4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .seg { display: inline-flex; gap: 16px; margin: 4px 0; }
+    .seg label { display: inline-flex; gap: 6px; align-items: center; font-weight: 600; margin: 0; }
+    .seg input { width: auto; }
+    canvas { width: 100%; display: block; background: #fbfaf6; border: 1px solid #ddd8cc; border-radius: 8px; margin: 6px 0 12px; }
+    .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 6px 0 4px; font-size: .88rem; }
+    .legend span.sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 5px; border: 1px solid #0003; }
+    tr.rec td { background: #eef6ee; }
+    details summary { cursor: pointer; font-weight: 700; color: #3b3a2e; }
+    .ghost { color: #54503f; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">TILE LAYOUT PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Where do I start tiling, and how many tiles do I buy?</h1>
+    <p>Enter the <strong>room, any cut-outs and your tile</strong>. The planner lays out the real tiles, searches starting positions for the one with the <strong>fewest thin cuts and the fewest tiles</strong>, reuses leftover pieces, and gives you a <strong>to-scale plan, a cut list and the number to order</strong>.</p>
+    <p class="note">A planning aid, not installation advice or a material guarantee. New to this? Read <a href="./how-many-tiles-do-i-need.html">how many tiles you need, with a worked example</a>.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>1. Units and room</h2>
+    <div class="seg" role="radiogroup" aria-label="Units">
+      <label for="u-metric"><input type="radio" name="units" id="u-metric" value="metric" checked> Metric (m, cm, mm)</label>
+      <label for="u-imperial"><input type="radio" name="units" id="u-imperial" value="imperial"> Imperial (ft, in)</label>
+    </div>
+    <div class="row4">
+      <div><label for="rW">Room length, left to right (<span class="ru">m</span>)</label><input id="rW" inputmode="decimal"></div>
+      <div><label for="rH">Room width, top to bottom (<span class="ru">m</span>)</label><input id="rH" inputmode="decimal"></div>
+      <div><label for="gap">Gap at the walls (<span class="gu">mm</span>)</label><input id="gap" inputmode="decimal" value="0"></div>
+    </div>
+    <h3>Cut-outs the tile does not cover <span class="ghost" style="font-weight:400">(tub, island, cabinet, hearth)</span></h3>
+    <div class="scroll">
+      <table id="obst">
+        <thead><tr><th class="n">From left wall (<span class="ru">m</span>)</th><th class="n">From top wall (<span class="ru">m</span>)</th><th class="n">Width (<span class="ru">m</span>)</th><th class="n">Depth (<span class="ru">m</span>)</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <button type="button" class="secondary" id="add-obst">Add a cut-out</button>
+
+    <h2 style="margin-top:18px">2. Tile and pattern</h2>
+    <div class="row4">
+      <div><label for="tW">Tile length (<span class="tu">cm</span>)</label><input id="tW" inputmode="decimal"></div>
+      <div><label for="tH">Tile width (<span class="tu">cm</span>)</label><input id="tH" inputmode="decimal"></div>
+      <div><label for="grout">Grout joint (<span class="gu">mm</span>)</label><input id="grout" inputmode="decimal"></div>
+      <div><label for="pattern">Pattern</label><select id="pattern"></select></div>
+      <div id="shift-wrap"><label for="shift">Running bond offset</label>
+        <select id="shift"><option value="0.5">One half</option><option value="0.3333333333333333">One third</option><option value="0.25">One quarter</option></select></div>
+    </div>
+    <details style="margin-top:14px">
+      <summary>Ordering and cutting rules</summary>
+      <div class="row4">
+        <div><label for="over">Extra to buy (%)</label><input id="over" inputmode="decimal" value="10"></div>
+        <div><label for="minCut">Thinnest cut you will accept (<span class="tu">cm</span>)</label><input id="minCut" inputmode="decimal"></div>
+        <div><label for="perBox">Tiles per box (optional)</label><input id="perBox" inputmode="numeric"></div>
+        <div><label for="boxPrice">Price per box (optional, <span class="cu">$</span>)</label><input id="boxPrice" inputmode="decimal"></div>
+      </div>
+      <label for="reuse" class="check"><input type="checkbox" id="reuse" checked aria-label="Reuse offcuts"> Reuse leftover pieces from cuts (straight and running bond)</label>
+      <label for="rot" class="check"><input type="checkbox" id="rot" checked aria-label="Allow turning a leftover piece"> A leftover may be turned to fit (untick for a one-way pattern or texture)</label>
+      <label for="swap" class="check"><input type="checkbox" id="swap" aria-label="Run the tile the other way"> Run the tile the other way (swap its length and width; the best search tries both anyway)</label>
+    </details>
+
+    <h2 style="margin-top:18px">3. Where to start</h2>
+    <label for="mode">Layout start</label>
+    <select id="mode"></select>
+    <button type="button" id="analyze">Plan the layout</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Enter the room and the tile, then click Plan the layout.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="verdict"></p>
+    <canvas id="view" role="img" aria-label="To-scale plan of the tile layout"></canvas>
+    <div class="legend" id="legend"></div>
+    <p class="note" id="where"></p>
+
+    <h3>Cut list <span class="ghost" style="font-weight:400">(visible size of each cut piece)</span></h3>
+    <div class="scroll"><table id="ct"><thead><tr><th>Piece (length × width)</th><th class="n">Pieces</th><th class="n">Thinnest part</th></tr></thead><tbody></tbody></table></div>
+    <p class="note" id="ct-note"></p>
+    <button type="button" id="download">Download the cut list (CSV)</button>
+
+    <h3>Compare starting positions</h3>
+    <p class="note">The same room and tile laid out four ways. It counts tiles and cuts only; it prices nothing except the box price you typed, so weigh it against your own quotes.</p>
+    <div class="scroll"><table id="cmp"><thead><tr><th>Layout</th><th class="n">Tiles to order</th><th class="n">Cut tiles</th><th class="n">Thin cuts</th><th class="n">Thinnest cut</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Layout:</strong> the tiles are placed on a grid with your grout joint between them, on top of the floor you entered (inside the wall gap, minus the cut-outs). Every tile is clipped to the floor with exact polygon geometry, so a tile at a wall, around a cut-out or across a diagonal becomes a cut piece of its true shape. Whole tiles are counted as full.</p>
+    <p><strong>Search:</strong> the starting position of the grid is tried at many offsets, including each wall, the middle of the room, a joint in the middle and the edges of every cut-out, and with the tile run both ways. Layouts are ranked by the number of cuts thinner than your limit first, then by the tiles to buy, then by the thinnest cut. It is repeatable: the same input gives the same plan.</p>
+    <p><strong>Offcuts:</strong> for straight and running bond layouts a greedy cutting plan takes each cut piece from the smallest leftover that holds it, otherwise from a new tile, and keeps the pieces that remain. Diagonal offcuts are not reused, so a diagonal figure is conservative.</p>
+    <p><strong>Not modelled:</strong> blade width, breakage, tile warp, lippage, pattern or shade matching, herringbone and other patterns, uneven walls, doorway and threshold detail, slopes and drains, trims, and the grout, adhesive and underlay quantities. The total is a planning estimate you can edit; confirm it with your installer or supplier. Unverified against a real installation: tested on hand-computed layouts and on random rooms whose pieces are checked to add up to the floor.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How many tiles do I need for a room?</h3>
+    <p>Divide the floor area by the area of one tile for a first figure, then add for cuts and breakage. The planner does the real count instead: it lays out the actual tiles on your room, counts the full tiles and the cut tiles, lets leftover pieces serve later cuts, and adds the overage you choose. The result can be a few tiles above or below the area rule depending on where the layout starts.</p>
+    <h3>How much extra tile should I buy?</h3>
+    <p>Installers commonly allow roughly 10 percent for a straight layout and more for diagonal or patterned layouts, and keep a few spare tiles from the same lot for future repairs. The overage is an input here, so use the figure your installer or supplier recommends. Dye lots can differ between orders, so it is safer to buy everything at once.</p>
+    <h3>Why centre the layout instead of starting at a wall?</h3>
+    <p>Starting at a wall leaves whatever is left over as a narrow strip at the opposite wall, which can be a sliver a few millimetres wide. Centring a tile or a joint splits the leftover between both walls so neither strip is very thin, though it makes more cut tiles. The planner compares both, and a search over many starting positions, so you can see the trade.</p>
+    <h3>How much more tile does a diagonal layout need?</h3>
+    <p>Diagonal layouts waste more because every tile along a wall is cut at an angle and the offcuts rarely fit anywhere else. The planner counts them exactly for your room and assumes no reuse of diagonal offcuts, so the diagonal figure is conservative. Expect a noticeably larger overage than for a straight layout.</p>
+    <h3>What is running bond and how much offset should I use?</h3>
+    <p>Running bond staggers each row against the one before, like brick. A half offset is common for square tiles. Many tile makers advise no more than about one third for long rectangular tiles because the ends can curl, so check the instructions for your tile. The planner lets you pick one half, one third or one quarter.</p>
+    <h3>Does it account for leftover pieces being reused?</h3>
+    <p>Yes, for straight and running bond layouts. A greedy cutting plan takes each cut piece from the smallest leftover that holds it, otherwise from a new tile, and splits what remains. It shows tiles to buy with and without reuse. It assumes you may turn a leftover to fit; untick that for tile with a one-way pattern. Real cutting loses a little to the blade and to breakage.</p>
+    <h3>How thin can a cut tile be?</h3>
+    <p>Very thin cuts are hard to make cleanly and look poor, so installers usually try to avoid them. There is no single rule; a minimum cut of around 50 mm (2 inches) is a common planning figure and is an input here. The planner counts every cut thinner than that and ranks layouts by it first.</p>
+    <h3>Is my room data uploaded?</h3>
+    <p>No. The planner runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial or construction advice, is not installation instructions or a material guarantee, and does not replace your installer, supplier or the tile maker's guidance. Results are a planning estimate from the figures you type; real rooms, tiles and cutting differ. You are responsible for reviewing and verifying its output.</p>
+    <p><strong>Independent.</strong> Not affiliated with any tile maker, retailer, installer or software company, and none is named or ranked here. The example room is invented, and no tile price is stated or implied.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../flooring-bid-calculator/">flooring bid calculator</a> for pricing the job, the <a href="../tile-layout-optimizer/">tile layout optimizer</a> (searches grid start and offcut reuse), the <a href="../kitchen-tile-backsplash-bid-calculator/">tile backsplash bid calculator</a>, the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and the <a href="../paver-patio-bid-calculator/">paver patio bid calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { SYSTEMS, PATTERNS, MODES, DEFAULTS, validateSpec, planMode, compareLayouts, cutList, verifyLayout, sampleSpec, reportCsv, fmtNum, fmtMoney, lenText, tileableArea } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let sys = SYSTEMS.metric;
+    let lastCsv = "";
+
+    const round = (x, d) => String(+x.toFixed(d));
+    const roomF = (mm) => round(mm / sys.roomMm, 3);
+    const tileF = (mm) => round(mm / sys.tileMm, sys.id === "metric" ? 1 : 3);
+    const groutF = (mm) => round(mm / sys.groutMm, sys.id === "metric" ? 1 : 3);
+    const num = (el) => { const v = el.value.trim(); return v === "" ? NaN : Number(v.replace(/,/g, "")); };
+    const val = (id) => num($("#" + id));
+
+    $("#pattern").innerHTML = PATTERNS.map((p) => `<option value="${p.id}">${esc(p.label)}</option>`).join("");
+    $("#mode").innerHTML = MODES.map((m) => `<option value="${m.id}">${esc(m.label)}</option>`).join("");
+
+    function rowHtml(o) {
+      const f = (k, label) => `<td class="n"><input inputmode="decimal" data-k="${k}" aria-label="${label}" value="${o ? roomF(o[k]) : ""}"></td>`;
+      return `<tr>${f("x", "Cut-out distance from the left wall")}${f("y", "Cut-out distance from the top wall")}${f("w", "Cut-out width")}${f("h", "Cut-out depth")}<td><button type="button" class="secondary small" data-del aria-label="Remove this cut-out">Remove</button></td></tr>`;
+    }
+    function addObstacle(o) {
+      $("#obst tbody").insertAdjacentHTML("beforeend", rowHtml(o));
+    }
+    $("#obst tbody").addEventListener("click", (e) => { if (e.target.closest("[data-del]")) e.target.closest("tr").remove(); });
+    $("#add-obst").addEventListener("click", () => addObstacle(null));
+
+    function setUnitLabels() {
+      document.querySelectorAll(".ru").forEach((e) => (e.textContent = sys.roomU));
+      document.querySelectorAll(".tu").forEach((e) => (e.textContent = sys.tileU));
+      document.querySelectorAll(".gu").forEach((e) => (e.textContent = sys.groutU));
+    }
+
+    function readSpec() {
+      const obstacles = [...document.querySelectorAll("#obst tbody tr")].map((tr) => {
+        const g = (k) => num(tr.querySelector(`[data-k="${k}"]`)) * sys.roomMm;
+        return { x: g("x"), y: g("y"), w: g("w"), h: g("h") };
+      }).filter((o) => [o.x, o.y, o.w, o.h].some((v) => Number.isFinite(v)));
+      const minCut = val("minCut");
+      return {
+        roomW: val("rW") * sys.roomMm, roomH: val("rH") * sys.roomMm, wallGap: (val("gap") || 0) * sys.groutMm,
+        tileW: val("tW") * sys.tileMm, tileH: val("tH") * sys.tileMm, grout: (val("grout") || 0) * sys.groutMm,
+        pattern: $("#pattern").value, brickShift: Number($("#shift").value),
+        obstacles, minCut: Number.isFinite(minCut) ? minCut * sys.tileMm : DEFAULTS.minCut,
+        overagePct: Number.isFinite(val("over")) ? val("over") : 0,
+        tilesPerBox: val("perBox") > 0 ? Math.floor(val("perBox")) : null, boxPrice: val("boxPrice") > 0 ? val("boxPrice") : null,
+        reuse: $("#reuse").checked, rotateOffcuts: $("#rot").checked, swap: $("#swap").checked,
+      };
+    }
+
+    function fillSpec(s) {
+      $("#rW").value = roomF(s.roomW); $("#rH").value = roomF(s.roomH);
+      $("#gap").value = groutF(s.wallGap);
+      $("#tW").value = tileF(s.tileW); $("#tH").value = tileF(s.tileH); $("#grout").value = groutF(s.grout);
+      $("#pattern").value = s.pattern; $("#shift").value = String(s.brickShift);
+      $("#minCut").value = tileF(s.minCut); $("#over").value = s.overagePct;
+      $("#perBox").value = s.tilesPerBox || ""; $("#boxPrice").value = s.boxPrice || "";
+      $("#reuse").checked = s.reuse; $("#rot").checked = true; $("#swap").checked = s.swap;
+      $("#obst tbody").innerHTML = "";
+      for (const o of s.obstacles) addObstacle(o);
+      syncShift();
+    }
+
+    function syncShift() { $("#shift-wrap").hidden = $("#pattern").value !== "brick"; }
+    $("#pattern").addEventListener("change", syncShift);
+
+    function setUnits(id) {
+      const spec = readSpec();
+      const ok = validateSpec(spec).length === 0;
+      sys = SYSTEMS[id];
+      setUnitLabels();
+      $("#minCut").placeholder = sys.id === "metric" ? "5" : "2";
+      if (ok) fillSpec(spec);
+      else { $("#obst tbody").innerHTML = ""; }
+    }
+    document.querySelectorAll('input[name="units"]').forEach((r) => r.addEventListener("change", (e) => { if (e.target.checked) setUnits(e.target.value); }));
+
+    // ----- drawing -----
+    const COLORS = { floor: "#bdb8a8", full: "#e9eef2", cut: "#f3c681", sliver: "#ee8a80", obst: "#6b6f78", stroke: "#6e7480" };
+    function draw(spec, res) {
+      const cv = $("#view");
+      const dpr = window.devicePixelRatio || 1;
+      const wCss = cv.clientWidth || 800;
+      const pad = 12;
+      const scale = (wCss - pad * 2) / spec.roomW;
+      const hCss = spec.roomH * scale + pad * 2;
+      cv.width = Math.round(wCss * dpr); cv.height = Math.round(hCss * dpr);
+      cv.style.height = hCss + "px";
+      const c = cv.getContext("2d");
+      c.setTransform(dpr, 0, 0, dpr, 0, 0);
+      c.clearRect(0, 0, wCss, hCss);
+      const X = (x) => pad + x * scale, Y = (y) => pad + y * scale;
+      c.fillStyle = COLORS.floor; c.fillRect(X(0), Y(0), spec.roomW * scale, spec.roomH * scale);
+      c.lineWidth = 0.6; c.strokeStyle = COLORS.stroke;
+      const path = (p) => { c.beginPath(); p.forEach(([x, y], i) => (i ? c.lineTo(X(x), Y(y)) : c.moveTo(X(x), Y(y)))); c.closePath(); };
+      c.save();
+      c.beginPath(); c.rect(X(spec.wallGap), Y(spec.wallGap), (spec.roomW - 2 * spec.wallGap) * scale, (spec.roomH - 2 * spec.wallGap) * scale); c.clip();
+      for (const cell of res.cells) {
+        const polys = cell.kind === "full" ? [cell.tile] : cell.pieces;
+        c.fillStyle = COLORS[cell.kind];
+        for (const p of polys) { path(p); c.fill(); c.stroke(); }
+      }
+      c.restore();
+      c.fillStyle = COLORS.obst;
+      for (const o of spec.obstacles) c.fillRect(X(o.x), Y(o.y), o.w * scale, o.h * scale);
+      c.strokeStyle = "#3b3a2e"; c.lineWidth = 1.5; c.strokeRect(X(0), Y(0), spec.roomW * scale, spec.roomH * scale);
+    }
+
+    function describeStart(res, spec) {
+      if (spec.pattern === "diagonal") return "Diagonal layout: the pattern is turned 45 degrees about the middle of the room.";
+      // Width of the first piece against a wall: how far the wall sits into a tile.
+      const first = (start, off, tile) => {
+        const pitch = tile + spec.grout;
+        const d = (((start - off) % pitch) + pitch) % pitch;
+        if (d < 0.6) return "a full tile starts on the wall";
+        return d < tile ? `the first piece is ${lenText(sys, tile - d)} wide` : "the wall falls in a joint";
+      };
+      const turned = res.lay.swap !== Boolean(spec.swap) ? " (turned from your entry)" : "";
+      return `Tile run: ${lenText(sys, res.tw)} across by ${lenText(sys, res.th)} down${turned}. At the left wall ${first(spec.wallGap, res.lay.ox, res.tw)}; at the top wall ${first(spec.wallGap, res.lay.oy, res.th)}.`;
+    }
+
+    function run() {
+      const spec = readSpec();
+      const errors = validateSpec(spec);
+      if (errors.length) { status.textContent = errors[0]; return false; }
+      let res;
+      try { res = planMode(spec, $("#mode").value, true); } catch (e) { status.textContent = "Could not plan that: " + e.message; return false; }
+      const problems = verifyLayout(spec, res);
+      report.hidden = false;
+      const notices = [];
+      if (problems.length) notices.push(`<div class="warn"><strong>Check failed:</strong> ${esc(problems.join("; "))}. Do not rely on this plan.</div>`);
+      if (res.slivers) notices.push(`<div class="warn"><strong>${res.slivers} cut${res.slivers === 1 ? "" : "s"} thinner than ${esc(lenText(sys, spec.minCut))}.</strong> Try “Best found”, or turn the tile the other way.</div>`);
+      if (spec.pattern === "diagonal") notices.push(`<div class="warn">Diagonal offcuts are not reused here, so the tile count is conservative. Allow extra.</div>`);
+      $("#notices").innerHTML = notices.join("");
+      const area = tileableArea(spec);
+      const big = [
+        ["Tiles to order", fmtNum(res.orderTiles), `${fmtNum(res.tilesWithReuse)} + ${fmtNum(spec.overagePct, 0)}% extra`],
+        ["Boxes", res.boxes === null ? "–" : fmtNum(res.boxes), res.boxes === null ? "enter tiles per box" : `of ${spec.tilesPerBox}`],
+        ["Full tiles", fmtNum(res.full), "no cutting"],
+        ["Cut tiles", fmtNum(res.cutCount), `${fmtNum(res.tilesNoReuse)} tiles with no reuse`],
+        ["Thinnest cut", res.smallest === null ? "none" : lenText(sys, res.smallest), res.slivers ? `${res.slivers} below your limit` : "none below your limit"],
+        ["Floor tiled", fmtNum(area / sys.areaMm2, 2) + " " + sys.areaU, `waste about ${fmtNum(res.wastePct, 0)}%`],
+      ];
+      if (res.cost !== null) big.push(["Tile cost", fmtMoney(res.cost), "boxes × your price"]);
+      $("#big").innerHTML = big.map(([t, v, s]) => `<div><span class="note">${esc(t)}</span><strong>${esc(v)}</strong><span class="note">${esc(s)}</span></div>`).join("");
+      const mode = MODES.find((m) => m.id === $("#mode").value);
+      $("#verdict").textContent = `${mode.label.replace(/ \(.*\)$/, "")}: ${fmtNum(res.full)} full tiles and ${fmtNum(res.cutCount)} cut tiles${res.reuseModelled ? `, ${fmtNum(res.tilesNoReuse - res.tilesWithReuse)} saved by reusing leftovers` : ""}.`;
+      $("#where").textContent = describeStart(res, spec);
+      $("#legend").innerHTML = [["full", "Full tile"], ["cut", "Cut tile"], ["sliver", "Cut thinner than your limit"], ["obst", "Cut-out"]].map(([k, t]) => `<span><span class="sw" style="background:${COLORS[k]}"></span>${t}</span>`).join("");
+      draw(spec, res);
+
+      const list = cutList(res, spec.pattern === "diagonal");
+      $("#ct tbody").innerHTML = list.length ? list.map((r) => `<tr><td>${esc(lenText(sys, r.w))} × ${esc(lenText(sys, r.h))}</td><td class="n">${r.count}</td><td class="n">${esc(lenText(sys, r.thick))}</td></tr>`).join("") : `<tr><td colspan="3">No cuts: the room is a whole number of tiles.</td></tr>`;
+      $("#ct-note").textContent = spec.pattern === "diagonal" ? "Diagonal pieces are grouped by their bounding box, rounded to 5 mm." : "Sizes are the visible piece; the cut tile also needs the grout joint at the wall.";
+      lastCsv = reportCsv(sys, spec, res);
+
+      const rows = compareLayouts(spec);
+      const best = rows[rows.length - 1];
+      $("#cmp tbody").innerHTML = rows.map((r) => `<tr${r === best ? ' class="rec"' : ""}><td>${esc(r.name)}</td><td class="n">${fmtNum(r.orderTiles)}</td><td class="n">${fmtNum(r.cutCount)}</td><td class="n">${r.slivers ? `<span class="pill high">${r.slivers}</span>` : '<span class="pill good">none</span>'}</td><td class="n">${r.smallest === null ? "–" : esc(lenText(sys, r.smallest))}</td></tr>`).join("");
+      status.textContent = problems.length ? "Plan failed its own check; see the warning." : "Plan ready.";
+      return true;
+    }
+
+    const later = (fn) => { status.textContent = "Planning…"; setTimeout(fn, 20); };
+    $("#analyze").addEventListener("click", () => later(() => { if (run()) record("plan_run"); }));
+    $("#load-example").addEventListener("click", () => {
+      setUnitsRadio("metric");
+      fillSpec(sampleSpec());
+      $("#mode").value = "best";
+      later(() => { if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented bathroom, not a real job."; } });
+    });
+    function setUnitsRadio(id) { $("#u-" + id).checked = true; sys = SYSTEMS[id]; setUnitLabels(); }
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of ["rW", "rH", "tW", "tH", "grout", "minCut", "perBox", "boxPrice"]) $("#" + id).value = "";
+      $("#gap").value = "0"; $("#over").value = "10";
+      $("#obst tbody").innerHTML = ""; report.hidden = true; status.textContent = "Cleared.";
+    });
+    $("#download").addEventListener("click", () => {
+      if (!lastCsv) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([lastCsv], { type: "text/csv" }));
+      a.download = "tile-cut-list.csv";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    });
+    window.addEventListener("resize", () => { if (!report.hidden && lastCsv) { const spec = readSpec(); if (!validateSpec(spec).length) draw(spec, planMode(spec, $("#mode").value, true)); } });
+
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    setUnitLabels(); syncShift();
+  </script>
+</body>
+</html>

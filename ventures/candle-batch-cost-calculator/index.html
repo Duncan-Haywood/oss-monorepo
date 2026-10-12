@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Candle Batch Cost Calculator — cost per candle, price floor and wholesale margin</title>
+  <meta name="description" content="Candle and soap maker cost calculator. Enter wax, fragrance load, vessel and labor to see cost per candle, margin online, at craft fairs and wholesale, the price floor for your target margin, break-even units and what a wax price rise costs. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Candle Batch Cost Calculator — free, private, in your browser">
+  <meta property="og:description" content="What does one candle really cost, and what must you charge? Wax, fragrance, waste, labor, channel fees and wholesale margin. No account, nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Candle Batch Cost Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter your candle or soap products with wax weight, fragrance load, vessel cost, labor minutes and prices. See cost per unit, margin online, at fairs and wholesale, the price floor for your target margin, break-even units and the cost of a wax price rise. Runs entirely in your browser; nothing is uploaded.", "featureList": "cost per candle with waste and fragrance load, online fair and wholesale margin, price floor for target margin, break-even units, wax price shock, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I price a candle?", "acceptedAnswer": {"@type": "Answer", "text": "Add up what one candle costs: wax, fragrance, vessel, wick, label, box and the time you spend making it. Then divide that cost by one minus the margin you want and by one minus the fees on the channel you sell through. The tool does this for every product on your own figures and shows the retail floor for your target margin."}}, {"@type": "Question", "name": "What is a good wholesale price for a candle?", "acceptedAnswer": {"@type": "Answer", "text": "There is no single number, and this tool does not assert one. Enter the wholesale price a shop offers or asks for and it shows your net and margin at that price, with your wage and waste included, and the lowest wholesale price that still reaches your target margin."}}, {"@type": "Question", "name": "How much fragrance oil goes in a candle?", "acceptedAnswer": {"@type": "Answer", "text": "Fragrance load is a percentage of wax weight and depends on your wax and the fragrance maker's guidance, which this tool does not replace. Enter your own load and price per ounce; the cost is wax ounces times load times price, grossed up for waste."}}, {"@type": "Question", "name": "Why include waste?", "acceptedAnswer": {"@type": "Answer", "text": "Wax is lost in the pot, the pouring pitcher, trimmed tops and failed pours, so you pay for more wax than ends up in jars. The waste percentage grosses up wax and fragrance cost so the margin you see is the one you actually earn."}}, {"@type": "Question", "name": "What does a wax price rise cost me?", "acceptedAnswer": {"@type": "Answer", "text": "Set the increase to test and the tool re-costs the wax in every product at the higher price and shows the monthly net you would lose if you held your prices."}}, {"@type": "Question", "name": "Why charge myself an hourly wage?", "acceptedAnswer": {"@type": "Answer", "text": "If your time is free, every product looks profitable. Entering a wage shows the margin after paying yourself and, separately, what each hour of making earns when you pay yourself nothing, which is the number that tells you whether the business is a job or a hobby."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Sales tax, product liability insurance, testing and labelling rules, shipping you pay, returns, breakage, unsold stock, equipment and studio rent beyond the overhead you enter, and the cost of your own marketing. It is arithmetic on your figures, not advice on what to charge."}}, {"@type": "Question", "name": "Is my information uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CANDLE BATCH COST CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does one candle really cost — and what must you charge?</h1>
+    <p>List your <strong>products</strong> (jars, tins, melts, soap) with retail and wholesale price, wax weight, other cost and labor minutes, plus your wax, fragrance and fee figures. The tool shows <strong>cost per unit</strong> with waste and fragrance load, <strong>margin online, at fairs and wholesale</strong>, the <strong>price floor</strong> for your target margin, break-even units for your overhead, and what a <strong>wax price rise</strong> would cost you.</p>
+    <p class="note">Arithmetic on figures you supply. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your products</h2>
+    <label for="items">Product, retail price, wholesale price, wax oz, other cost per unit, labor minutes, units per month (one per line; wholesale 0 means none)</label>
+    <textarea id="items" spellcheck="false" placeholder="8 oz soy jar,24,12,8,3.2,12,120&#10;4 oz travel tin,12,6,4,1.4,8,80"></textarea>
+    <h2 style="margin-top:18px">Your materials, channels and costs</h2>
+    <div class="row3">
+      <div><label for="waxPerLb">Wax cost per pound ($)</label><input id="waxPerLb" inputmode="decimal" value="0"></div>
+      <div><label for="fragrancePerOz">Fragrance oil cost per ounce ($)</label><input id="fragrancePerOz" inputmode="decimal" value="0"></div>
+      <div><label for="fragrancePct">Fragrance load (% of wax weight)</label><input id="fragrancePct" inputmode="decimal" value="8"></div>
+      <div><label for="wastePct">Wax lost to waste (%)</label><input id="wastePct" inputmode="decimal" value="5"></div>
+      <div><label for="hourlyWage">What an hour of your time is worth ($)</label><input id="hourlyWage" inputmode="decimal" value="0"></div>
+      <div><label for="marketplaceFeePct">Online marketplace fee (%)</label><input id="marketplaceFeePct" inputmode="decimal" value="9"></div>
+      <div><label for="paymentFeePct">Payment fee (%)</label><input id="paymentFeePct" inputmode="decimal" value="3"></div>
+      <div><label for="wholesaleSharePct">Share of units sold wholesale (%)</label><input id="wholesaleSharePct" inputmode="decimal" value="20"></div>
+      <div><label for="fairSharePct">Share of units sold at fairs and markets (%)</label><input id="fairSharePct" inputmode="decimal" value="0"></div>
+      <div><label for="fairBoothMonthly">Booth and market fees per month ($)</label><input id="fairBoothMonthly" inputmode="decimal" value="0"></div>
+      <div><label for="overheadMonthly">Other monthly overhead: studio, insurance, software ($)</label><input id="overheadMonthly" inputmode="decimal" value="0"></div>
+      <div><label for="targetMarginPct">Target margin (%)</label><input id="targetMarginPct" inputmode="decimal" value="50"></div>
+      <div><label for="waxIncreasePct">Wax price rise to test (%)</label><input id="waxIncreasePct" inputmode="decimal" value="10"></div>
+    </div>
+    <p class="note">Other cost is vessel, wick, label, box and anything that is not wax or fragrance. Wax and fragrance are grossed up for waste. Your time is charged at the hourly figure for the minutes each unit takes.</p>
+    <button type="button" id="analyze">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Add your products, then click Calculate.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="verdict"></p>
+    <h3>Cost and margin by product</h3>
+    <div class="scroll"><table id="lt"><thead><tr><th>Product</th><th class="n">Cost per unit</th><th class="n">Online net</th><th class="n">Online margin</th><th class="n">Wholesale net</th><th class="n">Retail floor for target</th><th class="n">Net per month</th></tr></thead><tbody></tbody></table></div>
+    <h3>Price floors and ratios</h3>
+    <div class="scroll"><table id="ft"><thead><tr><th>Product</th><th class="n">Retail now</th><th class="n">Retail floor</th><th class="n">Wholesale now</th><th class="n">Wholesale floor</th><th class="n">Wholesale as % of retail</th><th class="n">Online net per hour making</th></tr></thead><tbody></tbody></table></div>
+    <h3>Month</h3>
+    <div class="scroll"><table id="st"><thead><tr><th>Item</th><th class="n">Value</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download the result (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Wax cost:</strong> wax oz ÷ 16 × price per pound ÷ (1 − waste). <strong>Fragrance cost:</strong> wax oz × load × price per ounce ÷ (1 − waste). <strong>Labor:</strong> minutes ÷ 60 × your hourly figure. <strong>Cost per unit:</strong> wax + fragrance + other + labor. <strong>Online net:</strong> retail × (1 − marketplace fee − payment fee) − cost. <strong>Fair net:</strong> retail × (1 − payment fee) − cost. <strong>Wholesale net:</strong> wholesale price − cost. <strong>Retail floor:</strong> cost ÷ (1 − fees − target margin); <strong>wholesale floor:</strong> cost ÷ (1 − target margin). <strong>Month:</strong> units × channel-weighted net, less booth fees and overhead; <strong>break-even units</strong> is fixed costs ÷ average net per unit. <strong>Wax shock:</strong> units × wax cost per unit × the rise.</p>
+    <p><strong>Not modelled:</strong> sales tax, insurance, testing and labelling rules, shipping you pay, returns, breakage, unsold stock, equipment and studio rent beyond the overhead you enter. Unverified: tested on hand-calculated examples, not on a real maker's books. It computes arithmetic; it does not tell you what to charge.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I price a candle?</h3>
+    <p>Add up what one candle costs: wax, fragrance, vessel, wick, label, box and the time you spend making it. Then divide that cost by one minus the margin you want and by one minus the fees on the channel you sell through. The tool does this for every product on your own figures and shows the retail floor for your target margin.</p>
+    <h3>What is a good wholesale price for a candle?</h3>
+    <p>There is no single number, and this tool does not assert one. Enter the wholesale price a shop offers or asks for and it shows your net and margin at that price, with your wage and waste included, and the lowest wholesale price that still reaches your target margin.</p>
+    <h3>How much fragrance oil goes in a candle?</h3>
+    <p>Fragrance load is a percentage of wax weight and depends on your wax and the fragrance maker's guidance, which this tool does not replace. Enter your own load and price per ounce; the cost is wax ounces times load times price, grossed up for waste.</p>
+    <h3>Why include waste?</h3>
+    <p>Wax is lost in the pot, the pouring pitcher, trimmed tops and failed pours, so you pay for more wax than ends up in jars. The waste percentage grosses up wax and fragrance cost so the margin you see is the one you actually earn.</p>
+    <h3>What does a wax price rise cost me?</h3>
+    <p>Set the increase to test and the tool re-costs the wax in every product at the higher price and shows the monthly net you would lose if you held your prices.</p>
+    <h3>Why charge myself an hourly wage?</h3>
+    <p>If your time is free, every product looks profitable. Entering a wage shows the margin after paying yourself and, separately, what each hour of making earns when you pay yourself nothing, which is the number that tells you whether the business is a job or a hobby.</p>
+    <h3>What does this leave out?</h3>
+    <p>Sales tax, product liability insurance, testing and labelling rules, shipping you pay, returns, breakage, unsold stock, equipment and studio rent beyond the overhead you enter, and the cost of your own marketing. It is arithmetic on your figures, not advice on what to charge.</p>
+    <h3>Is my information uploaded?</h3>
+    <p>No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice and does not replace a qualified accountant. Results are arithmetic on the figures you type. You are responsible for reviewing and verifying its output.</p>
+    <p><strong>Independent.</strong> Not affiliated with any wax or fragrance supplier, marketplace, craft-fair organiser or payment processor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../small-batch-run-size-optimizer/">small-batch run size optimizer</a>, the <a href="../craft-fair-booth-calculator/">craft fair booth calculator</a>, the <a href="../etsy-profit-calculator/">Etsy profit calculator</a>, the <a href="../3d-print-price-calculator/">3D print price calculator</a> and the <a href="../cottage-food-pricing-calculator/">cottage food pricing calculator</a> and the <a href="../pottery-piece-pricing-calculator/">pottery piece pricing calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseProducts, analyze, reportCsv, sampleProducts, money, money2, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const FIELDS = ["waxPerLb", "fragrancePerOz", "fragrancePct", "wastePct", "hourlyWage", "marketplaceFeePct", "paymentFeePct", "wholesaleSharePct", "fairSharePct", "fairBoothMonthly", "overheadMonthly", "targetMarginPct", "waxIncreasePct"];
+    const na = (v, f) => (v === null ? "n/a" : f(v));
+    let last = null;
+
+    function run() {
+      const mp = parseProducts($("#items").value);
+      if (mp.error) { status.textContent = mp.error; report.hidden = true; return false; }
+      const opts = {};
+      for (const k of FIELDS) opts[k] = $("#" + k).value;
+      const r = analyze(mp.rows, opts);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...mp.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const m = r.month;
+      const big = [
+        [money(m.net), "Net per month after fixed costs"],
+        [money2(m.avgNet), "Average net per unit"],
+        [m.breakEvenUnits === null ? "n/a" : String(Math.ceil(m.breakEvenUnits)), "Units per month to cover fixed costs"],
+        [m.effectiveHourly === null ? "n/a" : money(m.effectiveHourly), "Earned per hour of making"],
+      ];
+      $("#big").innerHTML = big.map(([v, t]) => `<div><strong>${esc(v)}</strong>${esc(t)}</div>`).join("");
+      $("#verdict").textContent = r.verdict;
+      $("#lt tbody").innerHTML = r.lines.map((l) => `<tr><td>${esc(l.name)}</td><td class="n">${money2(l.cost.total)}</td><td class="n">${money2(l.onlineNet)}</td><td class="n">${pct(l.onlineMargin, 0)}</td><td class="n">${na(l.wholesaleNet, money2)}</td><td class="n">${na(l.floorOnline, money2)}</td><td class="n">${money(l.monthlyNet)}</td></tr>`).join("");
+      $("#ft tbody").innerHTML = r.lines.map((l) => `<tr><td>${esc(l.name)}</td><td class="n">${money2(l.retail)}</td><td class="n">${na(l.floorOnline, money2)}</td><td class="n">${l.wholesale > 0 ? money2(l.wholesale) : "none"}</td><td class="n">${money2(l.floorWholesale)}</td><td class="n">${na(l.wholesaleRatio, (v) => pct(v, 0))}</td><td class="n">${na(l.perHourOnline, money)}</td></tr>`).join("");
+      $("#st tbody").innerHTML = [["Contribution after materials, labor and fees", money(m.contribution)], ["Fixed costs (booths and overhead)", money(-m.fixed)], ["Net", money(m.net)], ["Net per year", money(m.annual)], ["Units per month", String(Math.round(m.units))], ["Hours making per month", m.hours.toFixed(1)], ["Monthly cost of the wax price rise", money(-m.waxLoss)]].map(([k, v]) => `<tr><td>${k}</td><td class="n">${v}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#items").value = sampleProducts();
+      $("#waxPerLb").value = "4.5";
+      $("#fragrancePerOz").value = "2.1";
+      $("#hourlyWage").value = "18";
+      $("#overheadMonthly").value = "300";
+      $("#fairSharePct").value = "20";
+      $("#fairBoothMonthly").value = "60";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented maker, not a real business."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#items").value = ""; report.hidden = true; last = null; status.textContent = "Add your products, then click Calculate."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "candle-batch-cost-result.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

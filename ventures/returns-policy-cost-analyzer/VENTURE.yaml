@@ -1,0 +1,56 @@
+name: returns-policy-cost-analyzer
+description: 'Free, zero-network, zero-dependency CLI + browser tool for online sellers: reads orders with refunds (category, subtotal, amount refunded, optional return label), prices what each return really costs (lost margin, shipping both ways, handling, unsellable stock, unrefunded card fees), ranks product categories by what returns cost, and tests seven return-fee and restocking-fee policies against free returns with the checkout drop-off at which each breaks even and a minimax-regret pick; usable as a CI check. Deterrence and drop-off are inputs, not measurements.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/analyzer archetype (portfolio/pipeline/README.md). Checked
+# 2026-10-02: duplicate_check.py "return rate cost ecommerce returns policy
+# profit calculator" top hit 0.64 (breakeven-roas-calculator, ad spend, a
+# different problem); nothing in ventures/ prices returns per category or tests
+# a return fee. Not in screened-out.md. Adjacent: free-shipping-threshold-
+# optimizer (the other half of the checkout policy), 3pl-quote-normalizer
+# (returns-sensitivity of a 3PL quote), shopify-payments-fee-analyzer.
+#
+# Money: apparel and footwear stores see 20-30%+ of orders come back, and each
+# one costs the margin plus both-way shipping, handling and unresellable stock;
+# the store's sales report shows none of it per category. The reader is the
+# owner of a small Shopify/WooCommerce/Etsy store; the wedge is a pasted
+# orders-and-refunds export, no app install and no store access, printing the
+# break-even instead of a verdict.
+#
+# Where the first real visitor would come from: the search phrases "cost of
+# returns calculator", "return rate calculator ecommerce", "restocking fee
+# calculator", "should I charge for returns"; r/shopify, r/ecommerce and
+# r/FulfillmentByAmazon threads on free returns, and the Shopify Community
+# forum. A hosted version reading the Shopify Admin API read-only and
+# emailing a monthly returns-by-category report is the natural paid upgrade.
+hypotheses:
+  - claim: A small online seller will search for the cost of returns, paste an orders-and-refunds export, and leave knowing which category loses money after returns and what a return fee would need to break even.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers will rerun the CLI on each month's export and use --fail-on warn to be told when a category starts losing money after returns.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository, store-ops script or newsletter is found linking or reusing cli.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/returns-policy-cost-analyzer/
+  analytics: null

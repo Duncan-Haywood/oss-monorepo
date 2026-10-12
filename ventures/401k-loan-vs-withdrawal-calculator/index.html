@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>401(k) Loan vs Withdrawal Calculator: True Cost — Free</title>
+  <meta name="description" content="Free 401(k) loan vs withdrawal calculator: the true cost of each, with tax, penalty, lost growth and the job-loss risk, next to an outside loan. Nothing uploaded.">
+  <meta property="og:title" content="401(k) loan vs withdrawal calculator">
+  <meta property="og:description" content="Which costs less at retirement: a 401(k) loan, a withdrawal or a personal loan? Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M8 22 16 8l8 14z' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "401(k) Loan vs Withdrawal Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare a 401(k) loan, an early withdrawal and an outside loan by what each costs you at retirement, including tax, penalty and the lost growth. Runs in your browser.", "featureList": "Loan vs withdrawal vs outside loan, tax and penalty gross-up, lost growth to your horizon, job-loss risk, growth sensitivity table, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is a 401(k) loan really \"paying interest to yourself\"?", "acceptedAnswer": {"@type": "Answer", "text": "Partly. The interest goes back into your own account, but you repay with after-tax money into a pre-tax account, and while the borrowed amount is out of the market it earns nothing. The tool prices both effects over the horizon you choose so you can compare with the alternatives."}}, {"@type": "Question", "name": "What happens to a 401(k) loan if I leave my job?", "acceptedAnswer": {"@type": "Answer", "text": "Many plans make the unpaid balance due. If you do not repay or roll it over by the tax filing deadline for that year, the balance is treated as a distribution: income tax, and a 10% penalty if you are under 59\u00bd. The tool shows that figure for the month you type."}}, {"@type": "Question", "name": "How much can I borrow from my 401(k)?", "acceptedAnswer": {"@type": "Answer", "text": "Generally the greater of $10,000 or 50% of the vested balance, capped at $50,000, and only if your plan offers loans. Your plan can set a lower limit or fees. The tool warns when your loan is above the usual limit."}}, {"@type": "Question", "name": "Why does a withdrawal cost so much more?", "acceptedAnswer": {"@type": "Answer", "text": "You pay income tax and usually a 10% penalty up front, so you must take out more than you need, and all of that money stops growing for good. The tool grosses the withdrawal up to net the cash you asked for and compounds the loss to your horizon."}}, {"@type": "Question", "name": "When does an outside loan win?", "acceptedAnswer": {"@type": "Answer", "text": "When the interest rate is low and your investments are expected to grow quickly, because the loan leaves the account untouched. The growth table shows how the ranking changes between 2% and 10% yearly growth."}}, {"@type": "Question", "name": "Is this financial or tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type. Plan rules, tax rates and penalty exceptions vary, and hardship rules differ from the plain early withdrawal modelled here. Confirm with your plan administrator and a qualified professional before borrowing or withdrawing."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">401(K) LOAN VS WITHDRAWAL CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Need cash: what does a 401(k) loan, a withdrawal or an outside loan really cost?</h1>
+    <p>Type the cash you need and your account details. The tool prices each route in the same unit, what you hold less at your horizon, counting tax, penalty, lost growth and the interest, and shows what happens to the loan if you leave your job.</p>
+    <p class="note">Arithmetic on assumptions you type. Not tax, legal or financial advice. The example figures are placeholders, not a recommendation; check your plan's rules and current tax law.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The cash you need and the account</h2>
+      <div class="grid">
+        <div><label for="need">Cash you need, after tax ($)</label><input id="need" type="number" step="any" value="0"></div>
+        <div><label for="balance">Vested 401(k) balance ($)</label><input id="balance" type="number" step="any" value="0"></div>
+        <div><label for="horizonYears">Years to compare over (until you will use the money)</label><input id="horizonYears" type="number" step="any" value="0"></div>
+        <div><label for="growthPct">Expected yearly investment growth (%)</label><input id="growthPct" type="number" step="any" value="0"></div>
+        <div><label for="retTaxPct">Tax rate when you eventually withdraw (%)</label><input id="retTaxPct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. If you take a 401(k) loan</h2>
+      <div class="grid">
+        <div><label for="loanRatePct">Loan interest rate (%)</label><input id="loanRatePct" type="number" step="any" value="0"></div>
+        <div><label for="loanTermYears">Loan term (years)</label><input id="loanTermYears" type="number" step="any" value="0"></div>
+        <div><label for="loanFee">Loan set-up fee ($)</label><input id="loanFee" type="number" step="any" value="0"></div>
+        <div><label for="leaveAfterMonths">Risk check: months until you might leave the job</label><input id="leaveAfterMonths" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. If you withdraw instead, or borrow outside</h2>
+      <div class="grid">
+        <div><label for="nowTaxPct">Income tax rate on a withdrawal this year, federal plus state (%)</label><input id="nowTaxPct" type="number" step="any" value="0"></div>
+        <div><label for="penaltyPct">Early-withdrawal penalty (%)</label><input id="penaltyPct" type="number" step="any" value="0"></div>
+        <div><label for="outsideAprPct">Outside loan or card APR (%)</label><input id="outsideAprPct" type="number" step="any" value="0"></div>
+        <div><label for="outsideTermYears">Outside loan term (years)</label><input id="outsideTermYears" type="number" step="any" value="0"></div>
+        <div><label for="sparePct">What spare cash would earn if you kept it (%)</label><input id="sparePct" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Compare the three options</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Is a 401(k) loan really &quot;paying interest to yourself&quot;?</h3>
+      <p>Partly. The interest goes back into your own account, but you repay with after-tax money into a pre-tax account, and while the borrowed amount is out of the market it earns nothing. The tool prices both effects over the horizon you choose so you can compare with the alternatives.</p>
+      <h3>What happens to a 401(k) loan if I leave my job?</h3>
+      <p>Many plans make the unpaid balance due. If you do not repay or roll it over by the tax filing deadline for that year, the balance is treated as a distribution: income tax, and a 10% penalty if you are under 59½. The tool shows that figure for the month you type.</p>
+      <h3>How much can I borrow from my 401(k)?</h3>
+      <p>Generally the greater of $10,000 or 50% of the vested balance, capped at $50,000, and only if your plan offers loans. Your plan can set a lower limit or fees. The tool warns when your loan is above the usual limit.</p>
+      <h3>Why does a withdrawal cost so much more?</h3>
+      <p>You pay income tax and usually a 10% penalty up front, so you must take out more than you need, and all of that money stops growing for good. The tool grosses the withdrawal up to net the cash you asked for and compounds the loss to your horizon.</p>
+      <h3>When does an outside loan win?</h3>
+      <p>When the interest rate is low and your investments are expected to grow quickly, because the loan leaves the account untouched. The growth table shows how the ranking changes between 2% and 10% yearly growth.</p>
+      <h3>Is this financial or tax advice?</h3>
+      <p>No. It is arithmetic on figures you type. Plan rules, tax rates and penalty exceptions vary, and hardship rules differ from the plain early withdrawal modelled here. Confirm with your plan administrator and a qualified professional before borrowing or withdrawing.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether you qualify for a hardship distribution or a penalty exception, your plan's loan rules and fees, state tax detail, what you would invest in, and whether you should borrow at all. Hardship and emergency distributions have their own rules that this plain-withdrawal model does not capture.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../retirement-withdrawal-sequencer/">retirement withdrawal sequencer</a> and the <a href="../heloc-vs-cash-out-refinance-calculator/">HELOC vs cash-out refinance calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with the IRS, your state agency and a qualified professional before you file or pay anyone.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { DEFAULTS, num, money, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const r = a.result;
+      const o = a.opts;
+      for (const n of a.notes) h += `<div class="finding"><span class="pill">Note</span> ${esc(n)}</div>`;
+      h += `<div class="finding"><h4>On these inputs, ${r.cheapest.label.toLowerCase()} costs least: about ${money(r.cheapest.cost)} at year ${o.horizonYears}</h4><p>Cost is how much less you hold after tax at your horizon than if you had not needed the cash. The ranking can flip with the growth rate; see the table below.</p></div>`;
+      h += `<div class="finding"><h4>The three options</h4>${table(["Option", "Cost at horizon", "What happens now"], [
+        ["401(k) loan", money(r.loanCost), `Borrow ${money(r.loanAmount)} (limit about ${money(r.maxLoan)}); pay ${money(r.loanPayment)} a month; ${money(r.loanInterest)} interest goes back to your account`],
+        ["Withdrawal", money(r.withdrawalCost), `Take out ${money(r.gross)} to net ${money(o.need)}; ${money(r.taxAndPenalty)} goes to tax and penalty`],
+        ["Outside loan", money(r.outsideCost), `Pay ${money(r.outsidePayment)} a month; ${money(r.outsideInterest)} interest; your 401(k) is untouched`],
+      ])}</div>`;
+      h += `<div class="finding"><h4>If you leave the job with the loan unpaid</h4><p>After ${o.leaveAfterMonths} months about ${money(r.separation.owed)} would still be owed. If it is not repaid or rolled over by the tax filing deadline, it becomes a distribution costing roughly ${money(r.separation.taxAndPenalty)} in tax and penalty at the rates you typed.</p></div>`;
+      h += `<div class="finding"><h4>How the answer moves with investment growth</h4>${table(["Yearly growth", "401(k) loan", "Withdrawal", "Outside loan"], a.sens.map((s) => [s.growthPct + "%", money(s.loan), money(s.withdrawal), money(s.outside)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "401k-loan-vs-withdrawal.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

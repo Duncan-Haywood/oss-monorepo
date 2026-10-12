@@ -264,6 +264,9 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // payroll admin already has, not a company or product this could be
   // mistaken for. Same reasoning as the other vs-spreadsheet pages above.
   'overtime-pay-calculator/vs-spreadsheet.html',
+  // Compares against a landlord keeping rent and expenses in a spreadsheet --
+  // a generic method, not a company or product this could be mistaken for.
+  'rental-ledger/vs-spreadsheet.html',
   // Compares against "comparing effective rates" -- the standard rate-
   // shopping advice every merchant-services guide recommends, not a company
   // or product this could be mistaken for. The page names no processor and
@@ -429,6 +432,7 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // and reviewer already has access to, not a company or product this could
   // be mistaken for. Same reasoning as the other manual-method pages above.
   'agent-instructions-drift-check/vs-checking-it-by-hand.html',
+  'agent-permission-config-check/vs-manual-config-review.html',
   // Compares against "looking up each state's statute by hand" (a one-off
   // web search) -- a generic manual method anyone can do with a search
   // engine, not a company or product this could be mistaken for. The
@@ -1206,6 +1210,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Heroku, GitHub Pages) only as CNAME-target examples, not as the thing
   // being compared against.
   'subdomain-takeover-check/vs-checking-dig-by-hand.html',
+  // Compares against "typing the bucket URL into a browser tab" -- a
+  // generic manual habit every AWS developer already has, not a company or
+  // product this could be mistaken for. The page mentions AWS's own tools
+  // (Trusted Advisor, IAM Access Analyzer) only to contrast "checks from
+  // inside the account" with this tool's "checks from outside, no login",
+  // never as the thing being compared against -- the same reasoning as
+  // git-exposure-check's and dotenv-exposure-check's own by-hand pages.
+  's3-bucket-exposure-check/vs-checking-by-hand.html',
   // Compares against "a flat rate per square foot" -- a generic pricing
   // method every garage-floor coating contractor already has access to, not
   // a company or product this could be mistaken for. Same reasoning as the
@@ -2015,6 +2027,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-trax.html and vs-cass.html, which name specific freight audit and
   // payment providers and already carry the "not affiliated" disclaimer.
   'freight-accessorial-auditor/vs-reviewing-an-invoice-by-eye.html',
+  // Compares against "reviewing 3PL invoices in a spreadsheet" -- a manual review habit any brand with a 3PL already has, not a
+  // company or product this could be mistaken for. The page names no product or company.
+  '3pl-invoice-audit-checker/vs-reviewing-3pl-invoices-in-a-spreadsheet.html',
+  // Compares against "a trading spreadsheet" -- a manual modelling habit any challenge entrant already has, not a company or
+  // product this could be mistaken for. The page names no product or company.
+  'prop-firm-challenge-calculator/vs-a-trading-spreadsheet.html',
   // Compares against "reading the SKILL.md by hand" -- a manual review
   // habit every skill author already has, not a company or product this
   // could be mistaken for. Same reasoning as the other vs-reading-*-by-hand
@@ -2535,6 +2553,17 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // comparison-page filename. Same reasoning as the other generic-method
   // pages above (e.g. eitc-calculator's vs-doing-the-math-by-hand.html).
   'freelance-writer-rate-calculator/vs-judging-a-quote-by-its-headline-number.html',
+  // Compares against "time and materials" billing -- the hourly-rate-plus-parts
+  // method every plumber already knows, not a company or product this could be
+  // mistaken for. The page names no software or vendor, and its own test
+  // (page.test.mjs) pins that, so this exemption cannot quietly stop being true.
+  // Same reasoning as the other generic-method pages above.
+  'plumber-flat-rate-price-calculator/vs-time-and-materials.html',
+  // Compares against quoting a single repair price -- the generic method most
+  // small shops start from, not a company or product this could be mistaken for.
+  // The page names no software, vendor or manufacturer, and its own test
+  // (page.test.mjs) pins that, so this exemption cannot quietly stop being true.
+  'hvac-repair-tier-price-calculator/vs-quoting-one-repair-price.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

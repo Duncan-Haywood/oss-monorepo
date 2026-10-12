@@ -1,0 +1,56 @@
+name: business-loan-offer-comparator
+description: >-
+  Free browser tool for small-business owners comparing financing offers that
+  are quoted differently: type in each term loan, SBA-style loan or merchant
+  cash advance (amount, APR or factor rate, term, fees, payment frequency) and
+  get the true APR after fees, cash actually received, total repaid, cost per
+  dollar, payment against revenue and cash flow, and the cost of repaying
+  early, ranked side by side. CSV export. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture session. duplicate_check.py top hit
+# merchant-cash-advance-true-cost-calculator at 0.24, which converts one MCA
+# only; nothing compares several offers across loan types. Both link to each
+# other. The paid/lead alternatives are lender marketplaces that earn from
+# the placement; the gap is an independent side-by-side with no referral.
+#
+# First visitor: searches "factor rate to APR", "compare business loan offers",
+# "SBA 7(a) vs online loan", "true cost of business loan with origination fee",
+# "is this merchant cash advance a good deal"; r/smallbusiness, r/Entrepreneur.
+# Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed offers; never recommends a
+# lender, asserts eligibility or quotes a current rate or fee schedule; figures
+# never leave the browser (tests assert no network calls); no lender named.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. A later
+# paid tier could be saved offer sheets, a lender-neutral PDF for a
+# bookkeeper or board, and line-of-credit and balloon modelling; not built.
+
+hypotheses:
+  - claim: >-
+      Small-business owners holding two or more financing offers will use a
+      private, no-signup tool that converts every offer to a true APR and
+      dollar cost, and will come back for each new financing decision.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a true APR that differs by more than 0.1 point from the same cash flows solved independently.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/business-loan-offer-comparator/
+  analytics: null

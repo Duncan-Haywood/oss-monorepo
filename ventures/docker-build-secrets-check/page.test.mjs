@@ -127,3 +127,9 @@ test('index links one hop to the actions-secret-leak-check sibling', () => {
     'index must link ../actions-secret-leak-check/ -- same secret-exposure question, a different artifact',
   );
 });
+
+// Inbound hop for docker-compose-security-check, which would otherwise be a
+// crawlable orphan (`platform/pages/siblings.mjs` fails on one).
+test('index links one hop to the docker-compose-security-check sibling', () => {
+  assert.match(index, /href="\.\.\/docker-compose-security-check\/"/);
+});

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pet Sitting Platform Fee Calculator: Rover and Wag vs Direct — Free</title>
+  <meta name="description" content="Free calculator for pet sitters and dog walkers: what you keep per booking on Rover, Wag or another marketplace versus booking clients directly, how many direct bookings pay for the software, and the price that matches. Nothing uploaded.">
+  <meta property="og:title" content="Pet sitting platform fee calculator">
+  <meta property="og:description" content="Rover or Wag fee versus booking direct: what you actually keep. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23166534'/%3E%3Ccircle cx='16' cy='19' r='6' fill='%23fff'/%3E%3Ccircle cx='9' cy='12' r='2.500' fill='%23fff'/%3E%3Ccircle cx='23' cy='12' r='2.500' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Pet Sitting Platform Fee Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare what a pet sitter or dog walker keeps per booking on Rover, Wag or another marketplace versus booking clients directly, with break-even direct bookings and the platform price that matches direct take-home. Runs in your browser.", "featureList": "platform vs direct take-home, break-even direct bookings, matching platform price, direct-share table, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much does Rover take from sitters?", "acceptedAnswer": {"@type": "Answer", "text": "Rover has charged sitters a service fee of about 20% of each booking, and owners a separate fee on top. Fees change, so type the current figure from your own payout statement into this tool instead of trusting any blog post, including this one."}}, {"@type": "Question", "name": "How much does Wag take from walkers?", "acceptedAnswer": {"@type": "Answer", "text": "Wag has reported a commission on the order of 40% on walks, much higher than a typical sitting marketplace. Check your current terms and type the number you actually see on a payout."}}, {"@type": "Question", "name": "Is booking clients directly really better?", "acceptedAnswer": {"@type": "Answer", "text": "Per booking it usually nets more, because card processing is about 3% instead of 20-40%. But direct clients cost time to find, and software and marketing are monthly costs. The tool shows how many direct bookings a month it takes before the move pays for itself."}}, {"@type": "Question", "name": "Can I move my Rover clients off the platform?", "acceptedAnswer": {"@type": "Answer", "text": "Marketplace terms generally restrict taking clients you met on the platform off it to avoid fees, and you may lose your account. This tool does not tell you what your agreement allows. It is meant for clients you find yourself: neighbours, vet referrals, your own website."}}, {"@type": "Question", "name": "What price should I list on the platform to net what I net direct?", "acceptedAnswer": {"@type": "Answer", "text": "The tool divides your direct take-home by one minus the platform fee. That is the price at which a platform booking pays the same, and it shows how large a raise that would be for your owners."}}, {"@type": "Question", "name": "Is this tax or business advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type and ignores income tax and self-employment tax. Check your own records and a qualified professional."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">PET SITTING PLATFORM FEE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What do you keep after Rover or Wag, and what if clients booked you directly?</h1>
+    <p>Type your bookings, price and the platform's cut. The tool shows your take-home per booking and per hour on the platform and booking direct, how many direct bookings a month it takes to cover software and marketing, and the platform price that would net the same.</p>
+    <p class="note">Arithmetic on assumptions you type. Not tax, legal or business advice. The example figures are placeholders, not your numbers; platform fees change, so copy the current one from your payout statement.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Your bookings</h2>
+      <div class="grid">
+        <div><label for="bookingsPerMonth">Bookings per month (visits, walks or nights)</label><input id="bookingsPerMonth" type="number" step="any" value="0"></div><div><label for="price">Price per booking ($)</label><input id="price" type="number" step="any" value="0"></div><div><label for="hoursPerBooking">Hours of your time per booking</label><input id="hoursPerBooking" type="number" step="any" value="0"></div><div><label for="costPerBooking">Your cost per booking: gas, supplies ($)</label><input id="costPerBooking" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. The platform and direct booking</h2>
+      <div class="grid">
+        <div><label for="preset">Platform</label><select id="preset"><option value="rover">Rover (sitter-side fee about 20%)</option><option value="wag">Wag (commission about 40% on walks)</option><option value="custom">Another platform: type the fee</option></select></div><div><label for="platformFee">Platform fee taken from you (decimal, 0.20 = 20%)</label><input id="platformFee" type="number" step="any" value="0"></div><div><label for="directShare">Share of bookings that come direct (decimal, 0.20 = 20%)</label><input id="directShare" type="number" step="any" value="0"></div><div><label for="cardPct">Card processing rate for direct payments (decimal)</label><input id="cardPct" type="number" step="any" value="0"></div><div><label for="cardFixed">Card processing fixed fee per payment ($)</label><input id="cardFixed" type="number" step="any" value="0"></div><div><label for="softwareMonthly">Booking and payment software per month ($)</label><input id="softwareMonthly" type="number" step="any" value="0"></div><div><label for="marketingMonthly">Marketing for direct clients per month ($)</label><input id="marketingMonthly" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Compare platform and direct</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>How much does Rover take from sitters?</h3>
+      <p>Rover has charged sitters a service fee of about 20% of each booking, and owners a separate fee on top. Fees change, so type the current figure from your own payout statement into this tool instead of trusting any blog post, including this one.</p>
+      <h3>How much does Wag take from walkers?</h3>
+      <p>Wag has reported a commission on the order of 40% on walks, much higher than a typical sitting marketplace. Check your current terms and type the number you actually see on a payout.</p>
+      <h3>Is booking clients directly really better?</h3>
+      <p>Per booking it usually nets more, because card processing is about 3% instead of 20-40%. But direct clients cost time to find, and software and marketing are monthly costs. The tool shows how many direct bookings a month it takes before the move pays for itself.</p>
+      <h3>Can I move my Rover clients off the platform?</h3>
+      <p>Marketplace terms generally restrict taking clients you met on the platform off it to avoid fees, and you may lose your account. This tool does not tell you what your agreement allows. It is meant for clients you find yourself: neighbours, vet referrals, your own website.</p>
+      <h3>What price should I list on the platform to net what I net direct?</h3>
+      <p>The tool divides your direct take-home by one minus the platform fee. That is the price at which a platform booking pays the same, and it shows how large a raise that would be for your owners.</p>
+      <h3>Is this tax or business advice?</h3>
+      <p>No. It is arithmetic on figures you type and ignores income tax and self-employment tax. Check your own records and a qualified professional.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your platform agreement lets you take a client direct, income tax and self-employment tax, insurance or background-check costs, owner-side fees and how they change what owners will pay, tips, cancellations and refunds, and how many direct clients you can actually win. Rates and fees can change at any time.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../dog-walking-route-pricing/">dog walking route pricing tool</a>, the <a href="../dog-boarding-daycare-pricing/">dog boarding and daycare pricing tool</a>, the <a href="../freelance-platform-fee-calculator/">freelance platform fee calculator</a> and the <a href="../marketplace-fee-compare/">marketplace fee compare</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify against your own payout statements and a qualified professional before you decide.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, PRESETS, num, money, money2, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; $("preset").value = "rover"; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const o = a.opts;
+      h += `<div class="finding"><h4>You keep ${money2(a.platformNet)} per platform booking and ${money2(a.directNet)} per direct booking</h4><p>Each booking you move off the platform adds ${money2(a.gainPerDirect)}. ${a.breakEvenOk ? `Direct booking covers its ${money(o.softwareMonthly + o.marketingMonthly)} a month of software and marketing once ${Math.ceil(a.breakEvenDirect)} bookings a month are direct.` : Number.isFinite(a.breakEvenDirect) ? `It would take ${Math.ceil(a.breakEvenDirect)} direct bookings a month to cover the software and marketing, more than the ${o.bookingsPerMonth} you book.` : "Direct booking does not earn more per booking on these figures."}</p></div>`;
+      h += `<div class="finding"><h4>To net the same on the platform, list ${money2(a.matchPrice)}</h4><p>That is ${money2(a.matchRaise)} more than your ${money2(o.price)} price, which the owner would also pay their own platform fee on.</p></div>`;
+      h += `<div class="finding"><h4>By share of bookings that come direct</h4>${table(["Direct share", "Fees paid", "Software and marketing", "Take-home per month", "Per hour"], a.grid.map((g) => [pct(g.share, 0), money(g.fees), money(g.fixed), money(g.net), money2(g.hourly)]))}<p>Your current mix of ${pct(o.directShare, 0)} direct takes home ${money(a.current.net)} a month. All direct instead of all platform is worth ${money(a.annualGain)} a year.</p><p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "platform-vs-direct.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("preset").addEventListener("change", () => { if ($("preset").value !== "custom") $("platformFee").value = PRESETS[$("preset").value].platformFee; });
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

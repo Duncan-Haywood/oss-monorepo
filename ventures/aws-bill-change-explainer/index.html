@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why Did My AWS Bill Go Up? Free Cost Explorer CSV Explainer</title>
+  <meta name="description" content="Paste the CSV from AWS Cost Explorer for two months and see which services explain the rise in your AWS bill, ranked, with partial-month normalisation and a checklist of common causes. Free, no signup, nothing uploaded.">
+  <meta property="og:title" content="Why did my AWS bill go up this month?">
+  <meta property="og:description" content="Paste two months of Cost Explorer CSV and see which services moved the bill, what is new, and what to check first. Free, runs in your browser, with a CLI that fails a job when the bill jumps.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "AWS Bill Change Explainer", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste the CSV from AWS Cost Explorer for two months and see which services explain a rise in the bill, ranked, with partial-month normalisation, a checklist of common causes per service, and a CLI that exits 1 when the bill rises past a threshold. Runs entirely in the browser; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why did my AWS bill go up?", "acceptedAnswer": {"@type": "Answer", "text": "Export the cost by service for the two months from Cost Explorer (Download CSV), paste it here, and the page ranks every line by how much it moved, so the two or three lines that explain most of the rise are at the top. It then lists the common causes for each of those services as a checklist. It cannot see why a line moved; it tells you where to look."}}, {"@type": "Question", "name": "Which file does it need?", "acceptedAnswer": {"@type": "Answer", "text": "The CSV from AWS Cost Explorer's Download CSV button, grouped by Service (or linked account, region or usage type), with monthly granularity and at least two months. You can also paste two separate exports, one period each."}}, {"@type": "Question", "name": "What if the current month is only half over?", "acceptedAnswer": {"@type": "Answer", "text": "Then comparing it with a full month makes the bill look like it fell. Enter the number of days in each period and the page compares per-day rates instead, scaling the earlier period to the length of the later one."}}, {"@type": "Question", "name": "Is my bill uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page reads what you paste or load in your browser and makes no network request. The CLI reads a local file and makes no network call."}}, {"@type": "Question", "name": "Why is Tax, Support or a Savings Plan line flagged differently?", "acceptedAnswer": {"@type": "Answer", "text": "Those lines move because of other lines or a contract, not because something new started running. Support is usually a percentage of the rest of your usage, and a credit or commitment that ended makes the bill rise with no change in usage. The page says so instead of sending you hunting for a service."}}, {"@type": "Question", "name": "Can it fail a CI job or a scheduled report?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The CLI takes --max-increase-usd and --max-increase-pct and exits 1 when the net rise is above either, so a monthly script can alert you when the bill jumps."}}]}
+  </script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; background: #e3e9ef; color: #17324a; }
+    .pill.danger { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fdf2e0; color: #7a4a09; }
+    .risk { border: 2px solid #c23b3b; border-radius: 12px; padding: 16px; margin: 12px 0; background: #fff7f7; }
+    .risk h3 { margin-top: 0; color: #7f1d1d; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .ok { color: #14532d; font-weight: 600; }
+    .bad { color: #7f1d1d; font-weight: 700; }
+    input[type=number], select { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; font: inherit; }
+    .row { display: flex; flex-wrap: wrap; gap: 16px; margin: 8px 0; }
+    .big { font-size: 2rem; font-weight: 800; margin: 4px 0; }
+    .scroll { overflow-x: auto; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">AWS BILL CHANGE EXPLAINER · RUNS IN YOUR BROWSER</p>
+    <h1>Why did my AWS bill go up?</h1>
+    <p>Download the cost-by-service CSV from AWS Cost Explorer for two months, paste it here, and see the lines that explain the change, ranked, with what is new, what is gone, and a checklist of what usually moves each service.</p>
+    <p class="note">Nothing is uploaded. The file you load is read in this browser and never leaves your device. It ranks the numbers you give it &mdash; it cannot see why a line moved.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Load your Cost Explorer export</h2>
+    <p>In Cost Explorer: group by <strong>Service</strong>, granularity <strong>Monthly</strong>, pick at least two months, then <strong>Download CSV</strong>.</p>
+    <p>
+      <label for="file-input">From a file (read locally, never uploaded)</label>
+      <input type="file" id="file-input" accept=".csv,.txt">
+    </p>
+    <label for="csv-input">&hellip;or paste it directly</label>
+    <textarea id="csv-input" spellcheck="false" placeholder='"Service","2026-07-01($)","2026-08-01($)","Total costs($)"'></textarea>
+    <details>
+      <summary>Have one file per month instead?</summary>
+      <label for="csv-input-2">Paste the later month here, and the earlier month above</label>
+      <textarea id="csv-input-2" spellcheck="false" placeholder='Service,2026-08($)'></textarea>
+    </details>
+    <div class="row">
+      <div>
+        <label for="before-days">Days in the earlier period (optional)</label>
+        <input type="number" id="before-days" min="1" max="366" placeholder="e.g. 31">
+      </div>
+      <div>
+        <label for="after-days">Days in the later period (optional)</label>
+        <input type="number" id="after-days" min="1" max="366" placeholder="e.g. 12 if the month is half over">
+      </div>
+    </div>
+    <p class="note">Fill both days fields when the later month is not finished. The page then compares per-day rates, scaling the earlier period to the length of the later one.</p>
+    <p>
+      <button type="button" id="explain">Explain the change</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What moved</h2>
+    <p class="big" id="delta"></p>
+    <p id="summary"></p>
+    <div id="warn-block" hidden><div class="risk"><h3>Check your file</h3><div id="warn-rows"></div></div></div>
+
+    <h3>Every line, biggest move first</h3>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Line</th><th>Status</th><th class="num">Before</th><th class="num">After</th><th class="num">Change</th><th class="num">%</th><th class="num">Share of rise</th></tr></thead>
+        <tbody id="line-rows"></tbody>
+      </table>
+    </div>
+
+    <h3>Where to look first</h3>
+    <div id="hint-rows"></div>
+    <p class="note" id="footnote"></p>
+  </section>
+
+  <section class="card">
+    <h2>Run it on a schedule</h2>
+    <p>Same engine, zero dependencies, one file. Fails the job when the bill rises past a number you choose, so a monthly script can tell you before the invoice does:</p>
+    <pre class="cmd">node cli.mjs compare export.csv                          # last two periods
+node cli.mjs compare july.csv august.csv                 # one period per file
+node cli.mjs compare export.csv --after-days 12 --before-days 31   # half-finished month
+node cli.mjs compare export.csv --max-increase-pct 15 --max-increase-usd 500</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> &mdash; Node 18+, nothing to install, no network call, ever. Exit codes: 0 ok, 1 over a threshold, 2 unreadable file or bad option.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why did my AWS bill go up?</h3>
+    <p>Export the cost by service for the two months from Cost Explorer (Download CSV), paste it here, and the page ranks every line by how much it moved, so the two or three lines that explain most of the rise are at the top. It then lists the common causes for each of those services as a checklist. It cannot see why a line moved; it tells you where to look.</p>
+    <h3>Which file does it need?</h3>
+    <p>The CSV from AWS Cost Explorer's Download CSV button, grouped by Service (or linked account, region or usage type), with monthly granularity and at least two months. You can also paste two separate exports, one period each.</p>
+    <h3>What if the current month is only half over?</h3>
+    <p>Then comparing it with a full month makes the bill look like it fell. Enter the number of days in each period and the page compares per-day rates instead, scaling the earlier period to the length of the later one.</p>
+    <h3>Is my bill uploaded anywhere?</h3>
+    <p>No. The page reads what you paste or load in your browser and makes no network request. The CLI reads a local file and makes no network call.</p>
+    <h3>Why is Tax, Support or a Savings Plan line flagged differently?</h3>
+    <p>Those lines move because of other lines or a contract, not because something new started running. Support is usually a percentage of the rest of your usage, and a credit or commitment that ended makes the bill rise with no change in usage. The page says so instead of sending you hunting for a service.</p>
+    <h3>Can it fail a CI job or a scheduled report?</h3>
+    <p>Yes. The CLI takes --max-increase-usd and --max-increase-pct and exits 1 when the net rise is above either, so a monthly script can alert you when the bill jumps.</p>
+    <p class="note">Compared with the AWS console or a paid FinOps tool? See the <a href="vs-cost-explorer.html">comparison page</a>. Planning a change instead of explaining one? Price a Terraform plan with the <a href="../terraform-plan-cost-estimate/">Terraform Plan Cost Estimate</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is informational only &mdash; it is not financial, billing, accounting, engineering or other professional advice, and it does not replace the AWS Billing console, Cost Explorer or your own review. It ranks the numbers in the file you give it; it cannot see why a line moved, and the causes it lists are a checklist, not a diagnosis. You are responsible for verifying any figure before acting on it.</p>
+    <p><strong>Not affiliated with Amazon Web Services.</strong> AWS, Amazon EC2, Amazon S3 and Cost Explorer are trademarks of Amazon.com, Inc. They are named only to describe the file this tool reads; this is an independent, unofficial tool and is not endorsed by or connected with Amazon Web Services.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The bill you load is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>, <code>file_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCostExport, pickSides, compareBills, summarize, formatUsd, formatDelta, formatPct, periodDays, HINTS_DATE } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      fileInput: $("#file-input"), csv: $("#csv-input"), csv2: $("#csv-input-2"), status: $("#status"),
+      beforeDays: $("#before-days"), afterDays: $("#after-days"),
+      reportCard: $("#report-card"), delta: $("#delta"), summary: $("#summary"),
+      warnBlock: $("#warn-block"), warnRows: $("#warn-rows"), lineRows: $("#line-rows"),
+      hintRows: $("#hint-rows"), footnote: $("#footnote"),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+    const signClass = (n) => (n > 0 ? "bad" : n < 0 ? "ok" : "");
+
+    function renderReport() {
+      let report, sides, notes = [];
+      try {
+        const a = parseCostExport(els.csv.value);
+        const b = els.csv2.value.trim() ? parseCostExport(els.csv2.value) : null;
+        for (const e of [a, b]) for (const m of e ? e.mismatches : []) {
+          notes.push(`Period ${m.period}: the rows add up to ${formatUsd(m.sum)} but the file's own total says ${formatUsd(m.stated)}. A row may have been cropped or filtered out.`);
+        }
+        sides = pickSides(a, b);
+        const bdRaw = els.beforeDays.value.trim();
+        const adRaw = els.afterDays.value.trim();
+        const beforeDays = bdRaw !== "" ? Number(bdRaw) : periodDays(sides.beforeLabel);
+        const afterDays = adRaw !== "" ? Number(adRaw) : periodDays(sides.afterLabel);
+        report = compareBills(sides.before, sides.after, { beforeDays, afterDays });
+      } catch (err) {
+        els.status.innerHTML = `<span class="bad">${escapeHtml(err.message)}</span>`;
+        return;
+      }
+      els.status.textContent = "";
+      const t = report.totals;
+      els.delta.innerHTML = `<span class="${signClass(t.delta)}">${escapeHtml(formatDelta(t.delta))}</span> (${escapeHtml(formatPct(t.pct))})`;
+      els.summary.textContent = summarize(report, sides);
+
+      els.warnBlock.hidden = notes.length === 0;
+      els.warnRows.innerHTML = notes.map((n) => `<p>${escapeHtml(n)}</p>`).join("");
+
+      els.lineRows.innerHTML = report.lines.map((l) => `<tr><td>${escapeHtml(l.name)}</td><td><span class="pill ${l.status === "new" ? "warn" : l.status === "up" ? "danger" : ""}">${escapeHtml(l.status)}</span></td>
+        <td class="num">${escapeHtml(formatUsd(l.before))}</td><td class="num">${escapeHtml(formatUsd(l.after))}</td>
+        <td class="num ${signClass(l.delta)}">${escapeHtml(formatDelta(l.delta))}</td>
+        <td class="num">${escapeHtml(formatPct(l.pct))}</td>
+        <td class="num">${l.shareOfRise === null ? "" : Math.round(l.shareOfRise) + "%"}</td></tr>`).join("");
+
+      const hinted = report.drivers.filter((d) => d.hint).slice(0, 5);
+      els.hintRows.innerHTML = hinted.length ? hinted.map((d) => `<h3>${escapeHtml(d.name)}</h3><ul>${
+        (d.hint.note ? [d.hint.note] : d.hint.checks).map((c) => `<li>${escapeHtml(c)}</li>`).join("")}</ul>`).join("")
+        : "<p>None of the rising lines matched a service this page has a checklist for. The ranked table above is still the answer to where the money moved.</p>";
+      els.footnote.textContent = `Checklist of common causes written ${HINTS_DATE}; a prompt for where to look, not a diagnosis. ${report.lines.filter((l) => l.status === "flat").length} line(s) moved less than ${formatUsd(report.minDelta)}.`;
+
+      els.reportCard.hidden = false;
+      record("compare_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#explain").addEventListener("click", renderReport);
+
+    els.fileInput.addEventListener("change", () => {
+      const file = els.fileInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        els.csv.value = String(reader.result || "");
+        record("file_loaded");
+        renderReport();
+      };
+      reader.readAsText(file);
+    });
+
+    const EXAMPLE_CSV = `"Service","2026-07-01($)","2026-08-01($)","Total costs($)"
+"EC2 - Other","1204.55","2891.20","4095.75"
+"Amazon Elastic Compute Cloud - Compute","5210.00","5388.40","10598.40"
+"Amazon Relational Database Service","1800.00","1812.10","3612.10"
+"AmazonCloudWatch","310.22","1450.87","1761.09"
+"Amazon Simple Storage Service","402.10","415.00","817.10"
+"AWS Lambda","88.00","41.50","129.50"
+"AWS Config","0.00","230.40","230.40"
+"Savings Plans for AWS Compute usage","-900.00","0.00","-900.00"
+"AWS Support (Business)","880.00","1010.00","1890.00"
+"Tax","0.00","0.00","0.00"
+"Service total","8994.87","13239.47","22234.34"`;
+
+    $("#load-example").addEventListener("click", () => {
+      els.csv.value = EXAMPLE_CSV;
+      els.csv2.value = "";
+      renderReport();
+      record("example_loaded");
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.csv.value = "";
+      els.csv2.value = "";
+      els.fileInput.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

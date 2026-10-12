@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why Does My Text Bill as Multiple SMS Segments?</title>
+  <meta name="description" content="SMS is billed per segment: 160 characters in GSM-7, 70 once any curly quote or emoji forces UCS-2. Which characters do it and how to fix them.">
+  <link rel="canonical" href="./why-does-my-text-bill-as-multiple-segments.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many characters fit in one SMS segment?", "acceptedAnswer": {"@type": "Answer", "text": "160 if every character is in the GSM-7 set, 70 if any character is not. Once a message is split into several segments, 153 and 67 fit in each, because a few bytes of every segment carry the join header."}}, {"@type": "Question", "name": "Which characters force UCS-2?", "acceptedAnswer": {"@type": "Answer", "text": "Curly quotes and apostrophes, en and em dashes, the ellipsis character, non-breaking spaces, emoji and non-Latin letters. Plain straight quotes, hyphens and three full stops are all GSM-7."}}, {"@type": "Question", "name": "What do the characters in braces and brackets cost?", "acceptedAnswer": {"@type": "Answer", "text": "The characters ^ { } \\ [ ] ~ | and the euro sign are in the GSM-7 extension table and each counts as two characters, though the message stays GSM-7."}}, {"@type": "Question", "name": "How do I stop my phone or editor adding curly quotes?", "acceptedAnswer": {"@type": "Answer", "text": "Compose the template in a plain-text editor, turn off smart punctuation in your word processor, and run the final text through this calculator before sending it to a provider."}}]}</script>
+  <style>:root{font:16px system-ui,sans-serif;color:#1b1f2a;background:#f2f4f7}body{max-width:760px;margin:auto;padding:28px}h1,h2{color:#17324a}p{line-height:1.55}footer{margin-top:28px;border-top:1px solid #d5dbe3;padding-top:16px;font-size:.86rem;color:#55606f}a{color:#17324a}</style>
+</head>
+<body>
+  <p><a href="./">&larr; SMS Segment Cost Calculator</a></p>
+  <h1>Why does my text bill as multiple SMS segments?</h1>
+  <p>Providers charge per segment, not per message. A one-line reminder can bill as three segments because of a single curly apostrophe. <a href="./">Paste your message into the calculator</a> to see its encoding, segment count and the exact characters responsible.</p>
+  <h2>How many characters fit in one SMS segment?</h2>
+  <p>160 if every character is in the GSM-7 set, 70 if any character is not. Once a message is split into several segments, 153 and 67 fit in each, because a few bytes of every segment carry the join header.</p>
+  <h2>Which characters force UCS-2?</h2>
+  <p>Curly quotes and apostrophes, en and em dashes, the ellipsis character, non-breaking spaces, emoji and non-Latin letters. Plain straight quotes, hyphens and three full stops are all GSM-7.</p>
+  <h2>What do the characters in braces and brackets cost?</h2>
+  <p>The characters ^ { } \ [ ] ~ | and the euro sign are in the GSM-7 extension table and each counts as two characters, though the message stays GSM-7.</p>
+  <h2>How do I stop my phone or editor adding curly quotes?</h2>
+  <p>Compose the template in a plain-text editor, turn off smart punctuation in your word processor, and run the final text through this calculator before sending it to a provider.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not telecom-compliance or financial advice, and provider billing rules can change; verify against your provider's documentation. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, and may be slow, moved, or taken offline without notice.</p>
+  </footer>
+</body>
+</html>

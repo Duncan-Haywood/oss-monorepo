@@ -81,3 +81,13 @@ test('the FAQ answer about uploads names the shareable link honestly', async () 
   const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
   assert.match(page, /Copy shareable link button puts the same numbers in the page's URL fragment/);
 });
+
+test('footer links to the childcare center break-even calculator sibling', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /href="\.\.\/childcare-center-break-even-calculator\/"/);
+});
+
+test('index links ../private-school-tuition-discount-calculator/ so a school business office reaches it in one hop', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /href="\.\.\/private-school-tuition-discount-calculator\/"/);
+});

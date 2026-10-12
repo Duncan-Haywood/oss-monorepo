@@ -1,0 +1,50 @@
+name: postgres-explain-analyzer
+description: 'Free, zero-network, zero-dependency CLI + browser tool that reads one PostgreSQL EXPLAIN (ANALYZE) plan, as text or FORMAT JSON, and reports self time per plan node, scans that discard most of the rows they read (with a candidate index), nested loops over sequential scans, planner row misestimates, and sorts or hashes that spill to disk (with a work_mem suggestion); usable as a CI query-time gate. Heuristics over one pasted plan, not a DBA and not a guarantee that a suggested index helps.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype (portfolio/pipeline/README.md "archetype itself").
+# duplicate_check.py (run 2026-10-01) scored the closest ventures at 0.10
+# (bid-win-rate-optimizer, price-elasticity-estimator) -- nothing in the tree
+# reads query plans. Not in screened-out.md.
+#
+# Where the first real visitor would come from: the search phrases "postgres
+# explain analyze slow query", "how to read explain analyze", "seq scan rows
+# removed by filter", "postgres sort method external merge disk"; r/PostgreSQL,
+# r/Database, r/rails, r/django and Stack Overflow threads titled "why is my
+# query slow". The buyer-ish reader is a backend engineer or DBA with a
+# production query on fire. Adjacent products (explain.dalibo.com, explain.depesz.com,
+# pgMustard) are hosted viewers that require pasting into a third-party site or
+# paying; this runs locally, keeps the plan on the device, prints a concrete
+# fix per finding and fits a CI gate -- that is the wedge. A paid upgrade path
+# later: a plan-history comparer (before/after an index) and a pg_stat_statements
+# triager.
+hypotheses:
+  - claim: An engineer with a slow query will search for how to read EXPLAIN ANALYZE, paste the plan, and come away knowing which node to fix and what index or setting to try.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team will wire the CLI into CI with --max-ms against a seeded staging database so a regressed query plan fails the pull request instead of production.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/postgres-explain-analyzer/

@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mailchimp Audience CSV Check — Find Import Errors Before You Import</title>
+  <meta name="description" content="Free Mailchimp audience import CSV checker: finds invalid and duplicate emails, rows with no email, unquoted commas in Tags, birthdays with a year or mixed DD/MM and MM/DD, mixed date formats, phones Excel damaged and near-miss column names, with line numbers, and applies formatting-only safe fixes. Runs in your browser; the file is never uploaded.">
+  <meta property="og:title" content="Mailchimp Audience CSV Check — free, private, in your browser">
+  <meta property="og:description" content="Catch what breaks or quietly corrupts a Mailchimp audience import, with the line number, before you import. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Mailchimp Audience CSV Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks a Mailchimp audience import CSV for invalid and duplicate emails, rows with no email, unquoted commas in Tags, birthday format, mixed date formats, Excel-damaged phones and near-miss column names, and applies formatting-only safe fixes. Runs entirely in your browser; the file is never uploaded.", "featureList": "Mailchimp audience CSV validator, Mailchimp import error finder, duplicate email finder, Tags comma check, birthday format check, mixed date format finder"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why did my Mailchimp audience import skip contacts or create odd fields?", "acceptedAnswer": {"@type": "Answer", "text": "The usual causes are a row with no email address, an email that is not valid, the same email on two rows (capitals do not make it different), a header like Mobile, DOB or Tag that is not mapped to the default field and is offered as a new audience field instead, an unquoted comma inside the Tags cell that shifts every later column, a birthday with a year or one that mixes DD/MM and MM/DD, a date column that mixes formats, and an Excel save that turned long phone numbers into scientific notation. This tool tests each of them and names the line."}}, {"@type": "Question", "name": "Does a clean CSV mean I can email these people from Mailchimp?", "acceptedAnswer": {"@type": "Answer", "text": "No. This tool only checks formatting. Permission to market comes from a real opt-in you hold a record of, such as a signup form or a prior platform's subscription list, and Mailchimp asks you to confirm that at import and restricts purchased, rented or scraped lists. The tool never creates or changes consent. Messaging people who did not opt in can breach laws such as CAN-SPAM, GDPR and PECR. Ask a lawyer if unsure."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    textarea.small { min-height: 90px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MAILCHIMP AUDIENCE CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why did my Mailchimp audience import skip contacts or create odd fields?</h1>
+    <p>Paste or drop your <strong>Mailchimp audience CSV</strong> and get every problem <strong>with its line number</strong> before you import: <strong>invalid and duplicate emails</strong> (capitals ignored), <strong>rows with no email</strong>, <strong>unquoted commas in Tags</strong> that shift the columns, <strong>birthdays</strong> with a year or mixing DD/MM and MM/DD, phones turned into <code>4.16556E+09</code>, headers like <code>Mobile</code> or <code>DOB</code> that will not map to the default field, and date columns that <strong>mix day-first and month-first</strong>. Then <strong>apply the safe fixes</strong> and download a cleaned CSV with every change listed.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Intuit Inc. and Mailchimp. Column names and rules are read from memory of Mailchimp's public help pages on importing contacts; no Mailchimp account or import was available when this was built.</p>
+    <p class="note"><strong>About consent.</strong> Permission to market comes from a real opt-in you can show, such as a signup form or the subscription list of the platform you are leaving, and Mailchimp asks you to confirm it at import. This tool checks formatting. It does not create, upgrade or change anyone's consent, and no fix here will ever turn a blank or unclear value into a yes.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your audience CSV</h2>
+    <p class="note">A contact export from any platform edited in a spreadsheet, or a sheet prepared for Mailchimp's CSV import. Contact data is personal data: this page never uploads it.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.txt,text/csv,text/plain">
+    <label for="paste">…or paste the CSV text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Email Address,First Name,Last Name,Phone Number,Birthday,Tags,..."></textarea>
+    <p>
+      <button type="button" id="validate">Check file</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Check file.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Rows with findings</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">Contact</th><th class="n" scope="col">Findings</th></tr></thead><tbody id="flagged"></tbody></table></div>
+    <div id="fix-box" hidden>
+      <h3>Safe fixes</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <p><button type="button" id="download-fixed">Download cleaned CSV</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Identity.</strong> Every row needs an <strong>Email Address</strong>. Emails must be valid and unique; two rows that differ only in capitals are the same contact.</li>
+      <li><strong>Default fields.</strong> Email Address, First Name, Last Name, Phone Number, Address, Birthday and Tags. Near misses such as <code>Mobile</code>, <code>DOB</code> or <code>Tag</code> are flagged because they can be offered as a new audience field instead. Every other column is treated as an audience field you will map yourself and is only noted.</li>
+      <li><strong>Tags.</strong> Several tags go in one cell separated by commas, with the whole cell in double quotes. An unquoted comma shifts every later column.</li>
+      <li><strong>Excel damage.</strong> A <strong>Phone Number</strong> such as <code>4.16556E+09</code> means Excel read the cell as a number and the digits are gone. Format the column as Text before editing.</li>
+      <li><strong>Birthday</strong> holds a month and a day only, as MM/DD or DD/MM to match the field. A year, or values that mix both orders, are flagged and never rewritten.</li>
+      <li><strong>Dates</strong> in a column named like a date: one format throughout, ideally YYYY-MM-DD. Mixed or day/month-ambiguous values are flagged and never reordered.</li>
+      <li><strong>Safe fixes</strong> change only the delimiter, the spelling of default headers and stray spaces around an email, name or phone. It never edits a name, address, tag or custom value, never drops a birthday year, never merges duplicates and never touches a consent or status value.</li>
+      <li><strong>Not checked:</strong> that Mailchimp will accept the file today, whether an email is deliverable, whether you have permission to message anyone, your audience's existing contacts, unsubscribed and cleaned lists, field limits and size limits, and anything Mailchimp changes in its importer. Import a handful of contacts first.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why did my Mailchimp audience import skip contacts or create odd fields?</h3>
+    <p>The usual causes are a row with no email address, an email that is not valid, the same email on two rows (capitals do not make it different), a header like Mobile, DOB or Tag that is not mapped to the default field and is offered as a new audience field instead, an unquoted comma inside the Tags cell that shifts every later column, a birthday with a year or one that mixes DD/MM and MM/DD, a date column that mixes formats, and an Excel save that turned long phone numbers into scientific notation. This tool tests each of them and names the line.</p>
+    <h3>Does a clean CSV mean I can email these people from Mailchimp?</h3>
+    <p>No. This tool only checks formatting. Permission to market comes from a real opt-in you hold a record of, such as a signup form or a prior platform's subscription list, and Mailchimp asks you to confirm that at import and restricts purchased, rented or scraped lists. The tool never creates or changes consent. Messaging people who did not opt in can breach laws such as CAN-SPAM, GDPR and PECR. Ask a lawyer if unsure.</p>
+    <h3>Why did my phone numbers turn into 4.16556E+09?</h3>
+    <p>Excel treats a long run of digits as a number and shows it in scientific notation; once saved the original digits are lost. The tool flags it but cannot restore them. Re-export from the source with the column formatted as Text.</p>
+    <h3>What does Apply safe fixes change?</h3>
+    <p>Only things with one reasonable reading: the delimiter, the spelling of default headers and stray spaces. Every change is listed with its line. It never edits names, addresses, tags, birthdays or anything about consent.</p>
+    <h3>Is it safe to put my customer list into a web page?</h3>
+    <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. You remain responsible for how you store and handle the downloaded file.</p>
+    <h3>What does this not check?</h3>
+    <p>Whether Mailchimp will accept the file today, whether emails are deliverable, your existing contacts and field limits. A clean result is not a promise of success: import a few contacts first.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace Mailchimp's own import checks. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including by importing a small sample first, and a clean result is not a promise that Mailchimp will accept the file. Marketing consent must come from real opt-in; this tool does not create consent and is not advice on TCPA, CAN-SPAM, GDPR or any other messaging law.</p>
+    <p><strong>Not affiliated with Mailchimp.</strong> This tool is independent and is not sponsored, endorsed or connected to Intuit Inc. or The Rocket Science Group LLC (Mailchimp) or any email or SMS marketing vendor. Mailchimp is a trademark of its owner, used here only to say which file format the tool reads. The column list and rules are read from memory of public sources and may be out of date or miss a variant; check them against Mailchimp's current import documentation.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../email-list-csv-check/">email list CSV check</a> covers generic subscriber lists, the <a href="../brevo-contacts-csv-check/">Brevo contacts CSV check</a> and the <a href="../klaviyo-profile-csv-check/">Klaviyo profile CSV check</a> prepare the same list for Klaviyo, the <a href="../hubspot-contacts-csv-check/">HubSpot contacts CSV check</a> does the same for HubSpot, and the <a href="../shopify-customer-csv-check/">Shopify customer CSV check</a> prepares a store's customers.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, sampleFile, sampleBrokenFile, findingsCsv, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, fixedText = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const r = validate(text);
+      lastResult = r;
+      const s = r.summary;
+      const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${s.rows} contact${s.rows === 1 ? "" : "s"}, ${s.columns} columns · ${s.withEmail} with email, ${s.withPhone} with phone, ${s.withTags} with tags`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      $("#flagged").innerHTML = s.flagged.slice(0, 500).map((g) => `<tr><td>${g.line}</td><td>${esc(g.email)}</td><td class="n">${g.issues}</td></tr>`).join("") || `<tr><td colspan="3">No rows flagged.</td></tr>`;
+      const fix = repair(text);
+      fixedText = fix.text;
+      $("#fix-box").hidden = false;
+      $("#download-fixed").hidden = !fix.text || !fix.changes.length;
+      $("#fix-note").textContent = fix.error ? fix.error : fix.changes.length
+        ? `${fix.changes.length} safe change${fix.changes.length === 1 ? "" : "s"} available. Names, addresses, tags and anything about consent are left exactly as they are.`
+        : "Nothing here has a single safe fix; the findings above need your decision.";
+      $("#fix-list").innerHTML = fix.changes.slice(0, 200).map((c) => `<li>${esc(c)}</li>`).join("") + (fix.changes.length > 200 ? `<li>…and ${fix.changes.length - 200} more.</li>` : "");
+      report.hidden = false;
+      status.textContent = errs ? `Found ${errs} error(s) in ${s.rows} row(s).` : `No errors in ${s.rows} row(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: three made-up contacts, not real people."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: made-up contacts after a spreadsheet round trip, with typical faults."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; lastResult = null; fixedText = null; status.textContent = "Choose a file or paste the text, then click Check file."; });
+    $("#download-fixed").addEventListener("click", () => { if (fixedText) { record("fixes_applied"); download("mailchimp-audience-cleaned.csv", fixedText, "text/csv"); } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("mailchimp-audience-csv-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

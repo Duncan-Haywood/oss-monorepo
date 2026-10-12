@@ -104,3 +104,7 @@ test("no module in this venture can reach the network", () => {
   assert.doesNotMatch(html, /\bfetch\(/);
   assert.doesNotMatch(html, /XMLHttpRequest/);
 });
+
+test("links the freelance editor quote calculator, its sibling for editing jobs", () => {
+  assert.match(page("index.html"), /href="\.\.\/freelance-editor-quote-calculator\/"/);
+});

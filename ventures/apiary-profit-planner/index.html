@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Beekeeping Profit Calculator — Hives, Honey, Nucs and Pollination Planner, Free</title>
+  <meta name="description" content="Free beekeeping profit calculator. Project colonies, honey, nuc sales and pollination income year by year; see winter-loss sensitivity, break-even hives and payback. Nothing uploaded.">
+  <meta property="og:title" content="Is beekeeping profitable? Free apiary profit planner">
+  <meta property="og:description" content="Your hives, losses, prices and costs in; year-by-year colonies, profit, break-even and payback out. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23b45309'/%3E%3Cpath d='M16 6l8 5v10l-8 5-8-5V11z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Apiary Profit Planner","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Project colonies, honey, nuc sales and pollination income year by year for a small apiary, with winter-loss sensitivity and break-even colonies. Runs in your browser; nothing is uploaded.","featureList":"Multi-year colony projection, winter loss sensitivity, revenue scenarios, break-even colonies, payback"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many beehives do I need to make a profit?","acceptedAnswer":{"@type":"Answer","text":"It depends on your winter loss, honey yield and selling price, because fixed costs (insurance, an extractor, registration) are spread over the colonies you keep. The planner shows the break-even number of colonies for your inputs and projects colony count and profit year by year."}},{"@type":"Question","name":"Is beekeeping profitable?","acceptedAnswer":{"@type":"Answer","text":"Often only at the margin: honey alone rarely pays for a small yard once equipment and your time are counted. Selling nucs, renting colonies for pollination and selling retail rather than bulk usually decide it. The scenario table shows what each line adds to honey alone."}},{"@type":"Question","name":"How much does winter loss matter?","acceptedAnswer":{"@type":"Answer","text":"More than yield. Each colony lost must be replaced by a split that needs a queen, equipment and a season to produce. The sensitivity table re-runs your plan at 10% to 60% loss."}},{"@type":"Question","name":"Is this beekeeping advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type in. Colony health, disease and mite management, local regulations and food-safety rules for selling honey are out of scope."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #fdf8ec; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #b45309; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #78350f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #78350f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5268; }
+    .card { background: #fff; border: 1px solid #ecd9a6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #78350f10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #d8bd7a; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #b45309; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #f6e7b8; color: #78350f; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #f1e4bd; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5268; }
+    .finding { border-bottom: 1px solid #f1e4bd; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #f6e7b8; color: #78350f; }
+    .stats { font-size: 1rem; color: #2f3348; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #ecd9a6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .error { color: #9a3412; font-weight: 600; }
+      </style>
+</head>
+<body>
+  <header>
+    <p class="note">APIARY PROFIT PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will your bees pay for themselves?</h1>
+    <p>Enter your colonies, winter loss, honey yield, prices and costs. The planner projects colonies, honey, nuc sales and pollination income year by year, shows what happens at 10% to 60% winter loss, compares honey-only against nucs and pollination, and finds the number of colonies where the yard covers its fixed costs.</p>
+    <p class="note">Planning arithmetic on your own numbers and stated assumptions.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-yard">
+      <h2 id="h-yard">1. Your yard</h2>
+      <div class="grid">
+        <div><label for="startHives">Colonies you start with</label><input id="startHives" type="number" step="any" value="10"></div>
+        <div><label for="cap">Most colonies your yard can hold</label><input id="cap" type="number" step="any" value="30"></div>
+        <div><label for="years">Years to project (1-15)</label><input id="years" type="number" step="any" value="5"></div>
+        <div><label for="lossPct">Winter loss (% of colonies that die)</label><input id="lossPct" type="number" step="any" value="30"></div>
+        <div><label for="splitRate">New colonies made per surviving colony</label><input id="splitRate" type="number" step="any" value="0.6"></div>
+        <div><label for="splitFailPct">Splits that fail (%)</label><input id="splitFailPct" type="number" step="any" value="15"></div>
+      </div>
+      <p class="note">Splits are new colonies made from surviving ones each spring. Colonies beyond your yard limit are sold as nucs. New splits do not make honey in the year they are made.</p>
+    </section>
+    <section class="card" aria-labelledby="h-sales">
+      <h2 id="h-sales">2. What you sell</h2>
+      <div class="grid">
+        <div><label for="honeyLb">Honey per productive colony (lb)</label><input id="honeyLb" type="number" step="any" value="50"></div>
+        <div><label for="retailSharePct">Share sold retail in jars (%)</label><input id="retailSharePct" type="number" step="any" value="40"></div>
+        <div><label for="retailPrice">Retail price per lb ($)</label><input id="retailPrice" type="number" step="any" value="12"></div>
+        <div><label for="bulkPrice">Bulk/wholesale price per lb ($)</label><input id="bulkPrice" type="number" step="any" value="4.5"></div>
+        <div><label for="jarCostPerLb">Jar, lid and label cost per retail lb ($)</label><input id="jarCostPerLb" type="number" step="any" value="1.2"></div>
+        <div><label for="nucPrice">Price per nuc ($)</label><input id="nucPrice" type="number" step="any" value="190"></div>
+        <div><label for="nucsSoldShare">Surplus splits sold as nucs (%)</label><input id="nucsSoldShare" type="number" step="any" value="100"></div>
+        <div><label for="pollHives">Colonies rented for pollination</label><input id="pollHives" type="number" step="any" value="0"></div>
+        <div><label for="pollFee">Pollination fee per colony ($)</label><input id="pollFee" type="number" step="any" value="140"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-costs">
+      <h2 id="h-costs">3. What it costs</h2>
+      <div class="grid">
+        <div><label for="mitePerHive">Mite treatment per colony ($)</label><input id="mitePerHive" type="number" step="any" value="25"></div>
+        <div><label for="feedPerHive">Feed per colony per year ($)</label><input id="feedPerHive" type="number" step="any" value="30"></div>
+        <div><label for="suppliesPerHive">Other supplies per colony ($)</label><input id="suppliesPerHive" type="number" step="any" value="20"></div>
+        <div><label for="queenCost">Queen cost ($)</label><input id="queenCost" type="number" step="any" value="35"></div>
+        <div><label for="hiveEquip">Boxes and frames per new colony ($)</label><input id="hiveEquip" type="number" step="any" value="350"></div>
+        <div><label for="startupEquip">Extractor, suit, tools, setup ($)</label><input id="startupEquip" type="number" step="any" value="1800"></div>
+        <div><label for="equipLifeYears">Equipment life (years)</label><input id="equipLifeYears" type="number" step="any" value="10"></div>
+        <div><label for="fixedYear">Insurance, registration, other fixed ($/yr)</label><input id="fixedYear" type="number" step="any" value="300"></div>
+        <div><label for="hoursPerHive">Hours per colony per year</label><input id="hoursPerHive" type="number" step="any" value="8"></div>
+        <div><label for="sellHoursPerLb">Selling time per lb of honey (hours)</label><input id="sellHoursPerLb" type="number" step="any" value="0.01"></div>
+        <div><label for="valueOfHour">What an hour of your time is worth ($)</label><input id="valueOfHour" type="number" step="any" value="20"></div>
+      </div>
+      <p class="note">Queens: every split needs one, plus 30% of surviving colonies are re-queened each year.</p>
+      <button type="button" id="run">Project my apiary</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>How many beehives do I need to make a profit?</h3>
+      <p>It depends on your winter loss, honey yield and selling price, because fixed costs (insurance, an extractor, registration) are spread over the colonies you keep. The planner shows the break-even number of colonies for your inputs and projects colony count and profit year by year.</p>
+      <h3>Is beekeeping profitable?</h3>
+      <p>Often only at the margin: honey alone rarely pays for a small yard once equipment and your time are counted. Selling nucs, renting colonies for pollination and selling retail rather than bulk usually decide it. The scenario table shows what each line adds to honey alone.</p>
+      <h3>How much does winter loss matter?</h3>
+      <p>More than yield. Each colony lost must be replaced by a split that needs a queen, equipment and a season to produce. The sensitivity table re-runs your plan at 10% to 60% loss.</p>
+      <h3>Is this beekeeping advice?</h3>
+      <p>No. It is arithmetic on the numbers you type in. Colony health, disease and mite management, local regulations and food-safety rules for selling honey are out of scope.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Colony health, disease and mite pressure, swarming, drought and forage, local registration and inspection rules, food-safety and labelling rules for selling honey, insurance, and tax. Yields, loss rates and prices vary hugely by region and year; the defaults are placeholders, not forecasts.</p>
+    </section>
+    <section class="card">
+      <p>Also running a small farm business? See the <a href="../backyard-honey-profit-calculator/">backyard honey profit calculator</a> for a single-season view, the <a href="../maple-syrup-sugarbush-profit-calculator/">maple syrup profit calculator</a>, the <a href="../mushroom-fruiting-room-planner/">mushroom fruiting room planner</a> and the <a href="../u-pick-farm-profit-planner/">u-pick farm profit planner</a> and the <a href="../sheep-goat-flock-profit-planner/">sheep and goat flock profit planner</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any registration, food-safety or insurance obligation it helps you think about. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this saved you a bad season, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { project, lossSensitivity, scenarios, breakEvenHives, holdSteadyLossPct, DEFAULTS, num, money, money2 } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } o.cap = Math.max(1, o.cap); o.equipLifeYears = Math.max(1, o.equipLifeYears); return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const n1 = (x) => (Math.round(x * 10) / 10).toString();
+    function run() {
+      const o = opts();
+      const p = project(o);
+      const be = breakEvenHives(o);
+      let h = `<div class="finding"><h4>Year by year</h4><p class="stats">Up-front outlay ${money(p.invest)} · ${p.paybackYear ? "pays back in year " + p.paybackYear : "does not pay back within " + p.rows.length + " years"} · ${money(p.totalProfit)} total profit after depreciation · ${n1(p.finalHives)} colonies at the end</p><div class="scroll"><table><thead><tr><th class="n">Year</th><th class="n">Start</th><th class="n">Survive</th><th class="n">End</th><th class="n">Honey lb</th><th class="n">Nucs sold</th><th class="n">Revenue</th><th class="n">Profit</th><th class="n">Per hour</th><th class="n">Cash position</th></tr></thead><tbody>${p.rows.map((r) => `<tr><td class="n">${r.year}</td><td class="n">${n1(r.start)}</td><td class="n">${n1(r.survivors)}</td><td class="n">${n1(r.end)}</td><td class="n">${Math.round(r.honeyLb).toLocaleString("en-US")}</td><td class="n">${n1(r.nucsSold)}</td><td class="n">${money(r.revenue)}</td><td class="n">${money(r.profit)}</td><td class="n">${money2(r.profitPerHour)}</td><td class="n">${money(r.cumulative)}</td></tr>`).join("")}</tbody></table></div><p class="note">Profit is after depreciation. Cash position is cumulative cash profit less the up-front outlay, counting new equipment when it is bought. Fractions of a colony are averages, not a count you could stand in front of.</p></div>`;
+      h += `<div class="finding"><h4>Break-even and hold-steady</h4><p>${be === null ? '<span class="pill high">Loses money per colony</span> At these prices and costs every colony costs more than it earns, so more colonies make it worse.' : "Each colony earns enough that about <strong>" + be + " colonies</strong> cover your fixed costs and equipment depreciation."} Without selling or buying, your yard holds steady at about <strong>${holdSteadyLossPct(o)}%</strong> winter loss; above that it shrinks even with your splitting.</p></div>`;
+      h += `<div class="finding"><h4>Winter loss sensitivity</h4><div class="scroll"><table><thead><tr><th class="n">Winter loss</th><th class="n">Colonies at end</th><th class="n">Total profit</th><th class="n">Payback</th></tr></thead><tbody>${lossSensitivity(o).map((s) => `<tr><td class="n">${s.lossPct}%</td><td class="n">${n1(s.finalHives)}</td><td class="n">${money(s.totalProfit)}</td><td class="n">${s.paybackYear ? "year " + s.paybackYear : "not within the window"}</td></tr>`).join("")}</tbody></table></div></div>`;
+      h += `<div class="finding"><h4>What each income line adds</h4><div class="scroll"><table><thead><tr><th>Scenario</th><th class="n">Total profit</th><th class="n">Colonies at end</th><th class="n">Payback</th></tr></thead><tbody>${scenarios(o).map((s) => `<tr><td>${s.label}</td><td class="n">${money(s.totalProfit)}</td><td class="n">${n1(s.finalHives)}</td><td class="n">${s.paybackYear ? "year " + s.paybackYear : "not within the window"}</td></tr>`).join("")}</tbody></table></div><p class="note">Pollination here uses the colonies-rented figure you entered; set it above zero to see its effect.</p></div>`;
+      const r1 = p.rows[0];
+      h += `<div class="finding"><h4>Year one, with your time priced</h4><p>${Math.round(r1.hours)} hours of work at ${money2(o.valueOfHour)} an hour is ${money(r1.hours * o.valueOfHour)}, which leaves ${money(r1.profitAfterLabour)} after paying yourself. ${r1.profitAfterLabour < 0 ? "A hobby today, not a wage." : "It already clears a wage."}</p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("plan_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

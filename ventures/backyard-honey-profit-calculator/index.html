@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Backyard Honey Profit Calculator — Cost per Pound, Profit per Hour and the Price You Need</title>
+  <meta name="description" content="Free calculator for backyard beekeepers who sell honey: what a pound costs you, how many hours it takes, your profit per pound and per hour, the price per pound you need to earn a wage, and what a poor honey year and winter hive losses do to it. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="What do you really make on a pound of honey?">
+  <meta property="og:description" content="Cost per pound, profit per hour, the price you need for a wage, and what a poor honey year and winter losses do to it. Your numbers, not advice. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Backyard Honey Profit Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free calculator for backyard beekeepers who sell honey: what a pound costs you, how many hours it takes, your profit per pound and per hour, the price per pound you need to earn a wage, and what a poor honey year and winter hive losses do to it. Runs in your browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does it cost to produce a pound of honey?","acceptedAnswer":{"@type":"Answer","text":"On the default numbers $3.88 in cash per pound sold: $450.00 to replace winter losses, $400.00 of equipment, $250.00 of mite treatment and feed, $495.00 of jars and labels and $150.00 of insurance and fees, plus 0.44 hours of your time per pound. Jars and labels is the largest cash line at 28.4%. Enter your own figures; the defaults are invented."}},{"@type":"Question","name":"How much should I charge for a pound of honey?","acceptedAnswer":{"@type":"Answer","text":"$12.77 a pound to pay yourself $20 an hour on those numbers, against a cash breakeven of $3.88. Selling at $10.00 leaves $6.12 a pound and $13.78 an hour before any wage is deducted."}},{"@type":"Question","name":"What happens in a bad honey year or a bad winter?","acceptedAnswer":{"@type":"Answer","text":"A poor honey year (20 lb a hive instead of 50) costs $8.04 a pound and needs $30.27. Losing 60% of hives over winter lifts the price you need to $14.17."}},{"@type":"Question","name":"Is this advice or market data?","acceptedAnswer":{"@type":"Answer","text":"No. It does arithmetic on the numbers you type. Prices, costs and times are yours to check, nothing is uploaded, and it is not financial, tax, legal or food-safety advice. Check your state's rules on selling honey and labelling."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    select { padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    input[type=number] { width: 6.5em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">BACKYARD HONEY PROFIT CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>What do you really make on a pound of honey?</h1>
+    <p>Enter your hives, honey yield, costs and hours and what you sell a pound for. You get your <strong>cost per pound</strong>, your <strong>profit per hour</strong>, the <strong>price per pound</strong> you need to pay yourself a wage, and what a <strong>poor honey year</strong> and <strong>winter hive losses</strong> do to all of it.</p>
+    <p class="note"><strong>Your numbers, not advice.</strong> Prices, costs and times are yours to check; every value is editable. Nothing is uploaded: inputs are used in this browser tab only.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your apiary</h2>
+    <p>
+      <label for="hives">Hives going into the season</label><input type="number" id="hives" value="10" min="1" step="1">
+      <label for="yieldlbs">Honey per hive per year (lb)</label><input type="number" id="yieldlbs" value="50" min="0" step="5">
+      <label for="price">Selling price per lb ($)</label><input type="number" id="price" value="10" min="0" step="0.5">
+      <label for="losspct">Honey lost or kept (%)</label><input type="number" id="losspct" value="10" min="0" step="1">
+      <label for="jarcost">Jar and label cost per lb ($)</label><input type="number" id="jarcost" value="1.1" min="0" step="0.1">
+      <label for="treatcost">Mite treatment and feed per hive ($)</label><input type="number" id="treatcost" value="25" min="0" step="5">
+      <label for="equipyear">Equipment per year ($)</label><input type="number" id="equipyear" value="400" min="0" step="50">
+      <label for="otheryear">Other cost per year ($)</label><input type="number" id="otheryear" value="150" min="0" step="10">
+      <label for="winterlosspct">Winter loss (%)</label><input type="number" id="winterlosspct" value="25" min="0" step="5">
+      <label for="nuccost">Replacement colony cost ($)</label><input type="number" id="nuccost" value="180" min="0" step="10">
+      <label for="hoursperhive">Hours per hive per year</label><input type="number" id="hoursperhive" value="20" min="0" step="1">
+      <label for="wage">Your wage per hour ($)</label><input type="number" id="wage" value="20" min="0" step="1">
+    </p>
+    <p>
+      <button type="button" id="go">Calculate profit</button>
+      <button type="button" class="secondary" id="load-example">Load a bad year: drought yield, half the hives lost</button>
+      <button type="button" class="secondary" id="clear">Clear results</button>
+      <button type="button" class="secondary" id="copy">Copy summary</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="result-card" hidden aria-live="polite">
+    <h2>Your apiary for a year</h2>
+    <p id="summary"></p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Line</th><th>Per year</th></tr></thead>
+      <tbody id="totals-rows"></tbody>
+    </table></div>
+    <h3>If your selling price moves</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Price per lb</th><th>Profit per hour</th><th>After wage, per year</th><th>Margin, per year</th></tr></thead>
+      <tbody id="price-rows"></tbody>
+    </table></div>
+    <h3>If the honey crop is poor</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Honey per hive</th><th>Cost per lb</th><th>Profit per hour</th><th>Price you need</th></tr></thead>
+      <tbody id="yield-rows"></tbody>
+    </table></div>
+    <h3>If more hives die over winter</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Winter loss</th><th>Cost per lb</th><th>Profit per hour</th><th>Price you need</th></tr></thead>
+      <tbody id="winter-rows"></tbody>
+    </table></div>
+    <p class="note">Weigh a season's honey, count winter losses over a few years and time one full year before you trust the numbers. A hobby that looks free can pay a few dollars an hour; the work does not shrink when the bees do badly.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">More: <a href="how-much-to-charge-for-a-pound-of-honey.html">How much to charge for a pound of honey: hives, winter losses and your hours</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What does it cost to produce a pound of honey?</h3>
+    <p>On the default numbers $3.88 in cash per pound sold: $450.00 to replace winter losses, $400.00 of equipment, $250.00 of mite treatment and feed, $495.00 of jars and labels and $150.00 of insurance and fees, plus 0.44 hours of your time per pound. Jars and labels is the largest cash line at 28.4%. Enter your own figures; the defaults are invented.</p>
+    <h3>How much should I charge for a pound of honey?</h3>
+    <p>$12.77 a pound to pay yourself $20 an hour on those numbers, against a cash breakeven of $3.88. Selling at $10.00 leaves $6.12 a pound and $13.78 an hour before any wage is deducted.</p>
+    <h3>What happens in a bad honey year or a bad winter?</h3>
+    <p>A poor honey year (20 lb a hive instead of 50) costs $8.04 a pound and needs $30.27. Losing 60% of hives over winter lifts the price you need to $14.17.</p>
+    <h3>Is this advice or market data?</h3>
+    <p>No. It does arithmetic on the numbers you type. Prices, costs and times are yours to check, nothing is uploaded, and it is not financial, tax, legal or food-safety advice. Check your state's rules on selling honey and labelling.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, food-safety or business advice, it is not a market price, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the accuracy of the numbers you enter. To the maximum extent permitted by law the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Not affiliated with, endorsed by or sponsored by any beekeeping association, agriculture agency or marketplace; names are used only to say what the tool is about.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. The numbers you enter are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>calculate_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../backyard-egg-profit-calculator/">Backyard Egg Profit Calculator</a>, <a href="../farmers-market-booth-calculator/">Farmers Market Booth Calculator</a>.</p>
+    <p>Growing past a backyard yard? The <a href="../apiary-profit-planner/">apiary profit planner</a> projects colonies, nuc sales and pollination income over several years and shows what winter loss does to them.</p>
+    <p>Boiling sap instead of keeping bees? The <a href="../maple-syrup-sugarbush-profit-calculator/">maple syrup sugarbush profit calculator</a> shows profit per tap and per hour and whether reverse osmosis pays back.</p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeHoney, summarize, money, pct, INPUT_NOTES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    const options = () => ({
+      hives: $("#hives").value,
+      yieldLbs: $("#yieldlbs").value,
+      price: $("#price").value,
+      lossPct: $("#losspct").value,
+      jarCost: $("#jarcost").value,
+      treatCost: $("#treatcost").value,
+      equipYear: $("#equipyear").value,
+      otherYear: $("#otheryear").value,
+      winterLossPct: $("#winterlosspct").value,
+      nucCost: $("#nuccost").value,
+      hoursPerHive: $("#hoursperhive").value,
+      wage: $("#wage").value,
+    });
+
+    let lastText = "";
+    function render() {
+      const status = $("#status");
+      let r;
+      try {
+        r = computeHoney(options());
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarize(r);
+      lastText = s.text;
+      $("#summary").innerHTML = `<span class="${s.status === "ok" ? "gain" : "error"}">${escapeHtml(s.text)}</span>`;
+      $("#totals-rows").innerHTML = [
+        ...r.lines.map((l) => [l.label, money(l.value)]),
+        ["Total cash cost per year", money(r.costYear)], ["Pounds sold per year", String(Math.round(r.lbsSold))],
+        ["Cash cost per lb", money(r.costPerLb)], ["Hours per lb", r.hoursPerLb.toFixed(2)],
+        ["Revenue per year", money(r.revenueYear)], ["Margin per lb", money(r.marginPerLb)],
+        ["Margin per year", money(r.marginYear)], ["Profit per hour", money(r.profitPerHour)],
+        ["After your wage, per year", money(r.afterWageYear)],
+        ["Cash breakeven price per lb", money(r.breakevenPrice)], ["Price per lb for your wage", money(r.wagePrice)],
+      ].map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("");
+      $("#price-rows").innerHTML = r.priceScenarios.map((x) => `<tr><td>${money(x.price)}${x.current ? " (yours)" : ""}</td><td>${money(x.profitPerHour)}</td><td>${money(x.afterWageYear)}</td><td>${money(x.marginYear)}</td></tr>`).join("");
+      $("#yield-rows").innerHTML = r.yieldScenarios.map((x) => `<tr><td>${Math.round(x.yieldLbs * 10) / 10} lb${x.current ? " (yours)" : ""}</td><td>${money(x.costPerLb)}</td><td>${money(x.profitPerHour)}</td><td>${money(x.wagePrice)}</td></tr>`).join("");
+      $("#winter-rows").innerHTML = r.winterScenarios.map((x) => `<tr><td>${Math.round(x.winterLossPct * 10) / 10}%${x.current ? " (yours)" : ""}</td><td>${money(x.costPerLb)}</td><td>${money(x.profitPerHour)}</td><td>${money(x.wagePrice)}</td></tr>`).join("");
+      $("#result-card").hidden = false;
+      record("calculate_run");
+    }
+
+    $("#go").addEventListener("click", render);
+    $("#load-example").addEventListener("click", () => {
+      $("#price").value = 8; $("#yieldlbs").value = 25; $("#winterlosspct").value = 50; $("#losspct").value = 15;
+      render();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => { $("#status").textContent = ""; $("#result-card").hidden = true; });
+    $("#copy").addEventListener("click", async () => {
+      if (!lastText) render();
+      try { await navigator.clipboard.writeText(lastText); $("#status").textContent = "Summary copied."; } catch { $("#status").textContent = "Could not copy; select the summary text instead."; }
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

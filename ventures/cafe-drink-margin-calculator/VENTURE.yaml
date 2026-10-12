@@ -1,0 +1,51 @@
+name: cafe-drink-margin-calculator
+description: >-
+  Free browser tool for independent coffee shop owners: enter each drink's price, coffee grams, milk ounces, cup and make time
+  plus bean and milk cost, card fees and barista wage, and get what every drink earns after card fees and labor, profit per
+  barista-hour, the price that reaches a target margin, an oat-milk surcharge, break-even drinks per day and cost sensitivity.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: coffee-roaster-margin-calculator (0.14, the roaster not the
+# cafe), menu-engineering-calculator (restaurant dishes, no make-time or card-fee model), recipe-costing-calculator. Dropped
+# first because the tree already has them: menu engineering, owner-operator cost per mile, tip pool, retainer vs hourly, ADU,
+# crop insurance, change orders, trade show ROI, self storage, car wash, laundromat, 1099 tools.
+#
+# Why this niche: a US independent cafe runs on thin margins, sells 100+ drinks a day and prices by feel or by copying the
+# shop down the street. Square/Toast reports show revenue, not what a flavored 16 oz latte earns once a 95-second make time
+# and a 2.6% card fee are counted. Owners spend real money here and a one-dollar repricing is worth thousands a month.
+#
+# First visitor: searches "coffee shop profit margin per drink", "latte cost breakdown", "oat milk upcharge how much",
+# "coffee shop break even drinks per day"; r/barista, r/coffeeshopowners. Volume not measured.
+#
+# Liability boundary: arithmetic on typed numbers; placeholder values labelled as such; "Not decided" section; no-advice
+# footer. Nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. Natural front end for a paid menu-repricing review
+# or POS-export (Square, Toast, Clover CSV) analyzer -- needs an owner decision on payment.
+
+hypotheses:
+  - claim: >-
+      Independent cafe owners will type their menu costs into a free tool to find which drinks lose money after labor and card fees.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a modelling error that changes which drink looks unprofitable on their numbers.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/cafe-drink-margin-calculator/
+  analytics: null

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Shared Kitchen Rate Planner — Break-Even Rate &amp; Memberships, Free</title>
+  <meta name="description" content="Free planner for shared and commissary kitchen owners. Enter rent, costs, stations, hourly rate and memberships; get break-even rate, break-even utilization, member effective rate and a profit grid. Nothing uploaded.">
+  <meta property="og:title" content="What should a shared kitchen charge per hour? Free planner">
+  <meta property="og:description" content="Costs, stations, rate and memberships in; break-even utilization, the rate you need and a profit grid out. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M8 22h16v2H8zm2-8h12v6H10zm3-4h6v3h-6z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Shared Kitchen Rate Planner", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Price a shared or commissary kitchen: break-even hourly rate and utilization, membership versus hourly revenue, and a profit grid. Runs in your browser; nothing is uploaded.", "featureList": "Break-even rate, break-even utilization, membership effective rate, profit sensitivity grid"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What hourly rate should a shared commissary kitchen charge?", "acceptedAnswer": {"@type": "Answer", "text": "Start from cost, not from the competitor down the road: monthly costs divided by the station-hours you realistically sell. At 45% utilization every used hour has to carry more than twice its share of the rent. This planner shows the break-even rate at your own utilization."}}, {"@type": "Question", "name": "What utilization does a shared kitchen need to break even?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on your rent, rates and memberships. Enter them and the planner solves for the lowest utilization that covers costs, and the one that reaches your profit goal."}}, {"@type": "Question", "name": "Should I sell memberships or hourly time?", "acceptedAnswer": {"@type": "Answer", "text": "Memberships give predictable cash and fill quiet hours, but a member who uses every included hour pays a lower effective rate. The planner shows that effective rate against your hourly rate and your cost per used hour."}}, {"@type": "Question", "name": "Is this business or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the numbers you type in and the assumptions listed on the page. Check the output against your own costs before you change a price."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f6fc; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4ed8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14307d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14307d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5268; }
+    .card { background: #fff; border: 1px solid #d3def5; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14307d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aabbe0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4ed8; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e1e9fb; color: #14307d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e3eaf8; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5268; }
+    .finding { border-bottom: 1px solid #e3eaf8; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #dfe8fb; color: #14307d; }
+    .stats { font-size: 1rem; color: #2f3348; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d3def5; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .error { color: #9a3412; font-weight: 600; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 170px; padding: 9px 10px; border: 1px solid #aabbe0; border-radius: 7px; font: 14px ui-monospace, monospace; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SHARED KITCHEN RATE PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should your shared kitchen charge?</h1>
+    <p>Enter your monthly costs, how many stations you rent out and for how many hours, your hourly rate and your memberships. You get your profit, the utilization you need to break even, the hourly rate that reaches your goal, what a membership really sells an hour for, and a profit grid across rates and utilization.</p>
+    <p class="note">Planning arithmetic on your own numbers and stated assumptions.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-in">
+      <h2 id="h-in">1. Your kitchen</h2>
+      <div class="grid">
+        <div><label for="rent">Rent ($/month)</label><input id="rent" type="number" min="0" step="any" value="3200"></div>
+        <div><label for="utilities">Utilities ($/month)</label><input id="utilities" type="number" min="0" step="any" value="650"></div>
+        <div><label for="insurance">Insurance ($/month)</label><input id="insurance" type="number" min="0" step="any" value="280"></div>
+        <div><label for="cleaning">Cleaning and trash ($/month)</label><input id="cleaning" type="number" min="0" step="any" value="400"></div>
+        <div><label for="equipment">Equipment reserve ($/month)</label><input id="equipment" type="number" min="0" step="any" value="250"></div>
+        <div><label for="staff">Staff ($/month)</label><input id="staff" type="number" min="0" step="any" value="0"></div>
+        <div><label for="other">Other ($/month)</label><input id="other" type="number" min="0" step="any" value="150"></div>
+        <div><label for="stations">Stations (bookable at once)</label><input id="stations" type="number" min="0" step="any" value="3"></div>
+        <div><label for="hoursPerDay">Open hours per day</label><input id="hoursPerDay" type="number" min="0" step="any" value="16"></div>
+        <div><label for="daysPerWeek">Days open per week</label><input id="daysPerWeek" type="number" min="0" step="any" value="7"></div>
+        <div><label for="hourlyRate">Hourly rate ($)</label><input id="hourlyRate" type="number" min="0" step="any" value="28"></div>
+        <div><label for="utilization">Utilization (% of station-hours used)</label><input id="utilization" type="number" min="0" step="any" value="45"></div>
+        <div><label for="members">Members</label><input id="members" type="number" min="0" step="any" value="6"></div>
+        <div><label for="memberFee">Member fee ($/month)</label><input id="memberFee" type="number" min="0" step="any" value="450"></div>
+        <div><label for="memberHours">Hours included per member</label><input id="memberHours" type="number" min="0" step="any" value="20"></div>
+        <div><label for="feePct">Card / platform fees (%)</label><input id="feePct" type="number" min="0" step="any" value="3"></div>
+        <div><label for="targetProfit">Profit goal ($/month)</label><input id="targetProfit" type="number" min="0" step="any" value="1500"></div>
+      </div>
+      <button type="button" id="run">Plan my rates</button>
+      <button type="button" class="secondary" id="example">Load an example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What hourly rate should a shared commissary kitchen charge?</h3>
+      <p>Start from cost, not from the competitor down the road: monthly costs divided by the station-hours you realistically sell. At 45% utilization every used hour has to carry more than twice its share of the rent. This planner shows the break-even rate at your own utilization.</p>
+      <h3>What utilization does a shared kitchen need to break even?</h3>
+      <p>It depends on your rent, rates and memberships. Enter them and the planner solves for the lowest utilization that covers costs, and the one that reaches your profit goal.</p>
+      <h3>Should I sell memberships or hourly time?</h3>
+      <p>Memberships give predictable cash and fill quiet hours, but a member who uses every included hour pays a lower effective rate. The planner shows that effective rate against your hourly rate and your cost per used hour.</p>
+      <h3>Is this business or financial advice?</h3>
+      <p>No. It is arithmetic on the numbers you type in and the assumptions listed on the page. Check the output against your own costs before you change a price.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Peak versus off-peak pricing, tenant churn, deposits, permits and health-department rules, seasonal swings, lease escalators, taxes, and what your local competitors charge. The model assumes every used station-hour is sold either as a member hour or at the single hourly rate, and that costs do not change with use.</p>
+    </section>
+    <section class="card">
+      <p>Splitting a commissary's monthly bill among several trucks instead of pricing it? The <a href="../commissary-kitchen-cost-split-calculator/">commissary kitchen cost split calculator</a> divides pooled rent and utilities by hours booked and storage used. Pricing a booking for a food truck? The <a href="../food-truck-event-margin-calculator/">food truck event margin calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you think about. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this saved you an hour, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { analyze, sensitivity, num, money, money2, percent } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const $ = (id) => document.getElementById(id);
+    const IDS = ["rent", "utilities", "insurance", "cleaning", "equipment", "staff", "other", "stations", "hoursPerDay", "daysPerWeek", "hourlyRate", "utilization", "members", "memberFee", "memberHours", "feePct", "targetProfit"];
+    const PCT = ["utilization", "feePct"];
+    const LABEL = { high: "Act", medium: "Watch", info: "Note" };
+    function read() {
+      const o = {};
+      for (const k of IDS) { const n = num($(k).value); o[k] = n >= 0 ? (PCT.includes(k) ? Math.min(100, n) / 100 : n) : 0; }
+      return o;
+    }
+    function run() {
+      const o = read();
+      const a = analyze(o);
+      const p = a.now;
+      let h = `<div class="finding"><h4>${money(p.profit)} a month at ${percent(o.utilization)} utilization</h4><p class="stats">${money(p.gross)} billed (${money(p.memberRevenue)} memberships + ${money(p.hourlyRevenue)} hourly) − ${money(p.fees)} fees − ${money(p.cost)} costs · ${Math.round(p.used)} of ${Math.round(p.capacity)} station-hours used · cost per used hour ${money2(p.costPerUsedHour)}</p></div>`;
+      h += `<div class="finding"><h4>What gets you there</h4><p>Break-even utilization: ${a.be === null ? "not reachable at this rate" : percent(a.be)}. Utilization for your goal: ${a.goal === null ? "not reachable" : percent(a.goal)}. Hourly rate to break even at ${percent(o.utilization)}: ${a.beRate === null ? "no hourly rate works" : money2(a.beRate)}. Rate for your goal: ${a.goalRate === null ? "no hourly rate works" : money2(a.goalRate)}.</p></div>`;
+      for (const f of a.findings) h += `<div class="finding"><h4><span class="pill ${f.level}">${LABEL[f.level]}</span>${esc(f.title)}</h4><p>${esc(f.text)}</p></div>`;
+      const s = sensitivity(o);
+      h += `<div class="finding"><h4>Monthly profit by utilization and hourly rate</h4><div class="scroll"><table><thead><tr><th>Utilization</th>${s.rates.map((r) => `<th class="n">${money2(r)}/hr</th>`).join("")}</tr></thead><tbody>${s.rows.map((r) => `<tr><td>${percent(r.utilization)}</td>${r.cells.map((c) => `<td class="n">${money(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("plan_run");
+    }
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Self-Storage Unit Mix Optimizer: Best Mix of Unit Sizes — Free</title>
+  <meta name="description" content="Free self-storage unit mix optimizer: enter rentable square feet, rates, occupancy and demand limits per unit size to find the mix that earns the most net operating income, and see what extra space is worth. Nothing uploaded.">
+  <meta property="og:title" content="Self-storage unit mix optimizer">
+  <meta property="og:description" content="Which unit sizes should a storage building hold? The exact income-maximising mix under demand limits, versus your plan. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e40af'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Self-Storage Unit Mix Optimizer","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Find the unit-size mix that earns the most net operating income from a self-storage building, given rates, occupancy and per-size demand limits. Runs in your browser.","featureList":"Optimal unit mix, current-vs-optimal comparison, value of extra square feet, per-size income per square foot, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I choose a self-storage unit mix?","acceptedAnswer":{"@type":"Answer","text":"Rank sizes by net income per square foot, then fill the building from the best size down until each size reaches the number of units your market will actually rent. The tool does this exactly, including the awkward case where leftover space only fits a different size, so every square foot earns."}},{"@type":"Question","name":"Why are small units usually worth more per square foot?","acceptedAnswer":{"@type":"Answer","text":"A 5x5 usually rents for far more per square foot than a 10x30. But a market only absorbs so many small units, which is why each size has a demand ceiling. Without ceilings every foot would be turned into 5x5s; with them, the leftover area goes to the next best size."}},{"@type":"Question","name":"What does the value of 1,000 more square feet mean?","acceptedAnswer":{"@type":"Answer","text":"The tool re-solves the mix with 1,000 square feet more and less, and shows the change in yearly net operating income. It is the figure to compare against the cost of building or converting that space."}},{"@type":"Question","name":"Where do the demand ceilings come from?","acceptedAnswer":{"@type":"Answer","text":"From you: your waiting list, the occupancy of each size in your current building, a competitor survey or a feasibility study. The optimizer treats them as true, so an optimistic ceiling gives an optimistic mix."}},{"@type":"Question","name":"Is this investment, appraisal or construction advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on figures you type. Rates, occupancy, unit-door costs, zoning, hallway and climate-control layout and lender requirements vary; check them with a qualified professional."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">SELF-STORAGE UNIT MIX OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What unit mix earns the most from this storage building?</h1>
+    <p>Type the rentable area and, for each unit size, its rate, occupancy and how many units the market will rent. The tool finds the exact mix with the highest net operating income, compares it with your current plan, and shows what 1,000 more or fewer square feet is worth.</p>
+    <p class="note">Arithmetic on figures you type. Not investment, appraisal, lending or construction advice. The example figures are placeholders, not any market's rates.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-s">
+      <h2 id="h-s">The building</h2>
+      <div class="grid">
+        <div><label for="totalSqft">Rentable square feet</label><input id="totalSqft" type="number" step="any" value="0"><p class="note">Net rentable area of this building or phase, hallways excluded.</p></div>
+        <div><label for="opexPct">Operating costs (% of revenue)</label><input id="opexPct" type="number" step="any" value="0"><p class="note">Taxes, insurance, payroll, utilities, marketing.</p></div>
+        <div><label for="unitCostYear">Extra cost per unit per year ($)</label><input id="unitCostYear" type="number" step="any" value="0"><p class="note">Locks, door upkeep, turnover; zero if included above.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t0">
+      <h2 id="h-t0">Unit type 1</h2>
+      <div class="grid">
+        <div><label for="t0_name">Size name</label><input id="t0_name" type="text" value=""></div>
+        <div><label for="t0_sqft">Square feet per unit</label><input id="t0_sqft" type="number" step="any" value="0"><p class="note">Width x depth, for example 100 for a 10x10.</p></div>
+        <div><label for="t0_rate">Monthly rate ($)</label><input id="t0_rate" type="number" step="any" value="0"><p class="note">Street rate you would advertise.</p></div>
+        <div><label for="t0_occ">Expected occupancy (%)</label><input id="t0_occ" type="number" step="any" value="0"><p class="note">Stabilised occupancy for this size.</p></div>
+        <div><label for="t0_minUnits">Fewest units</label><input id="t0_minUnits" type="number" step="any" value="0"><p class="note">Units you must keep, for example already leased.</p></div>
+        <div><label for="t0_maxUnits">Most units the market will rent</label><input id="t0_maxUnits" type="number" step="any" value="0"><p class="note">Zero means no limit.</p></div>
+        <div><label for="t0_current">Units in your current plan</label><input id="t0_current" type="number" step="any" value="0"><p class="note">Leave zero if you have no plan to compare.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t1">
+      <h2 id="h-t1">Unit type 2</h2>
+      <div class="grid">
+        <div><label for="t1_name">Size name</label><input id="t1_name" type="text" value=""></div>
+        <div><label for="t1_sqft">Square feet per unit</label><input id="t1_sqft" type="number" step="any" value="0"><p class="note">Width x depth, for example 100 for a 10x10.</p></div>
+        <div><label for="t1_rate">Monthly rate ($)</label><input id="t1_rate" type="number" step="any" value="0"><p class="note">Street rate you would advertise.</p></div>
+        <div><label for="t1_occ">Expected occupancy (%)</label><input id="t1_occ" type="number" step="any" value="0"><p class="note">Stabilised occupancy for this size.</p></div>
+        <div><label for="t1_minUnits">Fewest units</label><input id="t1_minUnits" type="number" step="any" value="0"><p class="note">Units you must keep, for example already leased.</p></div>
+        <div><label for="t1_maxUnits">Most units the market will rent</label><input id="t1_maxUnits" type="number" step="any" value="0"><p class="note">Zero means no limit.</p></div>
+        <div><label for="t1_current">Units in your current plan</label><input id="t1_current" type="number" step="any" value="0"><p class="note">Leave zero if you have no plan to compare.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t2">
+      <h2 id="h-t2">Unit type 3</h2>
+      <div class="grid">
+        <div><label for="t2_name">Size name</label><input id="t2_name" type="text" value=""></div>
+        <div><label for="t2_sqft">Square feet per unit</label><input id="t2_sqft" type="number" step="any" value="0"><p class="note">Width x depth, for example 100 for a 10x10.</p></div>
+        <div><label for="t2_rate">Monthly rate ($)</label><input id="t2_rate" type="number" step="any" value="0"><p class="note">Street rate you would advertise.</p></div>
+        <div><label for="t2_occ">Expected occupancy (%)</label><input id="t2_occ" type="number" step="any" value="0"><p class="note">Stabilised occupancy for this size.</p></div>
+        <div><label for="t2_minUnits">Fewest units</label><input id="t2_minUnits" type="number" step="any" value="0"><p class="note">Units you must keep, for example already leased.</p></div>
+        <div><label for="t2_maxUnits">Most units the market will rent</label><input id="t2_maxUnits" type="number" step="any" value="0"><p class="note">Zero means no limit.</p></div>
+        <div><label for="t2_current">Units in your current plan</label><input id="t2_current" type="number" step="any" value="0"><p class="note">Leave zero if you have no plan to compare.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t3">
+      <h2 id="h-t3">Unit type 4</h2>
+      <div class="grid">
+        <div><label for="t3_name">Size name</label><input id="t3_name" type="text" value=""></div>
+        <div><label for="t3_sqft">Square feet per unit</label><input id="t3_sqft" type="number" step="any" value="0"><p class="note">Width x depth, for example 100 for a 10x10.</p></div>
+        <div><label for="t3_rate">Monthly rate ($)</label><input id="t3_rate" type="number" step="any" value="0"><p class="note">Street rate you would advertise.</p></div>
+        <div><label for="t3_occ">Expected occupancy (%)</label><input id="t3_occ" type="number" step="any" value="0"><p class="note">Stabilised occupancy for this size.</p></div>
+        <div><label for="t3_minUnits">Fewest units</label><input id="t3_minUnits" type="number" step="any" value="0"><p class="note">Units you must keep, for example already leased.</p></div>
+        <div><label for="t3_maxUnits">Most units the market will rent</label><input id="t3_maxUnits" type="number" step="any" value="0"><p class="note">Zero means no limit.</p></div>
+        <div><label for="t3_current">Units in your current plan</label><input id="t3_current" type="number" step="any" value="0"><p class="note">Leave zero if you have no plan to compare.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t4">
+      <h2 id="h-t4">Unit type 5</h2>
+      <div class="grid">
+        <div><label for="t4_name">Size name</label><input id="t4_name" type="text" value=""></div>
+        <div><label for="t4_sqft">Square feet per unit</label><input id="t4_sqft" type="number" step="any" value="0"><p class="note">Width x depth, for example 100 for a 10x10.</p></div>
+        <div><label for="t4_rate">Monthly rate ($)</label><input id="t4_rate" type="number" step="any" value="0"><p class="note">Street rate you would advertise.</p></div>
+        <div><label for="t4_occ">Expected occupancy (%)</label><input id="t4_occ" type="number" step="any" value="0"><p class="note">Stabilised occupancy for this size.</p></div>
+        <div><label for="t4_minUnits">Fewest units</label><input id="t4_minUnits" type="number" step="any" value="0"><p class="note">Units you must keep, for example already leased.</p></div>
+        <div><label for="t4_maxUnits">Most units the market will rent</label><input id="t4_maxUnits" type="number" step="any" value="0"><p class="note">Zero means no limit.</p></div>
+        <div><label for="t4_current">Units in your current plan</label><input id="t4_current" type="number" step="any" value="0"><p class="note">Leave zero if you have no plan to compare.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t5">
+      <h2 id="h-t5">Unit type 6</h2>
+      <div class="grid">
+        <div><label for="t5_name">Size name</label><input id="t5_name" type="text" value=""></div>
+        <div><label for="t5_sqft">Square feet per unit</label><input id="t5_sqft" type="number" step="any" value="0"><p class="note">Width x depth, for example 100 for a 10x10.</p></div>
+        <div><label for="t5_rate">Monthly rate ($)</label><input id="t5_rate" type="number" step="any" value="0"><p class="note">Street rate you would advertise.</p></div>
+        <div><label for="t5_occ">Expected occupancy (%)</label><input id="t5_occ" type="number" step="any" value="0"><p class="note">Stabilised occupancy for this size.</p></div>
+        <div><label for="t5_minUnits">Fewest units</label><input id="t5_minUnits" type="number" step="any" value="0"><p class="note">Units you must keep, for example already leased.</p></div>
+        <div><label for="t5_maxUnits">Most units the market will rent</label><input id="t5_maxUnits" type="number" step="any" value="0"><p class="note">Zero means no limit.</p></div>
+        <div><label for="t5_current">Units in your current plan</label><input id="t5_current" type="number" step="any" value="0"><p class="note">Leave zero if you have no plan to compare.</p></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Find the best mix</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+      <p class="note">Leave a type's size or rate at zero to leave it out.</p>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions storage owners ask</h2>
+      <h3>How do I choose a self-storage unit mix?</h3>
+      <p>Rank sizes by net income per square foot, then fill the building from the best size down until each size reaches the number of units your market will actually rent. The tool does this exactly, including the awkward case where leftover space only fits a different size, so every square foot earns.</p>
+      <h3>Why are small units usually worth more per square foot?</h3>
+      <p>A 5x5 usually rents for far more per square foot than a 10x30. But a market only absorbs so many small units, which is why each size has a demand ceiling. Without ceilings every foot would be turned into 5x5s; with them, the leftover area goes to the next best size.</p>
+      <h3>What does the value of 1,000 more square feet mean?</h3>
+      <p>The tool re-solves the mix with 1,000 square feet more and less, and shows the change in yearly net operating income. It is the figure to compare against the cost of building or converting that space.</p>
+      <h3>Where do the demand ceilings come from?</h3>
+      <p>From you: your waiting list, the occupancy of each size in your current building, a competitor survey or a feasibility study. The optimizer treats them as true, so an optimistic ceiling gives an optimistic mix.</p>
+      <h3>Is this investment, appraisal or construction advice?</h3>
+      <p>No. It is arithmetic on figures you type. Rates, occupancy, unit-door costs, zoning, hallway and climate-control layout and lender requirements vary; check them with a qualified professional.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether the demand ceilings you entered are right, construction or conversion cost, hallway and climate-control layout, unit widths that fit the structure, rate changes over time, concessions, financing and tax. Every unit of a size is treated as identical and occupancy as fixed per size.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../self-storage-rate-increase-calculator/">self-storage rate increase calculator</a> the <a href="../storage-auction-max-bid-calculator/">storage auction max bid calculator</a> and the <a href="../rv-boat-storage-lot-calculator/">RV and boat storage lot calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you build, convert or lease anything.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, TYPE_DEFAULTS, EXAMPLE_TYPES, money, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const N = 6, SKEYS = Object.keys(SHARED_DEFAULTS), TKEYS = Object.keys(TYPE_DEFAULTS);
+    const fill = () => {
+      for (const k of SKEYS) $(k).value = SHARED_DEFAULTS[k];
+      for (let i = 0; i < N; i++) for (const k of TKEYS) $("t" + i + "_" + k).value = (EXAMPLE_TYPES[i] || TYPE_DEFAULTS)[k];
+    };
+    const readAll = () => {
+      const shared = {}; for (const k of SKEYS) shared[k] = $(k).value;
+      const types = []; for (let i = 0; i < N; i++) { const t = {}; for (const k of TKEYS) t[k] = $("t" + i + "_" + k).value; types.push(t); }
+      return { shared, types };
+    };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const int = (n) => Math.round(n).toLocaleString("en-US");
+    let last = null;
+    function run() {
+      const { shared, types } = readAll();
+      const a = analyze(types, shared);
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      const hasCurrent = a.rows.some((r) => r.current > 0);
+      const vs = hasCurrent ? ` Your plan earns ${money(a.current.noi)}, so the best mix is ${a.gain > 0.5 ? money(a.gain) + " a year better" : "no better"}.` : "";
+      h += `<div class="finding"><h4>Best mix: ${money(a.best.noi)} a year net operating income</h4><p>${int(a.best.units)} units on ${int(a.best.sqft)} of ${int(a.shared.totalSqft)} sq ft, ${money(a.best.revenue)} revenue at the occupancy you entered.${vs}</p></div>`;
+      h += `<div class="finding"><h4>Units by size</h4>${table(["Size", "Rate / month", "Rate per sq ft", "Net income per sq ft / yr", "Your plan", "Best mix", "Change"], a.rows.map((r) => [esc(r.name), money(r.rate), "$" + r.ratePerSqft.toFixed(2), "$" + r.noiPerSqft.toFixed(2), r.current, r.optimal + (r.atCeiling ? " (market limit)" : ""), (r.change > 0 ? "+" : "") + r.change]))}</div>`;
+      if (a.addSqft !== null) h += `<div class="finding"><h4>What area is worth</h4><p>1,000 more square feet would add ${money(a.addSqft)} a year of net operating income${a.loseSqft !== null ? `; 1,000 fewer would cost ${money(a.loseSqft)}` : ""}. Compare that with what the space would cost to build or convert.</p></div>`;
+      h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "unit-mix.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

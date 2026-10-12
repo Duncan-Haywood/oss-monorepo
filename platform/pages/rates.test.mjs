@@ -58,6 +58,14 @@ const script = renderShopRatesModule();
  * that the assertion below actually checks.
  */
 const NO_SHARED_SHOP_RATES = {
+  'water-well-drilling-bid-calculator':
+    'it has no payroll-burden field, its labour is a rig, compressor and crew rate per rig hour beside a ' +
+    'separate install crew rate, and its margin is a share of the price after a dry-hole allowance, so ' +
+    'sharing the four canonical rates would prefill figures that mean different things.',
+  'sauna-cold-plunge-install-bid-calculator':
+    'it has no payroll-burden field, its overhead is a monthly dollar total spread over billable hours ' +
+    'rather than a percentage of direct cost, and its labour rate sits beside a separate helper rate, so ' +
+    'sharing the four canonical rates would prefill figures that mean different things.',
   'tree-service-bid-calculator':
     'its wage field is a whole-crew rate (~$180/h), not a per-person wage. ' +
     'Sharing would prefill one person\'s $17-22 as the crew rate and bid the job ~10x low. ' +
@@ -158,6 +166,14 @@ const NO_SHARED_SHOP_RATES = {
     'as `targetMargin` -- aliased too. It has no separate payroll-burden field, and its overhead ' +
     '("Booth / shop overhead") is a flat dollar figure per job rather than a percentage of direct ' +
     'cost, so it carries two of the four: see PARTIAL_SHOP_RATE_PAGES.',
+  'hydroseeding-job-bid-calculator':
+    'it has no overhead-percentage or shop-rate field: labour is a per-person hourly rate applied to setup, spraying and tank-refill hours, and the hydroseeder and overhead are season fixed costs spread over jobs, so sharing the four canonical rates would prefill figures that mean different things.',
+  'lawn-aeration-overseeding-bid-calculator':
+    'it has no overhead-percentage or shop-rate field: labour is a per-person hourly rate applied to aerator, seeding, drive and load hours, and overhead is a season fixed cost spread over jobs, so sharing the four canonical rates would prefill figures that mean different things.',
+  'hoarding-cleanout-bid-calculator':
+    'it has no payroll-burden or overhead field: labour is a per-person hourly rate applied to whole paid crew days, ' +
+    'and its risk allowance is a share of cost for pests and sharps rather than overhead, so sharing the four ' +
+    'canonical rates would prefill figures that mean different things.',
 };
 
 test('every trade bid calculator on main carries all four shop-rate fields', async () => {

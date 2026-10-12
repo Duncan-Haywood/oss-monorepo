@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Wholesale Real Estate Offer Calculator: Max Offer and Assignment Fee — Free</title>
+  <meta name="description" content="Free calculator for real estate wholesalers: the most you can offer the seller, the end buyer's ceiling by the 70% rule and by profit, your fee by assignment versus double close, and how ARV errors move it. Nothing uploaded.">
+  <meta property="og:title" content="Wholesale real estate offer calculator">
+  <meta property="og:description" content="Max offer to the seller, buyer ceiling, and net fee by assignment or double close. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Wholesale Real Estate Offer Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Max offer to the seller for a wholesale deal, the end buyer's ceiling, your fee by assignment versus double close, and ARV sensitivity. Runs in your browser.", "featureList": "Maximum allowable offer, 70% rule and profit-based buyer ceiling, comps to ARV, assignment vs double close net fee, break-even fee, ARV sensitivity, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the maximum allowable offer in wholesaling?", "acceptedAnswer": {"@type": "Answer", "text": "The most you can contract a house for and still leave your end buyer a deal. Start from what a flipper will pay: the after-repair value times their rule (often 70%) minus repairs, checked against what they need to profit after selling costs and holding. Then subtract your own assignment fee. That is the number to offer the seller."}}, {"@type": "Question", "name": "What is the difference between assigning a contract and a double close?", "acceptedAnswer": {"@type": "Answer", "text": "With an assignment you sell your rights in the purchase contract to the end buyer for a fee, and the buyer closes with the seller directly. With a double close you buy the property, then sell it to your buyer, usually the same day. The second route can hide your fee from the seller but adds closing costs, often transactional funding, and in some places transfer tax on both deeds. The tool nets your fee both ways."}}, {"@type": "Question", "name": "How do I find the after-repair value?", "acceptedAnswer": {"@type": "Answer", "text": "Use sold comparable sales from the same neighbourhood and recent months, in finished condition. Paste them with square footage and the tool takes the median price per square foot times your property's size. It is only as good as the comps; an appraiser, a local agent or the end buyer's own numbers are better checks."}}, {"@type": "Question", "name": "Is wholesaling legal everywhere?", "acceptedAnswer": {"@type": "Answer", "text": "Not everywhere on the same terms. Some states and cities regulate it, require a licence, require disclosure that you are selling a contract rather than the property, or limit repeat activity, and the rules have been changing. This tool does not tell you what applies to you. Check your state's real estate commission or a local real estate attorney before you market a contract."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">WHOLESALE REAL ESTATE OFFER CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What can you offer the seller and still get paid?</h1>
+    <p>Enter the after-repair value (or paste sold comps), the repairs and your end buyer's terms. The tool finds the most that buyer can pay, subtracts your fee to get your maximum offer to the seller, checks whether the seller's asking price works, and nets your fee by assignment versus double close.</p>
+    <p class="note">Arithmetic on the figures you type. Not legal, tax or investment advice, and not a statement of what wholesaling rules apply where the property is. The example is made-up placeholder data, not any property's.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-p">
+      <h2 id="h-p">The deal</h2>
+      <div class="grid">
+        <div><label for="arv">After-repair value (ARV), $</label><input id="arv" type="text" value=""><p class="note">Leave blank to estimate it from the comps below.</p></div>
+        <div><label for="sqft">Subject square footage</label><input id="sqft" type="text" value=""><p class="note">Used to size-adjust the comps.</p></div>
+        <div><label for="repairs">Repair estimate, $</label><input id="repairs" type="text" value=""></div>
+        <div><label for="rule">Buyer's rule (% of ARV)</label><input id="rule" type="text" value=""><p class="note">70 is the common rule of thumb; cash flippers differ.</p></div>
+        <div><label for="profitPct">Buyer's required profit (% of ARV)</label><input id="profitPct" type="text" value=""></div>
+        <div><label for="sellPct">Buyer's selling costs (% of ARV)</label><input id="sellPct" type="text" value=""><p class="note">Agent commission, closing and concessions.</p></div>
+        <div><label for="holding">Buyer's holding costs, $</label><input id="holding" type="text" value=""><p class="note">Taxes, insurance, utilities and interest for the whole flip.</p></div>
+        <div><label for="fee">Your target assignment fee, $</label><input id="fee" type="text" value=""></div>
+        <div><label for="minFee">Your minimum fee, $</label><input id="minFee" type="text" value=""><p class="note">The walk-away price uses this.</p></div>
+        <div><label for="asking">Seller's asking price, $ (optional)</label><input id="asking" type="text" value=""><p class="note">Shows the fee left if they accept it.</p></div>
+        <div><label for="marketing">Your marketing cost for this deal, $</label><input id="marketing" type="text" value=""></div>
+        <div><label for="acqClose">Your own closing costs on the assignment, $</label><input id="acqClose" type="text" value=""></div>
+        <div><label for="dcFundPct">Double close: transactional funding (% of purchase price)</label><input id="dcFundPct" type="text" value=""></div>
+        <div><label for="dcClose">Double close: extra title and closing fees, $</label><input id="dcClose" type="text" value=""></div>
+        <div><label for="transferPct">Transfer tax (% of each deed's price)</label><input id="transferPct" type="text" value=""><p class="note">Applies to both deeds in a double close. 0 where there is none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-c">
+      <h2 id="h-c">Sold comps (optional)</h2>
+      <p class="note">One per line: label, sold price, square feet. A first line with column titles is ignored. Up to 40 lines.</p>
+      <label for="comps">Comparable sales</label>
+      <textarea id="comps" rows="7" spellcheck="false"></textarea>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Calculate the offer</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions wholesalers ask</h2>
+      <h3>What is the maximum allowable offer in wholesaling?</h3>
+      <p>The most you can contract a house for and still leave your end buyer a deal. Start from what a flipper will pay: the after-repair value times their rule (often 70%) minus repairs, checked against what they need to profit after selling costs and holding. Then subtract your own assignment fee. That is the number to offer the seller.</p>
+      <h3>What is the difference between assigning a contract and a double close?</h3>
+      <p>With an assignment you sell your rights in the purchase contract to the end buyer for a fee, and the buyer closes with the seller directly. With a double close you buy the property, then sell it to your buyer, usually the same day. The second route can hide your fee from the seller but adds closing costs, often transactional funding, and in some places transfer tax on both deeds. The tool nets your fee both ways.</p>
+      <h3>How do I find the after-repair value?</h3>
+      <p>Use sold comparable sales from the same neighbourhood and recent months, in finished condition. Paste them with square footage and the tool takes the median price per square foot times your property's size. It is only as good as the comps; an appraiser, a local agent or the end buyer's own numbers are better checks.</p>
+      <h3>Is wholesaling legal everywhere?</h3>
+      <p>Not everywhere on the same terms. Some states and cities regulate it, require a licence, require disclosure that you are selling a contract rather than the property, or limit repeat activity, and the rules have been changing. This tool does not tell you what applies to you. Check your state's real estate commission or a local real estate attorney before you market a contract.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether wholesaling, assignment or double closing is lawful or needs a licence or disclosure where the property is, whether the seller's contract allows assignment, title, liens and condition problems, whether your repair estimate or ARV is right, how your buyer actually underwrites, and taxes on your fee. Treat the output as arithmetic on your numbers and confirm the rules with your state real estate commission or a local real estate attorney.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../fix-and-flip-deal-analyzer/">fix and flip deal analyzer</a> (the buyer's side), the <a href="../brrrr-calculator/">BRRRR calculator</a> and the <a href="../hard-money-loan-cost-calculator/">hard money loan cost calculator</a>. See also the <a href="../wholesale-vs-retail-pricing-calculator/">wholesale vs retail pricing calculator for makers</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before relying on them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>offer_calculated</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in your browser's local storage, honour Do Not Track, and can be switched off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also see the <a href="../wholesale-vs-retail-pricing-calculator/">wholesale vs retail pricing calculator</a> for product makers.</p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, EXAMPLE_SHARED, money, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(SHARED_DEFAULTS);
+    const fill = () => { for (const k of KEYS) $(k).value = EXAMPLE_SHARED[k]; };
+    const readAll = () => { const o = {}; for (const k of KEYS) o[k] = $(k).value; return o; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => '<div class="scroll"><table><thead><tr>' + head.map((h, i) => "<th" + (i > 0 ? ' class="n"' : "") + ">" + h + "</th>").join("") + "</tr></thead><tbody>" + rows.map((r) => "<tr>" + r.map((c, i) => "<td" + (i > 0 ? ' class="n"' : "") + ">" + c + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+    let last = null;
+    function run() {
+      const a = analyze(readAll());
+      let h = "";
+      for (const w of a.warnings) h += '<div class="finding"><span class="pill">Check</span> ' + esc(w) + "</div>";
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      h += '<div class="finding"><h4>Offer the seller no more than ' + money(a.contractTarget) + "</h4><p>ARV " + money(a.arv) + " (" + esc(a.arvSource) + "). Your end buyer can pay up to " + money(a.c.buyer) + " (" + (a.c.binding === "rule" ? "the " + a.p.rule + "% rule binds: " + money(a.c.ruleMax) + " against " + money(a.c.profitMax) + " on the profit test" : "their profit test binds: " + money(a.c.profitMax) + " against " + money(a.c.ruleMax) + " on the " + a.p.rule + "% rule") + "). Less your " + money(a.p.fee) + " fee. Walk away above " + money(a.contractWalk) + " (your " + money(a.minFee) + " minimum fee).</p></div>";
+      if (a.asking) h += '<div class="finding"><h4>Seller asks ' + money(a.asking.price) + ": " + esc(a.asking.verdict) + "</h4><p>That leaves " + money(a.asking.feeLeft) + " of fee before costs. " + (a.asking.feeLeft > 0 ? "Assigned you keep about " + money(a.asking.routes.assign) + "; double closed about " + money(a.asking.routes.doubleClose) + "." : "The price is above what the buyer can pay.") + "</p></div>";
+      h += '<div class="finding"><h4>Getting paid at your target fee</h4>' + table(["Route", "You keep", "Costs"], [["Assign the contract", money(a.at.assign), money(a.p.marketing + a.p.acqClose)], ["Double close", money(a.at.doubleClose), money(a.p.marketing + a.p.acqClose + a.at.dcCost)]]) + "<p>Double closing breaks even at a fee of " + money(a.at.breakEvenFee) + " on this contract price; below that you lose money doing it.</p></div>";
+      h += '<div class="finding"><h4>Your buyer at ' + money(a.buyer.pays) + "</h4><p>Profit " + money(a.buyer.profit) + " (" + pct(a.buyer.profitPctArv) + " of ARV, " + (a.buyer.cashOnCash == null ? "n/a" : pct(a.buyer.cashOnCash)) + " on their cash in). Price plus repairs is " + pct(a.buyer.ruleShare) + " of ARV.</p></div>";
+      h += '<div class="finding"><h4>If the ARV is off</h4>' + table(["ARV", "Change", "Buyer ceiling", "Max offer", a.asking ? "Fee at asking" : ""], a.sensitivity.map((s) => [money(s.arv), (s.d > 0 ? "+" : "") + s.d + "%", money(s.buyer), money(s.contract), a.asking ? money(s.feeAtAsking) : ""])) + "</div>";
+      h += '<p><button type="button" class="secondary" id="csv">Download result (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "wholesale-offer.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("offer_calculated");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

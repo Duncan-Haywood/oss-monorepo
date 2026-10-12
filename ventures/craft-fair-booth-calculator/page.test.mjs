@@ -248,3 +248,12 @@ test('index links one hop to the market-garden-bed-planner sibling', () => {
     'index must link ../market-garden-bed-planner/ so the sibling pair stays closed in both directions',
   );
 });
+
+// Per-cup concession stands at the same fairs; closed in both directions.
+test('index links one hop to the shaved-ice-stand-profit-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/shaved-ice-stand-profit-calculator\/"/,
+    'index must link ../shaved-ice-stand-profit-calculator/ so the sibling pair stays closed in both directions',
+  );
+});

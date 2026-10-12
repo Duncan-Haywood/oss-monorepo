@@ -1,0 +1,45 @@
+name: u-pick-farm-profit-planner
+description: >-
+  Free browser tool for u-pick farms, pumpkin patches and small agritourism operators. Enter open days, weather losses,
+  visitors, admission, picking and extras; get season profit, break-even visitors per day, the admission that reaches a
+  goal, a rainy-season check and a profit grid. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session. duplicate_check.py "u-pick farm pumpkin patch": closest 0.16
+# (custom-farm-rate-calculator), no agritourism venture exists. Not in screened-out.md.
+# Who: owners of u-pick orchards, berry farms, pumpkin patches and corn mazes who set admission by copying the farm down
+# the road and carry crew and rent whether or not the weather lets people in. Search phrases: "how much to charge for
+# pumpkin patch admission", "u-pick farm business plan", "agritourism profit". Volume not measured.
+#
+# Liability: arithmetic on the user's own numbers; no personal data, stores nothing, carries the no-warranty and
+# not-advice clauses.
+#
+# Unverified: no farm owner has used it. One admission price, uniform picking and spend per visitor are stated
+# simplifications. Path to revenue (payment rails stay off): lead magnet and donations; if usage appears, a
+# ticketing/booking integration behind an env-var switch is the next build.
+
+hypotheses:
+  - claim: >-
+      U-pick and pumpkin-patch owners will enter their season numbers into a private planner to find the attendance and
+      admission their crew and rent need, because admission is usually copied from a neighbor rather than derived from cost.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/u-pick-farm-profit-planner/
+  analytics: null

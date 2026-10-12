@@ -1,0 +1,52 @@
+name: grain-store-or-sell-calculator
+description: >-
+  Free browser tool for grain farmers: sell corn, soybeans, wheat or sorghum at
+  harvest or store for a later price? Counts water shrink, drying, handling shrink,
+  storage, interest and bin loss, compares up to six later bids against selling now,
+  and returns the break-even price. Copy, CSV, save and load. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a new-venture session. duplicate_check.py: no row above
+# 0.18 for grain store-or-sell; nearest neighbours (beef-cattle-ration-optimizer,
+# owner-operator-cpm-calculator) are other farm/haulage questions.
+#
+# Why this niche: every fall US row-crop farmers decide whether to store a crop,
+# and the carry ("is the Mar bid enough?") is a money decision worth thousands to
+# tens of thousands of dollars per farm. Extension spreadsheets exist (Iowa State
+# "Grain storage returns", Ohio State) but are Excel files with no break-even view.
+# Searches like "corn storage cost calculator" and "should I store corn" peak
+# Sep-Nov. Willingness to pay is real, so this is the lead magnet for a later paid
+# multi-bin / multi-crop planner (payment rails stay off for now).
+#
+# First visitor: farm-marketing and agronomy subreddits, extension newsletters,
+# farmer Facebook groups. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed numbers. Not marketing, financial or
+# tax advice; says so. No market data fetched, no accounts, nothing stored.
+
+hypotheses:
+  - claim: >-
+      Farmers will enter their drying and storage costs and later bids into a
+      no-signup tool and use the break-even price to decide when to sell.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a break-even price that does not reproduce the tool's own net-equal-to-selling-now result, or a shrink figure that disagrees with the moisture formula.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/grain-store-or-sell-calculator/
+  analytics: null

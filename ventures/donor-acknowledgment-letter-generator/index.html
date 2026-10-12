@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Donor Acknowledgment Letter Generator</title>
+  <meta name="description" content="Free year-end donation receipt generator for small nonprofits: paste a gift list, get one acknowledgment letter per donor with the IRS $250 and $75 quid pro quo wording, and a list of gifts that cannot be written up. Runs in your browser; donor data is never uploaded.">
+  <meta property="og:title" content="Year-end donor acknowledgment letters from a gift list — free, private">
+  <meta property="og:description" content="Paste your gifts. Get a printable letter per donor with the wording a donor needs to deduct a $250+ gift. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Donor Acknowledgment Letter Generator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a list of gifts into year-end donor acknowledgment letters with the IRS-required wording, and flags the gifts that cannot be written up. Runs in the browser."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does a donation acknowledgment letter have to say?", "acceptedAnswer": {"@type": "Answer", "text": "For a single gift of $250 or more, IRS rules (IRC 170(f)(8)) look for the charity's name, the amount of cash given or a description of any property (without a value), and a statement of whether the charity provided any goods or services in exchange, with a good-faith estimate of their value if it did. This page writes that wording for each donor. It is not tax advice; IRS Publication 1771 is the source."}}, {"@type": "Question", "name": "When does a donor need the letter?", "acceptedAnswer": {"@type": "Answer", "text": "By the earlier of the day they file their return and the return's due date with extensions, so April 15 of the following year at the latest. Most donors file in February, so aim to send letters before January 31."}}, {"@type": "Question", "name": "Is the $250 rule per gift or per year?", "acceptedAnswer": {"@type": "Answer", "text": "Per gift. Separate smaller gifts are not added together to reach $250. A charity may still send one annual letter that lists them all, and this page does."}}, {"@type": "Question", "name": "What is a quid pro quo disclosure?", "acceptedAnswer": {"@type": "Answer", "text": "If a donor pays more than $75 and gets something back (a gala dinner, a premium), the charity must tell the donor in writing that only the amount above the value of what they received is a contribution, and give a good-faith estimate of that value. The page asks for the value and refuses to write a letter without it."}}, {"@type": "Question", "name": "Should a charity put a value on donated property?", "acceptedAnswer": {"@type": "Answer", "text": "No. The letter describes the property and states no value; the donor decides the value. Vehicles worth more than $500 have their own form, Form 1098-C, which this letter does not replace."}}, {"@type": "Question", "name": "Is the donor list uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is read in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f5f3f0; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #7a3b1e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #5a2a14; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #5a2a14; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5c4f47; }
+    .card { background: #fff; border: 1px solid #e3dad3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #5a2a1410; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #cdb8aa; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #7a3b1e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #f0e4dc; color: #5a2a14; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #efe6df; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #5c4f47; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #efe6df; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #ece6e1; color: #5a2a14; }
+    .pill.ok { background: #dff3e6; color: #1f5c35; }
+    .stats { font-size: .95rem; color: #3b332e; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #e3dad3; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #cdb8aa; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.letter { white-space: pre-wrap; font: 14px/1.5 Georgia, serif; background: #fffdfb; border: 1px solid #e3dad3; border-radius: 8px; padding: 18px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DONOR ACKNOWLEDGMENT LETTERS · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Year-end donor letters, from your gift list, in a minute.</h1>
+    <p>Paste your gifts, one row per gift. Enter your organisation. The page writes <strong>one letter per donor</strong> with the wording a donor needs for a gift of <strong>$250 or more</strong> and the <strong>quid pro quo statement</strong> for a payment over $75 that bought something, lists the gifts that <strong>cannot be written up as they stand</strong> (a pledge, a refund, a missing date, a gala ticket with no value), and gives you a printable file with one letter per page.</p>
+    <p class="note">The list is read in this browser tab and never leaves your device. It helps you write the letters; it does not decide what a donor may deduct. Check the wording with your treasurer or tax adviser before sending.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your gift list</h2>
+    <p class="note">A CSV or pasted spreadsheet range with a header row. Columns recognised: donor, address, date, amount, type (check, card, cash, non-cash, vehicle, pledge), description (for property), goods or services (what the donor received), benefit value (your good-faith estimate), fund, receipt number.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="paste">…or paste the list</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Donor,Address,Date,Amount,Type,Goods or services,Benefit value&#10;Maria Alvarez,14 Oak St,2026-02-10,500,Check,No,"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>2. Your organisation</h2>
+    <div class="grid">
+      <div><label for="org-name">Organisation name</label><input id="org-name" value="Example Community Fund"></div>
+      <div><label for="org-ein">EIN (optional)</label><input id="org-ein" placeholder="12-3456789"></div>
+      <div><label for="org-address">Address (optional)</label><input id="org-address"></div>
+      <div><label for="org-year">Tax year of the gifts</label><input id="org-year" inputmode="numeric"></div>
+      <div><label for="org-signer">Signed by</label><input id="org-signer" value="Treasurer"></div>
+      <div><label for="org-title">Title (optional)</label><input id="org-title"></div>
+    </div>
+    <label for="org-note">Extra paragraph (optional, printed before the signature)</label>
+    <input id="org-note" placeholder="Our annual report will be mailed in March.">
+    <div class="checkbox-row"><input type="checkbox" id="org-religious"><label for="org-religious">Only intangible religious benefits were provided (religious organisations)</label></div>
+    <p>
+      <button type="button" id="validate">Write the letters</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with problems</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the list, then click Write the letters.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <p class="note" id="deadline"></p>
+    <div class="scroll"><table><thead><tr><th scope="col">Donor</th><th scope="col" class="n">Gifts</th><th scope="col" class="n">Cash</th><th scope="col">Letter</th></tr></thead><tbody id="donors"></tbody></table></div>
+    <h3>Preview</h3>
+    <label for="preview-pick">Donor</label>
+    <select id="preview-pick"></select>
+    <pre class="letter" id="preview"></pre>
+    <h3>Findings</h3>
+    <div id="report-findings"></div>
+    <div class="checkbox-row"><input type="checkbox" id="only-required"><label for="only-required">Print only donors who need a letter ($250+ gift, property, or a payment over $75 with a benefit)</label></div>
+    <p><button type="button" id="dl-letters">Download printable letters (HTML)</button> <button type="button" class="secondary" id="dl-text">Download letters (text)</button> <button type="button" class="secondary" id="dl-summary">Download donor summary (CSV)</button> <button type="button" class="secondary" id="dl-findings">Download findings (CSV)</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The rules it applies, and what it leaves out</h2>
+    <ul>
+      <li><strong>$250 or more, per gift:</strong> a written acknowledgment states the charity, the cash amount or a description of property, and whether goods or services were given in return. The $250 test is applied to each gift, not to a year's total.</li>
+      <li><strong>Over $75 with something back:</strong> the letter gives your good-faith estimate of what the donor received and says only the rest is a contribution. A row that says something was provided but gives no value is left out until you fix it.</li>
+      <li><strong>Property:</strong> described, never valued. Vehicles are pointed to Form 1098-C.</li>
+      <li><strong>Left out with a reason:</strong> pledges, volunteer time, refunds, zero amounts, gifts in another tax year.</li>
+      <li><strong>Timing:</strong> the donor needs the letter before filing; send before January 31.</li>
+      <li><strong>Not decided:</strong> whether a gift is deductible, the value of property or of a benefit, whether you are a qualified charity, state registration and receipt rules, donor-advised-fund and matching-gift paperwork, or what your board policy requires. The wording follows IRS Publication 1771 (Charitable Contributions: Substantiation and Disclosure Requirements); read it, and the organisation signs what it sends.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What does a donation acknowledgment letter have to say?</h3>
+    <p>For a single gift of $250 or more, IRS rules (IRC 170(f)(8)) look for the charity's name, the amount of cash given or a description of any property (without a value), and a statement of whether the charity provided any goods or services in exchange, with a good-faith estimate of their value if it did. This page writes that wording for each donor. It is not tax advice; IRS Publication 1771 is the source.</p>
+    <h3>When does a donor need the letter?</h3>
+    <p>By the earlier of the day they file their return and the return's due date with extensions, so April 15 of the following year at the latest. Most donors file in February, so aim to send letters before January 31.</p>
+    <h3>Is the $250 rule per gift or per year?</h3>
+    <p>Per gift. Separate smaller gifts are not added together to reach $250. A charity may still send one annual letter that lists them all, and this page does.</p>
+    <h3>What is a quid pro quo disclosure?</h3>
+    <p>If a donor pays more than $75 and gets something back (a gala dinner, a premium), the charity must tell the donor in writing that only the amount above the value of what they received is a contribution, and give a good-faith estimate of that value. The page asks for the value and refuses to write a letter without it.</p>
+    <h3>Should a charity put a value on donated property?</h3>
+    <p>No. The letter describes the property and states no value; the donor decides the value. Vehicles worth more than $500 have their own form, Form 1098-C, which this letter does not replace.</p>
+    <h3>Is the donor list uploaded anywhere?</h3>
+    <p>No. It is read in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a tax professional or your organisation's counsel. Results depend entirely on the list you provide. <strong>You are responsible for reviewing and verifying every letter before sending it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with the IRS or any tax authority.</strong> This tool is independent; it is not sponsored, endorsed or connected to the Internal Revenue Service, any donor-management software vendor, or any payment processor.</p>
+    <p><strong>Donor data.</strong> A gift list holds names, addresses and amounts. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your list. Closing the tab discards it; downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>list_checked</code>, <code>example_loaded</code>, <code>letters_downloaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../donor-retention-analyzer/">donor retention analyzer</a> and the <a href="../charitable-deduction-calculator/">charitable deduction calculator</a> cover the other sides of giving.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { check, sampleList, sampleBrokenList, SAMPLE_ORG, letterText, lettersHtml, lettersText, donorSummaryCsv, findingsCsv, dollars, ackDeadlineNote } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const today = () => new Date().toISOString().slice(0, 10);
+    $("#org-year").value = new Date().getFullYear() - (new Date().getMonth() < 6 ? 1 : 0);
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const org = () => ({
+      name: $("#org-name").value.trim() || "Your organisation", ein: $("#org-ein").value.trim(), address: $("#org-address").value.trim(),
+      signer: $("#org-signer").value.trim() || "Treasurer", signerTitle: $("#org-title").value.trim(), note: $("#org-note").value.trim(),
+      year: parseInt($("#org-year").value, 10) || new Date().getFullYear() - 1, religious: $("#org-religious").checked,
+    });
+    const setOrg = (o) => {
+      $("#org-name").value = o.name; $("#org-ein").value = o.ein || ""; $("#org-address").value = o.address || "";
+      $("#org-signer").value = o.signer; $("#org-title").value = o.signerTitle || ""; $("#org-year").value = o.year;
+    };
+    const showPreview = () => {
+      const i = parseInt($("#preview-pick").value, 10);
+      $("#preview").textContent = last && last.donors[i] ? letterText(last.donors[i], last.org).replace("{DATE}", today()) : "";
+    };
+
+    function run(text) {
+      const r = check(text, org());
+      last = r;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `<strong>${s.letters} letter${s.letters === 1 ? "" : "s"} required</strong> of ${s.donors} donor${s.donors === 1 ? "" : "s"} · ${s.gifts} of ${s.rows} gifts used, ${s.skipped} left out · ${dollars(s.cashCents)} in cash · ${s.errors} error${s.errors === 1 ? "" : "s"}, ${s.warnings} warning${s.warnings === 1 ? "" : "s"}`;
+      $("#deadline").textContent = ackDeadlineNote(r.org.year);
+      $("#donors").innerHTML = r.donors.map((d) => `<tr><td>${esc(d.donor)}</td><td class="n">${d.gifts.length}</td><td class="n">${dollars(d.cashCents)}</td><td><span class="pill ${d.needsLetter ? "medium" : "info"}">${d.needsLetter ? "required" : "optional"}</span></td></tr>`).join("") || `<tr><td colspan="4">No donors read.</td></tr>`;
+      $("#preview-pick").innerHTML = r.donors.map((d, i) => `<option value="${i}">${esc(d.donor)}</option>`).join("");
+      showPreview();
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.donor ? esc(f.donor) + ": " : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || "<p>No findings.</p>";
+      report.hidden = false;
+      status.textContent = `${s.letters} letter${s.letters === 1 ? "" : "s"} required.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the list first."; return; }
+      run(text); record("list_checked");
+    });
+    const example = (id, make, note) => $(id).addEventListener("click", () => {
+      $("#paste").value = make(); $("#file").value = ""; setOrg(SAMPLE_ORG);
+      run($("#paste").value); record("example_loaded"); status.textContent = note;
+    });
+    example("#load-ok", sampleList, "Worked example: made-up donors and a made-up organisation.");
+    example("#load-broken", sampleBrokenList, "Worked example: a list with a duplicate, a pledge, a bad date and a gala ticket with no value.");
+    $("#preview-pick").addEventListener("change", showPreview);
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the list, then click Write the letters."; });
+    $("#dl-letters").addEventListener("click", () => { if (last) { record("letters_downloaded"); download("donor-letters.html", lettersHtml(last, today(), $("#only-required").checked), "text/html"); } });
+    $("#dl-text").addEventListener("click", () => { if (last) { record("letters_downloaded"); download("donor-letters.txt", lettersText(last, today()), "text/plain"); } });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("donor-summary.csv", donorSummaryCsv(last), "text/csv"); } });
+    $("#dl-findings").addEventListener("click", () => { if (last) download("donor-findings.csv", findingsCsv(last), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

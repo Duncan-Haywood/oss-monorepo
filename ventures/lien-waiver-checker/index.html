@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Lien Waiver Checker</title>
+  <meta name="description" content="Free lien waiver checker for contractors and suppliers: paste the waiver you were sent and see what to fix before you sign, such as an unconditional waiver before the check clears, a release of all claims or future work, a wrong amount or through-date, or retainage not excepted. Private, runs in your browser.">
+  <meta property="og:title" content="Check a lien waiver before you sign it — free, private">
+  <meta property="og:description" content="Paste the waiver. Get a list of red flags and the exact change to ask for, before you release money you have not been paid.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Lien Waiver Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a lien waiver?", "acceptedAnswer": {"@type": "Answer", "text": "A lien waiver is a document a contractor, subcontractor or supplier signs to give up the right to file a mechanics lien, usually for work paid for through a stated date. Owners, lenders and general contractors ask for one with every payment."}}, {"@type": "Question", "name": "What is the difference between a conditional and an unconditional lien waiver?", "acceptedAnswer": {"@type": "Answer", "text": "A conditional waiver only takes effect once the payment it names has been received. An unconditional waiver takes effect the moment it is signed, whether or not the money ever arrives. The usual safe order is to sign a conditional waiver to get the check and an unconditional one only after the funds have cleared."}}, {"@type": "Question", "name": "What is the difference between a progress and a final lien waiver?", "acceptedAnswer": {"@type": "Answer", "text": "A progress waiver releases lien rights for the work and materials through a stated date. A final waiver releases everything on the job, so it is where retainage, pending change orders and disputed items need to be listed as exceptions."}}, {"@type": "Question", "name": "What should I look for before signing a lien waiver?", "acceptedAnswer": {"@type": "Answer", "text": "Whether it is conditional or unconditional, the through-date, the dollar amount, whether it releases anything beyond lien rights (all claims, future work, bonds, indemnity), and whether retainage and pending claims are excepted. This page checks the text for each of those."}}, {"@type": "Question", "name": "Does this tell me whether the waiver is valid in my state?", "acceptedAnswer": {"@type": "Answer", "text": "No. Some states prescribe the form or wording of a lien waiver by statute, and a waiver that does not follow it may be unenforceable. This page can point at a short list of states commonly cited for that, but it does not decide validity. Check the statute or ask an attorney."}}, {"@type": "Question", "name": "Is the waiver text uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The text is read in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #7a3e0a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #3b2a14; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #3b2a14; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3b2a1410; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #7a3e0a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #efe8d8; color: #3b2a14; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #3b2a14; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #3b2a14; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #3b2a14; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">LIEN WAIVER CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Read the lien waiver before you give up your lien.</h1>
+    <p>Paste the waiver your customer or general contractor sent with the check. The page checks the text for the <strong>common ways a waiver costs the person signing it money</strong>: an <strong>unconditional</strong> waiver before the funds clear, a release of <strong>all claims</strong> or <strong>future work</strong>, the wrong <strong>amount</strong> or <strong>through-date</strong>, retainage and pending change orders not excepted, and indemnity or bond language tucked in. For each one it tells you what to ask for.</p>
+    <p class="note">The text is read in this browser tab and never leaves your device. It reads wording with fixed rules; it is not a lawyer and does not decide whether a waiver is valid in your state.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>1. The waiver</h2>
+    <label for="file">Choose a text file</label>
+    <input type="file" id="file" accept=".txt,.md,text/plain">
+    <label for="paste">…or paste the waiver text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Paste the full text of the waiver and release here"></textarea>
+    <h2 style="margin-top:20px">2. What you know about the payment</h2>
+    <p class="note">All optional, and each one lets the checker catch more. Leave blank what you do not know.</p>
+    <div class="grid">
+      <div><label for="type">Kind of waiver (blank = read it from the text)</label><select id="type"><option value="">Read from the text</option><option value="conditional-progress">Conditional, progress payment</option><option value="unconditional-progress">Unconditional, progress payment</option><option value="conditional-final">Conditional, final payment</option><option value="unconditional-final">Unconditional, final payment</option></select></div>
+      <div><label for="payment">Where is the payment?</label><select id="payment"><option value="">Not paid yet</option><option value="check">Check in hand, not cleared</option><option value="cleared">Funds cleared my bank</option></select></div>
+      <div><label for="expected">Amount you are being paid, dollars</label><input id="expected" inputmode="decimal" placeholder="52000.00"></div>
+      <div><label for="through">End of the period you billed (YYYY-MM-DD)</label><input id="through" placeholder="2026-09-30"></div>
+      <div><label for="retainage">Retainage still held, dollars</label><input id="retainage" inputmode="decimal" placeholder="5500"></div>
+      <div><label for="pending">Pending or disputed change orders and claims, dollars</label><input id="pending" inputmode="decimal" placeholder="7200"></div>
+      <div><label for="claimant">Your company name, as it should appear</label><input id="claimant"></div>
+      <div><label for="project">Project name</label><input id="project"></div>
+      <div><label for="state">State of the project (optional)</label><select id="state"><option value="">Not listed</option><option value="CA">California</option><option value="TX">Texas</option><option value="FL">Florida</option><option value="GA">Georgia</option><option value="MI">Michigan</option><option value="NV">Nevada</option><option value="AZ">Arizona</option><option value="UT">Utah</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Check the waiver</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Paste the waiver, then click Check the waiver.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="verdict"></p>
+    <p class="note" id="facts"></p>
+    <div id="report-findings"></div>
+    <p><button type="button" id="dl-summary">Download checklist (text)</button> <button type="button" class="secondary" id="dl-csv">Download findings (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it checks, and what it leaves to you</h2>
+    <ul>
+      <li><strong>When it takes effect:</strong> unconditional before the funds have cleared; a condition that stops at receipt of a check rather than payment.</li>
+      <li><strong>How much it releases:</strong> all-claims wording in a progress waiver, release of future work, a missing through-date, a through-date after the period you billed.</li>
+      <li><strong>For how much:</strong> no dollar amount, or none that matches what you are being paid.</li>
+      <li><strong>What it leaves out:</strong> retainage and pending change orders not excepted.</li>
+      <li><strong>What else it releases:</strong> payment-bond rights, indemnity or hold-harmless wording, jury, arbitration or fee waivers; your name or the project missing.</li>
+      <li><strong>Not decided:</strong> whether the form is valid or required in your state, whether the wording is enforceable, who is liable, and whether you should sign. It reads text and cannot see your contract.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is a lien waiver?</h3>
+    <p>A lien waiver is a document a contractor, subcontractor or supplier signs to give up the right to file a mechanics lien, usually for work paid for through a stated date. Owners, lenders and general contractors ask for one with every payment.</p>
+    <h3>What is the difference between a conditional and an unconditional lien waiver?</h3>
+    <p>A conditional waiver only takes effect once the payment it names has been received. An unconditional waiver takes effect the moment it is signed, whether or not the money ever arrives. The usual safe order is to sign a conditional waiver to get the check and an unconditional one only after the funds have cleared.</p>
+    <h3>What is the difference between a progress and a final lien waiver?</h3>
+    <p>A progress waiver releases lien rights for the work and materials through a stated date. A final waiver releases everything on the job, so it is where retainage, pending change orders and disputed items need to be listed as exceptions.</p>
+    <h3>What should I look for before signing a lien waiver?</h3>
+    <p>Whether it is conditional or unconditional, the through-date, the dollar amount, whether it releases anything beyond lien rights (all claims, future work, bonds, indemnity), and whether retainage and pending claims are excepted. This page checks the text for each of those.</p>
+    <h3>Does this tell me whether the waiver is valid in my state?</h3>
+    <p>No. Some states prescribe the form or wording of a lien waiver by statute, and a waiver that does not follow it may be unenforceable. This page can point at a short list of states commonly cited for that, but it does not decide validity. Check the statute or ask an attorney.</p>
+    <h3>Is the waiver text uploaded anywhere?</h3>
+    <p>No. The text is read in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace your contract or an attorney. A clean result means these rules found nothing, not that a waiver is safe; have an attorney review anything that matters.</p>
+    <p><strong>Contract data.</strong> A waiver can name amounts and parties that are commercially sensitive. This page runs in your browser and sends nothing anywhere, and the portfolio never receives it. Closing the tab discards it; downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your text is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>waiver_checked</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../mechanics-lien-deadline-calculator/">mechanics lien deadline calculator</a> for the filing dates and the <a href="../pay-application-generator/">pay application generator</a> for the billing the waiver is paired with.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, summaryText, findingsCsv, sampleWaiver, SAMPLE_SETTINGS, VERDICT_TEXT, dollars } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const IDS = ["type", "payment", "expected", "through", "retainage", "pending", "claimant", "project", "state"];
+    let last = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const settings = () => ({
+      type: $("#type").value, payment: $("#payment").value, expectedAmount: $("#expected").value, throughDate: $("#through").value.trim(),
+      retainageHeld: $("#retainage").value, pendingClaims: $("#pending").value, claimant: $("#claimant").value.trim(),
+      project: $("#project").value.trim(), state: $("#state").value,
+    });
+
+    function run(text) {
+      const s = settings();
+      const r = analyze(text, s);
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = { r, s };
+      $("#verdict").textContent = VERDICT_TEXT[r.verdict];
+      const x = r.extracted;
+      $("#facts").textContent = `Through-date found: ${x.through || "none"}. Amounts found: ${x.amounts.length ? x.amounts.map(dollars).join(", ") : "none"}.`;
+      $("#report-findings").innerHTML = r.findings.length
+        ? r.findings.map((g) => `<div class="finding"><span class="pill ${g.severity}">${g.severity}</span><strong>${esc(g.title)}</strong><br>${esc(g.why)}<br><em>Ask for:</em> ${esc(g.ask)}</div>`).join("")
+        : '<div class="finding">Nothing flagged by these rules. They read wording only and cannot tell you the waiver is enforceable or safe.</div>';
+      report.hidden = false;
+      status.textContent = `${r.findings.filter((g) => g.severity !== "info").length} finding(s) to look at.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#calc").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Paste the waiver text first."; return; }
+      if (run(text)) record("waiver_checked");
+    });
+    $("#load-ok").addEventListener("click", () => {
+      $("#paste").value = sampleWaiver(); $("#file").value = "";
+      for (const id of IDS) {
+        const key = { expected: "expectedAmount", through: "throughDate", retainage: "retainageHeld", pending: "pendingClaims" }[id] || id;
+        $("#" + id).value = SAMPLE_SETTINGS[key];
+      }
+      run($("#paste").value); record("example_loaded");
+      status.textContent = "Worked example: a made-up unconditional waiver with several problems at once.";
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Paste the waiver, then click Check the waiver."; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("lien-waiver-check.txt", summaryText(last.r, last.s), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("lien-waiver-findings.csv", findingsCsv(last.r), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

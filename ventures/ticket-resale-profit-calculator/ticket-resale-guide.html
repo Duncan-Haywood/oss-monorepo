@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Price Resale Tickets So You Do Not Lose Money on the Unsold Ones</title>
+  <meta name="description" content="Why a thin margin on the tickets that sell can still lose money overall, how seller fees change your break-even list price, and how to audit your own sales by marketplace.">
+  <link rel="canonical" href="./ticket-resale-guide.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I price resale tickets so I do not lose money?", "acceptedAnswer": {"@type": "Answer", "text": "Work backwards from the payout: subtract your cost from what the marketplace will pay you after its seller fee, then raise your list price until that clears a profit that also covers the listings that do not sell. If you expect to sell eight of ten, your margin on the sales must be at least a quarter of your cost to cover the other two."}}, {"@type": "Question", "name": "When should I drop the price on tickets that are not selling?", "acceptedAnswer": {"@type": "Answer", "text": "Prices usually matter most in the last days before the event, when unsold inventory goes to zero. Decide your floor in advance: the lowest price that still beats the value of an unsold ticket, which is zero unless you can use or return them."}}, {"@type": "Question", "name": "Which marketplace should I list on?", "acceptedAnswer": {"@type": "Answer", "text": "The one that nets you the most for your event, which is not always the one with the lowest seller fee, because reach and buyer pricing differ. Audit your own sales by marketplace rather than trusting a headline rate."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">Ticket Resale Profit Calculator</a> · guide</p>
+  <h1>How to price resale tickets so you do not lose money on the unsold ones</h1>
+  <p>Short answer: <strong>the margin on the tickets that sell has to pay for the ones that do not</strong>. A listing that nets 12% when it sells but sells only four times in five has a negative expected return, because an unsold ticket is usually a total loss.</p>
+
+  <h2>The arithmetic</h2>
+  <ol>
+    <li><strong>Payout</strong> = list price x tickets, minus the seller fee (a percentage, sometimes plus a flat amount per ticket), minus any delivery cost.</li>
+    <li><strong>Break-even list price</strong> = (your cost + flat fees + delivery) / (tickets x (1 - fee rate)). At a 10% fee you must list about 11% above what you paid just to get your money back.</li>
+    <li><strong>Break-even sale chance</strong> = cost / payout. If payout is 12.5% above cost, you need to sell about 89 times in 100 to break even.</li>
+  </ol>
+
+  <h2>What to do with it</h2>
+  <ul>
+    <li>Run the <a href="./">calculator</a> with your real fee percentage from the listing screen, not a preset.</li>
+    <li>Set the price from the profit you need after allowing for unsold listings, not from the profit on a successful one.</li>
+    <li>Audit past sales: <code>node cli.mjs log sales.csv</code> shows profit, ROI and effective fee rate by marketplace, and lists every sale that lost money.</li>
+    <li>Decide your floor price before the event is close, when the temptation is to hold out.</li>
+  </ul>
+
+  <h2>Questions</h2>
+  <h3>How do I price resale tickets so I do not lose money?</h3>
+  <p>Work backwards from the payout: subtract your cost from what the marketplace will pay you after its seller fee, then raise your list price until that clears a profit that also covers the listings that do not sell. If you expect to sell eight of ten, your margin on the sales must be at least a quarter of your cost to cover the other two.</p>
+  <h3>When should I drop the price on tickets that are not selling?</h3>
+  <p>Prices usually matter most in the last days before the event, when unsold inventory goes to zero. Decide your floor in advance: the lowest price that still beats the value of an unsold ticket, which is zero unless you can use or return them.</p>
+  <h3>Which marketplace should I list on?</h3>
+  <p>The one that nets you the most for your event, which is not always the one with the lowest seller fee, because reach and buyer pricing differ. Audit your own sales by marketplace rather than trusting a headline rate.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not financial, tax or legal advice. Resale rules and price caps vary by place; check yours. Product names are trademarks of their owners and are used only to describe where fees come from.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

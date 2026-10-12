@@ -1,0 +1,38 @@
+name: gbp-bulk-location-check
+description: >-
+  Free browser tool that checks a Google Business Profile bulk-location spreadsheet (CSV or TSV) before
+  it is uploaded: semicolon or UTF-16 files, missing template columns, duplicate or damaged store codes,
+  business names over 100 characters, in all capitals or stuffed with keywords, phone numbers that are
+  not E.164 or plausible for the country, websites that are not https, hours that are not 24-hour
+  HH:MM, opening dates, ISO country codes, US state abbreviations, postal code shape, latitude and
+  longitude ranges, Excel damage (ZIPs that lost a leading zero, scientific notation), duplicate
+  addresses across store codes and label limits, each with its line number, plus a safe-fixes pass
+  that converts the delimiter and restores a ZIP's zero only when the state confirms it. The file is
+  read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. screened-out.md rejects `multi-location-listing-guard`
+# because Yext and BrightLocal own listing monitoring and sync, sold through agencies, and distribution
+# is that whole business. This is not that product: it is a stateless, one-shot pre-upload file checker
+# for the spreadsheet a multi-location business or agency already has open, with no monitoring, no
+# directory sync, no accounts and nothing stored. Yext and BrightLocal do not compete for the query
+# "Google Business Profile bulk upload error". Sibling checkers read Amazon, eBay, Etsy, Shopify and
+# CRM import files; none reads this one.
+#
+# First visitor: marketing staff and agency account managers searching the literal symptoms ("Google
+# Business Profile bulk upload error", "GBP spreadsheet store code duplicate", "Google My Business
+# bulk upload phone number format", "bulk upload zip code leading zero", "Google Business Profile
+# hours format bulk"). Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: the file never leaves the browser (a test asserts no network
+# calls). Rules are stated as read from memory of Google's public bulk-upload help, with an explicit
+# not-checked list; category names, address verification, verification status, duplicate profiles on
+# Google, and policy suspensions are out of scope and said so.
+#
+# Path to revenue (payment rails stay off): lead magnet for the agency and multi-location audience.
+# A paid version, if usage appears, is saved rule sets per client, batch checks over many files and a
+# template diff behind an env-var switch; not built.
+#
+# Liability: format checks on the user's own file, no warranty, independent-of-Google clause,
+# trademark used nominatively.

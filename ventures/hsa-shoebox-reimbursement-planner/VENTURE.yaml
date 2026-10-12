@@ -1,0 +1,52 @@
+name: hsa-shoebox-reimbursement-planner
+description: >-
+  Free browser tool for HSA holders: paste the medical receipts you paid out of pocket, see your tax-free
+  withdrawal room today, and compare leaving the HSA invested and reimbursing yourself later (the "shoebox"
+  strategy) with reimbursing every year, in after-tax dollars. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "HSA invest and reimburse
+# yourself later receipts" scored 0.13 at best; the nearest, hsa-contribution-limit-calculator (0.38), only
+# computes contribution limits and has no receipts or reimbursement model.
+#
+# Why this niche: HSA owners are told online (r/HSA, Bogleheads, FIRE blogs) to "save every receipt and
+# reimburse yourself decades later", but the receipt pile lives in a spreadsheet and nobody can see what it
+# is worth or what waiting really saves after tax. Paid HSA-receipt vaults exist (e.g. Lively, Fidelity
+# receipt storage, HSA Store); a private, free, no-upload planner that quantifies the strategy is the gap.
+# Lead magnet and donation play.
+#
+# First visitor: someone searching "HSA shoebox method calculator", "how long can I wait to reimburse
+# HSA", "HSA receipts reimburse later".
+#
+# Liability boundary: arithmetic on user-typed figures; no eligibility or qualified-expense determination,
+# no tax advice; disclaimers on the page; nothing stored or uploaded.
+#
+# Path to revenue (payment rails stay off): donations; later CSV import from HSA custodians, per-receipt
+# document references, a year-by-year reimbursement ladder against expected income (not built).
+
+hypotheses:
+  - claim: >-
+      HSA owners following the shoebox strategy will paste their receipt list into a private page to see
+      their tax-free withdrawal room and the after-tax value of waiting.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/hsa-shoebox-reimbursement-planner/
+  analytics: null

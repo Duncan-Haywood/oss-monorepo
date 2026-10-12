@@ -1,0 +1,59 @@
+name: distillery-excise-tax-calculator
+description: >-
+  Free browser calculator for craft distillers: enter bottles by size and proof plus bulk proof gallons removed in a year and get
+  the federal spirits excise tax at the Craft Beverage Modernization Act rates ($2.70 on the first 100,000 proof gallons, $13.34 to
+  22.13 million, $13.50 above), the effective rate, the tax inside each bottle size and a 1.5 oz pour, and a growth table showing
+  the rate cliff. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. duplicate_check scored the nearest venture at 0.23
+# (brewery-excise-tax-calculator, the beer sibling: different rates, barrels instead of proof gallons).
+#
+# Why this niche: roughly 2,500 US craft distilleries pay federal excise tax on removals, and the reduced rate turns a
+# $2.70 proof gallon into a $13.34 proof gallon at 100,000. Tax per bottle depends on proof, which owners rarely work out
+# when pricing a 100 proof bottled-in-bond against an 80 proof vodka. The TTB return computes tax but does not explain
+# per-bottle cost or growth effects.
+#
+# First visitor: distillers and bookkeepers searching "distillery excise tax calculator", "proof gallon calculator",
+# "federal excise tax per bottle of liquor", "CBMA spirits reduced rate". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over volumes the user types in; nothing stored; not tax advice; states what is not
+# modelled (state tax, importers, drawback, losses, refunds, actual filing period) and carries the no-warranty and no-SLA
+# clauses. Rates cited from IRC 5001 as amended by the CBMA; verify against current TTB guidance.
+#
+# Path to revenue (payment rails stay off): lead magnet into the beverage-maker cluster plus donations. A paid layer
+# (TTB Form 5000.24 worksheet export, multi-site controlled-group tracking, state tax tables) needs accounts, so an owner
+# decision; not built.
+
+hypotheses:
+  - claim: >-
+      Craft distillers and bookkeepers will type bottle counts and proof into a no-signup calculator to see excise tax per
+      bottle and the cost of crossing 100,000 proof gallons, because their TTB return computes the tax but not what it adds
+      to a bottle price or to growth.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing tax per bottle rise with proof changes how distillers price higher-proof expressions.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - Distillers report that state tax or contract-production assignment is the common need, at which point the tool should model it.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/distillery-excise-tax-calculator/
+  analytics: null

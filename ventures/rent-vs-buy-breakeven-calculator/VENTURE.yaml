@@ -1,0 +1,52 @@
+name: rent-vs-buy-breakeven-calculator
+description: >-
+  Free browser tool for people deciding whether to buy a home: runs the buyer and the renter month by month
+  with the down payment invested, closing and selling costs, PMI and the itemized-deduction test, then shows
+  the break-even year, the net-worth gap at the year you plan to leave, the rent that makes both equal and a
+  sensitivity grid. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "rent vs buy home break even
+# year mortgage opportunity cost" scored 0.35 at best (no rent-vs-buy tool in the tree).
+#
+# Why this niche: "rent vs buy calculator" is one of the highest-volume personal-finance searches. The
+# well-known ones (NYT, Zillow, NerdWallet, Bankrate) are ad- or lead-funded, many omit the invested down
+# payment or the standard-deduction test, and none solve for the break-even rent. A private, transparent,
+# CSV-exportable model that returns the single number people argue about is the gap. Lead magnet and
+# donation play; it also feeds the home-sale-exclusion and mortgage tools already in the catalogue.
+#
+# First visitor: someone searching "rent vs buy calculator", "how long to break even buying a house" or
+# "is it better to rent or buy". Volume not measured.
+#
+# Liability boundary: arithmetic on typed assumptions; no lender, listing or rate lookups; no
+# recommendation; not tax or financial advice; nothing stored or uploaded.
+#
+# Path to revenue (payment rails stay off): donations; later a shareable scenario link, refinance and
+# extra-payment modelling, and a market-presets pack (price-to-rent by metro) as a lead magnet (not built).
+
+hypotheses:
+  - claim: >-
+      Prospective buyers will use a private rent-vs-buy page that returns the break-even year and the
+      break-even rent, because those are the two numbers they cannot get from a monthly-payment calculator.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/rent-vs-buy-breakeven-calculator/
+  analytics: null

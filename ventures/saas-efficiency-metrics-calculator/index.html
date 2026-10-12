@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SaaS Burn Multiple, Magic Number and Rule of 40 Calculator — Free</title>
+  <meta name="description" content="Free SaaS efficiency calculator: burn multiple, magic number, Rule of 40 and runway from your quarterly numbers, with benchmark bands and what it takes to reach a 1.5 burn multiple. Runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="SaaS burn multiple, magic number and Rule of 40 calculator, free">
+  <meta property="og:description" content="Burn multiple, magic number, Rule of 40 and runway from one quarter of numbers. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "SaaS Efficiency Metrics Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Computes burn multiple, SaaS magic number, Rule of 40 and runway from quarterly revenue, net burn and sales and marketing spend. Entirely client-side; nothing is uploaded.", "featureList": "burn multiple with bands, magic number, Rule of 40, runway, burn cut or ARR needed to reach a 1.5 burn multiple"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a good burn multiple?", "acceptedAnswer": {"@type": "Answer", "text": "Commonly quoted bands: under 1 is amazing, 1 to 1.5 great, 1.5 to 2 good, 2 to 3 suspect and over 3 bad. Earlier-stage companies tend to run higher multiples than later-stage ones, so compare with companies at your stage rather than a single number."}}, {"@type": "Question", "name": "How do you calculate burn multiple?", "acceptedAnswer": {"@type": "Answer", "text": "Net burn divided by net new ARR for the same period. Net burn is cash out minus cash in. Net new ARR is new plus expansion ARR minus churned and contracted ARR. If you do not have ARR data, this tool estimates it as quarter-over-quarter revenue growth times four."}}, {"@type": "Question", "name": "What is the SaaS magic number?", "acceptedAnswer": {"@type": "Answer", "text": "Annualised quarter-over-quarter revenue growth divided by the previous quarter's sales and marketing spend. Below roughly 0.5 suggests go-to-market spend is not converting well; above roughly 0.75 is often read as a signal to invest more."}}, {"@type": "Question", "name": "What is the Rule of 40?", "acceptedAnswer": {"@type": "Answer", "text": "Year-over-year revenue growth plus a profit margin (often free cash flow margin). A score of 40 or more is the usual bar for a healthy SaaS business. This tool uses free cash flow margin derived from your net burn."}}, {"@type": "Question", "name": "Is this financial or investment advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies simple arithmetic to the numbers you enter. The bands are widely quoted rules of thumb, not standards, and none of the metrics replace your own cohort data or a qualified adviser."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SAAS EFFICIENCY METRICS CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How efficiently is your SaaS turning cash into growth?</h1>
+    <p>Investors read three numbers before they read your deck: <strong>burn multiple</strong>, <strong>magic number</strong> and the <strong>Rule of 40</strong>. Enter one quarter of revenue and burn to see all three, your <strong>runway</strong>, and what you would need to change to reach a 1.5 burn multiple.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your quarter</h2>
+    <div class="grid">
+      <div>
+        <label for="revenue">This quarter's recognised revenue ($)</label>
+        <input type="number" id="revenue" step="1" placeholder="e.g. 1500000">
+      </div>
+      <div>
+        <label for="prior-revenue">Last quarter's recognised revenue ($)</label>
+        <input type="number" id="prior-revenue" step="1" placeholder="e.g. 1300000">
+      </div>
+      <div>
+        <label for="net-burn">Net burn this quarter ($, cash out minus cash in)</label>
+        <input type="number" id="net-burn" step="1" placeholder="e.g. 900000">
+      </div>
+      <div>
+        <label for="net-new-arr">Net new ARR this quarter ($, optional)</label>
+        <input type="number" id="net-new-arr" step="1" placeholder="blank = revenue change x 4">
+      </div>
+      <div>
+        <label for="prior-sm">Last quarter's sales and marketing spend ($, optional)</label>
+        <input type="number" id="prior-sm" step="1" placeholder="e.g. 600000">
+      </div>
+      <div>
+        <label for="year-ago-revenue">Revenue, same quarter a year ago ($, optional)</label>
+        <input type="number" id="year-ago-revenue" step="1" placeholder="e.g. 900000">
+      </div>
+      <div>
+        <label for="cash">Cash on hand ($, optional)</label>
+        <input type="number" id="cash" step="1" placeholder="e.g. 5400000">
+      </div>
+    </div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate metrics</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter your numbers, then click Calculate metrics.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><thead><tr><th scope="col">Measure</th><th scope="col">Value</th></tr></thead><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Net new ARR</strong> is what you enter, or else (this quarter's revenue - last quarter's revenue) x 4. That proxy ignores usage and one-off revenue, so use billing-system ARR when you have it.</li>
+      <li><strong>Burn multiple</strong> = net burn / net new ARR. <strong>Magic number</strong> = (revenue change x 4) / prior-quarter sales and marketing spend. <strong>Rule of 40</strong> = year-over-year growth + free cash flow margin, where margin = -net burn / revenue. <strong>Runway</strong> = cash / (net burn / 3).</li>
+      <li><strong>Not modelled:</strong> seasonality, annual-prepay cash timing, one-off financing or capex inside net burn, FX, and cohort quality. The bands are widely quoted rules of thumb, not standards, and vary by stage and market.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a good burn multiple?</h3>
+    <p>Commonly quoted bands: under 1 is amazing, 1 to 1.5 great, 1.5 to 2 good, 2 to 3 suspect and over 3 bad. Earlier-stage companies tend to run higher multiples than later-stage ones, so compare with companies at your stage rather than a single number.</p>
+    <h3>How do you calculate burn multiple?</h3>
+    <p>Net burn divided by net new ARR for the same period. Net burn is cash out minus cash in. Net new ARR is new plus expansion ARR minus churned and contracted ARR. If you do not have ARR data, this tool estimates it as quarter-over-quarter revenue growth times four.</p>
+    <h3>What is the SaaS magic number?</h3>
+    <p>Annualised quarter-over-quarter revenue growth divided by the previous quarter's sales and marketing spend. Below roughly 0.5 suggests go-to-market spend is not converting well; above roughly 0.75 is often read as a signal to invest more.</p>
+    <h3>What is the Rule of 40?</h3>
+    <p>Year-over-year revenue growth plus a profit margin (often free cash flow margin). A score of 40 or more is the usual bar for a healthy SaaS business. This tool uses free cash flow margin derived from your net burn.</p>
+    <h3>Is this financial or investment advice?</h3>
+    <p>No. It applies simple arithmetic to the numbers you enter. The bands are widely quoted rules of thumb, not standards, and none of the metrics replace your own cohort data or a qualified adviser.</p>
+  </section>
+
+  <section class="card">
+    <p>Related tool: the <a href="../saas-tier-price-optimizer/">SaaS tier price optimizer</a> (the Good-Better-Best price ladder that earns the most from a willingness-to-pay survey).</p>
+    <p>Writing the monthly update? The <a href="../investor-update-builder/">investor update builder</a> turns MRR, customers and cash into runway, burn multiple and a default-alive check, then writes the email.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the inputs you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any fundraising or spending decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>metrics_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also see the <a href="../saas-cac-payback-calculator/">SaaS CAC payback calculator</a>, the <a href="../mrr-waterfall-calculator/">MRR waterfall calculator</a>, the <a href="../cash-runway-planner/">cash runway planner</a> and the <a href="../safe-dilution-calculator/">SAFE dilution calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { efficiencyOutcome, money, burnBand } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const map = { "revenue": "revenue", "prior-revenue": "priorRevenue", "net-burn": "netBurn", "net-new-arr": "netNewArr", "prior-sm": "priorSalesMarketing", "year-ago-revenue": "yearAgoRevenue", "cash": "cash" };
+    const ids = Object.keys(map);
+    const raw = (id) => $("#" + id).value.trim();
+    const status = $("#form-status"), report = $("#report");
+    const dash = (v, f) => (v === null ? "needs optional input" : f(v));
+
+    function runCalculate() {
+      const input = {};
+      for (const id of ids) input[map[id]] = raw(id) === "" ? null : Number(raw(id));
+      const r = efficiencyOutcome(input);
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return; }
+      $("#report-stats").innerHTML = r.burnMultiple === null
+        ? `Burn multiple: <strong>n/a</strong>. ${r.burnNote}`
+        : `Burn multiple <strong>${r.burnMultiple.toFixed(2)}</strong> (${burnBand(r.burnMultiple)}) on net new ARR of ${money(r.netNewArr)}, ${r.arrSource}.`;
+      const rows = [
+        ["Net new ARR", `${money(r.netNewArr)} (${r.arrSource})`],
+        ["Burn multiple", r.burnMultiple === null ? "n/a" : `${r.burnMultiple.toFixed(2)} (${burnBand(r.burnMultiple)})`],
+        ["Magic number", dash(r.magicNumber, (x) => x.toFixed(2))],
+        ["Free cash flow margin", `${(r.margin * 100).toFixed(1)}%`],
+        ["YoY revenue growth", dash(r.growth, (x) => `${(x * 100).toFixed(1)}%`)],
+        ["Rule of 40 score", dash(r.ruleOf40, (x) => x.toFixed(1))],
+        ["Runway", r.runwayMonths === null ? "needs cash on hand and positive burn" : `${r.runwayMonths.toFixed(1)} months`],
+      ];
+      if (r.target) {
+        rows.push(["To reach a 1.5 burn multiple: cut quarterly burn to", money(r.target.burnAtSameArr)]);
+        rows.push(["...or grow net new ARR to", money(r.target.arrAtSameBurn)]);
+      }
+      $("#result-table").innerHTML = rows.map(([k, v]) => `<tr><th scope="row">${k}</th><td>${v}</td></tr>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `
+        <div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4><p>${f.detail}</p></div>`).join("");
+      report.hidden = false;
+      status.textContent = "";
+      record("metrics_calculated");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      const ex = { "revenue": 1500000, "prior-revenue": 1300000, "net-burn": 900000, "prior-sm": 600000, "year-ago-revenue": 900000, "cash": 5400000 };
+      for (const id of ids) $("#" + id).value = ex[id] ?? "";
+      runCalculate();
+      record("example_loaded");
+      status.textContent = "Worked example: $1.5M quarterly revenue (up from $1.3M), $900k net burn, $600k prior-quarter S&M, $5.4M cash.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of ids) $("#" + id).value = "";
+      report.hidden = true;
+      status.textContent = "Enter your numbers, then click Calculate metrics.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

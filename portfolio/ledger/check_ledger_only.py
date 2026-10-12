@@ -123,7 +123,9 @@ def main() -> int:
         "\n    along in the same commit."
         "\n  - If the session found a blocker rather than shipping: say so in"
         "\n    the reply, and leave `main` alone. An unshipped session is a"
-        "\n    real outcome; it does not need a commit to be true."
+        "\n    real outcome; it does not need a commit to be true. Take the"
+        "\n    entry off your branch too (git reset --keep HEAD~1 drops your"
+        "\n    last commit), or the end-of-session push strands it."
         "\n  - If you are editing the ledger *tooling*, that is exempt —"
         "\n    `.py` under portfolio/ledger/ passes this check."
     )

@@ -1,0 +1,61 @@
+name: ag-spray-drone-quote-calculator
+description: >-
+  Free browser tool for custom applicators who spray with agricultural drones:
+  enter the drone (swath, speed, pump, tank), batteries and costs, plus a list of
+  fields, and it works out the real time on each field (pump, tank, battery and
+  charger limits), the cost per acre, a recommended quote respecting a minimum
+  charge, a price ladder and the season break-even. Time is checked by an
+  independent sortie-by-sortie replay. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a scheduled new-venture session. Searched ventures/ for
+# spray, drone, agri, crop: only drone-mapping-job-calculator (survey flights) and
+# spray-foam-bid-calculator (insulation) exist; neither touches crop-spray drones.
+#
+# Why this niche: agricultural spray drones (the DJI Agras class and its rivals)
+# have turned into a fast-growing custom-application side business: operators buy
+# a drone for tens of thousands of dollars and sell spraying by the acre to farms
+# that do not own one. The owner-operator's hard question is the per-acre price
+# and the minimum charge, because tank, battery and charger limits plus driving
+# and setup make real acres per hour much lower than the spec sheet. Fleet
+# software for this exists as part of drone-maker or farm-management suites; we
+# know of no free, private quote calculator that models the sortie bottleneck.
+#
+# First visitor: custom drone applicators in r/agriculture, r/drones, Facebook
+# groups for ag drone operators, and searches for "drone spraying cost per acre",
+# "how much to charge for drone spraying". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed numbers only; no product, rate,
+# label or legal-compliance advice; says so, and that the user owns licence and
+# aviation-authority compliance; nothing stored.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a
+# hosted quote book with saved customers and PDF quotes (not built).
+
+hypotheses:
+  - claim: >-
+      Custom spray drone operators will use a private quote calculator that models
+      tank, battery and charger limits to set a per-acre price and minimum charge,
+      because spec-sheet acres per hour overstate what a crew finishes in a day.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - An operator reports that the modelled time per field disagrees materially with flown jobs on a comparable drone and settings.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ag-spray-drone-quote-calculator/
+  analytics: null

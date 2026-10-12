@@ -1,0 +1,75 @@
+name: time-tracker
+description: >-
+  Free billable-time tracker that runs in the browser with no account: a timer
+  that survives a closed tab, manual entries, a rate per project, billing
+  increments (6/15/30/60 minutes), tracked and unbilled money by client, a
+  weekly view, CSV export, and one-click conversion of a client's unbilled
+  hours into an Invoice Maker draft. Data stays on the device.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session, as the middle of the
+# estimate-maker -> time-tracker -> invoice-maker loop. The portfolio had the
+# quote (estimate-maker) and the invoice (invoice-maker); the hours between
+# them were not recorded anywhere. client-profitability-time-analyzer reads
+# hours someone already has, and the trade bid calculators price a job, but no
+# tool captured time or turned it into an invoice line.
+#
+# Paid market is real: Toggl Track, Harvest and Clockify charge roughly $6-12 a
+# user a month, and the free tiers cap users, projects or reports. The wedge is
+# private, no signup, no limits, and the one thing a standalone timer cannot do
+# without a paid integration: the unbilled hours become an invoice draft, and the
+# entries are marked billed so nothing is charged twice.
+#
+# First visitor: freelancers, consultants and small agencies searching "free
+# time tracker", "billable hours tracker", "timesheet for freelancers", and
+# asking in r/freelance and r/smallbusiness. Volume not measured with an
+# external tool.
+#
+# Honest limits, stated on the page: single browser storage (backup prompt),
+# one user, no sync between devices, no idle detection, no approvals, no tax.
+#
+# Path to revenue (payments stay off): free tool -> lead magnet; donations via
+# GitHub Sponsors. Natural next steps if it earns repeat visitors: a PWA/Android
+# wrapper for a home-screen timer, project budgets with burn-down alerts,
+# retainer and fixed-price billing, a weekly timesheet email to clients, and
+# shareable read-only timesheets via the Hetzner product box.
+
+hypotheses:
+  - claim: >-
+      Freelancers who invoice by the hour will keep tracking in a free,
+      private timer when the same page can turn unbilled hours into an invoice,
+      because the retyping between timer and invoice is what they dislike.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The "not yet invoiced" total is what brings users back, because nothing
+      else they use shows how much tracked work has never been billed.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Users who track time in the tool carry it into Invoice Maker on the same
+      device rather than retyping it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong total, a double-billed entry, or lost entries to browser storage clearing, at which point the maths or the backup prompting needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/time-tracker/
+  analytics: null

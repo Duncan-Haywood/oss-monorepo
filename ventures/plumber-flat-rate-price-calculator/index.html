@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Plumber Flat-Rate Price Calculator — True Hourly Cost, Parts Markup and a Price Book</title>
+  <meta name="description" content="Free calculator for independent plumbers and small plumbing shops: your true cost per billable hour, a flat-rate price-book price for a job with tiered parts markup, travel time and a target margin, the effective hourly rate, a minimum callout price, a comparison with time and materials, and a price-book builder you can export as CSV. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="What should a plumbing job cost at a flat rate?">
+  <meta property="og:description" content="True cost per hour, tiered parts markup, travel time and margin give a flat-rate price, a minimum callout and a time-and-materials comparison. Your numbers, not advice. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Plumber Flat-Rate Price Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free calculator for independent plumbers and small plumbing shops: your true cost per billable hour, a flat-rate price-book price for a job with tiered parts markup, travel time and a target margin, the effective hourly rate, a minimum callout price, a comparison with time and materials, and a price-book builder you can export as CSV. Runs in your browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I work out a flat-rate price for a plumbing job?","acceptedAnswer":{"@type":"Answer","text":"Take your true cost per billable hour, multiply by the hours the job takes including travel, divide by one minus your target margin, then add the parts at cost plus a tiered markup and round up. On the default numbers a 2.75-hour job with $120.00 of parts at a true cost of $100.00 an hour prices at $595.00, which leaves $200.00 (33.6%). Enter your own figures; the defaults are invented."}},{"@type":"Question","name":"What is my true cost per hour as a plumber?","acceptedAnswer":{"@type":"Answer","text":"Your loaded wage spread over the hours you can actually bill, plus truck, insurance, tools and overhead over the same hours. On the defaults that is $70.00 for wages and burden plus $30.00 of truck, insurance, tools and overhead, $100.00 for every billable hour, because only 1,300 of 2,080 paid hours are sold."}},{"@type":"Question","name":"What should my minimum callout price be?","acceptedAnswer":{"@type":"Answer","text":"The travel time plus your shortest visit, at true cost and your margin, rounded up. On the defaults that is 1.25 hours and $180.00 before any parts."}},{"@type":"Question","name":"Is a flat rate better than time and materials?","acceptedAnswer":{"@type":"Answer","text":"It depends on how reliably you estimate hours. On the defaults the flat price of $595.00 leaves $200.00 if the job goes to plan, $62.50 if it runs 50% long and loses $75.00 at double the time; time and materials at $135.00 an hour keeps earning as the clock runs but the customer bears the overrun. Neither is advice; it is arithmetic on the numbers you type."}},{"@type":"Question","name":"Is this advice or a price guide?","acceptedAnswer":{"@type":"Answer","text":"No. It does arithmetic on the numbers you type. Prices, costs and hours are yours to check, nothing is uploaded, and it is not business, tax, legal or licensing advice. Check your local licensing and permit rules and any rules on written estimates."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    input[type=number], input[type=text] { padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    input[type=number] { width: 6.5em; }
+    td input[type=number] { width: 5.5em; }
+    td input[type=text] { width: 100%; min-width: 10em; box-sizing: border-box; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    .hero { font-size: 2.2rem; font-weight: 800; color: #17324a; margin: 4px 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PLUMBER FLAT-RATE PRICE CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>What should this plumbing job cost at a flat rate?</h1>
+    <p>Enter what a year of running your truck and shop costs, the hours you really bill, and one job's time and parts. You get your <strong>true cost per billable hour</strong>, a <strong>flat-rate price-book price</strong> with tiered parts markup and your target margin, the <strong>effective hourly rate</strong>, your <strong>minimum callout price</strong>, and how the flat price compares with <strong>time and materials</strong> when the job runs long or short. Then build a whole price book and export it as CSV.</p>
+    <p class="note"><strong>Your numbers, not advice.</strong> Prices, costs and times are yours to check; every value is editable. Nothing is uploaded: inputs are used in this browser tab only. The starting numbers are invented examples, not market rates.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your true hourly cost</h2>
+    <p>
+      <label for="wage">Hourly wage ($)</label><input type="number" id="wage" value="35" min="0" step="1">
+      <label for="burdenpct">Burden: payroll tax, comp, benefits (%)</label><input type="number" id="burdenpct" value="25" min="0" step="1">
+      <label for="paidhours">Paid hours per year</label><input type="number" id="paidhours" value="2080" min="0" step="10">
+      <label for="billablehours">Billable hours per year</label><input type="number" id="billablehours" value="1300" min="0" step="10">
+      <label for="truckyear">Truck per year ($)</label><input type="number" id="truckyear" value="15000" min="0" step="500">
+      <label for="insuranceyear">Insurance per year ($)</label><input type="number" id="insuranceyear" value="6000" min="0" step="500">
+      <label for="toolsyear">Tools and consumables per year ($)</label><input type="number" id="toolsyear" value="3500" min="0" step="250">
+      <label for="overheadyear">Phone, software, licence, office, marketing per year ($)</label><input type="number" id="overheadyear" value="14500" min="0" step="500">
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>2. Parts markup tiers</h2>
+    <p class="note">Marginal, like tax brackets: each slice of a job's parts cost earns its own markup. The last tier has no ceiling.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Parts cost up to ($)</th><th>Markup (%)</th></tr></thead>
+      <tbody>
+        <tr><td><input type="number" id="tier1up" value="25" min="0" step="5" aria-label="Tier 1 ceiling"></td><td><input type="number" id="tier1pct" value="100" min="0" step="5" aria-label="Tier 1 markup"></td></tr>
+        <tr><td><input type="number" id="tier2up" value="100" min="0" step="5" aria-label="Tier 2 ceiling"></td><td><input type="number" id="tier2pct" value="60" min="0" step="5" aria-label="Tier 2 markup"></td></tr>
+        <tr><td><input type="number" id="tier3up" value="500" min="0" step="50" aria-label="Tier 3 ceiling"></td><td><input type="number" id="tier3pct" value="40" min="0" step="5" aria-label="Tier 3 markup"></td></tr>
+        <tr><td>Above that</td><td><input type="number" id="tier4pct" value="25" min="0" step="5" aria-label="Tier 4 markup"></td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="card">
+    <h2>3. One job</h2>
+    <p>
+      <label for="onsitehours">On-site hours</label><input type="number" id="onsitehours" value="2" min="0" step="0.25">
+      <label for="travelhours">Travel and supplier-run hours</label><input type="number" id="travelhours" value="0.75" min="0" step="0.25">
+      <label for="partscost">Parts cost ($)</label><input type="number" id="partscost" value="120" min="0" step="5">
+      <label for="targetmarginpct">Target margin on time (%)</label><input type="number" id="targetmarginpct" value="30" min="0" max="99" step="1">
+      <label for="roundto">Round price up to ($)</label><input type="number" id="roundto" value="5" min="0" step="1">
+      <label for="minonsitehours">Shortest visit you will do (hours)</label><input type="number" id="minonsitehours" value="0.5" min="0" step="0.25">
+      <label for="tmrate">Your time-and-materials rate ($/hour)</label><input type="number" id="tmrate" value="135" min="0" step="5">
+    </p>
+    <p>
+      <button type="button" id="go">Calculate price</button>
+      <button type="button" class="secondary" id="load-example">Load a big job: water heater swap, $900 of parts</button>
+      <button type="button" class="secondary" id="clear">Clear results</button>
+      <button type="button" class="secondary" id="copy">Copy summary</button>
+      <button type="button" class="secondary" id="copylink">Copy share link</button>
+    </p>
+    <p class="note" id="status" role="status"></p>
+  </section>
+
+  <section class="card" id="result-card" hidden aria-live="polite">
+    <h2>Flat-rate price</h2>
+    <div class="hero" id="hero"></div>
+    <p id="summary"></p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Line</th><th>Value</th></tr></thead>
+      <tbody id="totals-rows"></tbody>
+    </table></div>
+    <h3>Parts markup, slice by slice</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Parts cost slice</th><th>Amount</th><th>Markup</th><th>Markup $</th></tr></thead>
+      <tbody id="slice-rows"></tbody>
+    </table></div>
+    <h3>If the job runs longer than planned</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Hours worked</th><th>Your cost</th><th>Profit on the flat price</th><th>Margin</th></tr></thead>
+      <tbody id="overrun-rows"></tbody>
+    </table></div>
+    <h3>Flat rate against time and materials</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Hours worked</th><th>Time-and-materials bill</th><th>Your profit, T&amp;M</th><th>Flat price</th><th>Your profit, flat</th></tr></thead>
+      <tbody id="tm-rows"></tbody>
+    </table></div>
+    <p class="note" id="tm-note"></p>
+  </section>
+
+  <section class="card">
+    <h2>4. Price-book builder</h2>
+    <p class="note">Each row is priced with the shop numbers and markup tiers above. The starting rows are invented examples; replace them with your own jobs and your own hours.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Job</th><th>On-site hours</th><th>Travel hours</th><th>Parts cost ($)</th><th>Flat price</th><th>Margin</th><th></th></tr></thead>
+      <tbody id="book-rows"></tbody>
+    </table></div>
+    <p>
+      <button type="button" class="secondary" id="addjob">Add a job</button>
+      <button type="button" id="exportcsv">Download price book (CSV)</button>
+      <button type="button" class="secondary" id="copycsv">Copy CSV</button>
+    </p>
+    <p class="note" id="book-status" role="status"></p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">More: <a href="how-to-build-a-plumbing-flat-rate-price-book.html">How to build a plumbing flat-rate price book</a> and <a href="vs-time-and-materials.html">this calculator vs. time and materials</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I work out a flat-rate price for a plumbing job?</h3>
+    <p>Take your true cost per billable hour, multiply by the hours the job takes including travel, divide by one minus your target margin, then add the parts at cost plus a tiered markup and round up. On the default numbers a 2.75-hour job with $120.00 of parts at a true cost of $100.00 an hour prices at $595.00, which leaves $200.00 (33.6%). Enter your own figures; the defaults are invented.</p>
+    <h3>What is my true cost per hour as a plumber?</h3>
+    <p>Your loaded wage spread over the hours you can actually bill, plus truck, insurance, tools and overhead over the same hours. On the defaults that is $70.00 for wages and burden plus $30.00 of truck, insurance, tools and overhead, $100.00 for every billable hour, because only 1,300 of 2,080 paid hours are sold.</p>
+    <h3>What should my minimum callout price be?</h3>
+    <p>The travel time plus your shortest visit, at true cost and your margin, rounded up. On the defaults that is 1.25 hours and $180.00 before any parts.</p>
+    <h3>Is a flat rate better than time and materials?</h3>
+    <p>It depends on how reliably you estimate hours. On the defaults the flat price of $595.00 leaves $200.00 if the job goes to plan, $62.50 if it runs 50% long and loses $75.00 at double the time; time and materials at $135.00 an hour keeps earning as the clock runs but the customer bears the overrun. Neither is advice; it is arithmetic on the numbers you type.</p>
+    <h3>Is this advice or a price guide?</h3>
+    <p>No. It does arithmetic on the numbers you type. Prices, costs and hours are yours to check, nothing is uploaded, and it is not business, tax, legal or licensing advice. Check your local licensing and permit rules and any rules on written estimates.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not business, tax, legal, licensing or plumbing-code advice, it is not a market price or a price guide, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the accuracy of the numbers you enter, and for meeting any licensing, permit, estimate or consumer-pricing rule that applies to you. To the maximum extent permitted by law the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Not affiliated with, endorsed by or sponsored by any plumbing trade association, licensing board, supplier or software vendor; names are used only to say what the tool is about.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. Export your price book as CSV if you want to keep it.</p>
+    <p>Everything runs in your browser. The numbers you enter are never uploaded; there are no accounts, cookies, or analytics vendors. The share link puts your inputs in the address fragment, which is not sent to any server. Anonymous feature events (<code>calculate_run</code>, <code>example_loaded</code>, <code>pricebook_exported</code>, <code>share_link_copied</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../appliance-repair-quote-calculator/">Appliance Repair Quote Calculator</a>, <a href="../handyman-minimum-job-calculator/">Handyman Minimum Job Calculator</a>, <a href="../electrical-panel-upgrade-bid-calculator/">Electrical Panel Upgrade Bid Calculator</a>.</p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { DEFAULTS, DEFAULT_TIERS, priceJob, priceBook, toCsv, summarize, money, pct, INPUT_NOTES, encodeShare, decodeShare } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    // field id on the page -> engine option name
+    const FIELDS = {
+      wage: "wage", burdenpct: "burdenPct", paidhours: "paidHours", billablehours: "billableHours", truckyear: "truckYear",
+      insuranceyear: "insuranceYear", toolsyear: "toolsYear", overheadyear: "overheadYear", onsitehours: "onsiteHours",
+      travelhours: "travelHours", partscost: "partsCost", targetmarginpct: "targetMarginPct", roundto: "roundTo",
+      minonsitehours: "minOnsiteHours", tmrate: "tmRate",
+    };
+    const options = () => Object.fromEntries(Object.entries(FIELDS).map(([id, key]) => [key, $("#" + id).value]));
+    const tiers = () => [
+      { upTo: $("#tier1up").value, markupPct: $("#tier1pct").value },
+      { upTo: $("#tier2up").value, markupPct: $("#tier2pct").value },
+      { upTo: $("#tier3up").value, markupPct: $("#tier3pct").value },
+      { upTo: null, markupPct: $("#tier4pct").value },
+    ];
+    const setTiers = (t) => {
+      ["1", "2", "3"].forEach((n, i) => { $("#tier" + n + "up").value = t[i].upTo; $("#tier" + n + "pct").value = t[i].markupPct; });
+      $("#tier4pct").value = t[3].markupPct;
+    };
+
+    let lastText = "";
+    function render() {
+      const status = $("#status");
+      let r;
+      try {
+        r = priceJob(options(), tiers());
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarize(r);
+      lastText = s.text;
+      $("#hero").textContent = money(r.price);
+      $("#summary").innerHTML = `<span class="${s.status === "ok" ? "gain" : "error"}">${escapeHtml(s.text)}</span>`;
+      $("#totals-rows").innerHTML = [
+        ["True cost per billable hour", money(r.hourly.perHour)],
+        ["Wages and burden per billable hour", money(r.hourly.labourPerHour)],
+        ["Truck, insurance, tools and overhead per billable hour", money(r.hourly.overheadPerHour)],
+        ["Hours for this job (on site plus travel)", String(r.hours)],
+        ["Time cost", money(r.timeCost)],
+        ["Time charge at your margin", money(r.timeCharge)],
+        ["Parts cost", money(r.partsCost)],
+        ["Parts markup (effective " + pct(r.markup.effectivePct) + ")", money(r.markup.markup)],
+        ["Parts charge", money(r.partsCharge)],
+        ["Price before rounding", money(r.exact)],
+        ["Flat-rate price (rounded up)", money(r.price)],
+        ["Total cost to you", money(r.totalCost)],
+        ["Profit", money(r.profit)],
+        ["Margin on the price", pct(r.marginPct)],
+        ["Effective rate per hour after parts", money(r.effectiveRate)],
+        ["Profit per hour after all costs", money(r.profitPerHour)],
+        ["Minimum callout price (" + r.minHours + " hours, no parts)", money(r.minCallout)],
+        ["Hours at which the flat price stops covering cost", String(Math.round(r.breakEvenHours * 100) / 100)],
+      ].map(([k, v]) => `<tr><td>${escapeHtml(k)}</td><td>${v}</td></tr>`).join("");
+      $("#slice-rows").innerHTML = r.markup.slices.length
+        ? r.markup.slices.map((x) => `<tr><td>${money(x.from)} to ${money(x.to)}</td><td>${money(x.amount)}</td><td>${x.markupPct}%</td><td>${money(x.markup)}</td></tr>`).join("")
+        : `<tr><td colspan="4">No parts on this job.</td></tr>`;
+      $("#overrun-rows").innerHTML = r.overrun.map((x) => `<tr><td>${Math.round(x.hours * 100) / 100}${x.factor === 1 ? " (planned)" : ` (+${Math.round((x.factor - 1) * 100)}%)`}</td><td>${money(x.cost)}</td><td>${money(x.profit)}</td><td>${pct(x.marginPct)}</td></tr>`).join("");
+      $("#tm-rows").innerHTML = r.tm.rows.map((x) => `<tr><td>${Math.round(x.hours * 100) / 100}${x.factor === 1 ? " (planned)" : ""}</td><td>${money(x.tmBill)}</td><td>${money(x.tmProfit)}</td><td>${money(x.flatPrice)}</td><td>${money(x.flatProfit)}</td></tr>`).join("");
+      $("#tm-note").textContent = `Both bills match at ${Math.round(r.tm.crossHours * 100) / 100} hours. Below that the customer pays less by the clock; above it the flat price is the cheaper bill for the customer and you carry the overrun.` + (r.tm.tmCoversCost ? "" : ` Your time-and-materials rate is below your true cost of ${money(r.hourly.perHour)} an hour, so every hour on the clock loses money.`);
+      $("#result-card").hidden = false;
+      renderBook();
+      record("calculate_run");
+    }
+
+    // Price book
+    const seed = [
+      { name: "Toilet repair", onsiteHours: 1, travelHours: 0.5, partsCost: 25 },
+      { name: "Water heater swap, 50 gal", onsiteHours: 3.5, travelHours: 1, partsCost: 900 },
+      { name: "Drain clear, main line", onsiteHours: 1.5, travelHours: 0.5, partsCost: 0 },
+    ];
+    const rowHtml = (j) => `<tr data-job><td><input type="text" data-f="name" value="${escapeHtml(j.name)}" aria-label="Job name"></td><td><input type="number" data-f="onsiteHours" value="${escapeHtml(j.onsiteHours)}" min="0" step="0.25" aria-label="On-site hours"></td><td><input type="number" data-f="travelHours" value="${escapeHtml(j.travelHours)}" min="0" step="0.25" aria-label="Travel hours"></td><td><input type="number" data-f="partsCost" value="${escapeHtml(j.partsCost)}" min="0" step="5" aria-label="Parts cost"></td><td data-price></td><td data-margin></td><td><button type="button" class="secondary" data-remove>Remove</button></td></tr>`;
+    $("#book-rows").innerHTML = seed.map(rowHtml).join("");
+    const readJobs = () => [...document.querySelectorAll("#book-rows tr[data-job]")].map((tr) => Object.fromEntries([...tr.querySelectorAll("input")].map((i) => [i.dataset.f, i.value])));
+    function renderBook() {
+      const trs = [...document.querySelectorAll("#book-rows tr[data-job]")];
+      const b = $("#book-status");
+      try {
+        const rows = priceBook(readJobs(), options(), tiers());
+        trs.forEach((tr, i) => { tr.querySelector("[data-price]").textContent = money(rows[i].price); tr.querySelector("[data-margin]").textContent = pct(rows[i].marginPct); });
+        b.textContent = "";
+        return rows;
+      } catch (e) {
+        b.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return null;
+      }
+    }
+    $("#book-rows").addEventListener("input", renderBook);
+    $("#book-rows").addEventListener("click", (e) => {
+      if (e.target.matches("[data-remove]")) { e.target.closest("tr").remove(); renderBook(); }
+    });
+    $("#addjob").addEventListener("click", () => {
+      $("#book-rows").insertAdjacentHTML("beforeend", rowHtml({ name: "", onsiteHours: 1, travelHours: 0.5, partsCost: 0 }));
+      renderBook();
+    });
+    $("#exportcsv").addEventListener("click", () => {
+      const rows = renderBook();
+      if (!rows) return;
+      const blob = new Blob([toCsv(rows)], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "plumbing-price-book.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+      record("pricebook_exported");
+    });
+    $("#copycsv").addEventListener("click", async () => {
+      const rows = renderBook();
+      if (!rows) return;
+      try { await navigator.clipboard.writeText(toCsv(rows)); $("#book-status").textContent = "CSV copied."; record("pricebook_exported"); } catch { $("#book-status").textContent = "Could not copy; use the download button."; }
+    });
+
+    $("#go").addEventListener("click", render);
+    $("#load-example").addEventListener("click", () => {
+      $("#onsitehours").value = 3.5; $("#travelhours").value = 1; $("#partscost").value = 900;
+      render();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => { $("#status").textContent = ""; $("#result-card").hidden = true; });
+    $("#copy").addEventListener("click", async () => {
+      if (!lastText) render();
+      try { await navigator.clipboard.writeText(lastText); $("#status").textContent = "Summary copied."; } catch { $("#status").textContent = "Could not copy; select the summary text instead."; }
+    });
+    $("#copylink").addEventListener("click", async () => {
+      const url = location.href.split("#")[0] + "#" + encodeShare(options(), tiers());
+      try { await navigator.clipboard.writeText(url); $("#status").textContent = "Share link copied. Your inputs are in the link after the #, which is not sent to any server."; record("share_link_copied"); } catch { $("#status").textContent = "Could not copy the link."; }
+    });
+    // Restore a shared link: only the numeric fields this page declares are read.
+    (() => {
+      const d = decodeShare(location.hash);
+      for (const [id, key] of Object.entries(FIELDS)) if (d.inputs[key] !== undefined) $("#" + id).value = d.inputs[key];
+      if (d.tiers) setTiers(d.tiers);
+      if (Object.keys(d.inputs).length || d.tiers) render();
+    })();
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+    renderBook();
+  </script>
+</body>
+</html>

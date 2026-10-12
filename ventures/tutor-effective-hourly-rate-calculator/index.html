@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Private Tutor Effective Hourly Rate Calculator</title>
+  <meta name="description" content="Free calculator for private tutors: sessions, rate, prep, travel, cancellations, platform fees and admin time become your real hourly pay, yearly net, and the session rate that reaches your target. Private, runs in your browser.">
+  <meta property="og:title" content="Tutor hourly rate calculator: what do you really earn per hour? Free, private">
+  <meta property="og:description" content="Sessions, prep, travel, cancellations and fees in; real hourly pay and the rate you need out.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Private Tutor Effective Hourly Rate Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a private tutor's real hourly rate?", "acceptedAnswer": {"@type": "Answer", "text": "Your net pay for the year divided by every hour tutoring takes: the sessions, the prep before them, travel to students, admin such as scheduling and invoicing, after subtracting platform fees and expenses. It is usually well below the rate you quote, because only the session itself is billed."}}, {"@type": "Question", "name": "How much should I charge per session?", "acceptedAnswer": {"@type": "Answer", "text": "The page works backwards from the hourly pay you want: the session rate that reaches it with your own schedule, prep, travel, cancellations and fees, and the rate at which you only break even. It does not know what tutors near you charge, so compare the result with local rates before changing a price."}}, {"@type": "Question", "name": "Do cancellations and no-shows really matter?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. A cancelled slot you cannot refill pays nothing, but it often still blocks the time. A written 24-hour cancellation policy with a fee, or prepaid blocks of sessions, recovers part of it. Enter the share of slots cancelled and the share of the rate you collect on them to see the yearly cost."}}, {"@type": "Question", "name": "Should I count travel and prep time?", "acceptedAnswer": {"@type": "Answer", "text": "If you want your real hourly pay, yes. Unbilled time is the main reason tutors earn less per hour than they quote. Set prep and travel to zero to see the quoted-rate view."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PRIVATE TUTOR EFFECTIVE HOURLY RATE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does tutoring really pay per hour? Your real rate after prep, travel, cancellations and fees</h1>
+    <p>Enter your schedule, rate and the unbilled time around each session. You get your <strong>real hourly pay</strong>, <strong>yearly net</strong>, the <strong>session rate</strong> that breaks even or reaches your target, and a table by sessions per week.</p>
+    <p class="note">It works from your own figures. It does not know what tutors near you charge.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>Your tutoring week</h2>
+    <div class="grid">
+      <div><label for="sessions">Session slots booked per week</label><input id="sessions" inputmode="decimal" value="" placeholder="15"></div>
+      <div><label for="rate">Your rate per session, dollars</label><input id="rate" inputmode="decimal" value="" placeholder="60"></div>
+      <div><label for="minutes">Minutes per session</label><input id="minutes" inputmode="decimal" value="" placeholder="60"></div>
+      <div><label for="prepmin">Prep minutes per delivered session (lesson plans, marking)</label><input id="prepmin" inputmode="decimal" value="" placeholder="20"></div>
+      <div><label for="inperson">Share of sessions in person, %</label><input id="inperson" inputmode="decimal" value="" placeholder="50"></div>
+      <div><label for="travelmin">Travel minutes per in-person session, round trip</label><input id="travelmin" inputmode="decimal" value="" placeholder="25"></div>
+      <div><label for="cancelpct">Slots cancelled or missed, %</label><input id="cancelpct" inputmode="decimal" value="" placeholder="10"></div>
+      <div><label for="latefee">Share of the rate you collect on a cancelled slot, %</label><input id="latefee" inputmode="decimal" value="" placeholder="50"></div>
+      <div><label for="platformfee">Platform or agency fee, % of what the student pays</label><input id="platformfee" inputmode="decimal" value="" placeholder="0"></div>
+      <div><label for="adminhours">Admin hours per week: scheduling, invoices, messages</label><input id="adminhours" inputmode="decimal" value="" placeholder="3"></div>
+      <div><label for="weeks">Weeks you work per year (after holidays and gaps)</label><input id="weeks" inputmode="decimal" value="" placeholder="40"></div>
+      <div><label for="expensesmonth">Monthly expenses: materials, software, mileage, insurance, dollars</label><input id="expensesmonth" inputmode="decimal" value="" placeholder="120"></div>
+      <div><label for="target">Hourly pay you want across all your time, dollars</label><input id="target" inputmode="decimal" value="" placeholder="50"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out my hourly pay</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in your week, then click Work out my hourly pay.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>Pay by sessions per week</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Sessions a week</th><th scope="col" class="n">Hours worked a week</th><th scope="col" class="n">Net a year</th><th scope="col" class="n">Real pay an hour</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download sessions table (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Counts:</strong> delivered sessions = slots x (1 - cancelled share); paid units = delivered + cancelled slots x share of rate collected; yearly income = paid units x rate x weeks; net = income x (1 - platform fee) - 12 x monthly expenses; hours a week = delivered x (session + prep minutes) / 60 + delivered x in-person share x travel minutes / 60 + admin hours; real hourly pay = net / (hours a week x weeks); the rate for a target = (target x yearly hours + yearly expenses) / (paid units x (1 - fee) x weeks).</li>
+      <li><strong>Not decided:</strong> what students near you will pay, whether demand fills the extra slots a higher rate would leave open, self-employment and income tax, health cover and retirement, school or agency contracts and background-check rules, and seasonal swings in demand.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is a private tutor's real hourly rate?</h3>
+    <p>Your net pay for the year divided by every hour tutoring takes: the sessions, the prep before them, travel to students, admin such as scheduling and invoicing, after subtracting platform fees and expenses. It is usually well below the rate you quote, because only the session itself is billed.</p>
+    <h3>How much should I charge per session?</h3>
+    <p>The page works backwards from the hourly pay you want: the session rate that reaches it with your own schedule, prep, travel, cancellations and fees, and the rate at which you only break even. It does not know what tutors near you charge, so compare the result with local rates before changing a price.</p>
+    <h3>Do cancellations and no-shows really matter?</h3>
+    <p>Yes. A cancelled slot you cannot refill pays nothing, but it often still blocks the time. A written 24-hour cancellation policy with a fee, or prepaid blocks of sessions, recovers part of it. Enter the share of slots cancelled and the share of the rate you collect on them to see the yearly cost.</p>
+    <h3>Should I count travel and prep time?</h3>
+    <p>If you want your real hourly pay, yes. Unbilled time is the main reason tutors earn less per hour than they quote. Set prep and travel to zero to see the quoted-rate view.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output before changing a rate. Treat it as a worksheet to check, not a price recommendation.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../driving-instructor-lesson-pricing-calculator/">driving instructor lesson pricing calculator</a> and the <a href="../interior-design-fee-calculator/">interior design fee calculator</a>. Teaching per-course contracts instead? The <a href="../adjunct-course-offer-calculator/">adjunct course offer calculator</a> turns each offer into a real hourly figure after grading, unpaid hours and the drive.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, sweepCsv, dollars } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { sessions: "sessions", rate: "rate", minutes: "minutes", prepmin: "prepMin", inperson: "inPerson", travelmin: "travelMin", cancelpct: "cancelPct", latefee: "lateFee", platformfee: "platformFee", adminhours: "adminHours", weeks: "weeks", expensesmonth: "expensesMonth", target: "target" };
+    const IDLE = "Fill in your week, then click Work out my hourly pay.";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `${dollars(r.effective)} an hour real pay (${dollars(r.quoted)} as quoted); ${dollars(r.annualNet)} net a year; rate for your target ${dollars(r.targetRate)}`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#rows").innerHTML = r.sweep.map((x) => `<tr><td class="n">${x.sessions}</td><td class="n">${x.hoursWeek.toFixed(1)}</td><td class="n">${dollars(x.annualNet)}</td><td class="n">${dollars(x.hourly)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: 15 slots a week at $60, half in person, 10% cancelled, 40 weeks a year.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("tutor-hourly-rate.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("tutor-pay-by-sessions.csv", sweepCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

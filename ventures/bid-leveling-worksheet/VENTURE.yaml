@@ -1,0 +1,58 @@
+name: bid-leveling-worksheet
+description: >-
+  Free browser tool and CLI for general contractors, owners' reps and procurement teams: paste a subcontractor bid comparison,
+  price the excluded and unaddressed scope at your own estimate, and see whether the low bid is still lowest once every bidder
+  is on the same scope. The table never leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. No venture or candidate covers bid leveling (repo search for "bid leveling",
+# "bid tabulation", "level the bids" returned nothing); nearest are change-order-margin-calculator and
+# scope-creep-change-order-calculator, which price work after award. Not in screened-out.md.
+#
+# Why this niche: construction margins are thin and the classic loss is awarding to a low bid that omitted scope, then paying for
+# it in change orders. Paid answers (Procore bid management, BuildingConnected, Autodesk Build) are bundled into platforms priced
+# for mid-size and large GCs; small GCs, remodelers and owner-builders level bids in Excel by hand, and a paste-the-table tool
+# removes the formula work with no procurement cycle.
+#
+# First visitor: small and mid-size GCs, remodelers, owner's reps and facilities managers searching "bid leveling spreadsheet",
+# "bid tabulation template", "how to level subcontractor bids", "bid comparison construction". Volume not measured with an
+# external tool.
+#
+# Liability boundary: arithmetic over estimates and answers the user enters. Not an award recommendation, not a bid review, no
+# judgement of a sub's qualifications; the page says so, and carries the no-warranty and no-SLA clauses. No data leaves the
+# browser; no vendor is named or ranked.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. The natural paid layer is a hosted multi-user bid
+# package room with invitations to subs and scope-sheet templates by trade, which needs accounts and payments and so an owner
+# decision; not built. Written to be open-sourced as is.
+
+hypotheses:
+  - claim: >-
+      Small GCs and owner's reps will paste a bid table into a no-signup tool rather than keep a leveling spreadsheet per trade.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the low bid change rank after scope is leveled is the moment that makes users return for the next bid package.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in table) engage with the tool within 90 days of it being reachable from the published site.
+  - Users report that the incl/excl/? vocabulary does not match how their bid sheets are written, at which point the parser needs configurable synonyms.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/bid-leveling-worksheet/
+  analytics: null

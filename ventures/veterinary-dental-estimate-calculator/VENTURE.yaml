@@ -1,0 +1,47 @@
+name: veterinary-dental-estimate-calculator
+description: >-
+  Free browser calculator for veterinary clinics: itemised dental estimate and clinic profit for each grade of dental disease, profit
+  per anesthesia hour, the price that hits a target margin and what a flat dental quote gives up over a year.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. duplicate_check.py top score 0.23 (good-faith-estimate-generator, a human-health
+# document). veterinary-wellness-plan-pricing-calculator prices subscription plans; nothing prices the dental itself by grade.
+#
+# Why this niche: dentistry is one of the largest procedure lines in a small-animal clinic and the one whose cost swings most with what
+# is found under anesthesia, so a single flat quote is routinely wrong in the clinic's disfavour on grade 3-4 mouths. Practice owners and
+# managers have money, a real margin problem and no free worksheet that does the grade arithmetic.
+#
+# First visitor: practice managers and owners on r/Veterinary, r/vetmed, VIN message boards and veterinary practice-management groups
+# asking "how do you price dentals" and "flat rate vs estimate range dental". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on numbers the user types. No clinical advice, no stated benchmark fees, nothing uploaded.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. The natural paid layer is a clinic-wide pricing audit across
+# procedures (spay/neuter, mass removal, dental) importing a PMS fee export; not built.
+
+hypotheses:
+  - claim: >-
+      Practice managers deciding how to quote dentals will use a no-signup worksheet that shows cost and profit per anesthesia hour at
+      each grade, and return each time fees or staffing costs change.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a figure that differs from the stated formulas for the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/veterinary-dental-estimate-calculator/
+  analytics: null

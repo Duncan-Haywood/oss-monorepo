@@ -1,0 +1,12 @@
+gateway,destination,gb_per_month
+nat-0a1,s3,4200
+nat-0a1,dynamodb,300
+nat-0a1,ecr,900
+nat-0a1,logs,650
+nat-0a1,sts,12
+nat-0a1,internet,1500
+nat-0b2,s3,1800
+nat-0b2,ssm,40
+nat-0b2,kms,3
+nat-0b2,internet,420
+nat-0c3,internet,2

@@ -174,6 +174,11 @@ export const DOWNLOADABLE_CLI_FILES = {
   'actions-runner-starvation-check': ['check.py'],
   'actions-secret-leak-check': ['check.py'],
   'actions-secrets-inherit-check': ['check.py'],
+  'actions-timeout-check': ['check.py'],
+  'jwt-verification-misuse-check': ['check.py'],
+  'docker-compose-security-check': ['check.py'],
+  'git-bus-factor-check': ['busfactor.py'],
+  'k8s-pod-security-check': ['check.py'],
   'actions-self-hosted-exposure-check': ['check.py'],
   'coverage-drop-check': ['check.py'],
   'dependency-confusion-check': ['check.py'],
@@ -221,6 +226,7 @@ export const SEARCH_ALIASES = [
   { slug: 'window-cleaning', add: 'window washing washer squeegee' },
   { slug: 'junk-removal', add: 'hauling haul away cleanout clean out debris' },
   { slug: 'snow-removal', add: 'plowing plow shoveling shovel deicing' },
+  { slug: 'snow-plow-contract', add: 'snow removal shoveling deicing salting ice management seasonal per push' },
   // "removal" earns its place: the matcher ANDs across words, so "wildlife
   // removal" found nothing while "wildlife" alone found this tool.
   { slug: 'pest-control', add: 'termite termites bedbug bed bugs roaches ants exterminator wildlife removal trapping' },
@@ -379,6 +385,10 @@ const REWRITABLE = new Set(['.html', '.xml', '.txt', '.json', '.mjs', '.js', '.w
 // Ordered: the first rule whose test matches wins.
 const CATEGORY_RULES = [
   {
+    // `1099k-reconciliation-worksheet` moved here from `backoffice` 2026-10-10: it reconciles a marketplace's 1099-K against a seller's own sales, a
+    // marketplace-seller job; `backoffice` had crept past its 3 MB gzipped offline bound (build.test.mjs).
+    // `wholesale-vs-retail-pricing-calculator` filed here 2026-10-10: a maker comparing direct, wholesale and consignment profit per unit is a seller's
+    // channel-fee decision; the catch-all had grown past its bound of 5 (build.test.mjs).
     id: 'marketplace',
     title: 'Marketplace seller tools',
     blurb: 'Price a listing, a fee change, or a program before you opt in — with your own cost of goods in the arithmetic.',
@@ -408,10 +418,14 @@ const CATEGORY_RULES = [
     // one storefront — and would otherwise sit in the catch-all for the same
     // reason those two did: the slug names the storefront, not a marketplace
     // keyword this rule already recognised.
+    // `auction-car-flip-calculator` joined 2026-10-01 on its first commit: a reseller
+    // turning a resale price, repairs and tiered buyer fees into a max bid is the
+    // `storage-auction-max-bid-calculator` job for a vehicle.
     // `liquidation-pallet-bid-calculator` is `storage-auction-max-bid-calculator`'s
     // manifest-driven sibling: an auction hammer plus buyer's premium for goods
     // the winner resells, so it files with the marketplace tools, not with the
     // trades section its `bid-calculator` suffix would otherwise sweep it into.
+    // `tax-deed-auction-max-bid-planner` joined 2026-10-11: the same hammer-plus-premium max bid, for real property.
     // `storage-auction-max-bid-calculator` is `whatnot-seller-payout`'s buy
     // side rather than its sell side: a hammer bid plus a buyer's premium
     // (the auction-house equivalent of processing on checkout), for contents
@@ -435,6 +449,12 @@ const CATEGORY_RULES = [
     // question this section already answers for a resale seller. It sat in
     // the catch-all because its slug names a streaming platform, not a
     // storefront keyword this rule already recognised.
+    // `upwork-connects-roi-calculator` prices the same Upwork bidding decision
+    // from the other side (what a hire costs in Connects and writing time), so
+    // it sits beside `freelance-platform-fee-calculator`, not in the catch-all.
+    // `app-subscription-proceeds-calculator` is the same platform-cut question for an app
+    // developer: what a subscription charge nets after the store's percentage, so it
+    // sits with the other fee tools rather than in the catch-all.
     // `freelance-platform-fee-calculator` is the same platform-cut shape one
     // further step removed again: Upwork and Fiverr take a percentage of a
     // freelancer's job price the same way a resale marketplace takes a
@@ -491,7 +511,22 @@ const CATEGORY_RULES = [
     // `shopify-inventory-reorder-planner`.
     // `bundle-discount-optimizer` joined 2026-09-30: it reads a Shopify, Etsy or Amazon seller's own order
     // export to price product bundles, the same reader as the fee tools here; the slug names no platform.
-    test: (slug) => /^(amazon|fba-|clearance-markdown|bundle-discount|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|liquidation-pallet|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace)/.test(slug),
+    // `returns-policy-cost-analyzer` joined 2026-10-02 on its first commit: it reads a store's own orders-and-refunds
+    // export to price returns and test return fees, the same reader as `free-shipping-threshold-optimizer` here.
+    // `free-shipping-threshold-optimizer` joined 2026-10-02 on its first commit: it reads a Shopify, WooCommerce or Etsy
+    // seller's own order export to choose a free-shipping minimum, the same reader as `bundle-discount-optimizer` here.
+    // `breakeven-roas-calculator` joined 2026-10-01 on its first commit: turns a DTC seller's per-order
+    // margin into the break-even ROAS and max CPA an ad campaign needs; the same reader as the fee tools here.
+    // `used-car-lot-aging-planner` joined 2026-10-02 on its first commit: an independent dealer deciding when an
+    // aged unit goes to auction is the same reseller as `auction-car-flip-calculator` here, and the two cross-link.
+    // `wholesale-line-sheet-maker` joined 2026-10-07 on its first commit: a maker pricing products for boutiques, with the retailer's
+    // margin and an optional marketplace commission in the arithmetic, is the same seller as `marketplace-fee-compare` and `faire` here.
+    // `chargeback-ratio-monitor` joined 2026-10-09 on its first commit: an online seller checking a monthly dispute ratio against card-program lines is
+    // a storefront seller's own payments problem beside `shopify-payout-profit-analyzer`; `backoffice` is at the 3 MB ceiling (build.test.mjs).
+    // `glamping-unit-payback-calculator` joined 2026-10-12 on its first commit: a glamping host turning build cost, seasonal nightly rates booked through listing sites and a loan into payback is the same host as `rv-rental-host-profit-calculator` and the `str-` tools here.
+    // `str-arbitrage-lease-calculator` is covered by the `str-` prefix below: an operator who leases a unit to sublet by the night is the same host as `midterm-rental-calculator` and the other `str-` tools.
+    // `app-review-insights` joined 2026-10-10 on its first commit: an app developer reading store reviews is a storefront seller reading customer feedback beside `app-subscription-proceeds-calculator` here.
+    test: (slug) => /^(axe-throwing-bar-profit-calculator|tournament-pairing-manager|tailor-alterations-shop-profit-calculator|shoe-repair-shop-profit-calculator|phone-repair-shop-profit-calculator|barbershop-chair-profit-calculator|driving-school-profit-calculator|braiding-studio-profit-calculator|esthetician-studio-profit-calculator|lash-studio-profit-calculator|payment-processor-fee-comparison|1099k-reconciliation-worksheet|wholesale-vs-retail-pricing-calculator|severance-package-calculator|chargeback-ratio-monitor|app-review-insights|commercial-lease-abstract-reader|vendor-contract-clause-reader|business-insurance-policy-reader|workers-comp-audit-dispute-checker|percentage-rent-audit-checker|bail-bond-agency-exposure-calculator|midterm-rental|amazon|fba-|clearance-markdown|bundle-discount|free-shipping-threshold|returns-policy|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-product-csv|shopify-customer-csv|bigcommerce-product-csv|squarespace-product-csv|wix-product-csv|teachers-pay-teachers|course-platform|music-distribution|shopify-to-woocommerce|woocommerce-product-csv|square-catalog-csv|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|rv-rental-host|glamping-unit-payback|turo-host|kdp|whatnot|poshmark|storage-auction|tax-deed-auction|auction-car-flip|used-car-lot|liquidation-pallet|stockx|twitch|freelance-platform-fee|upwork-connects|app-subscription|thumbtack-lead|mercari|kickstarter|depop|facebook-marketplace|ticket-resale|card-grading-submission|thrift-haul|price-increase-breakeven|wholesale-line-sheet)/.test(slug),
   },
   {
     id: 'trades',
@@ -502,6 +537,8 @@ const CATEGORY_RULES = [
     // what wins them the job, and it was invisible on the one page most
     // visitors land on.
     blurb: 'Bid a job the way the trade does — materials, crew hours, burden, overhead, and what the extras really cost — then print the customer a proposal with the scope, the deposit split, and a line to sign.',
+    // `mosquito-control-program-pricing-calculator` joined 2026-10-09 on its first commit: a recurring seasonal spray route priced per visit and per
+    // prepaid season is trade route work like `lawn-care-bid-calculator`, and its slug does not end in `bid-calculator`.
     // `shop-rate` is the upstream tool for this whole section: it computes the
     // payroll burden and overhead rate that every bid calculator below asks for.
     // Landing in the catch-all would have hidden it from exactly the readers who
@@ -534,12 +571,16 @@ const CATEGORY_RULES = [
     // job-costing this section's bid calculators do, just for field work
     // instead of a construction trade, and it landed in the catch-all only
     // because its slug ends in `-rate-calculator`, not `-bid-calculator`.
+    // `cow-calf-breakeven-calculator` is the herd-side sibling: a cattle producer's cost per cow
+    // against calf price, the same own-numbers job costing for a farm, so it sits beside it.
     // `auto-repair-effective-labor-rate` is the same reader as `shop-rate`
     // above, arriving from the other end of the year: `shop-rate` computes the
     // hour a shop must sell, this measures the hour it actually sold. Its slug
     // names neither a trade nor a bid, so no keyword caught it and it fell to
     // the catch-all — where the shop owner meeting the burden and overhead
     // fields on every calculator in this section would never have seen it.
+    // `handyman-minimum-job-calculator` joined 2026-10-01: small-job pricing for a handyman, same reader as the bid calculators here; slug names no trade-bid shape.
+    // `tire-shop-ticket-margin-calculator` joined 2026-10-01: same reader as `auto-repair-effective-labor-rate` above; slug names no trade.
     // `bid-win-rate-optimizer` joined 2026-09-30: it learns from a contractor's own won and lost quotes which
     // markup to put on the job the bid calculators here price; slug names no trade, so it would land in the catch-all.
     // `quote-follow-up-timing` joined 2026-09-30: it reads a contractor's or agency's own won, lost and open quotes to show when
@@ -556,7 +597,31 @@ const CATEGORY_RULES = [
     // own quote and lead history (when quotes close; how many leads a revenue target needs); slugs name no trade.
     // `home-service-lead-roi-analyzer` reads a trades owner's lead-buying log (Thumbtack, Angi, Google LSA) to
     // show which paid source books jobs; same reader as the bid calculators here, slug names no trade.
-    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|lead-response-time)/.test(slug),
+    // `snow-plow-contract-calculator` joined 2026-10-03: compares per-push, per-inch, seasonal and hybrid plow contracts across low/normal/high snow
+    // years for a route of sites; slug names no `bid-calculator`, same reader as `snow-removal-bid-calculator` (also here, in trades-outdoor).
+    // `plumber-flat-rate-price-calculator` joined 2026-10-03 on its first commit: a plumbing shop's flat-rate price book from its own
+    // billable-hour cost, same reader as `appliance-repair-quote-calculator` and the bid calculators here; slug names no `bid-calculator`.
+    // `hvac-repair-tier-price-calculator` joined 2026-10-03 on its first commit: Good/Better/Best repair prices and an average-call model for an HVAC
+    // shop, same reader as `plumber-flat-rate-price-calculator` just above; slug names no `bid-calculator`.
+    // `roofing-insurance-supplement-finder` joined 2026-10-08 on its first commit: a storm-restoration roofer pricing what an adjuster's estimate
+    // left out is this section's reader; the slug does not end in `bid-calculator`, so it needs naming to stay out of the catch-all.
+    // `surety-bond-capacity-calculator` joined 2026-10-09 on its first commit: a contractor pricing the performance and payment bond into a bid and
+    // testing it against a surety limit is this section's reader; the slug does not end in `bid-calculator`, so it needs naming.
+    // `bid-leveling-worksheet` joined 2026-10-10 on its first commit: a general contractor leveling subcontractor bids to one scope before awarding is this section's reader; the slug does not end in `bid-calculator`, so it needs naming.
+    // `timber-sale-offer-checker` joined 2026-10-10 on its first commit: a landowner testing a logger's offer against their own log list sits with `firewood-profit` and `cow-calf-breakeven` as the land-based small operator; the slug does not end in `bid-calculator`, so it needs naming.
+    // `grazing-lease-rate-calculator` and `pollination-contract-checker` joined 2026-10-10: a land or livestock operator pricing a lease or contract from their own numbers, beside `hunting-lease-income` and `cow-calf-breakeven`.
+    // `grain-store-or-sell-calculator` joined 2026-10-11 on its first commit: a grain farmer pricing storage against a harvest sale from their own numbers, beside `hay-sale-price` and `cow-calf-breakeven`.
+    // `tailor-alterations-shop-profit-calculator` joined 2026-10-11 on its first commit beside `nail-tech-booth-rent-calculator`: a tailor or alterations shop turning bench minutes, supplies and rent into profit per job and a season result.
+    // `braiding-studio-profit-calculator` joined 2026-10-11: a braiding studio owner turning long style times, supplies, no-shows and rent into profit per style, and comparing braiding, commission and booth rent for a chair.
+    // `lash-studio-profit-calculator` joined 2026-10-11 on its first commit beside `esthetician-studio-profit-calculator`: a lash tech turning set and fill minutes, supplies, card fees and no-shows into profit per chair hour and client lifetime value.
+    // `esthetician-studio-profit-calculator` joined 2026-10-11: an esthetician or skin-care studio owner turning facial, waxing and peel minutes, supplies, no-shows and rent into profit per treatment, and comparing working the chair, commission and booth rent.
+    // `barbershop-chair-profit-calculator` joined 2026-10-11: a barbershop owner turning chair minutes, supplies, no-shows and rent into profit per cut, and comparing cutting, commission and booth rent for a chair.
+    // `driving-school-profit-calculator` joined 2026-10-11: a driving school owner turning lesson, block-lesson and road-test minutes, fuel, cancellations and the car's cost into profit per lesson and car hour, and comparing instructing, employing an instructor and leasing the car.
+    // `phone-repair-shop-profit-calculator` joined 2026-10-11: a phone or device repair shop turning bench minutes, parts, warranty redos and rent into profit per job and a season result.
+    // `shoe-repair-shop-profit-calculator` joined 2026-10-11: a cobbler or shoe repair shop turning bench minutes, supplies and rent into profit per job and a season result.
+    // `upholstery-shop-job-profit-calculator` joined 2026-10-11 on its first commit beside the other bench-and-fixed-cost shop calculators here: an upholstery shop turning bench minutes, materials and rent into profit per job.
+    // `standby-generator-install-price-calculator` joined 2026-10-11 on its first commit: an electrician or generator dealer pricing an install from equipment, runs and crew hours is this section's reader; the slug does not end in `bid-calculator`, so it needs naming.
+    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|tender-bid-readiness|tender-radar|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -644,6 +709,129 @@ const CATEGORY_RULES = [
       'menu-engineering-calculator',
       'food-truck-event-margin-calculator',
       'pour-cost-calculator',
+      // `catering-quote-calculator` joined 2026-10-02 on its first commit: per-guest event pricing for the
+      // operator who sells food, one hop from `food-truck-event-margin-calculator`.
+      'catering-quote-calculator',
+      // `coffee-cart-event-quote-calculator` joined 2026-10-10 on its first commit: drink-cart owners comparing a host's fee, share or guarantee,
+      // the drink-cart sibling of `food-truck-event-margin-calculator`.
+      'coffee-cart-event-quote-calculator',
+      // `shaved-ice-stand-profit-calculator` joined 2026-10-10 on its first commit: per-cup concession stands at fairs and
+      // festivals, the cold-drink sibling of `coffee-cart-event-quote-calculator`.
+      'shaved-ice-stand-profit-calculator',
+      // `shared-kitchen-rate-planner` joined 2026-10-07 on its first commit: commissary and shared-kitchen owners pricing
+      // station-hours and memberships; the renters are the food-truck and catering operators served here, one hop away.
+      'shared-kitchen-rate-planner',
+      // `u-pick-farm-profit-planner` joined 2026-10-07 on its first commit: u-pick farms and pumpkin patches selling food and
+      // picking to visitors, one hop from `farmers-market-booth-calculator`.
+      'u-pick-farm-profit-planner',
+      // `bakery-production-scheduler` joined 2026-10-07 on its first commit: bakers planning oven and prep time from
+      // wholesale orders, one hop from the other food-service tools here.
+      'bakery-production-scheduler',
+      // `cake-pricing-calculator` joined 2026-10-10: custom cake pricing for home and small bakeries, a sibling of `bakery-production-scheduler`.
+      'cake-pricing-calculator',
+      // `ghost-kitchen-brand-picker` joined 2026-10-09 on its first commit: which virtual brands a delivery-only kitchen keeps under a kitchen-hours limit, beside `menu-engineering-calculator`'s per-item margins.
+      'ghost-kitchen-brand-picker',
+      // `cafe-drink-margin-calculator` joined 2026-10-09 on its first commit: per-drink margin for coffee shops after card fees and make-time labor, beside `menu-engineering-calculator`'s dish margins.
+      'cafe-drink-margin-calculator',
+      // `daily-prep-quantity-optimizer` joined 2026-10-09 on its first commit: how many to make, beside `bakery-production-scheduler`'s when to bake.
+      'daily-prep-quantity-optimizer',
+      // `brewery-tank-schedule-optimizer` joined 2026-10-09 on its first commit: when and where each batch goes, beside `craft-brewery-batch-margin-calculator`'s profit per barrel.
+      'brewery-tank-schedule-optimizer',
+      // `fitness-studio-membership-calculator` joined 2026-10-09 on its first commit: member lifetime value, churn and break-even for boutique studios, beside `car-wash-membership-calculator`'s recurring-membership model.
+      'fitness-studio-membership-calculator',
+      // `farmers-market-booth-calculator` joined 2026-10-03 on its first commit: market vendors who sell food,
+      // one hop from `food-truck-event-margin-calculator`.
+      'farmers-market-booth-calculator',
+      // `backyard-egg-profit-calculator` joined 2026-10-03 on its first commit: egg sellers at the same farm stands
+      // and markets, one hop from `farmers-market-booth-calculator`.
+      'backyard-egg-profit-calculator',
+      // `backyard-honey-profit-calculator` joined 2026-10-03 on its first commit: hobby sellers at the same farm stands
+      // and markets, one hop from `backyard-egg-profit-calculator`.
+      'backyard-honey-profit-calculator',
+      // `apiary-profit-planner` joined 2026-10-07 on its first commit: beekeepers projecting colonies, nucs and pollination
+      // over several years, the sideline step up from `backyard-honey-profit-calculator`.
+      'apiary-profit-planner',
+      // `pollination-contract-checker` and `oyster-farm-growout-planner` joined 2026-10-10: beekeepers pricing rented hives and shellfish
+      // growers planning a 12-24 month crop, same farm category, one hop from `apiary-profit-planner`.
+      'pollination-contract-checker',
+      'oyster-farm-growout-planner',
+      // `grain-store-or-sell-calculator` joined 2026-10-11 on its first commit: row-crop farmers deciding to store or sell,
+      // same farm category, one hop from `cow-calf-breakeven` style own-numbers costing.
+      'grain-store-or-sell-calculator',
+      // `christmas-tree-farm-profit-planner` joined 2026-10-07 on its first commit: land-based growers on the same farm
+      // category, the longest-horizon sibling of `u-pick-farm-profit-planner`.
+      'christmas-tree-farm-profit-planner',
+      // `pastured-poultry-profit-planner` joined 2026-10-07 on its first commit: meat-bird growers on the same farm
+      // category, a batch-based sibling of `sheep-goat-flock-profit-planner`.
+      'pastured-poultry-profit-planner',
+      // `sheep-goat-flock-profit-planner` joined 2026-10-07 on its first commit: small livestock producers at the same
+      // farm stands and markets, one hop from `apiary-profit-planner`.
+      'sheep-goat-flock-profit-planner',
+      // `beef-cattle-ration-optimizer` joined 2026-10-07 on its first commit: cattle producers on the same farm category,
+      // the feed-cost step after `sheep-goat-flock-profit-planner`.
+      'beef-cattle-ration-optimizer',
+      // `hay-baling-own-vs-hire-calculator` joined 2026-10-07 on its first commit: hay producers on the same farm category,
+      // the buy-or-hire step beside `custom-farm-rate-calculator`.
+      'hay-baling-own-vs-hire-calculator',
+      // `ball-python-morph-pairing-planner` joined 2026-10-07 on its first commit: small livestock breeders selling hatchlings,
+      // one hop from `backyard-egg-profit-calculator`.
+      'ball-python-morph-pairing-planner',
+      // `ag-spray-drone-quote-calculator` joined 2026-10-07 on its first commit: custom applicators pricing crop spraying by the acre,
+      // the farm-services step next to `beef-cattle-ration-optimizer`.
+      'ag-spray-drone-quote-calculator',
+      // `fertilizer-blend-optimizer` joined 2026-10-07 on its first commit: row-crop, hay and garden growers on the same farm
+      // category, the input-cost step beside `beef-cattle-ration-optimizer`.
+      'fertilizer-blend-optimizer',
+      // `vegetable-garden-planting-calendar` joined 2026-10-11 on its first commit: a home or market gardener's dated sow/transplant/harvest plan from two frost dates,
+      // the calendar step beside `fertilizer-blend-optimizer` and `market-garden-bed-planner` on the same grower category.
+      'vegetable-garden-planting-calendar',
+      // `secret-santa-draw` joined 2026-10-11 on its first commit: a no-email gift-exchange draw for families and offices; the catch-all was at its bound,
+      // so it files beside the other seasonal consumer planner on this list rather than raising it.
+      'secret-santa-draw',
+      // `wedding-day-timeline-builder` joined 2026-10-11 on its first commit: couples, planners and photographers building the day-of schedule with sunset worked out,
+      // the scheduling step beside `wedding-photographer-profit-calculator` and `bridal-hair-makeup-pricing-calculator` on the same wedding category.
+      'wedding-day-timeline-builder',
+      // `farm-crop-mix-optimizer` joined 2026-10-09 on its first commit: growers choosing acres per crop under land, labor and capital limits,
+      // the planning step before `fertilizer-blend-optimizer` on the same row-crop farm.
+      'farm-crop-mix-optimizer',
+      // `food-truck-prep-mix-optimizer` joined 2026-10-09 on its first commit: truck and pop-up operators choosing portions per item under prep,
+      // station and cash limits, the per-service step beside `food-truck-event-margin-calculator`.
+      'food-truck-prep-mix-optimizer',
+      // `farmland-lease-cash-rent-vs-crop-share-calculator` joined 2026-10-08 on its first commit: landowners and operators negotiating a farm lease
+      // sit beside `custom-farm-rate-calculator` and `fertilizer-blend-optimizer`, the same row-crop farm job.
+      'farmland-lease-cash-rent-vs-crop-share-calculator',
+      // `crop-insurance-coverage-calculator` joined 2026-10-08 on its first commit: the insurance side of the same farm, beside the lease.
+      'crop-insurance-coverage-calculator',
+      // `sba-loan-capacity-calculator` joined 2026-10-07 on its first commit: owners sizing a bank or SBA term loan from cash
+      // flow, the pre-application step before `business-loan-offer-comparator`.
+      'sba-loan-capacity-calculator',
+      // `franchise-unit-economics-calculator` joined 2026-10-08 on its first commit: a buyer sizing the cash, loan and payback of a franchise
+      // unit sits beside `sba-loan-capacity-calculator` and `business-loan-offer-comparator`, the same fund-a-business-purchase job.
+      'franchise-unit-economics-calculator',
+      // `franchise-item-19-reality-check` joined 2026-10-12 on its first commit: the franchisor's earnings claim read before the buyer's own cash plan,
+      // beside `franchise-unit-economics-calculator`.
+      'franchise-item-19-reality-check',
+      // `microgreens-tray-planner` joined 2026-10-06 on its first commit: growers who sell at the same markets and
+      // restaurants, one hop from `backyard-honey-profit-calculator`.
+      'microgreens-tray-planner',
+      // `maple-syrup-sugarbush-profit-calculator` joined 2026-10-07 on its first commit: producers selling syrup at the
+      // same farm stands and markets, one hop from `backyard-honey-profit-calculator`.
+      'maple-syrup-sugarbush-profit-calculator',
+      // `craft-brewery-batch-margin-calculator` joined 2026-10-07 on its first commit: a brewery sells drink by the
+      // pint, keg and can; the same operator reader as `pour-cost-calculator`, one hop away.
+      'craft-brewery-batch-margin-calculator',
+      // `brewery-excise-tax-calculator` joined 2026-10-10 on its first commit: the federal tax built into every keg and case,
+      // beside the batch margin that has to absorb it.
+      'brewery-excise-tax-calculator',
+      // `distillery-excise-tax-calculator` joined 2026-10-10 on its first commit: the spirits sibling of the brewery tax tool,
+      // proof-gallon math and the $2.70 / $13.34 CBMA tiers.
+      'distillery-excise-tax-calculator',
+      // `winery-excise-tax-calculator` joined 2026-10-10 on its first commit: the wine and cider sibling of the brewery and
+      // distillery tax tools, wine-gallon math and the CBMA credit tiers.
+      'winery-excise-tax-calculator',
+      // `mobile-bartender-event-quote` joined 2026-10-03 on its first commit: per-event bar service pricing,
+      // one hop from `pour-cost-calculator` and `catering-quote-calculator`.
+      'mobile-bartender-event-quote',
       'commissary-kitchen-cost-split-calculator',
       // `restaurant-pos-menu-mix-analyzer` added 2026-09-29: the POS-export
       // sibling of `menu-engineering-calculator`, same owner reading the same
@@ -653,12 +841,54 @@ const CATEGORY_RULES = [
       // `restaurant-labor-cost-daypart-analyzer` added 2026-09-29: the labor
       // half of the restaurant owner's cost picture, next to the menu tools.
       'restaurant-labor-cost-daypart-analyzer',
+      // `dining-room-table-mix-optimizer` joined 2026-10-09 on its first commit: the seating half of the same owner's room, beside the
+      // labor and menu tools above.
+      'dining-room-table-mix-optimizer',
       // `shift-cover-optimizer` added 2026-09-30: plans the shifts forward from
       // an hourly need; same reader as the labor daypart analyzer above.
       'shift-cover-optimizer',
+      // `shift-roster-builder` joined 2026-10-01 on its first commit: assigns named
+      // people to the shifts `shift-cover-optimizer` sizes; the same owner, next door.
+      'shift-roster-builder',
+      // `weekly-staff-schedule-maker` joined 2026-10-12 on its first commit: a rules-checked weekly rota solver (roles, rest, fair hours);
+      // the same owner as the shift tools above.
+      'weekly-staff-schedule-maker',
+      // `shift-rotation-schedule-generator` joined 2026-10-12 on its first commit: fixed-rotation (Pitman, DuPont, 24/48) calendars for the crews
+      // whose rosters the shift tools above build week by week.
+      'shift-rotation-schedule-generator',
+      // `fair-workweek-schedule-checker` joined 2026-10-11 on its first commit: checks the schedule the shift tools above build against
+      // predictive-scheduling law; the same restaurant and retail owner.
+      'fair-workweek-schedule-checker',
+      // `ca-meal-rest-break-premium-checker` joined 2026-10-12 on its first commit: the other California-style wage claim the same
+      // restaurant and retail owner hits, meal and rest break premium, checked from timecards.
+      'ca-meal-rest-break-premium-checker',
+      // `flsa-regular-rate-overtime-audit` joined 2026-10-12 on its first commit: the federal overtime half of the same payroll-claim
+      // exposure, regular rate with bonuses and differentials, for the same restaurant, retail and staffing owner.
+      'flsa-regular-rate-overtime-audit',
+      // `time-off-request-planner` joined 2026-10-01 on its first commit: decides which
+      // leave requests fit a team's minimum cover; the same owner as the shift tools above.
+      'time-off-request-planner',
+      // `retirement-withdrawal-sequencer` joined 2026-10-01 on its first commit: whole-retirement
+      // withdrawal-order comparison, beside `roth-conversion-bracket-fill-calculator`.
+      'retirement-withdrawal-sequencer',
+      // `production-mix-optimizer` added 2026-10-01: which products a bakery or
+      // small food maker should bake when oven and labour hours run out; the
+      // same owner as the menu and pour-cost tools above.
+      'production-mix-optimizer',
+      // `supplier-price-creep-checker` joined 2026-10-06 on its first commit: the invoice side of the restaurant
+      // owner's food cost, beside `pour-cost-calculator` and `menu-engineering-calculator`.
+      'supplier-price-creep-checker',
+      // `restaurant-tip-pool-calculator` joined 2026-10-06 on its first commit: the payroll side of the same owner, beside
+      // `tip-pool-compliance-calculator` (may we pool) -- this one splits the pool.
+      'restaurant-tip-pool-calculator',
+      // `tip-fica-credit-calculator` joined 2026-10-08 on its first commit: the employer-tax side of tipped payroll, the FICA credit
+      // on the tips `restaurant-tip-pool-calculator` splits.
+      'tip-fica-credit-calculator',
     ].includes(slug),
   },
   {
+    // `water-well-drilling-bid-calculator` joined 2026-10-09 on its first commit: a small driller bidding a well is a trade bid like the ones in
+    // `trades`, but that bundle is at the 3 MB ceiling (build.test.mjs) and its slug would match `bid-calculator$` there, so `trades` excludes it by name.
     id: 'services',
     title: 'Service business pricing & quotes',
     accent: '#1d4a5c',
@@ -908,11 +1138,142 @@ const CATEGORY_RULES = [
     // time, travel, and a booking policy into a price. Not a trade bid
     // (nothing priced by area or a construction job) and not a marketplace
     // fee.
+    // `laundromat-machine-payback-calculator` joined 2026-10-01 on its first commit: an
+    // owner turning machine lines, vend prices and turns into payback months sits
+    // beside `vending-machine-route-margin`.
+    // `house-cleaning-quote-calculator` joined 2026-10-01 on its first commit: a cleaning
+    // owner turning home size, crew pace and wages into a price floor and a discount limit
+    // is the same solo-service pricing job as `dog-grooming-profit-calculator` below.
     // `dog-grooming-profit-calculator` joined 2026-10-01 on its first commit: a
     // groomer turning services, minutes, supplies and overhead into a profit per
     // hour and a price floor is the `dog-boarding-daycare-pricing` job again.
+    // `rental-fleet-size-optimizer` joined 2026-10-01 on its first commit: how many
+    // identical units a small rental business should own is the owner-operator
+    // side of `bounce-house-rental-calculator` and `dumpster-rental-margin-
+    // calculator`, which it sits beside and cross-links.
+    // `league-schedule-generator` joined 2026-10-01 on its first commit: a volunteer
+    // organiser turning a team list, dates and courts into a fair fixture list is
+    // the same event-organiser job as `event-seating-chart-optimizer` above.
+    // `driving-instructor-lesson-pricing-calculator` joined 2026-10-01 on its first commit:
+    // a self-employed instructor pricing by the hour is the same solo-service job as
+    // `dj-gig-profit` and `massage-therapist-profit` above.
+    // `swim-lesson-pool-rental-profit-calculator` joined 2026-10-11 on its first commit: an independent swim instructor renting a pool by the hour and choosing between private, semi-private and group classes is the same solo-service pricing job as the driving instructor above.
+    // `coffee-roaster-margin-calculator` joined 2026-10-01 on its first commit: a micro
+    // roaster turning green price, roast loss and channel fees into a per-bag margin is
+    // the same small-operator pricing job as `pour-cost-calculator` and
+    // `cottage-food-pricing-calculator`.
+    // `tattoo-piece-profit-calculator` joined 2026-10-01 on its first commit: an artist turning needle,
+    // drawing and setup hours into a lowest price per piece is the `booth-rent` and `massage-therapist-profit` solo-service job.
+    // `car-wash-membership-calculator` joined 2026-10-01 on its first commit: an owner turning plan
+    // price, wash cost and member usage into break-even washes sits beside `vending-machine-route-margin`
+    // and `laundromat-machine-payback-calculator`, the same recurring-revenue small-operator job.
+    // `ev-charging-site-roi-calculator` joined 2026-10-09 on its first commit: a site host or operator turning ports, price and utilization into payback and NPV
+    // sits beside `laundromat-machine-payback-calculator` and `car-wash-membership-calculator`, the same fixed-cost, per-use-revenue operator job.
+    // `pickleball-facility-pro-forma` joined 2026-10-05 on its first commit: a facility owner turning court hours, rates, membership
+    // and a ramp into a monthly P&L and break-even sits beside `car-wash-membership-calculator` and `laundromat-machine-payback-calculator`.
+    // `escape-room-pricing-capacity-planner` joined 2026-10-08 on its first commit: a venue owner turning slots, price and occupancy into
+    // monthly profit sits beside `pickleball-facility-pro-forma` and `car-wash-membership-calculator`, the same fixed-cost venue job.
+    // `boutique-fitness-studio-pricing-planner` joined 2026-10-08 on its first commit: a studio owner's membership, pack and drop-in profit sits beside
+    // `escape-room-pricing-capacity-planner` and `car-wash-membership-calculator`, the same fixed-cost venue job.
+    // `waterfront-rental-season-planner` joined 2026-10-08 on its first commit: a kayak or boat livery owner's seasonal P&L, weather-day break-even
+    // and fleet-size payback sit beside `fishing-charter-trip-pricing-calculator` and `rental-fleet-size-optimizer`, the same small-fleet rental job.
+    // `good-faith-estimate-generator` joined 2026-10-08 on its first commit: a cash-pay practice's estimate builder sits with the other practice-economics tools here,
+    // and `backoffice` is over its gzipped offline bundle bound.
+    // `property-management-profit-calculator` joined 2026-10-08 on its first commit: a management company owner turning doors, fee and staffing
+    // into profit and a hiring cliff sits beside `law-firm-realization-rate-calculator` and `home-care-agency-margin-calculator`, the same fee-for-service firm job.
+    // `mobile-welding-job-price-calculator` joined 2026-10-08 on its first commit: a mobile welder's per-job price, drive and overrun check sits beside
+    // `mobile-mechanic-visit-pricing-calculator` and `fishing-charter-trip-pricing-calculator`, the same go-to-the-customer service pricing job.
+    // `volunteer-shift-scheduler` joined 2026-10-08 on its first commit: a volunteer coordinator turning availability and shift
+    // needs into a fair roster is the same event-organiser job as `league-schedule-generator` and `event-seating-chart-optimizer`.
+    // `sauna-cold-plunge-install-bid-calculator` joined 2026-10-08 on its first commit: a backyard sauna or cold plunge installer's bid, delivery and overrun check
+    // sits beside `mobile-welding-job-price-calculator` and `pergola-bid-calculator`, the same go-to-the-customer trade pricing job.
+    // `pool-service-route-calculator` joined 2026-10-03: a pool route owner's per-account true hourly, reprice/drop and route
+    // density sits beside `pool-route-pricing` (same buyer, same job at route level) and `vending-machine-route-margin`.
+    // `appointment-no-show-cost-calculator` joined 2026-10-08 on its first commit: a salon, clinic or vet front desk turning its schedule into a yearly
+    // cost and a fee/reminder/overbooking choice is this category's buyer. It would match the `appointment-no-show` prefix in the back-office rule,
+    // but that category's gzipped offline bundle was already at the 3 MB ceiling (build.test.mjs), so one more tool there fails it.
+    // `home-inspection-business-profit-calculator` joined 2026-10-11 on its first commit: an inspector turning fees, drive and report hours, fall-through and fixed cost into profit per hour,
+    // and weighing an associate, is the same solo-inspector job as `home-inspection-fee-calculator` one level up.
+    // `home-inspection-report-builder` joined 2026-10-08 on its first commit: an inspector turning findings into a client-ready report sits beside
+    // `home-inspection-fee-calculator`, the same solo-inspector professional-services job.
+    // `grape-grower-sell-vs-bottle-calculator` joined 2026-10-09 on its first commit: a vineyard owner's fruit-contract-or-own-wine decision is a small
+    // producer's pricing-of-their-own-output call; filed here because the food-service bundle is at the 3 MB ceiling (build.test.mjs).
+    // `junk-car-buyer-offer-calculator` joined 2026-10-09 on its first commit: a scrap or salvage buyer's offer-before-towing call sits beside
+    // `scrap-gold-buy-price-calculator` and `tow-truck-rate-calculator`, the same buy-at-a-price-then-resell small-operator job.
+    // `lash-studio-service-profit-calculator` joined 2026-10-09 on its first commit: a lash artist's per-service take-home sits beside
+    // `massage-therapist-profit-calculator` and `nail-tech-booth-rent-calculator`, the same solo appointment-service pricing job.
+    // `pte-tax-election-calculator` joined 2026-10-08 on its first commit: a pass-through owner weighing a state tax election is a service-business
+    // owner's pricing-of-their-own-books decision; filed here because the back-office bundle is over the 3 MB ceiling (build.test.mjs).
+    // `commercial-lease-abstract-reader` joined 2026-10-08 on its first commit: a small-business tenant abstracting a lease into dates and clauses is a
+    // service-business owner's own-books decision; filed here because the back-office bundle is over the 3 MB ceiling (build.test.mjs).
+    // `percentage-rent-audit-checker` joined 2026-10-12 on its first commit: a tenant checking a landlord's percentage-rent statement is the same own-books decision as
+    // `commercial-lease-abstract-reader`; filed beside it because the back-office bundle is over the 3 MB ceiling (build.test.mjs).
+    // `workers-comp-audit-dispute-checker` joined 2026-10-12 on its first commit: a small employer disputing a premium audit is the same own-books decision as
+    // `business-insurance-policy-reader`; filed beside it because the back-office bundle is over the 3 MB ceiling (build.test.mjs).
+    // `business-insurance-policy-reader` joined 2026-10-12 on its first commit: a small owner checking a liability policy against a client's required limits is the same
+    // own-books decision as `vendor-contract-clause-reader`; filed beside it because the back-office bundle is over the 3 MB ceiling (build.test.mjs).
+    // `vendor-contract-clause-reader` joined 2026-10-12 on its first commit: a small buyer reading an auto-renewing vendor agreement is the same own-books
+    // decision as `commercial-lease-abstract-reader`; filed beside it because the back-office bundle is over the 3 MB ceiling (build.test.mjs).
+    // `wedding-venue-date-pricing-optimizer` joined 2026-10-09 on its first commit: a venue owner pricing dates by demand is a small-operator
+    // pricing job beside `escape-room-pricing-capacity-planner`; filed here because the back-office bundle is over the 3 MB ceiling (build.test.mjs).
+    // `capex-budget-prioritizer` joined 2026-10-09 on its first commit: a small owner choosing which upgrades to fund sits beside the payback calculators; filed here for the same bundle-ceiling reason.
+    // `appointment-no-show-analyzer` moved here from `backoffice` 2026-10-09: it is a service-business scheduling tool, and `backoffice` had crossed the 3 MB gzipped ceiling (build.test.mjs).
+    // `vending-machine-planogram-optimizer` joined 2026-10-09 on its first commit: how many coils each product gets in a vending machine sits beside
+    // `vending-machine-route-margin`, the same operator; filed with its sibling bundle because it is at the 3 MB ceiling (build.test.mjs).
+    // `auto-detailing-service-menu-picker` joined 2026-10-09: its first commit left it in the catch-all, which sat at the bound of five (build.test.mjs); a detailing shop picking a service menu is `mobile-detailing-day-planner`'s buyer.
+    // `saas-feature-packaging-optimizer` joined 2026-10-09 beside its sibling `saas-tier-price-optimizer`, same section, same reason.
+    // `self-serve-dog-wash-profit-calculator` joined 2026-10-12 on its first commit: a would-be owner underwriting a tub-based dog wash sits beside `dog-grooming-profit` and `dog-boarding-daycare` in this section; `backoffice` is at the 3 MB ceiling (build.test.mjs).
+    // `coworking-space-profit-calculator` joined 2026-10-12 on its first commit: a coworking or flex-office operator sizing a lease, a room mix and a ramp-up sits beside `boutique-fitness-studio-pricing-planner` and `climbing-gym-profit-calculator`; `backoffice` is at the 3 MB ceiling (build.test.mjs).
+    // `rv-boat-storage-lot-calculator` joined 2026-10-12 on its first commit: a landowner or small investor underwriting an outdoor vehicle-storage lot sits beside `pickleball-facility` and `property-management-profit` in this section; `backoffice` is at the 3 MB ceiling (build.test.mjs).
+    // `subscription-proration-calculator` joined 2026-10-12 on its first commit: billing a mid-cycle plan change for a software business sits beside `saas-tier-price-optimizer`; `backoffice` is at the 3 MB ceiling (build.test.mjs).
+    // `saas-tier-price-optimizer` joined 2026-10-09 on its first commit: plan pricing for a software business sits beside `mrr-waterfall-calculator` in this
+    // section, and `backoffice` is at the 3 MB ceiling (build.test.mjs).
+    // `patent-maintenance-fee-planner` joined 2026-10-12 on its first commit: an inventor or small IP team docketing US maintenance-fee deadlines is a professional-services-style compliance job beside `lien-waiver-checker` and `aba-authorization-tracker`; filed here because `backoffice` is at the 3 MB ceiling and the catch-all at its bound (build.test.mjs).
+    // `sales-quota-capacity-planner` joined 2026-10-12 on its first commit: a sales or RevOps leader turning a bookings target into a hiring schedule is a professional-services-style staffing-and-capacity job beside `project-staffing-margin-optimizer`; filed here because `backoffice` is at the 3 MB ceiling and the catch-all at its bound (build.test.mjs).
+    // `project-staffing-margin-optimizer` joined 2026-10-09 on its first commit: an agency or consultancy owner deciding who works on which client is a
+    // professional-services firm's own staffing-and-margin job beside `law-firm-realization-rate-calculator`; filed here because `backoffice` is at the 3 MB ceiling (build.test.mjs).
+    // `wedding-flower-order-optimizer` joined 2026-10-09 on its first commit: a florist buying the cheapest wholesale stems for an event is the buying half of
+    // `wedding-florist-proposal-calculator`, which it cross-links to; filed with it rather than in a bundle at the 3 MB ceiling (build.test.mjs).
+    // `veterinary-dental-estimate-calculator` joined 2026-10-10 on its first commit: a clinic costing a procedure by grade sits beside its sibling
+    // `veterinary-wellness-plan-pricing-calculator`; filed here because `backoffice` is at the 3 MB ceiling (build.test.mjs).
+    // `mobile-vet-house-call-fee-calculator` joined 2026-10-10 on its first commit: a mobile vet pricing the house call beside the clinic-side `veterinary-dental-estimate-calculator`;
+    // filed here because `backoffice` is at the 3 MB ceiling (build.test.mjs).
+    // `grease-trap-pumping-price-calculator` joined 2026-10-10 beside `dumpster-rental-margin-calculator`: a hauler pricing a pump-out visit from drive, dump trip and disposal fee.
+    // `bed-bug-heat-treatment-price-calculator` joined 2026-10-11 on its first commit beside `grease-trap-pumping-price-calculator`: a pest control operator turning heaters, clutter and warranty risk into a job price.
+    // `fundraising-event-net-calculator` joined 2026-10-11 on its first commit beside `appointment-no-show-analyzer`: a nonprofit or school turning tickets, sponsors and the cost of the night into net and cost per dollar raised.
+    // `ppf-ceramic-coating-price-calculator` joined 2026-10-11 on its first commit beside `bed-bug-heat-treatment-price-calculator`: a film and coating shop turning film waste, correction and bay days into a job price.
+    // `paintless-dent-repair-quote-calculator` joined 2026-10-11 on its first commit beside `ppf-ceramic-coating-price-calculator`: a PDR and hail tech checking a per-dent matrix against tech time and stall days.
+    // `hydroseeding-job-bid-calculator` joined 2026-10-11 on its first commit beside `ski-snowboard-tune-shop-profit-calculator`: a hydroseeding contractor turning slurry gallons, tank loads, crew hours and travel into the cost of a job and the price per 1,000 sq ft.
+    // `bike-shop-repair-profit-calculator` joined 2026-10-11 on its first commit beside `ski-snowboard-tune-shop-profit-calculator`: a bike repair shop turning bench minutes, stands and rent into profit per job and a busy-season result.
+    // `ski-snowboard-tune-shop-profit-calculator` joined 2026-10-11 on its first commit beside `dog-grooming-profit-calculator`: a tune shop turning bench minutes, grinder and rent into profit per tune and a season result.
+    // `private-chef-service-price-calculator` joined 2026-10-11 on its first commit beside `food-truck-event-margin-calculator`: a private chef or meal-prep business turning shopping, prep, cooking and travel hours into a price per visit and per guest.
+    // `pool-opening-closing-price-calculator` joined 2026-10-11 on its first commit beside `bed-bug-heat-treatment-price-calculator`: a pool service owner pricing the two seasonal visits from gallons, cover and water condition.
+    // `water-damage-drying-estimate-calculator` joined 2026-10-11 on its first commit beside `grease-trap-pumping-price-calculator`: a restoration contractor turning wet area, equipment days and labour into a job invoice and margin.
+    // `hoarding-cleanout-bid-calculator` joined 2026-10-11 on its first commit beside `dumpster-rental-margin-calculator`: a cleanout contractor pricing volume, crew days and containers.
+    // `powder-coating-job-price-calculator` joined 2026-10-10 on its first commit beside `cnc-machining-quote-calculator`: a job shop turning labour, machine and material into a customer price.
+    // `laser-cutting-engraving-job-price-calculator` joined 2026-10-10 on its first commit beside `cnc-machining-quote-calculator`: a laser shop turning sheet, machine time and labour into a customer price.
+    // `therapy-8-minute-rule-calculator` joined 2026-10-10: a therapy practice turning timed minutes into billable units is a services-business job; the catch-all was at 6, over the bound of five (build.test.mjs).
+    // `real-estate-photographer-shoot-profit-calculator` joined 2026-10-10 on its first commit: a listing photographer pricing packages by true hourly pay sits beside
+    // `wedding-photographer-profit-calculator`; filed here because `backoffice` is at the 3 MB ceiling (build.test.mjs).
+    // `private-school-tuition-discount-calculator` joined 2026-10-11 on its first commit: an independent school's business office turning sticker price and aid groups into net tuition and a discount rate, filed beside `childcare-tuition-calculator` in services.
+    // `amusement-route-location-calculator` joined 2026-10-11 on its first commit beside `vending-machine-route-margin`: a coin-op route operator turning each location's take, commission, visits and miles into profit per route hour and the highest commission worth paying.
+    // `climbing-gym-profit-calculator` joined 2026-10-12 on its first commit beside `trampoline-park-profit-calculator` and `pickleball-facility-pro-forma`: a prospective or new climbing or bouldering gym owner turning day passes, members, youth programs, parties, staff, route setting and rent into monthly profit, build payback, break-even members and the lowest day pass and membership fee for a target margin.
+    // `axe-throwing-bar-profit-calculator` joined 2026-10-12 on its first commit beside `trampoline-park-profit-calculator` and `golf-simulator-bay-profit-calculator`: a prospective or new axe throwing bar owner turning throwers per session, sessions, fill, ticket price, private events, league players, food and drink, staff and rent into monthly profit, build payback, break-even fill and the lowest ticket for a target margin and payback.
+    // `trampoline-park-profit-calculator` joined 2026-10-12 on its first commit beside `kids-birthday-party-package-profit-calculator` and `golf-simulator-bay-profit-calculator`: a prospective or new trampoline park or family entertainment center owner turning jumper capacity, sessions, fill, ticket price, parties, members, staff and rent into monthly profit, build payback, break-even fill and the lowest ticket for a target margin and payback.
+    // `ebike-rental-fleet-profit-calculator` joined 2026-10-12 on its first commit beside `boat-rental-fleet-profit-calculator`: a bike shop, hotel or campground owner turning bikes, busy and quiet days, utilization, half-day and full-day prices and staff into season profit, payback, break-even utilization and the lowest prices.
+    // `golf-simulator-bay-profit-calculator` joined 2026-10-12 on its first commit beside `pickleball-facility-pro-forma` and `escape-room-pricing-capacity-planner`: a prospective or new indoor golf simulator lounge owner turning bays, peak and off-peak rates and utilization, members, food and drink, staff and rent into monthly profit, build payback, break-even utilization and the lowest rates for a target margin.
+    // `mini-golf-course-profit-calculator` joined 2026-10-12 on its first commit beside `golf-simulator-bay-profit-calculator` and `trampoline-park-profit-calculator` here: a per-round, seasonal, weather-exposed fun-center pro forma is the same buyer as those two.
+    // `pilot-car-escort-run-profit-calculator` joined 2026-10-12 on its first commit beside `tow-truck-rate-calculator` and `party-bus-charter-profit-calculator`: a pilot car or oversize-load escort operator turning a per-mile or day quote, minimum charge, deadhead, hours and overhead into true profit per run, the lowest quote for a target margin and break-even runs.
+    // `event-rental-inventory-payback-calculator` joined 2026-10-12 on its first commit beside `tent-rental-job-profit-calculator`: a party and event rental owner ranking chairs, tables, linens and floors by payback and return to decide what to buy next.
+    // `kids-birthday-party-package-profit-calculator` joined 2026-10-12 on its first commit beside `bounce-house-rental-calculator`: a trampoline park, bounce gym or play cafe owner turning a party package price, children, host hours, food, the open-play margin given up and yearly rent into true profit per party, profit per room hour and the lowest package price for a target margin.
+    // `party-bus-charter-profit-calculator` joined 2026-10-12 on its first commit beside `tent-rental-job-profit-calculator`: a party bus, limo or shuttle operator turning a quote, minimum hours, deadhead, miles and vehicle cost into true profit per charter, the lowest quote for a target margin and vehicle payback.
+    // `tent-rental-job-profit-calculator` joined 2026-10-12 on its first commit beside `photo-booth-event-quote` and `mobile-bartender-event-quote`: a tent and party rental owner turning a quote, crew hours, truck and tent cost into true profit per job, the lowest quote for a target margin and tent payback.
+    // `lawn-aeration-overseeding-bid-calculator` joined 2026-10-12 on its first commit beside `hydroseeding-job-bid-calculator` and `pool-opening-closing-price-calculator`: a lawn-care operator turning turf area, aerator passes, seed and crew into true profit per job, the lowest quote for a target margin and price per 1,000 sq ft.
+    // `courier-van-route-profit-calculator` joined 2026-10-12 on its first commit beside `mobile-oil-change-route-profit-calculator` and `propane-delivery-route-margin`: an independent delivery van contractor turning route pay, stops, miles and van costs into true profit per route, per hour and per stop and the lowest route pay worth taking.
+    // `yoga-pilates-studio-class-profit-calculator` joined 2026-10-11 on its first commit: a boutique studio owner turning classes, attendance, the price mix and teacher pay into profit per class and room hour sits beside `boutique-fitness-studio-pricing-planner` and `music-teacher-studio-profit-calculator`, the same small-studio owner job.
+    // `laundromat-acquisition-offer-calculator` joined 2026-10-11 on its first commit beside `laundromat-machine-payback-calculator`: a buyer turning a laundromat's revenue and costs into a walk-away price.
     test: (slug) =>
-      /^(home-care-agency|booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|massage-therapist-profit|dj-gig-profit|wedding-photographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking)/.test(
+      /^(self-serve-dog-wash-profit-calculator|coworking-space-profit-calculator|rv-boat-storage-lot-calculator|subscription-proration-calculator|patent-maintenance-fee-planner|sales-quota-capacity-planner|climbing-gym-profit-calculator|trampoline-park-profit-calculator|golf-simulator-bay-profit-calculator|mini-golf-course-profit-calculator|ebike-rental-fleet-profit-calculator|pilot-car-escort-run-profit-calculator|event-rental-inventory-payback-calculator|kids-birthday-party-package-profit-calculator|lawn-aeration-overseeding-bid-calculator|party-bus-charter-profit-calculator|tent-rental-job-profit-calculator|courier-van-route-profit-calculator|laundromat-acquisition-offer-calculator|amusement-route-location-calculator|private-school-tuition-discount-calculator|mobile-oil-change-route-profit-calculator|boat-rental-fleet-profit-calculator|mobile-phlebotomy-route-profit-calculator|music-teacher-studio-profit-calculator|yoga-pilates-studio-class-profit-calculator|freelance-project-picker|swim-lesson-pool-rental-profit-calculator|home-inspection-business-profit-calculator|hydroseeding-job-bid-calculator|bike-shop-repair-profit-calculator|ski-snowboard-tune-shop-profit-calculator|fundraising-event-net-calculator|therapy-8-minute-rule-calculator|real-estate-photographer-shoot-profit-calculator|auto-detailing-service-menu-picker|saas-feature-packaging-optimizer|saas-tier-price-optimizer|pto-accrual-liability-calculator|wedding-flower-order-optimizer|project-staffing-margin-optimizer|appointment-no-show-analyzer|vending-machine-planogram-optimizer|capex-budget-prioritizer|childcare-enrollment-mix-optimizer|wedding-venue-date-pricing-optimizer|water-well-drilling-bid-calculator|sign-shop-job-pricing-calculator|medical-billing-pricing-calculator|ghostwriter-book-quote-calculator|gift-vs-inherit-basis-calculator|qcd-calculator|fbar-8938-checker|niit-calculator|sbir-budget-builder|401k-loan-vs-withdrawal-calculator|529-to-roth-rollover-calculator|speaker-fee-calculator|nanny-tax-calculator|recipe-costing-calculator|real-estate-professional-status-calculator|bonus-take-home-gross-up-calculator|pte-tax-election-calculator|appointment-no-show-cost-calculator|aba-authorization-tracker|h1b-weighted-lottery-odds-calculator|rent-increase-notice-checker|pay-application-generator|lien-waiver-checker|medicaid-lookback-penalty-calculator|injury-settlement-net-proceeds-calculator|employment-contract-checker|worker-classification-checker|freelance-contract-checker|freelance-proposal-maker|nua-employer-stock-calculator|exemption-certificate-audit-check|insurance-commission-reconciler|mrr-waterfall-calculator|hoa-reserve-fund-calculator|pickleball-facility|property-management-profit|mobile-welding-job-price|sauna-cold-plunge-install-bid-calculator|good-faith-estimate|collision-shop-drp|escape-room-pricing|boutique-fitness-studio|waterfront-rental-season|car-wash-membership|law-firm-realization-rate-calculator|laundromat-machine-payback|ev-charging-site-roi|home-care-agency|childcare-center-break-even|booth-rent|commercial-photo-license|notary-trip|mobile-signing-agent|pool-route|pool-service-route|fishing-charter-trip-pricing|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|tattoo-piece-profit|massage-therapist-profit|dj-gig-profit|band-tour-profit|driving-instructor-lesson-pricing|wedding-photographer-profit|wedding-videographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|embroidery-shop-quote|screen-print-job-quote|sports-official-game-fee|powder-coating-job-price|grease-trap-pumping-price|hoarding-cleanout-bid|bed-bug-heat-treatment-price|ppf-ceramic-coating-price|paintless-dent-repair-quote|water-damage-drying-estimate|laser-cutting-engraving-job-price|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|home-inspection-report-builder|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-budget-allocator|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|volunteer-shift-scheduler|coffee-roaster-margin|house-cleaning-quote|str-turnover-crew|process-server-day|appraisal-assignment|translation-job|tax-season-client|interior-design-fee|nail-tech-booth-rent|birth-doula-package|pet-sitting-platform-fee|dog-grooming-price|farrier-visit|pet-waste-removal-route|private-pilot-training-cost|wedding-officiant-fee|cdl-school-payback|mobile-mechanic-visit|fishing-charter|horse-boarding-stall-profit|tutor-effective-hourly-rate|campground-site-profit|mobile-detailing-day-planner|fishing-crew-share-settlement|scrap-gold-buy-price|pawn-loan-profit|junk-car-buyer-offer|grape-grower-sell-vs-bottle|adjunct-course-offer-calculator|lash-studio-service-profit-calculator|optical-dispensary-margin-calculator|hearing-aid-dispensing-margin-calculator|provider-credentialing-delay-cost-calculator|independent-pharmacy-rx-margin-calculator|veterinary-wellness-plan-pricing-calculator|veterinary-dental-estimate-calculator|mobile-vet-house-call-fee-calculator|demand-charge-interval-analyzer|dental-patient-financing-fee-calculator|pool-opening-closing-price-calculator|private-chef-service-price-calculator)/.test(
         slug,
       ),
   },
@@ -990,7 +1351,17 @@ const CATEGORY_RULES = [
     // `shipping-box-size-optimizer` joined 2026-10-01 on its first commit: it is
     // `parcel-dim-weight`'s assortment-level partner (which set of cartons to
     // stock, rather than what one carton bills at), and the two cross-link.
-    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club|route-stop-optimizer|shipping-box-size)/.test(
+    // `container-load-planner` joined 2026-10-01 on its first commit: it packs the
+    // cartons and pallets into a container or truck, the same shipper as the box
+    // optimizer above, and the two cross-link.
+    // `fleet-ev-vs-diesel-tco-calculator` joined 2026-10-08 on its first commit: a small fleet's electric-vs-diesel cost sits beside
+    // `fleet-repair-or-replace-planner` and `ifta-`, the same vehicle-fleet operating-cost job.
+    // `warehouse-slotting-optimizer` joined 2026-10-09 on its first commit: where each SKU sits on a small warehouse's shelves decides the walk, beside the box and container planners.
+    // `self-storage-unit-mix-optimizer` joined 2026-10-09 on its first commit: a storage owner sizing a building's unit mix is a warehousing-space
+    // decision beside the 3PL and freight tools; filed here because the catch-all is at its bound and the back-office bundle is over the 3 MB ceiling (build.test.mjs).
+    // `car-hauler-load-planner` joined 2026-10-09 on its first commit: an auto-transport owner-operator choosing which vehicles share a trailer, beside `owner-operator` and `truck-detention`.
+    // `scrap-metal-yard-payout-calculator` joined 2026-10-12 on its first commit beside `equipment-auction-buyer-premium-calculator`: a scrapper, electrician or demolition crew netting a hauled load at two yards after fuel, time and fees, with a strip-or-sell wire check.
+    test: (slug) => /^(scrap-metal-yard-payout-calculator|lcl-vs-fcl-container|fuel-surcharge-schedule|lumper-fee-reimbursement|car-hauler-load-planner|fleet-ev-vs-diesel|self-storage-unit-mix-optimizer|3pl|freight|cloud-egress|ifta-|form-2290-hvut|ucr-fee|invoice-factoring|hos-trip-planner|ltl-|owner-operator|truck-detention|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club|tow-truck-rate|mobile-tire-van|route-stop-optimizer|shipping-box-size|container-load-planner|container-demurrage-detention-calculator|warehouse-slotting-optimizer)/.test(
       slug,
     ),
   },
@@ -1139,12 +1510,121 @@ const CATEGORY_RULES = [
     // user of.
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
-      || /^(einvoice|backup-verification|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check|salary-range-posting-check)/.test(slug)
+      || /^(einvoice|backup-verification|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check|salary-range-posting-check|eu-pay-gap-report-calculator)/.test(slug)
       || slug === '1099-k-threshold-checker'
       || slug === 'osha-trir-dart-calculator'
       || slug === 'final-paycheck-deadline-calculator'
       || slug === 'mechanics-lien-deadline-calculator'
-      || slug === 'boi-reporting-exemption-checker',
+      || slug === 'boi-reporting-exemption-checker'
+      // `hubspot-contacts-csv-check` joined 2026-10-04: a list preflight that reports what it found with line numbers and an explicit not-checked list, and
+      // `backoffice` is already over its gzipped offline bundle bound, so it cannot take another page.
+      || slug === 'hubspot-contacts-csv-check'
+      // `salesforce-lead-import-csv-check` joined 2026-10-04: the Salesforce half of the CRM import pre-flight above, filed beside it for the same bundle-bound reason.
+      || slug === 'salesforce-lead-import-csv-check'
+      // `pipedrive-import-csv-check` joined 2026-10-04: the Pipedrive (deals, people, organizations) half of the same CRM import pre-flight.
+      || slug === 'pipedrive-import-csv-check'
+      // `zoho-crm-import-csv-check` joined 2026-10-04: the Zoho CRM (leads, contacts, accounts, deals) half of the same CRM import pre-flight.
+      || slug === 'zoho-crm-import-csv-check'
+      // `activecampaign-import-csv-check` joined 2026-10-04: the ActiveCampaign (contacts, accounts, deals) half of the same import pre-flight.
+      || slug === 'activecampaign-import-csv-check'
+      // `klaviyo-profile-csv-check` joined 2026-10-04: the Klaviyo (email/SMS marketing profiles) member of the same import pre-flight family.
+      || slug === 'klaviyo-profile-csv-check'
+      // `google-ads-editor-csv-check` joined 2026-10-04: the Google Ads Editor (campaigns, keywords, responsive search ads) member of the same import pre-flight family.
+      || slug === 'google-ads-editor-csv-check'
+      // `mailchimp-audience-csv-check` joined 2026-10-04: the Mailchimp (email audience contacts) member of the same import pre-flight family.
+      || slug === 'mailchimp-audience-csv-check'
+      // `payroll-hours-csv-check` joined 2026-10-04: the payroll hours sheet member of the same file pre-flight family.
+      || slug === 'payroll-hours-csv-check'
+      // `gbp-bulk-location-check` joined 2026-10-04: a Google Business Profile bulk-location spreadsheet pre-flight, the same line-numbered findings and explicit not-checked list as the import pre-flights above, filed beside them for the same reason.
+      || slug === 'gbp-bulk-location-check'
+      // `meta-catalog-csv-check` joined 2026-10-05: a Meta (Facebook and Instagram) catalog feed pre-flight, the same line-numbered findings and explicit not-checked list as the import pre-flights above, filed beside them for the same reason.
+      || slug === 'meta-catalog-csv-check'
+      // `redirect-map-check` joined 2026-10-05: a site-migration redirect map pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them for the same bundle-bound reason.
+      || slug === 'redirect-map-check'
+      // `brevo-contacts-csv-check` joined 2026-10-05: the Brevo (email + SMS contacts) member of the same import pre-flight family.
+      || slug === 'brevo-contacts-csv-check'
+      // `gtin-list-check` joined 2026-10-05: a product-list barcode pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them for the same bundle-bound reason.
+      || slug === 'gtin-list-check'
+      // `iban-list-check` joined 2026-10-05: a supplier/payroll bank-detail pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them.
+      || slug === 'iban-list-check'
+      // `ics-calendar-check` joined 2026-10-05: an iCalendar file pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them for the same bundle-bound reason.
+      || slug === 'ics-calendar-check'
+      // `gpx-track-check` joined 2026-10-05: a GPX track file pre-flight, filed beside the other file pre-flights for the same bundle-bound reason.
+      || slug === 'gpx-track-check'
+      // `vcard-contacts-check` joined 2026-10-05: a vCard contacts-file pre-flight, same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them.
+      || slug === 'vcard-contacts-check'
+      // `ofx-file-check` joined 2026-10-05: a bank-export (OFX/QFX) pre-flight, same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them.
+      || slug === 'ofx-file-check'
+      // `qif-file-check` joined 2026-10-05: the QIF half of the bank-export pre-flights above (no transaction ID, no declared date order), same line-numbered findings and explicit not-checked list.
+      || slug === 'qif-file-check'
+      // `xero-bank-statement-csv-check` joined 2026-10-05: the statement-CSV member of the bank-export pre-flights above, same line-numbered findings and explicit not-checked list.
+      || slug === 'xero-bank-statement-csv-check'
+      // `camt053-to-ofx-converter` joined 2026-10-05: the conversion half of the camt.053/MT940 pair (balance check first, then OFX/QBO, QIF or Xero CSV), same line-numbered findings and explicit not-checked list.
+      || slug === 'camt053-to-ofx-converter'
+      // `bank-statement-pdf-to-csv` joined 2026-10-05: the PDF front end to the bank-export tools above (rows read from a statement PDF, proved against its own balances), same findings and explicit not-checked list.
+      || slug === 'bank-statement-pdf-to-csv'
+      // `bai2-to-ofx-converter` joined 2026-10-05: the US BAI2 counterpart of the camt.053/MT940 converter above (control-total and balance check first, then OFX/QBO, QIF or Xero CSV).
+      || slug === 'bai2-to-ofx-converter'
+      // `amazon-settlement-to-journal` joined 2026-10-05: the accounting-journal end of the marketplace tools (deposit check first, then a month-split Xero / QuickBooks journal), filed beside the bank-export converters above.
+      || slug === 'amazon-settlement-to-journal'
+      // `stripe-payout-to-journal` joined 2026-10-05: the Stripe end of the same payout-to-journal pair, filed beside it.
+      || slug === 'stripe-payout-to-journal'
+      // `shopify-payout-to-journal` joined 2026-10-05: the Shopify end of the same payout-to-journal set, filed beside it.
+      || slug === 'shopify-payout-to-journal'
+      // `etsy-statement-to-journal` joined 2026-10-05: the Etsy end of the same payout-to-journal set, filed beside it.
+      || slug === 'etsy-statement-to-journal'
+      // `square-sales-to-journal` joined 2026-10-05: the Square end of the same payout-to-journal set, filed beside it.
+      || slug === 'square-sales-to-journal'
+      // `payroll-register-to-journal` joined 2026-10-05: the payroll side of the same journal-engine family (register check, then a pay-run journal with every withholding as a liability), filed beside it.
+      || slug === 'payroll-register-to-journal'
+      // `ebay-payout-to-journal` joined 2026-10-05: the eBay end of the same payout-to-journal set, filed beside it.
+      || slug === 'ebay-payout-to-journal'
+      // `gumroad-sales-to-journal` joined 2026-10-05: the Gumroad end of the same payout-to-journal set, filed beside it.
+      || slug === 'gumroad-sales-to-journal'
+      // `patreon-payout-to-journal` joined 2026-10-05: the Patreon end of the same payout-to-journal set (platform and processing fees booked separately), filed beside it.
+      || slug === 'patreon-payout-to-journal'
+      // `ko-fi-payout-to-journal` joined 2026-10-05: the Ko-fi end of the same payout-to-journal set (income split by transaction type, fee derived), filed beside it.
+      || slug === 'ko-fi-payout-to-journal'
+      // `buymeacoffee-payout-to-journal` joined 2026-10-06: the Buy Me a Coffee end of the same payout-to-journal set, filed beside it.
+      || slug === 'buymeacoffee-payout-to-journal'
+      // `upwork-earnings-to-journal` joined 2026-10-06: the Upwork (freelancer) end of the same payout-to-journal set, filed beside it.
+      || slug === 'upwork-earnings-to-journal'
+      // `kdp-royalty-to-journal` joined 2026-10-06: the Amazon KDP (self-publishing) end of the same payout-to-journal set, filed beside it.
+      || slug === 'kdp-royalty-to-journal'
+      // `distrokid-royalty-to-journal` joined 2026-10-06: the independent-music (DistroKid) end of the same payout-to-journal set, filed beside it.
+      || slug === 'distrokid-royalty-to-journal'
+      // `fiverr-earnings-to-journal` joined 2026-10-06: the Fiverr (freelancer marketplace) end of the same payout-to-journal set, filed beside it.
+      || slug === 'fiverr-earnings-to-journal'
+      // `teachable-payout-to-journal` joined 2026-10-06: the Teachable (course creator) end of the same payout-to-journal set, filed beside it.
+      || slug === 'teachable-payout-to-journal'
+      // `youtube-adsense-payout-to-journal` joined 2026-10-06: the YouTube AdSense end of the same payout-to-journal set (US withholding receivable, realised FX), filed beside it.
+      || slug === 'youtube-adsense-payout-to-journal'
+      // `lemonsqueezy-payout-to-journal` joined 2026-10-05: the Lemon Squeezy end of the same payout-to-journal set, filed beside it.
+      || slug === 'lemonsqueezy-payout-to-journal'
+      // `paddle-payout-to-journal` joined 2026-10-05: the Paddle (merchant-of-record SaaS) end of the same payout-to-journal set, filed beside it.
+      || slug === 'paddle-payout-to-journal'
+      // `wise-statement-to-journal` joined 2026-10-06: the multi-currency bank end of the same journal set (foreign balance valued in the books' currency, realised FX on its own line), filed beside it.
+      || slug === 'wise-statement-to-journal'
+      // `revolut-business-statement-to-journal` joined 2026-10-06: the Revolut Business end of the same multi-currency journal set, filed beside Wise.
+      || slug === 'revolut-business-statement-to-journal'
+      // `payoneer-statement-to-journal` joined 2026-10-06: the Payoneer end of the same multi-currency journal set (marketplace and freelancer payouts), filed beside Wise and Revolut.
+      || slug === 'payoneer-statement-to-journal'
+      // `sales-export-to-journal` joined 2026-10-05: the single front door to the eight platform tools above (drop any export, the page detects the platform), filed beside them.
+      || slug === 'sales-export-to-journal'
+      // `airbnb-payout-to-journal` joined 2026-10-05: the Airbnb host end of the same payout-to-journal set, filed beside it.
+      || slug === 'airbnb-payout-to-journal'
+      // `paypal-activity-to-journal` joined 2026-10-05: the PayPal end of the same payout-to-journal set (Balance-column continuity proof, then a month-split journal), filed beside it.
+      || slug === 'paypal-activity-to-journal'
+      // `quickbooks-iif-file-check` joined 2026-10-05: the QuickBooks Desktop IIF half of the import-file pre-flights above, same line-numbered findings and explicit not-checked list.
+      || slug === 'quickbooks-iif-file-check'
+      // `mt940-statement-check` joined 2026-10-05: the SWIFT MT940 half of the bank-export pre-flights above (balance arithmetic, statement continuity, CSV conversion), same line-numbered findings and explicit not-checked list.
+      || slug === 'mt940-statement-check'
+      // `camt053-statement-check` joined 2026-10-05: the ISO 20022 XML successor to the MT940 check above, same balance arithmetic, continuity and CSV conversion with line-numbered findings.
+      || slug === 'camt053-statement-check'
+      // `youtube-chapters-check` joined 2026-10-05: a chapter-list pre-flight, same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them.
+      || slug === 'youtube-chapters-check'
+      // `google-contacts-csv-check` joined 2026-10-05: the CSV half of the contacts-file pre-flights above, same line-numbered findings and explicit not-checked list.
+      || slug === 'google-contacts-csv-check',
   },
   {
     id: 'backoffice',
@@ -1188,6 +1668,8 @@ const CATEGORY_RULES = [
     // the dental-ppo-writeoff-calculator question (what a contracted rate really collects) for a practice that can choose which payers to keep.
     // `cottage-food-pricing-calculator` joined 2026-10-01: a home baker's full cost and price per item by channel, from their own batch figures --
     // the pricing job `menu-engineering-calculator` does for a restaurant menu, for a cottage-food kitchen.
+    // `freelance-rate-increase-calculator` joined 2026-10-01 on its first commit: a freelancer's client list replayed against a proposed raise and each client's leave chance --
+    // the break-even companion to `freelance-retainer-calculator`'s income-goal pricing.
     // `freelance-retainer-vs-hourly-calculator` joined 2026-10-01: a freelancer's proposed monthly retainer replayed against their own time log, per client --
     // the empirical counterpart of `freelance-retainer-calculator`'s income-goal pricing.
     // `donor-retention-analyzer` joined 2026-10-01: a nonprofit's donor retention by fiscal year and a ranked list of lapsed donors,
@@ -1231,6 +1713,69 @@ const CATEGORY_RULES = [
     test: (slug) =>
       /(break-even|reconciliation-check|reconciliation-workbench)$/.test(slug)
       || slug === '1099k-reconciliation-worksheet'
+      // `nacha-file-validator` joined 2026-10-04 on its first commit: it checks the ACH payment file a bookkeeper
+      // exports from payroll or AP before the bank sees it -- the same back-office money-movement job as
+      // `payroll-tax-deposit-penalty-calculator` and `duplicate-payment-audit`.
+      || slug === 'nacha-file-validator'
+      // `w2-efw2-file-validator` joined 2026-10-04 on its first commit: it checks the W-2 wage file a payroll
+      // preparer exports before it goes to SSA -- the same back-office payroll job as the deposit-penalty calculator.
+      || slug === 'w2-efw2-file-validator'
+      // `irs-iris-1099-csv-check` joined 2026-10-04 on its first commit: it checks the 1099-NEC/MISC bulk file a bookkeeper
+      // uploads to IRIS -- the same back-office information-return job as `w2-efw2-file-validator` just above.
+      || slug === 'irs-iris-1099-csv-check'
+      // `1099-vendor-csv-checker` joined 2026-10-04 on its first commit: the January pre-flight on the vendor list before 1099-NEC
+      // filing -- the same back-office tax-form job as the W-2 file validator and the 1099 vendor tracker.
+      || slug === '1099-vendor-csv-checker'
+      // `form-5500-late-filing-calculator` joined 2026-10-04 on its first commit: a retirement-plan sponsor's overdue
+      // annual return priced against two agencies' penalties -- the same downstream tax-authority obligation as
+      // `quarterly-estimated-tax-calendar` above, not `solo-earner` (nothing is priced before a sale).
+      || slug === 'form-5500-late-filing-calculator'
+      // `bai2-statement-reader` joined 2026-10-04 on its first commit: it reads and checks the bank statement file a
+      // bookkeeper downloads for reconciliation -- the same back-office money-movement job as `nacha-file-validator`.
+      || slug === 'bai2-statement-reader'
+      // `eu-bank-statement-reader` joined 2026-10-04 on its first commit: the camt.053/MT940 counterpart of
+      // `bai2-statement-reader` -- the statement file a bookkeeper downloads for reconciliation.
+      || slug === 'eu-bank-statement-reader'
+      // `sepa-payment-file-validator` joined 2026-10-04 on its first commit: the euro-area twin of `nacha-file-validator`,
+      // checking the pain.001 file a bookkeeper exports from AP or payroll before the bank sees it.
+      || slug === 'sepa-payment-file-validator'
+      // `sepa-pain001-validator` joined 2026-10-04 on its first commit: the euro-area twin of `nacha-file-validator` -- the SEPA payment
+      // file a bookkeeper exports from accounting or payroll, checked before the bank sees it.
+      || slug === 'sepa-pain001-validator'
+      // `sepa-pain002-status-reader` joined 2026-10-04 on its first commit: the receiving end of `sepa-pain001-validator` -- the bank's
+      // status report on an uploaded SEPA file, read per payment with each rejection code explained.
+      || slug === 'sepa-pain002-status-reader'
+      // `edi-x12-order-checker` joined 2026-10-04 on its first commit: a supplier's EDI purchase order, invoice and ship
+      // notice checked before they go to a retailer -- the same back-office document-preflight job as the payment-file checkers.
+      || slug === 'edi-x12-order-checker'
+      // `bank-csv-to-qbo-converter` joined 2026-10-04 on its first commit: the CSV-in, accounting-file-out partner of the statement
+      // readers -- a bookkeeper's bank CSV turned into QBO/OFX/QIF with the date and sign assumptions stated.
+      || slug === 'bank-csv-to-qbo-converter'
+      // `xero-invoice-csv-check` joined 2026-10-04 on its first commit: a bookkeeper's sales invoice import file checked before Xero
+      // sees it, the same CSV-preflight job as the bank converter next to it.
+      || slug === 'xero-invoice-csv-check'
+      // `quickbooks-import-csv-check` joined 2026-10-04 on its first commit: a bookkeeper's QuickBooks customer, vendor or item import
+      // file checked before QuickBooks sees it, the same CSV-preflight job as the Xero and bank converters next to it.
+      || slug === 'quickbooks-import-csv-check'
+      // `quickbooks-chart-of-accounts-csv-check` joined 2026-10-04 on its first commit: the chart-of-accounts half of the QuickBooks list checker next to it.
+      || slug === 'quickbooks-chart-of-accounts-csv-check'
+      // `xero-contacts-csv-check` joined 2026-10-04 on its first commit: the contacts half of the Xero import checker next to it.
+      || slug === 'xero-contacts-csv-check'
+      // `email-list-csv-check` joined 2026-10-04 on its first commit: a contact list checked before it is imported into an email
+      // platform, the same CSV-preflight job as the Xero and bank converters next to it.
+      || slug === 'email-list-csv-check'
+      // `eu-vat-oss-calculator` joined 2026-10-04 on its first commit: a small seller's EU cross-border VAT return from a sales export, the
+      // same back-office compliance-arithmetic job as the SEPA and e-invoice tools here.
+      || slug === 'eu-vat-oss-calculator'
+      // `client-concentration-risk-analyzer` joined 2026-10-02 on its first commit: it reads the same invoice
+      // export as `invoice-payment-terms-calculator` here and asks how much revenue one client carries.
+      || slug === 'client-concentration-risk-analyzer'
+      // `bookkeeping-client-fee-calculator` joined 2026-10-02 on its first commit: a bookkeeper's retainer, cleanup and walk-away price from a client's
+      // workload, and a roster ranked by effective hourly -- the back-office pricing job `client-profitability-time-analyzer` does after the fact.
+      || slug === 'bookkeeping-client-fee-calculator'
+      // `price-increase-breakeven-calculator` filed here 2026-10-02: it was landing in the catch-all (bound 5) and is
+      // the same after-the-fact margin arithmetic as the break-even tools above.
+      || slug === 'price-increase-breakeven-calculator'
       // `rent-roll-delinquency-analyzer` reads a landlord's rent ledger after the rent fell due
       // (what is unpaid, how old, who pays late) -- the same after-the-fact reconciliation job
       // as `cam-reconciliation-check` above, for tenants' payments instead of a CAM statement.
@@ -1238,6 +1783,17 @@ const CATEGORY_RULES = [
       // `rental-property-schedule-e-categorizer` sorts a landlord's bank file after the year is over
       // into tax lines: the same after-the-fact reconciliation job, next to the rent ledger reader.
       || slug === 'rental-property-schedule-e-categorizer'
+      // `state-residency-day-counter` joined 2026-10-01 on its first commit: a tax-year record of days
+      // per state checked against residency limits -- the same tax-obligation axis as
+      // `quarterly-estimated-tax-calendar` above, which it links to.
+      || slug === 'state-residency-day-counter'
+      // `feie-physical-presence-calculator` joined 2026-10-03 on its first commit: the federal 330-day
+      // count a US expat keeps, the same tax-obligation day-counting axis as `state-residency-day-counter`.
+      || slug === 'feie-physical-presence-calculator'
+      // `cheap-meal-plan-optimizer` joined 2026-10-01 on its first commit: a household's food budget as a
+      // minimum-cost linear program -- a personal money decision rather than an operator pricing food, so it
+      // sits here and not under `food-service`, which is for people who sell food.
+      || slug === 'cheap-meal-plan-optimizer'
       // `self-employed-schedule-c-categorizer` is the same bank-file-to-tax-lines job for a sole proprietor's
       // Schedule C, and its page sits next to `1099k-reconciliation-worksheet` and the landlord version.
       || slug === 'self-employed-schedule-c-categorizer'
@@ -1573,7 +2129,7 @@ const CATEGORY_RULES = [
       // lookups with an eligibility wrinkle the headline number alone
       // does not capture), with a reciprocal inbound link from that
       // venture's first commit rather than shipping as an orphan.
-      || /^(adu-payback-calculator|wage-garnishment-limit|commercial-lease-effective-rent-calculator|ad-spend-saturation-optimizer|ad-incrementality-test-analyzer|freelance-retainer-vs-hourly-calculator|like-kind-exchange|dependent-care-fsa-vs-credit-calculator|indie-game-payout|google-play-earnings-report|amazon-ppc-search-term|whatnot-sales-report|youtube-revenue-rpm|meta-ads-fatigue|upwork-earnings-fee|turo-earnings-report|patreon-members-churn|substack-subscriber-export|ghost-members-export|bandcamp-sales-report|app-store-sales-report|fiverr-earnings-fee|gumroad-sales-fee|tiktok-shop-settlement|kdp-royalty-report|gig-driver-earnings-report|airbnb-earnings-report|cash-runway|invoice-payment-terms|cam-|saas-seat|saas-annual-plan|saas-cac-payback|stripe-churn-cohort|stripe-failed-payment|google-ads-wasted-spend|subscription-price|subscription-audit-from-statement|self-storage-rate-increase|renewal-rent-optimizer|quote-follow-up-timing|trial-conversion-timing-analyzer|str-nightly-rate-optimizer|seller-net-sheet|property-tax-appeal-calculator|aca-subsidy-cliff-calculator|medical-bill-error-checker|mortgage-escrow-analysis-checker|social-security-claiming-age-calculator|travel-nurse-contract-comparison-calculator|appointment-deposit|appointment-no-show|appointment-overbooking|service-hourly-yield-analyzer|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|card-surcharge|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|workers-comp-premium-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|rd-tax-credit-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|gambling-loss-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker|child-tax-credit-calculator|eitc-calculator|hsa-contribution-limit-calculator|solo-401k-contribution-calculator|mileage-deduction-method-calculator|mileage-log|home-office-deduction-calculator|str-tax-loophole-calculator|estimated-tax-penalty-calculator|self-employment-tax-calculator|backdoor-roth-pro-rata-calculator|roth-conversion-bracket-fill-calculator|rsu-withholding-gap-calculator|iso-exercise-amt-calculator|job-offer-total-comp-calculator|physician-wrvu-compensation-calculator|dental-associate-pay-calculator|solar-payback-calculator|heat-pump-vs-furnace-calculator|cash-balance-plan-calculator|safe-dilution-calculator|cost-segregation-study-calculator|agent-brokerage-split-calculator|espp-tax-calculator|tax-loss-harvesting-calculator|home-sale-exclusion-calculator|medicare-irmaa-cliff-calculator|rmd-calculator|rental-dscr-calculator|rental-rent-optimizer|contractor-wip-schedule|landlord-repair-or-replace-planner|brrrr-calculator|self-employed-health-insurance-deduction-calculator|physician-wrvu-contract-calculator|veterinarian-associate-pay-calculator|section-83b-election-calculator|pslf-vs-refinance-calculator|startup-option-value-calculator|van-westendorp-pricing-analyzer|sales-commission-plan-comparison-calculator|rule-72t-sepp-calculator|locum-tenens-vs-employed-calculator|fix-and-flip-deal-analyzer|merchant-cash-advance-true-cost-calculator|usage-based-pricing-simulator|startup-exit-waterfall-calculator|augusta-rule-calculator|gabor-granger-price-analyzer|insurance-agency-book-valuation-calculator|ab-test-significance-calculator|online-business-valuation-calculator|customer-lifetime-value-predictor|sales-seasonality-forecaster|price-elasticity-estimator|seasonal-buy-quantity-optimizer|donor-retention-analyzer|private-practice-payer-mix-calculator|market-garden-bed-planner|cottage-food-pricing-calculator|payroll-tax-deposit-penalty-calculator|family-child-care-time-space-calculator)/.test(slug),
+      || /^(hard-money-loan-cost-calculator|wash-sale-checker|inherited-ira-10-year-withdrawal-planner|cobra-vs-marketplace-calculator|nsa-idr-offer-calculator|adu-payback-calculator|wage-garnishment-limit|commercial-lease-effective-rent-calculator|ad-spend-saturation-optimizer|ad-incrementality-test-analyzer|freelance-retainer-vs-hourly-calculator|scope-creep-change-order-calculator|freelance-project-picker|like-kind-exchange|syndication-waterfall|med-spa-treatment-profit-calculator|fractional-executive-rate-calculator|grant-writer-proposal-price-calculator|chiropractor-new-patient-roi-calculator|dependent-care-fsa-vs-credit-calculator|google-play-earnings-report|amazon-ppc-search-term|whatnot-sales-report|youtube-revenue-rpm|meta-ads-fatigue|turo-earnings-report|substack-subscriber-export|ghost-members-export|app-store-sales-report|era-835-underpayment-finder|tiktok-shop-settlement|kdp-royalty-report|gig-driver-earnings-report|airbnb-earnings-report|cash-runway|invoice-payment-terms|early-pay-discount-picker|cam-|saas-seat|saas-renewal-planner|vendor-contract-clause-reader|saas-annual-plan|saas-efficiency-metrics-calculator|saas-cac-payback|stripe-churn-cohort|ebay-promoted-listings-roi|etsy-ads-roi|stripe-failed-payment|google-ads-wasted-spend|subscription-price|subscription-audit-from-statement|self-storage-rate-increase|renewal-rent-optimizer|quote-follow-up-timing|trial-conversion-timing-analyzer|str-nightly-rate-optimizer|booking-request-chooser|market-event-picker|consignment-markdown-planner|trade-show-roi-calculator|dog-grooming-day-planner|str-turnover-scheduler|midterm-rental-calculator|support-staffing-planner|lot-split-calculator|csa-share-pricing-calculator|seller-net-sheet|property-tax-appeal-calculator|aca-subsidy-cliff-calculator|medical-bill-error-checker|insurance-denial-appeal-builder|mortgage-escrow-analysis-checker|social-security-claiming-age-calculator|travel-nurse-contract-comparison-calculator|appointment-deposit|appointment-no-show|appointment-overbooking|service-hourly-yield-analyzer|equipment-lease-buyout|equipment-lease-vs-buy|fleet-repair-or-replace-planner|card-processing-fee-audit|card-surcharge|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|cannabis-280e-tax-calculator|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|workers-comp-premium-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|rd-tax-credit-calculator|bonus-depreciation-calculator|business-vehicle-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|gambling-loss-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker|child-tax-credit-calculator|eitc-calculator|hsa-contribution-limit-calculator|solo-401k-contribution-calculator|sep-ira-vs-solo-401k-calculator|mileage-deduction-method-calculator|mileage-log|home-office-deduction-calculator|str-tax-loophole-calculator|estimated-tax-penalty-calculator|self-employment-tax-calculator|backdoor-roth-pro-rata-calculator|roth-conversion-bracket-fill-calculator|rsu-withholding-gap-calculator|iso-exercise-amt-calculator|job-offer-total-comp-calculator|physician-wrvu-compensation-calculator|dental-associate-pay-calculator|solar-payback-calculator|heat-pump-vs-furnace-calculator|cash-balance-plan-calculator|safe-dilution-calculator|cost-segregation-study-calculator|agent-brokerage-split-calculator|espp-tax-calculator|tax-loss-harvesting-calculator|crypto-cost-basis-calculator|home-sale-exclusion-calculator|medicare-irmaa-cliff-calculator|coast-fire-calculator|rmd-calculator|rental-dscr-calculator|rental-rent-optimizer|contractor-wip-schedule|landlord-repair-or-replace-planner|brrrr-calculator|self-employed-health-insurance-deduction-calculator|physician-wrvu-contract-calculator|veterinarian-associate-pay-calculator|section-83b-election-calculator|pslf-vs-refinance-calculator|startup-option-value-calculator|van-westendorp-pricing-analyzer|sales-commission-plan-comparison-calculator|rule-72t-sepp-calculator|locum-tenens-vs-employed-calculator|fix-and-flip-deal-analyzer|merchant-cash-advance-true-cost-calculator|business-loan-offer-comparator|usage-based-pricing-simulator|startup-exit-waterfall-calculator|augusta-rule-calculator|gabor-granger-price-analyzer|insurance-agency-book-valuation-calculator|ab-test-significance-calculator|investor-update-builder|online-business-valuation-calculator|customer-lifetime-value-predictor|sales-seasonality-forecaster|price-elasticity-estimator|seasonal-buy-quantity-optimizer|donor-retention-analyzer|donor-acknowledgment-letter-generator|private-practice-payer-mix-calculator|market-garden-bed-planner|cottage-food-pricing-calculator|payroll-tax-deposit-penalty-calculator|family-child-care-time-space-calculator)/.test(slug),
   },
   {
     id: 'ci',
@@ -2486,6 +3042,14 @@ const CATEGORY_RULES = [
     // method this file's own comments already record three times over for
     // this exact guard.
     //
+    // `node-version-drift-check` joined 2026-10-12, filed here on its first
+    // commit. A zero-dependency CLI plus browser tool that compares a repo's
+    // own Node.js version declarations (engines.node, .nvmrc, Dockerfile,
+    // setup-node) to each other and to a dated end-of-life table -- CI/build
+    // hygiene next to `package-exports-drift-check` and the Docker checkers.
+    // It cross-links `package-exports-drift-check` and
+    // `docker-base-image-eol-check` as Related in its footer.
+    //
     // `referrer-permissions-policy-check` joined 2026-09-25, filed here on
     // its first commit rather than after a spell in the catch-all -- the
     // same lesson. Same shape as `cors-misconfig-check` and
@@ -2502,7 +3066,7 @@ const CATEGORY_RULES = [
     // footers -- left for a future pass, the same as several siblings
     // above that only cross-link one direction at graduation).
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|npm-provenance-check|vscode-extension-drift-check|dependency-confusion-check|dependabot-config-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|aws-commitment-breakeven-calculator|llm-usage-log-analyzer|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check|claude-code-hooks-security-check|pypi-provenance-check|referrer-permissions-policy-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ci-test-shard-balancer|datadog-bill-estimator|vercel-bill-estimator|neon-bill-estimator|cloudflare-bill-estimator|upstash-redis-bill-estimator|error-tracking-pricing-calculator|product-analytics-pricing-calculator|auth-mau-pricing-calculator|git-timesheet|email-api-pricing-calculator|ci-minutes-pricing-calculator|cdn-bandwidth-pricing-calculator|object-storage-pricing-calculator|search-api-pricing-calculator|training-gpu-pricing-calculator|uptime-monitoring-pricing-calculator|speech-to-text-pricing-calculator|video-hosting-pricing-calculator|log-management-pricing-calculator|feature-flag-pricing-calculator|merchant-of-record-fee-calculator|ppp-pricing-table-generator|llm-output-regression-diff|app-store-commission-calculator|sms-segment-cost-calculator|supabase-bill-estimator|webhook-signature-debugger|ai-crawler-access|license-drift-check|license-compat-check|npm-lifecycle-script-check|npm-provenance-check|vscode-extension-drift-check|dependency-confusion-check|dependabot-config-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|json-ld-rich-result-validator|env-example-drift-check|llm-call-cost-scan|lambda-memory-rightsizer|k8s-requests-rightsizer|rds-instance-rightsizer|lambda-vs-fargate-cost-breakeven|dynamodb-capacity-mode-advisor|ebs-volume-cost-advisor|nat-gateway-cost-advisor|cloudwatch-logs-cost-advisor|bigquery-query-cost-advisor|snowflake-warehouse-cost-advisor|rds-instance-cost-advisor|databricks-cluster-cost-advisor|s3-storage-class-savings|s3-storage-class-advisor|postgres-explain-analyzer|pg-stat-statements-analyzer|postgres-index-auditor|prometheus-cardinality-cost|slo-burn-rate-alerts|regex-redos-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|dmarc-report-reader|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|node-version-drift-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|app-listing-metadata-check|llms-txt-generator|release-notes-generator|json-to-types-generator|csv-to-sql-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|aws-commitment-breakeven-calculator|aws-bill-change-explainer|llm-usage-log-analyzer|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|cron-heartbeat|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check|claude-code-hooks-security-check|pypi-provenance-check|referrer-permissions-policy-check|jwt-verification-misuse-check|docker-compose-security-check|git-bus-factor-check|lockfile-license-check|npm-lockfile-duplicates-check|requirements-pin-check|incident-postmortem-timeline|oncall-load-analyzer|soc2-readiness|k8s-pod-security-check|agent-permission-config-check|s3-bucket-exposure-check|aws-iam-policy-risk-check)/.test(
         slug,
       ),
   },
@@ -2549,6 +3113,10 @@ const CATEGORY_RULES = [
     // whether the tool is a calculator or a checker, and `ats-resume-checker`
     // is already the precedent for a checker-shaped member here.
     //
+    // `candle-batch-cost-calculator` joined 2026-10-01: a candle or soap maker costing wax, fragrance and
+    // their own hours across online, fair and wholesale sales is the same person as the maker above.
+    // `pottery-piece-pricing-calculator` joined 2026-10-07 on its first commit: a potter costing clay, kiln firings and
+    // breakage is the same maker as the candle or soap maker above.
     // `craft-fair-booth-calculator` joined 2026-09-10, and it is the clearest
     // member yet: a maker deciding whether one market booth is worth their
     // weekend is the same person as `3d-print-price-calculator`'s maker
@@ -2685,16 +3253,135 @@ const CATEGORY_RULES = [
     // pricing or income question at all), share no axis with this section or
     // each other, so they stay in the catch-all rather than being forced in
     // here.
+    // 2026-10-06: the six creator-earnings report analyzers below were filed in `backoffice` by prefix, which
+    // pushed its gzipped offline bundle to 3.16 MB against the 3 MB bound. A creator reading their own
+    // Gumroad, Fiverr, Upwork, Patreon, Bandcamp or indie-game payout export is this section's earner, so they
+    // moved here (exact slugs, as the rest of this list) rather than the bound being raised.
     test: (slug) =>
       [
+        // `mileage-deduction-calculator` and `proposal-maker` joined 2026-10-09 when landed. Back-office is over its 3 MB offline
+        // bound; a self-employed filer's vehicle deduction and a freelancer's proposal are one person earning from their own work.
+        'mileage-deduction-calculator',
+        'proposal-maker',
+        // `clergy-housing-allowance-calculator` joined 2026-10-10 on its first commit: one minister working out the tax-free share of their own pay.
+        'clergy-housing-allowance-calculator',
+        // `retreat-profit-pricing-calculator` joined 2026-10-09 on its first commit: one teacher or coach costing and pricing their own event.
+        'retreat-profit-pricing-calculator',
+        // `card-bonus-planner` joined 2026-10-09 on its first commit. Back-office is over its 3 MB offline bound on main; one person scheduling their own sign-up bonuses is an individual earning from their own spending, not a business back office.
+        'card-bonus-planner',
+        // `greenhouse-bench-planner` joined 2026-10-07 on its first commit. Back-office was at its 3 MB offline bound; a
+        // grower selling transplants on fixed dates is one person pricing their own season's space.
+        // `contract-vs-fte-rate-calculator` joined 2026-10-08 on its first commit: one person working out what a contract rate must be to match a salary.
+        'contract-vs-fte-rate-calculator',
+        // `mobile-home-park-valuation-calculator` joined 2026-10-08 on its first commit. Back-office was at its 3 MB offline bound; a small park owner or buyer
+        // working out what their own asset is worth and what a rent increase adds is one person valuing their own income stream.
+        'mobile-home-park-valuation-calculator',
+        // `cell-tower-lease-buyout-calculator` joined 2026-10-08 on its first commit, same reason: one landowner weighing a buyout of their own lease income.
+        'cell-tower-lease-buyout-calculator',
+        // `pension-lump-sum-vs-annuity-calculator` joined 2026-10-08 on its first commit: one retiree weighing a buyout of their own pension income, beside the lease buyout tools.
+        'pension-lump-sum-vs-annuity-calculator',
+        // `fers-retirement-planner` joined 2026-10-09 on its first commit: one federal employee comparing retirement ages on their own pension, beside the pension buyout tool.
+        'fers-retirement-planner',
+        // `401k-plan-fee-calculator` joined 2026-10-10 on its first commit: filed here because `backoffice` is at its 3 MB gzipped offline bound; one plan sponsor sizing their own retirement plan's cost, beside the other retirement planners.
+        '401k-plan-fee-calculator',
+        // `tax-lot-sale-optimizer` joined 2026-10-08 on its first commit: one investor choosing which lots of their own holding to sell, beside the other single-person tax and income-timing tools.
+        'tax-lot-sale-optimizer',
+        // `mortgage-extra-payment-vs-invest-calculator` joined 2026-10-08 on its first commit: one homeowner deciding what to do with their own spare cash against their own loan, beside the other single-person money-decision tools.
+        'mortgage-extra-payment-vs-invest-calculator',
+        // `covered-call-wheel-calculator` joined 2026-10-08 on its first commit: one investor ranking option quotes on their own holding, beside the other single-person investing and income-timing tools.
+        'covered-call-wheel-calculator',
+        // `rent-vs-buy-breakeven-calculator` joined 2026-10-08 on its first commit: one household deciding whether to buy, beside the home-sale and mortgage tools.
+        'rent-vs-buy-breakeven-calculator',
+        // `car-lease-deal-checker` joined 2026-10-11 on its first commit: one shopper checking their own lease quote, beside the other single-household money-decision tools.
+        'car-lease-deal-checker',
+        // `home-sale-net-proceeds-calculator` joined 2026-10-11 on its first commit: one seller's net sheet and tax estimate, beside the other single-household money-decision tools.
+        'home-sale-net-proceeds-calculator',
+        // `roommate-rent-splitter` joined 2026-10-11 on its first commit: roommates dividing their own rent, beside the other single-household money-decision tools.
+        'roommate-rent-splitter',
+        // `funeral-price-list-checker` joined 2026-10-12 on its first commit: one family checking their own funeral quote line by line, beside the other single-household money-decision tools.
+        'funeral-price-list-checker',
+        // `cd-treasury-ladder-planner` joined 2026-10-08 on its first commit: one saver laddering their own cash, beside the other single-person investing and income-timing tools.
+        'cd-treasury-ladder-planner',
+        // `hsa-shoebox-reimbursement-planner` joined 2026-10-08 on its first commit: one HSA owner valuing their own unreimbursed receipts, beside the other single-person tax and income-timing tools.
+        'hsa-shoebox-reimbursement-planner',
+        // `student-loan-rap-ibr-standard-calculator` joined 2026-10-08 on its first commit: one borrower choosing between repayment plans on their own federal loans, beside the other single-person money-decision tools.
+        'student-loan-rap-ibr-standard-calculator',
+        // `charity-bunching-planner` joined 2026-10-08 on its first commit: one donor timing gifts into a donor-advised fund, beside the other single-person tax and income-timing tools.
+        'charity-bunching-planner',
+        // `structured-settlement-buyout-calculator` joined 2026-10-08 on its first commit: one payee weighing a factoring company's cash offer for settlement payments, beside the buyout tools.
+        'structured-settlement-buyout-calculator',
+        // `film-tax-credit-net-value-calculator` joined 2026-10-08 on its first commit: one producer turning their own production's incentive into net cash, the catch-all being at its bound.
+        'film-tax-credit-net-value-calculator',
+        // `mortgage-points-break-even-calculator` joined 2026-10-08 on its first commit: one buyer weighing points on their own loan estimate, beside the other lump-sum-for-income decisions.
+        'mortgage-points-break-even-calculator',
+        // `heloc-vs-cash-out-refinance-calculator` joined 2026-10-08 on its first commit: one homeowner pricing their own two ways to borrow against equity, beside the mortgage points tool.
+        'heloc-vs-cash-out-refinance-calculator',
+        // `oil-gas-mineral-rights-offer-calculator` joined 2026-10-08 on its first commit: one owner weighing a buyout of their own royalty income, beside the tower-lease tool.
+        'oil-gas-mineral-rights-offer-calculator',
+        // `tax-lien-certificate-yield-calculator` joined 2026-10-08: the catch-all hit its bound of 5 when it graduated; one investor working out the yield on their own certificate.
+        'tax-lien-certificate-yield-calculator',
+        'greenhouse-bench-planner',
+        // `mushroom-fruiting-room-planner` joined 2026-10-07 on its first commit, same reason: back-office is at its bound,
+        // and a grower deciding flushes, slots and starting cash for their own room is one person pricing their own farm.
+        'mushroom-fruiting-room-planner',
+        // `small-business-acquisition-calculator` joined 2026-10-06 on its first
+        // commit. Its natural home, back-office, was already over the 3 MB
+        // gzipped offline bound; what it answers is what one owner-operator
+        // takes home after the loan on a business they are about to buy.
+        'small-business-acquisition-calculator',
+        // `cash-flow-risk-forecaster` and `freelance-editor-quote-calculator` joined 2026-10-06. Back-office was at
+        // its 3 MB offline bound and the catch-all at its bound; a freelancer or owner-operator pricing their
+        // own job or forecasting their own cash is this section's earner.
+        'cash-flow-risk-forecaster',
+        'freelance-editor-quote-calculator',
+        // `installment-sale-tax-calculator` joined 2026-10-06 for the same reason: back-office was at the 3 MB
+        // gzipped bound, and what it answers is what one seller nets, year by year, from selling their own business or
+        // property for a note.
+        'installment-sale-tax-calculator',
+        // `invoice-maker` joined 2026-10-06 for the same reason (back-office at its 3 MB bound): a freelancer or sole proprietor
+        // making the invoice for their own job.
+        'invoice-maker',
+        // `estimate-maker` joined 2026-10-07 beside it: the quote a freelancer or trade sends before the invoice, with win-rate tracking.
+        'estimate-maker',
+        // `time-tracker` joined 2026-10-07: the hours behind the invoice, handing unbilled time to Invoice Maker.
+        'time-tracker',
+        // `freelance-contract-maker` joined 2026-10-07: the service agreement a freelancer sends before the estimate, time and invoice.
+        'freelance-contract-maker',
+        // `freelance-proposal-maker` joined 2026-10-07: the priced proposal a freelancer sends before the contract.
+        'freelance-proposal-maker',
+        // `freelance-lead-tracker` joined 2026-10-07: the prospects and follow-ups in front of the proposal.
+        'freelance-lead-tracker',
+        // `rental-ledger` joined 2026-10-07: the records-and-Schedule-E home for the landlord calculators, which each answer one typed question and hold nothing.
+        'rental-ledger',
+        // `expense-tracker` joined 2026-10-07: the costs beside the hours and the invoice, grouped by Schedule C line.
+        'expense-tracker',
+        // `freelance-dashboard` joined 2026-10-07: one view over the four tools above, ranking what to chase, bill and set aside.
+        'freelance-dashboard',
+        // `freelancer-tax-pack` joined 2026-10-07: reads the three tools' records and answers what is owed and what to pay now.
+        'freelancer-tax-pack',
+        'indie-game-payout-calculator',
+        'upwork-earnings-fee-analyzer',
+        'patreon-members-churn-analyzer',
+        'bandcamp-sales-report-analyzer',
+        'fiverr-earnings-fee-analyzer',
+        'gumroad-sales-fee-analyzer',
         '3d-print-price-calculator',
         'affiliate-disclosure-checker',
         'ats-resume-checker',
+        'house-hack-calculator',
         'brand-deal-rate-calculator',
         'cat-adjuster-fee-calculator',
+        'ad-slot-sell-through-planner',
+        'candle-batch-cost-calculator',
+        // `small-batch-run-size-optimizer` joined 2026-10-09 on its first commit: how big each run should be, beside the candle batch cost.
+        'small-batch-run-size-optimizer',
+        'pottery-piece-pricing-calculator',
         'craft-fair-booth-calculator',
         'epk-generator',
+        // `prop-firm-challenge-calculator` joined 2026-10-12: a retail trader pricing a funded-account challenge fee against their own pass odds is one person deciding what their own risk-taking is worth.
+        'prop-firm-challenge-calculator',
         'freelance-writer-rate-calculator',
+        'freelance-editor-quote-calculator',
         'gig-driver-net-pay-calculator',
         'influencer-media-kit-generator',
         'newsletter-sponsorship-rate-calculator',
@@ -2703,8 +3390,26 @@ const CATEGORY_RULES = [
         'podcast-feed-check',
         'podcast-sponsorship-rate-calculator',
         'sponsor-ready',
+        // `section-1256-futures-tax-calculator` joined 2026-10-08 on its first commit: back-office was at its 3 MB offline bound,
+        // and a futures trader pricing what the 60/40 rule leaves them is one person working out their own income.
+        'section-1256-futures-tax-calculator',
+        // `sep-ira-contribution-calculator` landed 2026-10-08 from a stranded branch: back-office was at its 3 MB offline bound,
+        // and a self-employed filer sizing their own retirement contribution is one person working out their own income.
+        'sep-ira-contribution-calculator',
+        // `class-price-and-minimum-optimizer` joined 2026-10-09 on its first commit: a studio or tutoring centre setting its own seat price,
+        // one hop from `studio-class-slot-optimizer` and `tutor-package-pricing-calculator`.
+        'class-price-and-minimum-optimizer',
         'studio-class-slot-optimizer',
         'tutor-package-pricing-calculator',
+        // `tutor-weekly-schedule-optimizer` joined 2026-10-09 on its first commit: the same one-to-one teacher as the package calculator, deciding which students to book when.
+        'tutor-weekly-schedule-optimizer',
+        // `rush-job-sequencer` joined 2026-10-09 on its first commit: a small shop ordering its own job queue, one hop from the scheduling optimizers above.
+        'rush-job-sequencer',
+        // `patreon-fee-calculator` and the two Social Security calculators were filed here 2026-10-09 because the catch-all hit 6:
+        // each is one individual working out what their own creator income or benefit actually nets.
+        'patreon-fee-calculator',
+        'social-security-benefits-tax-calculator',
+        'social-security-earnings-test-calculator',
         'voiceover-project-rate-calculator',
       ].includes(slug),
   },
@@ -3456,11 +4161,12 @@ const SUBCATEGORY_RULES = {
       // margin, the same job-costing shape as `job-margin` and
       // `shop-rate` for a licensed surveyor's boundary/ALTA retracement
       // work instead of a construction trade.
-      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|project-estimate-calibrator|construction-evidence|shop-rate|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|lead-response-time|custom-farm-rate|land-survey|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability)/.test(slug),
+      test: (slug) => /^(construction-delay-claim|surety-bond-capacity|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|mosquito-control-program|quote-margin|coi-expiry-gap-checker|retainage|freelance-retainer|price-increase-breakeven|freelance-rate-increase|no-show-fee|change-order|construction-delay|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|project-estimate-calibrator|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|plumber-flat-rate|hvac-repair-tier|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|lead-response-time|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|land-survey|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|experience-mod)/.test(slug),
     },
     {
       id: 'trades-cleaning',
       title: 'Cleaning, restoration & insulation',
+      // `hoarding-cleanout-bid-calculator` joins beside `biohazard-cleanup`: it prices a heavy-clutter cleanout (containment, sanitising, haul-away).
       // `biohazard-cleanup` and `asbestos-abatement` join this group beside
       // `mold-remediation` and `radon-mitigation`: all price a licensed
       // hazard-removal or remediation job (containment, protective
@@ -3474,7 +4180,7 @@ const SUBCATEGORY_RULES = {
       // the buyer is the same mobile/in-shop auto tech as `mobile-detailing`,
       // `vehicle-wrap`, and `window-tinting`, working on the vehicle's own
       // surface rather than a fixed building product.
-      test: (slug) => /^(janitorial|window-cleaning|pressure-washing|carpet-cleaning|cleaning-dilution|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|vehicle-wrap|window-tinting|auto-glass|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|asbestos-abatement|crawl-space|basement-waterproofing|attic-insulation|spray-foam|pet-grooming|wildlife-exclusion|biohazard-cleanup)/.test(slug),
+      test: (slug) => /^(upholstery-shop|hydroseeding|hoarding-cleanout|janitorial|window-cleaning|solar-panel-cleaning|pressure-washing|carpet-cleaning|cleaning-dilution|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|vehicle-wrap|window-tinting|auto-glass|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|asbestos-abatement|crawl-space|basement-waterproofing|attic-insulation|spray-foam|pet-grooming|wildlife-exclusion|bed-bug-heat-treatment|biohazard-cleanup|pool-opening-closing)/.test(slug),
     },
     {
       id: 'trades-roof',
@@ -3495,7 +4201,7 @@ const SUBCATEGORY_RULES = {
       // `security-camera` sits here as low-voltage electrical work: the people
       // who bid it are the electrical and structured-cabling trades, and it is
       // closer to a panel or EV-charger job than to anything in the other groups.
-      test: (slug) => /^(furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
+      test: (slug) => /^(furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|commercial-solar|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
     },
     {
       id: 'trades-interior',
@@ -3506,7 +4212,9 @@ const SUBCATEGORY_RULES = {
       // sells. `home-staging` joins for the same reason as `cut-list`: it
       // sells to the same real-estate-prep visitor as the remodel tools here,
       // even though its own job is furniture, not construction.
-      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|home-staging)/.test(slug),
+      // `tile-layout-planner` joined 2026-10-01 on its first commit: it lays out the
+      // floor the flooring and tile-backsplash bids price, for the same remodeler.
+      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging)/.test(slug),
     },
     {
       id: 'trades-site',
@@ -3527,7 +4235,7 @@ const SUBCATEGORY_RULES = {
       // work -- but this tool prices vegetation removal by acres per
       // machine-hour, not excavation, grading or a poured product, and its
       // nearest neighbour by both buyer and job is the tree service beside it.
-      test: (slug) => /^(artificial-turf|sod-install|lawn-care|irrigation-|tree-service|forestry-mulching|landscape-lighting|holiday-light|snow-removal|fence|deck-|deck-bid|pergola|hot-tub|pool-plaster|vinyl-liner)/.test(slug),
+      test: (slug) => /^(artificial-turf|sod-install|lawn-care|lawn-aeration|irrigation-|tree-service|stump-grinding|forestry-mulching|landscape-lighting|holiday-light|snow-removal|snow-plow-contract|fence|deck-|deck-bid|pergola|hot-tub|sauna-cold-plunge|pool-plaster|vinyl-liner)/.test(slug),
     },
   ],
 };

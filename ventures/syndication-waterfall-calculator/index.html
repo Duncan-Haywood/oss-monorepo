@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Syndication Waterfall Calculator — Pref, Hurdles and Promote, Free</title>
+  <meta name="description" content="Free real estate syndication waterfall calculator: preferred return, IRR hurdles and sponsor promote tiers, with LP and GP IRR, equity multiples and a year-by-year split. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Syndication Waterfall Calculator — free">
+  <meta property="og:description" content="Model a GP/LP waterfall with preferred return and tiered promote. See LP IRR, GP IRR and the promote. Runs in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Syndication Waterfall Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free real estate syndication waterfall calculator: preferred return, IRR hurdles and sponsor promote tiers, with LP and GP IRR, equity multiple, and a year-by-year and tier-by-tier split. Entirely client-side; nothing is uploaded.","featureList":"preferred return, IRR hurdles, promote tiers, GP co-invest, LP IRR, GP IRR, equity multiple, promote share of profit"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a distribution waterfall?","acceptedAnswer":{"@type":"Answer","text":"The order in which a real estate deal's cash is paid out. Typically all partners first get their capital and a preferred return pro rata, then the sponsor (general partner) earns a growing share of each extra dollar, called the promote, as the investors' IRR clears higher hurdles."}},{"@type":"Question","name":"What is a preferred return?","acceptedAnswer":{"@type":"Answer","text":"A minimum annual return, such as 8%, that investors must receive before the sponsor earns any promote. It usually compounds on unreturned capital, and this calculator compounds it annually."}},{"@type":"Question","name":"What is a promote?","acceptedAnswer":{"@type":"Answer","text":"The sponsor's share of profits above the preferred return, on top of the share it earns as a co-investor. A common structure is 20% above an 8% pref, rising to 30% above 12% and 40% above 15%."}},{"@type":"Question","name":"What is the difference between deal IRR and LP IRR?","acceptedAnswer":{"@type":"Answer","text":"Deal IRR is the return of the property before splitting. LP IRR is what passive investors keep after the sponsor's promote. The gap is the cost of the structure to the investor and the sponsor's reward for running the deal."}},{"@type":"Question","name":"Is this investment or legal advice?","acceptedAnswer":{"@type":"Answer","text":"No. This tool does arithmetic on the numbers you enter with a simplified waterfall. It is not an offer or solicitation of securities, and the operating agreement, not this tool, controls real distributions. Use a securities attorney and a CPA."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5d7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .grid[hidden] { display: none; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5d7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SYNDICATION WATERFALL CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What do LPs and the sponsor each take home from a real estate syndication?</h1>
+    <p>Enter the equity, the cash the deal distributes each year (sale proceeds in the last year) and your preferred return and promote tiers.
+    You get the <strong>LP IRR and multiple</strong>, the <strong>sponsor IRR</strong>, the <strong>promote</strong> in dollars and as a share of profit, and the split tier by tier and year by year.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device — see the privacy note in the footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The deal</h2>
+    <div class="grid">
+      <div>
+        <label for="equity">Total equity raised ($)</label>
+        <input type="number" id="equity" min="0" step="1" placeholder="e.g. 2000000">
+      </div>
+      <div>
+        <label for="gp-pct">Sponsor co-invest, % of the equity (invests pari passu with LPs)</label>
+        <input type="number" id="gp-pct" min="0" step="0.1" value="0" placeholder="e.g. 5">
+      </div>
+    </div>
+    <label for="cash-flows">Cash distributable each year, comma separated, sale proceeds in the final year ($)</label>
+    <textarea id="cash-flows" rows="3" placeholder="e.g. 120000, 130000, 140000, 150000, 2900000"></textarea>
+    <p class="note">Year 1 is one year after the equity goes in. Use cash after debt service, reserves and fees, before any split between partners.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Preferred return and promote tiers</h2>
+    <div class="grid">
+      <div>
+        <label for="pref">Preferred return, compounding (%)</label>
+        <input type="number" id="pref" min="0" step="0.1" value="8" placeholder="8">
+      </div>
+      <div>
+        <label for="hurdle2">Second hurdle: investor IRR (%)</label>
+        <input type="number" id="hurdle2" min="0" step="0.1" value="12" placeholder="12">
+      </div>
+      <div>
+        <label for="promote2">Sponsor promote between the pref and the second hurdle (%)</label>
+        <input type="number" id="promote2" min="0" step="0.1" value="20" placeholder="20">
+      </div>
+      <div>
+        <label for="hurdle3">Third hurdle: investor IRR (%)</label>
+        <input type="number" id="hurdle3" min="0" step="0.1" value="16" placeholder="16">
+      </div>
+      <div>
+        <label for="promote3">Sponsor promote between the second and third hurdle (%)</label>
+        <input type="number" id="promote3" min="0" step="0.1" value="30" placeholder="30">
+      </div>
+      <div>
+        <label for="promote4">Sponsor promote above the third hurdle (%)</label>
+        <input type="number" id="promote4" min="0" step="0.1" value="40" placeholder="40">
+      </div>
+    </div>
+    <p class="note">Up to the preferred return, cash goes to all partners pro rata to capital. In each later tier the sponsor takes the promote percentage of that tier's cash and the rest goes to all partners pro rata.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter the equity and the yearly cash flow, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><tbody id="result-table"></tbody></table>
+    <h3>By tier</h3>
+    <table><thead><tr><th>Tier</th><th>Cash</th><th>To all partners</th><th>Promote</th></tr></thead><tbody id="tier-table"></tbody></table>
+    <h3>By year</h3>
+    <table><thead><tr><th>Year</th><th>Cash</th><th>To all partners</th><th>Promote</th></tr></thead><tbody id="year-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Your operating agreement.</strong> Real waterfalls differ: GP catch-up, simple rather than compounding pref, hurdles on equity multiple, return of capital before pref, separate classes. The document controls.</li>
+      <li><strong>Fees and expenses</strong> (acquisition, asset management, disposition) are not modelled. Take them out of the cash flows you enter.</li>
+      <li><strong>Annual periods only.</strong> Monthly or quarterly distributions give slightly different IRRs.</li>
+      <li><strong>Taxes</strong> and the timing of capital calls are ignored; all equity goes in at time zero.</li>
+      <li><strong>Not an offer.</strong> This is arithmetic, not a solicitation or recommendation to buy or sell any security.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a distribution waterfall?</h3>
+    <p>The order in which a real estate deal's cash is paid out. Typically all partners first get their capital and a preferred return pro rata, then the sponsor (general partner) earns a growing share of each extra dollar, called the promote, as the investors' IRR clears higher hurdles.</p>
+    <h3>What is a preferred return?</h3>
+    <p>A minimum annual return, such as 8%, that investors must receive before the sponsor earns any promote. It usually compounds on unreturned capital, and this calculator compounds it annually.</p>
+    <h3>What is a promote?</h3>
+    <p>The sponsor's share of profits above the preferred return, on top of the share it earns as a co-investor. A common structure is 20% above an 8% pref, rising to 30% above 12% and 40% above 15%.</p>
+    <h3>What is the difference between deal IRR and LP IRR?</h3>
+    <p>Deal IRR is the return of the property before splitting. LP IRR is what passive investors keep after the sponsor's promote. The gap is the cost of the structure to the investor and the sponsor's reward for running the deal.</p>
+    <h3>Is this investment or legal advice?</h3>
+    <p>No. This tool does arithmetic on the numbers you enter with a simplified waterfall. It is not an offer or solicitation of securities, and the operating agreement, not this tool, controls real distributions. Use a securities attorney and a CPA.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a securities attorney, a CPA or your operating agreement. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>waterfall_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Sizing the debt side of a deal? The <a href="../rental-dscr-calculator/">rental DSCR calculator</a> checks the loan, and the <a href="../like-kind-exchange-1031-calculator/">1031 exchange calculator</a> covers deferring tax on the sale.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" id="sponsorLink">GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyse, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const IDS = ["equity","gp-pct","cash-flows"];
+    const TIERS = { "pref": "8", "hurdle2": "12", "promote2": "20", "hurdle3": "16", "promote3": "30", "promote4": "40" };
+    const els = {
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
+      resultTable: $("#result-table"), tierTable: $("#tier-table"), yearTable: $("#year-table"), findings: $("#report-findings"),
+    };
+    const num = (id) => Number($("#" + id).value) || 0;
+    function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4>
+          <p>${esc(f.detail)}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const a = analyse({
+        equity: num("equity"), gpPct: num("gp-pct"), cashFlowText: $("#cash-flows").value,
+        pref: num("pref"), hurdle2: num("hurdle2"), hurdle3: num("hurdle3"),
+        promote2: num("promote2"), promote3: num("promote3"), promote4: num("promote4"),
+      });
+      renderFindings(els.findings, a.findings);
+      els.report.hidden = false;
+      if (!a.result) {
+        els.stats.textContent = "";
+        els.resultTable.innerHTML = els.tierTable.innerHTML = els.yearTable.innerHTML = "";
+        return;
+      }
+      const r = a.result;
+      els.stats.innerHTML = `LPs earn <strong>${pct(r.lpIrr)}</strong> IRR and <strong>${r.lpMultiple === null ? "n/a" : r.lpMultiple.toFixed(2) + "x"}</strong>; the deal earns ${pct(r.dealIrr)}. The sponsor promote is <strong>${money(r.promote)}</strong>.`;
+      els.resultTable.innerHTML = [
+        ["Deal IRR / equity multiple", `${pct(r.dealIrr)} / ${r.dealMultiple === null ? "n/a" : r.dealMultiple.toFixed(2) + "x"}`],
+        ["LP equity, total received, profit", `${money(r.lpEquity)}, ${money(r.lpTotal)}, ${money(r.lpProfit)}`],
+        ["LP IRR / equity multiple", `${pct(r.lpIrr)} / ${r.lpMultiple === null ? "n/a" : r.lpMultiple.toFixed(2) + "x"}`],
+        ["Sponsor co-invest, total received (co-invest plus promote)", `${money(r.gpCoinvest)}, ${money(r.gpTotal)}`],
+        ["Sponsor IRR", pct(r.gpIrr)],
+        ["Promote", `${money(r.promote)} (${pct(r.promoteShareOfProfit)} of the deal's profit)`],
+      ].map(([k, v]) => `<tr><th scope="row">${k}</th><td>${v}</td></tr>`).join("");
+      els.tierTable.innerHTML = r.tiers.map((t) => `<tr><td>${esc(t.label)}</td><td>${money(t.cash)}</td><td>${money(t.investor)}</td><td>${money(t.sponsor)}</td></tr>`).join("");
+      els.yearTable.innerHTML = r.years.map((y) => `<tr><td>${y.year}</td><td>${money(y.cash)}</td><td>${money(y.investor)}</td><td>${money(y.promote)}</td></tr>`).join("");
+      els.status.textContent = "";
+      record("waterfall_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      const ex = { "equity": "2000000", "gp-pct": "5", "cash-flows": "120000, 130000, 140000, 150000, 3400000" };
+      for (const [k, v] of Object.entries(ex)) $("#" + k).value = v;
+      for (const [k, v] of Object.entries(TIERS)) $("#" + k).value = v;
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: $2,000,000 of equity, 5% from the sponsor, a five-year hold with a $3.4 million final-year distribution, 8% pref and 20/30/40% promotes above 8/12/16%.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of IDS) $("#" + id).value = "";
+      for (const [id, v] of Object.entries(TIERS)) $("#" + id).value = v;
+      els.report.hidden = true;
+      els.status.textContent = "Enter the equity and the yearly cash flow, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

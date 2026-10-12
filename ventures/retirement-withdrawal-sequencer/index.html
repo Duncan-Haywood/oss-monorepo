@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Retirement Withdrawal Sequencer — which account to draw from first, with Roth conversions</title>
+  <meta name="description" content="Free retirement withdrawal calculator. Enter your taxable, traditional and Roth balances, spending and Social Security; it compares withdrawal orders and bracket-filling Roth conversions year by year under 2026 tax rules and shows what each leaves you after tax. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Retirement Withdrawal Sequencer — free, private, in your browser">
+  <meta property="og:description" content="Test withdrawal orders and Roth-conversion bracket filling against your own balances and see lifetime tax and what is left after tax.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Retirement Withdrawal Sequencer","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Enter your taxable, traditional and Roth balances, spending and Social Security. Compares withdrawal orders and bracket-filling Roth-conversion strategies year by year under 2026 tax rules, and shows the one that leaves you the most after tax, with a year-by-year schedule. Runs entirely in your browser.","featureList":"retirement withdrawal order, bracket filling, Roth conversion ladder, required minimum distributions, Social Security taxation, lifetime tax comparison, year-by-year CSV"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Which account should I withdraw from first in retirement?","acceptedAnswer":{"@type":"Answer","text":"There is no single order that wins. The textbook order is taxable accounts first, then traditional (pre-tax) accounts, then Roth, so tax-deferred money keeps growing. But when most of your savings are in a traditional IRA or 401(k), that order can leave a large balance whose required distributions arrive in your highest-bracket years. This tool runs the textbook order, other fixed orders, and a family of bracket-filling strategies against your numbers, year by year, and ranks them by what you keep after tax."}},{"@type":"Question","name":"What does filling a tax bracket mean?","acceptedAnswer":{"@type":"Answer","text":"Each year you pick a bracket ceiling (say the top of the 12% bracket) and withdraw from your traditional account until your taxable income reaches it, even if you do not need the cash. The extra can be spent, reinvested, or converted to Roth. You pay tax at that low rate now instead of a higher rate on required distributions later. The sequencer tests ceilings from 10% to 35%, with and without converting the surplus, and tells you which one leaves you the most."}},{"@type":"Question","name":"How does it measure which plan is best?","acceptedAnswer":{"@type":"Answer","text":"First it checks that your spending is funded every year; a plan that runs out of money loses to one that does not. Then it compares the after-tax value left at your end age: taxable and Roth balances at face value plus the traditional balance less the tax rate you expect your heirs to pay on it. It also reports total tax paid over the whole plan. Everything is in today's dollars, using a real (after-inflation) return you choose."}},{"@type":"Question","name":"What taxes does it model?","acceptedAnswer":{"@type":"Answer","text":"2026 federal ordinary brackets, the standard deduction with the 65-and-over additions, long-term capital gains rates stacked on top of ordinary income, taxation of Social Security by the provisional-income formula (so a traditional withdrawal can make more of your benefit taxable), taxes on dividends from the taxable account, a flat state rate you set, and required minimum distributions from the age you set. It does not model Medicare IRMAA surcharges, the net investment income tax, the extra senior deduction, state-specific rules, or two separate spouses with different ages."}},{"@type":"Question","name":"Is the best plan guaranteed to be optimal?","acceptedAnswer":{"@type":"Answer","text":"No. It searches a fixed menu of sensible strategies rather than every possible sequence of withdrawals, and it uses one steady return rather than a market that goes up and down. It also re-runs the winner with returns two points lower and tells you whether the ranking changes, so you can see whether the advantage depends on a good market. Treat the result as a direction to discuss with a tax professional, not an instruction."}},{"@type":"Question","name":"Does it work for a couple?","acceptedAnswer":{"@type":"Answer","text":"Yes in a simplified way: choose married filing jointly and it uses the joint brackets and deduction, and assumes both spouses are the same age and that distributions follow one set of balances. It does not model the survivor's switch to single brackets, which often makes early Roth conversions look better than shown."}},{"@type":"Question","name":"Is my financial information uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Balances and spending are read and calculated in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool does not save your plan. It works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+      .sched { font-size: .92rem; }
+    .sched td { vertical-align: top; }
+    .ok { color: #1d5a24; font-weight: 700; }
+  
+    .row4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+    svg text { font: 11px system-ui, sans-serif; fill: #4c5a68; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">RETIREMENT WITHDRAWAL SEQUENCER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which account should you spend first?</h1>
+    <p>Enter what you hold in <strong>taxable</strong>, <strong>traditional (pre-tax)</strong> and <strong>Roth</strong> accounts, what you want to spend each year after tax, and your Social Security. The tool runs your plan <strong>year by year to your end age</strong> under 2026 tax rules and compares the usual withdrawal orders with <strong>bracket-filling strategies and Roth conversions</strong>. It shows the plan that leaves you the most after tax, how much tax each one pays over the whole retirement, and the schedule behind it. Download it as a CSV.</p>
+    <p class="note">Your numbers never leave this browser tab. Planning aid, not tax or investment advice. It models one steady return and a simplified household; read the list of what is not modelled before acting. See <a href="withdrawal-order-in-retirement.html">how withdrawal order works</a> for the method.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your situation</h2>
+    <div class="row4">
+      <div><label for="status">Filing status</label><select id="status"><option value="single">Single</option><option value="mfj">Married filing jointly</option></select></div>
+      <div><label for="startAge">Age when withdrawals start</label><input id="startAge" inputmode="decimal" value="62"></div>
+      <div><label for="endAge">Plan to age</label><input id="endAge" inputmode="decimal" value="95"></div>
+      <div><label for="spending">Spending per year, after tax (today's dollars)</label><input id="spending" inputmode="decimal" value="90000"></div>
+    </div>
+    <h2>Accounts at the start</h2>
+    <div class="row4">
+      <div><label for="taxable">Taxable (brokerage, savings)</label><input id="taxable" inputmode="decimal" value="250000"></div>
+      <div><label for="basis">…of which is what you paid in (cost basis)</label><input id="basis" inputmode="decimal" value="170000"></div>
+      <div><label for="trad">Traditional IRA / 401(k)</label><input id="trad" inputmode="decimal" value="1400000"></div>
+      <div><label for="roth">Roth IRA / Roth 401(k)</label><input id="roth" inputmode="decimal" value="90000"></div>
+    </div>
+    <h2>Income</h2>
+    <div class="row4">
+      <div><label for="ssAnnual">Social Security per year (today's dollars)</label><input id="ssAnnual" inputmode="decimal" value="52000"></div>
+      <div><label for="ssAge">…starting at age</label><input id="ssAge" inputmode="decimal" value="70"></div>
+      <div><label for="pension">Pension per year</label><input id="pension" inputmode="decimal" value="0"></div>
+      <div><label for="pensionAge">…starting at age</label><input id="pensionAge" inputmode="decimal" value="62"></div>
+    </div>
+    <h2>Assumptions</h2>
+    <div class="row4">
+      <div><label for="realReturn">Real return per year (%, after inflation)</label><input id="realReturn" inputmode="decimal" value="4"></div>
+      <div><label for="yieldPct">Yield paid out by the taxable account (%)</label><input id="yieldPct" inputmode="decimal" value="1.5"></div>
+      <div><label for="stateRate">State income tax rate (%)</label><input id="stateRate" inputmode="decimal" value="0"></div>
+      <div><label for="heirRate">Tax rate your heirs would pay on traditional money (%)</label><input id="heirRate" inputmode="decimal" value="24"></div>
+      <div><label for="rmdAge">Required distributions start at age</label><input id="rmdAge" inputmode="decimal" value="75"></div>
+    </div>
+    <button type="button" id="analyze">Compare the strategies</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Reset</button>
+    <p id="form-status" role="status" class="note">Enter your numbers, then click the button.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h3>Every strategy, ranked by what you keep</h3>
+    <div class="scroll"><table id="rank"><thead><tr><th>Strategy</th><th class="n">Left after tax at the end</th><th class="n">Tax paid over the plan</th><th class="n">Moved to Roth</th><th>Funded to the end?</th></tr></thead><tbody></tbody></table></div>
+    <h3>If returns are lower</h3>
+    <p class="note" id="stress"></p>
+    <h3>After-tax wealth by age: best strategy against the textbook order</h3>
+    <div id="chart"></div>
+    <div class="legend"><span><span class="bar"></span> best strategy</span> <span><span class="bar slow"></span> taxable first</span></div>
+    <h3>Year by year: the best strategy</h3>
+    <div class="scroll"><table class="sched" id="year"><thead><tr><th class="n">Age</th><th class="n">Social Security</th><th class="n">Traditional drawn</th><th class="n">Converted to Roth</th><th class="n">Taxable drawn</th><th class="n">Roth drawn</th><th class="n">Tax</th><th class="n">Bracket</th><th class="n">Total left (before heirs' tax)</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download the schedule CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Each year</strong> the tool adds Social Security and pension, forces the required minimum distribution (balance divided by the IRS uniform-lifetime divisor, from the age you set), then draws enough from your accounts that what is left after income tax equals your spending. Tax is computed from 2026 brackets and the standard deduction (larger from 65), long-term capital gains stacked on top of ordinary income at 0/15/20%, the taxable part of Social Security from the provisional-income formula, tax on the yield your taxable account pays, and your flat state rate. Balances then grow by the real return. Surplus cash is reinvested in the taxable account. <strong>Strategies:</strong> three fixed orders (taxable first, traditional first, pro-rata) and twelve bracket-filling plans: each year draw from the traditional account until taxable income reaches the top of the 10, 12, 22, 24, 32 or 35% bracket, spend what you need, and either reinvest or convert the rest to Roth. <strong>Ranking:</strong> plans that fund your spending to the end age beat plans that do not; then the largest after-tax value at the end, counting traditional money net of your heirs' tax rate.</p>
+    <p><strong>Not modelled:</strong> Medicare IRMAA surcharges, the net investment income tax, the extra senior deduction of 2025–2028, state-specific rules and exemptions, a surviving spouse moving to single brackets, two spouses of different ages, pensions with survivor options, inflation-indexing differences, variable returns and sequence risk, annuities, home equity, long-term-care costs, the five-year Roth rules, and Social Security claiming strategy (see the <a href="../social-security-claiming-age-calculator/">claiming-age calculator</a>). <strong>Unverified:</strong> the capital-gains thresholds and the RMD table were typed from the published tables and have not been checked against the primary source; tested against hand arithmetic and invented data, not against a tax return or a planner's software.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Which account should I withdraw from first in retirement?</h3><p>There is no single order that wins. The textbook order is taxable accounts first, then traditional (pre-tax) accounts, then Roth, so tax-deferred money keeps growing. But when most of your savings are in a traditional IRA or 401(k), that order can leave a large balance whose required distributions arrive in your highest-bracket years. This tool runs the textbook order, other fixed orders, and a family of bracket-filling strategies against your numbers, year by year, and ranks them by what you keep after tax.</p><h3>What does filling a tax bracket mean?</h3><p>Each year you pick a bracket ceiling (say the top of the 12% bracket) and withdraw from your traditional account until your taxable income reaches it, even if you do not need the cash. The extra can be spent, reinvested, or converted to Roth. You pay tax at that low rate now instead of a higher rate on required distributions later. The sequencer tests ceilings from 10% to 35%, with and without converting the surplus, and tells you which one leaves you the most.</p><h3>How does it measure which plan is best?</h3><p>First it checks that your spending is funded every year; a plan that runs out of money loses to one that does not. Then it compares the after-tax value left at your end age: taxable and Roth balances at face value plus the traditional balance less the tax rate you expect your heirs to pay on it. It also reports total tax paid over the whole plan. Everything is in today's dollars, using a real (after-inflation) return you choose.</p><h3>What taxes does it model?</h3><p>2026 federal ordinary brackets, the standard deduction with the 65-and-over additions, long-term capital gains rates stacked on top of ordinary income, taxation of Social Security by the provisional-income formula (so a traditional withdrawal can make more of your benefit taxable), taxes on dividends from the taxable account, a flat state rate you set, and required minimum distributions from the age you set. It does not model Medicare IRMAA surcharges, the net investment income tax, the extra senior deduction, state-specific rules, or two separate spouses with different ages.</p><h3>Is the best plan guaranteed to be optimal?</h3><p>No. It searches a fixed menu of sensible strategies rather than every possible sequence of withdrawals, and it uses one steady return rather than a market that goes up and down. It also re-runs the winner with returns two points lower and tells you whether the ranking changes, so you can see whether the advantage depends on a good market. Treat the result as a direction to discuss with a tax professional, not an instruction.</p><h3>Does it work for a couple?</h3><p>Yes in a simplified way: choose married filing jointly and it uses the joint brackets and deduction, and assumes both spouses are the same age and that distributions follow one set of balances. It does not model the survivor's switch to single brackets, which often makes early Roth conversions look better than shown.</p><h3>Is my financial information uploaded anywhere?</h3><p>No. Balances and spending are read and calculated in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool does not save your plan. It works offline once the page has loaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are planning estimates from the numbers you supply under simplifying assumptions. You are responsible for reviewing and verifying its output before relying on it.</p>
+    <p><strong>Independent.</strong> Not affiliated with any brokerage, retirement-planning software, bank or advisory firm, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your balances and plan are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_built</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../coast-fire-calculator/">Coast FIRE calculator</a> (before retirement), the <a href="../roth-conversion-bracket-fill-calculator/">Roth conversion bracket-fill calculator</a>, the <a href="../rmd-calculator/">RMD calculator</a>, the <a href="../social-security-claiming-age-calculator/">Social Security claiming-age calculator</a> and the <a href="../medicare-irmaa-cliff-calculator/">Medicare IRMAA cliff calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compare, scheduleCsv, sampleInputs, money, num } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const IDS = ["startAge", "endAge", "spending", "taxable", "basis", "trad", "roth", "ssAnnual", "ssAge", "pension", "pensionAge", "realReturn", "yieldPct", "stateRate", "heirRate", "rmdAge"];
+    let last = null;
+
+    const read = () => {
+      const o = { status: $("#status").value };
+      for (const id of IDS) o[id] = $("#" + id).value.trim();
+      return o;
+    };
+    const write = (o) => {
+      $("#status").value = o.status;
+      for (const id of IDS) $("#" + id).value = o[id];
+    };
+
+    function chart(a, b) {
+      const W = 760, H = 240, L = 56, B = 26, T = 10;
+      const ages = a.rows.map((r) => r.age);
+      const max = Math.max(...a.rows.map((r) => r.afterTaxEnd), ...b.rows.map((r) => r.afterTaxEnd), 1);
+      const x = (age) => L + ((age - ages[0]) / Math.max(1, ages.length - 1)) * (W - L - 10);
+      const y = (v) => T + (1 - v / max) * (H - T - B);
+      const line = (sim, color) => `<polyline fill="none" stroke="${color}" stroke-width="2.5" points="${sim.rows.map((r) => x(r.age).toFixed(1) + "," + y(r.afterTaxEnd).toFixed(1)).join(" ")}"/>`;
+      const grid = [0, 0.25, 0.5, 0.75, 1].map((f) => `<line x1="${L}" x2="${W - 10}" y1="${y(max * f)}" y2="${y(max * f)}" stroke="#d9dfe6"/><text x="4" y="${y(max * f) + 4}">${money(max * f)}</text>`).join("");
+      const ticks = ages.filter((g, i) => i % Math.ceil(ages.length / 8) === 0).map((g) => `<text x="${x(g) - 8}" y="${H - 6}">${g}</text>`).join("");
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="After-tax wealth by age for the best strategy and the taxable-first order">${grid}${ticks}${line(b, "#b5533c")}${line(a, "#1f5f86")}</svg>`;
+    }
+
+    function run() {
+      status.textContent = "Calculating…";
+      const r = compare(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      const best = r.best, conv = r.conventional, inp = r.inputs;
+      $("#notices").innerHTML = r.notes.map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const same = best.policy.id === conv.policy.id;
+      const big = [
+        [same ? "No change" : (r.gain >= 0 ? "+" : "") + money(r.gain), same ? "The textbook order is already the best tried" : "left after tax at age " + inp.endAge + " versus taxable-first"],
+        [money(r.taxSaved), "less tax paid over the whole plan versus taxable-first"],
+        [money(best.endAfterTax), "after-tax value left at age " + inp.endAge + " (heirs taxed at " + num(inp.heirRate * 100, 0) + "% on traditional money)"],
+        [best.runsOutAge ? "Age " + best.runsOutAge : "Funded", best.runsOutAge ? "the best strategy runs out of money" : "spending is covered to age " + inp.endAge],
+      ];
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#rank tbody").innerHTML = r.results.map((x, i) => `<tr><td>${i === 0 ? '<span class="pill good">best</span>' : ""}${x.policy.id === "taxable-first" ? '<span class="pill info">textbook</span>' : ""}${esc(x.policy.label)}</td><td class="n">${money(x.endAfterTax)}</td><td class="n">${money(x.lifetimeTax)}</td><td class="n">${money(x.converted)}</td><td>${x.runsOutAge ? '<span class="pill high">runs out at ' + x.runsOutAge + "</span>" : '<span class="pill good">yes</span>'}</td></tr>`).join("");
+      const s = r.stress;
+      $("#stress").textContent = `At a real return of ${num(s.returnPct, 1)}%: the plan above leaves ${money(s.best.endAfterTax)} against ${money(s.conventional.endAfterTax)} for taxable-first, and the best strategy at that return is "${s.winner.policy.label}"` + (s.winner.policy.id === best.policy.id ? " — the same one, so the advice does not depend on a good market." : " — a different one, so the ranking is sensitive to returns.");
+      $("#chart").innerHTML = chart(best, conv);
+      $("#year tbody").innerHTML = best.rows.map((x) => `<tr><td class="n">${x.age}</td><td class="n">${money(x.ss)}</td><td class="n">${money(x.tradWithdrawn)}</td><td class="n">${money(x.convert)}</td><td class="n">${money(x.taxableDraw)}</td><td class="n">${money(x.rothDraw)}</td><td class="n">${money(x.tax)}</td><td class="n">${num(x.rate * 100, 0)}%</td><td class="n">${money(x.taxableEnd + x.tradEnd + x.rothEnd)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the comparison.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("plan_built"); });
+    $("#load-example").addEventListener("click", () => {
+      write(sampleInputs());
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented couple, age 62, with a large traditional balance."; }
+    });
+    $("#clear-all").addEventListener("click", () => { write(sampleInputs()); report.hidden = true; last = null; status.textContent = "Enter your numbers, then click the button."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([scheduleCsv(last.best)], { type: "text/csv" }));
+      a.download = "withdrawal-schedule.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

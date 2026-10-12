@@ -1,0 +1,68 @@
+name: fertilizer-blend-optimizer
+description: >-
+  Free browser tool: enter field acres, the N, P2O5, K2O and S your crop needs
+  and a price per ton for each fertilizer product, and a simplex solver finds
+  the least-cost pounds per acre, the field total and tons to buy, the cost of
+  one more pound of each nutrient, the price at which an unused product would
+  enter the blend and what the obvious one-product-per-nutrient plan costs
+  against the optimum. Checked against exhaustive vertex enumeration. Nothing
+  leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture session asked for deeper, algorithmic
+# tools with real competitors. Reuses the simplex pattern from
+# beef-cattle-ration-optimizer and cheap-meal-plan-optimizer; same farm
+# audience as sheep-goat-flock-profit-planner and u-pick-farm-profit-planner.
+#
+# Why this niche: fertilizer is a top-three variable cost for row-crop and hay
+# operations, and buyers shop on price per ton or per unit of N. Multi-nutrient
+# products (DAP, MAP, ammonium sulfate) make the cheapest program non-obvious:
+# the N credit in the phosphate changes which nitrogen source wins. Extension
+# spreadsheets price one nutrient at a time; paid agronomy software bundles
+# this behind a login. A private, free, browser LP that also prices the next
+# pound of each nutrient and shows the saving against the obvious plan is a
+# light entry point and a lead magnet toward a hosted version with saved dealer
+# quotes and soil-test import (not built).
+#
+# First visitor: people searching "fertilizer cost calculator", "cheapest
+# fertilizer blend", "urea vs anhydrous cost per pound of nitrogen", "DAP vs
+# MAP cost", and farm forums and extension newsletters. Volume not measured
+# with an external tool.
+#
+# Liability boundary: arithmetic on user-typed numbers only; crop presets are
+# rounded rules of thumb labelled approximate; the user is pointed at their soil
+# test and extension recommendation for rates; starter grades are standard
+# guaranteed analyses and prices are labelled EXAMPLE; no agronomic advice;
+# application method, timing, N loss, salt/burn risk, lime and micronutrients
+# stated as not modelled; nothing stored.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a
+# hosted dealer-quote library, soil-test import and multi-field programs.
+
+hypotheses:
+  - claim: >-
+      Row-crop and hay growers will use a private least-cost fertilizer solver
+      that prices their own dealer quotes, and the saving against buying each
+      nutrient separately changes what they ask a dealer for.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a blend that misses a stated nutrient target or product maximum, or that is dearer than a simple alternative the solver should have found.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/fertilizer-blend-optimizer/
+  analytics: null

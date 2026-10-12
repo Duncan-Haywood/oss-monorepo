@@ -373,10 +373,32 @@ def path_touches_ventures(files: list[str]) -> bool:
     return any(f.startswith("ventures/") for f in files)
 
 
+def pr_from_same_repo(pr: dict[str, Any]) -> tuple[bool, str]:
+    """Only PRs whose head branch lives in this repository are reviewable.
+
+    A fork PR's checks run the fork's own copy of the workflows, so "CI is
+    green" proves nothing about it, and anyone on GitHub can open one once the
+    repository is public. Pushing a branch here requires write access, so a
+    same-repo head is the trust boundary. Fails closed: a deleted fork reports
+    ``head.repo`` as null.
+    """
+    head_repo = ((pr.get("head") or {}).get("repo") or {}).get("full_name")
+    base_repo = ((pr.get("base") or {}).get("repo") or {}).get("full_name")
+    if not head_repo or not base_repo:
+        return False, "head or base repository unknown — not auto-reviewed"
+    if head_repo != base_repo:
+        return False, f"head is from fork {head_repo} — human review required"
+    return True, f"head branch is in {base_repo}"
+
+
 def evaluate_pr(pr_number: int) -> tuple[bool, list[str]]:
     """Run deterministic checks a reviewer App should enforce before APPROVE."""
     reasons: list[str] = []
     pr = fetch_pull_request(pr_number)
+
+    same_repo, origin_reason = pr_from_same_repo(pr)
+    if not same_repo:
+        return False, [origin_reason]
 
     if pr.get("draft"):
         return False, ["PR is still a draft"]
@@ -515,6 +537,10 @@ def merge_eligible(pr_number: int) -> tuple[bool, list[str]]:
     if pr.get("state") != "open":
         return False, [f"state={pr.get('state')}"]
 
+    same_repo, origin_reason = pr_from_same_repo(pr)
+    if not same_repo:
+        return False, [origin_reason]
+
     # Gate on GitHub's own head-commit summary first: this blocks a merge while
     # any workflow is still queued or running, even before its check run has
     # registered — the gap checks_all_success() cannot see. See the note on
@@ -545,7 +571,8 @@ def merge_eligible(pr_number: int) -> tuple[bool, list[str]]:
     files = changed_files(pr_number)
     if path_touches_ventures(files):
         return False, reasons + [
-            "touches ventures/* — human-gated; owner must merge"
+            "touches ventures/* — not auto-merged; the session that opened it "
+            "merges it once verified (.github/prompts/land-your-work.md)"
         ]
 
     ok, eval_reasons = evaluate_pr(pr_number)

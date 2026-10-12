@@ -77,3 +77,7 @@ test("usage events named on the page are the ones the code records", () => {
     assert.match(html, new RegExp(`<code>${e}</code>`));
   }
 });
+
+test("links the mobile tire van job picker, its one-van whole-day sibling", () => {
+  assert.ok(page("index.html").includes('href="../mobile-tire-van-job-picker/"'));
+});

@@ -106,3 +106,15 @@ test("related-tool links point at ventures that exist", () => {
     assert.ok(existsSync(new URL(`../${m[1]}/index.html`, import.meta.url)), m[1]);
   }
 });
+
+test("links to its video sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/wedding-videographer-profit-calculator\/"/);
+});
+
+test("links to the real estate photographer sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/real-estate-photographer-shoot-profit-calculator\/"/);
+});
+
+test("footer links to the wedding day timeline builder", () => {
+  assert.match(page("index.html"), /href="\.\.\/wedding-day-timeline-builder\/"/);
+});

@@ -1,0 +1,59 @@
+name: oncall-load-analyzer
+description: >-
+  Free browser tool and CLI for engineering teams: paste an incident export from PagerDuty, Opsgenie or Grafana OnCall and see load
+  per person against an even split, broken nights, the alerts that fix themselves or repeat, and the hours a cleanup would give
+  back. The file never leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. No venture reads incident history across people; the nearest are
+# incident-postmortem-timeline (one incident's timeline) and slo-burn-rate-alerts (alert rule generator). Not in screened-out.md.
+#
+# Why this niche: alert fatigue and unfair rotations are the standard reasons engineers leave on-call teams, and the managers who
+# own the problem pay for it in attrition. Paid answers (PagerDuty Analytics, incident.io, Rootly insights) sit behind the
+# vendor's top tiers and need the vendor's data connection; a CSV export every tool can produce is something a manager can
+# analyse today without a procurement cycle or sharing incident titles with a third party.
+#
+# First visitor: engineering managers and SREs searching "on-call fairness", "pagerduty alert fatigue report", "noisy alerts
+# analysis", "on-call burnout metrics"; r/sre, r/devops, Hacker News threads on on-call load. Volume not measured with an
+# external tool.
+#
+# Liability boundary: pure counting over the file the user pastes. Output concerns named people, so the page says plainly that
+# pages are not effort or stress, that it is not HR or management advice, and that it is a conversation starter rather than a
+# way to rate a person. No data leaves the browser. Trademarks of PagerDuty, Atlassian and Grafana are disclaimed.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. The natural paid layer is a hosted weekly report that
+# connects to the vendor APIs and posts the fairness and noise summary to Slack, which needs an owner decision on accounts and
+# payments; not built. Written to be open-sourced as is.
+
+hypotheses:
+  - claim: >-
+      Engineering managers and SREs who suspect their rotation is unfair or noisy will export an incident CSV and paste it into a
+      no-signup tool rather than build the pivot table themselves or wait for a vendor analytics tier.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A named list of the alerts that self-resolve or repeat gives teams something to fix that week, and they come back after the
+      cleanup to see whether the numbers moved.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the night or flap classification mislabelled their pages, at which point the rules need per-team configuration.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/oncall-load-analyzer/
+  analytics: null

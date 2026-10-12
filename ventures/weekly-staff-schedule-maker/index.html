@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Weekly Staff Schedule Maker — free employee schedule generator for restaurants and shops</title>
+  <meta name="description" content="Free weekly staff schedule maker. List your people, roles, hour limits and days off plus the shifts to cover, and get a fair schedule that respects rest between shifts, with open shifts explained, a labor cost estimate and CSV and text exports. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Weekly Staff Schedule Maker — free, private, in your browser">
+  <meta property="og:description" content="Build a weekly rota for a restaurant, cafe, shop or salon. Roles, days off, hour limits, rest rules, fair hours and labor cost. No sign-up.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Weekly Staff Schedule Maker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "List your staff, their roles, hour limits and days off, and the shifts you need to cover. Get a weekly schedule that respects roles, rest between shifts and fair hours, with open shifts explained, labor cost, and CSV and text exports. Runs entirely in your browser; nothing is uploaded.", "featureList": "free employee schedule maker, weekly staff schedule generator, restaurant work schedule template, shift scheduling with rest rules, fair hours, labor cost estimate, csv export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I make a weekly work schedule for my restaurant or shop staff?", "acceptedAnswer": {"@type": "Answer", "text": "List each person with their roles, weekly hour limit and days off, one per line. List the shifts you need to cover, such as Mon-Fri 10:00-16:00 server x2. Click Build the schedule and the page assigns people to every shift while respecting roles, days off, hour limits, rest between shifts and the longest run of working days. Download it as a CSV or paste the plain text into your group chat."}}, {"@type": "Question", "name": "What rules does the scheduler follow?", "acceptedAnswer": {"@type": "Answer", "text": "Every assignment must match the person's role, avoid their days off, keep them within their weekly hour limit, give them at most one shift a day, leave the minimum rest you set between a close and the next open (including Sunday night into Monday morning), and stop them working more than the longest run of days you set. A separate validator re-checks the finished schedule against the same rules."}}, {"@type": "Question", "name": "What happens if I do not have enough people for every shift?", "acceptedAnswer": {"@type": "Answer", "text": "The shifts nobody can legally take under your rules stay marked OPEN and the page says why for each one, for example that nobody with that role is free that day or that everyone eligible is at their hour limit. It never quietly breaks a rule to fill a gap."}}, {"@type": "Question", "name": "How are hours shared out fairly?", "acceptedAnswer": {"@type": "Answer", "text": "After filling the shifts the search balances each person's hours as a share of their own weekly limit, evens out Saturday and Sunday shifts, and pulls hours toward anyone below the minimum you set. The same seed always gives the same schedule, and Reshuffle tries another one."}}, {"@type": "Question", "name": "Does it work out labor cost?", "acceptedAnswer": {"@type": "Answer", "text": "If you give each person an hourly rate, the page totals hours times rate for the week and flags anyone scheduled over 40 hours. It is a planning estimate only. It does not include taxes, tips, premiums or any pay rule that applies to you."}}, {"@type": "Question", "name": "Does it follow predictive scheduling or fair workweek laws?", "acceptedAnswer": {"@type": "Answer", "text": "No. Some cities and states require advance notice of schedules, extra pay for changes, or limits on back-to-back shifts. The minimum rest setting helps with the last one, but the tool does not know your local rules and does not check them. Check them yourself before you publish a schedule."}}, {"@type": "Question", "name": "Is my staff list uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser from what you type, nothing is sent to a server, there are no accounts, and it works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #1d5a3f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f3b2d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f3b2d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5148; }
+    .card { background: #fff; border: 1px solid #d4dad2; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f3b2d12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5f6b5c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d5a3f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3e8e1; color: #1f3b2d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px 6px; border-bottom: 1px solid #e3e8e1; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5148; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.bye td { color: #4a5148; font-style: italic; }
+    tr.mk td { background: #fdf3da; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #eef2ec; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f3b2d; }
+    footer { margin-top: 28px; border-top: 1px solid #d4dad2; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .row4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+    .days { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 4px 0; }
+    label.inl { display: inline-flex; gap: 6px; align-items: center; font-weight: 600; margin: 0; }
+    label.inl input, .check input { width: auto; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    details summary { cursor: pointer; font-weight: 700; color: #1f3b2d; }
+    pre { background: #eef2ec; border-radius: 10px; padding: 12px; overflow-x: auto; white-space: pre-wrap; font-size: .9rem; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">WEEKLY STAFF SCHEDULE MAKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Build this week's staff schedule in a minute</h1>
+    <p>List your <strong>people</strong> with their roles, hour limits and days off, then the <strong>shifts</strong> you need covered. Get a schedule that respects <strong>roles</strong>, <strong>rest between shifts</strong> and <strong>weekly hour limits</strong>, shares hours fairly, tells you exactly which shifts you cannot cover and why, and estimates <strong>labor cost</strong>.</p>
+    <p class="note">For restaurants, cafes, shops, salons and any small team on shifts. No sign-up, no app. New to this? Read <a href="./how-to-make-a-staff-schedule.html">how to make a fair staff schedule, step by step</a>.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>1. Your people</h2>
+    <label for="staff">One person per line: <code>Name: role, role; max 32; min 16; rate 18; off Mon Tue</code></label>
+    <textarea id="staff" rows="8" placeholder="Ana: server, host; max 32; rate 17&#10;Ben: server; max 40; off Sun&#10;Cara: cook; max 40"></textarea>
+
+    <h2 style="margin-top:18px">2. Shifts to cover</h2>
+    <label for="shifts">One per line: <code>Days start-end role xHeadcount</code>. Days can be <code>Mon-Fri</code>, <code>Sat,Sun</code>, <code>weekends</code> or <code>daily</code>. Add a name first if you like: <code>Lunch | Mon-Fri 10:30-16:00 server x2</code></label>
+    <textarea id="shifts" rows="7" placeholder="Lunch | Mon-Sun 10:30-16:00 server&#10;Dinner | Mon-Sun 16:00-22:00 server x2&#10;Line | Tue-Sat 10:00-22:30 cook"></textarea>
+
+    <h2 style="margin-top:18px">3. Rules</h2>
+    <div class="row4">
+      <div><label for="minRest">Minimum rest between shifts, hours</label><input id="minRest" inputmode="numeric" value="10"></div>
+      <div><label for="maxRun">Longest run of working days</label><input id="maxRun" inputmode="numeric" value="6"></div>
+      <div><label for="weekStart">Week starts Monday (optional, YYYY-MM-DD)</label><input id="weekStart" placeholder="2026-10-12"></div>
+      <div><label for="seed">Shuffle seed (same seed, same schedule)</label><input id="seed" inputmode="numeric" value="1"></div>
+    </div>
+
+    <button type="button" id="build">Build the schedule</button>
+    <button type="button" class="secondary" id="reshuffle">Reshuffle</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Enter your people and shifts, then click Build the schedule.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Your schedule</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="check-line"></p>
+    <div class="scroll"><table id="grid"><thead><tr id="grid-head"></tr></thead><tbody></tbody></table></div>
+    <h2 style="margin-top:22px">Shift list</h2>
+    <div class="scroll"><table id="shiftlist"><thead><tr><th>Day</th><th>Time</th><th>Role</th><th>Person</th></tr></thead><tbody></tbody></table></div>
+    <h2 style="margin-top:22px">Hours</h2>
+    <div class="scroll"><table id="hours"><thead><tr><th>Person</th><th class="n">Hours</th><th class="n">Limit</th><th class="n">Est. pay</th><th>Note</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="dl-csv">Download shift list (CSV)</button>
+    <button type="button" id="dl-grid">Download grid (CSV)</button>
+    <button type="button" class="secondary" id="copy-text">Copy as plain text</button>
+    <button type="button" class="secondary" id="dl-text">Download text</button>
+    <button type="button" class="secondary" id="print">Print</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Hard rules:</strong> a person is only given a shift that matches one of their roles, never on a day off, never a second shift the same day, never beyond their weekly hour limit, never with less than your minimum rest after another shift (Sunday night into Monday morning included), and never beyond your longest run of days. If a rule would be broken the shift stays open.</p>
+    <p><strong>Search:</strong> the hardest shifts to staff (fewest eligible people) are placed first, then a seeded local search tries thousands of reassignments and swaps, keeping any that fill more shifts or share hours more evenly. It runs several restarts and keeps the best.</p>
+    <p><strong>Fairness:</strong> hours are balanced as a share of each person's own limit, Saturday and Sunday shifts are spread out, and anyone below their minimum hours is pulled up.</p>
+    <p><strong>Checked:</strong> a separate validator re-reads the finished schedule and confirms every rule above. It cannot know your local scheduling laws, union rules, breaks or who works well together.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I make a weekly work schedule for my restaurant or shop staff?</h3>
+    <p>List each person with their roles, weekly hour limit and days off, one per line. List the shifts you need to cover, such as Mon-Fri 10:00-16:00 server x2. Click Build the schedule and the page assigns people to every shift while respecting roles, days off, hour limits, rest between shifts and the longest run of working days. Download it as a CSV or paste the plain text into your group chat.</p>
+    <h3>What rules does the scheduler follow?</h3>
+    <p>Every assignment must match the person's role, avoid their days off, keep them within their weekly hour limit, give them at most one shift a day, leave the minimum rest you set between a close and the next open (including Sunday night into Monday morning), and stop them working more than the longest run of days you set. A separate validator re-checks the finished schedule against the same rules.</p>
+    <h3>What happens if I do not have enough people for every shift?</h3>
+    <p>The shifts nobody can legally take under your rules stay marked OPEN and the page says why for each one, for example that nobody with that role is free that day or that everyone eligible is at their hour limit. It never quietly breaks a rule to fill a gap.</p>
+    <h3>How are hours shared out fairly?</h3>
+    <p>After filling the shifts the search balances each person's hours as a share of their own weekly limit, evens out Saturday and Sunday shifts, and pulls hours toward anyone below the minimum you set. The same seed always gives the same schedule, and Reshuffle tries another one.</p>
+    <h3>Does it work out labor cost?</h3>
+    <p>If you give each person an hourly rate, the page totals hours times rate for the week and flags anyone scheduled over 40 hours. It is a planning estimate only. It does not include taxes, tips, premiums or any pay rule that applies to you.</p>
+    <h3>Does it follow predictive scheduling or fair workweek laws?</h3>
+    <p>No. Some cities and states require advance notice of schedules, extra pay for changes, or limits on back-to-back shifts. The minimum rest setting helps with the last one, but the tool does not know your local rules and does not check them. Check them yourself before you publish a schedule.</p>
+    <h3>Is my staff list uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser from what you type, nothing is sent to a server, there are no accounts, and it works offline once the page has loaded.</p>
+    
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, employment or payroll advice and does not replace your local scheduling, overtime or break rules. <strong>You are responsible for reviewing and verifying the schedule</strong> (every person, shift and hour) before you share it with staff. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any scheduling, payroll or restaurant software company, and none is named or ranked here. The example staff are invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere, so download the CSV.</p>
+    <p>Everything runs in your browser. Your staff names and rates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_built</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>text_shared</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../shift-cover-optimizer/">shift cover optimizer</a> for covering a sick call, the <a href="../restaurant-tip-pool-calculator/">restaurant tip pool calculator</a>, and the <a href="../league-schedule-generator/">league schedule generator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { readSpec, buildSchedule, validateSchedule, gridRows, scheduleCsv, gridCsv, scheduleText, sampleFields, dateLabel, DAYS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    let last = null;
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const later = (fn) => setTimeout(fn, 0);
+    const hm = (m) => `${String(Math.floor((m % 1440) / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+    const money = (n) => (n === null || n === undefined ? "—" : "$" + n.toFixed(2));
+
+    function setFields(f) {
+      $("#staff").value = f.staff; $("#shifts").value = f.shifts;
+      $("#minRest").value = f.minRest; $("#maxRun").value = f.maxRun; $("#weekStart").value = f.weekStart; $("#seed").value = f.seed;
+    }
+    const readFields = () => ({ staff: $("#staff").value, shifts: $("#shifts").value, minRest: $("#minRest").value, maxRun: $("#maxRun").value, weekStart: $("#weekStart").value, seed: $("#seed").value });
+
+    function render(s) {
+      last = s;
+      $("#report").hidden = false;
+      const v = validateSchedule(s);
+      $("#notices").innerHTML = s.notices.map((n) => `<div class="warn">${esc(n)}</div>`).join("");
+      $("#big").innerHTML = [
+        [`${s.stats.filled} / ${s.stats.slots}`, "shifts filled"], [s.gaps.length, "open shifts"], [s.stats.hours, "hours scheduled"], [money(s.stats.totalCost), "est. labor cost"],
+      ].map(([a, b]) => `<div><strong>${esc(a)}</strong>${esc(b)}</div>`).join("");
+      $("#check-line").innerHTML = v.ok
+        ? `<span class="pill good">checked</span> Every shift matches a role, nobody is on a day off or over their hours, and rest and run limits hold.`
+        : `<span class="pill high">problem</span> ${esc(v.errors.slice(0, 4).join(" "))}`;
+      $("#grid-head").innerHTML = `<th>Person</th>` + DAYS.map((_, d) => `<th>${esc(dateLabel(s.spec, d))}</th>`).join("") + `<th class="n">Hours</th>`;
+      $("#grid tbody").innerHTML = gridRows(s).map((r, i) => `<tr><td>${esc(r.name)}</td>` + r.cells.map((c) => `<td${c.off ? ' class="bye"' : ""}>${esc(c.text)}</td>`).join("") + `<td class="n">${s.people[i].hours}</td></tr>`).join("");
+      const order = s.slots.map((_, i) => i).sort((a, b) => s.slots[a].day * 1440 + s.slots[a].start - (s.slots[b].day * 1440 + s.slots[b].start) || a - b);
+      $("#shiftlist tbody").innerHTML = order.map((i) => {
+        const sl = s.slots[i]; const p = s.assign[i];
+        return `<tr${p < 0 ? ' class="mk"' : ""}><td>${esc(dateLabel(s.spec, sl.day))}</td><td>${hm(sl.start)}-${hm(sl.end)}${sl.label ? " " + esc(sl.label) : ""}</td><td>${esc(sl.role)}</td><td>${p < 0 ? "OPEN" : esc(s.spec.staff[p].name)}</td></tr>`;
+      }).join("");
+      $("#hours tbody").innerHTML = s.people.map((p) => {
+        const note = [p.over40 ? "over 40 h" : "", p.overMin ? `below min ${p.min} h` : ""].filter(Boolean).join(", ");
+        return `<tr><td>${esc(p.name)}</td><td class="n">${p.hours}</td><td class="n">${p.max}</td><td class="n">${money(p.cost)}</td><td>${esc(note)}</td></tr>`;
+      }).join("");
+    }
+
+    function run(seedOverride) {
+      const f = readFields();
+      if (seedOverride !== undefined) { f.seed = seedOverride; $("#seed").value = seedOverride; }
+      const { spec, errors } = readSpec(f);
+      if (errors.length) { status.textContent = errors.join(" "); return false; }
+      let s;
+      try { s = buildSchedule(spec); } catch (e) { status.textContent = e.message; return false; }
+      render(s);
+      status.textContent = s.gaps.length ? `Done, with ${s.gaps.length} open shift(s). See the notes above the table.` : "Done. Every shift is covered. Scroll down for the schedule.";
+      return true;
+    }
+
+    function download(name, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    $("#build").addEventListener("click", () => later(() => { if (run()) record("schedule_built"); }));
+    $("#reshuffle").addEventListener("click", () => later(() => { const n = (Number($("#seed").value) || 0) + 1; if (run(n)) record("schedule_built"); }));
+    $("#load-example").addEventListener("click", () => {
+      setFields(sampleFields());
+      later(() => { if (run()) { record("example_loaded"); status.textContent = "Sample restaurant: invented staff, not a real business."; } });
+    });
+    $("#clear-all").addEventListener("click", () => { $("#staff").value = ""; $("#shifts").value = ""; $("#weekStart").value = ""; $("#report").hidden = true; last = null; status.textContent = "Cleared."; });
+    $("#dl-csv").addEventListener("click", () => { if (!last) return; download("shift-list.csv", scheduleCsv(last), "text/csv"); record("csv_downloaded"); });
+    $("#dl-grid").addEventListener("click", () => { if (!last) return; download("schedule-grid.csv", gridCsv(last), "text/csv"); record("csv_downloaded"); });
+    $("#dl-text").addEventListener("click", () => { if (!last) return; download("schedule.txt", scheduleText(last), "text/plain"); record("text_shared"); });
+    $("#copy-text").addEventListener("click", async () => {
+      if (!last) return;
+      try { await navigator.clipboard.writeText(scheduleText(last)); status.textContent = "Copied. Paste it into your staff group chat."; record("text_shared"); }
+      catch { status.textContent = "Your browser blocked copying. Use Download text instead."; }
+    });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

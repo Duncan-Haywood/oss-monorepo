@@ -1,0 +1,58 @@
+name: patent-maintenance-fee-planner
+description: >-
+  Free browser tool for inventors, startups and small IP teams: paste US patents with grant dates and entity size and see, for
+  each, the maintenance-fee window, due date, surcharge deadline and expiry date, a multi-year fee budget, what letting chosen
+  patents lapse would save, and a calendar file of reminders. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Inspiration only, not copied and not named on any page: the renewal-docketing modules of commercial IP-management platforms.
+# Those are sold per-seat to law firms and large portfolios; this is the one-question, no-signup version for an inventor or startup
+# holding a handful of patents and a spreadsheet.
+#
+# Why this niche: a missed US maintenance fee lets the patent expire, which for a small company can be the asset in its fundraise.
+# The dates are fixed by statute and the arithmetic is mechanical, but the windows, the weekend roll, the surcharge period and the
+# small/micro-entity fee rows are exactly what gets mis-docketed. Owners of several patents also have to budget fees years ahead
+# and decide which patents to stop paying for.
+#
+# First visitor: someone searching "patent maintenance fee due date calculator", "when is my patent maintenance fee due",
+# "patent expires if maintenance fee not paid". Volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet for a paid multi-portfolio tracker with email reminders and trademark /
+# design renewals, and for referral to registered practitioners; donations. None is built.
+#
+# Liability: the risk is a wrong date or fee relied on, or the fee table going stale. Mitigations: dates are a deterministic function
+# of the grant date and are hand-counted in unit tests including leap-day and weekend cases, bad input throws, the fee table is
+# user-editable with a prominent instruction to confirm against the USPTO schedule, the page says it is not legal advice or a
+# system of record, and it stores nothing and contacts no one.
+
+hypotheses:
+  - claim: >-
+      An inventor or small company holding a few US patents will use a free no-upload tool that lists every maintenance-fee window,
+      surcharge deadline and expiry date plus a calendar file, because the alternative is a spreadsheet or a paid docketing seat.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the multi-year fee budget and the saving from dropping chosen patents changes which patents an owner keeps paying for.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a missed or wrong deadline attributable to the tool, or the fee table is found materially wrong -- at that point the wording and defaults need revisiting before it stays up.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/patent-maintenance-fee-planner/
+  analytics: null

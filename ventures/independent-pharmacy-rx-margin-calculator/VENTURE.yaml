@@ -1,0 +1,50 @@
+name: independent-pharmacy-rx-margin-calculator
+description: >-
+  Free browser tool for independent pharmacies: enter each prescription type's copay, PBM payment, drug and supplies cost,
+  DIR and post-sale fees, rejection rate, delivery cost and staff wage, and get what every fill earns, profit per staff-hour,
+  the copay that reaches a target margin, insured versus cash fills, break-even prescriptions per month and cost sensitivity.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. No existing venture covers pharmacy dispensing margin; the nearest neighbours are
+# optical-dispensary-margin-calculator and hearing-aid-dispensing-margin-calculator (same shape, different retail health niche).
+#
+# Why this niche: about 17,000 US independent pharmacies are paid per claim by PBMs at contracted rates that often sit at or
+# below acquisition cost for generics, with DIR and other post-sale fees clawing money back weeks later. Dispensing software
+# reports revenue per fill, not what a fill earns after fees, rejected-claim rework and staff minutes, so owners cannot see
+# which prescription types to push, decline or renegotiate. A few dollars a fill is tens of thousands a month.
+#
+# First visitor: searches "pharmacy profit margin per prescription", "independent pharmacy break even", "PBM reimbursement
+# below cost", "DIR fees pharmacy"; r/pharmacy, independent pharmacy owner groups. Volume not measured.
+#
+# Liability boundary: arithmetic on typed numbers; placeholder values labelled as such; no patient or prescription identifiers
+# (the page says so); "Not decided" section; no-advice footer. Nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. Natural front end for a paid remittance-advice analyzer
+# that finds claims paid below contract -- needs an owner decision on payment and on handling claims data.
+
+hypotheses:
+  - claim: >-
+      Independent pharmacy owners and managers will type their fill costs into a free tool to see which prescription types earn the least after PBM fees, DIR and staff time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a modelling error that changes which prescription type looks unprofitable on their numbers.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/independent-pharmacy-rx-margin-calculator/
+  analytics: null

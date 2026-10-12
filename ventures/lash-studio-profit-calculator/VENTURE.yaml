@@ -1,0 +1,55 @@
+name: lash-studio-profit-calculator
+description: >-
+  Free browser tool for lash technicians and studio owners: enter a price list,
+  supplies, card fees, no-shows and overhead and see profit per chair hour for every
+  full set and fill, the price that hits a target hourly, monthly profit for a weekly
+  schedule, and client lifetime value with the lowest safe new-client promotion.
+  Copy, CSV, save and load. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a new-venture session. duplicate_check.py: lash studio
+# scored 0.18 against appointment-no-show-cost-calculator; the nearest real
+# neighbours (esthetician-studio-profit-calculator, nail-tech-booth-rent-calculator)
+# are other beauty trades with different service shapes (no fill cycle).
+#
+# Why this niche: lash is a fast-growing solo-operator trade where the price list is
+# the whole business and most techs copy the neighbourhood price. The fill is the
+# repeat revenue but is the shortest, cheapest appointment, so a "friendly" fill price
+# quietly earns the least per hour. Searches like "how much to charge for lash
+# extensions" and "lash fill pricing" are steady year round. Willingness to pay is
+# real (studio software costs $30-100/month), so this is the lead magnet for a later
+# paid multi-technician payroll/commission view (payment rails stay off for now).
+#
+# First visitor: lash-tech Facebook groups and subreddits, beauty-school alumni
+# groups, booking-software forums. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed numbers. Not business, tax or
+# financial advice; says so. Names no brand, platform or processor. No data
+# fetched, no accounts, nothing stored.
+
+hypotheses:
+  - claim: >-
+      Lash techs will enter their price list and studio costs into a no-signup tool
+      and use the price-for-target and client-lifetime numbers to change a price.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a price-for-target that does not reproduce the tool's own profit-per-hour result when typed back in as the price.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/lash-studio-profit-calculator/
+  analytics: null

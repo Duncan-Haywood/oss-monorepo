@@ -1,0 +1,45 @@
+name: thrift-haul-buy-picker
+description: 'Free, zero-network, zero-dependency browser tool and CLI for eBay, Poshmark, Mercari, Etsy and Marketplace resellers buying at thrift stores, estate sales, auctions and liquidation: paste what you found with the ask, your own expected resale price and sell chance, and get which items to buy, the walk-away price for each (the most to pay after marketplace fees, shipping, your time and the cost of your cash), the break-even sell chance, the downside, and the exact best set under a cash, item-count or hands-on-hours cap (branch and bound, checked against every subset). Numbers are the ones the user supplies, an estimate and not a price guide or forecast.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: raises what a reseller keeps from a sourcing trip by buying the right items at the right price.
+# Checked 2026-10-02: ventures/ has ebay-fee-calculator, poshmark-fee-calculator, mercari-fee-calculator (fees on a sale),
+# marketplace-fee-compare and where-to-sell-calculator (which platform), lot-split-calculator (lot vs singles) and
+# liquidation-pallet-bid-calculator (one pallet bid); none prices the buy side of a mixed cart: walk-away price per item with
+# time and cash cost, break-even sell chance, or the best subset under a cash or hours cap. Not in screened-out.md.
+#
+# First visitor: searches "how much to pay for thrift items to resell", "thrift flipping profit calculator", "what to buy at
+# estate sales to resell"; reseller forums and groups. Volume not measured with an external tool. Resellers decide at the shelf
+# on gut feel and a sold-comps tab; nothing multiplies out their own sell chance, time and cash. A hosted version that reads
+# a listing-tool export is the natural paid upgrade.
+hypotheses:
+  - claim: A reseller will paste a cart or a sourcing-trip list, see the walk-away price per item, and change what they buy or counter-offer.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A reseller will return before each sourcing trip, so the page earns repeat visits.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No reseller reports changing what they bought or paid because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/thrift-haul-buy-picker/
+  analytics: null

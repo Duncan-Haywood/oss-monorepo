@@ -462,6 +462,9 @@ export function renderFrontDoorFeed({ mirrored = [], launched = {} } = {}) {
   const entries = dated.slice(0, FEED_MAX_ENTRIES);
   const updated = feedUpdatedAt(dated, launched);
 
+  // `<published>` is not emitted: it was byte-for-byte the same date as the required `<updated>` (a tool has one launch date
+  // and no edit history here), 60 bytes x 30 entries in the `portfolio-front-html` ConfigMap that was 200 bytes over the etcd test
+  // budget on 2026-10-04 with one more venture merged. Atom requires `<updated>` and makes `<published>` optional.
   const entryXml = (tool) => {
     const date = `${launched[tool.slug]}T00:00:00Z`;
     const summary = String(tool.description ?? '').replace(/\s+/g, ' ').trim();
@@ -469,7 +472,6 @@ export function renderFrontDoorFeed({ mirrored = [], launched = {} } = {}) {
     <title>${escapeHtml(tool.title)}</title>
     <link rel="alternate" type="text/html" href="${escapeHtml(`${FRONT_DOOR_URL.replace(/\/$/, '')}${tool.url}`)}"/>
     <id>${escapeHtml(feedEntryId(tool.slug))}</id>
-    <published>${date}</published>
     <updated>${date}</updated>
     <category term="${escapeHtml(categoryFor(tool.slug).title)}"/>${
       summary ? `\n    <summary type="text">${escapeHtml(summary)}</summary>` : ''
@@ -2624,9 +2626,10 @@ ${group.tools
     // Emitted only when it has something to add — see `extraTokens`. Most
     // slugs are the title in kebab case and contribute nothing.
     const alt = extra ? ` data-alt="${escapeHtml(extra)}"` : '';
-    return `        <li class="card" data-cat="${escapeHtml(group.id)}"${alt}>
-          <h3><a href="${escapeHtml(tool.url)}">${escapeHtml(tool.title)}</a></h3>
-        </li>`;
+    // One line, unindented: this list is 656 cards and the whitespace around
+    // each was ~34 bytes -- 22 KB of the `portfolio-front-html` object that was
+    // sitting 512 bytes over the etcd test budget on 2026-10-03.
+    return `<li class="card" data-cat="${escapeHtml(group.id)}"${alt}><h3><a href="${escapeHtml(tool.url)}">${escapeHtml(tool.title)}</a></h3></li>`;
   })
   .join('\n')}
   </ul>`,

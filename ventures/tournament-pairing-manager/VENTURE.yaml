@@ -1,0 +1,64 @@
+name: tournament-pairing-manager
+description: >-
+  Free browser tool for chess clubs, pickleball, darts, table tennis, esports and
+  school events: paste the players and run a Swiss tournament round by round
+  (colour balance, byes, no rematches, Buchholz / Sonneborn-Berger tiebreak
+  standings) or a single or double elimination bracket with byes, third place and
+  grand-final reset, where clicking a winner fills in the next match. Saves the
+  event to a file; CSV and plain-text exports. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a new-venture session asked for something deeper than a
+# calculator. duplicate_check.py: closest row was league-schedule-generator 0.28-0.33
+# (round-robin seasons with dates and courts; no Swiss, no bracket results, no
+# tiebreaks); nothing near the 0.45 line. screened-out.md has no tournament row.
+#
+# Why this niche: volunteer organisers of club chess nights, pickleball and darts
+# nights, school and esports events run a tournament every week or month. Swiss
+# pairing by hand is error-prone (rematches, colour runs, the bye going to the same
+# person twice, tiebreak arithmetic) and the established tools are either desktop
+# programs tied to one federation's rules, or bracket sites that need an account and
+# put the bracket behind a paywall at larger sizes. A private, no-signup tool that
+# does Swiss and both bracket types and shows its tiebreaks is a real gap and a
+# natural lead magnet for a club-management product.
+#
+# First visitor: people searching "swiss pairing generator", "chess tournament
+# pairings", "double elimination bracket generator", "buchholz tiebreak calculator";
+# club organisers in r/chess, r/pickleball and r/boardgames. Volume not measured with
+# an external tool.
+#
+# Liability boundary: pairing arithmetic on user-typed names and results.
+# No payments, no accounts, no registration, nothing stored or uploaded. Not an
+# implementation of any federation's official pairing rules, and not for submitting
+# rated results without the organiser checking them; the page says so.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural front
+# end for a paid club-management or event-registration referral.
+
+hypotheses:
+  - claim: >-
+      Club and event organisers will paste a player list into a private, no-signup
+      pairing tool and run a whole Swiss or bracket event in it, and will come back
+      for the next event.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a pairing that repeats an earlier game or a bracket that eliminates a player before the rules say so.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/tournament-pairing-manager/
+  analytics: null

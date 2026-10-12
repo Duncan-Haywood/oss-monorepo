@@ -268,20 +268,27 @@ Read this section as the five-minute version of the brief; the sections
 above and below carry the reasoning and the incident history that produced
 each rule, for whenever the five-minute version isn't enough.
 
-**Fast scan for "what should this session do," in priority order:**
+**Fast scan for "what should this session do," in priority order.** Whichever
+row you pick, the session ends with its own PR **merged** — open it and merge
+it yourself (`.github/prompts/land-your-work.md`). A pushed branch is not
+shipped: on 2026-10-05, 100 branches from the prior two weeks had been pushed
+and never PR'd, four finished ventures among them.
 
 1. A live product is broken, or a fleet-wide guardrail is red
    (`check_no_payment_code.py`, `clauses.mjs`, the accessibility/contrast
    checks) — a defect or exposure on something a stranger can already reach
    outranks everything below.
-2. The published snapshot is stale (`pages_state.py --require-current`) —
+2. Finished work is stranded — a green PR whose author went quiet, or a
+   branch with no PR at all (`python3 platform/ci/unlanded_work.py --sweep`).
+   Landing a built, tested venture is cheaper than building the next one.
+3. The published snapshot is stale (`pages_state.py --require-current`) —
    refresh it; a merge nobody can see is not shipped.
-3. `usage.yaml` shows a real, nonzero signal on some product — go remove
+4. `usage.yaml` shows a real, nonzero signal on some product — go remove
    that product's actual friction.
-4. Screen and graduate a new venture (gates and process in
+5. Screen and graduate a new venture (gates and process in
    `pipeline/README.md`, rejected ideas in `screened-out.md`) — see above;
    this is not the leftover slot.
-5. Only then: parity features, comparison pages, or added depth on a
+6. Only then: parity features, comparison pages, or added depth on a
    product that has had a fair run and is still at zero.
 
 **Marketing is encouraged at every step above, and it is not where the

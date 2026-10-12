@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CSA Share Pricing Calculator — What Should a Farm Share Cost?</title>
+  <meta name="description" content="List what goes in your CSA box and see what a member gets at retail, what the season pays you per hour, the price that pays your target wage, break-even shares and a price sweep. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="What should a CSA share cost?">
+  <meta property="og:description" content="A share that looks fair can pay the farmer a few dollars an hour. Paste your box, see the price that pays you. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "CSA Share Pricing Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste the items in a CSA box with their weeks, retail value, cost and labour, and see what a share is worth to a member, what the season earns you per hour, the price that pays a target wage, break-even shares and a price sweep."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does it upload my box list?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page works on the text you paste, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call."}}, {"@type": "Question", "name": "Why does it say my share loses money when the box looks full?", "acceptedAnswer": {"@type": "Answer", "text": "Retail value is what a member would pay at a store; your cost is the seeds, inputs, packing, delivery and the hours you put in. Many CSAs charge a price that covers inputs but not their own labour. The tool shows the price that pays you a target hourly wage, so the gap is visible before the season starts."}}, {"@type": "Question", "name": "What is the price sweep based on?", "acceptedAnswer": {"@type": "Answer", "text": "On an elasticity you choose: members are assumed to fall as the price rises by (price / base price) raised to minus the elasticity, capped at your capacity. It is an assumption, not a measurement, so read it as a way to see the trade-off between fewer members and a higher price, not a forecast."}}, {"@type": "Question", "name": "What does the value ratio mean?", "acceptedAnswer": {"@type": "Answer", "text": "Retail value of a season of boxes divided by the share price. Members compare you with the store, so a ratio under 1 is a hard sell and a ratio well over 1 means there is room to raise the price."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    input[type=number] { width: 6.5em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CSA SHARE PRICING CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>What should a CSA share cost?</h1>
+    <p>A small farm sells a season of weekly produce boxes up front. A share that looks fair to members can still pay the farmer a few dollars an hour. List what goes in the box and the weeks it runs, and see <strong>what a member gets at retail, what the season pays you per hour, the price that pays your target wage</strong>, the number of shares you need to break even, and how the answer moves if sign-ups react to price.</p>
+    <p class="note">For market gardens, small vegetable farms and farmer-led CSAs. Nothing is uploaded: the text box is analysed in this browser and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. List the box</h2>
+    <label for="lot-input">One row per item: item, quantity per box, retail value each, your cost each, minutes of labour each, weeks in the box, optional note</label>
+    <textarea id="lot-input" spellcheck="false" placeholder="Salad mix (bag),1,6.00,0.90,12,20&#10;Tomatoes (lb),2,4.50,0.70,9,10"></textarea>
+    <p>
+      <label for="weeks">Season (weeks)</label><input type="number" id="weeks" value="20" min="1" max="52" step="1">
+      <label for="shares">Shares you sell</label><input type="number" id="shares" value="60" min="1" step="1">
+      <label for="price">Price per share ($)</label><input type="number" id="price" value="500" min="1" step="any">
+      <label for="fee">Payment fee (%)</label><input type="number" id="fee" value="3" min="0" max="99" step="0.5">
+      <label for="packaging">Packaging per box ($)</label><input type="number" id="packaging" value="1.5" min="0" step="0.1">
+      <label for="delivery">Delivery per box ($)</label><input type="number" id="delivery" value="0.8" min="0" step="0.1">
+      <label for="packmin">Pack minutes per box</label><input type="number" id="packmin" value="8" min="0" step="1">
+      <label for="rate">Your pay ($ per hour)</label><input type="number" id="rate" value="20" min="0" step="1">
+      <label for="fixed">Fixed season costs ($)</label><input type="number" id="fixed" value="6000" min="0" step="100">
+      <label for="capacity">Capacity (shares)</label><input type="number" id="capacity" value="120" min="1" step="1">
+      <label for="elasticity">Price elasticity</label><input type="number" id="elasticity" value="1.2" min="0" max="10" step="0.1">
+      <label for="wage">Target wage ($ per hour)</label><input type="number" id="wage" value="20" min="0" step="1">
+    </p>
+    <p>
+      <button type="button" id="analyze">Price the share</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. The answer</h2>
+    <p id="summary"></p>
+    <h3>Per share</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Measure</th><th>Value</th></tr></thead>
+      <tbody id="share-rows"></tbody>
+    </table></div>
+    <h3>Items, least worthwhile first</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Item</th><th>Retail</th><th>Cost</th><th>Hours</th><th>Net of your time</th></tr></thead>
+      <tbody id="item-rows"></tbody>
+    </table></div>
+    <h3>Price sweep</h3>
+    <div class="tablewrap"><table id="sweep-table">
+      <thead><tr><th>Price</th><th>Shares</th><th>Value ratio</th><th>After your pay</th></tr></thead>
+      <tbody id="sweep-rows"></tbody>
+    </table></div>
+    <ul id="findings"></ul>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI?</h2>
+    <p>Same logic, zero dependencies, one command — reads a file or stdin:</p>
+    <pre class="cmd">node cli.mjs price box.csv --weeks 20 --shares 60 --price 500
+cat box.csv | node cli.mjs price - --json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="how-to-price-a-csa-share.html">How to price a CSA share: the math</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">The answer is exact for the numbers you type. Land, equipment depreciation, taxes, crop failure, refunds and members who leave mid-season are not modelled; put them in fixed costs if they matter to you.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does it upload my box list?</h3>
+    <p>No. The browser page works on the text you paste, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+    <h3>Why does it say my share loses money when the box looks full?</h3>
+    <p>Retail value is what a member would pay at a store; your cost is the seeds, inputs, packing, delivery and the hours you put in. Many CSAs charge a price that covers inputs but not their own labour. The tool shows the price that pays you a target hourly wage, so the gap is visible before the season starts.</p>
+    <h3>What is the price sweep based on?</h3>
+    <p>On an elasticity you choose: members are assumed to fall as the price rises by (price / base price) raised to minus the elasticity, capped at your capacity. It is an assumption, not a measurement, so read it as a way to see the trade-off between fewer members and a higher price, not a forecast.</p>
+    <h3>What does the value ratio mean?</h3>
+    <p>Retail value of a season of boxes divided by the share price. Members compare you with the store, so a ratio under 1 is a hard sell and a ratio well over 1 means there is room to raise the price.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output, for the accuracy of the values, costs and hours you type, and for any food-safety, licensing or sales-tax rule that applies to your farm. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It prices a share from the numbers you supply; it is not a forecast of how many members you will sign.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>price_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../market-garden-bed-planner/">Market Garden Bed Planner</a> (what to plant), <a href="../market-event-picker/">Market Event Picker</a> (which markets to work) and <a href="../food-truck-event-margin-calculator/">Food Truck Event Margin Calculator</a>.</p>
+    <p class="support">Free and open source. If this earned you a better price, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseLines, plan, summarize, money, INPUT_NOTES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    function renderReport() {
+      const status = $("#status");
+      const text = $("#lot-input").value;
+      if (!text.trim()) {
+        status.innerHTML = `<span class="error">Paste some rows first (or load the worked example).</span>`;
+        return;
+      }
+      const parsed = parseLines(text);
+      if (parsed.errors.length) {
+        status.innerHTML = `<span class="error">${parsed.errors.map(escapeHtml).join("<br>")}</span>`;
+        return;
+      }
+      let p;
+      try {
+        p = plan(parsed, { seasonWeeks: $("#weeks").value, shares: $("#shares").value, price: $("#price").value, feePct: $("#fee").value, packaging: $("#packaging").value, delivery: $("#delivery").value, packMinutes: $("#packmin").value, hourlyRate: $("#rate").value, fixedCosts: $("#fixed").value, capacity: $("#capacity").value, elasticity: $("#elasticity").value, targetWage: $("#wage").value });
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarize(p);
+      $("#summary").innerHTML = `<span class="${s.status === "profit" ? "gain" : "error"}">${escapeHtml(s.text)}</span>`;
+      const ps = p.perShare;
+      $("#share-rows").innerHTML = [
+        ["Retail value a member receives", money(ps.retail)], ["Value ratio (retail / price)", `${p.valueRatio.toFixed(2)}x`],
+        ["Item cost + box costs", money(ps.itemCost + ps.boxCosts)], ["Your hours per share", ps.hours.toFixed(1)],
+        [`Price that pays ${money(p.options.targetWage)} an hour at ${p.options.shares} shares`, money(p.wagePrice)],
+        ["Shares to break even after your pay", p.breakEvenShares === null ? "never at this price" : String(Math.ceil(p.breakEvenShares))],
+        ["Season profit before your pay", money(p.now.beforePay)], ["Season profit after your pay", money(p.now.afterPay)],
+      ].map(([l, v]) => `<tr><td>${escapeHtml(l)}</td><td>${escapeHtml(v)}</td></tr>`).join("");
+      $("#item-rows").innerHTML = p.lines.map((l) => `<tr><td>${escapeHtml(l.name)}</td><td>${money(l.retail)}</td><td>${money(l.cost)}</td><td>${l.hours.toFixed(1)}</td><td>${money(l.net)}</td></tr>`).join("");
+      $("#sweep-table").hidden = p.options.elasticity === 0;
+      $("#sweep-rows").innerHTML = p.sweep.rows.filter((_, i) => i % 2 === 0).map((r) => `<tr><td>${money(r.price)}</td><td>${r.members}</td><td>${r.valueRatio.toFixed(2)}x</td><td>${money(r.afterPay)}</td></tr>`).join("");
+      $("#findings").innerHTML = p.findings.map((f) => `<li>${escapeHtml(f.message)}</li>`).join("");
+      $("#report-card").hidden = false;
+      record("price_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `item,qty_per_box,value_each,cost_each,minutes_each,weeks,note
+Salad mix (bag),1,6.00,0.90,12,20,
+Tomatoes (lb),2,4.50,0.70,9,10,peak summer
+Kale (bunch),1,3.50,0.45,6,18,
+Carrots (bunch),1,3.75,0.50,7.5,12,
+Zucchini (lb),2,2.75,0.30,4.5,8,glut
+Cucumbers,2,1.75,0.25,3,8,
+Potatoes (lb),2,2.50,0.35,3,10,
+Garlic (head),2,1.50,0.20,3,6,
+Peppers,3,1.60,0.35,6,9,
+Herbs (bunch),1,3.00,0.30,9,20,
+Winter squash,1,4.00,0.50,6,6,
+Radishes (bunch),1,3.00,0.20,9,5,spring`;
+
+    $("#load-example").addEventListener("click", () => {
+      $("#lot-input").value = EXAMPLE_SOURCE;
+      const v = { weeks: 20, shares: 60, price: 500, fee: 3, packaging: 1.5, delivery: 0.8, packmin: 8, rate: 20, fixed: 6000, capacity: 120, elasticity: 1.2, wage: 20 };
+      for (const [id, x] of Object.entries(v)) $("#" + id).value = x;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      $("#lot-input").value = "";
+      $("#status").textContent = "";
+      $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

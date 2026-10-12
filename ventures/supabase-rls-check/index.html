@@ -281,7 +281,9 @@
   optional and never changes what the tool does.</p>
   <p>Also worth a pass on your stack: <a href="../firebase-rules-check/">Firebase security rules
   exposure checker</a> covers the same "default-open unless a rule locks it down" shape for a
-  different backend, <a href="../cors-misconfig-check/">CORS misconfiguration
+  different backend, <a href="../s3-bucket-exposure-check/">S3 Bucket Exposure checker</a> covers
+  the same "does this backend hand out data with no login" question for AWS object storage,
+  <a href="../cors-misconfig-check/">CORS misconfiguration
   checker</a> and <a href="../security-headers-check/">Security Headers checker</a> cover other
   response-evidence classes in the same "read what's actually there, name the exact evidence"
   shape as this tool, and <a href="../dependency-confusion-check/">dependency confusion

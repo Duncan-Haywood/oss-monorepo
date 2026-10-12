@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Wise Statement to Xero and QuickBooks Journal with FX Gain and Loss</title>
+  <meta name="description" content="Free Wise to QuickBooks and Xero journal converter for multi-currency balances: values every row in your base currency at your rates, tracks average cost, books realised FX gain or loss separately, proves the running balance, and downloads a balanced month-split journal. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Wise statement to Xero / QuickBooks journal with realised FX — free, private">
+  <meta property="og:description" content="Turn a Wise currency statement into month-split journals with the exchange gain or loss on its own line. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Wise Statement to Journal", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Wise currency-balance statement into balanced month-split journals for Xero and QuickBooks with realised FX gain or loss at average cost, in the browser. Nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I record Wise multi-currency transactions in QuickBooks or Xero?", "acceptedAnswer": {"@type": "Answer", "text": "Download the statement CSV for one currency balance from Wise, paste it here, choose the currency your books are kept in and type the exchange rates you use for the books. The page values every row in your base currency, books money received, money sent, card spending, fees and conversions to their own accounts, puts the realised exchange gain or loss on its own line, and writes a balanced journal per month for Xero, QuickBooks Online or QuickBooks Desktop."}}, {"@type": "Question", "name": "What is realised FX gain or loss on a Wise balance?", "acceptedAnswer": {"@type": "Answer", "text": "When you hold foreign currency and later spend, send or convert it, the base-currency value it leaves at can differ from what it cost you to acquire. That difference is a realised exchange gain or loss and belongs in your profit and loss. This page tracks the balance at average cost and books the difference on each row that takes money out."}}, {"@type": "Question", "name": "Which exchange rates does it use?", "acceptedAnswer": {"@type": "Answer", "text": "Rates you type, in base currency per 1 unit of the statement currency, either for a day (2026-09-10 1.1200) or for a whole month (2026-09 1.1050); a day with no rate uses the nearest earlier one. For a conversion into your base currency it uses the exchange rate Wise printed on that row, so the proceeds match what landed. The page never fetches rates."}}, {"@type": "Question", "name": "How does it prove the statement is complete?", "acceptedAnswer": {"@type": "Answer", "text": "Every Wise row carries a running balance. The page checks that each balance equals the one before plus the row's amount (and works out whether Wise's Total fees are inside the Amount or on top of it), lists the first row where the chain breaks, and checks the closing balance against the figure you type from your Wise account."}}, {"@type": "Question", "name": "What about opening balances from before the statement?", "acceptedAnswer": {"@type": "Answer", "text": "The first row's running balance implies an opening balance. If you type its base-currency cost, gains carry over correctly from earlier periods; if you do not, it is valued at the first day's rate and the page says so."}}, {"@type": "Question", "name": "Is it safe to paste a Wise statement into a web page?", "acceptedAnswer": {"@type": "Answer", "text": "The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. A statement shows counterparties and references; delete those columns if you would rather not have them on screen, because the page only needs the date, amount, currency, description, running balance, fees and exchange columns."}}, {"@type": "Question", "name": "What does this not check?", "acceptedAnswer": {"@type": "Answer", "text": "Whether the statement matches your Wise account or your books, tax treatment of foreign exchange anywhere (some jurisdictions treat small personal-use gains differently, and business rules vary), unrealised gains at period end (shown for information, not journalled), conversions between two non-base currencies (valued at your rate, not Wise's), and that the account names or codes exist in your accounting software."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">WISE STATEMENT TO JOURNAL · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Turn a Wise currency statement into a Xero or QuickBooks journal with the FX gain or loss</h1>
+    <p>Paste or drop the <strong>statement CSV for one Wise currency balance</strong>. Every row is <strong>valued in the currency your books are kept in</strong> at the rates you type, the balance is tracked at <strong>average cost</strong>, and money received, sent, spent on the card, fees and conversions go to their own accounts with the <strong>realised exchange gain or loss on its own line</strong>. The <strong>running balance is proved row by row</strong>, and the result is a <strong>balanced journal per month</strong> for <strong>Xero, QuickBooks Online, QuickBooks Desktop (IIF)</strong> or plain CSV, plus a workings CSV your accountant can audit.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Wise, Xero and Intuit. The statement layout and the importer layouts are read from memory of public help documents; no real Wise statement and no live Xero or QuickBooks import was available when this was written. If your file is refused, the findings say which column was missing.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your Wise statement</h2>
+    <p class="note">Wise &gt; the currency balance &gt; Statements &gt; CSV. One currency at a time. Columns are matched by name (Date, Amount, Currency, Description, Running Balance, Exchange From, Exchange To, Exchange Rate, Total fees).</p>
+    <label for="file">Choose a Wise statement file</label>
+    <input type="file" id="file" accept=".txt,.csv,.tsv,text/plain">
+    <label for="paste">…or paste the statement text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="TransferWise ID,Date,Date Time,Amount,Currency,Description,Payment Reference,Running Balance,Exchange From,Exchange To,Exchange Rate ..."></textarea>
+    <div class="grid">
+      <div><label for="base">Currency your books are kept in</label><input id="base" value="USD" maxlength="3"></div>
+      <div><label for="split">Journals</label><select id="split"><option value="month">One per calendar month</option><option value="none">One for the whole statement</option></select></div>
+      <div><label for="date-order">Dates written as slashes</label><select id="date-order"><option value="dmy">Statement uses DD/MM/YYYY</option><option value="mdy">Statement uses MM/DD/YYYY</option></select></div>
+      <div><label for="tax-rate">Xero tax rate</label><input id="tax-rate" value="Tax Exempt"></div>
+      <div><label for="closing">Closing balance in Wise (optional)</label><input id="closing" inputmode="decimal" placeholder="e.g. 180.00"></div>
+      <div><label for="opening-cost">Base-currency cost of the opening balance (optional)</label><input id="opening-cost" inputmode="decimal" placeholder="e.g. 1050.00"></div>
+    </div>
+    <label for="rates">Exchange rates, base currency per 1 unit of the statement currency (one per line: <code>2026-09-10 1.1200</code> or <code>2026-09 1.1050</code>; not needed when the statement is already in your base currency)</label>
+    <textarea id="rates" class="small" spellcheck="false" wrap="off" placeholder="2026-09-01 1.1000"></textarea>
+    <label for="mapping">Accounts (one <code>category = account</code> per line; names or codes as your software has them)</label>
+    <textarea id="mapping" class="small" spellcheck="false" wrap="off"></textarea>
+    <p class="note" id="mapping-note"></p>
+    <p>
+      <button type="button" id="validate">Read, check and build journals</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="reset-map">Reset accounts</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Read, check and build journals.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Foreign-currency position</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Realised FX in the statement</th><th class="n" scope="col">Balance held</th><th class="n" scope="col">Cost</th><th class="n" scope="col">Worth at last rate</th><th class="n" scope="col">Unrealised (not journalled)</th></tr></thead><tbody id="position"></tbody></table></div>
+    <h3>Journals</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Journal</th><th scope="col">Date</th><th scope="col">Account</th><th class="n" scope="col">Debit</th><th class="n" scope="col">Credit</th><th scope="col">Memo</th></tr></thead><tbody id="journals"></tbody></table></div>
+    <h3>Download</h3>
+    <p><button type="button" id="dl-xero">Xero journal CSV</button> <button type="button" id="dl-qbo">QuickBooks Online CSV</button> <button type="button" id="dl-iif">QuickBooks Desktop IIF</button> <button type="button" id="dl-csv">Plain CSV</button> <button type="button" class="secondary" id="dl-workings">Workings CSV (rate, value, cost, gain per row)</button></p>
+    <p class="note">The accounts must already exist in your software under these names or codes. Post the journals, then match each conversion against the other balance's statement through Wise Conversion Clearing. <button type="button" class="secondary" id="download-findings">Download findings as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Valuation:</strong> each row is valued in your base currency at the rate you typed for its day (nearest earlier day, then the month's rate). A conversion into your base currency uses the rate Wise printed on the row, so the proceeds equal what actually landed.</li>
+      <li><strong>Average cost:</strong> money received adds to the balance at its value on the day; money leaving (sent, card, fees, conversion) leaves at the balance's average cost. The difference between what it was worth and what it cost is the realised gain or loss, booked on its own line.</li>
+      <li><strong>Running balance proof:</strong> every row must follow from the one before. Wise lists newest first; the page puts the rows in order by that chain, works out whether Total fees are inside the Amount or on top, and reports the first row where it breaks.</li>
+      <li><strong>Clearing:</strong> conversions between Wise balances are journalled to a clearing account so the two statements net to zero once both are posted.</li>
+      <li><strong>Not checked:</strong> that the statement matches your Wise account or books, tax rules for foreign exchange in any jurisdiction, unrealised gains (shown, not journalled), conversions between two non-base currencies (valued at your rate), and that the accounts exist in your software.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I record Wise multi-currency transactions in QuickBooks or Xero?</h3>
+    <p>Download the statement CSV for one currency balance from Wise, paste it here, choose the currency your books are kept in and type the exchange rates you use for the books. The page values every row in your base currency, books money received, money sent, card spending, fees and conversions to their own accounts, puts the realised exchange gain or loss on its own line, and writes a balanced journal per month for Xero, QuickBooks Online or QuickBooks Desktop.</p>
+    <h3>What is realised FX gain or loss on a Wise balance?</h3>
+    <p>When you hold foreign currency and later spend, send or convert it, the base-currency value it leaves at can differ from what it cost you to acquire. That difference is a realised exchange gain or loss and belongs in your profit and loss. This page tracks the balance at average cost and books the difference on each row that takes money out.</p>
+    <h3>Which exchange rates does it use?</h3>
+    <p>Rates you type, in base currency per 1 unit of the statement currency, either for a day (2026-09-10 1.1200) or for a whole month (2026-09 1.1050); a day with no rate uses the nearest earlier one. For a conversion into your base currency it uses the exchange rate Wise printed on that row, so the proceeds match what landed. The page never fetches rates.</p>
+    <h3>How does it prove the statement is complete?</h3>
+    <p>Every Wise row carries a running balance. The page checks that each balance equals the one before plus the row's amount (and works out whether Wise's Total fees are inside the Amount or on top of it), lists the first row where the chain breaks, and checks the closing balance against the figure you type from your Wise account.</p>
+    <h3>What about opening balances from before the statement?</h3>
+    <p>The first row's running balance implies an opening balance. If you type its base-currency cost, gains carry over correctly from earlier periods; if you do not, it is valued at the first day's rate and the page says so.</p>
+    <h3>Is it safe to paste a Wise statement into a web page?</h3>
+    <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. A statement shows counterparties and references; delete those columns if you would rather not have them on screen, because the page only needs the date, amount, currency, description, running balance, fees and exchange columns.</p>
+    <h3>What does this not check?</h3>
+    <p>Whether the statement matches your Wise account or your books, tax treatment of foreign exchange anywhere (some jurisdictions treat small personal-use gains differently, and business rules vary), unrealised gains at period end (shown for information, not journalled), conversions between two non-base currencies (valued at your rate, not Wise's), and that the account names or codes exist in your accounting software.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, banking, accounting, compliance, or financial advice, and it does not replace a qualified professional or your own bookkeeping review. Results depend entirely on the file and the rates you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with Wise or any accounting vendor.</strong> Wise is a trademark of Wise Payments Limited. Xero and QuickBooks belong to their owners. This tool is independent and is not sponsored, endorsed or connected to Wise, Xero, Intuit or any other vendor. The statement layout and category rules are read from memory of public help documents and may not match every account.</p>
+    <p><strong>Financial data.</strong> A Wise statement contains your balances, counterparties and references. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your file. Whether you may open it in a browser tool is a question for your own policies.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_validated</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>journal_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the same FX journal for <a href="../payoneer-statement-to-journal/">Payoneer</a>, <a href="../revolut-business-statement-to-journal/">Revolut Business</a>, and for other payment platforms: <a href="../paypal-activity-to-journal/">PayPal</a>, <a href="../stripe-payout-to-journal/">Stripe</a>, <a href="../ko-fi-payout-to-journal/">Ko-fi</a>, <a href="../patreon-payout-to-journal/">Patreon</a>, <a href="../gumroad-sales-to-journal/">Gumroad</a>, <a href="../shopify-payout-to-journal/">Shopify</a>, <a href="../etsy-statement-to-journal/">Etsy</a>; the <a href="../bank-csv-to-qbo-converter/">bank CSV to QuickBooks converter</a> for ordinary bank files; and the <a href="../payment-reconciliation-workbench/">payment reconciliation workbench</a> matches payments against invoices.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, sampleStatement, sampleBrokenStatement, SAMPLE_RATES, mappingText, defaultMapping, money, decodeBuffer, toXeroJournalCsv, toQboJournalCsv, toIif, journalsCsv, workingsCsv, findingsCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const cents = (v) => { const n = parseFloat(String(v).replace(",", ".")); return Number.isFinite(n) ? Math.round(n * 100) : undefined; };
+    let last = null;
+    $("#mapping").value = mappingText();
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const base = ($("#base").value.trim() || "USD").toUpperCase();
+      const r = validate(text, { base, mappingText: $("#mapping").value, split: $("#split").value, dateOrder: $("#date-order").value, ratesText: $("#rates").value, closing: cents($("#closing").value), openingCost: cents($("#opening-cost").value) });
+      last = r;
+      const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${esc(r.currency || "?")} statement, ${r.summary.rows} rows, ${r.journals.length} journal${r.journals.length === 1 ? "" : "s"} in ${esc(base)}`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const p = r.fx.position;
+      $("#position").innerHTML = p ? `<tr><td>${money(r.fx.realised, base)}</td><td class="n">${money(p.qty, r.currency)}</td><td class="n">${money(p.cost, base)}</td><td class="n">${money(p.value, base)} @ ${p.rate}</td><td class="n">${money(p.unrealised, base)}</td></tr>` : `<tr><td colspan="5">No position.</td></tr>`;
+      $("#journals").innerHTML = r.journals.flatMap((j) => j.lines.map((l) => `<tr><td>${esc(j.narration)}</td><td>${esc(j.date)}</td><td>${esc(l.account)}</td><td class="n">${l.debit ? money(l.debit, j.currency) : ""}</td><td class="n">${l.credit ? money(l.credit, j.currency) : ""}</td><td>${esc(l.memo)}</td></tr>`)).join("") || `<tr><td colspan="6">No journals.</td></tr>`;
+      report.hidden = false;
+      status.textContent = errs ? `Found ${errs} error(s); fix them before posting.` : `Built ${r.journals.length} journal${r.journals.length === 1 ? "" : "s"} from ${r.summary.rows} rows.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      run(text); record("file_validated");
+    });
+    const example = (id, make, note) => $(id).addEventListener("click", () => {
+      $("#paste").value = make(); $("#file").value = ""; $("#base").value = "USD"; $("#rates").value = SAMPLE_RATES;
+      run($("#paste").value); record("example_loaded"); status.textContent = note;
+    });
+    example("#load-ok", sampleStatement, "Worked example: a synthetic EUR balance for a business that keeps its books in USD; the payers and amounts are not real.");
+    example("#load-broken", sampleBrokenStatement, "Worked example: the same statement after a hand edit, with typical faults.");
+    $("#reset-map").addEventListener("click", () => { $("#mapping").value = mappingText(defaultMapping()); });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, then click Read, check and build journals."; });
+    $("#download-findings").addEventListener("click", () => { if (last) download("wise-findings.csv", findingsCsv(last), "text/csv"); });
+    const out = (id, name, make, type, count) => $(id).addEventListener("click", () => {
+      if (!last || !last.journals.length) return;
+      count();
+      download(name, make(last.journals, { taxRate: $("#tax-rate").value.trim() || undefined, dateOrder: $("#date-order").value }), type);
+    });
+    out("#dl-xero", "wise-xero-journal.csv", toXeroJournalCsv, "text/csv", () => record("journal_downloaded"));
+    out("#dl-qbo", "wise-qbo-journal.csv", toQboJournalCsv, "text/csv", () => record("journal_downloaded"));
+    out("#dl-iif", "wise-journal.iif", toIif, "text/plain", () => record("journal_downloaded"));
+    out("#dl-csv", "wise-journal.csv", journalsCsv, "text/csv", () => record("csv_downloaded"));
+    $("#dl-workings").addEventListener("click", () => { if (last && last.workings.length) { record("csv_downloaded"); download("wise-fx-workings.csv", workingsCsv(last), "text/csv"); } });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

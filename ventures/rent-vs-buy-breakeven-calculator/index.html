@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Rent vs Buy Break-Even Calculator: When Does Buying Win? — Free</title>
+  <meta name="description" content="Free rent vs buy calculator: month-by-month comparison with the down payment invested, closing and selling costs, PMI and the itemized-deduction test. Shows the break-even year and the rent that makes them equal. Nothing uploaded.">
+  <meta property="og:title" content="Rent vs buy break-even calculator">
+  <meta property="og:description" content="The year buying pulls ahead, the net-worth gap at your move-out year, and the rent that makes both equal. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23166534'/%3E%3Cpath d='M6 16 16 7l10 9v9H6z' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Rent vs Buy Break-Even Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Month-by-month rent versus buy comparison: break-even year, net worth at your move-out year, the rent that makes them equal, and a sensitivity grid. Runs in your browser; nothing is uploaded.", "featureList": "Break-even year, net worth comparison, break-even rent, PMI, itemized-deduction test, appreciation and investment-return sensitivity grid, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is it cheaper to rent or buy a home?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on how long you stay, the price-to-rent ratio, the mortgage rate and what the cash you would put into a house could earn elsewhere. This tool runs both households month by month with the same total monthly spending, invests the renter's difference, and shows the year buying pulls ahead and the net-worth gap at the year you plan to leave."}}, {"@type": "Question", "name": "What is the rent-vs-buy break-even point?", "acceptedAnswer": {"@type": "Answer", "text": "The first year in which the buyer's net worth (sale price less selling costs less the loan balance) exceeds the renter's investment account. Closing costs, selling costs and early interest-heavy payments mean buying usually loses for the first few years even when it wins later."}}, {"@type": "Question", "name": "Why does the model include investing the down payment?", "acceptedAnswer": {"@type": "Answer", "text": "Cash tied up in a house is not earning anything else. The renter keeps the down payment and closing costs invested at the return you type, and also invests every month that renting costs less than owning. Leaving this out is the most common reason rent-vs-buy comparisons favour buying."}}, {"@type": "Question", "name": "Do I get a tax break for the mortgage interest?", "acceptedAnswer": {"@type": "Answer", "text": "Only if your mortgage interest, property tax (up to the state-and-local cap) and other itemized deductions together exceed your standard deduction. Most households do not, so the model gives owning a tax saving only when itemizing beats the standard deduction. Type your own deduction figures to match your filing status."}}, {"@type": "Question", "name": "What rent makes buying and renting equal?", "acceptedAnswer": {"@type": "Answer", "text": "The tool solves for it: the starting monthly rent at which both households finish with the same net worth at the horizon you set. If comparable rents are above that number, buying wins on these assumptions; below it, renting wins."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on assumptions you type, and home prices, rents, rates and investment returns are uncertain. It does not know your job security, family plans, local market or taxes beyond the simple deduction model. Check the result with a qualified adviser and your lender's actual figures."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">RENT VS BUY BREAK-EVEN CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How long until buying beats renting, and what rent makes them equal?</h1>
+    <p>Type the house, what it costs to own, and what a comparable rental costs. The tool runs both households month by month with the same total spending, invests the renter's down payment and monthly savings, and tells you the year buying pulls ahead, the net-worth gap at the year you plan to move, and the starting rent at which the two are exactly level.</p>
+    <p class="note">Arithmetic on assumptions you type. Not tax, legal or financial advice. The example figures are placeholders, not a quote or a forecast for any market.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The house</h2>
+      <div class="grid">
+        <div><label for="homePrice">Home price ($)</label><input id="homePrice" type="number" step="any" value="0"></div>
+        <div><label for="downPct">Down payment (%)</label><input id="downPct" type="number" step="any" value="0"></div>
+        <div><label for="ratePct">Mortgage rate (%)</label><input id="ratePct" type="number" step="any" value="0"></div>
+        <div><label for="termYears">Mortgage term (years)</label><input id="termYears" type="number" step="any" value="0"></div>
+        <div><label for="closingBuyPct">Closing costs when buying (% of price)</label><input id="closingBuyPct" type="number" step="any" value="0"></div>
+        <div><label for="sellingCostPct">Selling costs when you leave (% of price)</label><input id="sellingCostPct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Owning costs</h2>
+      <div class="grid">
+        <div><label for="propTaxPct">Property tax (% of value a year)</label><input id="propTaxPct" type="number" step="any" value="0"></div>
+        <div><label for="insurancePct">Homeowners insurance (% of value a year)</label><input id="insurancePct" type="number" step="any" value="0"></div>
+        <div><label for="maintenancePct">Maintenance and repairs (% of value a year)</label><input id="maintenancePct" type="number" step="any" value="0"></div>
+        <div><label for="hoaMonthly">HOA dues ($ a month)</label><input id="hoaMonthly" type="number" step="any" value="0"></div>
+        <div><label for="pmiPct">Mortgage insurance if under 20% down (% of loan a year)</label><input id="pmiPct" type="number" step="any" value="0"></div>
+        <div><label for="appreciationPct">Home price growth (% a year)</label><input id="appreciationPct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Renting and investing</h2>
+      <div class="grid">
+        <div><label for="rentMonthly">Rent for a comparable place ($ a month)</label><input id="rentMonthly" type="number" step="any" value="0"></div>
+        <div><label for="rentGrowthPct">Rent growth (% a year)</label><input id="rentGrowthPct" type="number" step="any" value="0"></div>
+        <div><label for="rentersInsuranceMonthly">Renter's insurance ($ a month)</label><input id="rentersInsuranceMonthly" type="number" step="any" value="0"></div>
+        <div><label for="investReturnPct">Return on invested cash, after tax (% a year)</label><input id="investReturnPct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-3">
+      <h2 id="h-3">4. Taxes and your plan</h2>
+      <div class="grid">
+        <div><label for="marginalTaxPct">Marginal income tax rate (%)</label><input id="marginalTaxPct" type="number" step="any" value="0"></div>
+        <div><label for="standardDeduction">Standard deduction ($)</label><input id="standardDeduction" type="number" step="any" value="0"></div>
+        <div><label for="saltCap">State and local tax deduction cap ($)</label><input id="saltCap" type="number" step="any" value="0"></div>
+        <div><label for="otherItemized">Other itemized deductions ($ a year)</label><input id="otherItemized" type="number" step="any" value="0"></div>
+        <div><label for="horizonYears">Years you expect to stay</label><input id="horizonYears" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Compare renting and buying</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Is it cheaper to rent or buy a home?</h3>
+      <p>It depends on how long you stay, the price-to-rent ratio, the mortgage rate and what the cash you would put into a house could earn elsewhere. This tool runs both households month by month with the same total monthly spending, invests the renter&#x27;s difference, and shows the year buying pulls ahead and the net-worth gap at the year you plan to leave.</p>
+      <h3>What is the rent-vs-buy break-even point?</h3>
+      <p>The first year in which the buyer&#x27;s net worth (sale price less selling costs less the loan balance) exceeds the renter&#x27;s investment account. Closing costs, selling costs and early interest-heavy payments mean buying usually loses for the first few years even when it wins later.</p>
+      <h3>Why does the model include investing the down payment?</h3>
+      <p>Cash tied up in a house is not earning anything else. The renter keeps the down payment and closing costs invested at the return you type, and also invests every month that renting costs less than owning. Leaving this out is the most common reason rent-vs-buy comparisons favour buying.</p>
+      <h3>Do I get a tax break for the mortgage interest?</h3>
+      <p>Only if your mortgage interest, property tax (up to the state-and-local cap) and other itemized deductions together exceed your standard deduction. Most households do not, so the model gives owning a tax saving only when itemizing beats the standard deduction. Type your own deduction figures to match your filing status.</p>
+      <h3>What rent makes buying and renting equal?</h3>
+      <p>The tool solves for it: the starting monthly rent at which both households finish with the same net worth at the horizon you set. If comparable rents are above that number, buying wins on these assumptions; below it, renting wins.</p>
+      <h3>Is this financial advice?</h3>
+      <p>No. It is arithmetic on assumptions you type, and home prices, rents, rates and investment returns are uncertain. It does not know your job security, family plans, local market or taxes beyond the simple deduction model. Check the result with a qualified adviser and your lender&#x27;s actual figures.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether you should buy. The model ignores your job and family plans, the cost of moving, local market swings, a rent-controlled or below-market rental, refinancing, extra principal payments, capital-gains tax on a sale above the home-sale exclusion, tax on the renter's investment gains beyond the after-tax return you type, and the value of owning for its own sake. Home prices, rents, rates and returns are uncertain; use the grid to see how much the answer moves.</p>
+    </section>
+    <section class="card">
+      <p>Sharing the place? The <a href="../roommate-rent-splitter/">roommate rent splitter</a> divides rent fairly when the rooms are unequal.</p>
+      <p>Related tools: the <a href="../home-sale-exclusion-calculator/">home sale exclusion calculator</a>, the <a href="../mortgage-points-break-even-calculator/">mortgage points break-even calculator</a> the <a href="../heloc-vs-cash-out-refinance-calculator/">HELOC vs cash-out refinance calculator</a> and the <a href="../roommate-rent-splitter/">roommate rent splitter</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with your lender's actual loan estimate and a qualified professional before you buy or sign a lease.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.rows.length) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const y = a.opts.horizonYears, hz = a.horizon;
+      const gap = money(Math.abs(hz.advantage));
+      h += `<div class="finding"><h4>${hz.advantage >= 0 ? "Buying is ahead" : "Renting is ahead"} by ${gap} after ${y} years</h4><p>Buyer walks away with ${money(hz.buyerNet)} after selling; the renter has ${money(hz.renterNet)} invested. ${a.breakEvenYear ? "Buying first pulls ahead in year " + a.breakEvenYear + "." : "Buying does not pull ahead within 30 years on these figures."}</p></div>`;
+      h += `<div class="finding"><h4>Rent that makes them equal: ${money(a.breakEvenRent)} a month</h4><p>If a comparable rental costs more than this today, buying wins at ${y} years on these assumptions; if less, renting wins. You entered ${money(a.opts.rentMonthly)}. Cash needed to buy: ${money(a.upfront)}.</p></div>`;
+      const pick = [1, 3, 5, 7, 10, 15, 20, 30];
+      h += `<div class="finding"><h4>Net worth by year</h4>${table(["Year", "Home value", "Loan left", "Buyer", "Renter", "Buying ahead by"], a.rows.filter((r) => pick.includes(r.year) || r.year === y).map((r) => [r.year, money(r.homeValue), money(r.balance), money(r.buyerNet), money(r.renterNet), money(r.advantage)]))}<p><button type="button" class="secondary" id="csv">Download all 30 years (CSV)</button></p></div>`;
+      const r0 = a.rows[0];
+      h += `<div class="finding"><h4>Monthly cost in year 1</h4><p>Owning ${money(r0.buyerMonthly)} (loan, taxes, insurance, upkeep${r0.pmi ? ", mortgage insurance" : ""}, after any tax saving) versus renting ${money(r0.renterMonthly)}.</p></div>`;
+      h += `<div class="finding"><h4>How the answer moves: buying ahead by, at ${y} years</h4>${table(["Home price growth ↓ / invest return →", ...a.grid[0].cells.map((c) => c.invest + "%")], a.grid.map((g) => [g.appreciation + "%", ...g.cells.map((c) => money(c.advantage))]))}</div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "rent-vs-buy.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

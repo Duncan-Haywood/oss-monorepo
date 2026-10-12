@@ -1,0 +1,49 @@
+name: bigquery-query-cost-advisor
+description: 'Free, zero-network, zero-dependency CLI + browser tool that reads a list of BigQuery query groups (runs per month, GB billed per run, slot-hours per run), prices them on-demand and on Editions slot-hours, says which is cheaper with a capped-reservation command, flags expensive single runs with a `bq query --maximum_bytes_billed` guardrail, and finds the groups that dominate or repeat large scans; usable as a CI check. Numbers are supplied by the user and prices are editable list prices, not a bill.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype (portfolio/pipeline/README.md "archetype itself").
+# Sibling of the AWS cost advisors in the cloud-cost-from-pasted-numbers
+# family, but for Google Cloud. Checked 2026-10-02: nothing in ventures/
+# prices BigQuery. Not in screened-out.md.
+#
+# Where the first real visitor would come from: the search phrases "bigquery
+# on-demand vs editions", "bigquery slot cost calculator", "reduce bigquery
+# query cost", "bigquery maximum bytes billed". The reader is a data engineer
+# or analytics lead whose BigQuery line grew after on-demand pricing met a
+# dashboard refresh loop. Adjacent tools (Google's pricing calculator,
+# INFORMATION_SCHEMA dashboards, FinOps suites) need project access or a
+# contract; this works on pasted rows and emits the guardrail command -- the
+# wedge. A hosted monitor that alerts on a newly expensive query group is the
+# natural paid upgrade.
+hypotheses:
+  - claim: A data engineer with a growing BigQuery bill will search for on-demand vs Editions, paste per-query-group rows from INFORMATION_SCHEMA, and leave knowing which billing model is cheaper and with a bytes-billed cap per expensive query.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A data platform team will run the CLI on a schedule against a JOBS_BY_PROJECT export with --fail-on warn so a newly expensive query group is flagged before the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/bigquery-query-cost-advisor/
+  analytics: null

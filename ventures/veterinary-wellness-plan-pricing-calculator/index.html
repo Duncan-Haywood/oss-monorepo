@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Vet Wellness Plan Pricing Calculator — Free</title>
+  <meta name="description" content="Free calculator for veterinary practices: price an in-house wellness plan. Monthly fee for your target margin, margin if members use more than planned, patient savings and yearly plan profit. Nothing uploaded.">
+  <meta property="og:title" content="Veterinary wellness plan pricing calculator">
+  <meta property="og:description" content="Monthly fee for a target margin, utilisation stress test and patient savings for a vet wellness plan. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f6f5c'/%3E%3Cpath d='M9 17l5 5 9-11' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Veterinary Wellness Plan Pricing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Price an in-house veterinary wellness plan: monthly fee for a target margin, margin by member utilisation, patient savings, and yearly plan profit. Runs in your browser.","featureList":"Monthly fee for a target margin, utilisation stress table, fee ladder, patient savings, churn and sign-up cost, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price a veterinary wellness plan?","acceptedAnswer":{"@type":"Answer","text":"Add up what the included services would cost a client a la carte at your list prices, apply the plan discount, then work backwards from your own cost of delivering them. This tool takes each service with its yearly quantity, list price and your cost, subtracts billing fees, assumes only some members use everything, and shows the monthly fee that reaches the margin you target."}},{"@type":"Question","name":"Why do plan members who skip services matter?","acceptedAnswer":{"@type":"Answer","text":"A wellness plan is paid monthly whether or not the services are used. If members use 85% of what is bundled, the practice pays for 85% of the cost. If they use more, margin shrinks fast, which is why the result shows margin at 60%, 80%, 100% and 120% of planned use."}},{"@type":"Question","name":"Is a plan better than selling the same services a la carte?","acceptedAnswer":{"@type":"Answer","text":"The result shows the margin you would earn selling the same visits at list price against the margin on the plan. The plan can still win through predictable monthly revenue, higher visit frequency and fewer skipped visits; those effects are not modelled here, so treat the comparison as the price of the discount only."}},{"@type":"Question","name":"What does the break-even utilisation number mean?","acceptedAnswer":{"@type":"Answer","text":"It is the share of the bundled services a member could use before the plan stops covering its own service cost and billing fees. If it is only a little above your planned use, the plan has little room for members who use more than you assumed."}}]}</script>
+  <style>
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    textarea { width: 100%; box-sizing: border-box; font-family: ui-monospace, monospace; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">VET WELLNESS PLAN PRICING · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should our wellness plan cost, and what happens if members use more than we planned?</h1>
+    <p>List the services in the plan with how many a member gets per year, your list price and your own cost to deliver each. Add the plan discount, billing fees and how much of the bundle members actually use. The tool shows the monthly fee that reaches your target margin, the margin if utilisation runs high, what members save, and what the plan earns across your member base after churn.</p>
+    <p class="note">Arithmetic on the numbers you type. Not veterinary, medical, tax, legal or pricing advice, and some states regulate pet wellness or insurance-like plans, so check yours. The values shown are placeholder data, not benchmarks, market prices or any real practice's figures.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">What the plan includes</h2>
+      <label for="services">One per line: service, quantity per year, list price, your cost</label>
+      <textarea id="services" rows="7" spellcheck="false"></textarea>
+      <p class="note">List price is what a client pays a la carte. Your cost is supplies, lab fees and staff time to deliver it.</p>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">Plan terms</h2>
+      <div class="grid">
+        <div><label for="discountPct">Plan discount on list prices (%)</label><input id="discountPct" type="text" value=""></div>
+        <div><label for="usePct">Share of included services members actually use (%)</label><input id="usePct" type="text" value=""></div>
+        <div><label for="billingFeePct">Billing and card fees (% of plan payments)</label><input id="billingFeePct" type="text" value=""></div>
+        <div><label for="feeMode">Monthly fee</label><select id="feeMode"><option value="target">Find the fee for my target margin</option><option value="fixed">Test a fee I choose</option></select></div>
+        <div><label for="targetMarginPct">Target margin on plan payments (%)</label><input id="targetMarginPct" type="text" value=""></div>
+        <div><label for="monthlyFee">Monthly fee to test ($)</label><input id="monthlyFee" type="text" value=""><p class="note">Used only when you pick "Test a fee I choose".</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">Your members</h2>
+      <div class="grid">
+        <div><label for="members">Members enrolled</label><input id="members" type="text" value=""></div>
+        <div><label for="churnPct">Members who leave each year (%)</label><input id="churnPct" type="text" value=""></div>
+        <div><label for="newMemberCost">Cost to sign up a member ($)</label><input id="newMemberCost" type="text" value=""></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Price the plan</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>How do I price a veterinary wellness plan?</h3>
+      <p>Add up what the included services would cost a client a la carte at your list prices, apply the plan discount, then work backwards from your own cost of delivering them. This tool takes each service with its yearly quantity, list price and your cost, subtracts billing fees, assumes only some members use everything, and shows the monthly fee that reaches the margin you target.</p>
+      <h3>Why do plan members who skip services matter?</h3>
+      <p>A wellness plan is paid monthly whether or not the services are used. If members use 85% of what is bundled, the practice pays for 85% of the cost. If they use more, margin shrinks fast, which is why the result shows margin at 60%, 80%, 100% and 120% of planned use.</p>
+      <h3>Is a plan better than selling the same services a la carte?</h3>
+      <p>The result shows the margin you would earn selling the same visits at list price against the margin on the plan. The plan can still win through predictable monthly revenue, higher visit frequency and fewer skipped visits; those effects are not modelled here, so treat the comparison as the price of the discount only.</p>
+      <h3>What does the break-even utilisation number mean?</h3>
+      <p>It is the share of the bundled services a member could use before the plan stops covering its own service cost and billing fees. If it is only a little above your planned use, the plan has little room for members who use more than you assumed.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Which services belong in a plan, clinical appropriateness, state rules on pet wellness plans and insurance-like products, how clients are told about cancellation and refunds, tax treatment of prepaid plan revenue, extra visits driven by the plan, and your market's prices. Ask a qualified practice consultant, accountant or attorney.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../appointment-no-show-cost-calculator/">appointment no-show cost calculator</a>, the <a href="../private-practice-payer-mix-calculator/">private practice payer mix calculator</a> and the <a href="../med-spa-treatment-profit-calculator/">med spa treatment profit calculator</a>. For a mobile practice, see the <a href="../mobile-vet-house-call-fee-calculator/">mobile vet house-call fee calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before relying on them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in your browser's local storage, honour Do Not Track, and can be switched off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, EXAMPLE_SHARED, money, money2, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(SHARED_DEFAULTS);
+    const fill = () => { for (const k of KEYS) $(k).value = EXAMPLE_SHARED[k]; };
+    const readAll = () => { const o = {}; for (const k of KEYS) o[k] = $(k).value; return o; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const pct = (x) => (x * 100).toFixed(1) + "%";
+    const table = (head, rows) => '<div class="scroll"><table><thead><tr>' + head.map((h, i) => "<th" + (i > 0 ? ' class="n"' : "") + ">" + h + "</th>").join("") + "</tr></thead><tbody>" + rows.map((r) => "<tr>" + r.map((c, i) => "<td" + (i > 0 ? ' class="n"' : "") + ">" + c + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+    let last = null;
+    function run() {
+      const a = analyze(readAll());
+      let h = "";
+      for (const w of a.warnings) h += '<div class="finding"><span class="pill">Check</span> ' + esc(w) + "</div>";
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      const b = a.base, c = a.cohort;
+      h += '<div class="finding"><h4>' + money2(a.fee) + " a month" + (a.mode === "target" ? " reaches your target margin" : " gives a " + pct(b.marginPct) + " margin") + "</h4><p>Members pay " + money(b.collected) + " a year for services worth " + money(b.listValue) + " a la carte (" + money(b.planValue) + " after the discount). After billing fees of " + money(b.fees) + " and about " + money(b.cost) + " of service cost, the practice keeps " + money(b.margin) + " per member (" + pct(b.marginPct) + ")." + (a.mode === "fixed" ? " The fee for your target margin would be " + money2(a.suggested) + " a month." : "") + "</p></div>";
+      h += '<div class="finding"><h4>Members ' + (b.patientSavings >= 0 ? "save " + money(b.patientSavings) : "pay " + money(-b.patientSavings) + " more than a la carte") + " a year</h4><p>Against buying what they use at list price. Selling those same visits a la carte would earn the practice " + money(b.alaCarteMargin) + " per client; the plan earns " + money(b.margin) + ". Visit frequency and retention effects are not counted.</p></div>";
+      h += '<div class="finding"><h4>If members use more or less than planned</h4>' + table(["Share of bundle used", "Margin per member", "Margin %"], a.sweep.map((s) => [s.use + "%", money(s.margin), pct(s.marginPct)])) + "<p>The plan stops covering its own cost and billing fees at " + (a.breakEvenUse == null ? "any use" : pct(a.breakEvenUse) + " of the bundle used") + ".</p></div>";
+      h += '<div class="finding"><h4>Other monthly fees</h4>' + table(["Monthly fee", "Margin per member", "Margin %", "Member saves per year"], a.ladder.map((l) => [money2(l.fee), money(l.margin), pct(l.marginPct), money(l.patientSavings)])) + "</div>";
+      h += '<div class="finding"><h4>Across ' + c.members.toLocaleString("en-US") + " members: " + money(c.annualMargin) + " a year</h4><p>" + money(b.margin * c.members) + " plan margin less " + money(c.signupSpend) + " to replace about " + Math.round(c.churned) + " members who leave (" + money(c.perMember) + " per member).</p></div>";
+      h += '<div class="finding"><h4>Each service</h4>' + table(["Service", "Per year", "List total", "Your cost", "Margin at list"], a.lines.map((l) => [esc(l.name), l.qty, money(l.listTotal), money(l.costTotal), pct(l.marginPct)])) + "</div>";
+      h += '<p><button type="button" class="secondary" id="csv">Download table (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "wellness-plan.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

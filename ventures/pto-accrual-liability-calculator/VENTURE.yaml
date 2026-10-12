@@ -1,0 +1,49 @@
+name: pto-accrual-liability-calculator
+description: >-
+  Free browser tool for small employers and bookkeepers: paste a roster (hourly rate, PTO balance, accrual per pay period, cap) and get
+  the dollar liability of unused PTO today, projected forward up to each person's cap, the payout rule for the state (CA, CO, IL, MA
+  listed; elsewhere policy decides), who is at their cap, the cost of balances above a target, and a CSV. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: closest were employee-cost-calculator 0.12 and
+# final-paycheck-deadline-calculator 0.16 (when a last check is due, not what balances are worth). Dropped before this one because
+# the tree already has them: SaaS trial length, A/B significance, tip pool, menu engineering, CAM audit, nexus tracker, inventory reorder.
+#
+# Why this niche: every employer with PTO has a number on the books they have never priced, and it is a surprise in an audit, an
+# acquisition, a layoff or a year-end close. Payroll vendors (Gusto, ADP, Paycor) show hours; HR tools like Bonusly and Workday are
+# enterprise. A free paste-in tool is the cheap, specific version for 5-100 person firms and their bookkeepers.
+#
+# First visitor: searches "PTO accrual liability calculator", "vacation accrual journal entry", "do I have to pay out unused PTO
+# in <state>", "accrued vacation liability"; r/smallbusiness, r/Accounting, r/bookkeeping. Volume not measured.
+#
+# Liability boundary: arithmetic on a pasted roster; payout rules limited to four states with statute or controlling case and
+# labelled as a starting point, with a "Not decided" section and a prominent no-legal-advice footer. Nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. Natural front end for a paid version that connects to
+# payroll exports and posts the monthly accrual journal entry -- needs accounts, an owner decision.
+
+hypotheses:
+  - claim: >-
+      Small employers and bookkeepers will paste a PTO roster into a free tool to size the liability and decide on a cap.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a payout rule listed here that is wrong for their state.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/pto-accrual-liability-calculator/
+  analytics: null

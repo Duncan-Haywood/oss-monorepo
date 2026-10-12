@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Farmers Market Booth Calculator — Profit per Hour for Each Market</title>
+  <meta name="description" content="Free calculator for farmers market, craft fair and festival vendors: what each market really earns after booth fee, drive, product cost, waste and card fees, profit per hour against your target wage, break-even sales and which market to drop or reprice. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Which farmers market is actually worth your Saturday?">
+  <meta property="og:description" content="Profit per hour after booth fee, drive, waste and card fees, break-even sales, and which market to drop. Your numbers, not advice. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Farmers Market Booth Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free calculator for farmers market, craft fair and festival vendors: what each market really earns after booth fee, drive, product cost, waste and card fees, profit per hour against your target wage, break-even sales and which market to drop or reprice. Runs in your browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is a farmers market worth the booth fee?", "acceptedAnswer": {"@type": "Answer", "text": "On the default numbers a Saturday market with $900 in sales and a $45 booth fee clears $448.62 over 9 hours, $49.85 an hour, while a big festival with $1,100 in sales, a $200 fee plus 10 percent of sales and a long drive clears $220.98 over 16 hours, $13.81 an hour. Enter your own numbers; the fee is only one of the costs."}}, {"@type": "Question", "name": "How do I work out my break-even sales at a market?", "acceptedAnswer": {"@type": "Answer", "text": "Divide the booth fee plus drive cost by the share of each sale you keep after product cost, waste, card fees and any percentage the market takes. On the defaults that is $115.42 at the Saturday market and $631.62 at the festival."}}, {"@type": "Question", "name": "How much do I need to sell to earn my target wage?", "acceptedAnswer": {"@type": "Answer", "text": "Add your target wage times the hours to the fixed costs and divide by the same share. At $25.00 an hour the festival needs about $1,479.44 in sales, against the $1,100 it makes."}}, {"@type": "Question", "name": "Does this give business or tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does arithmetic on the numbers you type. It is not accounting, tax or business advice, and nothing is uploaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    select { padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    input[type=text] { width: 11em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    input[type=number] { width: 6.5em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FARMERS MARKET BOOTH CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>Which market is actually worth your day?</h1>
+    <p>Enter what each market costs and typically sells. You get <strong>profit per hour</strong> after booth fee, drive, product cost, waste and card fees, the <strong>break-even sales</strong>, the sales you need to hit <strong>your target wage</strong>, and what happens if a day sells 20 percent worse.</p>
+    <p class="note"><strong>Your numbers, not accounting or tax advice.</strong> Nothing is uploaded: inputs are used in this browser tab only.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your costs, shared by every market</h2>
+    <p>
+      <label for="cogs">Product cost (% of sales)</label><input type="number" id="cogs" value="35" min="0" step="1">
+      <label for="waste">Waste or unsold (% of sales)</label><input type="number" id="waste" value="6" min="0" step="1">
+      <label for="cardshare">Paid by card (%)</label><input type="number" id="cardshare" value="70" min="0" step="5">
+      <label for="cardfee">Card fee (%)</label><input type="number" id="cardfee" value="2.6" min="0" step="0.1">
+      <label for="mile">Cost per mile ($)</label><input type="number" id="mile" value="0.7" min="0" step="0.05">
+      <label for="wage">Target wage ($/hour)</label><input type="number" id="wage" value="25" min="0" step="1">
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>Your markets</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Market</th><th>Sales ($)</th><th>Booth fee ($)</th><th>% of sales taken</th><th>Hours</th><th>Round-trip miles</th></tr></thead>
+      <tbody id="market-rows"></tbody>
+    </table></div>
+    <p>
+      <button type="button" id="add">Add a market</button>
+      <button type="button" class="secondary" id="remove">Remove last</button>
+      <button type="button" id="go">Calculate</button>
+      <button type="button" class="secondary" id="load-example">Load the example</button>
+      <button type="button" class="secondary" id="clear">Clear results</button>
+      <button type="button" class="secondary" id="copy">Copy summary</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="result-card" hidden aria-live="polite">
+    <h2>What each market earns</h2>
+    <p id="summary"></p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Market</th><th>Profit per day</th><th>Per hour</th><th>Break-even sales</th><th>Sales for target wage</th><th>If sales are 20% lower</th><th>Verdict</th></tr></thead>
+      <tbody id="result-rows"></tbody>
+    </table></div>
+    <p class="note">Verdict: keep means it clears your target wage; reprice-or-cut means it earns something but less than an hour of your time is worth; losing means each visit costs you money.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">More: <a href="is-a-farmers-market-worth-the-booth-fee.html">Is a farmers market worth the booth fee? A worked example</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Is a farmers market worth the booth fee?</h3>
+    <p>On the default numbers a Saturday market with $900 in sales and a $45 booth fee clears $448.62 over 9 hours, $49.85 an hour, while a big festival with $1,100 in sales, a $200 fee plus 10 percent of sales and a long drive clears $220.98 over 16 hours, $13.81 an hour. Enter your own numbers; the fee is only one of the costs.</p>
+    <h3>How do I work out my break-even sales at a market?</h3>
+    <p>Divide the booth fee plus drive cost by the share of each sale you keep after product cost, waste, card fees and any percentage the market takes. On the defaults that is $115.42 at the Saturday market and $631.62 at the festival.</p>
+    <h3>How much do I need to sell to earn my target wage?</h3>
+    <p>Add your target wage times the hours to the fixed costs and divide by the same share. At $25.00 an hour the festival needs about $1,479.44 in sales, against the $1,100 it makes.</p>
+    <h3>Does this give business or tax advice?</h3>
+    <p>No. It does arithmetic on the numbers you type. It is not accounting, tax or business advice, and nothing is uploaded.</p>
+    
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice, it is not a market rate, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the accuracy of the numbers you enter. To the maximum extent permitted by law the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Not affiliated with, endorsed by or sponsored by any market, festival or card processor; names are used only to say what the tool is about.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. The numbers you enter are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>calculate_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../u-pick-farm-profit-planner/">U-Pick Farm Profit Planner</a>, <a href="../microgreens-tray-planner/">Microgreens Tray Planner</a>, <a href="../food-truck-event-margin-calculator/">Food Truck Event Margin Calculator</a>, <a href="../firewood-profit-calculator/">Firewood Profit Calculator</a>, <a href="../backyard-egg-profit-calculator/">Backyard Egg Profit Calculator</a> and <a href="../quarterly-estimated-tax-calendar/">Quarterly Estimated Tax Calendar</a>.</p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeMarkets, summarize, money, DEFAULTS, INPUT_NOTES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    function addRow(m = { name: "", sales: "", boothFee: "", feePct: 0, hours: "", miles: "" }) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td><input type="text" class="m-name" aria-label="Market name" value="${escapeHtml(m.name)}"></td>` +
+        [["sales", "Sales"], ["boothFee", "Booth fee"], ["feePct", "Percent of sales taken"], ["hours", "Hours"], ["miles", "Round-trip miles"]]
+          .map(([k, l]) => `<td><input type="number" class="m-${k}" aria-label="${l}" value="${m[k]}" min="0" step="any"></td>`).join("");
+      $("#market-rows").appendChild(tr);
+    }
+    function loadMarkets(list) { $("#market-rows").innerHTML = ""; list.forEach(addRow); }
+    loadMarkets(DEFAULTS.markets);
+
+    const options = () => ({
+      cogsPct: $("#cogs").value, wastePct: $("#waste").value, cardSharePct: $("#cardshare").value, cardFeePct: $("#cardfee").value,
+      mileCost: $("#mile").value, targetWage: $("#wage").value,
+      markets: [...document.querySelectorAll("#market-rows tr")].map((tr) => ({
+        name: tr.querySelector(".m-name").value, sales: tr.querySelector(".m-sales").value, boothFee: tr.querySelector(".m-boothFee").value,
+        feePct: tr.querySelector(".m-feePct").value, hours: tr.querySelector(".m-hours").value, miles: tr.querySelector(".m-miles").value,
+      })),
+    });
+
+    let lastText = "";
+    function render() {
+      const status = $("#status");
+      let r;
+      try { r = computeMarkets(options()); } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarize(r);
+      lastText = s.text;
+      $("#summary").innerHTML = `<span class="${s.status === "ok" ? "gain" : "error"}">${escapeHtml(s.text)}</span>`;
+      const na = (v) => (v == null ? "never" : money(v));
+      $("#result-rows").innerHTML = r.ranked.map((x) => `<tr><td>${escapeHtml(x.name)}</td><td>${money(x.profit)}</td><td>${money(x.perHour)}</td><td>${na(x.breakEven)}</td><td>${na(x.targetSales)}</td><td>${money(x.down20.profit)}</td><td>${x.verdict}</td></tr>`).join("");
+      $("#result-card").hidden = false;
+      record("calculate_run");
+    }
+
+    $("#go").addEventListener("click", render);
+    $("#add").addEventListener("click", () => addRow());
+    $("#remove").addEventListener("click", () => { const rows = $("#market-rows"); if (rows.children.length > 1) rows.lastElementChild.remove(); });
+    $("#load-example").addEventListener("click", () => { loadMarkets(DEFAULTS.markets); render(); record("example_loaded"); });
+    $("#clear").addEventListener("click", () => { $("#status").textContent = ""; $("#result-card").hidden = true; });
+    $("#copy").addEventListener("click", async () => {
+      if (!lastText) render();
+      try { await navigator.clipboard.writeText(lastText); $("#status").textContent = "Summary copied."; } catch { $("#status").textContent = "Could not copy; select the summary text instead."; }
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

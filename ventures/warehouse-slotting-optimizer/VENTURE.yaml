@@ -1,0 +1,55 @@
+name: warehouse-slotting-optimizer
+description: >-
+  Free browser tool for small warehouses, 3PLs, online sellers with a stockroom and shops with a back room: enter the shelf grid
+  (aisles, bays, distances from the dock), each SKU's picks and size, and where things are today, and get the bay every SKU
+  should move to so pickers walk less. With one line per trip and equal-size SKUs the answer is provably the shortest walk;
+  otherwise swap search. Paste a sample of real orders and it plans for whole multi-line trips, so SKUs ordered together end up
+  in the same aisle. Lists the few swaps and moves that save most, in order, with the labor to make each and the weeks to pay
+  back, supports locked SKUs, shows before and after maps and ABC classes, exports the move list. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: closest was tile-layout-planner 0.10 and container-load-planner
+# 0.08 (neither places SKUs on shelves). Stranded branches for tile-layout-optimizer, mileage-deduction and proposal-maker were
+# checked first and each duplicates a venture already on main, so none was landed. Dropped before this one because the tree
+# already has them: dental-ppo-writeoff-calculator, car-wash-membership-calculator, menu-engineering-calculator,
+# booth-rent-vs-commission, market-event-picker, coffee-roaster-margin-calculator.
+#
+# Why this niche: pick walking is the largest single block of order-picking labor in a small warehouse, and slotting is the
+# classic fix, but the software that does it is sold to large distribution centres. A small 3PL, a seller with a rented unit or
+# a shop's stockroom places SKUs where they fit when they arrive. The saving is labor the owner already pays.
+#
+# First visitor: people searching "warehouse slotting", "how to organize a warehouse for picking", "pick path optimization small
+# business", "ABC analysis warehouse layout"; r/warehouse, r/ecommerce, 3PL and Amazon FBM seller groups. Volume not measured.
+#
+# Liability boundary: arithmetic on typed figures; not safety, racking or engineering advice (the page says so and lets any SKU
+# be locked); nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. Natural front end for a paid tool that reads a WMS or
+# Shopify export and re-slots on a schedule (needs accounts, an owner decision), or referrals to WMS vendors.
+
+hypotheses:
+  - claim: >-
+      Small warehouse operators will use a free tool that turns their pick counts and sample orders into a move list with a
+      payback figure, and will come back after a seasonal change in what sells.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a layout that overlaps two SKUs, moves a locked SKU, or a walking figure that disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/warehouse-slotting-optimizer/
+  analytics: null

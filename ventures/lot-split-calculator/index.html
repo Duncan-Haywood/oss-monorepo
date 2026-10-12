@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Lot Split Calculator — Sell a Bulk Lot Whole or List It Item by Item?</title>
+  <meta name="description" content="Paste the items in a bulk lot and a whole-lot offer and see whether listing item by item earns more after fees, shipping and your time, which lines to list and which to sell on in bulk. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Sell the lot whole or split it?">
+  <meta property="og:description" content="Listing everything is not the same as listing the right things. Paste your lot, see what splitting really nets. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Lot Split Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste the items in a bulk lot (estate, storage unit, liquidation pallet) and a whole-lot offer, and see whether splitting the lot earns more, which items to list, which to sell on in bulk, and the break-even value of your time."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does it upload my lot list?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page works on the text you paste, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call."}}, {"@type": "Question", "name": "Why would I sell some items in bulk instead of listing them?", "acceptedAnswer": {"@type": "Answer", "text": "Low-value items can cost more in fees, shipping and your time than they bring. A $4 jar that takes three minutes to list and ship nets less listed than sold on to a liquidator. The tool compares the two for every line."}}, {"@type": "Question", "name": "Is the answer guaranteed to be best?", "acceptedAnswer": {"@type": "Answer", "text": "It is the exact best list-or-bulk choice for the numbers you typed, checked in the tests against every possible combination. Prices and sell-through are your estimates, so it is a decision aid, not a forecast."}}, {"@type": "Question", "name": "What is the break-even hourly rate?", "acceptedAnswer": {"@type": "Answer", "text": "The value of an hour of your time at which the whole-lot offer and your best split earn the same. If your time is worth more than that, take the offer."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    input[type=number] { width: 6.5em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">LOT SPLIT CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>Sell the lot whole, or split it?</h1>
+    <p>A buyer offers one price for the whole estate, storage unit or pallet. Listing the items one by one looks like more money until fees, shipping and <strong>your own hours</strong> come out. Paste the lines and the offer and see <strong>what splitting really nets</strong>, which lines are worth listing and which should go in bulk, and <strong>the hourly value of your time at which you should just take the offer</strong>.</p>
+    <p class="note">For resellers, estate liquidators, storage-unit buyers and pallet flippers. Nothing is uploaded: the text box is analysed in this browser and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your lot</h2>
+    <label for="lot-input">One row per kind of item: item, quantity, expected price each, sell-through %, shipping each, minutes each, optional note</label>
+    <textarea id="lot-input" spellcheck="false" placeholder="Pyrex bowls,6,28,85,9,12&#10;Skillets,4,45,90,14,10"></textarea>
+    <p>
+      <label for="offer">Whole-lot offer ($)</label><input type="number" id="offer" value="260" min="0" step="1">
+      <label for="cost">What you paid ($)</label><input type="number" id="cost" value="150" min="0" step="1">
+      <label for="fee">Marketplace fee (% of price)</label><input type="number" id="fee" value="13" min="0" max="99" step="0.5">
+      <label for="remnant">Bulk / unsold value (% of price)</label><input type="number" id="remnant" value="20" min="0" max="100" step="1">
+      <label for="rate">Your time ($ per hour)</label><input type="number" id="rate" value="15" min="0" step="1">
+      <label for="downside">Stress sell-through (% of estimate)</label><input type="number" id="downside" value="80" min="0" max="100" step="5">
+    </p>
+    <p>
+      <button type="button" id="analyze">Compare whole vs split</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. The answer</h2>
+    <p id="summary"></p>
+    <h3>List these</h3>
+    <div class="tablewrap"><table id="list-table" hidden>
+      <thead><tr><th>Item</th><th>Qty</th><th>Net if listed</th><th>Hours</th></tr></thead>
+      <tbody id="list-rows"></tbody>
+    </table></div>
+    <h3>Sell these on in bulk</h3>
+    <div class="tablewrap"><table id="dump-table" hidden>
+      <thead><tr><th>Item</th><th>Qty</th><th>Bulk value</th><th>Net if listed</th></tr></thead>
+      <tbody id="dump-rows"></tbody>
+    </table></div>
+    <h3>The options side by side</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Option</th><th>Value</th></tr></thead>
+      <tbody id="compare-rows"></tbody>
+    </table></div>
+    <ul id="findings"></ul>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI?</h2>
+    <p>Same logic, zero dependencies, one command — reads a file or stdin:</p>
+    <pre class="cmd">node cli.mjs split lot.csv --offer 260 --cost 150 --rate 15
+cat lot.csv | node cli.mjs split - --json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="should-i-sell-a-bulk-lot-whole-or-split-it.html">Should you sell a bulk lot whole or split it? The math</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">The answer is exact for the numbers you type. Sales tax, storage and holding time, returns, and the chance a buyer renegotiates the offer are not modelled; enter costs as they will really cost you.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does it upload my lot list?</h3>
+    <p>No. The browser page works on the text you paste, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+    <h3>Why would I sell some items in bulk instead of listing them?</h3>
+    <p>Low-value items can cost more in fees, shipping and your time than they bring. A $4 jar that takes three minutes to list and ship nets less listed than sold on to a liquidator. The tool compares the two for every line.</p>
+    <h3>Is the answer guaranteed to be best?</h3>
+    <p>It is the exact best list-or-bulk choice for the numbers you typed, checked in the tests against every possible combination. Prices and sell-through are your estimates, so it is a decision aid, not a forecast.</p>
+    <h3>What is the break-even hourly rate?</h3>
+    <p>The value of an hour of your time at which the whole-lot offer and your best split earn the same. If your time is worth more than that, take the offer.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, for the accuracy of the prices, sell-through rates and fees you type, and for any contract or return term of the lot you buy or sell. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It chooses between options using the numbers you supply; it is not a forecast of what you will sell for.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>split_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../liquidation-pallet-bid-calculator/">Liquidation Pallet Bid Calculator</a> (what to bid for a lot), <a href="../card-grading-submission-picker/">Card Grading Submission Picker</a> (which cards are worth sending to a grader), <a href="../thrift-haul-buy-picker/">Thrift Haul Buy Picker</a> (what to buy and the most to pay), <a href="../ticket-resale-profit-calculator/">Ticket Resale Profit Calculator</a> and <a href="../estate-sale-net-proceeds-calculator/">Estate Sale Net Proceeds Calculator</a>.</p>
+    <p class="support">Free and open source. If this earned you a better margin, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseLines, plan, summarize, money, INPUT_NOTES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    function renderReport() {
+      const status = $("#status");
+      const text = $("#lot-input").value;
+      if (!text.trim()) {
+        status.innerHTML = `<span class="error">Paste some rows first (or load the worked example).</span>`;
+        return;
+      }
+      const parsed = parseLines(text);
+      if (parsed.errors.length) {
+        status.innerHTML = `<span class="error">${parsed.errors.map(escapeHtml).join("<br>")}</span>`;
+        return;
+      }
+      let p;
+      try {
+        p = plan(parsed, { lotOffer: $("#offer").value, lotCost: $("#cost").value, feePct: $("#fee").value, remnantPct: $("#remnant").value, hourlyRate: $("#rate").value, downside: $("#downside").value });
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarize(p);
+      $("#summary").innerHTML = `<span class="${s.status === "gain" ? "gain" : "ok"}">${escapeHtml(s.text)}</span>`;
+      const listed = p.lines.filter((l) => l.action === "list");
+      const dumped = p.lines.filter((l) => l.action === "dump");
+      $("#list-table").hidden = !listed.length;
+      $("#list-rows").innerHTML = listed.map((l) => `<tr><td>${escapeHtml(l.name)}</td><td>${l.qty}</td><td>${money(l.value)}</td><td>${l.hours.toFixed(1)}</td></tr>`).join("");
+      $("#dump-table").hidden = !dumped.length;
+      $("#dump-rows").innerHTML = dumped.map((l) => `<tr><td>${escapeHtml(l.name)}</td><td>${l.qty}</td><td>${money(l.value)}</td><td>${money(l.list)}</td></tr>`).join("");
+      const t = p.totals;
+      $("#compare-rows").innerHTML = [
+        ["Best mix (list some, bulk the rest)", t.bestMix], ["List everything", t.allListed],
+        ["Whole-lot offer", t.wholeLot === null ? "none entered" : t.wholeLot], [`Best mix if sell-through hits ${p.options.downside}% of estimate`, t.downsideMix],
+      ].map(([l, v]) => `<tr><td>${escapeHtml(l)}</td><td>${typeof v === "number" ? money(v) : v}</td></tr>`).join("");
+      $("#findings").innerHTML = p.findings.map((f) => `<li>${escapeHtml(f.message)}</li>`).join("");
+      $("#report-card").hidden = false;
+      record("split_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `item,qty,price,sell_through,shipping,minutes,note
+Vintage Pyrex bowls,6,28,85,9,12,heavy: ship in 2 boxes
+Cast iron skillets,4,45,90,14,10,
+Mid-century lamps,3,60,55,18,20,fragile
+Corningware set,5,12,70,8,8,
+Mason jars (case),10,4,95,6,3,low value
+Brass candlesticks,8,15,60,5,6,
+Mixed flatware,3,18,80,5,10,
+Ceramic figurines,12,6,40,5,7,slow
+Cookbooks,15,5,50,4,4,
+Holiday ornaments,20,3,35,3,3,`;
+
+    $("#load-example").addEventListener("click", () => {
+      $("#lot-input").value = EXAMPLE_SOURCE;
+      $("#offer").value = 260; $("#cost").value = 150; $("#fee").value = 13; $("#remnant").value = 20; $("#rate").value = 15; $("#downside").value = 80;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      $("#lot-input").value = "";
+      $("#status").textContent = "";
+      $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

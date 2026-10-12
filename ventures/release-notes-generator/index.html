@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Release Notes Generator — Changelog From Git Commits, Free and Private</title>
+  <meta name="description" content="Generate release notes and a CHANGELOG.md entry from git log: grouped by Conventional Commit type, breaking changes first, with a suggested semantic version bump. Free, runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Changelog from git commits, in your browser">
+  <meta property="og:description" content="Paste git log, get grouped release notes and the next semver bump. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Release Notes Generator", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node 18+ and git, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste git log output to get grouped release notes (Keep a Changelog, GitHub or plain), breaking changes called out, and a suggested semantic version bump. Runs in the browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I generate release notes from git commits?", "acceptedAnswer": {"@type": "Answer", "text": "Run git log between two tags with the format this tool documents, or just run the CLI, which calls git for you. Commits are grouped by Conventional Commit type (feat, fix, perf and so on), breaking changes are pulled to the top, and non-conventional subjects are classified by their first word so an older history still produces something usable."}}, {"@type": "Question", "name": "How does it decide the next version number?", "acceptedAnswer": {"@type": "Answer", "text": "By Semantic Versioning: any breaking change suggests a major bump, otherwise any feat suggests minor, otherwise patch. Before 1.0.0 a breaking change suggests minor. It is a suggestion from commit messages only; you decide the release."}}, {"@type": "Question", "name": "Does this upload my commit history?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in this page. The page makes no network calls and your commit text is never uploaded. The CLI runs git on your machine and prints to your terminal."}}, {"@type": "Question", "name": "What output formats are supported?", "acceptedAnswer": {"@type": "Answer", "text": "Keep a Changelog style Markdown for CHANGELOG.md, GitHub release style notes with a What's changed heading, and plain text for emails and store listings. Pass a repository URL to link pull requests and commits."}}, {"@type": "Question", "name": "Is this a replacement for release-please or git-cliff?", "acceptedAnswer": {"@type": "Answer", "text": "It overlaps with them on purpose. Use it when you want the notes now, without installing anything or configuring a pipeline, or to preview what your history will produce. It does not publish releases or edit files for you."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 170px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; width: min(100%, 360px); }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a3412; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.25rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: #e3e9ef; color: #17324a; }
+    .pill.error { background: #fde8e8; color: #9a3412; }
+    .pill.warn { background: #fdf1d8; color: #7a4a05; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+    .pill.ok { background: #dcf3e3; color: #14532d; }
+    .finding { margin: 8px 0; padding: 10px 12px; border-radius: 8px; background: #f7f9fb; border-left: 4px solid #a8b3c1; }
+    .finding.error { border-color: #9a3412; } .finding.warn { border-color: #b7791f; } .finding.ok { border-color: #14532d; }
+    select, input[type=text] { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; font: inherit; }
+    label.block { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea.short { min-height: 90px; }
+  
+    textarea.log { min-height: 200px; }
+    textarea.out { min-height: 260px; background: #f7f9fb; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">RELEASE NOTES GENERATOR · RUNS IN YOUR BROWSER</p>
+    <h1>Turn your git log into release notes</h1>
+    <p>Paste commits, get a <strong>CHANGELOG.md</strong> entry or GitHub release notes: grouped by Conventional Commit type, <strong>breaking changes first</strong>, pull requests linked, and a suggested <strong>semantic version bump</strong>. Older histories without conventions still work: the section is guessed from the first word and flagged.</p>
+    <p class="note">Nothing is uploaded. Your commit text stays in this tab and the page makes no network calls.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your commits</h2>
+    <p class="note">Get them with: <code>git log --format='%H%x1f%an%x1f%s%x1f%b%x1e' v1.2.0..HEAD</code> (or just run the CLI below). Plain <code>git log --oneline</code> output also works.</p>
+    <textarea id="log" class="log" spellcheck="false" placeholder="feat(api): add bulk export (#41)&#10;fix: handle empty CSV&#10;feat!: drop Node 16"></textarea>
+    <p>
+      <label for="version">Version: </label><input type="text" id="version" size="10" placeholder="1.3.0">
+      <label for="current">Current version: </label><input type="text" id="current" size="10" placeholder="1.2.0">
+      <label for="style">Style: </label><select id="style"><option value="keepachangelog">Keep a Changelog</option><option value="github">GitHub release</option><option value="plain">Plain text</option></select>
+      <label for="repo">Repo URL: </label><input type="text" id="repo" size="30" placeholder="https://github.com/owner/repo">
+    </p>
+    <p>
+      <button type="button" id="generate">Generate release notes</button>
+      <button type="button" class="secondary" id="load-example">Load example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste commits and click Generate.</p>
+  </section>
+
+  <section class="card" id="result-card" aria-live="polite" hidden>
+    <h2>Release notes</h2>
+    <p class="verdict" id="verdict"></p>
+    <div id="warnings"></div>
+    <textarea id="out" class="out" readonly spellcheck="false"></textarea>
+    <p><button type="button" id="copy">Copy Markdown</button></p>
+  </section>
+
+  <section class="card">
+    <h2>Run it on your repo from the command line</h2>
+    <pre class="cmd"><code>node cli.mjs --from v1.2.0 --version 1.3.0 --repo https://github.com/owner/repo
+node cli.mjs --from v1.2.0 --bump          # prints: minor -&gt; v1.3.0
+node cli.mjs --style github --authors --skip chore,ci,test</code></pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="changelog.mjs" rel="noopener">changelog.mjs</a> from the repo. Node 18+, git, no dependencies.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I generate release notes from git commits?</h3>
+    <p>Run git log between two tags with the format this tool documents, or just run the CLI, which calls git for you. Commits are grouped by Conventional Commit type (feat, fix, perf and so on), breaking changes are pulled to the top, and non-conventional subjects are classified by their first word so an older history still produces something usable.</p>
+    <h3>How does it decide the next version number?</h3>
+    <p>By Semantic Versioning: any breaking change suggests a major bump, otherwise any feat suggests minor, otherwise patch. Before 1.0.0 a breaking change suggests minor. It is a suggestion from commit messages only; you decide the release.</p>
+    <h3>Does this upload my commit history?</h3>
+    <p>No. Everything runs in this page. The page makes no network calls and your commit text is never uploaded. The CLI runs git on your machine and prints to your terminal.</p>
+    <h3>What output formats are supported?</h3>
+    <p>Keep a Changelog style Markdown for CHANGELOG.md, GitHub release style notes with a What's changed heading, and plain text for emails and store listings. Pass a repository URL to link pull requests and commits.</p>
+    <h3>Is this a replacement for release-please or git-cliff?</h3>
+    <p>It overlaps with them on purpose. Use it when you want the notes now, without installing anything or configuring a pipeline, or to preview what your history will produce. It does not publish releases or edit files for you.</p>
+    <p>More: <a href="how-to-write-a-changelog.html">how to write a changelog people read (and automate the boring half)</a></p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. Generated notes and version suggestions come from commit messages only. <strong>You are responsible for reviewing and verifying its output before publishing it.</strong></p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The commits you paste are never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>notes_generated</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks: <a href="../webhook-signature-debugger/">Webhook Signature Debugger</a>, <a href="../llms-txt-generator/">llms.txt Generator</a> and <a href="../json-to-types-generator/">JSON to Types Generator</a>.</p>
+    <p class="support">Free and open source. If this saved you an afternoon, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { parseLog, parseCommit, render, summarize, bumpVersion } from "./changelog.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const EXAMPLE = "feat(api): add bulk export (#41)\nfix: handle empty CSV upload (#43)\nfeat!: drop Node 16 support\nperf(db): cache the schema lookup\nAdd dark mode toggle\ndocs: explain the retry flag\nchore: bump eslint\nMerge branch 'main' into dev";
+
+    function commitsFrom(text) {
+      if (text.includes("\x1e") || text.includes("\x1f")) return parseLog(text);
+      return text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean).map((l) => {
+        const m = /^([0-9a-f]{7,40})\s+(.+)$/.exec(l);
+        return parseCommit(m ? { hash: m[1], subject: m[2] } : { subject: l });
+      });
+    }
+
+    function run() {
+      const commits = commitsFrom($("#log").value);
+      const s = summarize(commits);
+      const version = $("#version").value.trim();
+      const current = $("#current").value.trim();
+      const next = current ? bumpVersion(current, s.bump) : null;
+      $("#out").value = render(commits, { version: version || next || "Unreleased", style: $("#style").value, repo: $("#repo").value.trim() });
+      $("#verdict").textContent = commits.length ? `${commits.length} commits · suggested bump: ${s.bump}${next ? " → " + next : ""}` : "No commits found";
+      $("#warnings").innerHTML = s.warnings.map((w) => `<div class="finding warn"><span class="pill warn">note</span> ${escapeHtml(w)}</div>`).join("");
+      $("#result-card").hidden = false;
+      $("#status").textContent = "";
+      record("notes_generated");
+    }
+
+    $("#generate").addEventListener("click", run);
+    $("#load-example").addEventListener("click", () => {
+      $("#log").value = EXAMPLE; $("#current").value = "1.2.0"; $("#repo").value = "https://github.com/owner/repo";
+      run(); record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      for (const id of ["log", "version", "current", "repo"]) $("#" + id).value = "";
+      $("#result-card").hidden = true;
+      $("#status").textContent = "Paste commits and click Generate.";
+    });
+    $("#copy").addEventListener("click", async (event) => {
+      try { await navigator.clipboard.writeText($("#out").value); event.target.textContent = "Copied"; }
+      catch { $("#out").select(); event.target.textContent = "Press Ctrl+C to copy"; }
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      usageControl.textContent = "Usage counting is off";
+      usageControl.disabled = true;
+    }
+  </script>
+</body>
+</html>

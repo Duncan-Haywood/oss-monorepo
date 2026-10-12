@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SaaS Tier Price Optimizer: Good-Better-Best Pricing From a Survey — Free</title>
+  <meta name="description" content="Free SaaS pricing tool: paste what surveyed customers would pay for each plan and get the Good-Better-Best prices that earn the most profit, who lands on each plan, and what you gain over your current prices. Nothing uploaded.">
+  <meta property="og:title" content="SaaS tier price optimizer">
+  <meta property="og:description" content="The price ladder that earns the most from your willingness-to-pay survey, with plan mix and price sensitivity. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "SaaS Tier Price Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste what surveyed customers would pay for each plan and find the Good-Better-Best prices that earn the most profit. Runs in your browser.", "featureList": "Optimal 2-3 plan price ladder from a willingness-to-pay survey, customer self-selection model, comparison with current prices, price sensitivity, best single-plan baseline, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I price Good-Better-Best SaaS plans?", "acceptedAnswer": {"@type": "Answer", "text": "Ask a sample of customers or prospects the most they would pay per month for each plan, paste one row per person, and the tool tests the price ladders that matter. Each respondent is assumed to buy the plan that leaves them the most surplus (their maximum price minus the price), or nothing if no plan has any. It returns the prices that earn the most profit, who ends up on each plan, and what that is worth against your current prices."}}, {"@type": "Question", "name": "Why not price each plan at what the average customer would pay?", "acceptedAnswer": {"@type": "Answer", "text": "Because customers choose between plans. Raising the middle plan can push people to the cheap one or up to the top one. The tool prices the whole ladder together, which is what moves the numbers."}}, {"@type": "Question", "name": "How many survey responses do I need?", "acceptedAnswer": {"@type": "Answer", "text": "Enough that the answer does not swing when a few change. Try deleting a handful of rows and re-running: if the prices jump, collect more. With under 30 rows treat the result as a direction, not a number."}}, {"@type": "Question", "name": "Is a willingness-to-pay survey reliable?", "acceptedAnswer": {"@type": "Answer", "text": "Stated prices usually run above what people pay. Use the result to rank ladders and see how fragile your prices are, then test the top candidate on real signups. This is arithmetic on your survey, not pricing or financial advice."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">SAAS TIER PRICE OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should your Starter, Pro and Team plans cost?</h1>
+    <p>Paste what each person you surveyed would pay per month for each plan. The tool assumes everyone buys the plan that leaves them the most surplus, tests the price ladders that matter, and returns the prices that earn the most profit, how many customers land on each plan, and what that is worth against your current prices.</p>
+    <p class="note">Arithmetic on the survey you paste. Not pricing, business or financial advice. The example survey is made-up placeholder data, not any business's.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-p">
+      <h2 id="h-p">Your plans</h2>
+      <div class="grid">
+        <div><label for="names">Plan names, cheapest first (1 to 3, separated by commas)</label><input id="names" type="text" value=""></div>
+        <div><label for="costs">Cost to serve one customer per month, per plan</label><input id="costs" type="text" value=""><p class="note">Hosting, support and payment fees per customer, comma separated in plan order. Use 0 if unsure. Prices are never set below cost.</p></div>
+        <div><label for="current">Current monthly prices (optional)</label><input id="current" type="text" value=""><p class="note">Shown side by side with the suggestion so you can see what changing is worth.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-s">
+      <h2 id="h-s">Survey (one respondent per line)</h2>
+      <p class="note">Each line: the most that person would pay per month for each plan, in plan order, separated by commas. Leave a plan blank or put - if they would not buy it. An optional last number counts that line more than once. A first line with plan names is ignored. Up to 2,000 lines.</p>
+      <label for="survey">Maximum monthly price per plan</label>
+      <textarea id="survey" rows="12" spellcheck="false"></textarea>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Find the best prices</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+      <p class="note">Needs at least 5 survey lines.</p>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions founders ask</h2>
+      <h3>How do I price Good-Better-Best SaaS plans?</h3>
+      <p>Ask a sample of customers or prospects the most they would pay per month for each plan, paste one row per person, and the tool tests the price ladders that matter. Each respondent is assumed to buy the plan that leaves them the most surplus (their maximum price minus the price), or nothing if no plan has any. It returns the prices that earn the most profit, who ends up on each plan, and what that is worth against your current prices.</p>
+      <h3>Why not price each plan at what the average customer would pay?</h3>
+      <p>Because customers choose between plans. Raising the middle plan can push people to the cheap one or up to the top one. The tool prices the whole ladder together, which is what moves the numbers.</p>
+      <h3>How many survey responses do I need?</h3>
+      <p>Enough that the answer does not swing when a few change. Try deleting a handful of rows and re-running: if the prices jump, collect more. With under 30 rows treat the result as a direction, not a number.</p>
+      <h3>Is a willingness-to-pay survey reliable?</h3>
+      <p>Stated prices usually run above what people pay. Use the result to rank ladders and see how fragile your prices are, then test the top candidate on real signups. This is arithmetic on your survey, not pricing or financial advice.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Which features go in which plan, annual versus monthly pricing, discounts and trials, free tiers, usage-based add-ons, taxes and currencies, competitor prices, and how real customers will behave compared with what they said. Treat the output as a ranking of options to test.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../saas-feature-packaging-optimizer/">SaaS feature packaging optimizer</a>, the <a href="../usage-based-pricing-simulator/">usage-based pricing simulator</a>, the <a href="../saas-annual-plan-discount-calculator/">annual plan discount calculator</a> the <a href="../saas-efficiency-metrics-calculator/">SaaS efficiency metrics calculator</a>, the <a href="../subscription-proration-calculator/">subscription proration calculator</a> and the <a href="../ppp-pricing-table-generator/">PPP pricing table generator</a> for per-country prices.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before relying on them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Survey data stays on your device. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in your browser's local storage, honour Do Not Track, and can be switched off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, EXAMPLE_SHARED, money, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(SHARED_DEFAULTS);
+    const fill = () => { for (const k of KEYS) $(k).value = EXAMPLE_SHARED[k]; };
+    const readAll = () => { const o = {}; for (const k of KEYS) o[k] = $(k).value; return o; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => '<div class="scroll"><table><thead><tr>' + head.map((h, i) => "<th" + (i > 0 ? ' class="n"' : "") + ">" + h + "</th>").join("") + "</tr></thead><tbody>" + rows.map((r) => "<tr>" + r.map((c, i) => "<td" + (i > 0 ? ' class="n"' : "") + ">" + c + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+    let last = null;
+    function run() {
+      const a = analyze(readAll());
+      let h = "";
+      for (const w of a.warnings) h += '<div class="finding"><span class="pill">Check</span> ' + esc(w) + "</div>";
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      const b = a.best, pct = (x) => Math.round((100 * x) / b.total) + "%";
+      h += '<div class="finding"><h4>Best prices: ' + a.names.map((n, t) => esc(n) + " " + money(b.prices[t])).join(" · ") + "</h4><p>Profit per month across the " + a.rows + " survey lines: " + money(b.profit) + " on " + money(b.revenue) + " revenue. " + pct(b.paying) + " of respondents buy a plan, " + pct(b.none) + " buy nothing.</p></div>";
+      if (a.now) {
+        const d = b.profit - a.now.profit;
+        h += '<div class="finding"><h4>Against your current prices (' + a.names.map((n, t) => money(a.now.prices[t])).join(" · ") + ")</h4><p>" + (d > 1e-9 ? "The suggested ladder earns " + money(d) + " more per month" + (a.now.profit > 0 ? " (" + Math.round((100 * d) / a.now.profit) + "% more)" : "") + " on this survey." : "Your current prices already earn as much as any ladder tried on this survey.") + " Current prices: " + pct(a.now.paying) + " buy, profit " + money(a.now.profit) + ".</p></div>";
+      }
+      h += '<div class="finding"><h4>Who buys what</h4>' + table(["Plan", "Price", "Customers", "Share", "Profit"], a.names.map((n, t) => [esc(n), money(b.prices[t]), String(Math.round(b.buyers[t] * 100) / 100), pct(b.buyers[t]), money(b.buyers[t] * (b.prices[t] - a.costs[t]))])) + "</div>";
+      h += '<div class="finding"><h4>How fragile are these prices?</h4><p class="note">Change in profit if one price is 10% lower or higher and the rest stay. Large negatives mean that price matters most; test it first.</p>' + table(["Plan", "10% lower", "10% higher"], a.sens.map((s) => [esc(s.name), money(Math.round(s.down)), money(Math.round(s.up))])) + "</div>";
+      if (a.names.length > 1 && a.single) h += '<div class="finding"><h4>Is a ladder worth it?</h4><p>Offering only one plan, the best is ' + esc(a.single.plan) + " at " + money(a.single.price) + ", earning " + money(a.single.profit) + ". The ladder above earns " + money(b.profit) + ".</p></div>";
+      h += '<p><button type="button" class="secondary" id="csv">Download result (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "tier-prices.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

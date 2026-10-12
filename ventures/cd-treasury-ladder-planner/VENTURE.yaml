@@ -1,0 +1,50 @@
+name: cd-treasury-ladder-planner
+description: >-
+  Free browser tool for savers: build a CD or Treasury ladder from the rates you type, see after-tax yield per
+  rung (Treasuries skip state tax), and compare the ladder with one long CD or rolling short terms across rate
+  rises and falls. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session, after a first attempt (mortgage recast) was dropped
+# because mortgage-extra-payment-vs-invest-calculator merged hours earlier. duplicate_check.py "CD ladder
+# calculator" and "treasury bill ladder taxable equivalent yield" found nothing above 0.21.
+#
+# Why this niche: "CD ladder calculator" is a steady search; bank calculators only compound a rate per rung.
+# None convert to after-tax yield with the Treasury state-tax exemption or show the ladder against locking
+# long or rolling short under rate moves. Lead magnet and donation play, not sales-led.
+#
+# First visitor: someone in r/personalfinance or r/Bogleheads asking "CD ladder or T-bill ladder" or
+# searching "treasury vs CD after tax". Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed rates; fetches no quotes; recommends no bank, product or
+# security; disclaimers on the page; nothing stored or uploaded.
+#
+# Path to revenue (payment rails stay off): donations; later early-withdrawal penalty model, brokered-CD
+# callable-risk note, rolling-ladder maintenance schedule (not built).
+
+hypotheses:
+  - claim: >-
+      Savers will type their own rates into a private page that shows after-tax ladder yield and rate-move
+      scenarios, because bank ladder calculators ignore taxes and the rate path.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/cd-treasury-ladder-planner/
+  analytics: null

@@ -1,0 +1,52 @@
+name: childcare-center-break-even-calculator
+description: >-
+  Free browser calculator for childcare center and daycare owners: classroom groups, licensing ratios, tuition,
+  wages, rent and director pay become monthly profit, break-even enrollment, ratio-cliff alerts (the child that
+  forces another teacher), a profit-by-occupancy ladder and the tuition increase that closes a gap. Entirely
+  client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 with duplicate_check.py (nearest: dog-boarding-daycare-pricing 0.36, not the same product).
+# Commercial analogues: childcare management suites (Brightwheel, Procare, Jackrabbit, HiMama) which bundle billing
+# and enrollment; consultancies and state-association spreadsheets that give break-even templates as PDFs/xlsx. None
+# offers a free no-signup page that models the whole-teacher staffing step. Where the first visitor comes from:
+# search phrases "daycare break even calculator", "childcare center profit calculator", "how many kids to break even
+# daycare", "child care center budget template", owner groups on Facebook and r/ChildCare. Volume not measured
+# with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet for center owners; a later paid layer could be a saved
+# multi-site model, a 12-month enrollment forecast with seasonal turnover, and subsidy-timing cash flow.
+# Not built: state ratio lookup, subsidy reimbursement schedules, multi-site.
+#
+# Liability: arithmetic on the user's own numbers; says licensing rules decide the ratios, carries the
+# no-warranty / not-advice clauses.
+#
+# Unverified: the pre-filled ratios, wages, tuition and the 50-60% staff / 25-30% fixed rules of thumb in the FAQ are
+# illustrative general-knowledge figures, not checked against a source in this session; the page says they are examples.
+
+hypotheses:
+  - claim: >-
+      A childcare center owner will search for a break-even number, use a free no-signup calculator that models
+      the whole-teacher staffing step, and come back when they consider a tuition change or a new room.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars) engage within 90 days of being reachable from the published site.
+  - A user reports the staffing or break-even rule this tool applies as wrong for how their center is licensed.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/childcare-center-break-even-calculator/
+  analytics: null

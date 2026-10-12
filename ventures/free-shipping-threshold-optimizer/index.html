@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Free Shipping Threshold Optimizer — What Minimum Earns You the Most</title>
+  <meta name="description" content="Paste your past orders and see what each free-shipping minimum would earn, how many buyers it must win back to pay for the shipping you give away, and the threshold that loses least if your assumptions are wrong. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="What should your free shipping minimum be?">
+  <meta property="og:description" content="Paste past orders, set two assumptions, see the profit of every threshold and the one that holds up. No store access, no account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Free Shipping Threshold Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste past orders and see what each free-shipping minimum would earn, the checkout drop-off it needs to pay, and the threshold that loses least if your assumptions are wrong. Free, runs in your browser, nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this connect to my store?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads the order rows you paste and never contacts Shopify, WooCommerce, Etsy or any carrier. Every figure is arithmetic on your numbers plus two behaviours you set, so nothing here is a measurement of your customers."}}, {"@type": "Question", "name": "How do I get the numbers?", "acceptedAnswer": {"@type": "Answer", "text": "Export orders from your store and keep two columns: the merchandise subtotal before shipping and tax, and what you paid to ship it. In Shopify that is the Subtotal column of the orders export; the shipping cost comes from your carrier or label report. The shipping column is optional."}}, {"@type": "Question", "name": "What is the top-up rate?", "acceptedAnswer": {"@type": "Answer", "text": "Of orders just under the free-shipping minimum, the share who add an item to reach it. It cannot be read off past orders, so you set it and the tool shows how the answer moves. 25% is a placeholder, not a benchmark."}}, {"@type": "Question", "name": "What is checkout drop-off?", "acceptedAnswer": {"@type": "Answer", "text": "The share of would-be buyers who abandon when they have to pay shipping. Free shipping is mostly a bet that this number is large enough to pay for the shipping you give away, so the tool reports the drop-off at which each threshold breaks even rather than pretending to know yours."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page runs on the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  
+    .inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 4px 14px; }
+    .inputs input[type=number] { width: 100%; box-sizing: border-box; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.best td { background: #eaf5ee; }
+    tr.safe td { background: #eef3fa; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FREE SHIPPING THRESHOLD OPTIMIZER · RUNS IN YOUR BROWSER</p>
+    <h1>What should your free shipping minimum be?</h1>
+    <p>Paste your past orders — subtotal and what shipping cost you — and see <strong>what every minimum would earn</strong>, <strong>how many buyers each must win back to pay for the shipping you give away</strong>, and <strong>the threshold that loses least if your guesses are off</strong>.</p>
+    <p class="note">Nothing is uploaded and no store is contacted. The text box is analysed in this browser and never leaves your device. Two behaviours — shoppers topping up their cart and buyers abandoning over shipping — cannot be read from past orders, so you set them and the result shows how much they matter.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your orders</h2>
+    <label for="orders-input">One order per line: merchandise subtotal before shipping and tax, then (optional) what shipping cost you</label>
+    <textarea id="orders-input" spellcheck="false" placeholder="54.20,6.85"></textarea>
+    <div class="inputs">
+      <div><label for="in-current">Current free-shipping minimum ($, blank = none)</label><input type="number" id="in-current" min="0" step="1"></div>
+      <div><label for="in-margin">Margin on merchandise (%)</label><input type="number" id="in-margin" min="1" max="100" step="1" value="40"></div>
+      <div><label for="in-fee">Shipping fee under the minimum ($, blank = your average cost)</label><input type="number" id="in-fee" min="0" step="0.01"></div>
+      <div><label for="in-topup">Top-up rate (%)</label><input type="number" id="in-topup" min="0" max="100" step="1" value="25"></div>
+      <div><label for="in-drag">Checkout drop-off when charged shipping (%)</label><input type="number" id="in-drag" min="0" max="60" step="1" value="10"></div>
+      <div><label for="in-days">Days of orders pasted</label><input type="number" id="in-days" min="1" step="1" value="30"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What it found</h2>
+    <p id="summary"></p>
+    <h3>Every threshold, against what you do today</h3>
+    <table id="cost-table" hidden>
+      <thead><tr><th>Minimum</th><th class="num">Ships free</th><th class="num">Profit vs now</th><th>Pays when</th></tr></thead>
+      <tbody id="cost-rows"></tbody>
+    </table>
+    <h3>Findings</h3>
+    <table id="results-table" hidden>
+      <thead><tr><th>Rule</th><th>Level</th><th>Detail</th></tr></thead>
+      <tbody id="results-rows"></tbody>
+    </table>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want a CI check?</h2>
+    <p>Same logic, zero dependencies, one command — reads a file or stdin:</p>
+    <pre class="cmd">node cli.mjs analyze orders.csv
+cat orders.csv | node cli.mjs analyze -
+node cli.mjs analyze orders.csv --current 75 --margin 45 --fee 5.95 --days 30
+node cli.mjs analyze orders.csv --top-up 15 --drag 5 --json --fail-on warn</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="free-shipping-threshold-guide.html">Where to set a free shipping threshold, and what it costs when you are wrong</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table>
+    <p class="note">Top-up and checkout drop-off are assumptions you set (defaults: 25% of orders right under a threshold add items, fading to none 30% below it; 10% of buyers abandon when charged shipping); returns, repeat purchases and lifetime value are not modelled; margin is the profit share of merchandise before shipping.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this connect to my store?</h3>
+    <p>No. It reads the order rows you paste and never contacts Shopify, WooCommerce, Etsy or any carrier. Every figure is arithmetic on your numbers plus two behaviours you set, so nothing here is a measurement of your customers.</p>
+    <h3>How do I get the numbers?</h3>
+    <p>Export orders from your store and keep two columns: the merchandise subtotal before shipping and tax, and what you paid to ship it. In Shopify that is the Subtotal column of the orders export; the shipping cost comes from your carrier or label report. The shipping column is optional.</p>
+    <h3>What is the top-up rate?</h3>
+    <p>Of orders just under the free-shipping minimum, the share who add an item to reach it. It cannot be read off past orders, so you set it and the tool shows how the answer moves. 25% is a placeholder, not a benchmark.</p>
+    <h3>What is checkout drop-off?</h3>
+    <p>The share of would-be buyers who abandon when they have to pay shipping. Free shipping is mostly a bet that this number is large enough to pay for the shipping you give away, so the tool reports the drop-off at which each threshold breaks even rather than pretending to know yours.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The browser page runs on the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax or business advice. It does arithmetic on order rows you paste plus two behavioural assumptions you set; it is not a measurement of your customers and not a forecast of what a change will earn. Changing a shipping policy changes what shoppers see: try it for a few weeks and compare average order value and conversion before keeping it. Shopify, WooCommerce and other store names are trademarks of their owners, used only to describe where numbers come from.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analyze_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: the <a href="../bundle-discount-optimizer/">Bundle Discount Optimizer</a>, the <a href="../shipping-box-size-optimizer/">Shipping Box Size Optimizer</a>, the <a href="../shopify-inventory-reorder-planner/">Shopify Inventory Reorder Planner</a> and the <a href="../ebay-fee-calculator/">eBay Fee Calculator</a> and the <a href="../returns-policy-cost-analyzer/">Returns Policy Cost Analyzer</a>.</p>
+    <p class="support">Free and open source. If this saved you some guesswork, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseOrders, analyze, summarize, INPUT_NOTES, MODEL_NOTE } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      input: $("#orders-input"), status: $("#status"), reportCard: $("#report-card"), summary: $("#summary"),
+      table: $("#results-table"), rows: $("#results-rows"), costT: $("#cost-table"), costR: $("#cost-rows"), estimate: $("#estimate"), patterns: $("#patterns-rows"),
+      current: $("#in-current"), margin: $("#in-margin"), fee: $("#in-fee"), topup: $("#in-topup"), drag: $("#in-drag"), days: $("#in-days"),
+    };
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    els.patterns.innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    const num = (el) => (el.value.trim() === "" ? undefined : Number(el.value));
+    function options() {
+      const o = {};
+      const cur = num(els.current), m = num(els.margin), fee = num(els.fee), t = num(els.topup), d = num(els.drag), days = num(els.days);
+      if (cur > 0) o.current = cur;
+      if (m > 0 && m <= 100) o.margin = m / 100;
+      if (fee >= 0) o.fee = fee;
+      if (t >= 0 && t <= 100) o.topUp = t / 100;
+      if (d >= 0 && d <= 60) o.drag = d / 100;
+      if (days >= 1) o.days = days;
+      return o;
+    }
+    const usd = (n) => `${n < 0 ? "-" : "+"}$${Math.abs(n).toFixed(2)}`;
+    const pays = (b) => (!b ? "your current policy" : b.kind === "always" ? "at any drop-off" : b.kind === "never" ? "never" : b.kind === "atLeast" ? `drop-off is ${(b.drag * 100).toFixed(0)}% or more` : `drop-off is ${(b.drag * 100).toFixed(0)}% or less`);
+
+    function renderReport() {
+      const text = els.input.value;
+      if (!text.trim()) {
+        els.status.innerHTML = `<span class="error">Paste some order rows first (or load the worked example).</span>`;
+        return;
+      }
+      els.status.textContent = "";
+      const report = analyze(parseOrders(text), options());
+      const { status, text: summaryText } = summarize(report);
+      els.summary.innerHTML = `<span class="${status === "ok" ? "ok" : status === "none" ? "error" : "changed"}">${escapeHtml(summaryText)}</span>`;
+      els.costT.hidden = !report.count;
+      els.costR.innerHTML = report.count ? report.table.map((t) => `<tr class="${t === report.best ? "best" : t === report.robust ? "safe" : ""}"><td>${escapeHtml(report.label(t.threshold))}${t === report.best ? " · best" : t === report.robust ? " · safest" : ""}</td><td class="num">${(t.freePct * 100).toFixed(0)}%</td><td class="num">${usd(t.gain)}</td><td>${escapeHtml(pays(t.breakEven))}</td></tr>`).join("") : "";
+      els.table.hidden = report.findings.length === 0;
+      els.rows.innerHTML = report.findings.map((f) => `<tr><td><code>${escapeHtml(f.rule)}</code></td><td><span class="pill ${f.severity}">${f.severity}</span></td><td>${escapeHtml(f.message)}</td></tr>`).join("");
+      els.estimate.textContent = report.count ? `${MODEL_NOTE}. Try a change for a few weeks and compare average order value and conversion before keeping it.` : "";
+      els.reportCard.hidden = false;
+      record("analyze_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `subtotal,shipping_cost
+71.54,8.31
+61.25,6.35
+44.86,7.58
+31.60,7.49
+58.46,8.01
+30.94,6.37
+54.45,7.37
+55.40,7.41
+33.04,6.75
+24.15,7.47
+57.23,7.54
+25.48,7.33
+37.72,7.68
+46.43,6.36
+45.94,5.97
+46.99,7.96
+50.15,7.77
+92.93,8.03
+103.38,7.32
+29.77,6.21
+53.99,8.11
+35.25,7.31
+38.94,7.07
+73.67,6.79
+61.24,7.17
+49.88,6.51
+36.98,7.61
+28.63,6.36
+44.33,6.51
+25.22,5.62
+27.55,6.13
+69.92,6.71
+52.41,7.71
+19.81,6.76
+67.64,7.46
+123.13,7.92
+177.30,8.41
+33.17,5.78
+42.13,6.01
+64.44,7.07
+51.25,6.26
+19.72,7.70
+120.27,8.83
+31.02,6.14
+66.04,6.78
+46.43,6.00
+62.39,8.18
+24.37,7.77
+103.87,8.21
+63.36,6.87
+111.52,7.65
+64.75,7.94
+26.50,6.91
+31.40,7.18
+40.88,7.81
+49.49,7.33
+33.00,7.25
+26.76,5.79
+49.26,6.25
+16.01,5.55
+56.50,6.16
+68.41,7.40
+84.97,8.36
+44.40,6.64
+80.87,8.47
+45.28,6.24
+88.67,7.25
+37.22,6.62
+31.76,6.36
+23.31,5.95
+105.97,8.49
+28.45,6.53`;
+    const EXAMPLE_SETTINGS = { current: 35, margin: 55, fee: 4.99 };
+
+    $("#load-example").addEventListener("click", () => {
+      els.input.value = EXAMPLE_SOURCE;
+      els.current.value = EXAMPLE_SETTINGS.current;
+      els.margin.value = EXAMPLE_SETTINGS.margin;
+      els.fee.value = EXAMPLE_SETTINGS.fee;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      els.input.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

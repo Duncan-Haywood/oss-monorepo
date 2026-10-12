@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SLO Burn-Rate Alert Generator — Error Budget and Prometheus Rules</title>
+  <meta name="description" content="Enter your SLO and get the error budget in minutes of downtime, multi-window multi-burn-rate alert thresholds, how fast each alert fires in an outage, and a Prometheus rules file. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="SLO burn-rate alerts, generated">
+  <meta property="og:description" content="Error budget, burn-rate thresholds and Prometheus alert rules from one SLO. Flags thresholds that can never fire. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"SLO Burn-Rate Alerts","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Enter an SLO and get the downtime budget, the multi-window multi-burn-rate alert policy, how fast each alert fires, lint for unreachable thresholds and low traffic, and a ready-to-review Prometheus rules file. Runs in the browser or as a zero-dependency Node CLI."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a multi-window, multi-burn-rate alert?","acceptedAnswer":{"@type":"Answer","text":"Instead of alerting when the error rate crosses a fixed number, you alert on how fast the error budget is being spent. A burn rate of 1 uses the whole budget exactly at the end of the period; 14.4 uses 2% of a 30-day budget in one hour. Requiring a long and a short window to both exceed the threshold makes it page quickly on real outages and reset quickly once fixed."}},{"@type":"Question","name":"Why does my 99% or 90% SLO never alert?","acceptedAnswer":{"@type":"Answer","text":"The page threshold is the burn rate times the allowed error ratio. For a 90% SLO that is 14.4 x 10% = 144%, which an error ratio cannot reach, so the alert can never fire. The tool flags this and you should lengthen the window or lower the budget fraction."}},{"@type":"Question","name":"Does this connect to my Prometheus or read my metrics?","acceptedAnswer":{"@type":"Answer","text":"No. It does arithmetic on the numbers you type and prints a rule file. It never contacts any server and nothing you type is uploaded."}},{"@type":"Question","name":"Are the generated rules safe to paste into production?","acceptedAnswer":{"@type":"Answer","text":"Treat them as a reviewed starting point. They assume your error and total selectors are counters you can rate(), that traffic is steady enough for ratio alerts, and that you have tested the expression in your own Prometheus. Run promtool check rules and try the expressions in the expression browser first."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SLO BURN-RATE ALERTS · RUNS IN YOUR BROWSER</p>
+    <h1>From an SLO to alert rules that actually fire</h1>
+    <p>Type your <strong>SLO</strong> and get the <strong>downtime budget</strong>, the <strong>multi-window burn-rate thresholds</strong> from the Google SRE Workbook, <strong>how fast each alert fires</strong> in an outage, warnings for thresholds that <strong>can never fire</strong>, and a <strong>Prometheus rules file</strong> to review.</p>
+    <p class="note">Nothing is uploaded. This is arithmetic in your browser on the numbers you type; it never contacts your Prometheus.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your SLO</h2>
+    <div class="row">
+      <div><label for="slo">SLO (% of good requests)</label><input type="number" id="slo" step="any" value="99.9"></div>
+      <div><label for="period">Period (days)</label><input type="number" id="period" min="1" max="366" value="30"></div>
+      <div><label for="rps">Typical requests/sec (optional)</label><input type="number" id="rps" min="0" step="any" placeholder="e.g. 40"></div>
+    </div>
+    <label for="name">SLO name</label><input type="text" id="name" value="api" style="width:14em;padding:6px">
+    <div class="grid">
+      <div><label for="errors">Error selector (counter)</label><textarea id="errors" rows="3" spellcheck="false" style="min-height:70px">http_requests_total{job="api",code=~"5.."}</textarea></div>
+      <div><label for="total">Total selector (counter)</label><textarea id="total" rows="3" spellcheck="false" style="min-height:70px">http_requests_total{job="api"}</textarea></div>
+    </div>
+    <p>
+      <button type="button" id="generate">Generate</button>
+      <button type="button" class="secondary" id="load-example">Load 90% example (never fires)</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What you get</h2>
+    <p id="summary"></p>
+    <h3>Allowed downtime</h3>
+    <table><thead><tr><th>Window</th><th>Full-outage minutes allowed</th></tr></thead><tbody id="budget-rows"></tbody></table>
+    <h3>Alert policy (fires when both windows exceed the threshold)</h3>
+    <table><thead><tr><th>Severity</th><th>Burn rate</th><th>Windows</th><th>Error ratio above</th><th>Total outage detected in</th></tr></thead><tbody id="policy-rows"></tbody></table>
+    <h3>Findings</h3>
+    <table id="results-table" hidden><thead><tr><th>Rule</th><th>Level</th><th>Detail</th></tr></thead><tbody id="results-rows"></tbody></table>
+    <p id="no-findings" class="ok" hidden>No findings.</p>
+    <h3>Prometheus rules file</h3>
+    <pre class="cmd" id="rules-out" style="white-space:pre-wrap"></pre>
+    <p><button type="button" class="secondary" id="copy">Copy rules</button> <button type="button" class="secondary" id="download">Download .rules.yml</button></p>
+    <p class="note">Run <code>promtool check rules slo-api.rules.yml</code> and try each expression in your own Prometheus before loading it.</p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI?</h2>
+    <pre class="cmd">node cli.mjs plan --slo 99.9 --rps 40
+node cli.mjs plan --slo 99.9 --json
+node cli.mjs rules --slo 99.9 --name api \
+  --errors 'http_requests_total{job="api",code=~"5.."}' \
+  --total 'http_requests_total{job="api"}' &gt; slo-api.rules.yml</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. <code>plan</code> exits 1 on an unreachable threshold, so it can gate a pull request that edits an SLO. More: <a href="how-to-set-multi-window-burn-rate-alerts-for-an-slo.html">how to set multi-window burn-rate alerts for an SLO</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a multi-window, multi-burn-rate alert?</h3>
+    <p>Instead of alerting when the error rate crosses a fixed number, you alert on how fast the error budget is being spent. A burn rate of 1 uses the whole budget exactly at the end of the period; 14.4 uses 2% of a 30-day budget in one hour. Requiring a long and a short window to both exceed the threshold makes it page quickly on real outages and reset quickly once fixed.</p>
+    <h3>Why does my 99% or 90% SLO never alert?</h3>
+    <p>The page threshold is the burn rate times the allowed error ratio. For a 90% SLO that is 14.4 x 10% = 144%, which an error ratio cannot reach, so the alert can never fire. The tool flags this and you should lengthen the window or lower the budget fraction.</p>
+    <h3>Does this connect to my Prometheus or read my metrics?</h3>
+    <p>No. It does arithmetic on the numbers you type and prints a rule file. It never contacts any server and nothing you type is uploaded.</p>
+    <h3>Are the generated rules safe to paste into production?</h3>
+    <p>Treat them as a reviewed starting point. They assume your error and total selectors are counters you can rate(), that traffic is steady enough for ratio alerts, and that you have tested the expression in your own Prometheus. Run promtool check rules and try the expressions in the expression browser first.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, reliability, legal or financial advice. It generates alert rules and downtime figures from the numbers you type, using the windows described in a published method; it cannot know your traffic shape, your SLI definition or your on-call setup, and generated rules can be wrong for your system. <strong>You are responsible for reviewing, testing and verifying every rule before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Prometheus and Google are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The values you type are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>generate_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks on the same repo: <a href="../prometheus-cardinality-cost/">Prometheus Cardinality Cost</a> finds the labels inflating your metrics bill, and <a href="../k8s-rollout-safety-check/">Kubernetes Rollout Safety Check</a> is another zero-upload gate for the cluster side. After an incident, <a href="../incident-postmortem-timeline/">Incident Postmortem Timeline</a> turns the log into response metrics and a postmortem draft. To see who is absorbing the pages, <a href="../oncall-load-analyzer/">On-Call Load Analyzer</a> reads an incident export for fairness, broken nights and alert noise.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { budgetTable, buildPolicy, detectionTime, summarize, generateRules, validateInputs, fmtDuration, promDuration } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastRules = "";
+
+    function render() {
+      const slo = Number($("#slo").value), periodDays = Number($("#period").value);
+      const rpsRaw = $("#rps").value, rps = rpsRaw === "" ? null : Number(rpsRaw);
+      const bad = validateInputs({ slo, periodDays });
+      if (bad.length) { $("#status").innerHTML = `<span class="error">${esc(bad.join(" "))}</span>`; return; }
+      $("#status").textContent = "";
+      const s = summarize(slo, periodDays, { rps });
+      $("#summary").innerHTML = `<span class="${s.status === "ok" ? "ok" : "changed"}">${esc(s.text)}</span>`;
+      $("#budget-rows").innerHTML = budgetTable(slo, periodDays).rows.map((r) => `<tr><td>${esc(r.label)}</td><td>${fmtDuration(r.allowedDowntime)}</td></tr>`).join("");
+      $("#policy-rows").innerHTML = buildPolicy(slo, periodDays).map((p) => `<tr><td><span class="pill ${p.severity === "page" ? "error" : "warn"}">${p.severity}</span></td><td>${p.burnRate}x</td><td>${promDuration(p.long)} / ${promDuration(p.short)}</td><td>${(p.errorRatioThreshold * 100).toPrecision(3)}%${p.reachable ? "" : " (unreachable)"}</td><td>${fmtDuration(detectionTime(p, 1))}</td></tr>`).join("");
+      $("#results-table").hidden = s.findings.length === 0;
+      $("#no-findings").hidden = s.findings.length !== 0;
+      $("#results-rows").innerHTML = s.findings.map((f) => `<tr><td><code>${esc(f.rule)}</code></td><td><span class="pill ${f.severity}">${f.severity}</span></td><td>${esc(f.message)}</td></tr>`).join("");
+      try {
+        lastRules = generateRules({ name: $("#name").value.trim(), slo, periodDays, errors: $("#errors").value.trim(), total: $("#total").value.trim() });
+      } catch (err) {
+        lastRules = "";
+        $("#rules-out").textContent = "Rules not generated: " + err.message;
+      }
+      if (lastRules) $("#rules-out").textContent = lastRules;
+      $("#report-card").hidden = false;
+      record("generate_run");
+    }
+
+    $("#generate").addEventListener("click", () => { render(); $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" }); });
+    $("#load-example").addEventListener("click", () => { $("#slo").value = 90; $("#rps").value = ""; render(); record("example_loaded"); });
+    $("#copy").addEventListener("click", async () => { try { await navigator.clipboard.writeText(lastRules); $("#copy").textContent = "Copied"; } catch { $("#copy").textContent = "Select and copy manually"; } });
+    $("#download").addEventListener("click", () => {
+      if (!lastRules) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([lastRules], { type: "text/yaml" }));
+      a.download = `slo-${$("#name").value.trim() || "slo"}.rules.yml`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+name: clergy-housing-allowance-calculator
+description: >-
+  Free browser calculator for ministers, pastors and church treasurers: enter salary, the designated housing allowance and housing costs
+  and get the section 107 exclusion (least of designated, actual cost and fair rental value), income tax saved, self-employment tax,
+  a suggested designation and a board resolution template. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. duplicate_check.py best match was 0.15 (grant-indirect-cost-calculator); no clergy tax tool exists.
+#
+# First visitor: pastors, church treasurers and small-church boards searching "minister housing allowance calculator", "pastor housing
+# allowance worksheet", "how to designate housing allowance", "parsonage allowance"; also pastor tax-help communities and denominational
+# finance forums. Search volume not measured with an external tool. The designation is due every year in advance (a recurring annual need
+# each autumn), and the resolution template is a shareable lead magnet.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; not tax advice; says what is not modelled (Form 4361,
+# state differences, Additional Medicare tax) and carries the no-warranty and no-SLA clauses. The resolution is labelled a template.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a multi-year designation tracker or denominational licence would need owner approval.
+
+hypotheses:
+  - claim: >-
+      Pastors and church treasurers will type their numbers into a no-signup calculator to find what to designate each year, because the
+      rule (least of three numbers) is easy to get wrong and the designation must be set in advance.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/clergy-housing-allowance-calculator/
+  analytics: null

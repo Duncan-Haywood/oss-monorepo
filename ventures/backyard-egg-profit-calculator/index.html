@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Backyard Egg Profit Calculator — Cost per Dozen, Profit per Hour and the Price You Need</title>
+  <meta name="description" content="Free calculator for backyard egg sellers: what a dozen eggs costs you, how many hours it takes, your profit per dozen and per hour, the price per dozen you need to earn a wage, and what feed cost and winter lay rate do to it. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="What do you really make on a dozen eggs?">
+  <meta property="og:description" content="Cost per dozen, profit per hour, the price you need for a wage, and what feed cost and winter lay rate do to it. Your numbers, not advice. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Backyard Egg Profit Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free calculator for backyard egg sellers: what a dozen eggs costs you, how many hours it takes, your profit per dozen and per hour, the price per dozen you need to earn a wage, and what feed cost and winter lay rate do to it. Runs in your browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does it cost to produce a dozen eggs at home?","acceptedAnswer":{"@type":"Answer","text":"On the default numbers $3.57 in cash per dozen sold ($0.30 an egg): $821.25 of feed a year, $360.00 of bedding and other costs, $80.00 to replace hens and $137.12 of cartons, plus 0.53 hours of your time per dozen. Feed is the largest cash line at 58.7%. Enter your own figures; the defaults are invented."}},{"@type":"Question","name":"How much should I charge for a dozen eggs?","acceptedAnswer":{"@type":"Answer","text":"$11.53 a dozen to pay yourself $15 an hour on those numbers, against a cash breakeven of $3.57. Selling at $5.00 leaves $1.43 a dozen and $2.69 an hour before any wage is deducted."}},{"@type":"Question","name":"What happens when feed costs more or the hens lay less?","acceptedAnswer":{"@type":"Answer","text":"Doubling the feed price takes the profit per hour from $2.69 to -$1.25 and lifts the price you need to $13.63. Hens laying at half the rate (35 percent in the dark of winter) cost $6.79 per dozen and need $22.72."}},{"@type":"Question","name":"Is this advice or market data?","acceptedAnswer":{"@type":"Answer","text":"No. It does arithmetic on the numbers you type. Prices, costs and times are yours to check, nothing is uploaded, and it is not financial, tax, legal or food-safety advice. Check your state's rules on selling eggs."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    select { padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    input[type=number] { width: 6.5em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">BACKYARD EGG PROFIT CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>What do you really make on a dozen eggs?</h1>
+    <p>Enter your flock, feed and hours and what you sell a dozen for. You get your <strong>cost per dozen</strong>, your <strong>profit per hour</strong>, the <strong>price per dozen</strong> you need to pay yourself a wage, and what <strong>feed cost</strong> and a <strong>winter drop in laying</strong> do to all of it.</p>
+    <p class="note"><strong>Your numbers, not advice.</strong> Prices, costs and times are yours to check; every value is editable. Nothing is uploaded: inputs are used in this browser tab only.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your flock</h2>
+    <p>
+      <label for="hens">Hens in lay</label><input type="number" id="hens" value="20" min="0" step="1">
+      <label for="laypct">Lay rate (%)</label><input type="number" id="laypct" value="70" min="0" step="1">
+      <label for="price">Selling price per dozen ($)</label><input type="number" id="price" value="5" min="0" step="0.25">
+      <label for="feedlbs">Feed per hen per day (lb)</label><input type="number" id="feedlbs" value="0.25" min="0" step="0.05">
+      <label for="feedperlb">Feed price per lb ($)</label><input type="number" id="feedperlb" value="0.45" min="0" step="0.05">
+      <label for="othermonth">Other cost per month ($)</label><input type="number" id="othermonth" value="30" min="0" step="5">
+      <label for="pulletcost">Replacement pullet cost ($)</label><input type="number" id="pulletcost" value="8" min="0" step="1">
+      <label for="layyears">Laying years per hen</label><input type="number" id="layyears" value="2" min="0" step="0.5">
+      <label for="cartoncost">Carton cost per dozen ($)</label><input type="number" id="cartoncost" value="0.35" min="0" step="0.05">
+      <label for="hoursweek">Hours per week</label><input type="number" id="hoursweek" value="4" min="0" step="0.5">
+      <label for="wage">Your wage per hour ($)</label><input type="number" id="wage" value="15" min="0" step="1">
+      <label for="losspct">Eggs lost or kept (%)</label><input type="number" id="losspct" value="8" min="0" step="1">
+    </p>
+    <p>
+      <button type="button" id="go">Calculate profit</button>
+      <button type="button" class="secondary" id="load-example">Load a dark winter: hens laying 45%, pricey feed</button>
+      <button type="button" class="secondary" id="clear">Clear results</button>
+      <button type="button" class="secondary" id="copy">Copy summary</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="result-card" hidden aria-live="polite">
+    <h2>Your flock for a year</h2>
+    <p id="summary"></p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Line</th><th>Per year</th></tr></thead>
+      <tbody id="totals-rows"></tbody>
+    </table></div>
+    <h3>If your selling price moves</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Price per dozen</th><th>Profit per hour</th><th>After wage, per year</th><th>Margin, per year</th></tr></thead>
+      <tbody id="price-rows"></tbody>
+    </table></div>
+    <h3>If feed costs more</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Feed per lb</th><th>Cost per dozen</th><th>Profit per hour</th><th>Price you need</th></tr></thead>
+      <tbody id="feed-rows"></tbody>
+    </table></div>
+    <h3>If the hens lay less</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Lay rate</th><th>Cost per dozen</th><th>Profit per hour</th><th>Price you need</th></tr></thead>
+      <tbody id="lay-rows"></tbody>
+    </table></div>
+    <p class="note">Count eggs for a month and time one ordinary week before you trust the numbers. A flock that looks free can pay pennies an hour; the hours do not shrink when the hens stop laying.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">More: <a href="how-much-to-charge-for-a-dozen-eggs.html">How much to charge for a dozen eggs: feed, hours and winter lay rate</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What does it cost to produce a dozen eggs at home?</h3>
+    <p>On the default numbers $3.57 in cash per dozen sold ($0.30 an egg): $821.25 of feed a year, $360.00 of bedding and other costs, $80.00 to replace hens and $137.12 of cartons, plus 0.53 hours of your time per dozen. Feed is the largest cash line at 58.7%. Enter your own figures; the defaults are invented.</p>
+    <h3>How much should I charge for a dozen eggs?</h3>
+    <p>$11.53 a dozen to pay yourself $15 an hour on those numbers, against a cash breakeven of $3.57. Selling at $5.00 leaves $1.43 a dozen and $2.69 an hour before any wage is deducted.</p>
+    <h3>What happens when feed costs more or the hens lay less?</h3>
+    <p>Doubling the feed price takes the profit per hour from $2.69 to -$1.25 and lifts the price you need to $13.63. Hens laying at half the rate (35 percent in the dark of winter) cost $6.79 per dozen and need $22.72.</p>
+    <h3>Is this advice or market data?</h3>
+    <p>No. It does arithmetic on the numbers you type. Prices, costs and times are yours to check, nothing is uploaded, and it is not financial, tax, legal or food-safety advice. Check your state's rules on selling eggs.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, food-safety or business advice, it is not a market price, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the accuracy of the numbers you enter. To the maximum extent permitted by law the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Not affiliated with, endorsed by or sponsored by any poultry association, agriculture agency or marketplace; names are used only to say what the tool is about.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. The numbers you enter are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>calculate_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../farmers-market-booth-calculator/">Farmers Market Booth Calculator</a>, <a href="../firewood-profit-calculator/">Firewood Profit Calculator</a>, <a href="../backyard-honey-profit-calculator/">Backyard Honey Profit Calculator</a>, <a href="../ball-python-morph-pairing-planner/">Ball Python Morph Pairing Planner</a>.</p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeEggs, summarize, money, pct, INPUT_NOTES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    const options = () => ({
+      hens: $("#hens").value,
+      layPct: $("#laypct").value,
+      price: $("#price").value,
+      feedLbs: $("#feedlbs").value,
+      feedPerLb: $("#feedperlb").value,
+      otherMonth: $("#othermonth").value,
+      pulletCost: $("#pulletcost").value,
+      layYears: $("#layyears").value,
+      cartonCost: $("#cartoncost").value,
+      hoursWeek: $("#hoursweek").value,
+      wage: $("#wage").value,
+      lossPct: $("#losspct").value,
+    });
+
+    let lastText = "";
+    function render() {
+      const status = $("#status");
+      let r;
+      try {
+        r = computeEggs(options());
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarize(r);
+      lastText = s.text;
+      $("#summary").innerHTML = `<span class="${s.status === "ok" ? "gain" : "error"}">${escapeHtml(s.text)}</span>`;
+      $("#totals-rows").innerHTML = [
+        ...r.lines.map((l) => [l.label, money(l.value)]),
+        ["Total cash cost per year", money(r.costYear)], ["Dozens sold per year", String(Math.round(r.dozensSold))],
+        ["Cash cost per dozen", money(r.costPerDozen)], ["Hours per dozen", r.hoursPerDozen.toFixed(2)],
+        ["Revenue per year", money(r.revenueYear)], ["Margin per dozen", money(r.marginPerDozen)],
+        ["Margin per year", money(r.marginYear)], ["Profit per hour", money(r.profitPerHour)],
+        ["After your wage, per year", money(r.afterWageYear)],
+        ["Cash breakeven price per dozen", money(r.breakevenPrice)], ["Price per dozen for your wage", money(r.wagePrice)],
+      ].map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("");
+      $("#price-rows").innerHTML = r.priceScenarios.map((x) => `<tr><td>${money(x.price)}${x.current ? " (yours)" : ""}</td><td>${money(x.profitPerHour)}</td><td>${money(x.afterWageYear)}</td><td>${money(x.marginYear)}</td></tr>`).join("");
+      $("#feed-rows").innerHTML = r.feedScenarios.map((x) => `<tr><td>${money(x.feedPerLb)}${x.current ? " (yours)" : ""}</td><td>${money(x.costPerDozen)}</td><td>${money(x.profitPerHour)}</td><td>${money(x.wagePrice)}</td></tr>`).join("");
+      $("#lay-rows").innerHTML = r.layScenarios.map((x) => `<tr><td>${Math.round(x.layPct * 10) / 10}%${x.current ? " (yours)" : ""}</td><td>${money(x.costPerDozen)}</td><td>${money(x.profitPerHour)}</td><td>${money(x.wagePrice)}</td></tr>`).join("");
+      $("#result-card").hidden = false;
+      record("calculate_run");
+    }
+
+    $("#go").addEventListener("click", render);
+    $("#load-example").addEventListener("click", () => {
+      $("#price").value = 4; $("#feedperlb").value = 0.6; $("#laypct").value = 45; $("#losspct").value = 15;
+      render();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => { $("#status").textContent = ""; $("#result-card").hidden = true; });
+    $("#copy").addEventListener("click", async () => {
+      if (!lastText) render();
+      try { await navigator.clipboard.writeText(lastText); $("#status").textContent = "Summary copied."; } catch { $("#status").textContent = "Could not copy; select the summary text instead."; }
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Break-Even ROAS Calculator — max CPA, target ROAS and LTV for your ads</title>
+  <meta name="description" content="Free break-even ROAS and max CPA calculator for ecommerce and DTC stores. Enter price, cost of goods, shipping, fees, returns and discounts, add repeat-purchase LTV, and see the ROAS you need for 0%, 10% or 20% profit. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Break-Even ROAS Calculator — free, private, in your browser">
+  <meta property="og:description" content="Break-even ROAS, max CPA, target ROAS for a profit margin, LTV-adjusted, with a campaign checker and CSV export.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Break-Even ROAS Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Work out break-even ROAS, maximum CPA and the ROAS needed for a target profit margin from price, cost of goods, shipping, payment and platform fees, returns, discounts and optional repeat-purchase lifetime value. Includes a scenario table, a campaign checker and CSV export. Runs in your browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is break-even ROAS?","acceptedAnswer":{"@type":"Answer","text":"Break-even ROAS is the return on ad spend at which an ad campaign earns exactly zero profit after the product, shipping, fees and refunds. It equals the revenue per order divided by the contribution per order, so a product that keeps 40 cents of every reported dollar before ads breaks even at 2.5x. Below it each ad dollar loses money on the first order; above it the campaign is profitable."}},{"@type":"Question","name":"How do I calculate maximum CPA?","acceptedAnswer":{"@type":"Answer","text":"Maximum cost per acquisition is the contribution per order: the price after discounts, minus refunds, platform and payment fees, cost of goods and shipping. You can spend up to that much to win one order and still break even. Spend less to leave profit; to hit a margin target subtract the profit you want per order."}},{"@type":"Question","name":"What ROAS do I need for a 20% profit margin?","acceptedAnswer":{"@type":"Answer","text":"Work out the contribution per order, subtract 20% of the revenue the platform reports for that order, and divide the reported revenue by what is left. The scenario table does this for 0%, 10%, 20% or any margins you type. If your contribution margin is under 20% the target cannot be reached at any ROAS and the table says so."}},{"@type":"Question","name":"Should I include repeat purchases and lifetime value?","acceptedAnswer":{"@type":"Answer","text":"If customers reliably come back, yes, because the first order does not have to repay the whole ad cost. Enter the average total orders per customer over the period you trust and what a repeat order earns compared with the first. The tool shows both views: the first-order break-even that protects cash, and the LTV break-even that shows the most you could pay if repeat behaviour holds. Be conservative with repeat rates you have not measured."}},{"@type":"Question","name":"What is the difference between MER and platform ROAS?","acceptedAnswer":{"@type":"Answer","text":"Platform ROAS is revenue the ad platform attributes to its own ads divided by what you spent there. MER, marketing efficiency ratio, is all store revenue divided by all ad spend across every channel, including organic and repeat sales. MER is the steadier measure of whether the business as a whole is paying for its advertising; platform ROAS is useful to compare campaigns inside one account but is inflated by attribution overlap and view-through credit."}},{"@type":"Question","name":"Why does my return rate matter so much for ROAS?","acceptedAnswer":{"@type":"Answer","text":"A refunded order gives the revenue back but the ad money, the outbound shipping and usually the payment fee are already gone. A product with 30% returns needs a much higher ROAS than the same product with 5%, and the sensitivity table shows how fast break-even climbs as returns and cost of goods move."}},{"@type":"Question","name":"Is my pricing or cost data sent anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Every figure is calculated in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and nothing you type is saved. It works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .sched { font-size: .92rem; }
+    .sched td { vertical-align: top; }
+    .ok { color: #1d5a24; font-weight: 700; }
+      .verdict { border-radius: 10px; padding: 12px 16px; margin: 10px 0; font-weight: 600; }
+    .verdict.profit { background: #dcefdc; color: #1d5a24; }
+    .verdict.ltv { background: #fdf0d5; color: #5c4508; }
+    .verdict.loss { background: #f8d9d6; color: #6b1a12; }
+    td.neg { color: #7d1f16; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">BREAK-EVEN ROAS CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What ROAS do your ads need to make money?</h1>
+    <p>Enter <strong>what you sell for and what it costs you</strong> — product, shipping, payment and platform fees, discounts and returns — and get your <strong>break-even ROAS</strong>, the <strong>most you can pay per customer (max CPA)</strong> and the <strong>ROAS needed for the profit margin you want</strong>. Add repeat purchases to see the first-order break-even next to the lifetime-value one, then check a real campaign against it.</p>
+    <p class="note">Your numbers never leave this browser tab. Planning aid, not financial advice. See <a href="how-to-calculate-break-even-roas.html">how to calculate break-even ROAS</a> for the method.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your unit economics (per order)</h2>
+    <div class="grid">
+      <div><label for="price">List price</label><input id="price" inputmode="decimal" value="80" ></div>
+      <div><label for="discountPct">Average discount %</label><input id="discountPct" inputmode="decimal" value="10" ></div>
+      <div><label for="cogs">Cost of goods per order</label><input id="cogs" inputmode="decimal" value="22" ></div>
+      <div><label for="shippingCost">Shipping and packaging you pay</label><input id="shippingCost" inputmode="decimal" value="7" ></div>
+      <div><label for="shippingCharged">Shipping charged to the customer</label><input id="shippingCharged" inputmode="decimal" value="0" ></div>
+    </div>
+    <div class="grid">
+      <div><label for="paymentPct">Payment fee %</label><input id="paymentPct" inputmode="decimal" value="2.9" ></div>
+      <div><label for="paymentFixed">Payment fee per order</label><input id="paymentFixed" inputmode="decimal" value="0.30" ></div>
+      <div><label for="platformPct">Platform or marketplace fee %</label><input id="platformPct" inputmode="decimal" value="0" ></div>
+      <div><label for="returnPct">Return or refund rate %</label><input id="returnPct" inputmode="decimal" value="8" ></div>
+      <div><label for="restockPct">Returned units you can resell %</label><input id="restockPct" inputmode="decimal" value="0" ></div>
+      <div><label for="returnShipCost">Return shipping you pay</label><input id="returnShipCost" inputmode="decimal" value="0" ></div>
+    </div>
+    <h2 style="margin-top:20px">Repeat purchases (optional)</h2>
+    <div class="grid">
+      <div><label for="ordersPerCustomer">Orders per customer, first order included</label><input id="ordersPerCustomer" inputmode="decimal" value="1" ></div>
+      <div><label for="repeatMarginPct">Repeat-order contribution vs first order %</label><input id="repeatMarginPct" inputmode="decimal" value="100" ></div>
+    </div>
+    <p class="note">Leave orders per customer at 1 to see first-order economics only. Use a repeat rate you have measured, over a window you trust.</p>
+    <div><div><label for="margins">Target net margins to tabulate, % of revenue (comma separated)</label><input id="margins" inputmode="decimal" value="0, 10, 20" ></div></div>
+    <button type="button" id="calc">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Enter your numbers, then click Calculate.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h3>Where each order's money goes</h3>
+    <div class="scroll"><table id="wf"><thead><tr><th>Line</th><th class="n">Per order</th></tr></thead><tbody></tbody></table></div>
+    <h3>Scenario table: ROAS and CPA needed for each profit margin</h3>
+    <p class="note">Margin is profit as a share of the revenue the ad platform reports. “Not reachable” means that margin cannot be made at any ROAS with these costs.</p>
+    <div class="scroll"><table id="scen"><thead><tr><th class="n">Net margin</th><th class="n">Max CPA, first order</th><th class="n">Target ROAS, first order</th><th class="n">Max CPA, LTV</th><th class="n">Target ROAS, LTV</th></tr></thead><tbody></tbody></table></div>
+    <h3>Sensitivity: break-even ROAS as returns and cost of goods move</h3>
+    <p class="note">Rows are return rates, columns are changes in cost of goods. First-order break-even.</p>
+    <div class="scroll"><table id="sens"><thead></thead><tbody></tbody></table></div>
+    <div id="sens-ltv-wrap" hidden>
+      <p class="note">The same grid on the lifetime-value basis.</p>
+      <div class="scroll"><table id="sens-ltv"><thead></thead><tbody></tbody></table></div>
+    </div>
+    <button type="button" id="download">Download scenario table CSV</button>
+    <button type="button" class="secondary" id="download-sens">Download sensitivity CSV</button>
+  </section>
+
+  <section id="check-card" class="card" hidden>
+    <h2>Check a campaign against your break-even</h2>
+    <p class="note">Use the spend and the purchase revenue your ad platform reports for the same period.</p>
+    <div class="grid">
+      <div><label for="spend">Ad spend</label><input id="spend" inputmode="decimal" value="" ></div>
+      <div><label for="revenue">Revenue reported by the platform</label><input id="revenue" inputmode="decimal" value="" ></div>
+      <div><label for="orders">Orders (optional)</label><input id="orders" inputmode="decimal" value="" ></div>
+      <div><label for="targetMargin">Margin you want, % (optional)</label><input id="targetMargin" inputmode="decimal" value="0" ></div>
+    </div>
+    <button type="button" id="check">Check this campaign</button>
+    <div id="check-out"></div>
+    <h3>Whole-business check (MER)</h3>
+    <div class="grid">
+      <div><label for="totalRevenue">Total store revenue, all sources</label><input id="totalRevenue" inputmode="decimal" value="" ></div>
+      <div><label for="totalSpend">Total ad spend, all channels</label><input id="totalSpend" inputmode="decimal" value="" ></div>
+    </div>
+    <button type="button" class="secondary" id="check-mer">Check MER</button>
+    <div id="mer-out"></div>
+  </section>
+
+  <section class="card">
+    <h2>MER vs platform ROAS</h2>
+    <p><strong>Platform ROAS</strong> is the purchase value an ad platform credits to its own ads divided by what you spent there. Two platforms can both claim the same sale, and view-through and returning-customer credit inflate it. <strong>MER</strong> (marketing efficiency ratio) is all your store revenue divided by all your ad spend; it cannot double count, but it includes organic and repeat sales, so it flatters any single campaign.</p>
+    <p>Use platform ROAS to compare campaigns inside one account. Use MER to decide whether the business as a whole is paying for its advertising, and compare both with the break-even above. If MER is comfortably above break-even while platform ROAS is below it, attribution is probably undercounting; if platform ROAS is above break-even but MER is below it, the platforms are probably claiming sales you would have made anyway.</p>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Reported revenue</strong> R = price × (1 − discount) + shipping charged. A share of orders is refunded in full, so kept revenue is R × (1 − return rate). The platform fee is charged on kept revenue; the payment fee (% of R plus a fixed amount) is charged on every order and is not returned on a refund. Cost of goods is spent on every order, less the share of returned units you can resell; shipping is paid on every order and return shipping on refunded ones.</p>
+    <p><strong>Contribution</strong> = kept revenue − platform fee − payment fee − cost of goods − shipping. <strong>Max CPA</strong> = contribution. <strong>Break-even ROAS</strong> = R ÷ contribution. For a margin target m, <strong>max CPA</strong> = contribution − m × R and <strong>target ROAS</strong> = R ÷ that. On the LTV basis a customer places n orders; each of the n − 1 repeat orders adds the repeat-order share of first-order contribution, and the margin is measured on n × R. The platform still reports only the first order, so LTV ROAS is R ÷ lifetime contribution.</p>
+    <p><strong>Not modelled:</strong> sales tax, fixed overhead, creative and agency costs, subscription churn curves, new versus returning customer mix inside attributed sales, cash-flow timing and payment-reserve holds, and ad platform attribution windows. <strong>Unverified:</strong> checked against hand-worked examples and identity tests on invented data, not against any real store. Treat the output as a planning estimate.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is break-even ROAS?</h3>
+    <p>Break-even ROAS is the return on ad spend at which an ad campaign earns exactly zero profit after the product, shipping, fees and refunds. It equals the revenue per order divided by the contribution per order, so a product that keeps 40 cents of every reported dollar before ads breaks even at 2.5x. Below it each ad dollar loses money on the first order; above it the campaign is profitable.</p>
+    <h3>How do I calculate maximum CPA?</h3>
+    <p>Maximum cost per acquisition is the contribution per order: the price after discounts, minus refunds, platform and payment fees, cost of goods and shipping. You can spend up to that much to win one order and still break even. Spend less to leave profit; to hit a margin target subtract the profit you want per order.</p>
+    <h3>What ROAS do I need for a 20% profit margin?</h3>
+    <p>Work out the contribution per order, subtract 20% of the revenue the platform reports for that order, and divide the reported revenue by what is left. The scenario table does this for 0%, 10%, 20% or any margins you type. If your contribution margin is under 20% the target cannot be reached at any ROAS and the table says so.</p>
+    <h3>Should I include repeat purchases and lifetime value?</h3>
+    <p>If customers reliably come back, yes, because the first order does not have to repay the whole ad cost. Enter the average total orders per customer over the period you trust and what a repeat order earns compared with the first. The tool shows both views: the first-order break-even that protects cash, and the LTV break-even that shows the most you could pay if repeat behaviour holds. Be conservative with repeat rates you have not measured.</p>
+    <h3>What is the difference between MER and platform ROAS?</h3>
+    <p>Platform ROAS is revenue the ad platform attributes to its own ads divided by what you spent there. MER, marketing efficiency ratio, is all store revenue divided by all ad spend across every channel, including organic and repeat sales. MER is the steadier measure of whether the business as a whole is paying for its advertising; platform ROAS is useful to compare campaigns inside one account but is inflated by attribution overlap and view-through credit.</p>
+    <h3>Why does my return rate matter so much for ROAS?</h3>
+    <p>A refunded order gives the revenue back but the ad money, the outbound shipping and usually the payment fee are already gone. A product with 30% returns needs a much higher ROAS than the same product with 5%, and the sensitivity table shows how fast break-even climbs as returns and cost of goods move.</p>
+    <h3>Is my pricing or cost data sent anywhere?</h3>
+    <p>No. Every figure is calculated in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and nothing you type is saved. It works offline once the page has loaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is a planning aid, not legal, tax, or financial advice, and it does not replace a qualified professional or your own knowledge of your costs. Results are planning estimates from the numbers you supply; your real results will differ.</p>
+    <p><strong>Independent.</strong> Not affiliated with any ad platform, store platform or payment processor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your prices, costs and campaign numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>calc_run</code>, <code>example_loaded</code>, <code>campaign_checked</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data and never sent anywhere. The switch below turns even that off.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../print-on-demand-profit-calculator/">print-on-demand profit calculator</a>, the <a href="../shopify-fee-calculator/">Shopify fee calculator</a> the <a href="../tiktok-shop-fee-calculator/">TikTok Shop fee calculator</a> and, for course creators, the <a href="../course-launch-revenue-calculator/">course launch revenue calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { normalizeInputs, breakEven, scenarioTable, sensitivity, checkCampaign, checkMer, scenarioCsv, sensitivityCsv, exampleInputs, fmtMoney, fmtRoas, fmtPct, num } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const KEYS = ["price", "discountPct", "cogs", "shippingCost", "shippingCharged", "paymentPct", "paymentFixed", "platformPct", "returnPct", "restockPct", "returnShipCost", "ordersPerCustomer", "repeatMarginPct"];
+    let last = null;
+
+    function readInputs() {
+      const raw = {};
+      for (const k of KEYS) raw[k] = $("#" + k).value;
+      return normalizeInputs(raw);
+    }
+    function readMargins() {
+      const parts = $("#margins").value.split(",").map((s) => s.trim()).filter(Boolean).map(num);
+      const ms = [...new Set(parts.filter((x) => Number.isFinite(x) && x >= 0 && x < 100))].sort((a, b) => a - b).slice(0, 8);
+      return ms.length ? ms : [0, 10, 20];
+    }
+    const cls = (v) => (v < 0 ? ' class="n neg"' : ' class="n"');
+
+    function run() {
+      const { inputs, errors } = readInputs();
+      if (errors.length) { status.textContent = errors.slice(0, 3).join(" · ") + (errors.length > 3 ? " · and " + (errors.length - 3) + " more" : ""); report.hidden = true; $("#check-card").hidden = true; return false; }
+      const b = breakEven(inputs), e = b.economics, ltvOn = inputs.ordersPerCustomer > 1;
+      const rows = scenarioTable(inputs, readMargins());
+      const sens = sensitivity(inputs);
+      last = { inputs, rows, sens, b };
+      $("#notices").innerHTML = b.losesBeforeAds ? '<div class="warn stop">At these numbers each order loses money before any ad spend, so no ROAS can break even. Raise the price, or cut cost of goods, shipping, fees or returns.</div>' : (!ltvOn ? "" : "");
+      const big = [
+        [fmtRoas(b.roas), "Break-even ROAS, first order"],
+        [b.losesBeforeAds ? "n/a" : fmtMoney(b.maxCpa), "Max CPA, first order"],
+        [ltvOn ? fmtRoas(b.roasLtv) : "same", ltvOn ? "Break-even ROAS, LTV basis" : "LTV basis (set orders per customer above 1)"],
+        [ltvOn ? (b.lifetime.contribution > 0 ? fmtMoney(b.maxCpaLtv) : "n/a") : "same", ltvOn ? "Max CPA, LTV basis" : "Max CPA, LTV basis"],
+        [fmtPct(b.ceilingMarginPct), "Contribution margin before ads"],
+      ];
+      $("#big").innerHTML = big.map(([v, l]) => "<div><strong>" + esc(v) + "</strong>" + esc(l) + "</div>").join("");
+      const wf = [
+        ["Reported revenue (after discount, before returns)", e.reported], ["Refunds", -e.refunds], ["Platform fee", -e.platformFee], ["Payment fee", -e.paymentFee],
+        ["Cost of goods", -e.cogs], ["Shipping", -e.shipping], ["Contribution before ads (= max CPA)", e.contribution],
+      ];
+      $("#wf tbody").innerHTML = wf.map(([l, v], k) => "<tr" + (k === 0 || k === wf.length - 1 ? ' style="font-weight:700"' : "") + "><td>" + esc(l) + "</td><td" + cls(v) + ">" + fmtMoney(v) + "</td></tr>").join("");
+      $("#scen tbody").innerHTML = rows.map((r) => "<tr><td class=\"n\">" + r.marginPct + "%</td><td class=\"n\">" + (r.first.feasible ? fmtMoney(r.first.maxCpa) : "not reachable") + "</td><td class=\"n\">" + fmtRoas(r.first.roas) + "</td><td class=\"n\">" + (r.ltv.feasible ? fmtMoney(r.ltv.maxCpa) : "not reachable") + "</td><td class=\"n\">" + fmtRoas(r.ltv.roas) + "</td></tr>").join("");
+      const grid = (table, key) => {
+        table.querySelector("thead").innerHTML = "<tr><th>Return rate</th>" + sens.cogsChanges.map((c) => '<th class="n">COGS ' + (c > 0 ? "+" : "") + c + "%</th>").join("") + "</tr>";
+        table.querySelector("tbody").innerHTML = sens.rows.map((r) => "<tr><td>" + r.returnPct + "%</td>" + r.cells.map((c) => '<td class="n">' + fmtRoas(c[key]).replace("not reachable", "n/a") + "</td>").join("") + "</tr>").join("");
+      };
+      grid($("#sens"), "roas");
+      $("#sens-ltv-wrap").hidden = !ltvOn;
+      if (ltvOn) grid($("#sens-ltv"), "roasLtv");
+      report.hidden = false;
+      $("#check-card").hidden = false;
+      status.textContent = "Done. Scroll down for the scenario table and the campaign checker.";
+      return true;
+    }
+
+    function download(name, text) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type: "text/csv" }));
+      a.download = name;
+      a.click();
+      record("report_downloaded");
+    }
+
+    $("#calc").addEventListener("click", () => { if (run()) { record("calc_run"); report.scrollIntoView({ behavior: "smooth", block: "start" }); } });
+    $("#load-example").addEventListener("click", () => {
+      const ex = exampleInputs();
+      for (const k of KEYS) $("#" + k).value = String(ex[k]);
+      $("#spend").value = "5000"; $("#revenue").value = "11000"; $("#orders").value = "";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented $80 product with 8% returns and 1.6 orders per customer."; }
+    });
+    $("#clear-all").addEventListener("click", () => {
+      for (const k of KEYS) $("#" + k).value = "";
+      for (const id of ["spend", "revenue", "orders", "totalRevenue", "totalSpend"]) $("#" + id).value = "";
+      report.hidden = true; $("#check-card").hidden = true; $("#check-out").innerHTML = ""; $("#mer-out").innerHTML = ""; last = null;
+      status.textContent = "Enter your numbers, then click Calculate.";
+    });
+    $("#check").addEventListener("click", () => {
+      if (!run()) return;
+      const c = checkCampaign(last.inputs, { spend: $("#spend").value, revenue: $("#revenue").value, orders: $("#orders").value, targetMarginPct: num($("#targetMargin").value) || 0 });
+      const out = $("#check-out");
+      if (c.error) { out.innerHTML = '<div class="warn">' + esc(c.error) + "</div>"; return; }
+      const word = { profit: ["profit", "Clears break-even: profitable on the first order."], "ltv-only": ["ltv", "Loses money on the first order, but would pay back if your repeat-purchase assumption holds."], loss: ["loss", "Below break-even: this campaign loses money."] }[c.verdict];
+      const lines = [
+        ["Platform ROAS", fmtRoas(c.roas) + " vs break-even " + fmtRoas(c.breakEvenRoas)],
+        ["Profit on this spend", fmtMoney(c.profit) + " (" + fmtMoney(c.profitPerDollar) + " per ad dollar)"],
+        ["Profit incl. repeat orders (LTV)", fmtMoney(c.ltvProfit) + " (" + fmtMoney(c.ltvProfitPerDollar) + " per ad dollar)"],
+        ["Cost per order", c.cpa === null ? "n/a" : fmtMoney(c.cpa) + (c.ordersEstimated ? " (orders estimated from revenue and price)" : "")],
+        ["Margin on revenue", c.marginOfRevenuePct === null ? "n/a" : fmtPct(c.marginOfRevenuePct)],
+      ];
+      if (c.targetMarginPct > 0) lines.push(["Your " + c.targetMarginPct + "% margin target", (c.meetsTarget ? "met" : "not met") + " (needs " + fmtRoas(c.targetRoas) + ")"]);
+      out.innerHTML = '<div class="verdict ' + word[0] + '">' + esc(word[1]) + "</div><table><tbody>" + lines.map(([l, v]) => "<tr><td>" + esc(l) + "</td><td>" + esc(v) + "</td></tr>").join("") + "</tbody></table>";
+      record("campaign_checked");
+    });
+    $("#check-mer").addEventListener("click", () => {
+      if (!run()) return;
+      const m = checkMer(last.inputs, { totalRevenue: $("#totalRevenue").value, totalSpend: $("#totalSpend").value });
+      $("#mer-out").innerHTML = m.error ? '<div class="warn">' + esc(m.error) + "</div>" : '<div class="verdict ' + (m.clears ? "profit" : "loss") + '">MER ' + m.mer.toFixed(2) + "x vs break-even " + esc(fmtRoas(m.breakEvenRoas)) + (m.clears ? ": the business clears break-even on blended spend, before overhead." : ": blended revenue per ad dollar is below break-even.") + "</div>";
+    });
+    $("#download").addEventListener("click", () => { if (last) download("break-even-roas-scenarios.csv", scenarioCsv(last.rows)); });
+    $("#download-sens").addEventListener("click", () => { if (last) download("break-even-roas-sensitivity.csv", sensitivityCsv(last.sens)); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

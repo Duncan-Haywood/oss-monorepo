@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Veterinary Dental Estimate Calculator — Cost and Profit by Grade 1-4</title>
+  <meta name="description" content="Free calculator for veterinary clinics: itemised dental estimate and clinic profit for each grade of dental disease, profit per anesthesia hour, the price that hits your margin and what a flat dental quote loses. Runs in your browser.">
+  <meta property="og:title" content="Veterinary Dental Estimate Calculator — free, private">
+  <meta property="og:description" content="Dental estimate and profit by grade 1-4, and what a flat quote costs your clinic.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Veterinary Dental Estimate Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Itemised dental estimate and clinic profit for each grade of dental disease, with the price that reaches a target margin and what a flat quote loses. Runs in your browser.", "featureList": "Grade 1-4 itemised estimates, profit per anesthesia hour, target-margin price, flat-quote loss, annual gap by case mix"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should a dog dental cleaning cost?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the grade of disease found once the patient is under anesthesia. A grade 1 mouth needs scaling and polishing; a grade 4 mouth can need ten extractions, nerve blocks and an hour or more of added anesthesia. This calculator itemises each grade so the estimate you give reflects the work."}}, {"@type": "Question", "name": "Why does a flat dental quote lose money?", "acceptedAnswer": {"@type": "Answer", "text": "A single price has to be set for the mix of cases you see. If it matches grade 1 or 2 cases it under-recovers on grade 3 and 4 mouths, where extractions, blocks, supplies and extra anesthesia time all add cost."}}, {"@type": "Question", "name": "What margin should a veterinary dental target?", "acceptedAnswer": {"@type": "Answer", "text": "That is your decision. The page lets you set a target and shows the price each grade needs to reach it, and the profit per anesthesia hour for each grade."}}, {"@type": "Question", "name": "Does this replace my practice management system?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a pricing worksheet. Enter your own fees and costs; nothing is stored or sent anywhere."}}, {"@type": "Question", "name": "Is this veterinary or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the numbers you type. Medical decisions and fees are for the veterinarian and the client."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d5f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #3f4c59; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #8fa7b2; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d5f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #3f4c59; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #8a2f0c; }
+    .pill.medium { background: #fdf0d5; color: #6b500c; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">VETERINARY DENTAL PRICING · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does a dental really cost your clinic at grade 4?</h1>
+    <p>Enter your fees, costs and times. See an <strong>itemised estimate and clinic profit for each grade of dental disease</strong>, the profit per anesthesia hour, the price that reaches your target margin, and what a single flat dental quote gives up on severe mouths.</p>
+    <p class="note">Nothing you type leaves this tab. The numbers shown first are an example, not a benchmark: replace them with your own.</p>
+  </header>
+  <section class="card">
+    <h2>1. Fees, costs and times</h2>
+    <div class="grid">
+      <div><label for="cleaningFee">Cleaning fee (scale, polish, charting)</label><input type="number" id="cleaningFee" min="0" step="any"></div>
+      <div><label for="anesthesiaRate">Anesthesia charge per hour</label><input type="number" id="anesthesiaRate" min="0" step="any"></div>
+      <div><label for="bloodworkFee">Pre-anesthetic bloodwork</label><input type="number" id="bloodworkFee" min="0" step="any"></div>
+      <div><label for="ivFee">IV catheter + fluids</label><input type="number" id="ivFee" min="0" step="any"></div>
+      <div><label for="radiographFee">Full-mouth dental radiographs</label><input type="number" id="radiographFee" min="0" step="any"></div>
+      <div><label for="blockFee">Nerve block per extracted tooth</label><input type="number" id="blockFee" min="0" step="any"></div>
+      <div><label for="simpleExtractionFee">Simple extraction fee</label><input type="number" id="simpleExtractionFee" min="0" step="any"></div>
+      <div><label for="surgicalExtractionFee">Surgical extraction fee</label><input type="number" id="surgicalExtractionFee" min="0" step="any"></div>
+      <div><label for="medsFee">Take-home medications</label><input type="number" id="medsFee" min="0" step="any"></div>
+      <div><label for="consumablesCost">Drugs, gas and supplies per case (cost)</label><input type="number" id="consumablesCost" min="0" step="any"></div>
+      <div><label for="extractionSupplies">Supplies per extracted tooth (cost)</label><input type="number" id="extractionSupplies" min="0" step="any"></div>
+      <div><label for="techRate">Technician cost per hour</label><input type="number" id="techRate" min="0" step="any"></div>
+      <div><label for="dvmRate">Veterinarian cost per hour</label><input type="number" id="dvmRate" min="0" step="any"></div>
+      <div><label for="overheadPerHour">Room and equipment overhead per hour</label><input type="number" id="overheadPerHour" min="0" step="any"></div>
+      <div><label for="baseMinutes">Anesthesia minutes, base</label><input type="number" id="baseMinutes" min="0" step="any"></div>
+      <div><label for="simpleMinutes">Added minutes per simple extraction</label><input type="number" id="simpleMinutes" min="0" step="any"></div>
+      <div><label for="surgicalMinutes">Added minutes per surgical extraction</label><input type="number" id="surgicalMinutes" min="0" step="any"></div>
+      <div><label for="dvmBaseMinutes">Veterinarian hands-on minutes, base</label><input type="number" id="dvmBaseMinutes" min="0" step="any"></div>
+      <div><label for="dvmExtractionMinutes">Veterinarian minutes per extraction</label><input type="number" id="dvmExtractionMinutes" min="0" step="any"></div>
+      <div><label for="flatQuote">Flat dental quote you give today (0 = none)</label><input type="number" id="flatQuote" min="0" step="any"></div>
+      <div><label for="targetMarginPct">Target margin (%)</label><input type="number" id="targetMarginPct" min="0" step="any"></div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>2. Extractions you expect at each grade</h2>
+    <div class="grid">
+      <div><label for="g1Simple">Grade 1: simple extractions</label><input type="number" id="g1Simple" min="0" step="any"></div><div><label for="g1Surgical">Grade 1: surgical extractions</label><input type="number" id="g1Surgical" min="0" step="any"></div>
+      <div><label for="g2Simple">Grade 2: simple extractions</label><input type="number" id="g2Simple" min="0" step="any"></div><div><label for="g2Surgical">Grade 2: surgical extractions</label><input type="number" id="g2Surgical" min="0" step="any"></div>
+      <div><label for="g3Simple">Grade 3: simple extractions</label><input type="number" id="g3Simple" min="0" step="any"></div><div><label for="g3Surgical">Grade 3: surgical extractions</label><input type="number" id="g3Surgical" min="0" step="any"></div>
+      <div><label for="g4Simple">Grade 4: simple extractions</label><input type="number" id="g4Simple" min="0" step="any"></div><div><label for="g4Surgical">Grade 4: surgical extractions</label><input type="number" id="g4Surgical" min="0" step="any"></div>
+    </div>
+    <p><button type="button" id="go">Calculate</button><button type="button" class="secondary" id="reset">Reset to example</button></p>
+    <p class="note" id="status">Edit any number and click Calculate. The page starts with an example.</p>
+  </section>
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="findings"></div>
+    <div class="scroll"><table><thead><tr><th scope="col">Grade</th><th class="n" scope="col">Anesthesia min</th><th class="n" scope="col">Client estimate</th><th class="n" scope="col">Clinic cost</th><th class="n" scope="col">Profit</th><th class="n" scope="col">Margin</th><th class="n" scope="col">Profit per anesthesia hour</th><th class="n" scope="col">Price for target margin</th><th class="n" scope="col">Profit at flat quote</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <h3>Suggested estimate range to give clients</h3>
+    <p class="stats" id="range"></p>
+    <h3>What a flat quote gives up over a year</h3>
+    <div class="grid">
+      <div><label for="mixPct">Case mix, grades 1-4 (% each, comma separated)</label><input type="text" id="mixPct" value="20,35,30,15"></div>
+      <div><label for="perYear">Dentals per year</label><input type="number" id="perYear" min="0" step="any" value="300"></div>
+    </div>
+    <p class="stats" id="gap"></p>
+  </section>
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Client estimate</strong> = cleaning + anesthesia hours × hourly charge + bloodwork + IV + radiographs + (blocks + extraction fees per tooth) + medications.</li>
+      <li><strong>Anesthesia time</strong> = base minutes + added minutes per simple and per surgical extraction.</li>
+      <li><strong>Clinic cost</strong> = supplies + extraction supplies + technician, veterinarian and overhead cost for the hours worked.</li>
+      <li><strong>Price for target margin</strong> = cost ÷ (1 − target margin).</li>
+      <li><strong>Not modelled:</strong> specialist referral, dental recheck visits, complications, discounts, client financing and payment fees, and taxes. Grade definitions and extraction counts are yours to set from your own records.</li>
+    </ul>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should a dog dental cleaning cost?</h3>
+    <p>It depends on the grade of disease found once the patient is under anesthesia. A grade 1 mouth needs scaling and polishing; a grade 4 mouth can need ten extractions, nerve blocks and an hour or more of added anesthesia. This calculator itemises each grade so the estimate you give reflects the work.</p>
+    <h3>Why does a flat dental quote lose money?</h3>
+    <p>A single price has to be set for the mix of cases you see. If it matches grade 1 or 2 cases it under-recovers on grade 3 and 4 mouths, where extractions, blocks, supplies and extra anesthesia time all add cost.</p>
+    <h3>What margin should a veterinary dental target?</h3>
+    <p>That is your decision. The page lets you set a target and shows the price each grade needs to reach it, and the profit per anesthesia hour for each grade.</p>
+    <h3>Does this replace my practice management system?</h3>
+    <p>No. It is a pricing worksheet. Enter your own fees and costs; nothing is stored or sent anywhere.</p>
+    <h3>Is this veterinary or financial advice?</h3>
+    <p>No. It is arithmetic on the numbers you type. Medical decisions and fees are for the veterinarian and the client.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, veterinary, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the numbers you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Nothing you type is uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>calculated</code>, <code>reset</code>) are counted only in local storage on your device. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Running a clinic? See the <a href="../veterinary-wellness-plan-pricing-calculator/">wellness plan pricing calculator</a> and the <a href="../appointment-no-show-cost-calculator/">appointment no-show cost calculator</a>. Treating patients at home? See the <a href="../mobile-vet-house-call-fee-calculator/">mobile vet house-call fee calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { estimate, annualGap, money, pct, DEFAULTS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = Object.keys(DEFAULTS);
+    const fill = () => keys.forEach((k) => ($("#" + k).value = DEFAULTS[k]));
+    const read = () => Object.fromEntries(keys.map((k) => [k, $("#" + k).value]));
+    function run() {
+      const v = read(), e = estimate(v);
+      if (e.error) { $("#status").textContent = e.error; $("#report").hidden = true; return false; }
+      $("#rows").innerHTML = e.cases.map((c) => `<tr><th scope="row">Grade ${c.grade}</th><td class="n">${c.anesMin}</td><td class="n">${money(c.revenue)}</td><td class="n">${money(c.cost)}</td><td class="n">${money(c.profit)}</td><td class="n">${pct(c.margin)}</td><td class="n">${money(c.profitPerHour)}</td><td class="n">${money(c.priceForTarget)}</td><td class="n">${c.flatProfit === null ? "–" : money(c.flatProfit)}</td></tr>`).join("");
+      $("#findings").innerHTML = e.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const r = e.estimateRange;
+      $("#range").textContent = `Quote ${money(r.low)} to ${money(r.high)} depending on grade, with the grade confirmed from radiographs under anesthesia. A grade 2 case lands near ${money(r.mid)}.`;
+      const mix = $("#mixPct").value.split(",").map((x) => Number(x.trim()));
+      const g = annualGap(v, mix, Number($("#perYear").value) || 0);
+      $("#gap").textContent = g.error ? g.error : (g.perCase > 0 ? `At your case mix the blended price for target margin is ${money(g.blendedTarget)} versus ${money(g.flat)} flat: about ${money(g.perCase)} per case, ${money(g.perYear)} a year, left on the table.` : `At your case mix a flat ${money(g.flat)} already exceeds the blended price for target margin (${money(g.blendedTarget)}), by about ${money(-g.perCase)} per case.`);
+      $("#report").hidden = false; $("#status").textContent = "Updated."; return true;
+    }
+    $("#go").addEventListener("click", () => { if (run()) record("calculated"); });
+    $("#reset").addEventListener("click", () => { fill(); if (run()) record("reset"); });
+    $("#optout").addEventListener("click", (e) => { setUsageOptOut(true); e.target.textContent = "Usage counting is off"; e.target.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+    fill(); run();
+  </script>
+</body>
+</html>

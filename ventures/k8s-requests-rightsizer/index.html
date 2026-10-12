@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Kubernetes Requests Rightsizer — Are Your Pod CPU and Memory Requests Wasting Money</title>
+  <meta name="description" content="Paste kubectl top output, kubectl get pods JSON or a simple CSV and see which containers request far more CPU and memory than they use, a recommended request with headroom, the monthly saving, out-of-memory risk and YAML patches. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Are your Kubernetes requests wasting money?">
+  <meta property="og:description" content="Paste kubectl top and pod JSON, get per-container right-sizing, savings and ready-to-paste YAML. No cluster access, no account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Kubernetes Requests Rightsizer", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste kubectl top pod --containers output, kubectl get pods JSON or CSV and see over- and under-provisioned CPU and memory requests per container, recommended requests with editable headroom, estimated monthly savings at editable list prices, out-of-memory risk and ready-to-paste YAML patches. Runs in the browser or as a zero-dependency Node CLI."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this connect to my cluster?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads the text you paste and never contacts a cluster, a cloud or any server. It cannot see your real invoice, node sizes, discounts or autoscaler, so every dollar figure is replicas times requests times list prices you can edit."}}, {"@type": "Question", "name": "Is one kubectl top sample enough?", "acceptedAnswer": {"@type": "Answer", "text": "No. kubectl top is a single moment, not a p95. A request has to cover your busiest hour of the busiest week, so sample usage over a representative period (Prometheus, a metrics dashboard or a few days of top snapshots) and use the CSV form with p95 values before changing anything."}}, {"@type": "Question", "name": "What does it mean when memory is above 85% of the limit?", "acceptedAnswer": {"@type": "Answer", "text": "A container that crosses its memory limit is OOMKilled. With no limit, usage near the request means the pod is first to be evicted when a node runs short. The tool flags both and raises the limit together with the request in its patch."}}, {"@type": "Question", "name": "Is my pasted text uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page analyses the text in your own browser and never sends it anywhere. The CLI reads local files or stdin and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">KUBERNETES REQUESTS RIGHTSIZER · RUNS IN YOUR BROWSER</p>
+    <h1>Are your Kubernetes requests wasting money?</h1>
+    <p>Paste <code>kubectl top pod --containers</code> output together with <code>kubectl get pods -A -o json</code> (or a simple CSV with p95 usage) and get, per container, <strong>over- and under-provisioned CPU and memory</strong>, a <strong>recommended request</strong> (usage plus headroom you set), the <strong>monthly saving</strong> at prices you edit, <strong>out-of-memory warnings</strong> and <strong>YAML patches</strong> to paste.</p>
+    <p class="note">Nothing is uploaded and no cluster is contacted. The text box is analysed in this browser and never leaves your device. This is a recommendation from a snapshot, not a bill: usage must be sampled over a representative period.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste usage and requests</h2>
+    <label for="input">top output, pods JSON and/or CSV (together or separately; other lines are ignored)</label>
+    <textarea id="input" spellcheck="false" placeholder="namespace,pod,container,cpu_request,mem_request,cpu_usage_p95,mem_usage_p95,replicas&#10;prod,api,api,1,2Gi,180m,520Mi,3"></textarea>
+    <div class="row">
+      <div><label for="cpuh">CPU headroom %</label><input type="number" id="cpuh" min="0" value="20"></div>
+      <div><label for="memh">Memory headroom %</label><input type="number" id="memh" min="0" value="25"></div>
+      <div><label for="cpup">$ per vCPU-hour</label><input type="number" id="cpup" min="0" step="0.001" value="0.031"></div>
+      <div><label for="memp">$ per GiB-hour</label><input type="number" id="memp" min="0" step="0.001" value="0.004"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What it found</h2>
+    <p id="summary"></p>
+    <h3>Per container</h3>
+    <div style="overflow-x:auto"><table id="cont-table" hidden>
+      <thead><tr><th>Workload</th><th>Container</th><th>Replicas</th><th>CPU req → rec</th><th>Memory req → rec</th><th>$/month</th></tr></thead>
+      <tbody id="cont-rows"></tbody>
+    </table></div>
+    <h3>Findings</h3>
+    <table id="results-table" hidden>
+      <thead><tr><th>Rule</th><th>Level</th><th>Detail</th></tr></thead>
+      <tbody id="results-rows"></tbody>
+    </table>
+    <h3>YAML patches</h3>
+    <pre class="cmd" id="patches"></pre>
+    <p><button type="button" class="secondary" id="copy-patches">Copy patches</button></p>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want a CI check?</h2>
+    <p>Same logic, zero dependencies, one command — reads files or stdin:</p>
+    <pre class="cmd">kubectl top pod -A --containers &gt; top.txt; kubectl get pods -A -o json &gt; pods.json
+node cli.mjs analyze top.txt pods.json --patch
+node cli.mjs analyze containers.csv --cpu-headroom 30 --cpu-price 0.04 --mem-price 0.005
+node cli.mjs analyze containers.csv --fail-on warn          # exit 1 when over-provisioned or near the limit
+node cli.mjs analyze containers.csv --json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="how-to-right-size-kubernetes-resource-requests.html">how to right-size Kubernetes resource requests</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table>
+    <p class="note">Prices are illustrative; edit them above or with <code>--cpu-price</code> / <code>--mem-price</code>. Node discounts, autoscaling, bin-packing and per-node overhead are not modelled.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this connect to my cluster?</h3>
+    <p>No. It reads the text you paste and never contacts a cluster, a cloud or any server. It cannot see your real invoice, node sizes, discounts or autoscaler, so every dollar figure is replicas times requests times list prices you can edit.</p>
+    <h3>Is one kubectl top sample enough?</h3>
+    <p>No. kubectl top is a single moment, not a p95. A request has to cover your busiest hour of the busiest week, so sample usage over a representative period (Prometheus, a metrics dashboard or a few days of top snapshots) and use the CSV form with p95 values before changing anything.</p>
+    <h3>What does it mean when memory is above 85% of the limit?</h3>
+    <p>A container that crosses its memory limit is OOMKilled. With no limit, usage near the request means the pod is first to be evicted when a node runs short. The tool flags both and raises the limit together with the request in its patch.</p>
+    <h3>Is my pasted text uploaded anywhere?</h3>
+    <p>No. The browser page analyses the text in your own browser and never sends it anywhere. The CLI reads local files or stdin and makes no network call.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, security or engineering advice. It reads text you paste and recommends requests from a snapshot; it is not a bill, not a guarantee of what any cloud will charge, and a request it suggests can cause throttling, eviction or out-of-memory kills where your real workload differs. <strong>Usage must be sampled over a representative period, and you are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Kubernetes and other product names are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analyze_run</code>, <code>example_loaded</code>, <code>patches_copied</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks on the same repo: <a href="../lambda-memory-rightsizer/">Lambda Memory Rightsizer</a> does the same for Lambda memory, <a href="../rds-instance-rightsizer/">RDS Instance Rightsizer</a> does it for RDS and Aurora instance classes, and <a href="../aws-commitment-breakeven-calculator/">AWS Commitment Break-Even Calculator</a> prices Savings Plans and reserved capacity. Not sure which platform to run on? <a href="../lambda-vs-fargate-cost-breakeven/">Lambda vs Fargate Cost Break-Even</a> compares Lambda, Cloud Run, Fargate and EC2.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseInput, analyze, summarize, fmtCpu, fmtMem, fmtUsd, INPUT_NOTES, PRICES_AS_OF } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      input: $("#input"), status: $("#status"), reportCard: $("#report-card"), summary: $("#summary"),
+      table: $("#results-table"), rows: $("#results-rows"), contT: $("#cont-table"), contR: $("#cont-rows"),
+      patches: $("#patches"), estimate: $("#estimate"), patterns: $("#patterns-rows"),
+    };
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    els.patterns.innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    function renderReport() {
+      const text = els.input.value;
+      if (!text.trim()) {
+        els.status.innerHTML = `<span class="error">Paste some top output, pods JSON or CSV first (or load the worked example).</span>`;
+        return;
+      }
+      els.status.textContent = "";
+      const pct = (id, d) => { const n = Number($(id).value); return Number.isFinite(n) && n >= 0 ? n / 100 : d; };
+      const price = (id, d) => { const n = Number($(id).value); return Number.isFinite(n) && n >= 0 ? n : d; };
+      const report = analyze(parseInput(text), { cpuHeadroom: pct("#cpuh", 0.2), memHeadroom: pct("#memh", 0.25), prices: { cpuPerVcpuHour: price("#cpup", 0.031), memPerGibHour: price("#memp", 0.004) } });
+      const { status, text: summaryText } = summarize(report);
+      els.summary.innerHTML = `<span class="${status === "ok" ? "ok" : status === "none" ? "error" : "changed"}">${escapeHtml(summaryText)}</span>`;
+      els.contT.hidden = !report.count;
+      els.contR.innerHTML = (report.containers || []).map((c) => `<tr><td>${escapeHtml(c.ns + "/" + c.workload)}</td><td>${escapeHtml(c.container)}</td><td>${c.replicas}</td><td>${c.cpuReq === null ? "none" : fmtCpu(c.cpuReq)} (use ${fmtCpu(c.cpuUse)}) → <strong>${fmtCpu(c.cpu.rec)}</strong></td><td>${c.memReq === null ? "none" : fmtMem(c.memReq)} (use ${fmtMem(c.memUse)}) → <strong>${fmtMem(c.mem.rec)}</strong></td><td>${fmtUsd(c.savings)}</td></tr>`).join("");
+      const all = [...report.findings, ...(report.notes || []).map((n) => ({ rule: "note", severity: "info", message: n }))];
+      els.table.hidden = all.length === 0;
+      els.rows.innerHTML = all.map((f) => `<tr><td><code>${escapeHtml(f.rule)}</code></td><td><span class="pill ${f.severity}">${f.severity}</span></td><td>${escapeHtml(f.message)}</td></tr>`).join("");
+      els.patches.textContent = report.count ? (report.patches.map((p) => p.yaml).join("\n\n") || "Nothing to change.") : "";
+      els.estimate.textContent = report.count ? `A recommendation from a snapshot, not a bill. ${PRICES_AS_OF}. Usage must be sampled over a representative period, including peaks; test any change first.` : "";
+      els.reportCard.hidden = false;
+      record("analyze_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `namespace,pod,container,cpu_request,mem_request,cpu_usage_p95,mem_usage_p95,replicas
+prod,api,api,1,2Gi,180m,520Mi,3
+prod,api,envoy,100m,128Mi,30m,70Mi,3
+prod,worker,worker,500m,512Mi,360m,470Mi,2
+prod,web,web,200m,256Mi,175m,200Mi,4
+data,redis,redis,2,8Gi,260m,2100Mi,3
+batch,report-job,report,4,16Gi,300m,1500Mi,1`;
+
+    $("#load-example").addEventListener("click", () => {
+      els.input.value = EXAMPLE_SOURCE;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#copy-patches").addEventListener("click", async (event) => {
+      try { await navigator.clipboard.writeText(els.patches.textContent); event.target.textContent = "Copied"; record("patches_copied"); } catch { event.target.textContent = "Select the text and copy it"; }
+    });
+    $("#clear").addEventListener("click", () => {
+      els.input.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

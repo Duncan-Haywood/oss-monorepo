@@ -1,0 +1,73 @@
+name: wedding-day-timeline-builder
+description: >-
+  Free browser tool for couples, planners and wedding photographers: enter the date,
+  city, ceremony time, guest count and the time the music has to stop, and get a
+  minute-by-minute wedding day timeline. Hair and makeup start times split across
+  artists, first look and portraits (or the cocktail-hour cost of skipping them),
+  ceremony, cocktail hour, dinner, toasts and dancing back-timed from the curfew,
+  sunset computed for the date and place with a golden-hour portrait slot that moves
+  nothing else, and a ceremony time advisor that scores every half hour. Separate
+  sheets for the photographer, DJ and caterer, printable, as a calendar file, CSV and
+  plain text. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a new-venture session asked for something deeper than a
+# calculator. duplicate_check.py: top neighbour wedding-photographer-profit-calculator
+# at 0.27 (pricing a photographer's packages: a different question) and
+# bridal-hair-makeup-pricing-calculator (an artist's quote). No timeline or
+# scheduling tool for the wedding day exists in the portfolio; screened-out.md has no
+# wedding row.
+#
+# Why this niche: the wedding industry is one of the few consumer spends where the
+# buyer, the planner and several vendors all need the same artifact: the day-of
+# timeline. Photographers and planners hand a version of it to every client; couples
+# search "wedding day timeline" and "how long do wedding photos take" for months.
+# Existing answers are static blog templates with fixed example times, or planning
+# suites behind a subscription. Nothing computes the one thing that makes a timeline
+# right for a given wedding: when the sun sets, and whether the ceremony time,
+# photo plan and curfew can all be true at once. The ceremony time advisor is the
+# algorithmic core (rebuild the day at every candidate start, score the result).
+#
+# First visitor: search phrases "wedding day timeline", "wedding timeline with first
+# look", "how long do wedding photos take", "golden hour wedding photos time",
+# "what time should our wedding ceremony start". r/weddingplanning and r/wedding
+# photography answer these weekly. Photographers can link the tool from a client
+# guide. Volume not measured with an external tool.
+#
+# Liability boundary: schedule arithmetic on user-typed inputs. No payments, no
+# accounts, nothing stored or uploaded. Durations are named planning conventions the
+# user can override; the page says to confirm every time with vendors and the venue.
+# No vendor, venue or brand is named or ranked.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. The natural
+# paid layer, later and only if usage proves demand, is a photographer-branded
+# client timeline (their logo and shot list) as a one-time export; the vendor
+# sheets are the viral loop, since every printed sheet reaches four more vendors.
+
+hypotheses:
+  - claim: >-
+      Couples and wedding photographers will enter a date, city and ceremony time
+      into a private, no-signup timeline builder, print the vendor sheets, and send
+      the link to their planner or clients.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a timeline whose times contradict each other, or a sunset more than five minutes from the published almanac value for their city and date.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/wedding-day-timeline-builder/
+  analytics: null

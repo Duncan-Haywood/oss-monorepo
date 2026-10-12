@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Weekly Production Mix Optimizer — what to make when oven hours, labour or machines run out</title>
+  <meta name="description" content="Free production mix optimizer for bakeries, workshops and small makers. Enter your products, margins and the hours or machines each one uses; it finds the most profitable weekly mix with whole batches and overtime, and shows what one more hour of your bottleneck is worth. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Weekly Production Mix Optimizer — free, private, in your browser">
+  <meta property="og:description" content="Which products should you make this week? A linear-programming solver finds the plan that earns the most from your limited hours and shows what each bottleneck is worth.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Weekly Production Mix Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter what you make, what each product earns, how much of each limited resource (oven hours, labour, machine time) it uses, and your orders and demand limits. A linear-programming solver with whole batches and optional overtime finds the most profitable weekly mix, the value of one more unit of each bottleneck, and what each product really earns once crowded-out production is counted. Runs entirely in your browser; nothing is uploaded.", "featureList": "product mix optimization, simplex linear programming, whole batch sizes, overtime, shadow prices, bottleneck analysis, rule-of-thumb comparison, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I decide what to make when I cannot make everything?", "acceptedAnswer": {"@type": "Answer", "text": "Compare products by what they earn per unit of the thing that runs out, not per unit sold. A product with a large margin that takes most of a scarce oven hour can earn less than a small one that takes a tenth of it. List your resources, the hours or units each product uses, your minimums and your demand limits, and the optimizer finds the combination with the most profit."}}, {"@type": "Question", "name": "What is a shadow price, and why does it matter to a small business?", "acceptedAnswer": {"@type": "Answer", "text": "It is what one more unit of a limited resource would add to profit while the plan stays the same shape: the value of one more oven hour, one more hour of labour, one more machine day. Compare it with what extra capacity costs you (overtime, a second shift, hiring) to see whether buying it pays. The tool also shows how many extra units that value holds for."}}, {"@type": "Question", "name": "Why does the tool charge each product for the resources it uses?", "acceptedAnswer": {"@type": "Answer", "text": "Because a unit margin ignores what the product displaces. The resource cost per unit is the resource use multiplied by the shadow prices; the net per unit is the margin minus that. A product with a negative net is costing you more in crowded-out production than it earns, which is why it is left out of the plan."}}, {"@type": "Question", "name": "Can it handle batch sizes, minimum orders and overtime?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Give each product a batch size (trays, runs, cases) and it plans in whole batches. Give each a minimum for orders you have promised and a maximum for demand you can really sell. For each resource you can enter overtime hours available and what each costs; overtime is used only where it pays."}}, {"@type": "Question", "name": "Is the answer guaranteed to be the best plan?", "acceptedAnswer": {"@type": "Answer", "text": "For the figures you enter, when the batch search finishes it is the best whole-batch plan, and the page says so. If a very large problem reaches the search limit the page reports how close the plan is to the theoretical upper bound. The result is only as good as your usage figures and costs, which are assumed to be constant per unit."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The optimizer runs in your browser from the figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 170px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    textarea.short { min-height: 90px; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    tr.rec td { background: #eef6ee; }
+    .bar { background: #e4edf1; border-radius: 6px; height: 10px; min-width: 70px; overflow: hidden; }
+    .bar i { display: block; height: 100%; background: #1f5f86; }
+    .bar i.full { background: #b3472f; }
+  </style>
+</head>
+<body>
+  <main>
+  <header>
+    <p class="note">WEEKLY PRODUCTION MIX OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should you make this week?</h1>
+    <p>List what you <strong>make</strong>, what each product <strong>earns</strong> and how much of each <strong>limited resource</strong> (oven hours, labour, machine time) it uses. The optimizer finds the <strong>most profitable mix</strong> in whole batches, with your promised minimums, your demand limits and optional overtime &mdash; and shows what <strong>one more hour of your bottleneck is worth</strong> and what each product really earns once it crowds out the others.</p>
+    <p class="note">Arithmetic on figures you supply. Not legal, tax, or financial advice. New to this? Read <a href="./why-your-best-margin-product-may-not-be-your-best-product.html">why your best margin product may not be your best product</a>.</p>
+  </header>
+
+  <section class="card">
+    <div class="two">
+      <div>
+        <h2>Limited resources (per week)</h2>
+        <label for="resources">Name, available, overtime available (optional), overtime cost per unit (optional)</label>
+        <textarea id="resources" class="short" spellcheck="false" placeholder="Oven hours,34,4,22&#10;Labour hours,40"></textarea>
+        <p class="note">Anything that runs out: hours of an oven, machine or person, a shared tool, a stock of material. The order matters: product usage columns follow it.</p>
+      </div>
+      <div>
+        <h2>Your products</h2>
+        <label for="products">Name, price, unit cost, minimum, maximum, batch size, then use of each resource per unit</label>
+        <textarea id="products" spellcheck="false" placeholder="Loaf,7.50,2.10,40,220,1,0.10,0.12&#10;Croissant,3.80,1.05,0,600,12,0.05,0.10"></textarea>
+        <p class="note">Unit cost is materials and anything else you pay per unit. Minimum is what you have promised; maximum is the most you can sell (blank for no limit). Batch size is how many come out of one run, tray or case (1 for single units). Use per unit is in the same units as the resource, in the same order as the list on the left.</p>
+      </div>
+    </div>
+    <div class="row3" style="margin-top:12px">
+      <div><label for="fixedCost">Weekly fixed costs to subtract ($, optional)</label><input id="fixedCost" inputmode="decimal" value="0"></div>
+    </div>
+    <button type="button" id="analyze">Find the best mix</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Add your resources and products, then click Find the best mix.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="verdict"></p>
+    <h3>The plan</h3>
+    <div class="scroll"><table id="pt"><thead><tr><th>Product</th><th class="n">Make</th><th class="n">Weekly margin</th><th class="n">Margin per unit</th><th class="n">Resource cost per unit</th><th class="n">Net per unit</th><th>Note</th></tr></thead><tbody></tbody></table></div>
+    <p class="note">Resource cost per unit is each resource the product uses times what one more unit of that resource is worth. A negative net means the product earns less than the production it crowds out.</p>
+    <h3>Your limits</h3>
+    <div class="scroll"><table id="rt"><thead><tr><th>Resource</th><th class="n">Available</th><th class="n">Used</th><th>Use</th><th class="n">Overtime</th><th class="n">One more unit is worth</th><th class="n">Holds for another</th></tr></thead><tbody></tbody></table></div>
+    <h3>Against rules of thumb</h3>
+    <div class="scroll"><table id="ct"><thead><tr><th>Plan</th><th class="n">Weekly contribution</th><th class="n">Compared with the optimizer</th></tr></thead><tbody></tbody></table></div>
+    <p class="note" id="solver"></p>
+    <button type="button" id="download">Download the plan (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Model:</strong> maximise the sum of margin (price less unit cost) times units, less overtime cost, subject to each resource's capacity plus overtime, each product's minimum and maximum, and whole batches. The linear program is solved with a two-phase simplex method (Bland's rule, which cannot cycle), and whole batches are found by branch and bound; the page says whether that search finished or stopped at its limit. <strong>One more unit is worth:</strong> the shadow price, read by re-solving with a little more of that resource, together with how much more it holds for before the plan changes shape; it is a continuous figure for the next unit, not a promise for a whole shift. <strong>Resource cost per unit:</strong> the resource use times those prices. <strong>Rules of thumb:</strong> two greedy plans &mdash; best margin per unit first, and best margin per unit of your tightest resource first &mdash; filled up to your maximums without overtime.</p>
+    <p><strong>Not modelled:</strong> setup or changeover time and cost, minimum run sizes beyond your batch size, ingredients shared between products unless you list them as a resource, shelf life, sequencing within a week, demand that falls as you sell more, taxes and overheads other than the fixed cost you enter, and costs or usage that change with volume. Usage and costs are assumed constant per unit. <strong>Unverified</strong> against a real business's books: tests use hand-solved problems, brute-force comparison and duality checks.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I decide what to make when I cannot make everything?</h3>
+    <p>Compare products by what they earn per unit of the thing that runs out, not per unit sold. A product with a large margin that takes most of a scarce oven hour can earn less than a small one that takes a tenth of it. List your resources, the hours or units each product uses, your minimums and your demand limits, and the optimizer finds the combination with the most profit.</p>
+    <h3>What is a shadow price, and why does it matter to a small business?</h3>
+    <p>It is what one more unit of a limited resource would add to profit while the plan stays the same shape: the value of one more oven hour, one more hour of labour, one more machine day. Compare it with what extra capacity costs you (overtime, a second shift, hiring) to see whether buying it pays. The tool also shows how many extra units that value holds for.</p>
+    <h3>Why does the tool charge each product for the resources it uses?</h3>
+    <p>Because a unit margin ignores what the product displaces. The resource cost per unit is the resource use multiplied by the shadow prices; the net per unit is the margin minus that. A product with a negative net is costing you more in crowded-out production than it earns, which is why it is left out of the plan.</p>
+    <h3>Can it handle batch sizes, minimum orders and overtime?</h3>
+    <p>Yes. Give each product a batch size (trays, runs, cases) and it plans in whole batches. Give each a minimum for orders you have promised and a maximum for demand you can really sell. For each resource you can enter overtime hours available and what each costs; overtime is used only where it pays.</p>
+    <h3>Is the answer guaranteed to be the best plan?</h3>
+    <p>For the figures you enter, when the batch search finishes it is the best whole-batch plan, and the page says so. If a very large problem reaches the search limit the page reports how close the plan is to the theoretical upper bound. The result is only as good as your usage figures and costs, which are assumed to be constant per unit.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. The optimizer runs in your browser from the figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice and does not replace your accountant or a production planner. Results are arithmetic on the figures you type; prices, costs and capacities change and every one of them is yours to check. You are responsible for reviewing and verifying its output before acting on it.</p>
+    <p><strong>Independent.</strong> Not affiliated with any bakery supplier, equipment maker, planning software or marketplace, and none is named or ranked here. The example products, prices and hours are invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../restaurant-pos-menu-mix-analyzer/">restaurant menu mix analyzer</a>, the <a href="../dog-grooming-profit-calculator/">dog grooming profit calculator</a>, the <a href="../appointment-overbooking-optimizer/">appointment overbooking optimizer</a> and the <a href="../seasonal-buy-quantity-optimizer/">seasonal buy quantity optimizer</a>. and, for a household rather than a business, the <a href="../cheap-meal-plan-optimizer/">cheapest meal plan optimizer</a>, the same cost-minimising linear program</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseResources, parseProducts, analyze, reportCsv, sampleResources, sampleProducts, money, money2, pct, fmt } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function run() {
+      const rs = parseResources($("#resources").value);
+      const ps = parseProducts($("#products").value, rs.rows.length);
+      const r = analyze(ps.rows, rs.rows, { fixedCost: $("#fixedCost").value });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      $("#notices").innerHTML = [...rs.warnings, ...ps.warnings, ...(r.warnings || [])].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      if (r.infeasible) { $("#big").innerHTML = ""; $("#verdict").textContent = r.verdict; for (const id of ["#pt", "#rt", "#ct"]) $(id + " tbody").innerHTML = ""; $("#solver").textContent = ""; report.hidden = false; last = null; status.textContent = "No plan meets your minimums."; return true; }
+      last = r;
+      const p = r.plan;
+      const big = [
+        [money(p.profit), "Weekly contribution (margin less overtime)"],
+        [p.fixedCost ? money(p.netProfit) : String(p.lines.filter((l) => l.units > 0).length), p.fixedCost ? "After your fixed costs" : "Products in the plan"],
+        [r.tightest.name, `Tightest limit, ${pct(r.tightest.utilisation)} used`],
+        [money(p.revenue), "Weekly sales"],
+      ];
+      $("#big").innerHTML = big.map(([v, t]) => `<div><strong>${esc(v)}</strong>${esc(t)}</div>`).join("");
+      $("#verdict").textContent = r.verdict;
+      $("#pt tbody").innerHTML = p.lines.map((l) => {
+        const notes = [];
+        if (l.atMax) notes.push("sold out at your maximum");
+        if (l.atMin) notes.push("at your promised minimum");
+        if (l.units === 0 && l.netUnit < -1e-6) notes.push("crowds out better use of the limits");
+        return `<tr><td>${esc(l.name)}</td><td class="n">${l.units.toLocaleString("en-US")}${l.batch > 1 ? ` (${l.batches} × ${l.batch})` : ""}</td><td class="n">${money(l.margin)}</td><td class="n">${money2(l.unitMargin)}</td><td class="n">${money2(l.oppCost)}</td><td class="n">${money2(l.netUnit)}</td><td>${esc(notes.join("; "))}</td></tr>`;
+      }).join("");
+      $("#rt tbody").innerHTML = p.resources.map((x) => {
+        const u = Number.isFinite(x.utilisation) ? x.utilisation : 0;
+        return `<tr><td>${esc(x.name)}${x.binding ? ' <span class="pill high">bottleneck</span>' : ""}</td><td class="n">${fmt(x.cap, 1)}</td><td class="n">${fmt(x.used, 1)}</td><td><div class="bar" role="img" aria-label="${pct(u)} used"><i class="${u >= 0.999 ? "full" : ""}" style="width:${Math.min(100, u * 100).toFixed(0)}%"></i></div></td><td class="n">${x.overtime > 0 ? fmt(x.overtime, 1) + " at " + money2(x.otCost) : "—"}</td><td class="n">${x.binding ? money2(x.shadow) : "$0.00"}</td><td class="n">${x.binding && x.shadowRange > 0 ? fmt(x.shadowRange, 1) + (x.shadowCapped ? "+" : "") : "—"}</td></tr>`;
+      }).join("");
+      const rows = [["Optimizer", p.profit, 0], [`Best margin per unit first`, r.rules.byMargin.profit, r.rules.byMargin.profit - p.profit], [`Best margin per ${r.tightest.name} first`, r.rules.byTight.profit, r.rules.byTight.profit - p.profit]];
+      $("#ct tbody").innerHTML = rows.map(([n, v, d]) => `<tr><td>${esc(n)}</td><td class="n">${money(v)}</td><td class="n">${d === 0 ? "—" : money(d)}</td></tr>`).join("");
+      $("#solver").textContent = r.solver.exact
+        ? `Best whole-batch plan for these figures (${r.solver.nodes} search nodes). Continuous upper bound ${money(r.solver.lpBound)}; rounding to whole batches costs ${money(r.solver.gap)}.`
+        : `Search stopped at its limit after ${r.solver.nodes} nodes; this plan is within ${pct(r.solver.gapPct, 1)} of the continuous upper bound ${money(r.solver.lpBound)}.`;
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    const later = (fn) => { status.textContent = "Solving…"; setTimeout(fn, 20); };
+    $("#analyze").addEventListener("click", () => later(() => { if (run()) record("plan_run"); }));
+    $("#load-example").addEventListener("click", () => {
+      $("#resources").value = sampleResources();
+      $("#products").value = sampleProducts();
+      $("#fixedCost").value = "600";
+      later(() => { if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented bakery with invented prices, costs and hours, not a real business."; } });
+    });
+    $("#clear-all").addEventListener("click", () => { $("#resources").value = ""; $("#products").value = ""; report.hidden = true; last = null; status.textContent = "Add your resources and products, then click Find the best mix."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "production-mix-plan.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+name: docker-compose-security-check
+description: 'Free, read-only heuristic scanner that reads your own docker-compose.yml for risky settings -- privileged containers, the Docker socket mounted, host networking, SYS_ADMIN or ALL capabilities, databases published on every interface, literal secrets in environment, :latest images, unconfined seccomp/apparmor, host pid/ipc, root users -- printing each with its line, the risk and the exact fix, browser or zero-dependency CLI, no upload, no network calls of its own.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as the other
+# zero-dependency *-check tools. duplicate_check.py's closest match was
+# dotenv-exposure-check at 0.12 (shared "secrets" vocabulary, a different
+# artifact: that one probes a live site for an exposed .env). docker-build-secrets-check
+# reads Dockerfiles and docker-cache-order-check reads Dockerfile layer order;
+# nothing reads a Compose file. Not in screened-out.md.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# high -- a mechanical, read-only line scanner over the user's own file with no
+# advice-of-record, no probing of anyone else's system, no data leaving the
+# device, no scraping. Labelled a heuristic, not a security audit, with no
+# warranty, and a clean scan is never described as safe.
+#
+# First visitor channel: search for "docker compose privileged true risk",
+# "docker.sock mount security" and "docker compose postgres port 0.0.0.0"
+# (docs, forum and blog results with no checker attached), and developers
+# reviewing a compose file before exposing a self-hosted stack.
+hypotheses:
+  - claim: 'A self-hoster will paste a compose file here and find a published database port, a docker.sock mount or a literal password they would otherwise have missed.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'A team will wire check.py --fail-on-risk into their own CI so a new privileged or exposed-port service does not merge.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.py or classify.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/docker-compose-security-check/
+  analytics: null

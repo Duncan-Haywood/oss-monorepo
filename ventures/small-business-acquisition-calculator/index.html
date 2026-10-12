@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Small Business Acquisition Calculator</title>
+  <meta name="description" content="Free calculator for buying a small business: enter the asking price, SDE and financing and see DSCR, cash needed at close, owner take-home, the highest price that still clears a lender's coverage floor and what happens if earnings fall. Private, runs in your browser.">
+  <meta property="og:title" content="Can I afford to buy this business? DSCR and cash-to-close, free and private">
+  <meta property="og:description" content="Asking price, SDE, SBA loan and seller note in. DSCR, cash to close, take-home and maximum price out. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Small Business Acquisition Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is DSCR and why do lenders want 1.25?", "acceptedAnswer": {"@type": "Answer", "text": "Debt service coverage ratio is the cash flow available to pay debt divided by the year's loan payments. A ratio of 1.25 means the business earns $1.25 for every $1.00 of payments, a cushion for a bad year. SBA-backed acquisition lenders commonly look for about 1.25 or more, but each lender sets its own floor and its own definition of cash flow."}}, {"@type": "Question", "name": "What is SDE and is it the same as EBITDA?", "acceptedAnswer": {"@type": "Answer", "text": "Seller's discretionary earnings is pre-tax profit with one owner's pay, one-time costs and personal expenses added back. It is the usual earnings measure for owner-operated businesses brokers list for sale. EBITDA is used for larger companies and does not add back an owner's salary. Whatever figure the broker gives you, check the add-backs before trusting it."}}, {"@type": "Question", "name": "Why does the page subtract my salary before computing DSCR?", "acceptedAnswer": {"@type": "Answer", "text": "SDE already includes the pay of one working owner. A lender will want to see that the business can pay a person to run it and still cover the loan, so this page takes your replacement salary and a capex reserve off SDE before dividing by debt service. Change the salary to see how sensitive the ratio is."}}, {"@type": "Question", "name": "What is a seller note on full standby?", "acceptedAnswer": {"@type": "Answer", "text": "The seller finances part of the price but receives no payments for some period, usually while the bank loan is outstanding. Lenders often leave a standby note out of the DSCR. The box on this page does that, and still counts the note in your cash flow after debt, because you owe it eventually."}}, {"@type": "Question", "name": "How much cash do I need to buy a business with an SBA loan?", "acceptedAnswer": {"@type": "Answer", "text": "The down payment (commonly at least 10% of the price), closing costs and loan fees, and working capital so the first payroll is not paid out of the loan. The page adds these up. Lenders' equity rules and fees change, so confirm them with a lender."}}, {"@type": "Question", "name": "Is my deal data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The numbers stay in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+<style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f5f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d4f6e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14384f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14384f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5963; }
+    .card { background: #fff; border: 1px solid #d3dde3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14384f10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebfca; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f6e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dfeaf1; color: #14384f; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #e3eaee; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5963; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #e3eaee; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3eaee; color: #14384f; }
+    .pill.ok { background: #dff3e6; color: #1f5c35; }
+    .stats { font-size: .95rem; color: #2b363d; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dde3; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #aebfca; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.letter { white-space: pre-wrap; font: 14px/1.5 Georgia, serif; background: #fbfdfe; border: 1px solid #d3dde3; border-radius: 8px; padding: 18px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SMALL BUSINESS ACQUISITION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Can I afford to buy this business?</h1>
+    <p>Enter the listing's asking price and <strong>SDE</strong>, then your financing: down payment, bank or SBA loan, seller note. The page shows the <strong>debt service coverage ratio</strong>, the cash you need at closing, what the business pays you after the loan, the <strong>highest price that still clears the lender's floor</strong> and how fast the deal breaks if earnings fall.</p>
+    <p class="note">A planning tool for buyers and the advisers who help them. It does not value the business and does not know any lender's rules. Not financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The deal</h2>
+    <div class="grid">
+      <div><label for="price">Asking price</label><input id="price" inputmode="decimal" value="1200000"></div>
+      <div><label for="sde">Seller's discretionary earnings (SDE), per year</label><input id="sde" inputmode="decimal" value="360000"></div>
+      <div><label for="salary">Salary you must pay yourself (or a manager), per year</label><input id="salary" inputmode="decimal" value="90000"></div>
+      <div><label for="capex">Capex and equipment reserve, per year</label><input id="capex" inputmode="decimal" value="15000"></div>
+      <div><label for="downPct">Your cash down payment, % of price</label><input id="downPct" inputmode="decimal" value="10"></div>
+      <div><label for="sellerPct">Seller note, % of price</label><input id="sellerPct" inputmode="decimal" value="10"></div>
+      <div><label for="sbaRate">Bank / SBA loan rate, % per year</label><input id="sbaRate" inputmode="decimal" value="10.5"></div>
+      <div><label for="sbaYears">Bank / SBA loan term, years</label><input id="sbaYears" inputmode="decimal" value="10"></div>
+      <div><label for="sellerRate">Seller note rate, % per year</label><input id="sellerRate" inputmode="decimal" value="6"></div>
+      <div><label for="sellerYears">Seller note term, years</label><input id="sellerYears" inputmode="decimal" value="5"></div>
+      <div><label for="closingPct">Closing costs and loan fees, % of price (paid in cash)</label><input id="closingPct" inputmode="decimal" value="4"></div>
+      <div><label for="workingCap">Working capital you must hold back, $</label><input id="workingCap" inputmode="decimal" value="50000"></div>
+      <div><label for="targetDscr">Lender DSCR floor</label><input id="targetDscr" inputmode="decimal" value="1.25"></div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="standby"><label for="standby">Seller note is on full standby (leave its payments out of DSCR)</label></div>
+    <p>
+      <button type="button" id="calc">Calculate</button>
+      <button type="button" class="secondary" id="load-ok">Reset to the example</button>
+    </p>
+    <p class="note" id="form-status">Change the numbers, then click Calculate. The starting values are a made-up example.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div class="grid" id="tiles"></div>
+    <h3>If earnings fall</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">SDE change</th><th scope="col" class="n">SDE</th><th scope="col" class="n">DSCR</th><th scope="col" class="n">Cash left after debt and your salary</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <div id="notes" class="note"></div>
+    <p><button type="button" id="dl-report">Download report (CSV)</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How it works, and what it leaves out</h2>
+    <ul>
+      <li><strong>DSCR:</strong> (SDE minus your salary minus the capex reserve) divided by a year of loan payments. With the standby box ticked, the seller note is left out of the payments.</li>
+      <li><strong>Payments:</strong> level monthly payments, compounded monthly, on the bank loan (price minus down payment minus seller note) and on the seller note.</li>
+      <li><strong>Cash at close:</strong> down payment plus closing costs and loan fees you enter, plus the working capital you want on hand. Loan fees are not modelled; type your lender's figure into the closing cost box.</li>
+      <li><strong>Maximum price:</strong> the price that puts DSCR exactly on your floor if the percentages down, seller-financed and bank-financed stay the same.</li>
+      <li><strong>Model reviewed:</strong> 2026-10-06, by the author. Arithmetic is tested; lender practice was not checked with a lender.</li>
+      <li><strong>Not decided:</strong> whether the SDE is real (add-backs, owner-specific revenue, customer concentration), whether the price is fair, lender-specific equity-injection and collateral rules, personal guarantees, taxes on the business's income, earn-outs, inventory and real estate carved out of the price, and growth. Have an accountant look at the books before you sign anything.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is DSCR and why do lenders want 1.25?</h3>
+    <p>Debt service coverage ratio is the cash flow available to pay debt divided by the year's loan payments. A ratio of 1.25 means the business earns $1.25 for every $1.00 of payments, a cushion for a bad year. SBA-backed acquisition lenders commonly look for about 1.25 or more, but each lender sets its own floor and its own definition of cash flow.</p>
+    <h3>What is SDE and is it the same as EBITDA?</h3>
+    <p>Seller's discretionary earnings is pre-tax profit with one owner's pay, one-time costs and personal expenses added back. It is the usual earnings measure for owner-operated businesses brokers list for sale. EBITDA is used for larger companies and does not add back an owner's salary. Whatever figure the broker gives you, check the add-backs before trusting it.</p>
+    <h3>Why does the page subtract my salary before computing DSCR?</h3>
+    <p>SDE already includes the pay of one working owner. A lender will want to see that the business can pay a person to run it and still cover the loan, so this page takes your replacement salary and a capex reserve off SDE before dividing by debt service. Change the salary to see how sensitive the ratio is.</p>
+    <h3>What is a seller note on full standby?</h3>
+    <p>The seller finances part of the price but receives no payments for some period, usually while the bank loan is outstanding. Lenders often leave a standby note out of the DSCR. The box on this page does that, and still counts the note in your cash flow after debt, because you owe it eventually.</p>
+    <h3>How much cash do I need to buy a business with an SBA loan?</h3>
+    <p>The down payment (commonly at least 10% of the price), closing costs and loan fees, and working capital so the first payroll is not paid out of the loan. The page adds these up. Lenders' equity rules and fees change, so confirm them with a lender.</p>
+    <h3>Is my deal data uploaded anywhere?</h3>
+    <p>No. The numbers stay in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace an accountant, broker, attorney or lender. The figures it shows are estimates.</p>
+    <p><strong>Not affiliated with any court, housing agency or government body.</strong> This tool is independent; it is not sponsored, endorsed or connected to the Small Business Administration, any lender, any business broker or any government body.</p>
+    <p><strong>Deal data.</strong> The numbers you type describe a deal and possibly a seller. This page runs in your browser and sends nothing anywhere, and the portfolio never receives them. Closing the tab discards them; downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>deal_evaluated</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../online-business-valuation-calculator/">online business valuation calculator</a>, the <a href="../business-loan-offer-comparator/">business loan offer comparator</a> and the <a href="../rental-dscr-calculator/">rental DSCR calculator</a> cover the neighbouring decisions.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { evaluate, sampleInputs, reportCsv, money, pct, FIELDS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = { standby: $("#standby").checked }; for (const f of FIELDS) o[f.id] = $("#" + f.id).value; return o; };
+    const fmtD = (d) => (Number.isFinite(d) ? d.toFixed(2) : "no debt");
+
+    function run() {
+      const r = evaluate(read());
+      if (r.error) { status.textContent = r.error; return false; }
+      last = r;
+      const word = { clears: "clears your floor", thin: "is below your floor but covers the debt", fails: "does not cover the debt" }[r.verdict];
+      $("#report-stats").innerHTML = `<strong>DSCR ${fmtD(r.dscr)}</strong>: this deal ${word} (${r.multiple.toFixed(2)}x SDE)`;
+      const tile = (h, v, s) => `<div><h3>${h}</h3><p><strong>${v}</strong></p><p class="note">${s}</p></div>`;
+      $("#tiles").innerHTML = [
+        tile("Cash needed", money(r.cashTotal), `${money(r.cashAtClose)} at close plus ${money(r.values.workingCap)} working capital`),
+        tile("Annual debt service", money(r.totalDS), `bank ${money(r.bankDS)}, seller note ${money(r.sellerDS)}`),
+        tile("Left after debt", money(r.afterDebt), `before your salary; ${money(r.surplus)} after paying yourself ${money(r.values.salary)}`),
+        tile("Return on cash", r.cashOnCash == null ? "n/a" : pct(r.cashOnCash * 100), "surplus after salary over total cash invested"),
+        tile("Max price at your floor", r.maxPriceAtFloor ? money(r.maxPriceAtFloor) : "n/a", `same structure, DSCR ${r.values.targetDscr.toFixed(2)}`),
+        tile("Breaks at", pct(r.breakEvenDropPct) + " lower SDE", `DSCR hits 1.00 at SDE of ${money(r.breakEvenSde)}`),
+      ].join("");
+      $("#rows").innerHTML = r.sensitivity.map((x) => `<tr><td>${x.chg === 0 ? "as listed" : x.chg + "%"}</td><td class="n">${money(x.sde)}</td><td class="n">${fmtD(x.dscr)}</td><td class="n">${money(x.cashAfter)}</td></tr>`).join("");
+      $("#notes").innerHTML = r.notes.map((n) => `<p>${esc(n)}</p>`).join("");
+      report.hidden = false;
+      status.textContent = "Calculated.";
+      return true;
+    }
+
+    $("#calc").addEventListener("click", () => { if (run()) { record("deal_evaluated"); report.scrollIntoView({ behavior: "smooth", block: "start" }); } });
+    $("#load-ok").addEventListener("click", () => {
+      const s = sampleInputs();
+      for (const f of FIELDS) $("#" + f.id).value = s[f.id];
+      $("#standby").checked = false;
+      run(); record("example_loaded"); status.textContent = "Worked example: a made-up deal.";
+    });
+    $("#dl-report").addEventListener("click", () => { if (last) { record("report_downloaded"); download("acquisition-report.csv", reportCsv(last), "text/csv"); } });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+name: saas-tier-price-optimizer
+description: >-
+  Free browser tool for SaaS founders and product managers: paste a willingness-to-pay survey (the most each person would pay per
+  month for each plan) and get the Good-Better-Best price ladder that earns the most profit. Models customers choosing the plan with
+  the most surplus, shows who lands on each plan, the gain over current prices, how fragile each price is, whether a ladder beats a
+  single plan, and exports CSV. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: closest were usage-based-pricing-simulator 0.18 (metered
+# pricing, not plan ladders), hvac-repair-tier-price-calculator 0.33 (a trade's repair tiers), bundle-discount-optimizer 0.43
+# (physical-goods bundles). Dropped before this one because the tree already has them: self-storage unit mix, tip pool,
+# scope-creep change orders, client concentration.
+#
+# Why this niche: every SaaS founder sets three plan prices once, by gut and a competitor's page, and rarely revisits. Survey tools
+# (Van Westendorp, Conjoint) are sold as consulting or a $1k+/yr product (Price Intelligently/ProfitWell-style, Conjointly); a
+# free tool that turns a pasted survey into an actual ladder is the cheap, specific version. Money is real: a few percent on
+# price compounds on all revenue.
+#
+# First visitor: people searching "how to price SaaS tiers", "good better best pricing", "willingness to pay survey analysis",
+# "van westendorp alternative"; r/SaaS, indie hackers, product managers. Volume not measured.
+#
+# Liability boundary: arithmetic on a pasted survey; not pricing or financial advice (page says so); nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. Natural front end for a paid version that runs
+# the survey for you (hosted form, conjoint design, multi-feature plans) -- needs accounts, an owner decision.
+
+hypotheses:
+  - claim: >-
+      SaaS founders will paste a willingness-to-pay survey into a free tool to set their plan prices, and will come back when they
+      re-survey or launch a new tier.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a suggested ladder that earns less on their own survey than prices they tried by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/saas-tier-price-optimizer/
+  analytics: null

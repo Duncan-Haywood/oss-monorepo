@@ -87,7 +87,10 @@ def test_no_live_secrets_in_git() -> None:
     ):
         if not path.is_file():
             continue
-        if path.suffix in {".png", ".jpg"}:
+        # Compressed bytes decoded as text can contain "ghp_" by chance (it fired
+        # on a regenerated front-door .gz, 2026-10-04); the plain sources the .gz
+        # files are built from are scanned as ordinary files.
+        if path.suffix in {".png", ".jpg", ".gz"}:
             continue
         if "tests" in path.parts:
             continue
@@ -2878,7 +2881,197 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `wedding-photographer-profit-calculator` graduated (browser-local wedding photographer profit per hour worked with editing time, price floor, own clients vs marketplace vs studio associate).
     # +1: `dj-gig-profit-calculator` graduated (browser-local DJ profit per hour worked and price floor by package; landed in #6139 without its own line here).
     # +1: `shipping-box-size-optimizer` graduated (browser-local carton assortment optimizer: which box sizes to stock, p-median over dimensional-weight landed cost).
-    total = 544  # `infra/OWNER_CHECKLIST.md`'s own "N of the 544 tools" wording.
+    # +1: `container-load-planner` graduated (browser-local 3D container/pallet load planner: units packed and left over, containers for the whole load, to-scale views, loose-versus-pallets comparison).
+    # +1: `crypto-cost-basis-calculator` graduated (browser-local crypto lot matcher: FIFO/LIFO/HIFO/LOFO/tax-aware, short/long rows, Form 8949 style export).
+    # +1: `rental-fleet-size-optimizer` graduated (browser-local rental fleet size: Erlang loss plus seeded day-by-day simulation, how many identical units to own).
+    # +1: `tile-layout-planner` graduated (browser-local tile layout planner: exact polygon clipping, offcut reuse, search over starting positions, to-scale plan and cut list).
+    # +1: `event-seating-chart-optimizer` graduated (browser-local seating chart optimizer: simulated annealing over guest wishes, tables balanced, pins honoured).
+    # +1: `state-residency-day-counter` graduated (browser-local multi-state residency day counter: 183-day tests, crossing date, workday wage split).
+    # +1: `league-schedule-generator` graduated (browser-local round-robin league schedule generator: dates, home/away balance, courts and time slots, blackouts, play-offs).
+    # +1: `shift-roster-builder` graduated (browser-local weekly shift roster builder: availability, rest, hour caps, overtime, who-is-critical).
+    # +1: `time-off-request-planner` graduated (browser-local time-off request planner: exact search for the leave requests that fit minimum cover per role).
+    # +1: `cheap-meal-plan-optimizer` graduated (browser-local minimum-cost diet solver: simplex plus branch and bound, price of each nutrient target).
+    # +1: `coffee-roaster-margin-calculator` graduated (browser-local coffee roaster margin, channel and blend-cost calculator).
+    # +1: `nsa-idr-offer-calculator` graduated (browser-local NSA IDR offer sizing and file-or-skip by claim).
+    # +1: `house-cleaning-quote-calculator` graduated (browser-local house cleaning price floor, frequency discount limit and profit per visit calculator).
+    # +1: `handyman-minimum-job-calculator` graduated (browser-local handyman minimum trip charge, smallest job and effective hourly calculator).
+    # +1: `tattoo-piece-profit-calculator` graduated (browser-local tattoo piece lowest price, effective hourly and shop minimum calculator).
+    # +1: `regex-redos-check` graduated (browser + CLI ReDoS regex scanner).
+    # +1: `freelance-rate-increase-calculator` graduated (browser-local freelance rate increase break-even client loss, hours freed and raise ladder calculator).
+    # +1: `course-launch-revenue-calculator` graduated (browser-local online course launch net profit, break-even list size and scenario calculator).
+    # +1: `postgres-explain-analyzer` graduated (browser + CLI PostgreSQL EXPLAIN ANALYZE plan analyzer).
+    # +1: `lambda-memory-rightsizer` graduated (browser + CLI Lambda memory right-sizer from CloudWatch REPORT lines).
+    # +1: `dynamodb-capacity-mode-advisor` graduated (browser + CLI DynamoDB on-demand vs provisioned cost advisor from CloudWatch consumed capacity).
+    # +1: `nat-gateway-cost-advisor` graduated (browser + CLI NAT gateway vs VPC endpoint cost advisor from GB per destination).
+    # +1: `s3-storage-class-advisor` graduated (browser + CLI S3 storage-class cost advisor from per-bucket Storage Lens numbers).
+    # +1: `bigquery-query-cost-advisor` graduated (browser + CLI BigQuery on-demand vs Editions cost advisor).
+    # +1: `snowflake-warehouse-cost-advisor` graduated (browser + CLI Snowflake warehouse cost advisor).
+    # +1: `databricks-cluster-cost-advisor` graduated (browser + CLI Databricks cluster cost advisor).
+    # +1: `k8s-requests-rightsizer` graduated (browser + CLI Kubernetes requests right-sizer from kubectl top / pods JSON / CSV).
+    # +1: `lambda-vs-fargate-cost-breakeven` graduated (browser + CLI Lambda / Cloud Run / Fargate / EC2 cost break-even).
+    # +1: `rds-instance-rightsizer` graduated (browser + CLI RDS/Aurora instance right-sizer from CloudWatch metrics).
+    # +1: `booking-request-chooser` graduated (browser + CLI booking-request chooser for rental hosts, exact DP over gap nights).
+    # +1: `free-shipping-threshold-optimizer` graduated (browser + CLI free-shipping minimum sweep from an orders export).
+    # +1: `returns-policy-cost-analyzer` graduated (browser + CLI returns-cost and return-fee analyzer).
+    # +1: `card-grading-submission-picker` graduated (browser + CLI which-cards-to-grade picker with exact break-even and budgeted subset).
+    # +1: `appraisal-assignment-picker` graduated (browser + CLI which-assignments-to-accept picker with exact deadline-capacity search and break-even fee).
+    # +1: `saas-renewal-planner` graduated (browser + CLI SaaS renewal notice-deadline and negotiation planner).
+    # +1: `thrift-haul-buy-picker` graduated (browser + CLI thrift/estate-sale buy picker with walk-away price and exact best set under cash or hours caps).
+    # +1: `bookkeeping-client-fee-calculator` graduated (browser + CLI bookkeeping retainer, cleanup and walk-away fee calculator with a client roster ranked by effective hourly).
+    # +1: `owner-operator-load-chain-planner` graduated (browser + CLI best chain of paid loads with exact walk-away rate per load).
+    # +1: `translation-job-picker` graduated (browser + CLI which-translation-jobs-to-accept picker).
+    # +1: `tax-season-client-picker` graduated (browser + CLI late-season tax client picker).
+    # +1: `interior-design-fee-calculator` graduated (browser + CLI interior design fee-model comparator with overrun scenarios and a past-project audit by fee model).
+    # +1: `snow-plow-contract-calculator` graduated (browser + CLI snow plow contract-model comparator across low/normal/high snow years with a past-season audit).
+    # +1: `pool-service-route-calculator` graduated (browser + CLI pool route audit: per-account true hourly, reprice/drop, route density and CSV export).
+    # +1: `nail-tech-booth-rent-calculator` graduated (browser + CLI booth rent vs commission vs employee take-home per hour worked, with break-even clients and a past-week audit).
+    # +1: `grant-indirect-cost-calculator` graduated (browser MTDC, indirect cost and award-cap fit calculator).
+    # +1: `docker-compose-security-check` graduated (browser + CLI risky-settings scanner for docker-compose.yml).
+    # +1: `dog-grooming-price-calculator` graduated (browser + CLI dog grooming price by breed class and time, with a past-appointment audit).
+    # +1: `k8s-pod-security-check` graduated (browser + CLI risky pod and container security-settings scanner for Kubernetes manifests).
+    # +1: `terraform-plan-cost-estimate` graduated (browser + CLI monthly AWS cost delta estimate for a Terraform plan, from an approximate bundled price table).
+    # +1: `aws-bill-change-explainer` graduated (browser + CLI explainer for an AWS Cost Explorer CSV: ranked movers, partial-month normalisation, cause checklist, CI gate).
+    # +1: `lockfile-license-check` graduated (browser + CLI licence audit of an npm package-lock.json).
+    # +1: `firewood-profit-calculator` graduated (browser firewood profit per cord and hour, price needed for a wage, delivery distance).
+    # +1: `feie-physical-presence-calculator` graduated (browser Form 2555 physical presence 330-day counter).
+    # +1: `ci-test-shard-balancer` graduated (browser + CLI balanced CI test sharding from JUnit XML timings, with shard-count sweep and Actions matrix).
+    # +1: `webhook-signature-debugger` graduated (browser + CLI webhook HMAC signature verification and mismatch diagnosis).
+    # +1: `hvac-repair-tier-price-calculator` graduated (browser HVAC Good/Better/Best repair pricing, diagnostic fee and average-call model).
+    # +1: `training-gpu-pricing-calculator` graduated (browser + CLI GPU cloud pricing with idle time and rent-versus-buy breakeven).
+    # +1: `era-835-underpayment-finder` graduated (browser 835 remittance parser: payments below contract rates, denials, takebacks).
+    # +1: `nacha-file-validator` graduated (browser ACH/NACHA file validator: record layout, check digits, control totals, control-record rebuild).
+    # +1: `cobra-vs-marketplace-calculator` graduated (browser + CLI COBRA vs marketplace total cost, break-even and election deadlines).
+    # +1: `sepa-pain001-validator` graduated (browser SEPA pain.001/pain.008 XML validator: control sums, IBAN, dates, character set, totals repair).
+    # +1: `eu-vat-oss-calculator` graduated (browser EU VAT OSS calculator: EUR 10,000 threshold date and the quarterly return per country and rate from a sales CSV).
+    # +1: `form-5500-late-filing-calculator` graduated (browser Form 5500 due date, days late, DFVC cost against IRS and DOL penalty exposure).
+    # +1: `irs-iris-1099-csv-check` graduated (browser IRS IRIS 1099-NEC/MISC bulk CSV checker: TIN formats, thresholds, duplicates, totals, safe fixes).
+    # +1: `edi-x12-order-checker` graduated (browser X12 EDI 850/810/856/997 checker: envelope counts, UPC/SSCC check digits, invoice totals, 997 translation).
+    # +1: `xero-invoice-csv-check` graduated (browser Xero sales invoice CSV checker: per-invoice agreement, date order, Excel damage, safe fixes, 500-line splitter).
+    # +1: `quickbooks-chart-of-accounts-csv-check` graduated (browser QuickBooks Online chart of accounts import checker: account types, detail types, duplicates, sub-account order, balances and dates).
+    # +1: `xero-contacts-csv-check` graduated (browser Xero contacts import checker: duplicate names, emails, Excel damage, payment terms, safe fixes, splitter).
+    # +1: `hubspot-contacts-csv-check` graduated (browser HubSpot contacts/companies import checker: duplicate and invalid emails, Excel damage, date formats, lifecycle stage and lead status values, formatting-only safe fixes).
+    # +1: `pipedrive-import-csv-check` graduated (browser Pipedrive deals/people/organizations import checker: deal status, value and currency, probability, duplicate deals and emails, Excel damage, date formats, safe fixes).
+    # +1: `zoho-crm-import-csv-check` graduated (browser Zoho CRM leads/contacts/accounts/deals import checker: required fields, Stage and Lead Status picklists, amount and currency, probability, duplicates, Excel damage, date formats, safe fixes).
+    # +1: `klaviyo-profile-csv-check` graduated (browser Klaviyo profile import checker: identifiers, E.164 phones, Excel damage, near-miss headers, lat/long/timezone, mixed dates, safe fixes).
+    # +1: `mailchimp-audience-csv-check` graduated (browser Mailchimp audience import checker: no-email rows, duplicate emails, unquoted Tags commas, birthday format, Excel phone damage, mixed dates, safe fixes).
+    # +1: `shopify-inventory-csv-check` graduated (browser Shopify inventory import checker: On hand (new) column, text/fraction/thousands-comma quantities, tenfold jumps, duplicate variant+location rows, handles, location spelling, Excel SKU damage, safe fixes).
+    # +1: `payroll-hours-csv-check` graduated (browser payroll hours / timesheet CSV checker: decimal vs h:mm, Excel date serials, duplicate person-days, hours over 24, Start/End arithmetic, safe fixes).
+    # +1: `shopify-customer-csv-check` graduated (browser Shopify customer import checker: emails, E.164 phones, Excel zip and phone damage, country and province codes, consent values, tags, safe fixes).
+    # +1: `teachers-pay-teachers-earnings-analyzer` graduated (browser TPT sales CSV analyzer: observed fee incl. flat per-sale fee, per-resource take-home, repeat buyers, break-even price).
+    # +1: `google-ads-editor-csv-check` graduated (browser Google Ads Editor import checker: headline/description limits, RSA counts, keyword symbols and match types, URLs, budgets, safe fixes).
+    # +1: `meta-catalog-csv-check` graduated (browser Meta catalog feed checker: required fields, ids, price and sale price, availability, links, images, GTIN check digits, item groups, Excel damage, safe fixes).
+    # +1: `youtube-chapters-check` graduated (browser YouTube chapter-list checker: 0:00 start, three-chapter and 10-second rules, ordering and format fixes, marker-export conversion to chapters.json, FFmetadata, WebVTT).
+    # +1: `quickbooks-iif-file-check` graduated (browser QuickBooks Desktop IIF checker: ENDTRNS, TRNS/SPL balance, stray tabs, dates, Excel quotes, safe fixes).
+    # +1: `mt940-statement-check` graduated (browser SWIFT MT940 statement checker: balance arithmetic, statement continuity, :61: layout, comma decimals, repeats, closing -, CSV conversion).
+    # +1: `bank-statement-pdf-to-csv` graduated (browser bank/credit card statement PDF to CSV with a balance proof: opening + rows = closing, running-balance sign check, Xero/QuickBooks layouts).
+    # +1: `coi-expiry-gap-checker` graduated (browser subcontractor certificate-of-insurance list checker: expiry and lead time, limits with umbrella make-up, endorsements, renewal gaps, chase list and .ics).
+    # +1: `pickleball-facility-pro-forma` graduated (browser indoor pickleball/padel facility pro-forma: steady-state P&L, break-even utilization and members, 24-month ramp cash curve, sensitivities, profit-lever ranking).
+    # +1: `lemonsqueezy-payout-to-journal` graduated (browser Lemon Squeezy order/payout export to month-split Xero/QuickBooks journals).
+    # +1: `ko-fi-payout-to-journal` graduated (browser Ko-fi transactions export to month-split Xero/QuickBooks journals, income by transaction type, derived fee).
+    # +1: `buymeacoffee-payout-to-journal` graduated (browser Buy Me a Coffee export to month-split Xero/QuickBooks journals).
+    # +1: `teachable-payout-to-journal` graduated (browser Teachable transactions export to month-split Xero/QuickBooks journals).
+    # +1: `fiverr-earnings-to-journal` graduated (browser Fiverr earnings history to month-split Xero/QuickBooks journals, gross revenue and 20% fee split, with a running-balance completeness check).
+    # +1: `kdp-royalty-to-journal` graduated (browser Amazon KDP royalty report to month-split Xero/QuickBooks journals, gross by marketplace and format, printing cost and tax withheld as expenses, per-currency, with row and report total checks).
+    # +1: `distrokid-royalty-to-journal` graduated (browser DistroKid earnings report to month-split Xero/QuickBooks journals, by store and kind, songwriter royalties withheld as a deduction, per-currency, with row and report total checks).
+    # +1: `upwork-earnings-to-journal` graduated (browser Upwork transaction history to month-split Xero/QuickBooks journals with a running-balance completeness check).
+    # +1: `youtube-adsense-payout-to-journal` graduated (browser AdSense payments export to month-split Xero/QuickBooks journals with US withholding receivable and realised FX).
+    # +1: `revolut-business-statement-to-journal` graduated (browser Revolut Business currency statement to month-split Xero/QuickBooks journals with realised FX).
+    # +1: `syndication-waterfall-calculator` graduated (browser-local GP/LP waterfall with preferred return and promote tiers).
+    # +1: `donor-acknowledgment-letter-generator` graduated (browser gift list to per-donor IRS acknowledgment letters, per-gift $250 rule and $75 quid pro quo statement).
+    # +1: `exemption-certificate-audit-check` graduated (browser exempt sales matched to certificates on file, tax at stake by customer and state).
+    # +1: `rent-increase-notice-checker` graduated (browser rent roll to per-unit cap, notice period and earliest effective date).
+    # +1: `supplier-price-creep-checker` graduated (browser supplier invoice lines to per-item creep, one-off spikes, contract overcharges and credit requests).
+    # +1: `restaurant-tip-pool-calculator` graduated (browser shift list to tip pool payouts by hours, points or tip-out).
+    # +1: `greenhouse-bench-planner` graduated (browser crop list to sow dates, weekly bench and germination space, what does not fit and what extra space is worth).
+    # +1: `mushroom-fruiting-room-planner` graduated (browser flush, slot and cash planner for small mushroom farms).
+    # +1: `lien-waiver-checker` graduated (browser pasted lien waiver to red flags and the change to ask for).
+    # +1: `cash-flow-risk-forecaster` graduated (browser invoices and bills to the odds of a cash shortfall, cushion and biggest lever).
+    # +1: `wholesale-line-sheet-maker` graduated (browser product list to wholesale prices, retailer and own margin, tiers, minimums, order simulator and a printable line sheet).
+    # +1: `str-turnover-scheduler` graduated (browser iCal feeds to turnover cleaning schedule, same-day window checks, double bookings and minimum crew).
+    # +1: `mobile-detailing-day-planner` graduated (browser pending detailing jobs to the most profitable set for the day, take-home per hour and the price each job needs).
+    # +1: `craft-brewery-batch-margin-calculator` graduated (browser beers and sales channels to batch profit per barrel by channel, break-even prices and profit per fermenter day).
+    # +1: `midterm-rental-calculator` graduated (furnished 30-day-plus rental against a long-term lease and nightly renting, with rate, vacancy and furnishing payback crossing points).
+    # +1: `maple-syrup-sugarbush-profit-calculator` graduated (browser taps, sap and costs to maple profit per tap and per hour, poor and good seasons and a reverse osmosis payback).
+    # +1: `u-pick-farm-profit-planner` graduated (browser season days, visitors, admission, picking and extras to break-even attendance and admission and a rainy-season check).
+    # +1: `sheep-goat-flock-profit-planner` graduated (browser ewes or does, weaning rate, prices and hay to a multi-year flock projection, break-even flock and weaning rate).
+    # +1: `waterfront-rental-season-planner` graduated (browser kayak and boat fleets, demand, weather days and costs to season profit, weather break-even, turn-aways and one-more-boat payback).
+    # +1: `property-management-profit-calculator` graduated (browser doors, fee, staffing and owner inputs to monthly profit, break-even doors, the next-hire cliff and a fee search).
+    # +1: `mobile-welding-job-price-calculator` graduated (browser mobile welding hours, drive, rig, materials and margin to a job price, distance table, overrun check and break-even jobs).
+    # +1: `sauna-cold-plunge-install-bid-calculator` graduated (browser sauna and cold plunge install hours, crew, equipment, electrician and drive to a bid price, distance table, overrun check and break-even installs).
+    # +1: `good-faith-estimate-generator` graduated (browser service lines, codes and charges to a printable Good Faith Estimate, delivery deadline, per-biller totals, a $400 dispute check and a past-estimate drift review).
+    # +1: `collision-shop-drp-profit-calculator` graduated (browser collision shop retail and insurer-program terms, repriced and promised jobs to profit with and without the program, break-even orders and a lowest labor rate).
+    # +1: `volunteer-shift-scheduler` graduated (browser volunteers with availability, max shifts and excluded roles, plus shifts with headcounts, to a fair roster, unfilled-place report, per-volunteer calendars and reminder messages).
+    # +1: `appointment-no-show-cost-calculator` graduated (browser practice schedule, no-show and late-cancel rates, refills, fee and reminders to yearly cost, best overbooking level and break-even fee and reminder price).
+    # +1: `franchise-unit-economics-calculator` graduated (browser franchise fee, build-out, loan, sales ramp, costs and royalties to payback, IRR, break-even sales, a cash-cushion check and the sales lift the brand must deliver against going independent).
+    # +1: `home-inspection-report-builder` graduated (browser home inspection findings, severity, notes and cost ranges to a printable report, with a generic editable comment library).
+    # +1: `pte-tax-election-calculator` graduated (browser state pass-through entity tax election vs none: federal plus state tax, SALT cap phase-out, lost 20% deduction, income where it first pays).
+    # +1: `container-demurrage-detention-calculator` graduated (browser ocean-container dates, free days and tiered per-day rates to demurrage and detention per box, last free days, one more day's cost and the value of an earlier pickup).
+    # +1: `bonus-take-home-gross-up-calculator` graduated (browser bonus take-home after supplemental withholding, FICA caps and state tax, refund or balance due, 401(k) deferral comparison, exact employer gross-up).
+    # +1: `farmland-lease-cash-rent-vs-crop-share-calculator` graduated (browser cash rent vs crop share vs flex farmland lease comparison with break-even yield and risk grid).
+    # +1: `tip-fica-credit-calculator` graduated (browser employer FICA tip credit per employee from cash wage, hours and tips, with after-tax value and prior-year look-back).
+    # +1: `contract-vs-fte-rate-calculator` graduated (browser W-2 offer to the hourly 1099 rate leaving the same cash, with a step-by-step gap table).
+    # +1: `covered-call-wheel-calculator` graduated (browser covered call and cash-secured put quotes ranked by annualized yield, assignment chance and breakeven).
+    # +1: `medical-billing-pricing-calculator` graduated (browser billing-company pricing: percent of collections vs per-claim vs flat against cost to serve).
+    # +1: `scrap-gold-buy-price-calculator` graduated (browser scrap gold karat and weight lot, refiner terms and gold price to break-even and target-margin offer, offer ladder and price-drop risk).
+    # +1: `pawn-loan-profit-calculator` graduated (pawn loan book profit: redemption rate, loan-to-value, forfeit resale, largest loan and smallest ticket that pay).
+    # +1: `card-bonus-planner` graduated (browser credit card sign-up bonus tracker with 5/24 and issuer velocity status, net bonus value and a spend-feasible application schedule).
+    # +1: `water-well-drilling-bid-calculator` graduated (browser well depth by formation, casing, pump system, trench, rig hours and dry-hole chance to a bid, break-even, price per foot and the cost of a dry hole).
+    # +1: `adjunct-course-offer-calculator` graduated (browser adjunct and part-time course offers to real hourly pay after prep, grading, unpaid hours, commute and cancellation risk, ranked side by side).
+    # +1: `lash-studio-service-profit-calculator` graduated (browser lash service take-home per chair hour after supplies, card fees, no-shows and studio rent, ranked side by side).
+    # +1: `self-storage-unit-mix-optimizer` graduated (browser exact unit-size mix for a self-storage building, bounded knapsack under demand limits).
+    # +1: `wedding-venue-date-pricing-optimizer` graduated (browser exact price per date type for a wedding venue).
+    # +1: `farm-crop-mix-optimizer` graduated (browser exact crop-acreage plan, linear program under land, labor and capital limits).
+    # +1: `ev-charging-site-roi-calculator` graduated (browser EV charging site payback, NPV, IRR and break-even utilization with demand charges).
+    # +1: `tutor-weekly-schedule-optimizer` graduated (browser exact weekly timetable for one-to-one teachers from each student's available times, gaps, day costs and must-keep students).
+    # +1: `surety-bond-capacity-calculator` graduated (browser surety bond premium priced into the bid, bonding capacity from working capital, and the bids to submit).
+    # +1: `optical-dispensary-margin-calculator` graduated (browser eyeglass sale margin after frame, lenses, remakes, plan and card fees and optician time).
+    # +1: `therapy-8-minute-rule-calculator` graduated (browser Medicare 8-minute rule billable units from timed therapy minutes, assigned to CPT codes, with a per-code comparison and revenue).
+    # +1: `bid-leveling-worksheet` graduated (browser subcontractor bid table leveled to one scope: excluded and unaddressed items priced at the buyer's estimate, a ranking, and whether the low bid survives).
+    # +1: `fixed-bid-overrun-forecaster` graduated (browser fixed-price project price, cost budget, percent complete and cost to date to earned value, CPI/SPI, three finish forecasts, projected margin and the point the job stops paying).
+    # +1: `timber-sale-offer-checker` graduated (browser timber-offer checker: logs scaled under Doyle, Scribner and International rules, valued at the owner's own prices, compared with a logger's offer).
+    # +1: `pollination-contract-checker` graduated (browser pollination-contract checker: net per hive and break-even fee for beekeepers, cost per acre for growers).
+    # +1: `oyster-farm-growout-planner` graduated (browser oyster-crop planner: seed, survival, gear, lease and grade prices to net per crop, break-even price and survival, and cash before first sale).
+    # +1: `form-2290-hvut-calculator` graduated (browser Form 2290 heavy vehicle use tax per truck: weight category, proration, suspension and due date).
+    # +1: `eu-pay-gap-report-calculator` graduated (browser EU Pay Transparency Directive indicators: mean and median pay gap, variable pay, quartiles and 5% category flags from a pasted payroll table).
+    # +1: `laser-cutting-engraving-job-price-calculator` graduated (browser laser cut and engrave job price: nesting, laser time, labour and setup to a price per piece, quantity breaks and a target-price check).
+    # +1: `fair-workweek-schedule-checker` graduated (browser predictive scheduling check: late postings, short-notice add, move and cancel premium pay, and rest-period violations from a pasted schedule and change log).
+    # +1: `json-ld-rich-result-validator` graduated (browser JSON-LD validator and builder).
+    # +1: `amusement-route-location-calculator` graduated (browser coin-op route location check: take, commission, visits and miles to profit per route hour, the weekly take needed and the highest commission worth paying).
+    # +1: `courier-van-route-profit-calculator` graduated (browser delivery van route check: route pay, stops, miles and van costs to true profit per route, per hour and per stop, break-even stops, the lowest route pay for a target hourly and a two-offer comparison).
+    # +1: `pilot-car-escort-run-profit-calculator` graduated (browser pilot car and oversize-load escort run check: per-mile or day quote, minimum charge, deadhead, hours, hotel and yearly overhead to true profit per run and per driver hour, the lowest quote for a target margin, break-even runs and a two-run comparison).
+    # +1: `climbing-gym-profit-calculator` graduated (browser climbing and bouldering gym day passes, members, youth programs, parties, staff, route setting and rent to monthly profit, build payback, break-even members and the lowest day pass and membership fee for a target margin).
+    # +1: `percentage-rent-audit-checker` graduated (browser percentage-rent statement check for retail and restaurant tenants: natural or stated breakpoint, landlord versus own sales, lease exclusions, cap and estimates paid to the overcharge, line by line, with a review note).
+    # +1: `release-notes-generator` graduated (browser and zero-dependency CLI that turn git log into grouped release notes with a suggested semver bump).
+    # +1: `3pl-invoice-audit-checker` graduated (browser 3PL invoice audit: rate card, WMS and order-export counts and invoice lines to recoverable overcharges, proving records and a dispute note).
+    # +1: `glamping-unit-payback-calculator` graduated (browser glamping worksheet: build and shared cost, seasonal rates and occupancy, loan, to payback, debt coverage and break-even occupancy).
+    # +1: `mini-golf-course-profit-calculator` graduated (browser mini-golf and small fun-center pro forma).
+    # +1: `rv-boat-storage-lot-calculator` graduated (browser RV and boat storage lot: acres, land, site cost, rent and occupancy to spaces, NOI, yield on cost, debt coverage, lease-up cash and equity IRR).
+    # +1: `self-serve-dog-wash-profit-calculator` graduated (browser dog wash pro forma: tub capacity, traffic by weekday and season, break-even washes per day, ramp and payback).
+    total = 1110  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1110 tools" wording.
+    # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
+    # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
+    # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
+    # +1: `ag-spray-drone-quote-calculator` graduated (browser spray-drone fields, tank, battery and cost inputs to real time per field, cost per acre, recommended quote and break-even).
+    # +1: `stump-grinding-price-calculator` graduated (browser stump diameters, wood hardness, grinder speed, crew and drive time to a price, per-stump prices and a per-inch quote check).
+    # +1: `freelance-dashboard` graduated (browser hub reading the four freelancer tools' saved data: owed, unbilled, pipeline, profit and a ranked do-this-next list).
+    # +1: `horse-boarding-stall-profit-calculator` graduated (browser barn stalls, occupancy and costs to monthly profit, break-even occupancy and board price).
+    # +1: `pet-waste-removal-route-calculator` graduated (browser pet waste route clients, price and drive time to monthly profit, hourly pay and break-even clients).
+    # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
+    # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
+    # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).
+    # +1: `ticket-resale-profit-calculator` graduated (browser + CLI ticket resale payout, break-even and sales-log audit).
+    # +1: `catering-quote-calculator` graduated (browser + CLI per-guest catering quote, tier table and break-even guest count).
+    # +1: `breakeven-roas-calculator` graduated (browser-local break-even ROAS, max CPA and LTV-adjusted ad economics calculator).
+    # +1: `market-event-picker` graduated (browser + CLI market/festival picker for vendors, exact search over overlapping events).
+    # +1: `lot-split-calculator` graduated (browser + CLI sell-the-lot-whole-or-split-it decision for resellers).
+    # +1: `trade-show-roi-calculator` graduated (browser + CLI trade show ROI, break-even leads and budget-constrained show picker).
+    # +1: `csa-share-pricing-calculator` graduated (browser + CLI CSA share price, wage price, break-even shares and price sweep).
+    # +1: `support-staffing-planner` graduated (browser + CLI Erlang C agents per interval and exact cheapest shift cover).
+    # +1: `embroidery-shop-quote-calculator` graduated (browser + CLI embroidery job quote, quantity breaks and per-1000-stitches rule check).
+    # +1: `worker-classification-checker` graduated (browser-local 1099-vs-W-2 screen: IRS, DOL and ABC tests, facts to fix, back-tax and overtime exposure range).
+    # +1: `ad-slot-sell-through-planner` graduated (browser-local newsletter/podcast ad-slot sell-through, price-response and booking-pace planner).
+    # +1: `ca-meal-rest-break-premium-checker` graduated (browser California meal and rest break premium audit: late, short and missed meals, rest shortfalls, waivers and the Labor Code 226.7 premium per workday from pasted timecards).
+    # +1: `prop-firm-challenge-calculator` graduated (browser Monte Carlo of a funded-trader challenge: pass probability, expected fees to pass, funded payouts, break-even win rate).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
@@ -3002,7 +3195,7 @@ def test_portfolio_front_configmaps_keep_their_content_hash() -> None:
             merged = dict(entry)
             merged["options"] = {**shared, **entry.get("options", {})}
             by_name[entry["name"]] = merged
-    for name in ("portfolio-front-html", "portfolio-front-nginx", *_mirror_shard_names()):
+    for name in ("portfolio-front-html", "portfolio-front-html-index", "portfolio-front-nginx", *_mirror_shard_names()):
         options = by_name[name].get("options", {})
         assert not options.get("disableNameSuffixHash"), (
             f"{name} is mounted by a Deployment; without the hash a content "

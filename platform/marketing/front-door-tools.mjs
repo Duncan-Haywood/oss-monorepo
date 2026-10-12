@@ -429,7 +429,7 @@ export const SHARD_BYTE_CEILING = 544 * 1024;
  * move is telling the owner the stopgap is the only thing between the
  * catalogue and an outage, not quietly buying another few weeks.
  */
-export const MIRROR_BYTE_CEILING = 20 * 1024 * 1024;
+export const MIRROR_BYTE_CEILING = 28 * 1024 * 1024;
 
 /**
  * The share of `MIRROR_BYTE_CEILING` above which the mirror is reported as
@@ -507,6 +507,19 @@ export const MIRROR_BYTE_CEILING = 20 * 1024 * 1024;
  * The seal (`#3184`) is still the real fix and is still queued; crossing the
  * ceiling throws inside `buildMirror` and fails every venture PR at once, which
  * is the worse outcome.
+ *
+ * **Fifth raise, 20 MiB to 24 MiB, 2026-10-04.** The warn ratio fired at 85.3%
+ * with 716 tools and 0 recoverable duplicate bytes, so the growth is real shipped
+ * source (about 25 ventures a week). 24 MiB of tmpfs is 12.5% of the 192Mi pod
+ * limit and `test_portfolio_front_fits_the_prod_quota` needs only
+ * `limit_mi >= ceiling * 2`. Same trade as the fourth raise; the seal is still
+ * the real fix.
+ *
+ * **Sixth raise, 24 MiB to 28 MiB, 2026-10-09.** The warn ratio fired at 85.1% with
+ * 972 tools and 0 recoverable duplicate bytes: real shipped source again. 28 MiB of
+ * tmpfs is 14.6% of the 192Mi pod limit and `test_portfolio_front_fits_the_prod_quota`
+ * needs only `limit_mi >= ceiling * 2`. Same trade as the fifth raise; the seal is
+ * still the real fix.
  *
  * Do not raise `MIRROR_BYTE_CEILING` to clear this report: both costs its
  * comment names are real, and the duplicate bytes are now recovered

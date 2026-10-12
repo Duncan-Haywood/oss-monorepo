@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>JSON to TypeScript, Zod, JSON Schema and Go — Free, Private Type Generator</title>
+  <meta name="description" content="Convert JSON to TypeScript interfaces, Zod schemas, JSON Schema or Go structs. Merges many samples to find optional and nullable fields. Free, runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="JSON to TypeScript, Zod, JSON Schema and Go, in your browser">
+  <meta property="og:description" content="Paste API responses, get types with optional and nullable fields inferred. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "JSON to Types Generator", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste JSON samples to get TypeScript interfaces, Zod schemas, JSON Schema or Go structs, with optional and nullable fields inferred by merging samples. Runs in the browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I generate TypeScript types from JSON?", "acceptedAnswer": {"@type": "Answer", "text": "Paste a JSON response, or several samples, and pick TypeScript. The tool reads every sample, merges them, and writes one interface per object shape. Fields missing from some samples become optional, fields that are sometimes null become nullable, and strings that are always dates, UUIDs, emails or URLs are annotated."}}, {"@type": "Question", "name": "Why paste more than one sample?", "acceptedAnswer": {"@type": "Answer", "text": "One sample cannot show which fields are optional or which values can be null, so every field comes out required. Paste several responses one after another, or one per line, and the merged types reflect what the API actually returns."}}, {"@type": "Question", "name": "Which output formats are supported?", "acceptedAnswer": {"@type": "Answer", "text": "TypeScript interfaces, Zod schemas with inferred types, JSON Schema (draft 2020-12), and Go structs with json tags. All four come from the same inferred model."}}, {"@type": "Question", "name": "Does this upload my JSON?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in this page and the page makes no network calls, so API responses containing customer data stay on your device. The CLI reads files or stdin on your machine and prints to your terminal."}}, {"@type": "Question", "name": "How is this different from quicktype or json2ts?", "acceptedAnswer": {"@type": "Answer", "text": "It overlaps on purpose. It merges many samples, reports what it had to guess, and needs no install, account or upload. For a build-time pipeline use a maintained generator; use this to get a correct first draft in seconds."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 170px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; width: min(100%, 360px); }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a3412; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.25rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: #e3e9ef; color: #17324a; }
+    .pill.error { background: #fde8e8; color: #9a3412; }
+    .pill.warn { background: #fdf1d8; color: #7a4a05; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+    .pill.ok { background: #dcf3e3; color: #14532d; }
+    .finding { margin: 8px 0; padding: 10px 12px; border-radius: 8px; background: #f7f9fb; border-left: 4px solid #a8b3c1; }
+    .finding.error { border-color: #9a3412; } .finding.warn { border-color: #b7791f; } .finding.ok { border-color: #14532d; }
+    select, input[type=text] { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; font: inherit; }
+    label.block { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea.short { min-height: 90px; }
+  
+    textarea.log { min-height: 220px; }
+    textarea.out { min-height: 260px; background: #f7f9fb; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">JSON TO TYPES GENERATOR · RUNS IN YOUR BROWSER</p>
+    <h1>Turn JSON into TypeScript, Zod, JSON Schema or Go</h1>
+    <p>Paste an API response, or several, and get types that match what the API really returns: <strong>optional fields</strong> found by merging samples, <strong>nullable fields</strong>, integers versus floats, dates, UUIDs, emails and URLs recognised, and identical nested shapes shared.</p>
+    <p class="note">Nothing is uploaded. Your JSON stays in this tab and the page makes no network calls.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your JSON</h2>
+    <p class="note">One value, several samples one per line (NDJSON), or several objects pasted back to back. More samples means better optional and nullable detection.</p>
+    <textarea id="json" class="log" spellcheck="false" placeholder='{"id": 1, "name": "Ada", "email": "ada@example.com"}&#10;{"id": 2, "name": null}'></textarea>
+    <p>
+      <label for="style">Output: </label><select id="style"><option value="ts">TypeScript</option><option value="zod">Zod</option><option value="jsonschema">JSON Schema</option><option value="go">Go structs</option></select>
+      <label for="root">Root type name: </label><input type="text" id="root" size="14" value="Root">
+      <label><input type="checkbox" id="readonly"> readonly (TypeScript)</label>
+    </p>
+    <p>
+      <button type="button" id="generate">Generate types</button>
+      <button type="button" class="secondary" id="load-example">Load example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste JSON and click Generate.</p>
+  </section>
+
+  <section class="card" id="result-card" aria-live="polite" hidden>
+    <h2>Generated code</h2>
+    <p class="verdict" id="verdict"></p>
+    <div id="warnings"></div>
+    <textarea id="out" class="out" readonly spellcheck="false"></textarea>
+    <p><button type="button" id="copy">Copy code</button></p>
+  </section>
+
+  <section class="card">
+    <h2>Run it on files from the command line</h2>
+    <pre class="cmd"><code>node cli.mjs response.json                       # TypeScript
+node cli.mjs a.json b.json c.json --style zod    # merge three samples
+cat samples.ndjson | node cli.mjs --style go --name ApiResponse
+node cli.mjs data.json --style jsonschema --readonly</code></pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="types.mjs" rel="noopener">types.mjs</a> from the repo. Node 18+, no dependencies.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I generate TypeScript types from JSON?</h3>
+    <p>Paste a JSON response, or several samples, and pick TypeScript. The tool reads every sample, merges them, and writes one interface per object shape. Fields missing from some samples become optional, fields that are sometimes null become nullable, and strings that are always dates, UUIDs, emails or URLs are annotated.</p>
+    <h3>Why paste more than one sample?</h3>
+    <p>One sample cannot show which fields are optional or which values can be null, so every field comes out required. Paste several responses one after another, or one per line, and the merged types reflect what the API actually returns.</p>
+    <h3>Which output formats are supported?</h3>
+    <p>TypeScript interfaces, Zod schemas with inferred types, JSON Schema (draft 2020-12), and Go structs with json tags. All four come from the same inferred model.</p>
+    <h3>Does this upload my JSON?</h3>
+    <p>No. Everything runs in this page and the page makes no network calls, so API responses containing customer data stay on your device. The CLI reads files or stdin on your machine and prints to your terminal.</p>
+    <h3>How is this different from quicktype or json2ts?</h3>
+    <p>It overlaps on purpose. It merges many samples, reports what it had to guess, and needs no install, account or upload. For a build-time pipeline use a maintained generator; use this to get a correct first draft in seconds.</p>
+    <p>More: <a href="how-to-type-an-api-response.html">how to type an API response safely (and why generated types lie)</a></p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. Types are inferred from the samples you paste and describe those samples only. <strong>You are responsible for reviewing and verifying its output before using it.</strong></p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The JSON you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>types_generated</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: <a href="../csv-to-sql-generator/">CSV to SQL Generator</a>, <a href="../release-notes-generator/">Release Notes Generator</a> and <a href="../llms-txt-generator/">llms.txt Generator</a>.</p>
+    <p class="support">Free and open source. If this saved you an afternoon, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { convert } from "./types.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const EXAMPLE = '{"id": 1, "name": "Ada", "email": "ada@example.com", "created_at": "2024-03-01T09:30:00Z", "plan": {"id": "pro", "seats": 5}, "tags": ["admin"], "invoices": [{"number": "A-1", "total": 49.5, "paid_at": "2024-03-03T10:00:00Z"}]}\n{"id": 2, "name": null, "email": "bob@example.com", "created_at": "2024-03-02T11:00:00Z", "plan": null, "tags": [], "invoices": [{"number": "B-1", "total": 20, "paid_at": null}], "referrer": "newsletter"}';
+
+    function run() {
+      try {
+        const r = convert($("#json").value, { style: $("#style").value, rootName: $("#root").value.trim() || "Root", readonly: $("#readonly").checked });
+        $("#out").value = r.code;
+        $("#verdict").textContent = `${r.stats.samples} sample${r.stats.samples === 1 ? "" : "s"} · ${r.stats.types} type${r.stats.types === 1 ? "" : "s"} · ${r.stats.fields} fields · ${r.stats.optional} optional`;
+        $("#warnings").innerHTML = r.warnings.map((w) => `<div class="finding warn"><span class="pill warn">note</span> ${escapeHtml(w)}</div>`).join("");
+        $("#result-card").hidden = false;
+        $("#status").textContent = "";
+        record("types_generated");
+      } catch (e) {
+        $("#result-card").hidden = true;
+        $("#status").innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+      }
+    }
+
+    $("#generate").addEventListener("click", run);
+    $("#style").addEventListener("change", () => { if ($("#json").value.trim()) run(); });
+    $("#load-example").addEventListener("click", () => { $("#json").value = EXAMPLE; run(); record("example_loaded"); });
+    $("#clear").addEventListener("click", () => {
+      $("#json").value = "";
+      $("#result-card").hidden = true;
+      $("#status").textContent = "Paste JSON and click Generate.";
+    });
+    $("#copy").addEventListener("click", async (event) => {
+      try { await navigator.clipboard.writeText($("#out").value); event.target.textContent = "Copied"; }
+      catch { $("#out").select(); event.target.textContent = "Press Ctrl+C to copy"; }
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      usageControl.textContent = "Usage counting is off";
+      usageControl.disabled = true;
+    }
+  </script>
+</body>
+</html>

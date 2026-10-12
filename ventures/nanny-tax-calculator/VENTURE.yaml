@@ -1,0 +1,51 @@
+name: nanny-tax-calculator
+description: >-
+  Free browser tool for families who employ a nanny or other household worker: adds Social Security and
+  Medicare on both sides, FUTA, state unemployment and workers' compensation to the wage, shows the true
+  yearly and hourly cost, the nanny's take-home, the Schedule H amount, an hours sensitivity table, and turns
+  a take-home rate into the gross rate behind it. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. The tree had no household-employer / Schedule H
+# tool (grep of ventures/ for nanny, household, schedule-h found none).
+#
+# Why this niche: "nanny tax calculator" and "how much does a nanny really cost" are recurring searches by
+# parents with real money at stake (a full-time nanny is a $50-90k a year decision). The incumbents are
+# paid payroll services (HomePay-style, several hundred dollars a year) and lead-gen blog calculators.
+# Few show the take-home-to-gross conversion families actually negotiate in, or the cost per hour. A
+# private, free calculator is a lead magnet; a paid filing-calendar / W-2 worksheet pack is the later
+# revenue path (not built).
+#
+# First visitor: a parent searching "nanny tax calculator", "nanny net to gross" or "how much is nanny tax".
+# Volume not measured.
+#
+# Liability boundary: arithmetic on typed assumptions; no filing, no payments, no state lookups; tax-year
+# figures are editable inputs and the page tells the visitor to check IRS Publication 926. Not tax advice.
+
+hypotheses:
+  - claim: >-
+      Parents hiring a nanny will use a private calculator that converts a take-home rate to the gross rate and
+      shows the all-in cost per hour, because the net-pay conversation is the one payroll-service marketing pages
+      hide behind a sign-up.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/nanny-tax-calculator/
+  analytics: null

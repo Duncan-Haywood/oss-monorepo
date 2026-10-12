@@ -186,7 +186,9 @@ def test_sync_readme_counts_reports_a_reworded_sentence_rather_than_guessing() -
         _sync.rewrite("no count sentence here", 1, 2, 3)
 
 
-_PYTHON_NEEDLE = re.compile(r"\b(python3?|pip3?)\b")
+# A hyphen is a word boundary, so a bare \b matched the interpreter inside a venture slug
+# (`ball-python-morph-pairing-planner`) and demanded a setup-python step for a node-only job.
+_PYTHON_NEEDLE = re.compile(r"(?<![\w-])(python3?|pip3?)(?![\w-])")
 _NODE_NEEDLE = re.compile(r"\b(node|npm|npx)\b")
 # Not an interpreter, but the same failure shape: a binary GitHub's image
 # happens to preinstall and the runner image does not. `shellcheck-py` is how

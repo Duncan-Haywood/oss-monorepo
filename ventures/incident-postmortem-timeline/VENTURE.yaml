@@ -1,0 +1,49 @@
+name: incident-postmortem-timeline
+description: 'Free tool that turns pasted, timestamped incident notes (chat, pager, terminal) into time-to-detect/acknowledge/mitigate/resolve, the longest silent gaps, and a blameless postmortem draft in Markdown -- in the browser (paste the log) or as a zero-dependency Node CLI with a --max-ttr gate, no upload, no network calls of its own.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as the other
+# zero-dependency developer tools. duplicate_check.py's closest matches were
+# all below 0.2 (osha-trir-dart-calculator, an unrelated safety-incident
+# rate). The paid category this undercuts is incident-management platforms
+# (incident.io, FireHydrant, Rootly) whose postmortem timelines come with a
+# subscription; free alternatives are templates with no maths. Not in
+# screened-out.md.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# high. It reads text the user already holds and sends nothing off the
+# device. The only risk is being read as professional advice, so the page
+# says the draft is a starting point.
+#
+# First visitor channel: searches for "postmortem template", "incident
+# timeline generator", "calculate MTTR from incident log", and SRE threads
+# (r/sre, r/devops, Hacker News) where the answer today is a blank doc.
+hypotheses:
+  - claim: 'An on-call engineer finishing an incident will paste the chat or pager log instead of rebuilding the timeline by hand, and use the Markdown draft.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'A team will run postmortem.mjs --max-ttr in a script or CI step to track resolution time against an SLO.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using postmortem.mjs or classify.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/incident-postmortem-timeline/
+  analytics: null

@@ -1,0 +1,45 @@
+name: training-gpu-pricing-calculator
+description: 'Free, zero-network, zero-dependency browser tool + CLI that prices an H100, A100, L40S or RTX 4090 workload on RunPod, Lambda, Vast.ai, CoreWeave, AWS, Google Cloud and Modal from busy GPU-hours and real utilisation (instances bill while idle, serverless does not, interruptible capacity re-runs work), projects 12 months of spend under growth, and finds the busy hours a month above which buying the card beats renting; has a --budget CI gate. A deterministic calculator over the user''s inputs and editable list prices, not a quote and not a guarantee of spend.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, sibling of llm-api-pricing-calculator and object-storage-pricing-calculator.
+# llm-api-pricing-calculator prices per-token APIs; nothing in the tree compares GPU rental per
+# GPU-hour with idle time and the buy-versus-rent breakeven.
+#
+# Where the first real visitor would come from: search phrases "runpod vs lambda labs pricing",
+# "h100 rental cost per month", "rent vs buy rtx 4090 for ml", "cheapest gpu cloud"; r/LocalLLaMA,
+# r/MachineLearning and Hacker News threads on GPU bills. The reader is an ML engineer or founder
+# fine-tuning or serving models. Vendor pages are rate cards per vendor; none shows them at one
+# workload with idle time and the own-it breakeven, which is the wedge. A hosted price-change
+# monitor is the natural paid path later.
+hypotheses:
+  - claim: An ML engineer or founder choosing where to run fine-tuning or inference will search for a GPU-hour price comparison, enter hours and utilisation, and use the rent-versus-buy breakeven to decide.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team will add the CLI to CI with --budget so a workload change that pushes GPU spend over budget fails review instead of the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool calculates only from typed numbers in
+  # the visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/training-gpu-pricing-calculator/
+  analytics: null

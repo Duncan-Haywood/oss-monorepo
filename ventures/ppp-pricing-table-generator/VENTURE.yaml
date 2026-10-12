@@ -1,0 +1,51 @@
+name: ppp-pricing-table-generator
+description: 'Free tool for indie app and SaaS developers: turn one base price into a purchasing-power (PPP) price table for about 50 countries with a damping strength, floor, cap, .99 or whole rounding and optional price tiers, get the regional discount groups to enter in a payment processor, and see the extra conversion each discount needs to break even plus a revenue what-if against your own traffic mix -- in the browser or a zero-dependency Node CLI with CSV/JSON export; nothing uploaded, no network calls.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate. duplicate_check.py closest matches for "purchasing power
+# parity regional pricing table SaaS app country discount" were eu-vat-oss-calculator (0.22),
+# saas-annual-plan-discount-calculator (0.17) and indie-game-payout-calculator (0.16): none
+# builds a per-country price table. app-store-commission-calculator and
+# app-subscription-proceeds-calculator cover fees, not geography. Not in screened-out.md.
+# Free incumbents are mostly vendor-specific (Paddle, Lemon Squeezy and Gumroad each ship PPP
+# discount settings, parityfordeals-style coupon services) and give one percentage per country
+# with no break-even view; this is the vendor-neutral planner that shows what each discount must
+# win in conversion. Honest revenue view: a lead magnet for developers who sell software; a
+# later paid layer (live price-level data, per-processor export, A/B price test planner) would be
+# a separate decision. Payment rails stay off, optional GitHub Sponsors only.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are high. Pure arithmetic
+# on the visitor's device; no personal data, no network. The price-level indexes are labelled
+# rounded estimates and the revenue model is labelled a what-if.
+#
+# First visitor channel: searches for "PPP pricing for SaaS", "regional pricing app",
+# "purchasing power parity pricing table", "how much discount for India pricing".
+hypotheses:
+  - claim: 'Indie developers adding regional pricing will use a vendor-neutral table with a floor and tiers instead of guessing a percentage per country.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'Showing the break-even conversion for each discount changes which markets a developer chooses to discount.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct visitors engage with the tool within 90 days of it being reachable from the published site.
+  - No search impression for any regional-pricing query within 90 days of indexing.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ppp-pricing-table-generator/
+  analytics: null

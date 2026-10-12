@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Incident Postmortem Timeline — MTTR Calculator and Postmortem Draft from Your Log</title>
+  <meta name="description" content="Paste an incident log and get time to detect, acknowledge, mitigate and resolve plus a blameless postmortem draft in Markdown. Free incident timeline generator and MTTR calculator, runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Turn incident notes into a postmortem draft">
+  <meta property="og:description" content="Paste timestamped lines, get MTTR-style metrics, silent gaps and a Markdown postmortem.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Incident Postmortem Timeline","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Turns a pasted incident log into time to detect, acknowledge, mitigate and resolve, finds silent gaps, and drafts a blameless postmortem in Markdown. Runs in the browser or as a zero-dependency CLI; nothing is uploaded and it makes no network calls."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I calculate MTTR from an incident log?","acceptedAnswer":{"@type":"Answer","text":"Mark when impact started and when service was restored, then subtract. This tool does it for each phase: time to detect is start to the first alert or report, time to acknowledge is detection to a human picking it up, time to mitigate is start to the first rollback or workaround, and time to resolve is start to the all-clear. MTTR across many incidents is the average of the resolve times."}},{"@type":"Question","name":"How does it know which line is which phase?","acceptedAnswer":{"@type":"Answer","text":"It looks for plain wording such as alert fired, acknowledged, rolled back and incident closed. If a line is misread, begin it with a tag: start:, detected:, ack:, mitigated: or resolved:. A tag always wins over guessing."}},{"@type":"Question","name":"What timestamp formats work?","acceptedAnswer":{"@type":"Answer","text":"Each line starts with a time such as 14:09, 14:09:30 or 2026-10-03 14:09, optionally followed by Z or an offset like +02:00. Lines with only a time use the date of the last dated line, and a time that goes backwards is read as the next day."}},{"@type":"Question","name":"Does this tool upload my incident log?","acceptedAnswer":{"@type":"Answer","text":"No. The log is read in this page and never leaves your device. The page makes no network calls, and the CLI reads one local file."}},{"@type":"Question","name":"Is the postmortem draft finished?","acceptedAnswer":{"@type":"Answer","text":"No. It fills in the timeline and metrics and leaves impact, root cause and action items for your team to write. It is a starting point and not professional advice."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 170px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; width: min(100%, 360px); }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a3412; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.25rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: #e3e9ef; color: #17324a; }
+        pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">INCIDENT POSTMORTEM TIMELINE · RUNS IN YOUR BROWSER</p>
+    <h1>Paste the incident log. Get the postmortem draft.</h1>
+    <p>Incident platforms such as incident.io, FireHydrant and Rootly build timelines inside a paid product. This page does the core of it for free: paste timestamped lines from chat, a pager or your terminal and get <strong>time to detect</strong>, <strong>acknowledge</strong>, <strong>mitigate</strong> and <strong>resolve</strong>, the longest stretches where nothing was logged, and a blameless postmortem in Markdown.</p>
+    <p class="note">Nothing is uploaded. The log you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own. Phases are guessed from wording; tag any line with <code>start:</code>, <code>detected:</code>, <code>ack:</code>, <code>mitigated:</code> or <code>resolved:</code> to be exact.</p>
+  </header>
+
+  <section class="card">
+    <h2>Paste your timeline</h2>
+    <textarea id="log" spellcheck="false" placeholder="2026-10-03 14:02 deployed v412&#10;14:09 alert fired&#10;14:51 rolled back&#10;15:05 resolved"></textarea>
+    <p><label>Title: <input type="text" id="title" placeholder="Checkout outage"></label></p>
+    <p>
+      <button type="button" id="check">Build timeline</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste lines that each start with a time, then click Build timeline.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Response metrics</h2>
+    <p class="verdict" id="verdict"></p>
+    <p id="warn" class="error"></p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th>Time (UTC)</th><th>Phase</th><th>Event</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <h4>Silent gaps</h4>
+    <ul id="gaps"></ul>
+    <h4>Postmortem draft (Markdown)</h4>
+    <textarea id="md" readonly spellcheck="false"></textarea>
+    <p><button type="button" id="copy">Copy Markdown</button></p>
+  </section>
+
+  <section class="card">
+    <h2>Want it in a script?</h2>
+    <p>Same logic, zero dependencies. It reads one local file (or stdin) and nothing else:</p>
+    <pre class="cmd"><code>node postmortem.mjs incident.txt                       # metrics
+node postmortem.mjs incident.txt --md --title "Checkout outage" &gt; postmortem.md
+node postmortem.mjs incident.txt --max-ttr 60m         # exit 1 if resolve took longer</code></pre>
+    <p class="note">Get <a href="postmortem.mjs" rel="noopener">postmortem.mjs</a> and <a href="classify.mjs" rel="noopener">classify.mjs</a> from the repo. Node 18+, nothing to install, no network calls.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I calculate MTTR from an incident log?</h3>
+    <p>Mark when impact started and when service was restored, then subtract. This tool does it for each phase: time to detect is start to the first alert or report, time to acknowledge is detection to a human picking it up, time to mitigate is start to the first rollback or workaround, and time to resolve is start to the all-clear. MTTR across many incidents is the average of the resolve times.</p>
+    <h3>How does it know which line is which phase?</h3>
+    <p>It looks for plain wording such as alert fired, acknowledged, rolled back and incident closed. If a line is misread, begin it with a tag: start:, detected:, ack:, mitigated: or resolved:. A tag always wins over guessing.</p>
+    <h3>What timestamp formats work?</h3>
+    <p>Each line starts with a time such as 14:09, 14:09:30 or 2026-10-03 14:09, optionally followed by Z or an offset like +02:00. Lines with only a time use the date of the last dated line, and a time that goes backwards is read as the next day.</p>
+    <h3>Does this tool upload my incident log?</h3>
+    <p>No. The log is read in this page and never leaves your device. The page makes no network calls, and the CLI reads one local file.</p>
+    <h3>Is the postmortem draft finished?</h3>
+    <p>No. It fills in the timeline and metrics and leaves impact, root cause and action items for your team to write. It is a starting point and not professional advice.</p>
+    <p>More: <a href="how-to-write-a-blameless-postmortem.html">how to write a blameless postmortem from a timeline</a></p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. Its phase detection is a keyword heuristic and can be wrong. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="postmortem.mjs" rel="noopener">postmortem.mjs from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The log you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>timeline_built</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../slo-burn-rate-alerts/">SLO Burn Rate Alerts</a> and <a href="../git-bus-factor-check/">Git Bus Factor Check</a>. Across many incidents, <a href="../oncall-load-analyzer/">On-Call Load Analyzer</a> shows who carries the pager and which alerts are noise.</p>
+    <p class="support">Free and open source. If this saved you an hour of rebuilding a timeline, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, summaryLine, toMarkdown, fmtDuration } from "./classify.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = { log: $("#log"), status: $("#status"), reportCard: $("#report-card"), verdict: $("#verdict"), rows: $("#rows"), warn: $("#warn"), gaps: $("#gaps"), md: $("#md") };
+
+    // Synthetic incident, fictional service.
+    const EXAMPLE = `2026-10-03 14:02 deployed v412 to production
+14:09 PagerDuty alert fired: checkout 5xx
+14:12 Dana acknowledged, investigating
+14:51 rolled back v412
+15:05 error rate back to normal, incident closed`;
+
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const clock = (ms) => new Date(ms).toISOString().slice(0, 19).replace("T", " ");
+
+    function run(text) {
+      if (!text.trim()) { els.status.innerHTML = `<span class="error">Paste an incident log first.</span>`; return false; }
+      const r = analyze(text);
+      if (r.error) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(r.error)}. Start each line with a time like 14:09.</span>`;
+        els.reportCard.hidden = true;
+        return false;
+      }
+      els.verdict.textContent = summaryLine(r);
+      const warns = [];
+      if (r.startEstimated) warns.push("No start event marked: the first line was used as the start.");
+      if (r.missing.length) warns.push(`No ${r.missing.join(", ")} event found.`);
+      if (r.problems.length) warns.push(`${r.problems.length} line(s) skipped: ${r.problems.map((p) => "line " + p.line + " (" + p.reason + ")").join(", ")}.`);
+      els.warn.textContent = warns.join(" ");
+      els.rows.innerHTML = r.events.map((e) => `<tr><td>${clock(e.ms)}</td><td>${e.phase ? `<span class="pill">${e.phase}</span>` : ""}</td><td>${escapeHtml(e.text)}</td></tr>`).join("");
+      els.gaps.innerHTML = r.gaps.slice(0, 5).map((g) => `<li>${fmtDuration(g.seconds)} between “${escapeHtml(g.from.text)}” and “${escapeHtml(g.to.text)}”</li>`).join("") || "<li>No gap of 15 minutes or more.</li>";
+      els.md.value = toMarkdown(r, $("#title").value.trim() || "Incident");
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("timeline_built");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#check").addEventListener("click", () => run(els.log.value));
+    $("#load-example").addEventListener("click", () => {
+      els.log.value = EXAMPLE;
+      if (run(EXAMPLE)) {
+        record("example_loaded");
+        els.status.textContent = "Worked example: the 39-minute silence before the rollback is the question a review should open with.";
+      }
+    });
+    $("#clear").addEventListener("click", () => {
+      els.log.value = "";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste lines that each start with a time, then click Build timeline.";
+    });
+    $("#copy").addEventListener("click", async (event) => {
+      try { await navigator.clipboard.writeText(els.md.value); event.target.textContent = "Copied"; }
+      catch { els.md.select(); event.target.textContent = "Selected: press Ctrl+C"; }
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      usageControl.textContent = "Usage counting is off";
+      usageControl.disabled = true;
+    }
+  </script>
+</body>
+</html>

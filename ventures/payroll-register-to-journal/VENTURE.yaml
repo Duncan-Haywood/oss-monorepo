@@ -1,0 +1,69 @@
+name: payroll-register-to-journal
+description: >-
+  Free browser tool that turns a payroll register CSV (Gusto, ADP, Paychex, QuickBooks Payroll or a
+  spreadsheet) into balanced accounting journals for Xero, QuickBooks Online and QuickBooks Desktop (IIF).
+  It checks every employee row (gross pay less every withholding equals net pay), books gross wages and
+  the employer's Social Security, Medicare, FUTA, SUTA and retirement match as expenses, books every
+  withholding as its own liability instead of one net-pay withdrawal, writes one journal per pay date or
+  month balanced to a payroll clearing account, totals the Form 941 deposit each run creates, and can prove
+  a run against the net pay typed in from the bank. Money no column explains is journalled to an
+  uncategorised account rather than dropped, and unknown tax columns are reported. The file is read
+  locally and never uploaded; employee names are never written into a journal.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 in a new-venture-first session. The commercial analogue is the payroll-to-accounting
+# sync every payroll provider sells (Gusto and ADP's QuickBooks/Xero integrations, plus Webgility-style
+# connectors) and the bookkeeper hours spent keying a payroll journal when the sync is off, broken or
+# unavailable (ADP RUN, Paychex Flex and small-provider exports often only give a CSV). Sibling of the
+# payout-to-journal family (Stripe, PayPal, Shopify, Etsy, Amazon, Square): same journal engine, but the
+# payroll side of the books, which is the largest recurring journal a small business posts and the one
+# where booking the bank withdrawal as an expense is most wrong (employer taxes missing, liabilities empty,
+# 941 and state returns that will not agree with the books).
+# Search phrases: "payroll journal entry QuickBooks", "payroll register to Xero", "how to record payroll in
+# QuickBooks", "payroll journal entry template", "payroll liabilities journal entry", "941 deposit amount".
+# Volume not measured with an external tool.
+#
+# Who: small employers who keep their own books and the bookkeepers who serve several of them. Today they
+# book the net pay withdrawal and the tax payments as expenses (wrong) or retype the register.
+#
+# Path to revenue (payment rails stay off): lead magnet for the bookkeeper audience. If usage appears, the
+# paid version is what a browser page cannot do: batch many clients, remember the account mapping and
+# department/class splits per client, accrue unpaid wages at month end, and pull registers on a schedule
+# (behind an env-var switch). Not built.
+#
+# Liability: it writes a journal from the user's own register, shows the check it ran, states what it does
+# not check (correctness of any withholding, deposit deadlines, workers' compensation, accruals), and
+# carries the no-warranty, independent-of-vendors and financial-data clauses.
+#
+# Unverified: the column names and number formats of real Gusto, ADP, Paychex and QuickBooks Payroll
+# registers, how each prints withholding signs and employer-side columns, and the Xero, QuickBooks Online
+# and IIF import layouts are from memory of public help documents; nothing ran against a real export or a
+# live import. The first register this misreads, or a journal an importer refuses, is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A small employer or their bookkeeper will paste a payroll register into a no-upload page to get a
+      per-run journal with every withholding as a liability, because the alternatives are booking the net
+      pay withdrawal as an expense, retyping the register, or an integration that is off or unavailable.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted register structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a register this tool misreads, or a journal that Xero or QuickBooks refuses, at which point the layouts need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/payroll-register-to-journal/
+  analytics: null

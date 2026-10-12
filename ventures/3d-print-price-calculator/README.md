@@ -36,6 +36,12 @@ actually spends:
   already clear the fee at your target margin, instead of a price that looks
   right until the marketplace takes its cut.
 
+**Import from your slicer.** Choose a sliced `.gcode` file and the page reads the
+filament weight and print time from the slicer's own summary comments
+(PrusaSlicer, OrcaSlicer, Bambu Studio, Cura, Simplify3D) — in the browser, the file is
+never uploaded. Cura reports length rather than weight, so grams are derived
+from 1.75 mm filament at 1.24 g/cm³ (PLA) and the page says so. See `gcode.mjs`.
+
 The "check a price you're actually charging" panel recomputes the real
 profit and margin for a price you already picked — matching a competitor's
 listing, say — against the same break-even, the same way this portfolio's
@@ -46,7 +52,7 @@ other pricing calculators let you check a real number against the estimate.
 Everything runs in your browser. Your costs and prices are never uploaded,
 there is no account, and nothing is saved when you close the tab — every
 field resets on refresh by design. We count anonymous local feature events
-only (`price-calculated`, `price-checked`), with a visible opt-out. Do Not
+only (`price-calculated`, `price-checked`, `gcode_imported`), with a visible opt-out. Do Not
 Track and Global Privacy Control disable counting automatically. No costs or
 prices are recorded. The counter is not sent to the maintainers.
 

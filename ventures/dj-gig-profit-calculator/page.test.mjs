@@ -51,7 +51,7 @@ test("every input has a label and nothing is sent anywhere", () => {
 
 test("the module scripts import only local files, and the inline script parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./quote.mjs", "./usage.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
   assert.doesNotMatch(page("calc.mjs"), /^\s*import\s/m);
   const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
@@ -105,4 +105,8 @@ test("related-tool links point at ventures that exist", () => {
   for (const m of html.matchAll(/href="\.\.\/([a-z0-9-]+)\/"/g)) {
     assert.ok(existsSync(new URL(`../${m[1]}/index.html`, import.meta.url)), m[1]);
   }
+});
+
+test("links the fishing charter trip pricing calculator, a sibling per-booking pricing tool", () => {
+  assert.match(page("index.html"), /href="\.\.\/fishing-charter-trip-pricing-calculator\/"/);
 });

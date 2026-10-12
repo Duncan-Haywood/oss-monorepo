@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How much does a golf simulator lounge make: a worked example</title>
+  <meta name="description" content="How to work out what an indoor golf simulator lounge earns: peak and off-peak bay hours, members, food and drink, staff and rent, with a worked three-bay example, its payback on a $129,000 build, the break-even utilization and the rates for a 30% margin.">
+  <meta property="og:title" content="How much does a golf simulator lounge make: a worked example">
+  <meta property="og:description" content="How to work out what an indoor golf simulator lounge earns: peak and off-peak bay hours, members, food and drink, staff and rent, with a worked three-bay example, its payback on a $129,000 build, the break-even utilization and the rates for a 30% margin.">
+  <link rel="canonical" href="./how-much-does-a-golf-simulator-lounge-make.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What utilization does a golf simulator business need to break even?","acceptedAnswer":{"@type":"Answer","text":"It depends on rent, staff and rates, so the calculator solves it for you: it scales your booked hours up or down until monthly profit is exactly zero and reports that as a percentage of all available bay hours. Rooms with a peak-hours crowd and a dead weekday morning often need a lower overall figure than they fear, but only if off-peak hours are priced to fill."}},{"@type":"Question","name":"Should I sell memberships or hourly bay time?","acceptedAnswer":{"@type":"Answer","text":"Members bring steady cash but use bay hours that walk-ins would have paid for. The calculator takes member hours out of the booked pool before pricing walk-in revenue, so a membership that uses more hours than it pays for shows up as lower walk-in income instead of free money."}},{"@type":"Question","name":"What rates do I need to charge to reach my target margin?","acceptedAnswer":{"@type":"Answer","text":"The calculator scales your peak and off-peak walk-in rates by the same factor until margin equals your target and shows both new rates. The test suite checks that charging exactly those rates earns the target margin for hundreds of random rooms."}},{"@type":"Question","name":"Should I build three bays or five?","acceptedAnswer":{"@type":"Answer","text":"Use the second scenario to change bays, rates, utilization and members. The tool compares monthly profit and payback, because the larger room often earns more but takes longer to return the money, which matters when you are financing the build."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note"><a href="./index.html">← Golf Simulator Bay Profit Calculator</a></p>
+    <h1>How much does a golf simulator lounge make?</h1>
+    <p>Three bays open fourteen hours a day can sell 1,274 bay hours a month. At a realistic 29% booked, the room keeps about a quarter of its revenue, and the build takes about a year and a half to come back.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>The worked example</h2>
+    <p>A lounge with 3 bays is open 14 hours, 7 days a week, which is <strong>1274</strong> bay hours a month. A third of those are peak hours booked at 50% and the rest off-peak booked at 18%: <strong>372</strong> bay hours sold, 29.2% of capacity. Peak sells at $55 and off-peak at $35, a blended <strong>$46.99</strong>.</p>
+    <p>25 members pay $150 a month and use 3 hours each, so 75 of the booked hours are members and 297 are walk-ins: <strong>$13955.31</strong> of walk-in revenue plus <strong>$3750.00</strong> of membership. At 2.5 players a bay and $12 of food and drink each per hour, food and drink brings in <strong>$11160.24</strong>.</p>
+    <p>One person on duty costs <strong>$8085.65</strong> a month at $17 an hour plus 12% payroll cost. With rent, utilities, software and insurance, fixed costs are <strong>$16635.65</strong>.</p>
+    <table><thead><tr><th>Line</th><th>Per month</th></tr></thead><tbody>
+<tr><td>Revenue</td><td><strong>$28865.55</strong></td></tr>
+<tr><td>Total costs</td><td><strong>$22004.31</strong></td></tr>
+<tr><td>Profit</td><td><strong>$6861.23</strong></td></tr>
+<tr><td>Margin</td><td>23.8%</td></tr>
+<tr><td>Profit per bay</td><td>$2287.08</td></tr>
+    </tbody></table>
+    <p>Three bays at $28,000 plus a $45,000 buildout cost <strong>$129,000</strong>, so payback is <strong>18.8</strong> months, 1.6 years. Profit would reach zero at 20.6% utilization.</p>
+  </section>
+  <section class="card">
+    <h2>The rates a 30% margin needs</h2>
+    <p>The room earns 23.8%, short of 30%. Scaling both walk-in rates by 20.5% gives a peak rate of <strong>$66.25</strong> and an off-peak rate of $42.16.</p>
+    <h2 style="margin-top:20px">Hitting an 18-month payback</h2>
+    <p>At 18.8 months the room is just past an 18-month payback target. With everything else unchanged, the lowest peak rate that reaches 18 months is <strong>$56.85</strong>, $1.85 more than the $55 entered. Payback here is measured before any loan payment, so borrowing does not flatter it; a loan still comes out of monthly profit.</p>
+    <h2 style="margin-top:20px">If bookings come in under plan</h2>
+    <p>Rent, staff and software do not shrink when bays sit empty. With 10% fewer booked hours, monthly profit falls from $6,861 to $4,533 and payback stretches to 28.5 months. With 20% fewer, profit is $2,204 a month and payback is 58.5 months.</p>
+    <h2 style="margin-top:20px">Three bays or five?</h2>
+    <p>A five-bay build with 45 members but thinner utilization (32% peak, 10% off-peak) makes <strong>$7118.50</strong> a month against <strong>$6861.23</strong>, but its build costs $185,000 and takes <strong>26.0</strong> months to pay back against 18.8. The bigger room earns more once paid for; the smaller one returns the money sooner.</p>
+    <p>Run your own numbers: <a href="./index.html">open the calculator</a>.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What utilization does a golf simulator business need to break even?</h3>
+    <p>It depends on rent, staff and rates, so the calculator solves it for you: it scales your booked hours up or down until monthly profit is exactly zero and reports that as a percentage of all available bay hours. Rooms with a peak-hours crowd and a dead weekday morning often need a lower overall figure than they fear, but only if off-peak hours are priced to fill.</p>
+    <h3>Should I sell memberships or hourly bay time?</h3>
+    <p>Members bring steady cash but use bay hours that walk-ins would have paid for. The calculator takes member hours out of the booked pool before pricing walk-in revenue, so a membership that uses more hours than it pays for shows up as lower walk-in income instead of free money.</p>
+    <h3>What rates do I need to charge to reach my target margin?</h3>
+    <p>The calculator scales your peak and off-peak walk-in rates by the same factor until margin equals your target and shows both new rates. The test suite checks that charging exactly those rates earns the target margin for hundreds of random rooms.</p>
+    <h3>Should I build three bays or five?</h3>
+    <p>Use the second scenario to change bays, rates, utilization and members. The tool compares monthly profit and payback, because the larger room often earns more but takes longer to return the money, which matters when you are financing the build.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Arithmetic on the numbers you type, not tax, legal, lending or financial advice. Not affiliated with any simulator maker or software vendor. Best-effort hosting, no SLA. Everything runs in your browser.</p>
+  </footer>
+</body>
+</html>

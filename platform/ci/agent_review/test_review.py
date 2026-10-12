@@ -10,6 +10,7 @@ from review import (
     load_config,
     mergeable_state_ok,
     path_touches_ventures,
+    pr_from_same_repo,
     reviewer_already_approved,
     untrusted_reason,
 )
@@ -240,6 +241,32 @@ class UntrustedReasonTest(unittest.TestCase):
     def test_outside_human_author_is_untrusted(self):
         reason = untrusted_reason(_pr(association="CONTRIBUTOR"))
         self.assertIn("author_association=CONTRIBUTOR", reason)
+
+
+def _same_repo_pr(head_repo, base_repo="owner/repo"):
+    return {
+        "head": {"repo": {"full_name": head_repo} if head_repo else None},
+        "base": {"repo": {"full_name": base_repo}},
+    }
+
+
+class SameRepoTest(unittest.TestCase):
+    def test_same_repo_branch_passes(self):
+        ok, _ = pr_from_same_repo(_same_repo_pr("owner/repo"))
+        self.assertTrue(ok)
+
+    def test_fork_blocked(self):
+        ok, reason = pr_from_same_repo(_same_repo_pr("stranger/repo"))
+        self.assertFalse(ok)
+        self.assertIn("fork", reason)
+
+    def test_deleted_fork_fails_closed(self):
+        ok, _ = pr_from_same_repo(_same_repo_pr(None))
+        self.assertFalse(ok)
+
+    def test_missing_fields_fail_closed(self):
+        ok, _ = pr_from_same_repo({})
+        self.assertFalse(ok)
 
 
 if __name__ == "__main__":

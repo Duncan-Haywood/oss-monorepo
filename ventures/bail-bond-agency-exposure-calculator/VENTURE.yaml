@@ -1,0 +1,57 @@
+name: bail-bond-agency-exposure-calculator
+description: >-
+  Free browser tool for bail bond agents and small agencies: type the open bonds, collateral held and the surety's terms and see net
+  premium after the surety share and build-up fund, the loss if bonds are forfeited, break-even failure-to-appear rate, whether cash on
+  hand covers the largest forfeitures, writing-limit use, and a court-date call list. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture-first scheduled session. duplicate_check.py: no venture scores above 0.16 for bail bond
+# books; nothing in the portfolio prices a surety-backed bond book.
+#
+# Why this niche: a bail agent is a small business that carries contingent liability on every open bond, usually tracked in a
+# spreadsheet or a general-purpose agency system that does not show cash coverage of the largest forfeitures. The money question
+# (am I over-written for my cash?) and the weekly chore (who has court this week?) are both arithmetic on data the agent already holds.
+#
+# First visitor: an agent searching "bail bond build up fund calculator", "bail bond agency liability", "bail bond forfeiture exposure".
+# Volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a multi-defendant ledger export and court-date reminder
+# templates behind an env-var switch. Neither is built.
+#
+# Liability: the risks are a wrong number and a tool read as underwriting or legal advice. Mitigations: no premium schedule, forfeiture
+# deadline or licensing rule ships (the user types their own terms), every figure is hand-counted in unit tests, bad input throws
+# instead of clamping, the failure-to-appear rate is the user's own estimate, and the page says it is not legal, tax or financial advice
+# and does not decide who to bond. It stores nothing, contacts no defendant and files nothing.
+
+hypotheses:
+  - claim: >-
+      A bail agent will use a free no-upload tool that shows cash coverage of the largest forfeitures and a weekly court-date call
+      list, because both are chores done by hand today.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the uncollateralized share and the break-even failure-to-appear rate changes which bonds an agency writes or asks
+      collateral on.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports relying on the tool's figure instead of their surety agreement or a licensed professional, despite the disclaimer -- at that point the wording needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/bail-bond-agency-exposure-calculator/
+  analytics: null

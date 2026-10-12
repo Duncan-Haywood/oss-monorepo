@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Freelance Dashboard — Overdue Invoices, Unbilled Time, Profit and What to Do Next</title>
+  <meta name="description" content="Free freelancer dashboard that runs in your browser: see overdue invoices, unbilled hours, your estimate pipeline, year-to-date profit and tax set-aside, plus a ranked list of what to do next. No account, nothing uploaded.">
+  <meta property="og:title" content="Freelance Dashboard — what is owed, what is unbilled, what to do next">
+  <meta property="og:description" content="One page that reads your invoices, estimates, hours and expenses on this device and tells you what to chase, bill and set aside. No signup.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Freelance Dashboard", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "A free freelancer business dashboard that runs in your browser: overdue invoices, unbilled time, estimate pipeline, year-to-date profit, tax set-aside and a ranked list of what to do next. Reads your Invoice Maker, Estimate Maker, Time Tracker and Expense Tracker data on this device. No account."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this dashboard really free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. There is no account, no trial and no paywall. It runs in your browser, so it costs nothing to serve, and it stays free."}}, {"@type": "Question", "name": "Where does the dashboard get its numbers?", "acceptedAnswer": {"@type": "Answer", "text": "From the data the other tools in this set keep in your browser: Invoice Maker, Estimate Maker, Time Tracker and Expense Tracker. It only reads them. If you have not used a tool yet, that part of the dashboard stays empty and the page says which tool to open."}}, {"@type": "Question", "name": "Is anything uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page reads your browser's local storage on this device and does the sums there. Nothing is sent anywhere, and there are no accounts, cookies or analytics vendors."}}, {"@type": "Question", "name": "Why does it say my income is lower than my invoices?", "acceptedAnswer": {"@type": "Answer", "text": "Income here is the share of each invoice you have actually been paid, excluding sales tax and shipping, for invoices issued this year. Money invoiced but not yet collected is shown separately as receivables."}}, {"@type": "Question", "name": "What is the tax set-aside?", "acceptedAnswer": {"@type": "Answer", "text": "A planning figure: your year-to-date net profit (paid income minus deductible expenses) multiplied by the percentage you choose. It is not a tax calculation. Use the quarterly estimated tax calendar or a preparer for the real payment."}}, {"@type": "Question", "name": "Does it work with data from other invoicing apps?", "acceptedAnswer": {"@type": "Answer", "text": "Not directly. It reads the format of the four sibling tools. To bring other data in, import a bank CSV into Expense Tracker or re-enter invoices in Invoice Maker."}}, {"@type": "Question", "name": "How do I back up everything at once?", "acceptedAnswer": {"@type": "Answer", "text": "Use Download one backup for all four tools below. The file restores all four tools' data on any device with Restore from backup. Clearing site data removes your data, so download a backup now and then."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f4fa; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #3a3fa8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #23277a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #23277a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a4f6a; }
+    .card { background: #fff; border: 1px solid #dcdcee; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #23277a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b3b5d3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3a3fa8; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e6e7f6; color: #23277a; }
+    button.danger { background: #fde8e8; color: #9a3412; }
+    button.stop { background: #b42318; }
+    button.small { padding: 5px 9px; margin: 0 4px 0 0; font-size: .8rem; }
+    button:disabled { opacity: .5; cursor: default; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #ebebf5; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a4f6a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0; }
+    .kpi { background: #eeeffb; border-radius: 10px; padding: 12px; }
+    .kpi b { display: block; font-size: 1.3rem; color: #23277a; }
+    .kpi span { font-size: .8rem; color: #4a4f6a; }
+    .clock { font-size: clamp(2.2rem, 8vw, 3.6rem); font-variant-numeric: tabular-nums; font-weight: 800; color: #23277a; margin: 4px 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: #e6e7f6; color: #23277a; }
+    .pill.billed { background: #d8f0e2; color: #14503a; }
+    .pill.nb { background: #eee; color: #555; }
+    .issues li { color: #7c4a10; }
+    .bars { display: flex; gap: 6px; align-items: flex-end; height: 90px; margin: 10px 0 4px; }
+    .bar { flex: 1; background: #c9cbf0; border-radius: 4px 4px 0 0; min-height: 2px; }
+    .barlabels { display: flex; gap: 6px; font-size: .72rem; color: #4a4f6a; text-align: center; }
+    .barlabels span { flex: 1; }
+    .sr { position: absolute; left: -9999px; }
+    .running { outline: 3px solid #b42318; }
+    #sheet { background: #fff; color: #111; padding: 18px; border: 1px solid #dcdcee; border-radius: 6px; margin-top: 12px; }
+    #sheet h2 { margin: 0 0 6px; color: #111; }
+    @media print { body > :not(#sc-card) { display: none !important; } body { background: #fff; padding: 0; max-width: none; } #sc-card { box-shadow: none; border: 0; padding: 0; margin: 0; } #sheet { border: 0; padding: 0; } }
+    .pill.warn { background: #fdecc8; color: #7c4a10; }
+    footer { margin-top: 28px; border-top: 1px solid #dcdcee; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Freelance Dashboard</h1>
+    <p>See what you are owed, what you have worked but not billed, how your quotes are doing and what is left of your profit after costs, then get a short list of what to do next. It reads the data from <a href="../invoice-maker/">Invoice Maker</a>, <a href="../estimate-maker/">Estimate Maker</a>, <a href="../time-tracker/">Time Tracker</a> and <a href="../expense-tracker/">Expense Tracker</a> already on this device. Free, no account, nothing uploaded.</p>
+  </header>
+
+  <section class="card" id="top-card">
+    <h2>Do this next</h2>
+    <div id="actions"></div>
+    <div id="empty" hidden>
+      <p><strong>Nothing to show yet.</strong> This page reads what the four tools save in this browser, and none of them has saved anything here. Start with the one that fits today:</p>
+      <ul>
+        <li>Sent a quote? <a href="../estimate-maker/">Estimate Maker</a></li>
+        <li>Worked some hours? <a href="../time-tracker/">Time Tracker</a></li>
+        <li>Need to get paid? <a href="../invoice-maker/">Invoice Maker</a></li>
+        <li>Paid for something for the business? <a href="../expense-tracker/">Expense Tracker</a></li>
+      </ul>
+      <p>Or <button type="button" class="secondary" id="demo">see it with example data</button> (nothing is saved).</p>
+    </div>
+    <p id="demo-note" class="note" hidden>Showing made-up example data. Nothing here is saved or read from your tools. <button type="button" class="small secondary" id="demo-off">Back to my data</button></p>
+  </section>
+
+  <section class="card" id="kpi-card">
+    <h2>Money, year to date</h2>
+    <div class="kpis" id="kpis"></div>
+    <div class="grid">
+      <div><label for="rate">Tax set-aside rate (%)</label><input id="rate" inputmode="decimal" value="30"></div>
+    </div>
+    <p class="note" id="tax-line"></p>
+  </section>
+
+  <section class="card">
+    <h2>Income and costs by month</h2>
+    <div class="bars" id="bars" role="img" aria-label="Monthly paid income and deductible costs"></div>
+    <div class="barlabels" id="barlabels"></div>
+    <p class="note" id="bars-note"></p>
+  </section>
+
+  <section class="card">
+    <h2>By client</h2>
+    <div class="scroll" id="clients"></div>
+    <p class="note">Effective rate is invoiced revenue this year divided by hours tracked this year for that client, shown only where both exist. Use the same client name in each tool so they line up.</p>
+  </section>
+
+  <section class="card">
+    <h2>Who owes you</h2>
+    <div class="scroll" id="owed"></div>
+  </section>
+
+  <section class="card">
+    <h2>Your tools on this device</h2>
+    <ul id="tools"></ul>
+    <h3>One backup for all four</h3>
+    <p class="note">Your data lives only in this browser. Download one file that holds everything, and restore it on any device.</p>
+    <p class="note" id="storage-guard" aria-live="polite"></p>
+    <button type="button" id="backup">Download one backup for all four tools</button>
+    <button type="button" class="secondary" id="restore-btn">Restore from backup</button>
+    <input type="file" id="restore" accept="application/json,.json" class="sr" aria-label="Restore from backup file">
+    <p class="note" id="io-status" role="status"></p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Is this dashboard really free?</h3>
+    <p>Yes. There is no account, no trial and no paywall. It runs in your browser, so it costs nothing to serve, and it stays free.</p>
+    <h3>Where does the dashboard get its numbers?</h3>
+    <p>From the data the other tools in this set keep in your browser: Invoice Maker, Estimate Maker, Time Tracker and Expense Tracker. It only reads them. If you have not used a tool yet, that part of the dashboard stays empty and the page says which tool to open.</p>
+    <h3>Is anything uploaded?</h3>
+    <p>No. The page reads your browser's local storage on this device and does the sums there. Nothing is sent anywhere, and there are no accounts, cookies or analytics vendors.</p>
+    <h3>Why does it say my income is lower than my invoices?</h3>
+    <p>Income here is the share of each invoice you have actually been paid, excluding sales tax and shipping, for invoices issued this year. Money invoiced but not yet collected is shown separately as receivables.</p>
+    <h3>What is the tax set-aside?</h3>
+    <p>A planning figure: your year-to-date net profit (paid income minus deductible expenses) multiplied by the percentage you choose. It is not a tax calculation. Use the quarterly estimated tax calendar or a preparer for the real payment.</p>
+    <h3>Does it work with data from other invoicing apps?</h3>
+    <p>Not directly. It reads the format of the four sibling tools. To bring other data in, import a bank CSV into Expense Tracker or re-enter invoices in Invoice Maker.</p>
+    <h3>How do I back up everything at once?</h3>
+    <p>Use Download one backup for all four tools below. The file restores all four tools' data on any device with Restore from backup. Clearing site data removes your data, so download a backup now and then.</p>
+    <h3>What this does not model</h3>
+    <p class="note">Not modelled: sales tax filing, state or self-employment tax rules, depreciation, multiple currencies, invoices from other apps, and anything you have not entered in the four tools. Figures are planning aids; check them against the tool they came from before you act.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. It adds up numbers saved by other tools in your browser and ranks them by size; the tax set-aside is a plain percentage you choose, not a tax calculation, and whether anything is owed or deductible is for you and your tax preparer to decide.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as your only record: download a backup.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>dashboard_viewed</code>, <code>backup_downloaded</code>, <code>backup_restored</code>, <code>example_loaded</code>) are counted only in local storage on your device, never the content. Turn it off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>, the <a href="../mileage-log/">mileage log</a>, the <a href="../late-invoice-collections-kit/">late invoice collections kit</a> and the <a href="../invoice-payment-terms-calculator/">invoice payment terms calculator</a>.</p>
+    <p>Need to win the next job? Write the <a href="../proposal-maker/">proposal</a> first.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+<script type="module">
+    import { STORES, readStores, overview, formatMoney, buildBackup, parseBackup, exampleStores } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const money = (c) => formatMoney(c, "USD");
+    const MONTHS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+    const TOOLS = [["invoices", "invoice-maker", "Invoice Maker"], ["estimates", "estimate-maker", "Estimate Maker"], ["time", "time-tracker", "Time Tracker"], ["expenses", "expense-tracker", "Expense Tracker"]];
+    const NAMES = Object.fromEntries(TOOLS.map(([, slug, name]) => [slug, name]));
+    NAMES["quarterly-estimated-tax-calendar"] = "Quarterly tax calendar";
+    const RATE_KEY = "freelance-dashboard-rate";
+    let demo = null;
+
+    function getItem(k) { if (demo) return demo[k] ?? null; return localStorage.getItem(k); }
+    const today = () => new Date().toISOString().slice(0, 10);
+    function rate() { const r = Number($("#rate").value); return Number.isFinite(r) && r > 0 ? Math.min(r, 70) : 0; }
+
+    function render() {
+      let s;
+      try { s = readStores(getItem); } catch { s = readStores(() => null); }
+      const ctx = { today: today(), now: Date.now(), ratePct: rate() };
+      const o = overview(s, ctx);
+      const none = o.toolsFound === 0;
+      $("#empty").hidden = !none || !!demo;
+      $("#demo-note").hidden = !demo;
+      $("#actions").innerHTML = none ? "" : o.actions.length
+        ? `<ol>${o.actions.map((a) => `<li>${esc(a.text)} <a href="../${esc(a.tool)}/">Open ${esc(NAMES[a.tool] || a.tool)}</a></li>`).join("")}</ol>`
+        : "<p>Nothing needs you right now: no overdue invoices, no stale quotes, no unbilled time and no missing receipts.</p>";
+      const k = [[money(o.receivables.outstanding), "owed to you"], [money(o.receivables.overdue), "of it overdue"], [money(o.time.unbilled), "tracked, not yet billed"], [money(o.pipeline.openValue), `open quotes (${o.pipeline.open})`], [money(o.income.paid), `paid income, ${o.year}`], [money(o.expenses.deductible), "deductible costs"], [money(o.net), "net profit so far"], [money(o.setAside), `set aside at ${rate()}%`]];
+      $("#kpis").innerHTML = k.map(([v, l]) => `<div class="kpi"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join("");
+      const extra = [];
+      if (o.pipeline.winRate !== null) extra.push(`Quote win rate ${Math.round(o.pipeline.winRate * 100)}% (${o.pipeline.accepted} of ${o.pipeline.decided} decided).`);
+      if (o.time.utilisation !== null) extra.push(`${Math.round(o.time.utilisation * 100)}% of tracked time is billable; effective rate ${money(o.time.effectiveRate)} per tracked hour.`);
+      if (o.nextTax) extra.push(`Next federal estimated payment: ${o.nextTax.label}, ${o.nextTax.date} (${o.nextTax.days} day${o.nextTax.days === 1 ? "" : "s"}). Weekends and holidays move it; check Form 1040-ES.`);
+      $("#tax-line").textContent = extra.join(" ");
+      const max = Math.max(1, ...o.months.map((m) => Math.max(m.income, m.costs)));
+      $("#bars").innerHTML = o.months.map((m) => `<div style="flex:1;display:flex;gap:2px;align-items:flex-end;height:100%"><div class="bar" style="height:${Math.round((m.income / max) * 100)}%"></div><div class="bar" style="height:${Math.round((m.costs / max) * 100)}%;background:#e8c8a4"></div></div>`).join("");
+      $("#barlabels").innerHTML = MONTHS.map((m) => `<span>${m}</span>`).join("");
+      $("#bars-note").textContent = "Blue: income paid, by month the invoice was issued. Tan: deductible costs.";
+      $("#owed").innerHTML = o.receivables.open.length
+        ? `<table><tr><th>Client</th><th>Invoice</th><th>Due</th><th class="n">Days late</th><th class="n">Balance</th></tr>${o.receivables.open.slice(0, 15).map((r) => `<tr><td>${esc(r.client)}</td><td>${esc(r.number)}</td><td>${esc(r.due)}</td><td class="n">${r.overdue ? esc(r.daysLate) : "—"}</td><td class="n">${esc(money(r.balance))}</td></tr>`).join("")}</table>`
+        : "<p class=\"note\">No unpaid sent invoices found.</p>";
+      $("#clients").innerHTML = o.clientRows.length
+        ? `<table><tr><th>Client</th><th class="n">Billed this year</th><th class="n">Owed</th><th class="n">Hours</th><th class="n">Effective rate per hour</th></tr>${o.clientRows.map((r) => `<tr><td>${esc(r.client)}</td><td class="n">${esc(money(r.billed))}</td><td class="n">${esc(money(r.owed))}</td><td class="n">${esc(r.hours)}</td><td class="n">${r.rate === null ? "—" : esc(money(r.rate))}</td></tr>`).join("")}</table>`
+        : "<p class=\"note\">No clients yet.</p>";
+      $("#tools").innerHTML = TOOLS.map(([key, slug, name]) => `<li><a href="../${esc(slug)}/">${esc(name)}</a>: ${s.found[key] ? "data found on this device" : "no data yet"}</li>`).join("");
+    }
+
+    $("#rate").value = (() => { try { return localStorage.getItem(RATE_KEY) || "30"; } catch { return "30"; } })();
+    $("#rate").addEventListener("input", () => { try { localStorage.setItem(RATE_KEY, $("#rate").value); } catch { /* storage is optional */ } render(); });
+    $("#demo").addEventListener("click", () => { demo = exampleStores(today()); record("example_loaded"); render(); });
+    $("#demo-off").addEventListener("click", () => { demo = null; render(); });
+    $("#backup").addEventListener("click", () => {
+      const b = buildBackup((k) => localStorage.getItem(k));
+      if (!Object.keys(b.stores).length) { $("#io-status").textContent = "Nothing to back up yet: none of the four tools has saved data here."; return; }
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(b, null, 1)], { type: "application/json" }));
+      a.download = `freelance-backup-${today()}.json`; a.click(); URL.revokeObjectURL(a.href);
+      record("backup_downloaded");
+      $("#io-status").textContent = `Downloaded a backup of ${Object.keys(b.stores).length} tool(s).`;
+    });
+    $("#restore-btn").addEventListener("click", () => $("#restore").click());
+    $("#restore").addEventListener("change", async (ev) => {
+      const f = ev.target.files[0]; if (!f) return;
+      const r = parseBackup(await f.text());
+      ev.target.value = "";
+      if (!r.ok) { $("#io-status").textContent = r.problem; return; }
+      if (!confirm(`Restoring replaces the saved data of ${r.writes.length} tool(s) on this device with the file's contents. Continue?`)) return;
+      try { for (const [k, v] of r.writes) localStorage.setItem(k, v); } catch { $("#io-status").textContent = "Could not save: browser storage is full or blocked."; return; }
+      record("backup_restored");
+      $("#io-status").textContent = `Restored ${r.writes.length} tool(s).`;
+      demo = null; render();
+    });
+    const oo = $("#optout"); oo.textContent = usageOptedOut() ? "Usage counting is off" : "Turn usage counting off";
+    oo.addEventListener("click", () => { setUsageOptOut(true); oo.textContent = "Usage counting is off"; });
+    window.addEventListener("storage", render);
+    render();
+    record("dashboard_viewed");
+</script>
+<script data-storage-guard>
+(function () {
+  var KEY = "freelance-suite-last-backup", el = document.getElementById("storage-guard");
+  if (!el) return;
+  var persisted = null;
+  function days() {
+    try {
+      var t = Number(localStorage.getItem(KEY));
+      return t > 0 ? Math.floor((Date.now() - t) / 86400000) : null;
+    } catch (e) { return null; }
+  }
+  function render() {
+    var d = days(), parts = [];
+    parts.push(persisted === true
+      ? "Storage protection: on, so this browser will not clear your data to free space."
+      : persisted === false
+        ? "Storage protection: not granted. This browser may erase your data after a stretch of not visiting, or when it is low on space."
+        : "Storage protection: not supported here, so a backup file is your only safety copy.");
+    parts.push(d === null
+      ? "No backup downloaded from this device yet."
+      : d === 0 ? "Last backup: today."
+      : "Last backup: " + d + (d === 1 ? " day" : " days") + " ago" + (d > 30 ? " - download a new one." : "."));
+    el.textContent = parts.join(" ");
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target && e.target.closest ? e.target.closest("#export-json, #backup") : null;
+    if (!b) return;
+    try { localStorage.setItem(KEY, String(Date.now())); } catch (x) {}
+    render();
+  });
+  render();
+  try {
+    if (navigator.storage && navigator.storage.persist) {
+      navigator.storage.persisted().then(function (p) {
+        return p ? true : navigator.storage.persist();
+      }).then(function (p) { persisted = Boolean(p); render(); }, function () {});
+    }
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>

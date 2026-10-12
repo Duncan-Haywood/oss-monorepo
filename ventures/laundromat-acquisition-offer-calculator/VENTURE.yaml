@@ -1,0 +1,52 @@
+name: laundromat-acquisition-offer-calculator
+description: >-
+  Free browser tool for people buying a laundromat: enter revenue, utilities, rent,
+  labor, repairs, a manager and a machine reserve plus loan terms, and get adjusted cash
+  flow, the walk-away price (lower of a cash-flow multiple and what the loan can carry at
+  a required debt coverage), and coverage and cash-on-cash for each price under
+  consideration, stressed at 10% and 20% lower revenue. Copy, CSV, save and load. Nothing
+  leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a new-venture session. duplicate_check.py: nothing in the tree
+# prices a laundromat purchase; the two laundromat ventures (machine payback, wash-and-fold
+# pricing) serve owners who already have a store.
+#
+# Why this niche: laundromat buyers write offers in the low-to-mid six figures, usually with
+# an SBA-style loan, off a broker's package whose cash flow figure excludes a manager and
+# machine replacement. Searches such as "laundromat valuation calculator" and "how much is a
+# laundromat worth" are steady. Buyers have money and a specific, expensive question. It is
+# the lead magnet for a later paid multi-store comparison tool (payment rails stay off).
+#
+# First visitor: laundromat-investing forums and subreddits, small-business-acquisition
+# groups. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed numbers. Not financial, tax, legal or lending
+# advice; says so. No listing data fetched, no accounts, nothing stored.
+
+hypotheses:
+  - claim: >-
+      Prospective laundromat buyers will enter a listing's numbers into a no-signup tool and
+      use the walk-away price to set their offer.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports coverage at a price that does not equal their stated requirement at the debt-limit price, or a cost the tool double-counts.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/laundromat-acquisition-offer-calculator/
+  analytics: null

@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Freelancer Tax Pack — Free 2026 Schedule C, SE Tax and Quarterly Estimate</title>
+  <meta name="description" content="Free year-end tax pack for freelancers: pulls your invoices, expenses and mileage from this browser, then shows Schedule C net profit, self-employment tax, a 2026 federal estimate, quarterly payments still due and the 1099-NEC list. No account, nothing uploaded.">
+  <meta property="og:title" content="Freelancer Tax Pack — free, private, 2026">
+  <meta property="og:description" content="Invoices, expenses and mileage in, Schedule C, SE tax and quarterly payments out. No signup, nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Freelancer Tax Pack", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "A free tax pack for freelancers that runs in your browser: reads your invoices, expenses and mileage, then estimates Schedule C profit, self-employment tax, 2026 federal tax and quarterly payments. No account; data stays on your device."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this tax pack really free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. There is no account, no trial and no paywall on the printout or the CSV. It runs in your browser, so it costs nothing to serve, and it stays free."}}, {"@type": "Question", "name": "Where does it get my numbers?", "acceptedAnswer": {"@type": "Answer", "text": "From the other tools on this site, read on this device only: paid invoices from Invoice Maker, expenses from Expense Tracker and business trips from Mileage Log. If you use none of them, type your income and expenses in the boxes. Nothing is uploaded and nothing in those tools is changed."}}, {"@type": "Question", "name": "What does the estimate include?", "acceptedAnswer": {"@type": "Answer", "text": "Schedule C net profit, self-employment tax (Schedule SE), half of it deducted, the standard deduction, the 20 percent qualified business income deduction below the phase-in threshold, and federal income tax by bracket for single or married filing jointly. It does not include state tax, credits you do not enter, itemised deductions, depreciation, a home office, health insurance or retirement deductions."}}, {"@type": "Question", "name": "How are the quarterly payments worked out?", "acceptedAnswer": {"@type": "Answer", "text": "The target is the smaller of 90 percent of this year's estimated tax and 100 percent of last year's tax (110 percent if last year's income was over $150,000), minus anything withheld, split into four equal payments. Enter what you have already paid and it shows what is still due. Dates are April 15, June 15, September 15 and January 15; when one falls on a weekend or holiday the deadline moves, so check the date."}}, {"@type": "Question", "name": "What is the 1099-NEC list?", "acceptedAnswer": {"@type": "Answer", "text": "Clients you invoiced and were paid $2,000 or more this year (the threshold for payments made after 2025). Businesses that paid you for services are generally expected to send a Form 1099-NEC for that. Payments by card or PayPal are reported on a 1099-K instead, so a client may legitimately not send one. Use the list to check what to expect in January."}}, {"@type": "Question", "name": "Can I use this instead of a tax preparer?", "acceptedAnswer": {"@type": "Answer", "text": "No. It adds up what you recorded and applies published federal rates, which is a planning aid and a tidy set of records to hand to a preparer or your tax software. It does not file anything and it is not tax advice."}}, {"@type": "Question", "name": "Why is some income left out?", "acceptedAnswer": {"@type": "Answer", "text": "On a cash basis, an invoice is income when you are paid. Sent but unpaid invoices are shown as a warning and left out of income by default. Switch to invoice basis if you report income when you bill, which some businesses do."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f4fa; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #3a3fa8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #23277a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #23277a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a4f6a; }
+    .card { background: #fff; border: 1px solid #dcdcee; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #23277a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b3b5d3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3a3fa8; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e6e7f6; color: #23277a; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #ebebf5; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a4f6a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #23277a; }
+    .scroll { overflow-x: auto; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0; }
+    .kpi { background: #eeeffb; border-radius: 10px; padding: 12px; }
+    .kpi b { display: block; font-size: 1.3rem; color: #23277a; }
+    .kpi span { font-size: .8rem; color: #4a4f6a; }
+    .src { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin: 10px 0; }
+    .src div { background: #f4f4fa; border-radius: 10px; padding: 10px 12px; font-size: .9rem; }
+    .src .ok { background: #e3f4ea; } .src .no { background: #fdf1d8; }
+    .issues { padding-left: 20px; } .issues li.warn { color: #7c4a10; } .issues li.info { color: #3d4268; }
+    .sr { position: absolute; left: -9999px; }
+    #sheet { background: #fff; color: #111; padding: 18px; border: 1px solid #dcdcee; border-radius: 6px; margin-top: 12px; }
+    #sheet h2 { margin: 0 0 6px; color: #111; }
+    @media print { body > :not(#pack-card) { display: none !important; } body { background: #fff; padding: 0; max-width: none; } #pack-card { box-shadow: none; border: 0; padding: 0; margin: 0; } #sheet { border: 0; padding: 0; } }
+    footer { margin-top: 28px; border-top: 1px solid #dcdcee; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Freelancer Tax Pack: Schedule C, SE tax and quarterly payments in one page</h1>
+    <p>Reads the <a href="../invoice-maker/">invoices</a>, <a href="../expense-tracker/">expenses</a> and <a href="../mileage-log/">mileage</a> you already keep on this device, and shows your <strong>2026 net profit</strong>, <strong>self-employment tax</strong>, a <strong>federal tax estimate</strong>, what is <strong>still due each quarter</strong> and which clients should send a <strong>1099-NEC</strong>. No account, no subscription, nothing leaves your device.</p>
+  </header>
+
+  <section class="card" aria-label="Where the numbers come from">
+    <h2>1. Your records</h2>
+    <div class="grid">
+      <div><label for="t-year">Tax year</label><select id="t-year"></select></div>
+      <div><label for="t-basis">Count income when</label><select id="t-basis"><option value="paid">money is received (cash basis)</option><option value="invoiced">invoice is sent</option></select></div>
+    </div>
+    <div class="src" id="sources" aria-live="polite"></div>
+    <details><summary>Use a backup file instead (another device or browser)</summary>
+      <div class="grid">
+        <div><label for="f-inv">Invoice Maker backup (.json)</label><input id="f-inv" type="file" accept="application/json,.json"></div>
+        <div><label for="f-exp">Expense Tracker backup (.json)</label><input id="f-exp" type="file" accept="application/json,.json"></div>
+        <div><label for="f-mil">Mileage Log backup (.json)</label><input id="f-mil" type="file" accept="application/json,.json"></div>
+      </div>
+      <p class="note">Files are read in this tab and not stored or uploaded.</p>
+    </details>
+    <div class="grid">
+      <div><label for="x-income">Extra income not in an invoice (optional)</label><input id="x-income" inputmode="decimal" placeholder="0.00"></div>
+      <div><label for="x-exp">Extra expenses not logged (optional)</label><input id="x-exp" inputmode="decimal" placeholder="0.00"></div>
+      <div><label for="x-rate">Mileage rate override, $ per mile (optional)</label><input id="x-rate" inputmode="decimal" placeholder="IRS rate by date"></div>
+    </div>
+    <p><button type="button" class="secondary" id="example">Load example data</button></p>
+  </section>
+
+  <section class="card" aria-label="Your tax situation">
+    <h2>2. Your tax situation</h2>
+    <div class="grid">
+      <div><label for="s-status">Filing status</label><select id="s-status"><option value="single">Single</option><option value="mfj">Married filing jointly</option></select></div>
+      <div><label for="s-other">Other taxable income (spouse, W-2, interest)</label><input id="s-other" inputmode="decimal" placeholder="0.00"></div>
+      <div><label for="s-w2">W-2 wages already taxed for Social Security</label><input id="s-w2" inputmode="decimal" placeholder="0.00"></div>
+      <div><label for="s-withheld">Tax already withheld or credits</label><input id="s-withheld" inputmode="decimal" placeholder="0.00"></div>
+      <div><label for="s-prior">Last year's total tax (for safe harbor)</label><input id="s-prior" inputmode="decimal" placeholder="optional"></div>
+      <div><label for="s-prior-agi">Last year's AGI</label><input id="s-prior-agi" inputmode="decimal" placeholder="optional"></div>
+    </div>
+    <p><label style="display:inline-flex;gap:8px;align-items:center;font-weight:600"><input type="checkbox" id="s-qbi" style="width:auto" checked> Apply the 20% qualified business income deduction when it is simple</label></p>
+    <h3>Estimated payments you have already made</h3>
+    <div class="grid">
+      <div><label for="p-1">Apr 15</label><input id="p-1" inputmode="decimal" placeholder="0.00"></div>
+      <div><label for="p-2">Jun 15</label><input id="p-2" inputmode="decimal" placeholder="0.00"></div>
+      <div><label for="p-3">Sep 15</label><input id="p-3" inputmode="decimal" placeholder="0.00"></div>
+      <div><label for="p-4">Jan 15</label><input id="p-4" inputmode="decimal" placeholder="0.00"></div>
+    </div>
+  </section>
+
+  <section class="card" aria-label="Results">
+    <h2>3. Your pack</h2>
+    <div class="kpis" id="kpis"></div>
+    <ul class="issues" id="checks" aria-live="polite"></ul>
+    <h3>Schedule C</h3>
+    <div class="scroll"><table id="sc"></table></div>
+    <h3>Tax estimate</h3>
+    <div class="scroll"><table id="tax"></table></div>
+    <p class="note" id="tax-note"></p>
+    <h3>Quarterly payments</h3>
+    <p id="q-summary"></p>
+    <div class="scroll"><table id="q"></table></div>
+    <h3>1099-NEC to expect in January</h3>
+    <div class="scroll"><table id="clients"></table></div>
+    <p>
+      <button type="button" id="print">Print / save as PDF</button>
+      <button type="button" class="secondary" id="csv">Download CSV</button>
+    </p>
+  </section>
+
+  <section class="card" id="pack-card" aria-label="Printable pack">
+    <h2>Printable pack</h2>
+    <p class="note">What the print button produces. A worksheet for you or your preparer, not a tax form.</p>
+    <div id="sheet"></div>
+  </section>
+
+  <section class="card" aria-label="Questions">
+    <h2>Questions</h2>
+    <h3>Is this tax pack really free?</h3>
+    <p>Yes. There is no account, no trial and no paywall on the printout or the CSV. It runs in your browser, so it costs nothing to serve, and it stays free.</p>
+    <h3>Where does it get my numbers?</h3>
+    <p>From the other tools on this site, read on this device only: paid invoices from Invoice Maker, expenses from Expense Tracker and business trips from Mileage Log. If you use none of them, type your income and expenses in the boxes. Nothing is uploaded and nothing in those tools is changed.</p>
+    <h3>What does the estimate include?</h3>
+    <p>Schedule C net profit, self-employment tax (Schedule SE), half of it deducted, the standard deduction, the 20 percent qualified business income deduction below the phase-in threshold, and federal income tax by bracket for single or married filing jointly. It does not include state tax, credits you do not enter, itemised deductions, depreciation, a home office, health insurance or retirement deductions.</p>
+    <h3>How are the quarterly payments worked out?</h3>
+    <p>The target is the smaller of 90 percent of this year's estimated tax and 100 percent of last year's tax (110 percent if last year's income was over $150,000), minus anything withheld, split into four equal payments. Enter what you have already paid and it shows what is still due. Dates are April 15, June 15, September 15 and January 15; when one falls on a weekend or holiday the deadline moves, so check the date.</p>
+    <h3>What is the 1099-NEC list?</h3>
+    <p>Clients you invoiced and were paid $2,000 or more this year (the threshold for payments made after 2025). Businesses that paid you for services are generally expected to send a Form 1099-NEC for that. Payments by card or PayPal are reported on a 1099-K instead, so a client may legitimately not send one. Use the list to check what to expect in January.</p>
+    <h3>Can I use this instead of a tax preparer?</h3>
+    <p>No. It adds up what you recorded and applies published federal rates, which is a planning aid and a tidy set of records to hand to a preparer or your tax software. It does not file anything and it is not tax advice.</p>
+    <h3>Why is some income left out?</h3>
+    <p>On a cash basis, an invoice is income when you are paid. Sent but unpaid invoices are shown as a warning and left out of income by default. Switch to invoice basis if you report income when you bill, which some businesses do.</p>
+    <h3>What this does not model</h3>
+    <p class="note">Not modelled: state and local tax, the home office and vehicle-actual deductions, depreciation and Section 179, health insurance and retirement deductions, itemised deductions, the additional Medicare tax, the net investment income tax, the alternative minimum tax, tips and overtime deductions, other credits, and filing statuses other than single and married filing jointly. 2026 figures are as published in Rev. Proc. 2025-32 and Social Security's 2026 wage base; check them against IRS.gov before relying on them.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. It adds up the records and figures you enter and applies published federal rates; the result is a planning estimate, not a tax return, and the amount you actually owe can differ.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as your only record: keep your own backups.</p>
+    <p>Everything runs in your browser. Your records are read from this device and never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>pack_viewed</code>, <code>pack_printed</code>, <code>csv_exported</code>, <code>example_loaded</code>) are counted only in local storage on your device, never the content. Turn it off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Pair it with the <a href="../self-employment-tax-calculator/">self-employment tax calculator</a>, the <a href="../quarterly-estimated-tax-calendar/">quarterly tax calendar</a>, the <a href="../estimated-tax-penalty-calculator/">estimated tax penalty calculator</a> and the <a href="../1099-vendor-tracker/">1099 vendor tracker</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+<script type="module">
+    import { TAX_YEAR, toCents, formatMoney, readBox, expenseSummary, invoiceIncome, form1099Clients, mileageSummary, estimate, quarterlyPlan, checks, packCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const money = (c) => esc(formatMoney(c));
+    const SETTINGS = "freelancer-tax-pack-settings";
+
+    let boxes = { inv: null, exp: null, mil: null };
+    let origin = { inv: "", exp: "", mil: "" };
+    function readLocal() {
+      const get = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
+      boxes = { inv: readBox(get("invoice-maker-data"), "invoices"), exp: readBox(get("expense-tracker-data"), "entries"), mil: readBox(get("mileage-log-data-v1"), "trips") };
+      origin = { inv: boxes.inv ? "this device" : "", exp: boxes.exp ? "this device" : "", mil: boxes.mil ? "this device" : "" };
+    }
+
+    const fields = ["t-basis", "x-income", "x-exp", "x-rate", "s-status", "s-other", "s-w2", "s-withheld", "s-prior", "s-prior-agi", "p-1", "p-2", "p-3", "p-4"];
+    function loadSettings() {
+      try { const d = JSON.parse(localStorage.getItem(SETTINGS) || "null"); if (d) { for (const f of fields) if (d[f] != null) $("#" + f).value = d[f]; $("#s-qbi").checked = d.qbi !== false; } } catch { /* storage is optional */ }
+    }
+    function saveSettings() {
+      const d = { qbi: $("#s-qbi").checked }; for (const f of fields) d[f] = $("#" + f).value;
+      try { localStorage.setItem(SETTINGS, JSON.stringify(d)); } catch { /* storage is optional */ }
+    }
+
+    function years() {
+      const set = new Set([TAX_YEAR]);
+      for (const i of boxes.inv?.invoices || []) set.add(Number(String(i.issued).slice(0, 4)));
+      for (const e of boxes.exp?.entries || []) set.add(Number(String(e.date).slice(0, 4)));
+      for (const t of boxes.mil?.trips || []) set.add(Number(String(t.date).slice(0, 4)));
+      return [...set].filter((y) => y >= 2020 && y <= 2100).sort((a, b) => b - a);
+    }
+    function fillYears() {
+      const cur = $("#t-year").value || String(TAX_YEAR);
+      $("#t-year").innerHTML = years().map((y) => `<option value="${y}">${y}</option>`).join("");
+      $("#t-year").value = years().includes(Number(cur)) ? cur : String(TAX_YEAR);
+    }
+
+    let model = null;
+    function compute() {
+      const year = Number($("#t-year").value) || TAX_YEAR;
+      const rateTxt = $("#x-rate").value.trim();
+      const rate = rateTxt === "" || !Number.isFinite(Number(rateTxt)) ? null : Number(rateTxt);
+      const income = invoiceIncome(boxes.inv, year, $("#t-basis").value);
+      const expenses = expenseSummary(boxes.exp, year);
+      const mileage = mileageSummary(boxes.mil, year, rate);
+      const extraIn = Math.max(0, toCents($("#x-income").value)), extraEx = Math.max(0, toCents($("#x-exp").value));
+      const gross = income.cents + extraIn;
+      const exTotal = expenses.deductible + extraEx;
+      const est = estimate({ grossIncome: gross, expenses: exTotal, mileage: mileage.cents, status: $("#s-status").value, otherIncome: toCents($("#s-other").value), w2SsWages: toCents($("#s-w2").value), qbi: $("#s-qbi").checked });
+      const paid = [1, 2, 3, 4].map((n) => toCents($("#p-" + n).value));
+      const plan = quarterlyPlan({ totalTax: est.totalTax, priorYearTax: toCents($("#s-prior").value), priorYearAgi: toCents($("#s-prior-agi").value), withheld: toCents($("#s-withheld").value), paid });
+      const clients = form1099Clients(income.clients);
+      model = { year, income, expenses, mileage, extraIn, extraEx, gross, exTotal, est, plan, clients, notes: checks({ income, expenses, mileage, exp: boxes.exp, mil: boxes.mil, inv: boxes.inv }) };
+      return model;
+    }
+
+    const row = (a, b, cls = "") => `<tr class="${cls}"><td>${a}</td><td class="n">${b}</td></tr>`;
+    function render() {
+      const m = compute(); const e = m.est;
+      $("#sources").innerHTML = [["inv", "Invoice Maker", "invoices", m.income.count + " paid/sent invoice(s) in " + m.year], ["exp", "Expense Tracker", "entries", m.expenses.count + " expense(s) in " + m.year], ["mil", "Mileage Log", "trips", m.mileage.trips + " business trip(s) in " + m.year]]
+        .map(([k, name, , detail]) => boxes[k] ? `<div class="ok"><strong>${esc(name)}</strong>: found (${esc(origin[k])}). ${esc(detail)}.</div>` : `<div class="no"><strong>${esc(name)}</strong>: not found on this device. Open it once, or use a backup file.</div>`).join("");
+      $("#kpis").innerHTML = [[m.gross, "gross income"], [m.exTotal + m.mileage.cents, "expenses and mileage"], [e.netProfit, "net profit (Schedule C line 31)"], [e.totalTax, "estimated federal tax"], [m.plan.behind, "still to pay in estimates"]]
+        .map(([v, l]) => `<div class="kpi"><b>${money(v)}</b><span>${esc(l)}</span></div>`).join("");
+      $("#checks").innerHTML = m.notes.map((n) => `<li class="${n.level === "warn" ? "warn" : "info"}">${esc(n.text)}</li>`).join("");
+      $("#sc").innerHTML = `<tr><th>Line</th><th class="n">Amount</th></tr>`
+        + row("1 Gross receipts" + (m.extraIn ? " (includes extra income)" : ""), money(m.gross))
+        + m.expenses.rows.map((r) => row(esc(r.line + " " + r.label), money(r.deductible))).join("")
+        + (m.extraEx ? row("Extra expenses typed above", money(m.extraEx)) : "")
+        + (m.mileage.cents ? row(`9 Standard mileage (${esc(m.mileage.miles.toLocaleString("en-US"))} business miles, ${esc(m.mileage.trips)} trips)`, money(m.mileage.cents)) : "")
+        + row("28 Total expenses", money(m.exTotal + m.mileage.cents), "total")
+        + row("31 Net profit or loss", money(e.netProfit), "total");
+      $("#tax").innerHTML = row("Net profit", money(e.netProfit))
+        + row("Self-employment tax (Schedule SE)", money(e.se.total))
+        + row("Half of SE tax, deducted", "−" + money(e.se.half))
+        + row("Adjusted gross income (with other income)", money(e.agi))
+        + row("Standard deduction", "−" + money(e.standardDeduction))
+        + (e.qbiDeduction ? row("Qualified business income deduction", "−" + money(e.qbiDeduction)) : "")
+        + row("Taxable income", money(e.taxable))
+        + row("Federal income tax (" + Math.round(e.marginal * 100) + "% bracket)", money(e.incomeTax))
+        + row("Total federal tax estimate", money(e.totalTax), "total");
+      $("#tax-note").textContent = e.qbiNote || "Planning estimate from the records above and 2026 federal rates. State tax is not included.";
+      const p = m.plan;
+      $("#q-summary").textContent = p.notRequired ? "Your estimated tax after withholding is under $1,000, so estimated payments are generally not required." : `Target for the year: ${formatMoney(p.target)} (${p.basis}). Paid so far: ${formatMoney(p.paidTotal)}. Still to pay: ${formatMoney(p.behind)}.`;
+      $("#q").innerHTML = `<tr><th>Due</th><th>Covers</th><th class="n">Target</th><th class="n">Paid</th><th class="n">Still due</th></tr>` + p.rows.map((r) => `<tr><td>${esc(r.due)}</td><td>${esc(r.covers)}</td><td class="n">${money(r.target)}</td><td class="n">${money(r.paid)}</td><td class="n">${money(r.due_now)}</td></tr>`).join("");
+      $("#clients").innerHTML = m.clients.length ? `<tr><th>Client</th><th class="n">Paid you</th></tr>` + m.clients.map((c) => `<tr><td>${esc(c.client)}</td><td class="n">${money(c.cents)}</td></tr>`).join("") : `<tr><td>No named client paid you $2,000 or more in ${esc(m.year)}.</td></tr>`;
+      $("#sheet").innerHTML = `<h2>Freelancer tax pack ${esc(m.year)}</h2><p class="note">Planning worksheet from your own records. Not a tax return.</p>`
+        + `<table>${$("#sc").innerHTML}</table><h3>Tax estimate</h3><table>${$("#tax").innerHTML}</table><h3>Quarterly payments</h3><p>${esc($("#q-summary").textContent)}</p><table>${$("#q").innerHTML}</table><h3>1099-NEC to expect</h3><table>${$("#clients").innerHTML}</table>`;
+    }
+
+    function csvRows() {
+      const m = model; const e = m.est;
+      const r = [["Section", "Item", "Amount"], ["Schedule C", "Gross receipts", (m.gross / 100).toFixed(2)]];
+      for (const x of m.expenses.rows) r.push(["Schedule C", `Line ${x.line} ${x.label}`, (x.deductible / 100).toFixed(2)]);
+      if (m.extraEx) r.push(["Schedule C", "Extra expenses", (m.extraEx / 100).toFixed(2)]);
+      if (m.mileage.cents) r.push(["Schedule C", "Standard mileage", (m.mileage.cents / 100).toFixed(2)]);
+      r.push(["Schedule C", "Net profit", (e.netProfit / 100).toFixed(2)], ["Tax", "Self-employment tax", (e.se.total / 100).toFixed(2)], ["Tax", "Federal income tax", (e.incomeTax / 100).toFixed(2)], ["Tax", "Total estimate", (e.totalTax / 100).toFixed(2)]);
+      for (const q of m.plan.rows) r.push(["Quarterly", `${q.due} target`, (q.target / 100).toFixed(2)], ["Quarterly", `${q.due} paid`, (q.paid / 100).toFixed(2)]);
+      for (const c of m.clients) r.push(["1099-NEC", c.client, (c.cents / 100).toFixed(2)]);
+      return r;
+    }
+
+    function download(name, text, type) {
+      const url = URL.createObjectURL(new Blob([text], { type }));
+      const a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+
+    async function fromFile(input, key, arrayKey, name) {
+      const f = input.files[0]; if (!f) return;
+      try { const d = JSON.parse(await f.text()); if (!d || !Array.isArray(d[arrayKey])) throw new Error("bad"); boxes[key] = d; origin[key] = "backup file"; fillYears(); render(); }
+      catch { $("#sources").insertAdjacentHTML("beforeend", `<div class="no">That file is not a ${esc(name)} backup.</div>`); }
+    }
+    $("#f-inv").addEventListener("change", (e) => fromFile(e.target, "inv", "invoices", "Invoice Maker"));
+    $("#f-exp").addEventListener("change", (e) => fromFile(e.target, "exp", "entries", "Expense Tracker"));
+    $("#f-mil").addEventListener("change", (e) => fromFile(e.target, "mil", "trips", "Mileage Log"));
+
+    $("#example").addEventListener("click", () => {
+      const y = Number($("#t-year").value) || TAX_YEAR;
+      const mk = (n, c, m, paid, rate) => ({ id: "ex" + n, number: "INV-" + n, clientName: c, issued: `${y}-${m}-10`, sent: true, paid, taxRate: "0", discountType: "none", lines: [{ qty: 1, rate, taxable: true }] });
+      boxes.inv = { invoices: [mk(1, "Example Studio (sample)", "02", "6000", "6000"), mk(2, "Example Studio (sample)", "05", "4500", "4500"), mk(3, "Sample Agency", "08", "9000", "9000"), mk(4, "Small Client (sample)", "09", "800", "800"), mk(5, "Sample Agency", "11", "0", "3000")] };
+      boxes.exp = { entries: [{ date: `${y}-01-15`, cents: 5499, category: "other", receipt: true }, { date: `${y}-03-02`, cents: 31000, category: "office", receipt: true }, { date: `${y}-04-20`, cents: 9600, category: "meals" }, { date: `${y}-06-01`, cents: 120000, category: "rent_property", receipt: true }, { date: `${y}-07-07`, cents: 45000, category: "insurance", receipt: true }] };
+      boxes.mil = { trips: [{ date: `${y}-03-04`, category: "business", miles: 320, to: "Client site", purpose: "Workshop" }, { date: `${y}-09-12`, category: "business", miles: 410, to: "Agency HQ", purpose: "Kickoff" }, { date: `${y}-10-01`, category: "business", miles: 55, to: "", purpose: "" }] };
+      origin = { inv: "example data", exp: "example data", mil: "example data" };
+      record("example_loaded"); fillYears(); render();
+    });
+
+    $("#print").addEventListener("click", () => { render(); record("pack_printed"); window.print(); });
+    $("#csv").addEventListener("click", () => { render(); download(`freelancer-tax-pack-${model.year}.csv`, packCsv(csvRows()), "text/csv"); record("csv_exported"); });
+    for (const id of [...fields, "t-year", "s-qbi"]) $("#" + id).addEventListener("input", () => { saveSettings(); render(); });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); $("#optout").textContent = "Usage counting is off"; });
+    if (usageOptedOut()) $("#optout").textContent = "Usage counting is off";
+
+    readLocal(); loadSettings(); fillYears(); render(); record("pack_viewed");
+</script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+name: greenhouse-bench-planner
+description: >-
+  Free browser tool for greenhouse growers, small plant nurseries and market gardeners who sell transplants, bedding
+  plants and baskets on fixed dates: enter each crop's sale date, quantity, germination and growing weeks, bench density
+  and survival rate. It counts back the sow dates, checks germination and bench space week by week, holds finished
+  crops early or slips a sale late within limits you set, shows what will not fit, ranks crops by margin per square
+  foot-week and prices extra bench space. Downloads a plan CSV and a sowing list. Your crop list never leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session. duplicate_check.py: market-garden-bed-planner 0.24 (picks a crop mix
+# for field beds by linear program, no calendar), microgreens-tray-planner 0.24, container-load-planner 0.21. Nothing near
+# 0.45. Not in screened-out.md. Cross-linked with market-garden-bed-planner; neither reads the other.
+# Search phrases: "greenhouse bench space planning", "when to sow for spring plant sale", "bedding plant production
+# schedule", "how much greenhouse space do i need", "transplant sowing schedule spreadsheet".
+# Volume not measured with an external tool.
+#
+# Who: owner-growers of small greenhouses and garden centres (roughly 1 to 20 houses) who sell on fixed spring dates and
+# plan on a wall calendar or a spreadsheet. A misjudged peak week means either plants thrown out or orders turned down;
+# the money is concentrated in about ten weeks. Paying buyer, if any: the same grower wanting saved seasons and a
+# multi-house version.
+#
+# What makes it more than a calendar: it treats bench space as a capacity over time, so it finds the peak week, decides
+# which orders to hold early or slip late, and says what a bigger bench would earn.
+#
+# Path to revenue (payment rails stay off): lead magnet for the grower audience. A paid version, if usage appears, is
+# saved seasons, several houses with their own heat zones and a crop library, behind an env-var switch; not built.
+#
+# Liability: scheduling arithmetic on the user's own numbers. It gives no growing, pest or chemical advice, stores nothing,
+# carries the no-warranty and not-advice clauses and says plainly that crop timing comes from the user's records.
+#
+# Unverified: only synthetic crop lists tested. Crop weeks and densities are the user's, none are built in. The placement
+# is a greedy heuristic by margin per space-week, not an optimal solver; the extra-space table never reports a larger
+# bench doing worse, but the plan at each size is a good one, not a proven best.
+
+hypotheses:
+  - claim: >-
+      A small greenhouse grower will paste a crop list into a no-upload page to see which spring weeks overflow the
+      bench and which orders to hold or drop, because a wall calendar shows dates but not space.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Searchers for "greenhouse bench space planning" and "bedding plant production schedule" prefer a tool that gives
+      sow dates and a weekly space table to a blank spreadsheet.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true

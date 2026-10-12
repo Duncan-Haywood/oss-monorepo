@@ -1,0 +1,57 @@
+name: postgres-index-auditor
+description: >-
+  Free browser tool and CLI for Postgres users: paste the output of one read-only query and see unused, duplicate, redundant and
+  invalid indexes, the disk each wastes and DROP INDEX CONCURRENTLY statements to review. Never connects to the database; the text
+  never leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. duplicate_check.py top score 0.15 (postgres-explain-analyzer, which reads ONE
+# query plan; this audits the whole index set). Not in screened-out.md.
+#
+# Why this niche: every Postgres team accumulates indexes nobody removes, and each costs disk plus a write on every insert and
+# delete. Paid answers (pganalyze, Datadog DBM, Supabase/Neon advisors) need an agent or database access; the free route is a
+# hand-written catalog query most people do not trust. A paste-the-output tool needs no credentials, so a security-conscious
+# team can use it today.
+#
+# First visitor: backend/platform engineers on r/PostgreSQL, Hacker News, dba.stackexchange, Supabase/Neon/RDS threads asking
+# "how to find unused indexes"; search phrases "find unused indexes postgres", "duplicate index postgres query", "pg_stat_user_indexes
+# idx_scan 0". Volume not measured with an external tool.
+#
+# Liability boundary: pure text analysis of what the user pastes. It emits DROP statements, so every one is a comment-headed
+# suggestion, constraint-backing / unique / primary indexes are never emitted, the page and script header warn about statistics
+# resets and replicas, and the footer carries the no-warranty text. No database access, no credentials.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. The natural paid layer is a hosted weekly audit that diffs
+# index state over time, which needs an owner decision on accounts and payments; not built. Written to be open-sourced as is.
+
+hypotheses:
+  - claim: >-
+      Engineers searching how to find unused or duplicate Postgres indexes will paste a query result into a no-signup tool rather
+      than adapt a catalog query from a blog post.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Showing reclaimable disk and a reviewable drop script gets the tool bookmarked and re-run after each growth spurt.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a candidate that was a constraint-backing, primary or unique index, at which point the protection rules need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/postgres-index-auditor/
+  analytics: null

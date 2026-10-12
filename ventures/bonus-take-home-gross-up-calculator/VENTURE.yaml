@@ -1,0 +1,58 @@
+name: bonus-take-home-gross-up-calculator
+description: >-
+  Free browser tool for people paid a bonus and the employers paying it: gross bonus, wages
+  so far, withholding rates and real bracket in; take-home after supplemental withholding,
+  Social Security (wage-base cap), Medicare and Additional Medicare, refund or balance due at
+  filing, a 401(k) deferral comparison, employer cost and the exact gross-up for a target
+  net amount out. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "bonus supplemental
+# withholding gross-up net take-home" scored 0.38 against the nearest venture (gig-driver-net-
+# pay-calculator, a different earner); rsu-withholding-gap-calculator covers equity withholding
+# only and overtime-pay-calculator covers hourly pay.
+#
+# Why this niche: "bonus tax calculator" and "how much is my bonus after taxes" are evergreen
+# high-intent searches every year-end and every review cycle, and "gross up bonus calculator" is
+# searched by HR and owners promising after-tax sign-on and relocation payments. Most existing
+# pages are payroll-vendor lead capture with a single flat percentage. The honest answers are
+# the per-tax breakdown, the Social Security cap and Additional Medicare line that change the
+# result for higher earners, the refund-or-owe gap against the real bracket, and an exact
+# gross-up.
+#
+# First visitor: employees searching after a bonus announcement, and small-business owners and
+# HR generalists sizing a net-of-tax payment. Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed rates; no payroll processing, no W-4 or state
+# rule engine, no tax advice; defaults are placeholders; nothing stored.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a hosted batch
+# gross-up for a payroll CSV (not built).
+
+hypotheses:
+  - claim: >-
+      People will use a private bonus calculator that shows each withholding line, the refund
+      or balance due and an exact gross-up, because payroll-vendor pages show only one flat
+      percentage.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A payroll professional reports that the withholding arithmetic disagrees with their own worked example.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/bonus-take-home-gross-up-calculator/
+  analytics: null

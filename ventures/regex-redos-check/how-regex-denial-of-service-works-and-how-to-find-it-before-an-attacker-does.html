@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How Regex Denial of Service (ReDoS) Works, and How to Find It</title>
+  <meta name="description" content="Why one crafted string can hang a server through a regular expression: the four backtracking shapes (nested quantifiers, overlapping alternation, adjacent repeats, unanchored trailing repeats), real outages, what a static scan can and cannot see, and how to gate it in CI.">
+  <link rel="canonical" href="./how-regex-denial-of-service-works-and-how-to-find-it-before-an-attacker-does.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is every nested quantifier a ReDoS?", "acceptedAnswer": {"@type": "Answer", "text": "No. (\\d+,)+ is linear because each iteration must end in a comma the repeat cannot consume. The danger is a repeat whose iterations can end and begin on the same characters, such as (a+)+, because then the engine can split a run of those characters between iterations in exponentially many ways."}}, {"@type": "Question", "name": "Can I fix it by limiting input length?", "acceptedAnswer": {"@type": "Answer", "text": "A length cap is the cheapest backstop and often enough: exponential growth needs a few dozen characters, so a cap of a few hundred does not remove the risk but a cap of twenty does. Rewriting the pattern so each character has one way to match is the real fix."}}, {"@type": "Question", "name": "Do I need a different regex engine?", "acceptedAnswer": {"@type": "Answer", "text": "Engines built on automata, such as RE2, Go's regexp and Rust's regex crate, match in linear time and cannot be ReDoS'd, at the cost of features like backreferences and lookarounds. Node.js, Python's re, Java and .NET use backtracking; .NET and recent V8 builds offer opt-in linear modes."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 12px 0; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Back to Regex ReDoS Check</a></p>
+  <h1>How regex denial of service works, and how to find it before an attacker does</h1>
+  <p>A regular expression engine that supports backreferences and lookarounds usually works by trying one path and, when it fails, backing up and trying another. That is fast on ordinary input. On a crafted input that <em>almost</em> matches, the number of paths can grow exponentially with the input length, and a single request can occupy a CPU core for minutes. This is ReDoS, regular expression denial of service.</p>
+
+  <h2>It has taken down real services</h2>
+  <p>On 20 July 2016 Stack Overflow went down for about half an hour after a post containing a long run of whitespace hit a pattern that trimmed leading and trailing spaces, an unanchored <code>\s+$</code> shape. On 2 July 2019 a single WAF rule containing <code>.*(?:.*=.*)</code> pinned Cloudflare's edge CPUs and took a large share of the web with it for roughly half an hour. Neither pattern looks dangerous in code review, which is the whole problem.</p>
+
+  <h2>The four shapes a scanner can find</h2>
+  <h3>1. Nested quantifier: <code>(a+)+$</code>, <code>^(\w+\s?)+$</code></h3>
+  <p>The inner repeat can end anywhere, and the outer repeat can start where the inner one stopped. For <code>aaaaaaaaaaaaaaaaaaaaaaaaaaa!</code> the engine can divide the run of <code>a</code>s between iterations in 2<sup>n</sup> ways and tries them all before concluding the <code>!</code> does not match. Fix: make the iterations unambiguous (<code>a+</code>), or put a mandatory separator between them.</p>
+  <h3>2. Overlapping alternation: <code>(a|aa)+$</code>, <code>(\d|\w)+$</code></h3>
+  <p>When two branches can match the same text, each repeat has a choice, and choices multiply. Fix: make the branches disjoint, or collapse them into one character class.</p>
+  <h3>3. Adjacent overlapping repeats: <code>\d+\d+$</code>, <code>^\s*(.*?)\s*$</code></h3>
+  <p>Two unbounded repeats over the same characters leave the engine a split point to try after every character. That is polynomial rather than exponential (quadratic here, cubic with three), but a few thousand characters is enough to hurt.</p>
+  <h3>4. Unanchored trailing repeat: <code>\s+$</code></h3>
+  <p>With no <code>^</code> the engine restarts at every position, rescanning the same long run each time. Anchor the start, or use <code>trim()</code>.</p>
+
+  <h2>What a static scan can and cannot tell you</h2>
+  <p>Reading the pattern tells you where ambiguity <em>can</em> exist. It does not tell you whether an attacker controls the input, how long it can be, or whether your engine has an optimisation that rescues the case. So a finding is a suspect. In Node the CLI's <code>--probe</code> mode closes that gap for JavaScript patterns: it generates a repeated-character input, times the real engine inside a sandboxed vm with a hard timeout, and reports a pattern as confirmed only if the time actually blows up.</p>
+  <pre>node cli.mjs scan src --probe
+ERROR nested-quantifier  src/validate.js:12  ... Confirmed: exponential -- "a".repeat(26) + "!" took &gt;250 ms.</pre>
+
+  <h2>Wire it into CI</h2>
+  <pre>node cli.mjs scan src --fail-on error     # exit 1 on a likely-exponential pattern
+node cli.mjs scan src --fail-on warn      # also fail on polynomial warnings</pre>
+  <p>The CLI is zero-dependency and makes no network call, so it runs in any pipeline that has Node 18 or newer.</p>
+
+  <h2>Common questions</h2>
+  <h3>Is every nested quantifier a ReDoS?</h3>
+  <p>No. (\d+,)+ is linear because each iteration must end in a comma the repeat cannot consume. The danger is a repeat whose iterations can end and begin on the same characters, such as (a+)+, because then the engine can split a run of those characters between iterations in exponentially many ways.</p>
+  <h3>Can I fix it by limiting input length?</h3>
+  <p>A length cap is the cheapest backstop and often enough: exponential growth needs a few dozen characters, so a cap of a few hundred does not remove the risk but a cap of twenty does. Rewriting the pattern so each character has one way to match is the real fix.</p>
+  <h3>Do I need a different regex engine?</h3>
+  <p>Engines built on automata, such as RE2, Go's regexp and Rust's regex crate, match in linear time and cannot be ReDoS'd, at the cost of features like backreferences and lookarounds. Node.js, Python's re, Java and .NET use backtracking; .NET and recent V8 builds offer opt-in linear modes.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide and the tool it describes are provided free and as-is, without warranty of any kind. They are not security or engineering advice; static analysis can miss vulnerable patterns and flag safe ones. You are responsible for verifying results. Outage descriptions are summaries from the companies' public post-mortems and may omit detail.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source under an MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

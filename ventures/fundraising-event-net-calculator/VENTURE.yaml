@@ -1,0 +1,45 @@
+name: fundraising-event-net-calculator
+description: >-
+  Free browser calculator for nonprofits, schools and clubs running a gala, auction or benefit dinner: enter tickets, comps, per-guest giving, sponsors,
+  auction and raffle totals and the costs of the night, and see the net the cause keeps, the cost per dollar raised, the break-even headcount, and the
+  guests or ticket price that reach a goal. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. duplicate_check scored the closest ventures 0.21 (catering-quote-calculator, coffee-cart-event-quote-
+# calculator); donor-retention-analyzer and donor-acknowledgment-letter-generator serve the donor side, charity-bunching-planner the giver's tax side.
+# None models the event: net after the room, the meal and the auction items, cost per dollar raised, or the guest count and ticket price a goal needs.
+#
+# First visitor: development staff, PTA/PTO volunteers and club treasurers searching "fundraising gala budget template", "how much should a fundraising
+# event cost per dollar raised" and "gala break-even attendance"; nonprofit-finance and school-fundraising forums. Volume not measured with an
+# external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not legal, tax or financial advice; the deductible-portion
+# line is arithmetic only and defers to a tax adviser; says what is not modelled; carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Volunteer and staff event planners at small nonprofits will type their ticket price, sponsors and costs into a no-signup calculator to see net and
+      cost per dollar raised before committing to a venue, because most budget in a spreadsheet that shows the gross and hides the cost of the room.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/fundraising-event-net-calculator/
+  analytics: null

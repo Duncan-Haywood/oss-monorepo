@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bakery Production Scheduler — Plan Bakes Backwards From Orders, Free</title>
+  <meta name="description" content="Free bakery production scheduler. Paste your products and orders with due times; get a backwards-planned prep, proof and bake timeline, the ovens and bakers you need, and which orders to drop when it does not fit. Nothing uploaded.">
+  <meta property="og:title" content="Bakery production schedule from your orders, free">
+  <meta property="og:description" content="Products and orders in; start times, oven load plan and what to turn down out. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M7 20c0-6 4-10 9-10s9 4 9 10v3H7z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Bakery Production Scheduler", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turn a list of bakery orders and due times into a backwards-planned prep, proof and bake timeline, with the ovens and bakers needed and which orders to drop when it does not fit. Runs in your browser; nothing is uploaded.", "featureList": "Backward scheduling from due times, oven and baker capacity, what-fixes-it search, drop-to-fit by profit per oven hour"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I schedule baking backwards from a delivery time?", "acceptedAnswer": {"@type": "Answer", "text": "Take the due time, subtract the cooling gap, then subtract bake time, proof time and prep time in that order. That is the latest each step can start. This tool does it for every batch at once and then slides batches earlier only when an oven or a baker is already busy."}}, {"@type": "Question", "name": "How many ovens and bakers does my order list need?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the due times, not the total volume. Enter your orders and the tool tries more ovens and bakers until the earliest prep start falls after your shop opens, and tells you the smallest addition that works."}}, {"@type": "Question", "name": "What if the orders do not fit?", "acceptedAnswer": {"@type": "Answer", "text": "The tool ranks orders by profit per oven hour and shows which to turn down so the rest fits, keeping any smaller order that still squeezes in."}}, {"@type": "Question", "name": "Is this business advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is scheduling arithmetic on the numbers you type in. Check the timeline against your real equipment, recipes and food-safety rules before you rely on it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f6fc; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4ed8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14307d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14307d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5268; }
+    .card { background: #fff; border: 1px solid #d3def5; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14307d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aabbe0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4ed8; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e1e9fb; color: #14307d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e3eaf8; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5268; }
+    .finding { border-bottom: 1px solid #e3eaf8; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #dfe8fb; color: #14307d; }
+    .stats { font-size: 1rem; color: #2f3348; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d3def5; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .error { color: #9a3412; font-weight: 600; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 170px; padding: 9px 10px; border: 1px solid #aabbe0; border-radius: 7px; font: 14px ui-monospace, monospace; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">BAKERY PRODUCTION SCHEDULER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What time do you have to start baking?</h1>
+    <p>List your products (batch size, prep, proof and bake minutes, price and cost) and your orders with due times. The scheduler works backwards from each due time, shares your ovens and bakers across the whole morning, and tells you when the first person has to start, whether that is before you open, what extra oven or baker fixes it, and which orders to turn down if nothing can be added.</p>
+    <p class="note">Planning arithmetic on your own numbers and stated assumptions.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-set">
+      <h2 id="h-set">1. Your shop</h2>
+      <div class="grid">
+        <div><label for="ovens">Ovens (or deck slots) you can bake in at once</label><input id="ovens" type="number" min="1" step="1" value="2"></div>
+        <div><label for="bakers">Bakers on prep at once</label><input id="bakers" type="number" min="1" step="1" value="3"></div>
+        <div><label for="open">Earliest anyone can start (e.g. 1:00am)</label><input id="open" type="text" value="1:00am"></div>
+        <div><label for="cool">Cooling and packing minutes before due</label><input id="cool" type="number" min="0" step="1" value="20"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-prod">
+      <h2 id="h-prod">2. Products</h2>
+      <p class="note">One per line: name, units per batch, prep min, proof min, bake min, unit price, unit cost. Lines starting with # are ignored.</p>
+      <label for="products">Products</label>
+      <textarea id="products" spellcheck="false"></textarea>
+    </section>
+    <section class="card" aria-labelledby="h-ord">
+      <h2 id="h-ord">3. Orders</h2>
+      <p class="note">One per line: customer or label, product, quantity, due time.</p>
+      <label for="orders">Orders</label>
+      <textarea id="orders" spellcheck="false"></textarea>
+      <button type="button" id="run">Plan my bake</button>
+      <button type="button" class="secondary" id="example">Load an example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>How do I schedule baking backwards from a delivery time?</h3>
+      <p>Take the due time, subtract the cooling gap, then subtract bake time, proof time and prep time in that order. That is the latest each step can start. This tool does it for every batch at once and then slides batches earlier only when an oven or a baker is already busy.</p>
+      <h3>How many ovens and bakers does my order list need?</h3>
+      <p>It depends on the due times, not the total volume. Enter your orders and the tool tries more ovens and bakers until the earliest prep start falls after your shop opens, and tells you the smallest addition that works.</p>
+      <h3>What if the orders do not fit?</h3>
+      <p>The tool ranks orders by profit per oven hour and shows which to turn down so the rest fits, keeping any smaller order that still squeezes in.</p>
+      <h3>Is this business advice?</h3>
+      <p>No. It is scheduling arithmetic on the numbers you type in. Check the timeline against your real equipment, recipes and food-safety rules before you rely on it.</p>
+      
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Oven temperatures and steam (every batch is assumed to fit any oven slot at any time), mixer and bench space, staff breaks and pay, delivery driving time, shelf life, ingredient stock, allergen separation and food-safety rules. Every batch is a whole batch, so unsold leftovers carry cost and no revenue. Prep is assumed to be one baker for the full prep time.</p>
+    </section>
+    <section class="card">
+      <p>Pricing a baked good for a wholesale account first? The <a href="../cottage-food-pricing-calculator/">cottage food pricing calculator</a> and the <a href="../faire-wholesale-calculator/">Faire wholesale calculator</a> work out price from cost. Renting kitchen time? The <a href="../shared-kitchen-rate-planner/">shared kitchen rate planner</a>.</p>
+    </section>
+    <section class="card">
+      <p>Deciding how many to make rather than when? The <a href="../daily-prep-quantity-optimizer/">daily prep quantity optimizer</a> picks the profit-maximising batch count from your past daily sales.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any food-safety obligation it helps you think about. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this saved you a morning, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { parseProducts, parseOrders, parseTime, formatTime, schedule, orderEconomics, whatFixesIt, dropToFit, dayTotals, num, money, EXAMPLE_PRODUCTS, EXAMPLE_ORDERS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const $ = (id) => document.getElementById(id);
+    function timeline(plan) {
+      return `<div class="scroll"><table><thead><tr><th>Batch</th><th>Prep starts</th><th>Proof starts</th><th>Into oven</th><th>Out of oven</th><th>Due</th></tr></thead><tbody>${plan.batches.map((b) => `<tr><td>${esc(b.product.name)} ${b.index}/${b.of} <span class="note">(${esc(b.order.label)})</span></td><td>${formatTime(b.prepStart)}</td><td>${formatTime(b.prepEnd)}</td><td>${formatTime(b.bakeStart)}</td><td>${formatTime(b.bakeEnd)}</td><td>${formatTime(b.due)}</td></tr>`).join("")}</tbody></table></div>`;
+    }
+    function run() {
+      const { products, errors: pe } = parseProducts($("products").value);
+      const { orders, errors: oe } = parseOrders($("orders").value, products);
+      const errors = [...pe, ...oe];
+      const open = parseTime($("open").value);
+      let h = "";
+      if (!Number.isFinite(open)) errors.push('The earliest start must be a time like 1:00am.');
+      if (errors.length) h += `<div class="finding"><h4><span class="pill high">Fix</span>Some lines were not understood</h4>${errors.map((e) => `<p class="error">${esc(e)}</p>`).join("")}</div>`;
+      if (!orders.length || !Number.isFinite(open)) { $("result").innerHTML = h || '<p class="error">Add at least one order.</p>'; $("out").hidden = false; return; }
+      const opts = { ovens: Math.max(1, num($("ovens").value) || 1), bakers: Math.max(1, num($("bakers").value) || 1), open, cool: Math.max(0, num($("cool").value) || 0) };
+      const plan = schedule(products, orders, opts);
+      const eco = orders.map(orderEconomics);
+      const rev = eco.reduce((a, e) => a + e.revenue, 0), cost = eco.reduce((a, e) => a + e.cost, 0);
+      h += `<div class="finding"><h4><span class="pill ${plan.feasible ? "info" : "high"}">${plan.feasible ? "Fits" : "Does not fit"}</span>First person starts at ${formatTime(plan.earliest)}</h4><p class="stats">${plan.batches.length} batches · ${Math.round(plan.ovenMinutes / 60 * 10) / 10} oven hours · ${money(rev)} sold − ${money(cost)} unit cost = ${money(rev - cost)}</p>`;
+      if (plan.feasible) h += `<p>That is ${Math.round(plan.earliest - plan.open)} minutes of slack: the first prep starts that long after the earliest start you allowed.</p>`;
+      else {
+        h += `<p>The plan has to start ${Math.round(plan.shortBy)} minutes before your earliest start of ${formatTime(open)}.</p>`;
+        const fix = whatFixesIt(products, orders, opts);
+        if (fix) h += `<p><strong>Smallest fix:</strong> ${fix.extraOvens ? `${fix.extraOvens} more oven slot${fix.extraOvens > 1 ? "s" : ""}` : ""}${fix.extraOvens && fix.extraBakers ? " and " : ""}${fix.extraBakers ? `${fix.extraBakers} more baker${fix.extraBakers > 1 ? "s" : ""} on prep` : ""} (${fix.ovens} ovens, ${fix.bakers} bakers).</p>`;
+        else h += `<p><strong>No fix by adding up to 8 ovens and 8 bakers</strong> — a single order's own prep, proof and bake time is longer than the time you have.</p>`;
+        const d = dropToFit(products, orders, opts);
+        if (d.dropped.length) h += `<p><strong>Or turn down</strong> (lowest profit per oven hour first): ${d.dropped.map((o) => esc(`${o.label} — ${o.qty} ${o.product.name}`)).join("; ")}. What remains starts at ${d.plan.earliest === null ? "—" : formatTime(d.plan.earliest)}.</p>`;
+      }
+      h += `</div>`;
+      h += `<div class="finding"><h4>Timeline (earliest start first)</h4>${timeline(plan)}</div>`;
+      h += `<div class="finding"><h4>By order</h4><div class="scroll"><table><thead><tr><th>Order</th><th class="n">Batches</th><th class="n">Left over</th><th class="n">Oven min</th><th class="n">Profit</th><th class="n">Profit / oven hour</th></tr></thead><tbody>${orders.map((o, i) => `<tr><td>${esc(o.label)} — ${o.qty} ${esc(o.product.name)}</td><td class="n">${eco[i].batches}</td><td class="n">${eco[i].leftover}</td><td class="n">${eco[i].ovenMinutes}</td><td class="n">${money(eco[i].profit)}</td><td class="n">${money(eco[i].profitPerOvenHour)}</td></tr>`).join("")}</tbody></table></div></div>`;
+      h += `<div class="finding"><h4>Day totals (production pull list)</h4><div class="scroll"><table><thead><tr><th>Product</th><th class="n">Ordered</th><th class="n">Batches</th><th class="n">To make</th></tr></thead><tbody>${dayTotals(orders).map((t) => `<tr><td>${esc(t.name)}</td><td class="n">${t.ordered}</td><td class="n">${t.batches}</td><td class="n">${t.made}</td></tr>`).join("")}</tbody></table></div></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("plan_run");
+    }
+    $("products").value = EXAMPLE_PRODUCTS;
+    $("orders").value = EXAMPLE_ORDERS;
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { $("products").value = EXAMPLE_PRODUCTS; $("orders").value = EXAMPLE_ORDERS; record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

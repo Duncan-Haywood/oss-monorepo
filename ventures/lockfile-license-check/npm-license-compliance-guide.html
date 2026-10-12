@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>npm License Compliance Checklist: GPL, AGPL and Unknown Licences in Dependencies</title>
+  <meta name="description" content="A practical checklist for auditing npm dependency licences before you ship: what copyleft means, how to read OR and AND expressions, what to do about packages with no licence.">
+  <link rel="canonical" href="./npm-license-compliance-guide.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"An npm licence compliance checklist for shipping software","about":"Auditing dependency licences in package-lock.json","author":{"@type":"Organization","name":"Lockfile License Check"}}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.12; color: #17324a; }
+    h2 { font-size: 1.15rem; color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    code { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Lockfile License Check</a></p>
+  <h1>An npm licence compliance checklist for shipping software</h1>
+  <p>A typical web app pulls in hundreds of packages, each with its own licence. Most are permissive. The few that are not are the ones worth ten minutes before a release, an acquisition review or a customer security questionnaire.</p>
+
+  <h2>The categories this tool uses</h2>
+  <ul>
+    <li><strong>permissive</strong> — MIT, ISC, BSD, Apache-2.0 and similar. Keep the notice; little else is required.</li>
+    <li><strong>weak-copyleft</strong> — LGPL, MPL, EPL, CDDL. Changes to the library itself usually have to be shared; using it as a dependency usually does not.</li>
+    <li><strong>strong-copyleft</strong> — GPL, AGPL, SSPL. Distributing (or, for AGPL and SSPL, offering over a network) software that includes it can carry obligations on your own code. Review these first.</li>
+    <li><strong>unlicensed</strong> — <code>UNLICENSED</code> or <code>SEE LICENSE IN ...</code>. No grant is visible in the metadata; read the file it points to.</li>
+    <li><strong>unknown</strong> — no licence declared, or an identifier this tool does not recognise.</li>
+  </ul>
+
+  <h2>Checklist</h2>
+  <ol>
+    <li>Run the check on <code>package-lock.json</code>, once with devDependencies and once with <code>--no-dev</code>: build tools you do not ship matter far less.</li>
+    <li>Read every strong-copyleft entry's own repository. Declared metadata can be wrong.</li>
+    <li>For a dual-licensed <code>(MIT OR GPL-3.0)</code> package, record which option you rely on.</li>
+    <li>For an unknown package, look for a LICENSE file, then ask the maintainer to add a licence field.</li>
+    <li>Add <code>node license-check.mjs --fail-on copyleft</code> to CI so a new dependency cannot add one silently.</li>
+  </ol>
+
+  <h2>What this does not tell you</h2>
+  <p>It reads only the licence field package authors declared in their own package.json. It does not read licence files, detect code copied between packages, or follow transitive licences that npm did not record. It is a heuristic and is not legal advice.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is. It is not legal advice. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Run the check</a>.</p>
+  </footer>
+</body>
+</html>

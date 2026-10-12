@@ -1,0 +1,40 @@
+name: zoho-crm-import-csv-check
+description: >-
+  Free browser tool that checks a Zoho CRM import CSV of leads, contacts, accounts or deals before it
+  is uploaded: leads missing Last Name or Company, deals missing a Deal Name, Stage and Lead Status
+  values spelled differently from the default picklists, Amounts with currency symbols or thousands
+  separators, currencies that are not 3-letter codes, probabilities written as fractions or over 100,
+  invalid and duplicate emails, duplicate deals and accounts, phone numbers Excel damaged
+  (scientific notation), date formats the import will misread, headings that do not match field
+  names and semicolon-delimited files, each with its line number, plus a formatting-only safe-fixes
+  pass that lists every change. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. The portfolio has HubSpot, Salesforce (leads),
+# Pipedrive, Xero, QuickBooks and email-list import checkers; none covers Zoho CRM, the CRM small
+# businesses pick as the cheaper Salesforce alternative and the one most often reached by a migration
+# off a spreadsheet. Zoho's import is a mapping wizard over a CSV, so the faults are the ones a
+# spreadsheet round trip produces plus module-shaped ones: a lead with no Company (Zoho requires
+# both Last Name and Company), a Stage spelled "closed won" against the picklist's "Closed Won",
+# "$12,000" in the Amount column, a Probability of 0.6, and the same deal entered twice.
+#
+# First visitor: people searching the literal problems ("Zoho CRM import leads CSV error",
+# "Zoho CRM import lead status picklist", "Zoho CRM import currency", "Zoho CRM import date
+# format") and Zoho CRM Community threads, r/ZohoCRM, r/sales. Volume not measured.
+#
+# Privacy is the liability boundary: a customer and deal list names people, emails, phones and
+# amounts, so the file never leaves the browser (a test asserts no network calls).
+#
+# Rules are read from memory of Zoho CRM's public import help, with an explicit not-checked list
+# shown on the page and returned with every result: custom fields and edited picklists, owner
+# matching, existing records, enabled currencies, the date and number formats chosen at import,
+# deliverability.
+#
+# Path to revenue (payment rails stay off): lead magnet for the CRM-migration and sales-ops
+# audience, sibling to the HubSpot, Salesforce, Xero, QuickBooks and email-list checkers. A paid
+# version, if usage appears, is bulk checks across client files with saved rules behind an env-var
+# switch; not built.
+#
+# Liability: format checks on the user's own file, rules stated as read from memory, no warranty,
+# independent-of-Zoho CRM clause, trademark used nominatively.

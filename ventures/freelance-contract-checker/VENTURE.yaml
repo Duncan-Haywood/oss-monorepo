@@ -1,0 +1,58 @@
+name: freelance-contract-checker
+description: >-
+  Free browser tool for freelancers, consultants and independent contractors: paste the client agreement or statement of
+  work and see what to fix before signing. Flags slow or pay-when-paid terms, no deposit, no late fee, unlimited or unstated
+  revisions, no change-order process, IP assigned before payment or wider than the project, cancellation with no pay for
+  work done, non-compete and non-solicit clauses, uncapped indemnity, absolute warranties and terms that read like
+  employment, each with the change to ask for. Read locally, never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check.py: closest ventures at 0.26
+# (employment-contract-checker, which reads a job offer for an employee; lien-waiver-checker at 0.21).
+# No venture reads a freelance client agreement. Pairs with freelance-retainer-calculator and freelance-rate-increase-calculator.
+# Search phrases: "freelance contract review", "freelance contract red flags", "should I sign this client contract",
+# "unlimited revisions clause", "work for hire clause freelancer", "freelance contract checklist".
+# Volume not measured with an external tool. Incumbents: Bonsai, HoneyBook, Dubsado (contract templates inside paid
+# suites), and AI contract reviewers (LegalFly, Spellbook) aimed at lawyers; nobody serves the freelancer who just wants
+# to know what to push back on, for free and without uploading the client's document.
+#
+# Who: freelance developers, designers, writers and consultants who are handed a client's paper and sign it. The paying
+# buyer, if there is one, is a freelancer who wants saved contract checks, a clause library of counter-wording and
+# redline export behind an env-var switch; not built.
+#
+# Path to revenue (payment rails stay off): lead magnet feeding the freelance calculators; clause library and redlines
+# are the paid version if usage appears.
+#
+# Liability: reads the user's own text with fixed, visible rules; says what each finding means and what to ask for;
+# never says a contract is safe or fair; carries the no-warranty and not-legal-advice clauses; lists enforceability,
+# fairness and the decision to sign as not decided.
+#
+# Unverified: no freelancer or attorney has run a real contract through it yet. The rules are regular expressions over
+# normalized text, so unusual wording can be missed or a benign clause flagged. First wrong-result report is priority.
+
+hypotheses:
+  - claim: >-
+      A freelancer handed a client's contract will paste it into a no-upload page to see what to push back on, because
+      payment terms, revision limits and IP clauses are costly and the freelancer has no lawyer to ask.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted contract structure) engage with the tool by 2027-03-15.
+  - A freelancer or attorney reports a plain contract the rules mis-read, at which point the rule needs revisiting before more usage is sought.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/freelance-contract-checker/
+  analytics: null

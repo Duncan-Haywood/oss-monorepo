@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pension Lump Sum vs Monthly Pension Calculator (Which Pays More?) — Free</title>
+  <meta name="description" content="Free pension lump sum vs monthly pension calculator: the pension's value at your expected return and lifespan, the return the lump sum must earn to match it, break-even age, survivor benefit and what the lump sum could pay each month. Nothing uploaded.">
+  <meta property="og:title" content="Lump sum or monthly pension? Free calculator">
+  <meta property="og:description" content="What your pension is worth, the return the lump sum has to earn to match it, and the age you break even. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M8 24h16M10 24V12M16 24V12M22 24V12M7 12l9-6 9 6' stroke='%23fff' stroke-width='1.800' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Pension Lump Sum vs Monthly Pension Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare a pension buyout lump sum with the monthly pension: its value at your expected return and lifespan, the return the lump sum must earn to match it, break-even age, survivor benefit and sustainable withdrawals. Runs in your browser; nothing is uploaded.", "featureList": "Pension present value with mortality, required return on the lump sum, break-even age, survivor benefit, cost-of-living increases, sustainable withdrawal comparison, lifespan sensitivity"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I take the lump sum or the monthly pension?", "acceptedAnswer": {"@type": "Answer", "text": "This tool does not tell you which. It shows what the monthly pension is worth in today's dollars at the return you think the lump sum could earn, given how long you expect to live, and the return you would have to earn on the lump sum just to match the pension. If that required return is higher than you can safely earn, the pension is the better value; if it is easy to beat, the lump sum may be."}}, {"@type": "Question", "name": "What is the implied return on a pension lump sum?", "acceptedAnswer": {"@type": "Answer", "text": "It is the yearly investment return at which the pension you would give up is worth exactly the lump sum, counting the chance you do not live to collect every payment. It is the return the lump sum has to earn, every year, to break even with the pension. A required return of 3% is easy; 7% means you are being asked to give up a lot for cash."}}, {"@type": "Question", "name": "Why does the tool ask for an age I have a 50/50 chance of reaching?", "acceptedAnswer": {"@type": "Answer", "text": "Because the value of a pension depends on how long it pays, and nobody knows that. Type the age you would call a coin flip for your own health and family history. The tool uses a smooth survival curve shaped like adult mortality around that age, and the grid shows how much the answer moves if you live to 78 or to 92."}}, {"@type": "Question", "name": "How does a survivor benefit change the value?", "acceptedAnswer": {"@type": "Answer", "text": "If a spouse would keep a share of the pension after you die, the pension keeps paying in more of the futures where you die first, so it is worth more. Enter the spouse's age, their own 50/50 age and the survivor share of your pension. Type the monthly amount for the option you are actually comparing, since joint-and-survivor options usually pay less per month."}}, {"@type": "Question", "name": "What does the sustainable withdrawal number mean?", "acceptedAnswer": {"@type": "Answer", "text": "It is the first-year monthly amount the lump sum could pay, starting when the pension starts, growing with the same cost-of-living rate, and running the money down to zero at the planning age, assuming it earns the return you typed every year. It is a straight line comparison, not a market forecast, and real returns are uneven."}}, {"@type": "Question", "name": "How is tax handled?", "acceptedAnswer": {"@type": "Answer", "text": "The tool takes one rate on the lump sum. If you roll the lump sum into an IRA, nothing is withheld when you move it, so leave this at 0; if you take it as cash, a large share can be taxed, and under 59 and a half a penalty can apply. Pension payments and IRA withdrawals are both taxed later, so this comparison is before tax on both sides. Confirm with a tax professional."}}, {"@type": "Question", "name": "Is this financial or tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on numbers you type in, with simplified assumptions: monthly payments, a stylised survival curve, a constant return and a constant cost-of-living rate. Your plan's lump sum may also have been set with different interest-rate and mortality assumptions than yours. Read your plan documents, and consider a fee-only adviser, before you elect anything."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">PENSION LUMP SUM VS MONTHLY PENSION · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Should I take the pension lump sum or the monthly check?</h1>
+    <p>Employers offering a one-time buyout of a pension give you one irreversible choice. Type the monthly pension, the lump sum and how long you expect to live. It shows what the pension is worth today, the return the lump sum must earn every year to match it, the age you break even, and what the lump sum could pay each month instead.</p>
+    <p class="note">Planning arithmetic on numbers you type in. Not legal, tax or financial advice. The example figures are placeholders, not a real offer.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Your pension offer</h2>
+      <div class="grid">
+        <div><label for="age">Your age today</label><input id="age" type="number" step="any" value="0"></div>
+        <div><label for="startAge">Age the monthly pension starts</label><input id="startAge" type="number" step="any" value="0"></div>
+        <div><label for="monthlyPension">Monthly pension offered ($)</label><input id="monthlyPension" type="number" step="any" value="0"></div>
+        <div><label for="cola">Yearly cost-of-living increase on the pension (%, 0 if none)</label><input id="cola" type="number" step="any" value="0"></div>
+        <div><label for="lifeAge">Age you have a 50/50 chance of reaching</label><input id="lifeAge" type="number" step="any" value="0"></div>
+        <div><label for="lumpSum">Lump-sum offered instead ($)</label><input id="lumpSum" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Your assumptions and household</h2>
+      <div class="grid">
+        <div><label for="discountRate">Yearly return you expect on the lump sum (%)</label><input id="discountRate" type="number" step="any" value="0"></div>
+        <div><label for="lumpTaxPct">Tax taken from the lump sum now (%, 0 if rolled to an IRA)</label><input id="lumpTaxPct" type="number" step="any" value="0"></div>
+        <div><label for="planAge">Age to plan the lump sum to last until</label><input id="planAge" type="number" step="any" value="0"></div>
+        <div><label for="spouseAge">Spouse's age (0 if none or no survivor benefit)</label><input id="spouseAge" type="number" step="any" value="0"></div>
+        <div><label for="spouseLifeAge">Spouse's 50/50 age</label><input id="spouseLifeAge" type="number" step="any" value="0"></div>
+        <div><label for="survivorPct">Share of the pension a surviving spouse keeps (%)</label><input id="survivorPct" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Compare the two</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Should I take the lump sum or the monthly pension?</h3>
+      <p>This tool does not tell you which. It shows what the monthly pension is worth in today&#x27;s dollars at the return you think the lump sum could earn, given how long you expect to live, and the return you would have to earn on the lump sum just to match the pension. If that required return is higher than you can safely earn, the pension is the better value; if it is easy to beat, the lump sum may be.</p>
+      <h3>What is the implied return on a pension lump sum?</h3>
+      <p>It is the yearly investment return at which the pension you would give up is worth exactly the lump sum, counting the chance you do not live to collect every payment. It is the return the lump sum has to earn, every year, to break even with the pension. A required return of 3% is easy; 7% means you are being asked to give up a lot for cash.</p>
+      <h3>Why does the tool ask for an age I have a 50/50 chance of reaching?</h3>
+      <p>Because the value of a pension depends on how long it pays, and nobody knows that. Type the age you would call a coin flip for your own health and family history. The tool uses a smooth survival curve shaped like adult mortality around that age, and the grid shows how much the answer moves if you live to 78 or to 92.</p>
+      <h3>How does a survivor benefit change the value?</h3>
+      <p>If a spouse would keep a share of the pension after you die, the pension keeps paying in more of the futures where you die first, so it is worth more. Enter the spouse&#x27;s age, their own 50/50 age and the survivor share of your pension. Type the monthly amount for the option you are actually comparing, since joint-and-survivor options usually pay less per month.</p>
+      <h3>What does the sustainable withdrawal number mean?</h3>
+      <p>It is the first-year monthly amount the lump sum could pay, starting when the pension starts, growing with the same cost-of-living rate, and running the money down to zero at the planning age, assuming it earns the return you typed every year. It is a straight line comparison, not a market forecast, and real returns are uneven.</p>
+      <h3>How is tax handled?</h3>
+      <p>The tool takes one rate on the lump sum. If you roll the lump sum into an IRA, nothing is withheld when you move it, so leave this at 0; if you take it as cash, a large share can be taxed, and under 59 and a half a penalty can apply. Pension payments and IRA withdrawals are both taxed later, so this comparison is before tax on both sides. Confirm with a tax professional.</p>
+      <h3>Is this financial or tax advice?</h3>
+      <p>No. It is arithmetic on numbers you type in, with simplified assumptions: monthly payments, a stylised survival curve, a constant return and a constant cost-of-living rate. Your plan&#x27;s lump sum may also have been set with different interest-rate and mortality assumptions than yours. Read your plan documents, and consider a fee-only adviser, before you elect anything.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your plan is insured and how much of it is guaranteed if the employer fails, how the plan set the lump sum (the interest rates and mortality it used may differ from yours), your health, the other income you will have, inflation beyond the cost-of-living rate you typed, the order of your retirement withdrawals, your tax bracket, and whether to elect at all. Payments are modelled monthly with a smooth survival curve rather than a life table, and a constant return.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../social-security-claiming-age-calculator/">Social Security claiming age calculator</a>, the <a href="../retirement-withdrawal-sequencer/">retirement withdrawal sequencer</a> and the <a href="../cell-tower-lease-buyout-calculator/">lease buyout calculator</a> for other lump-sum-for-income decisions.</p>
+    </section>
+    <p>Offered cash for future settlement payments? See the <a href="../structured-settlement-buyout-calculator/">structured settlement buyout calculator</a>.</p>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it is not investment, actuarial or retirement-plan advice. Valuations are arithmetic on figures you type; nothing here is an offer to buy or sell anything.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+      <p>Federal employee under FERS? The <a href="../fers-retirement-planner/">FERS retirement planner</a> compares the pension, supplement and TSP income at every retirement age.</p>
+  </footer>
+        <script type="module">
+    import { DEFAULTS, num, money, pct, analyze } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const yr = (x) => (x === null || !Number.isFinite(x) ? "not within the pension term" : "age " + x.toFixed(1));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    function run() {
+      const o = opts();
+      const a = analyze(o);
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.rows.length || !a.lump) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const verdict = a.gap >= 0 ? "At " + a.rate + "% and your lifespan, the lump sum is worth " + money(a.gap) + " more than the pension." : "At " + a.rate + "% and your lifespan, the pension is worth " + money(-a.gap) + " more than the lump sum. To match it the lump sum would have to earn " + pct(a.irr) + " a year.";
+      h += `<div class="finding"><h4>Pension against lump sum</h4><p>${esc(verdict)}</p>${table(["Measure", "Result"], [["Lump sum offered (after tax taken now)", money(a.lumpNet)], ["Monthly pension offered", money(o.monthlyPension) + " from age " + o.startAge], ["Pension worth today, counting your lifespan", money(a.pvPension)], ["Pension worth today if paid with certainty to 110", money(a.pvCertain)], ["Lump sum as a share of the pension value", pct(a.ratio, 0)], ["Return the lump sum must earn to match the pension", pct(a.irr)], ["Same, if you were certain to collect to 110", pct(a.irrCertain)]])}</div>`;
+      h += `<div class="finding"><h4>When the pension pays you back</h4>${table(["Measure", "Result", "Chance you reach it"], [["Payments add up to the lump sum", yr(a.breakEvenAge), pct(a.reachBreakEven, 0)], ["Same, counting the time value at " + a.rate + "%", yr(a.breakEvenPvAge), pct(a.reachBreakEvenPv, 0)]])}</div>`;
+      h += `<div class="finding"><h4>What the lump sum could pay instead</h4><p>Starting at age ${o.startAge}, growing ${o.cola}% a year and earning ${a.rate}%, the lump sum could pay ${money(a.sustain)} a month until age ${o.planAge}, then nothing. The pension offers ${money(o.monthlyPension)} a month and keeps going for life. That is ${pct(a.sustainVsPension, 0)} of the pension for the years it lasts.</p></div>`;
+      h += `<div class="finding"><h4>How long the model thinks you live</h4>${table(["Chance of being alive", "Age"], a.ages.map((x) => [pct(x.p, 0), x.age.toFixed(1)]))}</div>`;
+      h += `<div class="finding"><h4>Pension worth today by return and 50/50 age</h4>${table(["Return", ...a.lifeAges.map((l) => "50/50 at " + l)], a.grid.map((g) => [g.rate + "%", ...g.values.map(money)]))}</div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+name: event-seating-chart-optimizer
+description: >-
+  Free browser tool for weddings, banquets and events: paste a guest list with
+  optional families, write who should sit together, who to keep apart and who is
+  pinned to a table, and a simulated-annealing search assigns every guest to a
+  table with the most wishes met within capacity, checked against exhaustive
+  search on small lists. Shows each table, the wishes it could not meet, a
+  comparison with list order and a CSV. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture session asked for a deeper, algorithmic
+# tool. duplicate_check.py: closest rows were bounce-house-rental-calculator 0.14
+# and sign-language-interpreter-rate-calculator 0.14 (neither seats guests);
+# nothing near the 0.45 line. screened-out.md has no seating row.
+#
+# Why this niche: "wedding seating chart" is a high-volume search with a real
+# budget attached (couples and planners spend an evening on it, and wedding
+# planners do it for every client). The common free tools are drag-and-drop
+# canvases that lay out tables by hand; the paid planner suites bundle seating
+# into a subscription. A constraint-and-search tool that takes the wishes as
+# text and returns a full assignment, free and private, is uncommon.
+#
+# First visitor: people searching "wedding seating chart", "seating chart
+# generator", "table assignment tool", "how to seat feuding relatives"; wedding
+# forums and planner groups. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic and search on user-typed names and wishes; a
+# planning aid, not event-planning advice or a guarantee of anyone's comfort; no
+# prices asserted; names never leave the browser and are not stored; the example
+# guests are invented.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural
+# front end for a planner's client-intake or a venue-booking lead form.
+
+hypotheses:
+  - claim: >-
+      Couples, families and small event planners will use a private, no-signup
+      seating optimizer instead of moving names around by hand, and the plan it
+      gives changes who they seat where.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a plan that seats a guest twice, exceeds a table's capacity or ignores a pinned table.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/event-seating-chart-optimizer/
+  analytics: null

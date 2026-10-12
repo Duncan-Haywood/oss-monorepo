@@ -1,0 +1,52 @@
+name: tax-deed-auction-max-bid-planner
+description: >-
+  Free browser tool for tax deed auction buyers: enter the resale price and the costs of
+  winning (buyer's premium, surviving liens, quiet title, occupant removal, repairs,
+  holding, cost of cash) and get the maximum bid for a target profit, plus a stress test
+  of the bids you are considering at 10% and 20% lower resale. Copy, CSV, save and load.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a new-venture session. duplicate_check.py: top row 0.30
+# (storage-auction-max-bid-calculator, a different asset and cost structure); nothing
+# in the tree covers tax deed or tax lien auctions.
+#
+# Why this niche: tax deed investors bid thousands to tens of thousands of dollars on
+# properties where the costs that follow the win (surviving liens, quiet title,
+# occupants, repairs) are the part newcomers miss. Searches like "tax deed auction
+# calculator" and "how much to bid on tax deed" are steady, county auction calendars
+# create seasonal peaks, and the buyers have money. It is the lead magnet for a later
+# paid multi-property tracker (payment rails stay off for now).
+#
+# First visitor: tax-deed and real-estate-investing subreddits and forums, investor
+# Facebook groups. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed numbers. Not legal, tax, title or
+# investment advice; says so. No county data fetched, no accounts, nothing stored.
+
+hypotheses:
+  - claim: >-
+      Tax deed buyers will enter their cost assumptions into a no-signup tool and use
+      the maximum bid to set their auction limit.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a profit at the maximum bid that does not equal their stated target, or a cost the tool double-counts.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/tax-deed-auction-max-bid-planner/
+  analytics: null

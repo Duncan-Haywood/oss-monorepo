@@ -14,6 +14,11 @@ export const DEFAULT_UNIT_VALUE = 20;
 export const WAIT_DAYS = 45;
 export const WINDOW_MONTHS = 18;
 export const EXPIRING_MONTHS = 3;
+// Inbound shipments that arrive short have a much shorter claim window than lost inventory
+// (commonly 9 months from the shipment), and Amazon keeps reconciling a shipment for a while
+// after it closes, so a recent shortage is not yet a claim either. Both are editable defaults.
+export const INBOUND_WINDOW_MONTHS = 9;
+export const INBOUND_WAIT_DAYS = 30;
 
 const LEDGER_ALIASES = {
   date: ["date", "event date", "snapshot date", "month"],
@@ -25,6 +30,14 @@ const LEDGER_ALIASES = {
   lost: ["lost"],
   damaged: ["damaged"],
   unknown: ["unknown events", "unknown event", "unknown"],
+};
+const SHIPMENT_ALIASES = {
+  id: ["shipment id", "shipment-id", "shipmentid", "shipment"],
+  name: ["shipment name", "name"],
+  sku: ["msku", "sku", "merchant sku", "seller sku", "merchant-sku"],
+  date: ["created", "date created", "created date", "shipment created", "creation date", "date"],
+  shipped: ["units expected", "units shipped", "shipped", "quantity shipped", "expected", "units sent", "qty shipped"],
+  received: ["units located", "units received", "received", "quantity received", "located", "qty received"],
 };
 const REIMB_ALIASES = {
   date: ["approval-date", "approval date", "date approved", "date"],
@@ -193,6 +206,10 @@ export function normalizeLedger(table, { decimalComma = false } = {}) {
 export function reasonKind(raw) {
   const s = String(raw ?? "").toLowerCase();
   if (/revers|clawback|claw back/.test(s)) return "reversal";
+  // Lost_Inbound / Damaged_Inbound pay for units that never reached (or were hurt on the way to) a
+  // warehouse shelf, which the ledger's Lost and Damaged columns do not record, so they must not be
+  // netted against warehouse losses.
+  if (/inbound/.test(s)) return "inbound";
   if (/lost|missing|misplac/.test(s)) return "lost";
   if (/damag/.test(s)) return "damaged";
   return "other";
@@ -232,6 +249,89 @@ export function normalizeReimbursements(table, { decimalComma = false } = {}) {
 
 const norm = (s) => String(s ?? "").trim().toLowerCase();
 
+// Inbound shipment shortages -> { items, skipped, error }. Reads a CSV of what you sent and what Amazon
+// counted in, one row per shipment and SKU (Seller Central → Shipping Queue → a shipment → Track
+// shipment, or your own sheet). item = { line, t, id, sku, shipped, received }.
+export function normalizeShipments(table, { decimalComma = false } = {}) {
+  const empty = { items: [], skipped: [] };
+  if (!table.length) return { ...empty, error: "The shipments file is empty." };
+  const found = findHeader(table, SHIPMENT_ALIASES, (c) => c.sku !== undefined && c.shipped !== undefined && c.received !== undefined);
+  if (!found) return { ...empty, error: "No header row found in the shipments file. Expected “Shipment ID”, “SKU” (or “MSKU”), “Units expected” (shipped) and “Units located” (received), plus a created date." };
+  const { h, cols } = found;
+  const get = (line, f) => (cols[f] === undefined ? "" : (line[cols[f]] ?? "").trim());
+  const dmy = detectDmy(table.slice(h + 1).map((l) => get(l, "date")));
+  const items = [], skipped = [];
+  for (let i = h + 1; i < table.length; i++) {
+    const line = table[i], lineNo = i + 1;
+    if (isTotal(line)) { skipped.push({ line: lineNo, reason: "total row" }); continue; }
+    const sku = get(line, "sku");
+    if (!sku) { skipped.push({ line: lineNo, reason: "no SKU" }); continue; }
+    const when = parseWhen(get(line, "date"), dmy);
+    if (!when) { skipped.push({ line: lineNo, reason: "date not readable" }); continue; }
+    const shipped = parseNumber(get(line, "shipped"), decimalComma), received = parseNumber(get(line, "received"), decimalComma);
+    if (!Number.isFinite(shipped) || !Number.isFinite(received) || shipped < 0 || received < 0) { skipped.push({ line: lineNo, reason: "unit count not readable" }); continue; }
+    items.push({ line: lineNo, t: when.t, id: get(line, "id") || get(line, "name"), sku, shipped, received });
+  }
+  if (!items.length) return { ...empty, skipped, error: "No shipment rows could be read." + (skipped.length ? ` ${skipped.length} row(s) were skipped (first: line ${skipped[0].line}, ${skipped[0].reason}).` : "") };
+  return { items, skipped, dmy };
+}
+
+// Shortages per shipment and SKU (units sent minus units received), netted oldest-first against that
+// SKU's inbound reimbursements, then aged against the inbound window. reimbItems may be null.
+export function analyzeInbound(shipItems, reimbItems, { asOf = Date.now(), defaultUnitValue = DEFAULT_UNIT_VALUE, windowMonths = INBOUND_WINDOW_MONTHS, waitDays = INBOUND_WAIT_DAYS } = {}) {
+  const unitDefault = Number.isFinite(defaultUnitValue) && defaultUnitValue >= 0 ? defaultUnitValue : DEFAULT_UNIT_VALUE;
+  const expiringBefore = addMonths(asOf, EXPIRING_MONTHS);
+  const paid = new Map(), price = new Map();
+  for (const r of Array.isArray(reimbItems) ? reimbItems : []) {
+    const k = norm(r.sku);
+    if (r.kind === "inbound") paid.set(k, (paid.get(k) || 0) + r.qty);
+    if (r.qty > 0 && r.amount > 0 && r.kind !== "other") { const p = price.get(k) || { q: 0, a: 0 }; p.q += r.qty; p.a += r.amount; price.set(k, p); }
+  }
+  const bySku = new Map();
+  for (const x of shipItems) {
+    const k = norm(x.sku);
+    if (!bySku.has(k)) bySku.set(k, []);
+    bySku.get(k).push(x);
+  }
+  const rows = [];
+  for (const [k, list] of bySku) {
+    list.sort((a, b) => a.t - b.t);
+    let left = Math.max(0, paid.get(k) || 0);
+    const p = price.get(k);
+    const unitValue = p ? p.a / p.q : unitDefault;
+    for (const x of list) {
+      const short = Math.max(0, x.shipped - x.received);
+      if (!short) continue;
+      const take = Math.min(left, short);
+      left -= take;
+      const open = short - take;
+      const end = addMonths(x.t, windowMonths);
+      const state = open === 0 ? "paid" : asOf - x.t < waitDays * DAY ? "wait" : end < asOf ? "expired" : end < expiringBefore ? "expiring" : "claim";
+      rows.push({ sku: x.sku, id: x.id, t: x.t, shipped: x.shipped, received: x.received, short, reimbursed: take, open, state, end, unitValue: r2(unitValue), value: r2(open * unitValue), valueSource: p ? "your reimbursements" : "default value" });
+    }
+  }
+  rows.sort((a, b) => (b.state === "expiring") - (a.state === "expiring") || b.value - a.value || a.t - b.t);
+  const sumState = (st, f) => rows.filter((r) => st.includes(r.state)).reduce((n, r) => n + f(r), 0);
+  const summary = {
+    shipments: new Set(rows.map((r) => r.id || r.sku + r.t)).size, short: rows.reduce((n, r) => n + r.short, 0),
+    claimUnits: sumState(["claim", "expiring"], (r) => r.open), claimValue: r2(sumState(["claim", "expiring"], (r) => r.value)),
+    expiringUnits: sumState(["expiring"], (r) => r.open), expiringValue: r2(sumState(["expiring"], (r) => r.value)),
+    waitUnits: sumState(["wait"], (r) => r.open), waitValue: r2(sumState(["wait"], (r) => r.value)),
+    expiredUnits: sumState(["expired"], (r) => r.open), expiredValue: r2(sumState(["expired"], (r) => r.value)),
+    paidUnits: rows.reduce((n, r) => n + r.reimbursed, 0), windowMonths, waitDays,
+  };
+  return { rows, summary };
+}
+
+export function inboundClaimText(r) {
+  return [
+    `Please review an inbound shipment discrepancy.`,
+    `Shipment ID: ${r.id || "(see below)"}  SKU: ${r.sku}`,
+    `I sent ${r.shipped} unit(s) and the shipment shows ${r.received} received, a difference of ${r.short}${r.reimbursed ? `; ${r.reimbursed} of those are already reimbursed, leaving ${r.open}` : ""}. Shipment created ${ymd(r.t)}.`,
+    `Please check the carrier's delivery record and the receiving count and reimburse any units that were lost or damaged while in transit to or in Amazon's care, or tell me where they were received.`,
+  ].join("\n");
+}
+
 // ledgerItems: normalizeLedger(...).items. reimbItems: normalizeReimbursements(...).items or null when no
 // reimbursement file was given. asOf is "today" in ms so the aging is testable.
 export function analyze(ledgerItems, reimbItems, { asOf = Date.now(), defaultUnitValue = DEFAULT_UNIT_VALUE, waitDays = WAIT_DAYS, windowMonths = WINDOW_MONTHS } = {}) {
@@ -251,7 +351,7 @@ export function analyze(ledgerItems, reimbItems, { asOf = Date.now(), defaultUni
   const reimbOnlySkus = new Set();
   const ledgerKeys = new Set(bySku.keys());
   if (haveReimb) for (const r of reimbItems) {
-    if (r.kind === "other") continue;
+    if (r.kind === "other" || r.kind === "inbound") continue;
     if (!ledgerKeys.has(norm(r.sku))) { reimbOnlySkus.add(r.sku); continue; }
     const s = bySku.get(norm(r.sku));
     s.reimbUnits += r.qty;
@@ -371,5 +471,11 @@ export function sampleCsv(asOf = Date.now()) {
   pay(d(500), "MUG-BLU-001", "Lost_Warehouse", 4, 17.5);
   pay(d(110), "YOGA-STR-002", "Lost_Warehouse", 4, 11.2);
   pay(d(280), "TEA-SMP-004", "Lost_Warehouse", 5, 9.4);
-  return { ledger: ledger.join("\n"), reimbursements: reimb.join("\n") };
+  const ship = ["Shipment ID,Created,MSKU,Units expected,Units located"];
+  ship.push(["FBA15EXAMP1", d(120), "MUG-BLU-001", 200, 188].join(","));
+  ship.push(["FBA15EXAMP1", d(120), "YOGA-STR-002", 150, 150].join(","));
+  ship.push(["FBA15EXAMP2", d(60), "LAMP-DSK-003", 80, 71].join(","));
+  ship.push(["FBA15EXAMP3", d(10), "TEA-SMP-004", 300, 290].join(","));
+  ship.push(["FBA15EXAMP4", d(240), "TEA-SMP-004", 100, 94].join(","));
+  return { ledger: ledger.join("\n"), reimbursements: reimb.join("\n"), shipments: ship.join("\n") };
 }

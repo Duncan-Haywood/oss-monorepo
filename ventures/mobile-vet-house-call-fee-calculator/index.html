@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mobile Vet House-Call Fee Calculator — Cost, Zone Surcharge and Daily Profit</title>
+  <meta name="description" content="Free calculator for mobile veterinarians: what a house call really costs after drive time, mileage, supplies, assistant time and no-shows, the visit fee and travel-zone surcharge that reach your margin, and profit per day. Runs in your browser.">
+  <meta property="og:title" content="Mobile Vet House-Call Fee Calculator — free, private">
+  <meta property="og:description" content="What a house call costs, the fee and zone surcharge for your margin, and profit per day.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Mobile Vet House-Call Fee Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "What a mobile veterinary house call really costs, the visit fee and travel-zone surcharge that reach a target margin, and profit per day for a schedule of visits. Runs in your browser.", "featureList": "Drive time and mileage cost, travel-zone surcharges, multi-pet visits, no-show cost, in-home euthanasia preset, profit per day"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should a mobile vet charge for a house call?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on your costs, not a standard number. A house call carries drive time both ways, vehicle cost, setup and charting time, supplies and the clinic appointments you gave up. This calculator adds those up for your numbers and shows the visit fee that reaches your target margin."}}, {"@type": "Question", "name": "Why charge a travel-zone surcharge?", "acceptedAnswer": {"@type": "Answer", "text": "Cost rises with every mile: drive time is paid for twice, and so is the vehicle. A flat visit fee that is right for a neighbour two miles away loses money 30 miles out. The zone table shows the surcharge each distance needs to keep the same margin as zone 1."}}, {"@type": "Question", "name": "How do no-shows affect a house-call fee?", "acceptedAnswer": {"@type": "Answer", "text": "A no-show still costs the drive both ways. The calculator spreads the cost of wasted trips, net of any no-show fee you charge, over your completed visits, so you can see what a late-cancel fee is worth."}}, {"@type": "Question", "name": "How should I price in-home euthanasia visits?", "acceptedAnswer": {"@type": "Answer", "text": "Use the preset as a starting point and replace it with your own times, supplies and fees. These visits run longer and carry more supplies per visit. Decisions about care and fees are for the veterinarian and the client."}}, {"@type": "Question", "name": "Is this veterinary or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the numbers you type. Nothing is stored or sent anywhere."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d5f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #3f4c59; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #8fa7b2; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d5f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #3f4c59; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #8a2f0c; }
+    .pill.medium { background: #fdf0d5; color: #6b500c; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+      .pill.high { background: #fde8e8; color: #8a2f0c; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MOBILE VETERINARY PRICING · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does a house call really cost you, and what should it cost the client?</h1>
+    <p>Enter your drive time, mileage, visit times, supplies and fees. See the <strong>loaded cost of one house call</strong>, the visit fee and <strong>travel-zone surcharge</strong> that reach your target margin, and the <strong>profit for a day</strong> of visits at your average drive time.</p>
+    <p class="note">Nothing you type leaves this tab. The numbers shown first are an example, not a benchmark: replace them with your own.</p>
+  </header>
+  <section class="card">
+    <h2>1. Visit type</h2>
+    <div class="grid">
+      <div><label for="preset">Start from a visit type (fills the visit fields below)</label><select id="preset"><option value="">Keep my numbers</option><option value="wellness">Wellness or sick visit</option><option value="euthanasia">In-home euthanasia</option><option value="recheck">Short recheck or injection</option></select></div>
+    </div>
+    <div class="grid">
+      <div><label for="pets">Pets on this visit</label><input type="number" id="pets" min="0" step="any"></div>
+      <div><label for="setupMinutes">Setup and greeting minutes</label><input type="number" id="setupMinutes" min="0" step="any"></div>
+      <div><label for="visitMinutes">Exam and treatment minutes (first pet)</label><input type="number" id="visitMinutes" min="0" step="any"></div>
+      <div><label for="extraPetMinutes">Added minutes per additional pet</label><input type="number" id="extraPetMinutes" min="0" step="any"></div>
+      <div><label for="chartingMinutes">Charting and invoicing minutes</label><input type="number" id="chartingMinutes" min="0" step="any"></div>
+      <div><label for="visitFee">House-call visit fee you charge</label><input type="number" id="visitFee" min="0" step="any"></div>
+      <div><label for="servicesPerPet">Services billed per pet, excluding visit fee</label><input type="number" id="servicesPerPet" min="0" step="any"></div>
+      <div><label for="multiPetDiscountPct">Multi-pet discount on extra pets' services (%)</label><input type="number" id="multiPetDiscountPct" min="0" step="any"></div>
+      <div><label for="suppliesPerPet">Drugs and supplies per pet (cost)</label><input type="number" id="suppliesPerPet" min="0" step="any"></div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>2. Travel and zones</h2>
+    <div class="grid">
+      <div><label for="driveMinutes">Average one-way drive per leg (minutes)</label><input type="number" id="driveMinutes" min="0" step="any"></div>
+      <div><label for="driveMiles">Miles for that one-way leg</label><input type="number" id="driveMiles" min="0" step="any"></div>
+      <div><label for="costPerMile">Loaded vehicle cost per mile</label><input type="number" id="costPerMile" min="0" step="any"></div>
+      <div><label for="zone1MaxMiles">Zone 1 ends at (miles one-way)</label><input type="number" id="zone1MaxMiles" min="0" step="any"></div>
+      <div><label for="zone2MaxMiles">Zone 2 ends at (miles)</label><input type="number" id="zone2MaxMiles" min="0" step="any"></div>
+      <div><label for="zone3MaxMiles">Zone 3 ends at (miles)</label><input type="number" id="zone3MaxMiles" min="0" step="any"></div>
+      <div><label for="farZoneMiles">Zone 4 priced at (miles, beyond zone 3)</label><input type="number" id="farZoneMiles" min="0" step="any"></div>
+      <div><label for="surcharge2">Zone 2 surcharge you charge</label><input type="number" id="surcharge2" min="0" step="any"></div>
+      <div><label for="surcharge3">Zone 3 surcharge you charge</label><input type="number" id="surcharge3" min="0" step="any"></div>
+      <div><label for="surcharge4">Zone 4 surcharge you charge</label><input type="number" id="surcharge4" min="0" step="any"></div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>3. People, no-shows and your target</h2>
+    <div class="grid">
+      <div><label for="dvmRate">Your own cost per hour</label><input type="number" id="dvmRate" min="0" step="any"></div>
+      <div><label for="assistantRate">Assistant cost per hour</label><input type="number" id="assistantRate" min="0" step="any"></div>
+      <div><label for="assistantSharePct">Visits with an assistant (%)</label><input type="number" id="assistantSharePct" min="0" step="any"></div>
+      <div><label for="opportunityPerHour">Clinic-slot value forgone per hour</label><input type="number" id="opportunityPerHour" min="0" step="any"></div>
+      <div><label for="noShowPct">No-shows and late cancels (%)</label><input type="number" id="noShowPct" min="0" step="any"></div>
+      <div><label for="noShowFee">Fee charged on a no-show</label><input type="number" id="noShowFee" min="0" step="any"></div>
+      <div><label for="targetMarginPct">Target margin (%)</label><input type="number" id="targetMarginPct" min="0" step="any"></div>
+      <div><label for="visitsPerDay">Visits booked per day</label><input type="number" id="visitsPerDay" min="0" step="any"></div>
+    </div>
+    <p><button type="button" id="go">Calculate</button><button type="button" class="secondary" id="reset">Reset to example</button></p>
+    <p class="note" id="status">Edit any number and click Calculate. The page starts with an example.</p>
+  </section>
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="findings"></div>
+    <h3>One visit at your usual distance</h3>
+    <p class="stats" id="one"></p>
+    <h3>Fee by travel zone</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Zone</th><th class="n" scope="col">One-way drive (min)</th><th class="n" scope="col">Loaded cost</th><th class="n" scope="col">You bill</th><th class="n" scope="col">Profit</th><th class="n" scope="col">Margin</th><th class="n" scope="col">Visit fee for target</th><th class="n" scope="col">Surcharge needed over zone 1</th></tr></thead><tbody id="zones"></tbody></table></div>
+    <h3>Profit for a day of visits</h3>
+    <p class="stats" id="day"></p>
+    <div class="scroll"><table><thead><tr><th scope="col">Visits booked</th><th class="n" scope="col">Hours worked</th><th class="n" scope="col">Miles</th><th class="n" scope="col">Revenue</th><th class="n" scope="col">Cost</th><th class="n" scope="col">Profit</th><th class="n" scope="col">Profit per hour</th></tr></thead><tbody id="days"></tbody></table></div>
+  </section>
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Hours</strong> = drive time both ways + setup + exam and treatment (+ added minutes per extra pet) + charting.</li>
+      <li><strong>Loaded cost</strong> = round-trip miles × cost per mile + (your hourly cost + assistant cost × share of visits + forgone clinic-slot value) × hours + supplies per pet.</li>
+      <li><strong>No-shows</strong> add the cost of a wasted trip (vehicle, drive hours), net of the no-show fee, spread over completed visits.</li>
+      <li><strong>Visit fee for target</strong> = cost ÷ (1 − target margin) − services billed. <strong>Surcharge needed</strong> = the extra cost of a zone over zone 1, grossed up for the margin.</li>
+      <li><strong>Day</strong> = visits booked on a chained route, with one more leg than visits, each leg at your average drive time; no-shows still cost the drive.</li>
+      <li><strong>Not modelled:</strong> tax and licensing, payment-processing fees, cremation or disposal fees, after-hours premiums, waiting for clients, complications and follow-up calls. Visit types are illustrative starting points, not standards of care or fee schedules.</li>
+    </ul>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should a mobile vet charge for a house call?</h3>
+    <p>It depends on your costs, not a standard number. A house call carries drive time both ways, vehicle cost, setup and charting time, supplies and the clinic appointments you gave up. This calculator adds those up for your numbers and shows the visit fee that reaches your target margin.</p>
+    <h3>Why charge a travel-zone surcharge?</h3>
+    <p>Cost rises with every mile: drive time is paid for twice, and so is the vehicle. A flat visit fee that is right for a neighbour two miles away loses money 30 miles out. The zone table shows the surcharge each distance needs to keep the same margin as zone 1.</p>
+    <h3>How do no-shows affect a house-call fee?</h3>
+    <p>A no-show still costs the drive both ways. The calculator spreads the cost of wasted trips, net of any no-show fee you charge, over your completed visits, so you can see what a late-cancel fee is worth.</p>
+    <h3>How should I price in-home euthanasia visits?</h3>
+    <p>Use the preset as a starting point and replace it with your own times, supplies and fees. These visits run longer and carry more supplies per visit. Decisions about care and fees are for the veterinarian and the client.</p>
+    <h3>Is this veterinary or financial advice?</h3>
+    <p>No. It is arithmetic on the numbers you type. Nothing is stored or sent anywhere.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, veterinary, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the numbers you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Nothing you type is uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>calculated</code>, <code>reset</code>, <code>preset_used</code>) are counted only in local storage on your device. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Running a practice? See the <a href="../veterinary-dental-estimate-calculator/">veterinary dental estimate calculator</a>, the <a href="../veterinary-wellness-plan-pricing-calculator/">veterinary wellness plan pricing calculator</a> and the <a href="../farrier-visit-pricing-calculator/">farrier visit pricing calculator</a>. Drawing blood on the road? See the <a href="../mobile-phlebotomy-route-profit-calculator/">mobile phlebotomy route profit calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { estimate, money, pct, DEFAULTS, PRESETS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = Object.keys(DEFAULTS);
+    const fill = () => keys.forEach((k) => ($("#" + k).value = DEFAULTS[k]));
+    const read = () => Object.fromEntries(keys.map((k) => [k, $("#" + k).value]));
+    function run() {
+      const e = estimate(read());
+      if (e.error) { $("#status").textContent = e.error; $("#report").hidden = true; return false; }
+      const h = e.here;
+      $("#findings").innerHTML = e.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#one").textContent = `${h.hours} hours door to door (${h.driveMin} min each way). Loaded cost ${money(h.cost)}: vehicle ${money(h.parts.vehicle)}, labor ${money(h.parts.labor)}, clinic-slot value ${money(h.parts.opportunity)}, supplies ${money(h.parts.supplies)}, no-shows ${money(h.noShowDrag)}. You bill ${money(h.revenue)}, profit ${money(h.profit)} (${pct(h.margin)}). Visit fee for your target: ${money(h.requiredVisitFee)}.`;
+      $("#zones").innerHTML = e.zones.map((z) => `<tr><th scope="row">${esc(z.label)}</th><td class="n">${z.driveMin}</td><td class="n">${money(z.cost)}</td><td class="n">${money(z.revenue)}</td><td class="n">${money(z.profit)}</td><td class="n">${pct(z.margin)}</td><td class="n">${money(z.requiredVisitFee)}</td><td class="n">${money(z.surchargeNeeded)} (you charge ${money(z.surcharge)})</td></tr>`).join("");
+      const d = e.day;
+      $("#day").textContent = `${d.visits} visits booked (${d.completed} completed, ${d.noShows} no-show on average): ${d.hours} hours, ${d.miles} miles, revenue ${money(d.revenue)}, cost ${money(d.cost)}, profit ${money(d.profit)} (${money(d.profitPerHour)} per hour worked).`;
+      $("#days").innerHTML = e.days.map((x) => `<tr><th scope="row">${x.visits}</th><td class="n">${x.hours}</td><td class="n">${x.miles}</td><td class="n">${money(x.revenue)}</td><td class="n">${money(x.cost)}</td><td class="n">${money(x.profit)}</td><td class="n">${money(x.profitPerHour)}</td></tr>`).join("");
+      $("#report").hidden = false; $("#status").textContent = "Updated."; return true;
+    }
+    $("#go").addEventListener("click", () => { if (run()) record("calculated"); });
+    $("#reset").addEventListener("click", () => { fill(); $("#preset").value = ""; if (run()) record("reset"); });
+    $("#preset").addEventListener("change", (ev) => {
+      const p = PRESETS[ev.target.value]; if (!p) return;
+      for (const [k, v] of Object.entries(p)) if (k !== "label") $("#" + k).value = v;
+      if (run()) record("preset_used");
+    });
+    $("#optout").addEventListener("click", (e) => { setUsageOptOut(true); e.target.textContent = "Usage counting is off"; e.target.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+    fill(); run();
+  </script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mobile Oil Change Route Profit Calculator — Price per Job, Batching, Solo vs Franchise</title>
+  <meta name="description" content="Free mobile oil change calculator: enter jobs per week by service type, prices, oil, filter and disposal cost, on-site and drive minutes, no-shows and van costs, and see profit per job and per working hour, break-even jobs per week, the price for your target margin, what batching fleet stops does, and solo versus franchise versus employed. Runs in your browser.">
+  <meta property="og:title" content="Mobile Oil Change Route Profit Calculator — free, private">
+  <meta property="og:description" content="Find out what a mobile oil change really earns after the drive, the oil and filter, the used-oil disposal and the no-shows, and whether solo, a franchise or a job pays the route better.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Mobile Oil Change Route Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free mobile oil change calculator: turn prices, oil and filter cost, used-oil disposal, on-site and drive minutes, no-shows and van costs into profit per vehicle, profit per working hour, break-even jobs per week, the price needed for a target margin, the effect of batching fleet stops, and a solo versus franchise versus employed comparison."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should I charge for a mobile oil change?", "acceptedAnswer": {"@type": "Answer", "text": "Add the oil and filter for each vehicle (quarts times your price per quart, plus the filter), the used-oil disposal cost, the on-site minutes and the drive to and from the stop at what your time is worth, mileage, and the service's share of insurance, tools and van costs. Then spread the cost of no-shows over the stops that happen and divide by one minus the margin you want. Type your own numbers and read the price for each service type off the table."}}, {"@type": "Question", "name": "Is it better to batch fleet stops?", "acceptedAnswer": {"@type": "Answer", "text": "Usually, because the drive is paid once per stop however many vehicles you service there. The calculator holds your weekly fleet vehicles fixed and shows profit per working hour when they are grouped one, two, three, four or six to a stop. A no-show at a batched stop loses every vehicle at that stop, so batching raises the cost of each no-show."}}, {"@type": "Question", "name": "How many oil changes a week does a mobile oil change van need to break even?", "acceptedAnswer": {"@type": "Answer", "text": "The weekly fixed costs (insurance, tools spread over 52 weeks, van payment and other fixed cost, the weekly used-oil haul, and your restocking and drop-off hours at your hourly value) divided by what each vehicle leaves after oil, filters, disposal, mileage, and your own drive and on-site time, at your current mix of service types. The result is the scheduled vehicles per week, with the completed vehicles and stops that implies."}}, {"@type": "Question", "name": "What do no-shows and cancellations cost a mobile oil change business?", "acceptedAnswer": {"@type": "Answer", "text": "You still drive to the stop and spend a few minutes there, so the trip costs mileage and your time, plus the margin of the service that did not happen, less whatever share of the price you collect on a no-show. The calculator prints the cost per week and per year, and shows what collecting part of the price would recover."}}, {"@type": "Question", "name": "Should I work solo, pay a franchise fee, or work as an employee?", "acceptedAnswer": {"@type": "Answer", "text": "The calculator works out the same route three ways: solo (you keep every price and pay every cost), a franchisee (you pay a percent of revenue as a franchise fee, may get more volume, and may still buy oil and filters), and an employee (an hourly wage plus a mileage rate, with the employer paying oil, filters, disposal, insurance and the van). It prints the take per working hour for each, the franchise fee at which franchising matches solo, and the hourly wage at which a job matches solo. The default numbers are editable placeholders, not published rates."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Used-oil disposal and handling regulations, EPA and state or local rules, permits and licensing, which it does not model at all and which decide how you may collect, store and dispose of used oil and filters. It also leaves out tips, sales and income tax, bad debt, vehicle purchase and depreciation beyond the per-mile figure, and the cost of owner's time beyond the hourly figure you type. It is arithmetic on numbers you type, not legal, tax, environmental or financial advice, and not an estimate of record."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    tr.drive td:first-child { border-left: 4px solid #0b4f9c; }
+    tr.break td:first-child, tr.dwell td:first-child { border-left: 4px solid #b7791f; }
+    tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    </style>
+</head>
+<body>
+  <header>
+    <p class="note">MOBILE OIL CHANGE ROUTE PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What does a mobile oil change really earn once you count the drive, the oil and the no-shows, and is solo, a franchise or a job the better way to run the van?</h1>
+    <p>Enter your weekly jobs by service type, prices, oil and filter cost, used-oil disposal, on-site and drive minutes, no-shows and van costs. You get <strong>profit per job and per working hour including drive time, break-even jobs per week, the price each service type needs for your target margin, what no-shows cost, what batching fleet stops does to your hourly profit, and solo against a franchise against an employed job</strong>.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example and every default number are made-up, editable placeholders, not market rates. Arithmetic only: it does not model used-oil disposal regulations, EPA or state rules, and it is not legal, tax or environmental advice. A planning estimate, not an estimate of record.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Jobs you do in a typical week</h2>
+    <div class="grid">
+      <div><label for="convQty">Conventional oil changes per week</label><input type="number" id="convQty" min="0" step="1" value="12"></div>
+      <div><label for="convPrice">Conventional price per vehicle ($, editable placeholder)</label><input type="number" id="convPrice" min="0" step="any" value="70"></div>
+      <div><label for="convMin">Conventional minutes on site per vehicle</label><input type="number" id="convMin" min="0" step="any" value="25"></div>
+      <div><label for="convQuarts">Conventional quarts of oil per vehicle</label><input type="number" id="convQuarts" min="0" step="any" value="5"></div>
+      <div><label for="convQtCost">Conventional oil cost per quart ($)</label><input type="number" id="convQtCost" min="0" step="any" value="4"></div>
+      <div><label for="convFilter">Conventional filter cost per vehicle ($)</label><input type="number" id="convFilter" min="0" step="any" value="6"></div>
+      <div><label for="synthQty">Synthetic oil changes per week</label><input type="number" id="synthQty" min="0" step="1" value="10"></div>
+      <div><label for="synthPrice">Synthetic price per vehicle ($)</label><input type="number" id="synthPrice" min="0" step="any" value="110"></div>
+      <div><label for="synthMin">Synthetic minutes on site per vehicle</label><input type="number" id="synthMin" min="0" step="any" value="30"></div>
+      <div><label for="synthQuarts">Synthetic quarts of oil per vehicle</label><input type="number" id="synthQuarts" min="0" step="any" value="5"></div>
+      <div><label for="synthQtCost">Synthetic oil cost per quart ($)</label><input type="number" id="synthQtCost" min="0" step="any" value="9"></div>
+      <div><label for="synthFilter">Synthetic filter cost per vehicle ($)</label><input type="number" id="synthFilter" min="0" step="any" value="9"></div>
+      <div><label for="fleetQty">Fleet or commercial vehicles serviced per week</label><input type="number" id="fleetQty" min="0" step="1" value="16"></div>
+      <div><label for="fleetBatch">Fleet vehicles per stop (1 if every vehicle is its own trip)</label><input type="number" id="fleetBatch" min="0" step="1" value="4"></div>
+      <div><label for="fleetPrice">Fleet price per vehicle ($)</label><input type="number" id="fleetPrice" min="0" step="any" value="60"></div>
+      <div><label for="fleetMin">Fleet minutes on site per vehicle</label><input type="number" id="fleetMin" min="0" step="any" value="22"></div>
+      <div><label for="fleetQuarts">Fleet quarts of oil per vehicle</label><input type="number" id="fleetQuarts" min="0" step="any" value="6"></div>
+      <div><label for="fleetQtCost">Fleet oil cost per quart ($)</label><input type="number" id="fleetQtCost" min="0" step="any" value="4"></div>
+      <div><label for="fleetFilter">Fleet filter cost per vehicle ($)</label><input type="number" id="fleetFilter" min="0" step="any" value="7"></div>
+      <div><label for="disposalPerVehicle">Used-oil and filter disposal cost per vehicle ($)</label><input type="number" id="disposalPerVehicle" min="0" step="any" value="1.50"></div>
+      <div><label for="tripFee">Flat trip fee per stop on top of the prices ($, 0 if none)</label><input type="number" id="tripFee" min="0" step="any" value="0"></div>
+    </div>
+    <h2 style="margin-top:22px">2. The route, and no-shows</h2>
+    <div class="grid">
+      <div><label for="driveMiles">Average drive miles per stop (between stops, including the way back)</label><input type="number" id="driveMiles" min="0" step="any" value="10"></div>
+      <div><label for="driveMin">Average drive minutes per stop</label><input type="number" id="driveMin" min="0" step="any" value="20"></div>
+      <div><label for="mileCost">Mileage cost per mile ($: fuel, wear)</label><input type="number" id="mileCost" min="0" step="any" value="0.70"></div>
+      <div><label for="failedPct">No-shows and cancellations (% of stops)</label><input type="number" id="failedPct" min="0" step="any" value="8"></div>
+      <div><label for="failedPayPct">Share of the price you still collect on a no-show (%, 0 if none)</label><input type="number" id="failedPayPct" min="0" step="any" value="0"></div>
+      <div><label for="failedMin">Minutes spent at the curb on a no-show</label><input type="number" id="failedMin" min="0" step="any" value="10"></div>
+    </div>
+    <h2 style="margin-top:22px">3. Van and fixed costs, your time and your target</h2>
+    <div class="grid">
+      <div><label for="insuranceMonth">Liability and van insurance ($ per month)</label><input type="number" id="insuranceMonth" min="0" step="any" value="150"></div>
+      <div><label for="toolsYear">Tools and equipment replacement ($ per year)</label><input type="number" id="toolsYear" min="0" step="any" value="300"></div>
+      <div><label for="otherFixedMonth">Van payment and other fixed cost: phone, software ($ per month)</label><input type="number" id="otherFixedMonth" min="0" step="any" value="400"></div>
+      <div><label for="haulWeek">Used-oil haul or recycling fee ($ per week, 0 if free)</label><input type="number" id="haulWeek" min="0" step="any" value="0"></div>
+      <div><label for="labRunHours">Restocking, used-oil drop-off and paperwork (hours per week)</label><input type="number" id="labRunHours" min="0" step="any" value="3"></div>
+      <div><label for="ownerRate">What an hour of your own time should be worth ($)</label><input type="number" id="ownerRate" min="0" step="any" value="30"></div>
+      <div><label for="hoursAvailable">Hours you are willing to work per week</label><input type="number" id="hoursAvailable" min="0" step="any" value="40"></div>
+      <div><label for="targetMarginPct">Target margin on each service (%)</label><input type="number" id="targetMarginPct" min="0" step="any" value="30"></div>
+    </div>
+    <h2 style="margin-top:22px">4. Join a franchise, or take a job</h2>
+    <div class="grid">
+      <div><label for="franchiseFeePct">Franchise fee (% of revenue, royalty and marketing)</label><input type="number" id="franchiseFeePct" min="0" step="any" value="8"></div>
+      <div><label for="franchiseVolumePct">Extra vehicles the franchise would bring (% change in weekly vehicles)</label><input type="number" id="franchiseVolumePct" min="0" step="any" value="20"></div>
+      <div><label for="franchiseSupplies">Does the franchise supply oil and filters? (0 = you buy them, 1 = it does)</label><input type="number" id="franchiseSupplies" min="0" step="any" value="0"></div>
+      <div><label for="employedWage">Employed hourly wage ($, paid for drive time too)</label><input type="number" id="employedWage" min="0" step="any" value="20"></div>
+      <div><label for="employedMileReimb">Employer mileage reimbursement ($ per mile)</label><input type="number" id="employedMileReimb" min="0" step="any" value="0.60"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Work out the route</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="share">Copy a share link</button>
+    </p>
+    <p class="note" id="form-status">Enter your numbers or load the example, then click Work out the route.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>Each kind of service</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Service type</th><th scope="col">Price per vehicle</th><th scope="col">Cost per vehicle</th><th scope="col">Profit per vehicle</th><th scope="col">Margin</th><th scope="col">Per working hour</th><th scope="col">Price for target</th></tr></thead><tbody id="lines"></tbody></table></div>
+    <h3>Batching: the same weekly fleet vehicles grouped into fewer stops</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Fleet vehicles per stop</th><th scope="col">Stops</th><th scope="col">Drive hours</th><th scope="col">Working hours</th><th scope="col">Kept per week</th><th scope="col">Per working hour</th></tr></thead><tbody id="batch"></tbody></table></div>
+    <h3>The week at different volumes: what you keep after your own time, three ways</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Volume</th><th scope="col">Vehicles</th><th scope="col">Working hours</th><th scope="col">Hours used</th><th scope="col">Solo</th><th scope="col">Franchise</th><th scope="col">Employed</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The arithmetic, and what it leaves out</h2>
+    <ul>
+      <li>Every stop costs a drive (minutes at your hourly value, plus miles at your mileage cost) whether or not the customer is there. A no-show also costs the minutes you spend at the curb, and collects only the share of the price you set.</li>
+      <li>A completed job earns its price and costs its oil (quarts times your price per quart), its filter, its disposal cost and its on-site minutes. Grouping fleet vehicles into one stop pays the drive once, which is why batching raises profit per working hour.</li>
+      <li>Profit per working hour is cash kept per hour worked, including driving and restocking, before valuing your own time. Profit per vehicle is what is left per completed vehicle after your time is valued and the fixed costs are spread over them.</li>
+      <li>A franchisee keeps the prices less the franchise fee on revenue, and in this model still drives, pays mileage and fixed costs and, unless you say otherwise, buys oil and filters. An employee earns the hourly wage for all hours including driving plus the mileage rate, and the employer pays oil, filters, disposal, insurance and the van.</li>
+      <li><strong>Not modelled:</strong> used-oil disposal and handling regulations, EPA, state and local rules, permits and licensing; tips; sales and income tax; bad debt; vehicle purchase beyond the per-mile cost; oil price changes between purchases; and any pay to you beyond the hourly figure you type.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should I charge for a mobile oil change?</h3>
+    <p>Add the oil and filter for each vehicle (quarts times your price per quart, plus the filter), the used-oil disposal cost, the on-site minutes and the drive to and from the stop at what your time is worth, mileage, and the service's share of insurance, tools and van costs. Then spread the cost of no-shows over the stops that happen and divide by one minus the margin you want. Type your own numbers and read the price for each service type off the table.</p>
+    <h3>Is it better to batch fleet stops?</h3>
+    <p>Usually, because the drive is paid once per stop however many vehicles you service there. The calculator holds your weekly fleet vehicles fixed and shows profit per working hour when they are grouped one, two, three, four or six to a stop. A no-show at a batched stop loses every vehicle at that stop, so batching raises the cost of each no-show.</p>
+    <h3>How many oil changes a week does a mobile oil change van need to break even?</h3>
+    <p>The weekly fixed costs (insurance, tools spread over 52 weeks, van payment and other fixed cost, the weekly used-oil haul, and your restocking and drop-off hours at your hourly value) divided by what each vehicle leaves after oil, filters, disposal, mileage, and your own drive and on-site time, at your current mix of service types. The result is the scheduled vehicles per week, with the completed vehicles and stops that implies.</p>
+    <h3>What do no-shows and cancellations cost a mobile oil change business?</h3>
+    <p>You still drive to the stop and spend a few minutes there, so the trip costs mileage and your time, plus the margin of the service that did not happen, less whatever share of the price you collect on a no-show. The calculator prints the cost per week and per year, and shows what collecting part of the price would recover.</p>
+    <h3>Should I work solo, pay a franchise fee, or work as an employee?</h3>
+    <p>The calculator works out the same route three ways: solo (you keep every price and pay every cost), a franchisee (you pay a percent of revenue as a franchise fee, may get more volume, and may still buy oil and filters), and an employee (an hourly wage plus a mileage rate, with the employer paying oil, filters, disposal, insurance and the van). It prints the take per working hour for each, the franchise fee at which franchising matches solo, and the hourly wage at which a job matches solo. The default numbers are editable placeholders, not published rates.</p>
+    <h3>What does this leave out?</h3>
+    <p>Used-oil disposal and handling regulations, EPA and state or local rules, permits and licensing, which it does not model at all and which decide how you may collect, store and dispose of used oil and filters. It also leaves out tips, sales and income tax, bad debt, vehicle purchase and depreciation beyond the per-mile figure, and the cost of owner's time beyond the hourly figure you type. It is arithmetic on numbers you type, not legal, tax, environmental or financial advice, and not an estimate of record.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it is not environmental or regulatory advice; it does not model used-oil disposal regulations, EPA or state rules, and it does not replace your own books, a written agreement, your regulator or an advisor. It is not an estimate of record. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the prices you set.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>route_planned</code>, <code>example_loaded</code>, <code>link_shared</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../mobile-mechanic-visit-pricing-calculator/">mobile mechanic visit pricing</a>, <a href="../mobile-vet-house-call-fee-calculator/">mobile vet house-call fee</a>, <a href="../notary-trip-quote/">notary trip quote</a>, <a href="../mobile-signing-agent-day-picker/">mobile signing agent day picker</a>, <a href="../medical-courier-route-margin/">medical courier route margin</a>, <a href="../mobile-phlebotomy-route-profit-calculator/">mobile phlebotomy route profit</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p>Related: <a href="../courier-van-route-profit-calculator/">courier van route profit calculator</a> for delivery contractors paid per route, stop or package.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv, encodeShare, decodeShare } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["convQty", "convPrice", "convMin", "convQuarts", "convQtCost", "convFilter", "synthQty", "synthPrice", "synthMin", "synthQuarts", "synthQtCost", "synthFilter", "fleetQty", "fleetBatch", "fleetPrice", "fleetMin", "fleetQuarts", "fleetQtCost", "fleetFilter", "disposalPerVehicle", "tripFee", "driveMiles", "driveMin", "mileCost", "failedPct", "failedPayPct", "failedMin", "insuranceMonth", "toolsYear", "otherFixedMonth", "haulWeek", "labRunHours", "ownerRate", "hoursAvailable", "targetMarginPct", "franchiseFeePct", "franchiseVolumePct", "franchiseSupplies", "employedWage", "employedMileReimb"];
+    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run(scroll = true) {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#lines").innerHTML = r.season.lines.map((l) => `<tr><th scope="row">${esc(l.label)}</th><td>${usd(l.fee)}</td><td>${usd(l.cost)}</td><td>${usd(l.profit)}</td><td>${l.marginPct}%</td><td>${usd(l.perHour)}</td><td>${usd(l.targetFee)}</td></tr>`).join("");
+      $("#batch").innerHTML = r.batchTable.map((x) => `<tr><th scope="row">${x.batch}</th><td>${x.stops}</td><td>${x.driveHours}</td><td>${x.hours}</td><td>${usd(x.net)}</td><td>${usd(x.perHour)}</td></tr>`).join("");
+      $("#rows").innerHTML = r.table.map((x) => `<tr><th scope="row">${x.pct}%</th><td>${x.scheduled}</td><td>${x.hours}</td><td>${x.utilizationPct}%</td><td>${usd(x.solo)}</td><td>${usd(x.agency)}</td><td>${usd(x.employed)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Weekly result working solo: ${usd(r.season.soloAfterPay)} after your time, ${usd(r.season.profitPerHour)} per working hour.`;
+      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function fill(values) { for (const k of keys) if (values[k] !== undefined) $("#" + k).value = values[k]; }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("route_planned"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#share").addEventListener("click", async () => {
+      const url = location.href.split("#")[0] + "#" + encodeShare(read());
+      try { history.replaceState(null, "", url); } catch { /* optional */ }
+      try { await navigator.clipboard.writeText(url); status.textContent = "Link copied. It contains your numbers, so send it only to people you want to see them."; }
+      catch { status.textContent = "Copy the address bar: it now contains your numbers."; }
+      record("link_shared");
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "mobile-oil-change-route-week.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    if (location.hash.length > 1) { const shared = decodeShare(location.hash); if (Object.keys(shared).length) { fill(shared); run(false); } }
+  </script>
+</body>
+</html>

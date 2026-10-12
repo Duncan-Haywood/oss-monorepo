@@ -1,0 +1,11 @@
+name,price,materials,service_min,earliest,latest,east_miles,north_miles,note
+Refinance - Alvarez,125,14,60,09:00,09:30,4,3,Title co A
+Purchase - Okafor,175,22,75,10:00,10:30,-7,6,Title co B
+Seller only - Brandt,90,8,40,10:30,11:30,9,-3,Escrow
+HELOC - Nguyen,100,12,45,11:00,12:00,-3,-8,Lender
+Reverse mortgage - Pruitt,200,30,120,12:00,12:30,14,9,Hospital bed
+General notary - Lee,40,0,20,09:00,16:00,1,2,Walk-in
+Refinance - Haddad,135,16,60,14:00,14:30,6,-5,Title co A
+Purchase - Moreno,160,20,70,15:00,15:30,-9,-4,Title co B
+Loan mod - Kowalski,110,12,50,13:00,14:00,-5,7,Servicer
+Apostille drop-off - Ito,55,0,30,08:00,17:00,17,13,Far

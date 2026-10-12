@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Auction Car Flip Calculator — max bid, profit and repair stress test</title>
+  <meta name="description" content="Auction car flip calculator for dealers and flippers. Enter resale price, repairs, the auction's buyer fee tiers, transport, tax and holding costs to get the max bid, the break-even bid, and a stress table for repair overruns and a lower resale. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Auction Car Flip Calculator — free, private, in your browser">
+  <meta property="og:description" content="What can you bid and still profit? Max bid with tiered buyer fees, break-even bid and a repair and resale stress table. No account, nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Auction Car Flip Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter the expected resale price, repairs, the auction's buyer fee tiers, transport, tax, holding and financing costs, and your required profit. Get the max bid, the break-even bid, a bid ladder and a stress table for repair overruns and a lower resale price. Runs entirely in your browser; nothing is uploaded.", "featureList": "max bid solver, tiered buyer fee support, break-even bid, repair overrun and resale stress table, bid ladder, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the max bid for a salvage or auction car?", "acceptedAnswer": {"@type": "Answer", "text": "Work backwards from what the car will sell for. Take the expected resale price, subtract the profit you require, the repairs, transport, title and registration, holding and financing costs and your selling costs, and what is left has to cover the hammer price, the buyer fee on it and any sales tax. Because the buyer fee depends on the bid, the tool solves for the largest bid that still leaves your required profit."}}, {"@type": "Question", "name": "How do I enter the auction's buyer fees?", "acceptedAnswer": {"@type": "Answer", "text": "Copy the buyer fee table from the auction's own site as lines of 'bid up to, fee', with the fee in dollars or ending in a percent. The tool applies the first tier that covers the bid. It does not know any auction's current schedule, so check it before you rely on a result."}}, {"@type": "Question", "name": "Why does repair cost matter more than the bid?", "acceptedAnswer": {"@type": "Answer", "text": "Every dollar of repair overrun comes straight out of the bid you can afford. The stress table shows the max bid if repairs run 25, 50 or 100 percent over your estimate and the car sells for 5, 10 or 15 percent less, so you can see how much room a bid leaves for being wrong."}}, {"@type": "Question", "name": "Is sales tax charged on the buyer fee?", "acceptedAnswer": {"@type": "Answer", "text": "That depends on the state, the auction and whether you buy as a dealer. The tool lets you choose tax on the bid only, on the bid plus fees, or none. It asserts no rate or rule."}}, {"@type": "Question", "name": "How are holding and financing costs counted?", "acceptedAnswer": {"@type": "Answer", "text": "Days held times your daily cost for storage, insurance or lot fees, plus interest on the cash you put in at the annual rate you enter, for the days held. A car that sits for 90 days instead of 30 can turn a good flip into a loss, so change the days and watch the max bid fall."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Title problems or branded-title discounts, hidden damage, auction rules and eligibility, licensing, income tax on the profit, warranty claims and buyer returns, and the real value of the car. It is arithmetic on your figures, not an appraisal and not advice on whether to buy a vehicle."}}, {"@type": "Question", "name": "Is my information uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">AUCTION CAR FLIP CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What can you bid and still make money?</h1>
+    <p>Enter what you expect the car to <strong>sell for</strong>, the <strong>repairs</strong>, and the auction's <strong>buyer fee tiers</strong>. The tool solves for your <strong>max bid</strong> and the <strong>break-even bid</strong>, shows profit at a ladder of bids, and runs a <strong>stress table</strong>: what you can still bid if repairs run over and the car sells for less.</p>
+    <p class="note">Arithmetic on figures you supply. Not legal, tax, or financial advice, and not an appraisal.</p>
+  </header>
+
+  <section class="card">
+    <h2>The car</h2>
+    <label for="repairs">Repairs: item, cost (one per line; parts and labor you expect)</label>
+    <textarea id="repairs" spellcheck="false" placeholder="Front bumper,640&#10;Paint and blend,720"></textarea>
+    <label for="tiers">Buyer fee tiers: bid up to, fee (dollars, or end with %). Copy these from the auction's own fee table.</label>
+    <textarea id="tiers" spellcheck="false" placeholder="499.99,60&#10;1999.99,8%&#10;999999,5%"></textarea>
+    <h2 style="margin-top:18px">Costs and targets</h2>
+    <div class="row3">
+      <div><label for="resale">Expected resale price ($)</label><input id="resale" inputmode="decimal" value="9500"></div>
+      <div><label for="transport">Tow and transport to you ($)</label><input id="transport" inputmode="decimal" value="350"></div>
+      <div><label for="flatFees">Flat auction fees: gate, online bid, other ($)</label><input id="flatFees" inputmode="decimal" value="120"></div>
+      <div><label for="titleFees">Title, registration, inspection ($)</label><input id="titleFees" inputmode="decimal" value="120"></div>
+      <div><label for="taxRatePct">Sales tax rate (%)</label><input id="taxRatePct" inputmode="decimal" value="6"></div>
+      <div><label for="holdingDays">Days until sold</label><input id="holdingDays" inputmode="decimal" value="30"></div>
+      <div><label for="holdingPerDay">Storage, insurance, lot per day ($)</label><input id="holdingPerDay" inputmode="decimal" value="8"></div>
+      <div><label for="aprPct">Financing or cost of cash (% per year)</label><input id="aprPct" inputmode="decimal" value="0"></div>
+      <div><label for="sellPct">Selling fee (% of resale)</label><input id="sellPct" inputmode="decimal" value="2"></div>
+      <div><label for="sellFixed">Selling cost, fixed ($)</label><input id="sellFixed" inputmode="decimal" value="0"></div>
+      <div><label for="targetProfit">Required profit ($)</label><input id="targetProfit" inputmode="decimal" value="1500"></div>
+      <div><label for="targetPct">Or required profit (% of resale)</label><input id="targetPct" inputmode="decimal" value="0"></div>
+      <div><label for="overrunPct">Repair overrun to plan for (%)</label><input id="overrunPct" inputmode="decimal" value="0"></div>
+      <div><label for="planBid">A bid you are thinking of placing ($, optional)</label><input id="planBid" inputmode="decimal" value=""></div>
+      <div><label for="taxBase">Sales tax applies to</label><select id="taxBase"><option value="bid-and-fees">Bid plus fees</option><option value="bid">Bid only</option><option value="none">Nothing (e.g. dealer resale)</option></select></div>
+    </div>
+    <p class="note">The larger of the dollar and the percent profit target is used. Nothing here is an auction's fee schedule or a state's tax rule; use your own.</p>
+    <button type="button" id="analyze">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Enter the repairs and fees, then click Calculate.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="verdict"></p>
+    <div id="plan"></div>
+    <h3>Profit at a ladder of bids</h3>
+    <div class="scroll"><table id="lt"><thead><tr><th class="n">Bid</th><th class="n">Buyer fee</th><th class="n">Tax</th><th class="n">All-in cost</th><th class="n">Profit</th><th class="n">Return on cash</th></tr></thead><tbody></tbody></table></div>
+    <h3>Stress test: max bid if it goes wrong</h3>
+    <div class="scroll"><table id="st"><thead><tr id="sthead"></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download the result (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>All-in cost</strong> = bid + buyer fee on that bid + flat fees + sales tax + transport + title fees + repairs × (1 + overrun) + days held × daily cost + interest on the cash in for those days + your selling cost. <strong>Profit</strong> = resale − all-in cost. <strong>Max bid</strong> = the largest bid, to the cent, whose profit is still at least your target; profit only falls as the bid rises, so a bisection finds it exactly. <strong>Break-even bid</strong> is the same with a zero target. The <strong>stress table</strong> re-solves the max bid with extra repair cost and a lower resale price.</p>
+    <p><strong>Not modelled:</strong> auction-specific rules and eligibility, branded or problem titles, hidden damage, buyer returns and warranty, licensing, income tax on the profit, and the true market value of the car. Unverified: tested on hand-calculated examples, not on real auction results.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the max bid for a salvage or auction car?</h3>
+    <p>Work backwards from what the car will sell for. Take the expected resale price, subtract the profit you require, the repairs, transport, title and registration, holding and financing costs and your selling costs, and what is left has to cover the hammer price, the buyer fee on it and any sales tax. Because the buyer fee depends on the bid, the tool solves for the largest bid that still leaves your required profit.</p>
+    <h3>How do I enter the auction's buyer fees?</h3>
+    <p>Copy the buyer fee table from the auction's own site as lines of 'bid up to, fee', with the fee in dollars or ending in a percent. The tool applies the first tier that covers the bid. It does not know any auction's current schedule, so check it before you rely on a result.</p>
+    <h3>Why does repair cost matter more than the bid?</h3>
+    <p>Every dollar of repair overrun comes straight out of the bid you can afford. The stress table shows the max bid if repairs run 25, 50 or 100 percent over your estimate and the car sells for 5, 10 or 15 percent less, so you can see how much room a bid leaves for being wrong.</p>
+    <h3>Is sales tax charged on the buyer fee?</h3>
+    <p>That depends on the state, the auction and whether you buy as a dealer. The tool lets you choose tax on the bid only, on the bid plus fees, or none. It asserts no rate or rule.</p>
+    <h3>How are holding and financing costs counted?</h3>
+    <p>Days held times your daily cost for storage, insurance or lot fees, plus interest on the cash you put in at the annual rate you enter, for the days held. A car that sits for 90 days instead of 30 can turn a good flip into a loss, so change the days and watch the max bid fall.</p>
+    <h3>What does this leave out?</h3>
+    <p>Title problems or branded-title discounts, hidden damage, auction rules and eligibility, licensing, income tax on the profit, warranty claims and buyer returns, and the real value of the car. It is arithmetic on your figures, not an appraisal and not advice on whether to buy a vehicle.</p>
+    <h3>Is my information uploaded?</h3>
+    <p>No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice and does not replace a qualified accountant. Results are arithmetic on the figures you type. You are responsible for reviewing and verifying its output.</p>
+    <p><strong>Independent.</strong> Not affiliated with any vehicle auction, dealer group, lender or marketplace, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../equipment-auction-buyer-premium-calculator/">equipment auction buyer premium calculator</a>, the <a href="../storage-auction-max-bid-calculator/">storage auction max bid calculator</a>, the <a href="../where-to-sell-calculator/">where to sell calculator</a> and the <a href="../fleet-repair-or-replace-planner/">fleet repair or replace planner</a>. Running a lot on a floorplan? The <a href="../used-car-lot-aging-planner/">used car lot aging planner</a> says when each unit should go back to auction.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseRepairs, parseFeeTiers, analyze, reportCsv, sampleRepairs, sampleFeeTiers, money, money2, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const FIELDS = ["resale", "transport", "flatFees", "titleFees", "taxRatePct", "taxBase", "holdingDays", "holdingPerDay", "aprPct", "sellPct", "sellFixed", "targetProfit", "targetPct", "overrunPct"];
+    const EXAMPLE = { resale: "9500", transport: "350", flatFees: "120", titleFees: "120", taxRatePct: "6", holdingDays: "30", holdingPerDay: "8", aprPct: "0", sellPct: "2", sellFixed: "0", targetProfit: "1500", targetPct: "0", overrunPct: "0", planBid: "3200" };
+    let last = null;
+
+    function run() {
+      const rp = parseRepairs($("#repairs").value), tp = parseFeeTiers($("#tiers").value);
+      const opts = {};
+      for (const k of FIELDS) opts[k] = $("#" + k).value;
+      const r = analyze(rp.total, tp.tiers, opts, $("#planBid").value);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...rp.warnings, ...tp.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = [
+        [r.maxBid === null ? "none" : money2(r.maxBid), "Max bid for your target"],
+        [r.breakEvenBid === null ? "none" : money2(r.breakEvenBid), "Break-even bid"],
+        [money(r.required), "Profit you require"],
+        [r.atMax ? money(r.atMax.landed) : "n/a", "All-in cost at the max bid"],
+      ];
+      $("#big").innerHTML = big.map(([v, t]) => `<div><strong>${esc(v)}</strong>${esc(t)}</div>`).join("");
+      $("#verdict").textContent = r.verdict;
+      $("#plan").innerHTML = r.plan ? `<div class="warn ${r.plan.meetsTarget ? "" : "stop"}">At a ${money2(r.plan.bid)} bid: all-in ${money(r.plan.landed)}, profit ${money(r.plan.profit)}${r.plan.roi === null ? "" : " (" + pct(r.plan.roi, 0) + " on cash)"} — ${r.plan.meetsTarget ? "meets" : "misses"} your target.</div>` : "";
+      $("#lt tbody").innerHTML = r.ladder.map((l) => `<tr><td class="n">${money(l.bid)}</td><td class="n">${money(l.fee)}</td><td class="n">${money(l.tax)}</td><td class="n">${money(l.landed)}</td><td class="n">${money(l.profit)}</td><td class="n">${l.roi === null ? "n/a" : pct(l.roi, 0)}</td></tr>`).join("");
+      $("#sthead").innerHTML = "<th>Repairs vs estimate</th>" + r.stress[0].cells.map((c) => `<th class="n">Resale -${c.dropPct}%</th>`).join("");
+      $("#st tbody").innerHTML = r.stress.map((row) => `<tr><td>+${row.overrunPct}% repairs</td>${row.cells.map((c) => `<td class="n">${c.maxBid === null ? "no bid works" : money(c.maxBid)}</td>`).join("")}</tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#repairs").value = sampleRepairs();
+      $("#tiers").value = sampleFeeTiers();
+      for (const [k, v] of Object.entries(EXAMPLE)) $("#" + k).value = v;
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented car and fee table, not a real auction."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#repairs").value = ""; $("#tiers").value = ""; report.hidden = true; last = null; status.textContent = "Enter the repairs and fees, then click Calculate."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "auction-car-flip-result.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

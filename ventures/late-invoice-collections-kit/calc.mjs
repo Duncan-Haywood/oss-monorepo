@@ -284,3 +284,52 @@ export function sampleInputs(todayIso) {
     suit: { limit: 10000, filingFee: 75, serviceCost: 20, hours: 8, hourlyValue: 50, winPct: 70, collectPct: 60, agencyFeePct: 30, agencyRecoverPct: 30 },
   };
 }
+
+// ---- Invoice Maker handoff ---------------------------------------------
+// Invoice Maker (same origin) keeps { invoices: [...] } under this key. Only
+// sent, unpaid, past-due invoices come back, most late first. The terms the
+// client saw on the invoice (late fee, monthly rate) travel with it, because
+// those are the only charges the client agreed to.
+export const INVOICE_MAKER_KEY = "invoice-maker-data";
+
+const cents = (v) => {
+  if (v === null || v === undefined || v === "") return 0;
+  const n = typeof v === "number" ? v : Number(String(v).replace(/[$,\s]/g, ""));
+  return Number.isFinite(n) ? Math.round(n * 100 + (n < 0 ? -1e-9 : 1e-9)) : 0;
+};
+const pctOf = (c, pct) => { const raw = (c * (Number(pct) || 0)) / 100; return Math.sign(raw) * Math.round(Math.abs(raw) + 1e-9); };
+
+export function invoiceBalanceCents(inv) {
+  const lines = (inv.lines || []).map((l) => {
+    const q = Number(l.qty), r = cents(l.rate);
+    return Number.isFinite(q) ? Math.round(q * r + (q * r < 0 ? -1e-9 : 1e-9)) : 0;
+  });
+  const subtotal = lines.reduce((a, b) => a + b, 0);
+  let discount = 0;
+  if (inv.discountType === "percent") discount = pctOf(subtotal, inv.discountValue);
+  else if (inv.discountType === "amount") discount = Math.min(cents(inv.discountValue), Math.max(subtotal, 0));
+  discount = Math.min(discount, Math.max(subtotal, 0));
+  const taxable = (inv.lines || []).reduce((a, l, i) => a + (l.taxable !== false ? lines[i] : 0), 0);
+  const base = subtotal > 0 ? Math.max(0, taxable - Math.round((discount * taxable) / subtotal)) : 0;
+  const total = subtotal - discount + pctOf(base, inv.taxRate) + cents(inv.shipping);
+  return total - Math.max(0, cents(inv.paid));
+}
+
+export function overdueFromInvoiceMaker(text, today) {
+  let data = null;
+  try { data = JSON.parse(text || "null"); } catch { data = null; }
+  if (!data || !Array.isArray(data.invoices)) return [];
+  const out = [];
+  for (const inv of data.invoices) {
+    if (!inv || typeof inv !== "object" || inv.void || !inv.sent || !parseDate(inv.due) || inv.due >= today) continue;
+    const balance = invoiceBalanceCents(inv);
+    if (balance <= 0) continue;
+    out.push({
+      id: String(inv.id || ""), number: String(inv.number || ""), client: String(inv.clientName || ""), currency: inv.currency || "USD",
+      amount: balance / 100, due: inv.due, daysLate: daysBetween(inv.due, today),
+      lateFlat: Math.max(0, cents(inv.lateFlat) / 100), lateMonthlyPct: Math.max(0, Number(inv.lateMonthlyPct) || 0),
+      fromName: String(inv.fromName || ""), payInstructions: String(inv.payInstructions || ""),
+    });
+  }
+  return out.sort((a, b) => b.daysLate - a.daysLate || b.amount - a.amount);
+}

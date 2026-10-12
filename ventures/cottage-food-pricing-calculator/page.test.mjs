@@ -107,3 +107,7 @@ test("the sibling tools this page links to exist", () => {
     assert.doesNotThrow(() => readFileSync(new URL(`../${m[1]}/VENTURE.yaml`, import.meta.url)), m[1]);
   }
 });
+
+test("links to the bakery production scheduler for planning wholesale bakes", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/bakery-production-scheduler\/"/);
+});

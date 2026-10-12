@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Firewood Profit Calculator — Profit per Cord, per Hour and the Price You Need</title>
+  <meta name="description" content="Free calculator for firewood sellers: what a cord costs you, how many hours it takes, your profit per cord and per hour, the price per cord and face cord you need to earn a wage, and what delivery distance does to it. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="What do you really make on a cord of firewood?">
+  <meta property="og:description" content="Profit per cord and per hour, the price you need for a wage, and what delivery miles and wood cost do to it. Your numbers, not advice. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Firewood Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free calculator for firewood sellers: what a cord costs you, how many hours it takes, your profit per cord and per hour, the price per cord and face cord you need to earn a wage, and what delivery distance does to it. Runs in your browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does a cord of firewood cost to produce?", "acceptedAnswer": {"@type": "Answer", "text": "On the default numbers $135.13 in cash per cord: $90 of logs, $25 of equipment and fuel, $10 of other costs and $10.13 of delivery vehicle cost, plus 4.95 hours of your time. Wood is the largest cash line at 66.6 percent. Enter your own figures; the defaults are invented."}}, {"@type": "Question", "name": "What price per cord do I need to earn a wage?", "acceptedAnswer": {"@type": "Answer", "text": "$272.51 per cord, or $90.84 per face cord, to pay yourself $25 an hour on those numbers. Selling at $300 leaves $26.12 a cord after that wage, $1,567.00 over 60 cords, and $30.28 an hour before any wage is deducted."}}, {"@type": "Question", "name": "How much does delivery distance matter?", "acceptedAnswer": {"@type": "Answer", "text": "Doubling the round trip from 20 to 40 miles, with the trip twice as long, cuts the profit per hour from $30.28 to $23.68, turns the margin after wage into a loss of $7.77 a cord, and lifts the price you need to $308.18."}}, {"@type": "Question", "name": "Is this advice or market data?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does arithmetic on the numbers you type. Prices, costs and times are yours to check, nothing is uploaded, and it is not financial, tax or business advice."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    select { padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    input[type=number] { width: 6.5em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FIREWOOD PROFIT CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>What do you really make on a cord of firewood?</h1>
+    <p>Enter what a cord costs you to cut, split and deliver and what you sell it for. You get your <strong>profit per cord</strong>, your <strong>profit per hour</strong>, the <strong>price per cord and per face cord</strong> you need to pay yourself a wage, and what <strong>wood cost</strong> and <strong>delivery distance</strong> do to all of it.</p>
+    <p class="note"><strong>Your numbers, not advice.</strong> Prices, costs and times are yours to check; every value is editable. Nothing is uploaded: inputs are used in this browser tab only.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your firewood business, per cord</h2>
+    <p>
+      <label for="cords">Cords cut per season</label><input type="number" id="cords" value="60" min="0" step="1">
+      <label for="price">Selling price per cord ($)</label><input type="number" id="price" value="300" min="0" step="5">
+      <label for="wood">Wood cost per cord ($)</label><input type="number" id="wood" value="90" min="0" step="5">
+      <label for="processhrs">Hours to process a cord</label><input type="number" id="processhrs" value="4" min="0" step="0.25">
+      <label for="equipment">Equipment and fuel per cord ($)</label><input type="number" id="equipment" value="25" min="0" step="1">
+      <label for="other">Other cost per cord ($)</label><input type="number" id="other" value="10" min="0" step="1">
+      <label for="miles">Delivery round trip (miles)</label><input type="number" id="miles" value="20" min="0" step="1">
+      <label for="permile">Truck cost per mile ($)</label><input type="number" id="permile" value="0.8" min="0" step="0.05">
+      <label for="cordsperload">Cords per load</label><input type="number" id="cordsperload" value="1.5" min="0" step="0.25">
+      <label for="deliveryhrs">Hours per delivery</label><input type="number" id="deliveryhrs" value="1.5" min="0" step="0.25">
+      <label for="wage">Your wage per hour ($)</label><input type="number" id="wage" value="25" min="0" step="1">
+      <label for="losspct">Wood that never sells (%)</label><input type="number" id="losspct" value="5" min="0" step="1">
+    </p>
+    <p>
+      <button type="button" id="go">Calculate profit</button>
+      <button type="button" class="secondary" id="load-example">Load a long-haul, low-price winter</button>
+      <button type="button" class="secondary" id="clear">Clear results</button>
+      <button type="button" class="secondary" id="copy">Copy summary</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="result-card" hidden aria-live="polite">
+    <h2>One cord, one season</h2>
+    <p id="summary"></p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Line</th><th>Per cord cut</th></tr></thead>
+      <tbody id="totals-rows"></tbody>
+    </table></div>
+    <h3>If your selling price moves</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Price per cord</th><th>Profit per hour</th><th>After wage, per cord</th><th>Margin, season</th></tr></thead>
+      <tbody id="price-rows"></tbody>
+    </table></div>
+    <h3>If the wood costs more</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Wood per cord</th><th>Cash cost per cord</th><th>Profit per hour</th><th>Price you need</th></tr></thead>
+      <tbody id="wood-rows"></tbody>
+    </table></div>
+    <h3>If you deliver farther</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Round trip (miles)</th><th>Profit per hour</th><th>After wage, per cord</th><th>Price you need</th></tr></thead>
+      <tbody id="mile-rows"></tbody>
+    </table></div>
+    <p class="note">Time a full day of cutting, splitting and stacking before you trust the hours. A price that looks fine per cord can pay less than a part-time job per hour.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">More: <a href="how-much-to-charge-for-a-cord-of-firewood.html">How much to charge for a cord of firewood: cost, hours and delivery</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What does a cord of firewood cost to produce?</h3>
+    <p>On the default numbers $135.13 in cash per cord: $90 of logs, $25 of equipment and fuel, $10 of other costs and $10.13 of delivery vehicle cost, plus 4.95 hours of your time. Wood is the largest cash line at 66.6 percent. Enter your own figures; the defaults are invented.</p>
+    <h3>What price per cord do I need to earn a wage?</h3>
+    <p>$272.51 per cord, or $90.84 per face cord, to pay yourself $25 an hour on those numbers. Selling at $300 leaves $26.12 a cord after that wage, $1,567.00 over 60 cords, and $30.28 an hour before any wage is deducted.</p>
+    <h3>How much does delivery distance matter?</h3>
+    <p>Doubling the round trip from 20 to 40 miles, with the trip twice as long, cuts the profit per hour from $30.28 to $23.68, turns the margin after wage into a loss of $7.77 a cord, and lifts the price you need to $308.18.</p>
+    <h3>Is this advice or market data?</h3>
+    <p>No. It does arithmetic on the numbers you type. Prices, costs and times are yours to check, nothing is uploaded, and it is not financial, tax or business advice.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice, it is not a market price, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the accuracy of the numbers you enter. To the maximum extent permitted by law the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Not affiliated with, endorsed by or sponsored by any firewood association, forestry agency or marketplace; names are used only to say what the tool is about.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. The numbers you enter are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>calculate_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../farmers-market-booth-calculator/">Farmers Market Booth Calculator</a>, <a href="../timber-sale-offer-checker/">Timber Sale Offer Checker</a>, <a href="../sawmill-custom-sawing-calculator/">Sawmill Custom Sawing Calculator</a>, <a href="../hunting-lease-income-calculator/">Hunting Lease Income Calculator</a>.</p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeFirewood, summarize, money, pct, INPUT_NOTES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    const options = () => ({
+      cords: $("#cords").value,
+      price: $("#price").value,
+      wood: $("#wood").value,
+      processHrs: $("#processhrs").value,
+      equipment: $("#equipment").value,
+      other: $("#other").value,
+      miles: $("#miles").value,
+      perMile: $("#permile").value,
+      cordsPerLoad: $("#cordsperload").value,
+      deliveryHrs: $("#deliveryhrs").value,
+      wage: $("#wage").value,
+      lossPct: $("#losspct").value,
+    });
+
+    let lastText = "";
+    function render() {
+      const status = $("#status");
+      let r;
+      try {
+        r = computeFirewood(options());
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarize(r);
+      lastText = s.text;
+      $("#summary").innerHTML = `<span class="${s.status === "ok" ? "gain" : "error"}">${escapeHtml(s.text)}</span>`;
+      $("#totals-rows").innerHTML = [
+        ...r.lines.map((l) => [l.label, money(l.value)]),
+        ["Total cash cost per cord", money(r.costPerCord)], ["Hours per cord", r.hoursPerCord.toFixed(2)],
+        ["Revenue per cord cut", money(r.revenuePerCord)], ["Margin per cord", money(r.marginPerCord)],
+        ["Profit per hour", money(r.profitPerHour)], ["After your wage, per cord", money(r.afterWagePerCord)],
+        ["Margin, season", money(r.marginSeason)], ["After your wage, season", money(r.afterWageSeason)],
+        ["Hours, season", String(Math.round(r.hoursSeason))],
+        ["Cash breakeven price per cord", money(r.breakevenPrice)], ["Price per cord for your wage", money(r.wagePrice)],
+        ["Price per face cord for your wage", money(r.faceCordWagePrice)],
+      ].map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("");
+      $("#price-rows").innerHTML = r.priceScenarios.map((x) => `<tr><td>${money(x.price)}${x.current ? " (yours)" : ""}</td><td>${money(x.profitPerHour)}</td><td>${money(x.afterWagePerCord)}</td><td>${money(x.marginSeason)}</td></tr>`).join("");
+      $("#wood-rows").innerHTML = r.woodScenarios.map((x) => `<tr><td>${money(x.wood)}${x.current ? " (yours)" : ""}</td><td>${money(x.costPerCord)}</td><td>${money(x.profitPerHour)}</td><td>${money(x.wagePrice)}</td></tr>`).join("");
+      $("#mile-rows").innerHTML = r.mileScenarios.map((x) => `<tr><td>${Math.round(x.miles * 10) / 10}${x.current ? " (yours)" : ""}</td><td>${money(x.profitPerHour)}</td><td>${money(x.afterWagePerCord)}</td><td>${money(x.wagePrice)}</td></tr>`).join("");
+      $("#result-card").hidden = false;
+      record("calculate_run");
+    }
+
+    $("#go").addEventListener("click", render);
+    $("#load-example").addEventListener("click", () => {
+      $("#price").value = 220; $("#wood").value = 150; $("#miles").value = 40; $("#deliveryhrs").value = 3; $("#losspct").value = 15;
+      render();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => { $("#status").textContent = ""; $("#result-card").hidden = true; });
+    $("#copy").addEventListener("click", async () => {
+      if (!lastText) render();
+      try { await navigator.clipboard.writeText(lastText); $("#status").textContent = "Summary copied."; } catch { $("#status").textContent = "Could not copy; select the summary text instead."; }
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

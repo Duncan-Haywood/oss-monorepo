@@ -1,0 +1,74 @@
+name: wholesale-line-sheet-maker
+description: >-
+  Free wholesale line sheet and pricing tool that runs in the browser with no
+  account or watermark: wholesale price from keystone, target margin or cost
+  multiplier, retailer margin check, your margin after an optional marketplace
+  commission, volume tiers, order minimums, case packs, an order simulator, a
+  "what order clears my profit target" solver and a printable line sheet. Data
+  stays on the device; CSV import/export and JSON backup.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session, same archetype as
+# invoice-maker: an offline, stateful, no-signup app for a small-business job
+# that is otherwise an evening in a spreadsheet. duplicate_check.py top score
+# 0.39, so it is not a duplicate of anything in the portfolio: the neighbours
+# cost a product (candle-batch-cost-calculator), price a marketplace sale
+# (etsy-profit-calculator, marketplace-fee-compare) or bill an order
+# (invoice-maker); none turns a product list into wholesale prices, margins
+# for both sides and a sheet to send a boutique.
+#
+# Paid market is real and the buyer has a dollar reason: Faire and similar
+# marketplaces take a commission on wholesale orders (the rate is a user input
+# here, never a claim about current terms), and line-sheet tools and Canva
+# templates run roughly $10-30 a month or per template. A maker who prices
+# wholesale below keystone, or forgets the retailer needs room to mark up,
+# either loses margin on every case or never gets the boutique's order.
+#
+# First visitor: makers and small product brands (candles, soap, jewelry,
+# ceramics, food, apparel, stationery) asking in r/Etsy, r/smallbusiness and
+# r/CandleMakers how to price wholesale, and searching "wholesale pricing for
+# handmade" and "line sheet template". Volume not measured with an external
+# tool.
+#
+# Honest limits, stated on the page: single browser storage (backup prompt),
+# commission and tier rates are user inputs, no shipping cost, returns,
+# payment fees, sales tax or per-retailer prices, no stock tracking.
+#
+# Path to revenue (payments stay off): free tool -> lead magnet, donations via
+# GitHub Sponsors. Natural next steps if it earns repeat visitors: per-retailer
+# price lists, a shareable order form, image columns on the sheet, a native
+# wrapper.
+
+hypotheses:
+  - claim: >-
+      Makers pricing wholesale for the first time will use the retailer-margin
+      and margin-at-wholesale view to change at least one price, because the
+      spreadsheet they would otherwise build rarely shows both sides at once.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The "what order clears my profit target" calculator and order minimums are
+      what makes users come back with a second assortment, not the print layout.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong wholesale price, margin or order total, or lost products to browser storage clearing, at which point the maths or the backup prompting needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/wholesale-line-sheet-maker/
+  analytics: null

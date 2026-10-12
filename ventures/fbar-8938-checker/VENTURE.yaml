@@ -1,0 +1,50 @@
+name: fbar-8938-checker
+description: >-
+  Free browser tool for US persons with foreign accounts: add each account with its highest and year-end balance and a
+  USD rate, and it applies the FBAR $10,000 aggregate test and the Form 8938 year-end and any-time thresholds for
+  your filing status and residence. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. ventures/ had no FBAR / Form 8938 / FATCA tool (grep for
+# fbar, fatca, 8938, foreign-account found nothing; feie-physical-presence-calculator is the nearest neighbour and
+# answers a different question).
+#
+# Why this niche: US expats, green-card holders, immigrants and anyone with a UK ISA, Indian mutual fund or Swiss
+# account search "do I need to file an FBAR" and "FBAR vs 8938" every spring and again before the October 15
+# extension. The penalties are out of proportion to the effort of checking, the two filings have different
+# thresholds that people confuse, and the incumbent answers are law-firm blog posts and expat tax-prep services
+# that sell the filing. A private threshold checker is the gap. Free tool is a lead magnet; a paid FBAR filing
+# worksheet with Treasury rate lookup and per-account records is a later revenue path (not built).
+#
+# First visitor: someone searching "do I need to file an FBAR", "FBAR vs form 8938" or "FBAR threshold". Volume
+# not measured.
+#
+# Liability boundary: arithmetic on typed balances; no filing, no payment, no rate lookup that leaves the browser.
+# Thresholds are editable-by-code data and the page points to FinCEN and IRS instructions. Not tax advice.
+
+hypotheses:
+  - claim: >-
+      People with small foreign accounts will use a private aggregate check that applies both the FBAR and Form 8938
+      thresholds, because the two tests differ and most explanations cover only one.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/fbar-8938-checker/
+  analytics: null

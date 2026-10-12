@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Upstash Redis Bill Estimator — Pay-As-You-Go vs Fixed Plan and the Levers That Cut Your Bill</title>
+  <meta name="description" content="Estimate a monthly Upstash Redis bill from your own usage (million commands, storage GB, bandwidth GB) at editable list prices, see where pay-as-you-go crosses over to a fixed plan, and see which changes cut it most, with a dollar saving for each. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="What will your Upstash Redis bill be, and should you go fixed?">
+  <meta property="og:description" content="Type your usage, get an estimated monthly bill, the pay-as-you-go-vs-fixed crossover and a ranked list of savings levers with dollar figures. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Upstash Redis Bill Estimator", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Estimate a monthly Upstash Redis pay-as-you-go bill from your own usage numbers at editable list prices, compare it with the fixed plans and find the command volume where they cross over, and see a ranked list of the changes that cut it most (pipelining, caching, polling, TTLs, payload size) with a dollar saving each. Runs in the browser or as a zero-dependency Node CLI with a --budget CI gate."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this read my Upstash account or invoice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads only the usage numbers you type or paste (copy them from the database's Usage tab in the Upstash console) and multiplies them by list prices you can edit. It cannot see your plan, region, databases, add-ons, contract or real invoice. Treat every figure as a way to compare options, never as what you will be charged."}}, {"@type": "Question", "name": "Where do the prices come from?", "acceptedAnswer": {"@type": "Answer", "text": "They are approximate public list prices for pay-as-you-go and the fixed plans, written from memory of Upstash's pricing page as best known in 2025 and not re-fetched, shown with an as-of date. Every pay-as-you-go price and allowance is editable. Upstash changes prices and packaging, so verify on upstash.com/pricing before relying on a number."}}, {"@type": "Question", "name": "How is the saving for each lever calculated?", "acceptedAnswer": {"@type": "Answer", "text": "Each lever re-runs the estimate with one change applied under an assumption shown beside it (for example, pipelining that removes 30% of commands) and reports the difference. The assumptions are editable. Levers overlap, so the savings are not additive."}}, {"@type": "Question", "name": "When does a fixed plan beat pay-as-you-go?", "acceptedAnswer": {"@type": "Answer", "text": "When monthly commands are high enough that the flat price is below commands times the per-million rate plus storage and bandwidth overage. The estimator finds the cheapest fixed plan whose storage ceiling holds your data and prints the command volume where the two cost the same. Each fixed plan has its own bandwidth and connection limits that this does not model, so check them on the vendor site."}}, {"@type": "Question", "name": "Is my usage data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page calculates in your own browser and never sends anything. The CLI reads a local file or stdin and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UPSTASH REDIS BILL ESTIMATOR · RUNS IN YOUR BROWSER</p>
+    <h1>What will your Upstash Redis bill be, and should you go fixed?</h1>
+    <p>Enter your usage from the Upstash console and get an <strong>estimated monthly bill by line</strong> and a <strong>ranked list of levers</strong> (pipelining, hot-key caching, polling, TTLs, payload size) plus the <strong>pay-as-you-go vs fixed-plan crossover</strong>, each lever with a dollar saving.</p>
+    <p class="note">Nothing is uploaded. Calculated in this browser from numbers you enter and approximate list prices you can edit. It cannot see your plan or your invoice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your monthly usage</h2>
+    <div class="grid">
+      <div><label for="f-commands_m">Commands <span class="note">(millions per month)</span></label><input type="number" id="f-commands_m" min="0" step="any" value="0"></div>
+      <div><label for="f-storage_gb">Storage <span class="note">(GB)</span></label><input type="number" id="f-storage_gb" min="0" step="any" value="0"></div>
+      <div><label for="f-bandwidth_gb">Bandwidth <span class="note">(GB per month)</span></label><input type="number" id="f-bandwidth_gb" min="0" step="any" value="0"></div>
+    </div>
+    <label for="budget">Monthly budget in USD (optional, gates the pay-as-you-go estimate)</label>
+    <input type="number" id="budget" min="0" placeholder="e.g. 100">
+    <label for="csv">Or paste a <code>product,usage</code> CSV (see the CLI template)</label>
+    <textarea id="csv" spellcheck="false" placeholder="product,usage&#10;commands_m,60&#10;storage_gb,3"></textarea>
+    <p>
+      <button type="button" id="calc">Estimate</button>
+      <button type="button" class="secondary" id="load-csv">Fill form from CSV</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. Estimate</h2>
+    <p id="summary"></p>
+    <table id="items-table"><thead><tr><th>Line</th><th>Billable</th><th>Per month</th></tr></thead><tbody id="items-rows"></tbody></table>
+    <h3>Pay-as-you-go vs fixed plan</h3>
+    <p id="crossover"></p>
+    <h3>Levers that cut the bill most</h3>
+    <table id="levers-table" hidden><thead><tr><th>Change</th><th>Assumption</th><th>Saves per month</th></tr></thead><tbody id="levers-rows"></tbody></table>
+    <p class="note">Each lever is computed alone under the assumption shown. Levers overlap, so the savings are not additive.</p>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prices, allowances and assumptions (editable)</h2>
+    <p class="note" id="prices-note"></p>
+    <table><thead><tr><th>Line</th><th>Price per unit (USD)</th><th>Free per month</th></tr></thead><tbody id="prices-rows"></tbody></table>
+    <h3>Fixed plans used for the comparison (not editable here; use the CLI and the source constants)</h3>
+    <table><thead><tr><th>Plan</th><th>Storage ceiling</th><th>Per month</th></tr></thead><tbody id="plans-rows"></tbody></table>
+    <p class="note">Each fixed plan's own bandwidth ceiling and connection limits are not modelled. Change a price here and press Estimate. Defaults are approximate list prices; check <a href="https://upstash.com/pricing/redis" rel="noopener">upstash.com/pricing/redis</a> and your plan.</p>
+    <div class="row" id="assume-row"></div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want a budget gate in CI?</h2>
+    <pre class="cmd">node cli.mjs template &gt; usage.csv
+node cli.mjs estimate usage.csv
+node cli.mjs estimate usage.csv --budget 100      # exit 1 over budget
+node cli.mjs estimate usage.csv --set storage_gb=5 --json
+node cli.mjs estimate usage.csv --prices prices.json --assume assumptions.json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="how-to-reduce-your-upstash-redis-bill.html">how to reduce your Upstash Redis bill</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this read my Upstash account or invoice?</h3>
+    <p>No. It reads only the usage numbers you type or paste (copy them from the database's Usage tab in the Upstash console) and multiplies them by list prices you can edit. It cannot see your plan, region, databases, add-ons, contract or real invoice. Treat every figure as a way to compare options, never as what you will be charged.</p>
+<h3>Where do the prices come from?</h3>
+    <p>They are approximate public list prices for pay-as-you-go and the fixed plans, written from memory of Upstash's pricing page as best known in 2025 and not re-fetched, shown with an as-of date. Every pay-as-you-go price and allowance is editable. Upstash changes prices and packaging, so verify on upstash.com/pricing before relying on a number.</p>
+<h3>How is the saving for each lever calculated?</h3>
+    <p>Each lever re-runs the estimate with one change applied under an assumption shown beside it (for example, pipelining that removes 30% of commands) and reports the difference. The assumptions are editable. Levers overlap, so the savings are not additive.</p>
+<h3>When does a fixed plan beat pay-as-you-go?</h3>
+    <p>When monthly commands are high enough that the flat price is below commands times the per-million rate plus storage and bandwidth overage. The estimator finds the cheapest fixed plan whose storage ceiling holds your data and prints the command volume where the two cost the same. Each fixed plan has its own bandwidth and connection limits that this does not model, so check them on the vendor site.</p>
+<h3>Is my usage data uploaded anywhere?</h3>
+    <p>No. The browser page calculates in your own browser and never sends anything. The CLI reads a local file or stdin and makes no network call.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or engineering advice. It multiplies usage numbers you enter by list prices that may be out of date and ignores each plan's own bandwidth and connection limits, contracts and Upstash's own metering rules; it is not a guarantee of what Upstash will charge, and it is not a bill reader. Upstash and Redis are trademarks of their owners; this project is not affiliated with or endorsed by Upstash or Redis Ltd.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks on the same repo: <a href="../neon-bill-estimator/">Neon Bill Estimator</a> ranks the levers on a serverless Postgres invoice, <a href="../cloudflare-bill-estimator/">Cloudflare Bill Estimator</a> ranks the levers on a Workers, KV and R2 invoice, <a href="../supabase-bill-estimator/">Supabase Bill Estimator</a> ranks the levers on a backend invoice, <a href="../vercel-bill-estimator/">Vercel Bill Estimator</a> ranks the levers on a hosting invoice, and <a href="../datadog-bill-estimator/">Datadog Bill Estimator</a> ranks the levers on an observability invoice.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { USAGE_FIELDS, DEFAULT_PRICES, DEFAULT_ASSUMPTIONS, DEFAULT_FIXED_PLANS, PRICES_AS_OF, parseUsageCsv, estimateBill, rankLevers, compareFixed, describeCrossover, summarize, fmt } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const prices = JSON.parse(JSON.stringify(DEFAULT_PRICES));
+    const assumptions = { ...DEFAULT_ASSUMPTIONS };
+    $("#prices-note").textContent = "Defaults: " + PRICES_AS_OF + ".";
+    $("#plans-rows").innerHTML = DEFAULT_FIXED_PLANS.map((p) => `<tr><td>${escapeHtml(p.name)}</td><td>${p.storage_gb} GB</td><td>${fmt(p.price)}</td></tr>`).join("");
+
+    const priceRows = Object.entries(prices).map(([key, p]) => `<tr><td>${escapeHtml(p.label)}</td><td><input type="number" step="0.001" min="0" aria-label="${escapeHtml(p.label)} price" data-price="${key}" value="${p.rate}"></td><td><input type="number" step="any" min="0" aria-label="${escapeHtml(p.label)} included" data-included="${key}" value="${p.included}"></td></tr>`);
+    $("#prices-rows").innerHTML = priceRows.join("");
+    $("#assume-row").innerHTML = Object.entries(assumptions).map(([k, v]) => `<div><label for="a-${k}">${escapeHtml(k)}</label><input type="number" min="0" step="any" id="a-${k}" value="${v}"></div>`).join("");
+
+    function readPrices() {
+      for (const el of document.querySelectorAll("[data-price]")) prices[el.dataset.price].rate = Math.max(0, Number(el.value) || 0);
+      for (const el of document.querySelectorAll("[data-included]")) prices[el.dataset.included].included = Math.max(0, Number(el.value) || 0);
+      for (const k of Object.keys(assumptions)) assumptions[k] = Math.max(0, Number($("#a-" + k).value) || 0);
+    }
+    function readUsage() {
+      const u = {};
+      for (const f of USAGE_FIELDS) u[f.key] = Number($("#f-" + f.key).value) || 0;
+      return u;
+    }
+    function fillForm(u) {
+      for (const [k, v] of Object.entries(u)) if ($("#f-" + k)) $("#f-" + k).value = v;
+    }
+
+    function render() {
+      readPrices();
+      const est = estimateBill(readUsage(), prices);
+      if (est.items.every((i) => i.quantity === 0)) {
+        $("#status").innerHTML = `<span class="error">Enter at least one usage number first (or load the worked example).</span>`;
+        return;
+      }
+      $("#status").textContent = "";
+      const levers = rankLevers(est.usage, prices, assumptions);
+      const b = $("#budget").value === "" ? null : Math.max(0, Number($("#budget").value) || 0);
+      const cmp = compareFixed(est.usage, prices);
+      const s = summarize(est, levers, { budget: b, comparison: cmp });
+      $("#crossover").textContent = describeCrossover(cmp);
+      $("#summary").innerHTML = `<span class="${s.overBudget ? "changed" : "ok"}">${escapeHtml(s.text)}</span>`;
+      const rows = est.items.filter((i) => i.monthly > 0).map((i) => `<tr><td>${escapeHtml(i.label)}${i.note ? ` <span class="note">(${escapeHtml(i.note)})</span>` : ""}</td><td>${i.billable} ${escapeHtml(i.unit)}</td><td>${fmt(i.monthly)}</td></tr>`);
+      $("#items-rows").innerHTML = rows.join("") + `<tr><th>Total (pay-as-you-go)</th><th></th><th>${fmt(est.total)}</th></tr>`;
+      $("#levers-table").hidden = levers.length === 0;
+      $("#levers-rows").innerHTML = levers.map((l) => `<tr><td>${escapeHtml(l.title)}</td><td>${escapeHtml(l.assumption)}</td><td>${fmt(l.saving)} (${l.pctOfBill}%)</td></tr>`).join("");
+      $("#estimate").textContent = `${PRICES_AS_OF}. Your usage numbers and editable prices; not a measurement of any invoice.`;
+      $("#report-card").hidden = false;
+      record("estimate_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    $("#calc").addEventListener("click", render);
+    $("#load-csv").addEventListener("click", () => {
+      const { usage, errors } = parseUsageCsv($("#csv").value);
+      if (errors.length) { $("#status").innerHTML = `<span class="error">${escapeHtml(errors.join("; "))}</span>`; return; }
+      fillForm(usage);
+      render();
+    });
+
+    const EXAMPLE = { commands_m: 60, storage_gb: 3, bandwidth_gb: 250 };
+    $("#load-example").addEventListener("click", () => {
+      fillForm(EXAMPLE);
+      render();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      for (const f of USAGE_FIELDS) $("#f-" + f.key).value = 0;
+      $("#csv").value = "";
+      $("#status").textContent = "";
+      $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

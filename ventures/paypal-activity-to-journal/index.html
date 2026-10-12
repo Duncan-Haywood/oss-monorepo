@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PayPal Activity to Xero and QuickBooks Journal</title>
+  <meta name="description" content="Free PayPal activity report to journal converter: proves the Balance column is continuous, splits sales, fees, refunds, disputes and bank transfers by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="PayPal activity to Xero / QuickBooks journal — free, private">
+  <meta property="og:description" content="Turn a PayPal activity download into month-split journal entries. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "PayPal Activity to Journal", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a PayPal activity download into balanced accounting journals for Xero and QuickBooks in the browser, split at month end. Nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I turn a PayPal activity report into a journal entry?", "acceptedAnswer": {"@type": "Answer", "text": "In PayPal open Activity, then Statements, then Activity download, choose the date range and download the CSV (include the Balance column). Paste it here and press Read, check and build journals. The page walks the Balance column row by row to prove nothing is missing, groups the rows into sales, fees, refunds, disputes, payments sent and bank transfers, and writes a journal that moves a PayPal account line by exactly what the balance moved."}}, {"@type": "Question", "name": "Why does the page check the Balance column?", "acceptedAnswer": {"@type": "Answer", "text": "Every PayPal row says what the balance was after it. If opening balance plus each net does not land on the next balance, a row is missing or the file is out of order, and a journal built from it would be wrong. The page names the first rows where the chain breaks so you can fix the download before you post anything."}}, {"@type": "Question", "name": "Why is the month split at month end?", "acceptedAnswer": {"@type": "Answer", "text": "A PayPal download rarely starts and ends on a month boundary, and posting everything in one month puts September sales and fees into October. By default this page writes one journal per month, each balanced to the PayPal account line, and the chain of balances stays continuous across them."}}, {"@type": "Question", "name": "How are fees and refunds booked?", "acceptedAnswer": {"@type": "Answer", "text": "PayPal's net is the payment minus its fee. Booking the net hides the fee and understates revenue, so the gross payment goes to sales and the fee to a PayPal fees account. A refund books the money returned to refunds and any fee PayPal gives back reduces the fee line."}}, {"@type": "Question", "name": "What happens to money moved to my bank?", "acceptedAnswer": {"@type": "Answer", "text": "Withdrawals and bank deposits go to a bank transfer clearing account. When you import the bank feed, matching its lines to that clearing account brings it back to zero, which is the cheap proof the two sides agree."}}, {"@type": "Question", "name": "Which accounting software can I import to?", "acceptedAnswer": {"@type": "Answer", "text": "Xero (manual journal CSV), QuickBooks Online (journal entry CSV), QuickBooks Desktop (IIF general journal) and a plain CSV for anything else. You can rename the accounts for each category before downloading so they match your chart of accounts."}}, {"@type": "Question", "name": "Is it safe to paste a PayPal download into a web page?", "acceptedAnswer": {"@type": "Answer", "text": "The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. The download includes customer names and email addresses, so keep it to your own machine and delete it when you are done."}}, {"@type": "Question", "name": "What does this not check?", "acceptedAnswer": {"@type": "Answer", "text": "Whether the activity matches your bank statement or your books, tax treatment in any jurisdiction, per-customer revenue recognition, currencies converted between accounts, and account names or codes that must already exist in your accounting software."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PAYPAL ACTIVITY TO JOURNAL · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Turn a PayPal activity report into a Xero or QuickBooks journal</h1>
+    <p>Paste or drop the <strong>Activity download CSV</strong> from PayPal. The <strong>Balance column is walked row by row</strong> to prove nothing is missing, rows are grouped into sales, fees, refunds, disputes, payments sent, bank transfers and currency conversion, and written as a <strong>balanced journal that moves a PayPal account line by exactly what the balance moved</strong> — <strong>split at month end</strong> — for <strong>Xero, QuickBooks Online, QuickBooks Desktop (IIF)</strong> or plain CSV.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. It holds customer names and email addresses, so keep it on your own machine. Independent of PayPal, Xero and Intuit. The report layout and the importer layouts are read from memory of public help documents; no real PayPal export and no live Xero or QuickBooks import was available when this was written.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your PayPal activity download</h2>
+    <p class="note">The CSV from Activity &gt; Statements &gt; Activity download (completed payments or all transactions, with the Balance column). Several currencies in one file are journalled separately; pending, denied and memo rows are skipped.</p>
+    <label for="file">Choose an activity download</label>
+    <input type="file" id="file" accept=".txt,.csv,.tsv,text/plain">
+    <label for="paste">…or paste the report text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Date,Time,TimeZone,Name,Type,Status,Currency,Gross,Fee,Net,Transaction ID,Balance ..."></textarea>
+    <div class="grid">
+      <div><label for="split">Journals</label><select id="split"><option value="month">One per calendar month the file touches</option><option value="none">One for the whole file</option></select></div>
+      <div><label for="date-order">Dates written as slashes</label><select id="date-order"><option value="mdy">Report uses MM/DD/YYYY</option><option value="dmy">Report uses DD/MM/YYYY</option></select></div>
+      <div><label for="tax-rate">Xero tax rate</label><input id="tax-rate" value="Tax Exempt"></div>
+    </div>
+    <label for="mapping">Accounts (one <code>category = account</code> per line; names or codes as your software has them)</label>
+    <textarea id="mapping" class="small" spellcheck="false" wrap="off"></textarea>
+    <p class="note" id="mapping-note"></p>
+    <p>
+      <button type="button" id="validate">Read, check and build journals</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="reset-map">Reset accounts</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Read, check and build journals.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Balance check</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Account</th><th scope="col">Date</th><th class="n" scope="col">Balance column moved</th><th class="n" scope="col">Journals move</th><th scope="col">Agrees</th></tr></thead><tbody id="recon"></tbody></table></div>
+    <h3>Journals</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Journal</th><th scope="col">Date</th><th scope="col">Account</th><th class="n" scope="col">Debit</th><th class="n" scope="col">Credit</th><th scope="col">Memo</th></tr></thead><tbody id="journals"></tbody></table></div>
+    <h3>Download</h3>
+    <p><button type="button" id="dl-xero">Xero journal CSV</button> <button type="button" id="dl-qbo">QuickBooks Online CSV</button> <button type="button" id="dl-iif">QuickBooks Desktop IIF</button> <button type="button" id="dl-csv">Plain CSV</button></p>
+    <p class="note">The accounts must already exist in your software under these names or codes. Post the journals, then match the bank feed to the bank transfer clearing account. <button type="button" class="secondary" id="download-findings">Download findings as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Rows:</strong> each row has a date, type, status, currency, gross, fee (negative) and net, and usually the balance after it. Rows whose Balance Impact is Memo, and pending, denied or cancelled rows, do not move the balance and are skipped. Amounts are read to cents; European <code>1.234,56</code> and US <code>1,234.56</code> both work, and dates can be read as MM/DD or DD/MM.</li>
+      <li><strong>Balance check:</strong> the opening balance is the first balance minus its own net, and every later row must land on the previous balance plus its net. Where it does not, the page names the row. The file is read oldest-first whichever way PayPal sorted it.</li>
+      <li><strong>Categories:</strong> payment, checkout, invoice, subscription and donation types to sales (gross, not net), refunds to refunds, chargebacks, disputes, holds and reserves to disputes, the fee column to PayPal fees, withdrawals and bank deposits to bank transfer clearing, currency conversion to its own line, money sent to payments sent, and anything else to an uncategorised line.</li>
+      <li><strong>Month split:</strong> rows are grouped by date. A journal is dated the month end, or the last row date for the last month. Each journal balances to the PayPal account line, so the line holds exactly that month's movement.</li>
+      <li><strong>Not checked:</strong> that the activity agrees with your bank statement or your books, tax treatment anywhere, per-customer revenue recognition, currency conversion between accounts, and that the accounts exist in your software.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I turn a PayPal activity report into a journal entry?</h3>
+    <p>In PayPal open Activity, then Statements, then Activity download, choose the date range and download the CSV (include the Balance column). Paste it here and press Read, check and build journals. The page walks the Balance column row by row to prove nothing is missing, groups the rows into sales, fees, refunds, disputes, payments sent and bank transfers, and writes a journal that moves a PayPal account line by exactly what the balance moved.</p>
+    <h3>Why does the page check the Balance column?</h3>
+    <p>Every PayPal row says what the balance was after it. If opening balance plus each net does not land on the next balance, a row is missing or the file is out of order, and a journal built from it would be wrong. The page names the first rows where the chain breaks so you can fix the download before you post anything.</p>
+    <h3>Why is the month split at month end?</h3>
+    <p>A PayPal download rarely starts and ends on a month boundary, and posting everything in one month puts September sales and fees into October. By default this page writes one journal per month, each balanced to the PayPal account line, and the chain of balances stays continuous across them.</p>
+    <h3>How are fees and refunds booked?</h3>
+    <p>PayPal's net is the payment minus its fee. Booking the net hides the fee and understates revenue, so the gross payment goes to sales and the fee to a PayPal fees account. A refund books the money returned to refunds and any fee PayPal gives back reduces the fee line.</p>
+    <h3>What happens to money moved to my bank?</h3>
+    <p>Withdrawals and bank deposits go to a bank transfer clearing account. When you import the bank feed, matching its lines to that clearing account brings it back to zero, which is the cheap proof the two sides agree.</p>
+    <h3>Which accounting software can I import to?</h3>
+    <p>Xero (manual journal CSV), QuickBooks Online (journal entry CSV), QuickBooks Desktop (IIF general journal) and a plain CSV for anything else. You can rename the accounts for each category before downloading so they match your chart of accounts.</p>
+    <h3>Is it safe to paste a PayPal download into a web page?</h3>
+    <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. The download includes customer names and email addresses, so keep it to your own machine and delete it when you are done.</p>
+    <h3>What does this not check?</h3>
+    <p>Whether the activity matches your bank statement or your books, tax treatment in any jurisdiction, per-customer revenue recognition, currencies converted between accounts, and account names or codes that must already exist in your accounting software.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, banking, accounting, compliance, or financial advice, and it does not replace a qualified professional or your own bookkeeping review. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with PayPal or any accounting vendor.</strong> PayPal is a trademark of PayPal, Inc. Xero and QuickBooks belong to their owners. This tool is independent and is not sponsored, endorsed or connected to PayPal, Xero, Intuit or any other vendor. The report layout and category rules are read from memory of public help documents and may not match every account or region.</p>
+    <p><strong>Financial data.</strong> A PayPal activity download contains your sales, fees, transaction IDs and customers' names and email addresses. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your file. Whether you may open it in a browser tool is a question for your own policies.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_validated</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>journal_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: <a href="../sales-export-to-journal/">sales export to journal</a> takes any of the eight platform exports and detects which one it is; the <a href="../amazon-settlement-to-journal/">Amazon settlement to journal converter</a> and the <a href="../stripe-payout-to-journal/">Stripe payout to journal converter</a> do the same job for those processors, the <a href="../payment-reconciliation-workbench/">payment reconciliation workbench</a> matches payments against invoices, and the <a href="../bank-csv-to-qbo-converter/">bank CSV to QBO converter</a> brings in the bank side.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, sampleReport, sampleBrokenReport, parseMapping, mappingText, defaultMapping, money, decodeBuffer, toXeroJournalCsv, toQboJournalCsv, toIif, journalsCsv, findingsCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    $("#mapping").value = mappingText();
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const mp = parseMapping($("#mapping").value);
+      $("#mapping-note").textContent = mp.errors.join(" ");
+      const r = validate(text, { mapping: mp.mapping, split: $("#split").value, dateOrder: $("#date-order").value });
+      last = r;
+      const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${r.summary.settlements} account${r.summary.settlements === 1 ? "" : "s"}, ${r.summary.rows} rows, ${r.journals.length} journal${r.journals.length === 1 ? "" : "s"}`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#recon").innerHTML = r.reconciliation.map((x) => `<tr><td>${esc(x.id)}</td><td>${esc(x.deposit || "—")}</td><td class="n">${x.stated === null ? "—" : money(x.stated, x.currency)}</td><td class="n">${money(x.journalled, x.currency)}</td><td${x.agrees === false ? ' class="short"' : ""}>${x.agrees === null ? "no summary row" : x.agrees ? "yes" : "NO"}</td></tr>`).join("") || `<tr><td colspan="5">No settlements found.</td></tr>`;
+      $("#journals").innerHTML = r.journals.flatMap((j) => j.lines.map((l) => `<tr><td>${esc(j.narration)}</td><td>${esc(j.date)}</td><td>${esc(l.account)}</td><td class="n">${l.debit ? money(l.debit, j.currency) : ""}</td><td class="n">${l.credit ? money(l.credit, j.currency) : ""}</td><td>${esc(l.memo)}</td></tr>`)).join("") || `<tr><td colspan="6">No journals.</td></tr>`;
+      report.hidden = false;
+      status.textContent = errs ? `Found ${errs} error(s); fix them before posting.` : `Built ${r.journals.length} journal${r.journals.length === 1 ? "" : "s"} from ${r.summary.rows} rows.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      run(text); record("file_validated");
+    });
+    const example = (id, make, note) => $(id).addEventListener("click", () => {
+      $("#paste").value = make(); $("#file").value = "";
+      run($("#paste").value); record("example_loaded"); status.textContent = note;
+    });
+    example("#load-ok", sampleReport, "Worked example: a synthetic PayPal download for a made-up business; the customers and amounts are not real.");
+    example("#load-broken", sampleBrokenReport, "Worked example: the same download after a hand edit, with typical faults.");
+    $("#reset-map").addEventListener("click", () => { $("#mapping").value = mappingText(defaultMapping()); });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, then click Read, check and build journals."; });
+    $("#download-findings").addEventListener("click", () => { if (last) download("paypal-findings.csv", findingsCsv(last), "text/csv"); });
+    const out = (id, name, make, type, count) => $(id).addEventListener("click", () => {
+      if (!last || !last.journals.length) return;
+      count();
+      download(name, make(last.journals, { taxRate: $("#tax-rate").value.trim() || undefined, dateOrder: $("#date-order").value }), type);
+    });
+    out("#dl-xero", "paypal-activity-xero-journal.csv", toXeroJournalCsv, "text/csv", () => record("journal_downloaded"));
+    out("#dl-qbo", "paypal-activity-qbo-journal.csv", toQboJournalCsv, "text/csv", () => record("journal_downloaded"));
+    out("#dl-iif", "paypal-activity-journal.iif", toIif, "text/plain", () => record("journal_downloaded"));
+    out("#dl-csv", "paypal-activity-journal.csv", journalsCsv, "text/csv", () => record("csv_downloaded"));
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Lash Studio Profit Calculator — price lash sets and fills to hit your hourly</title>
+  <meta name="description" content="Free lash studio pricing calculator. Enter your price list, supplies, card fees, no-shows and overhead; it shows profit per chair hour for every set and fill, the price that hits your target hourly, and what a client is worth over a lifetime of fills. Private, in your browser.">
+  <meta property="og:title" content="Lash Studio Profit Calculator — price lash sets and fills to hit your hourly">
+  <meta property="og:description" content="Free lash studio pricing calculator. Enter your price list, supplies, card fees, no-shows and overhead; it shows profit per chair hour for every set and fill, the price that hits your target hourly, and what a client is worth over a lifetime of fills. Private, in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Lash Studio Profit Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free calculator for lash technicians and studio owners: profit per chair hour for each set and fill, the price that hits a target hourly, client lifetime value and the lowest safe new-client promotion. Runs in your browser; nothing is uploaded.","featureList":"lash extension pricing calculator, lash fill price calculator, lash tech hourly rate, lash client lifetime value, lash studio overhead per hour"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge for a full set of lash extensions?","acceptedAnswer":{"@type":"Answer","text":"Start from your own numbers, not the neighbourhood average: the chair hours the set takes including turnover, supplies, card fees, no-show loss and a share of the studio overhead, plus the hourly you want to take home. The price that covers all of it is the price to charge. This calculator solves for it service by service."}},{"@type":"Question","name":"Are lash fills worth doing at a low price?","acceptedAnswer":{"@type":"Answer","text":"Fills are the repeat business, but they are also the shortest, cheapest appointments, so a fill priced to look friendly often earns the least per hour. Enter your fill price and rebooking rate to see whether the client's lifetime, set plus expected fills, still reaches your target hourly."}},{"@type":"Question","name":"How do I work out overhead per hour for a lash studio?","acceptedAnswer":{"@type":"Answer","text":"Add rent or booth fees, insurance, software, utilities and recurring costs for a month, then divide by the hours you are actually booked: hours open per week times 52 divided by 12, times the share of those hours that are booked. A studio booked 70% of the time carries a third more overhead per booked hour than one booked 100%."}},{"@type":"Question","name":"How low can a new-client promotion go?","acceptedAnswer":{"@type":"Answer","text":"Low enough that the client's lifetime still earns your target hourly, assuming they rebook at the rate you enter. The tool shows that floor. If your fills already earn less than your target, no set discount is safe."}},{"@type":"Question","name":"Is my pricing data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Everything runs in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file."}},{"@type":"Question","name":"Is this business or tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type. Your tax, licensing and insurance position depends on where you work; check with an accountant or your state board."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">LASH STUDIO PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Does your lash price list pay? Profit per chair hour, for every set and fill</h1>
+    <p>Type your services, supplies and studio costs. The tool takes out <strong>card fees, no-shows, supplies and your share of overhead</strong>, shows what each set and fill really earns per hour, the <strong>price that hits your target</strong>, and what a client is worth over a lifetime of fills.</p>
+    <p class="note">The method with a worked example: <a href="./how-much-to-charge-for-lash-extensions.html">how much to charge for lash extensions</a>.</p>
+  </header>
+  <main>
+  <section class="card" id="setup">
+    <h2>1. Your studio</h2>
+    <div class="row3">
+      <div><label for="mo">Monthly overhead ($: rent or booth, insurance, software, utilities)</label><input type="number" id="mo" min="0" step="10" max="100000" value="1400"></div>
+      <div><label for="ho">Hours open per week</label><input type="number" id="ho" min="1" step="1" max="100" value="36"></div>
+      <div><label for="ut">Share of open hours that are booked (%)</label><input type="number" id="ut" min="10" step="1" max="100" value="70"></div>
+      <div><label for="tm">Turnover per appointment (minutes: consult, clean, reset)</label><input type="number" id="tm" min="0" step="5" max="60" value="15"></div>
+      <div><label for="th">Hourly you want to take home ($)</label><input type="number" id="th" min="0" step="1" max="1000" value="45"></div>
+    </div>
+    <h2 style="margin-top:20px">2. Payments and no-shows</h2>
+    <div class="row3">
+      <div><label for="cf">Card fee (%)</label><input type="number" id="cf" min="0" step="0.1" max="15" value="2.9"></div>
+      <div><label for="cx">Fixed fee per payment ($)</label><input type="number" id="cx" min="0" step="0.05" max="5" value="0.3"></div>
+      <div><label for="ns">No-show rate (%)</label><input type="number" id="ns" min="0" step="1" max="60" value="8"></div>
+      <div><label for="dp">Deposit kept on a no-show (% of price)</label><input type="number" id="dp" min="0" step="5" max="100" value="25"></div>
+    </div>
+    <h2 style="margin-top:20px">3. Clients who come back</h2>
+    <div class="row3">
+      <div><label for="rb">Chance a client rebooks after each visit (%)</label><input type="number" id="rb" min="0" step="1" max="99" value="75"></div>
+      <div><label for="mf">Most fills you count per client</label><input type="number" id="mf" min="0" step="1" max="52" value="10"></div>
+    </div>
+    <h2 style="margin-top:20px">4. Your services</h2>
+    <p class="note">Up to ten. Kind "full set" and "fill" feed the client-lifetime view (the first of each is used). Bookings per week build the schedule total.</p>
+    <div class="scroll"><table id="svc"><thead><tr><th>Service</th><th>Kind</th><th>Price ($)</th><th>Chair minutes</th><th>Supplies ($)</th><th>Bookings / week</th><th></th></tr></thead><tbody></tbody></table></div>
+    <button type="button" class="secondary" id="add-svc">Add a service</button>
+    <button type="button" id="solve">Check my prices</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="load-file-btn">Load saved scenario</button>
+    <input type="file" id="load-file" accept=".json,application/json" hidden aria-label="Saved scenario file">
+    <p id="form-status" role="status" class="note">Fill in the numbers, then click Check my prices.</p>
+  </section>
+  <section id="result" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div class="scroll"><table id="out"><thead><tr><th>Service</th><th class="num">Price</th><th class="num">You keep</th><th class="num">Card fees</th><th class="num">Supplies</th><th class="num">Overhead</th><th class="num">Profit</th><th class="num">Profit / hour</th><th class="num">Price for target</th></tr></thead><tbody></tbody></table></div>
+    <div id="client"></div>
+    <button type="button" id="copy-text">Copy as text</button>
+    <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="save-file">Save scenario</button>
+  </section>
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Hours:</strong> chair minutes plus turnover. <strong>Overhead:</strong> monthly overhead divided by the booked hours in a month (hours open times 52 over 12, times the booked share), charged by the hour each appointment takes.</p>
+    <p><strong>No-shows:</strong> a no-show pays only the deposit and uses no supplies, but the hour is still lost. <strong>Profit</strong> is what you collect, less card fees, supplies and overhead; it is before your own tax and before paying yourself.</p>
+    <p><strong>Price for target:</strong> the price at which profit per hour equals your target. The test suite checks it for hundreds of random studios: charging that price earns the target to the cent. <strong>Client lifetime:</strong> the set plus the expected number of fills, where each visit is followed by another with your rebooking probability, up to your cap.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should I charge for a full set of lash extensions?</h3>
+    <p>Start from your own numbers, not the neighbourhood average: the chair hours the set takes including turnover, supplies, card fees, no-show loss and a share of the studio overhead, plus the hourly you want to take home. The price that covers all of it is the price to charge. This calculator solves for it service by service.</p>
+    <h3>Are lash fills worth doing at a low price?</h3>
+    <p>Fills are the repeat business, but they are also the shortest, cheapest appointments, so a fill priced to look friendly often earns the least per hour. Enter your fill price and rebooking rate to see whether the client's lifetime, set plus expected fills, still reaches your target hourly.</p>
+    <h3>How do I work out overhead per hour for a lash studio?</h3>
+    <p>Add rent or booth fees, insurance, software, utilities and recurring costs for a month, then divide by the hours you are actually booked: hours open per week times 52 divided by 12, times the share of those hours that are booked. A studio booked 70% of the time carries a third more overhead per booked hour than one booked 100%.</p>
+    <h3>How low can a new-client promotion go?</h3>
+    <p>Low enough that the client's lifetime still earns your target hourly, assuming they rebook at the rate you enter. The tool shows that floor. If your fills already earn less than your target, no set discount is safe.</p>
+    <h3>Is my pricing data uploaded?</h3>
+    <p>No. Everything runs in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file.</p>
+    <h3>Is this business or tax advice?</h3>
+    <p>No. It is arithmetic on the numbers you type. Your tax, licensing and insurance position depends on where you work; check with an accountant or your state board.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type, not business, tax or financial advice. <strong>Use at your own risk.</strong> Check pricing, licensing and tax with your accountant or state board.</p>
+    <p><strong>Independent.</strong> Not affiliated with any booking platform, lash brand, supplier or payment processor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or backups of anything you enter.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>scenario_run</code>, <code>example_loaded</code>, <code>text_copied</code>, <code>csv_downloaded</code>, <code>file_saved</code>) are counted in this browser only, and you can switch that off below.</p>
+    <p>Related tools: the <a href="../esthetician-studio-profit-calculator/">esthetician studio profit calculator</a>, the <a href="../nail-tech-booth-rent-calculator/">nail tech booth rent calculator</a> and the <a href="../braiding-studio-profit-calculator/">braiding studio profit calculator</a>.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+  <script type="module">
+    import { solve, money, cents, resultText, resultCsv, serializeState, parseState, sampleInput, MAX_SERVICES } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let R = null;
+    function svcRow(s) {
+      const opt = (k, l) => '<option value="' + k + '"' + (s.kind === k ? " selected" : "") + ">" + l + "</option>";
+      return '<tr><td><input type="text" class="sn" value="' + esc(s.name) + '" aria-label="Service name"></td><td><select class="sk" aria-label="Kind of service">' + opt("set", "Full set") + opt("fill", "Fill") + opt("other", "Other") + '</select></td><td><input type="number" class="sp" min="1" step="1" value="' + esc(s.price) + '" aria-label="Price"></td><td><input type="number" class="sm" min="5" step="5" max="480" value="' + esc(s.minutes) + '" aria-label="Chair minutes"></td><td><input type="number" class="su" min="0" step="0.5" value="' + esc(s.supply) + '" aria-label="Supplies cost"></td><td><input type="number" class="sw" min="0" step="1" value="' + esc(s.perWeek) + '" aria-label="Bookings per week"></td><td><button type="button" class="secondary rm" aria-label="Remove this service">Remove</button></td></tr>';
+    }
+    function setSvcs(list) { $("#svc tbody").innerHTML = list.map(svcRow).join(""); }
+    function read() {
+      return {
+        monthlyOverhead: Number($("#mo").value), hoursOpenPerWeek: Number($("#ho").value), utilizationPct: Number($("#ut").value), turnoverMinutes: Number($("#tm").value), targetHourly: Number($("#th").value),
+        cardFeePct: Number($("#cf").value), cardFixedFee: Number($("#cx").value), noShowPct: Number($("#ns").value), depositPct: Number($("#dp").value),
+        rebookPct: Number($("#rb").value), maxFills: Number($("#mf").value),
+        services: [...document.querySelectorAll("#svc tbody tr")].map((r) => ({ name: r.querySelector(".sn").value.trim(), kind: r.querySelector(".sk").value, price: Number(r.querySelector(".sp").value), minutes: Number(r.querySelector(".sm").value), supply: Number(r.querySelector(".su").value), perWeek: Number(r.querySelector(".sw").value) })),
+      };
+    }
+    function fill(s) {
+      $("#mo").value = s.monthlyOverhead; $("#ho").value = s.hoursOpenPerWeek; $("#ut").value = s.utilizationPct; $("#tm").value = s.turnoverMinutes; $("#th").value = s.targetHourly;
+      $("#cf").value = s.cardFeePct; $("#cx").value = s.cardFixedFee; $("#ns").value = s.noShowPct; $("#dp").value = s.depositPct; $("#rb").value = s.rebookPct; $("#mf").value = s.maxFills;
+      setSvcs(s.services);
+    }
+    function run() {
+      const res = solve(read());
+      if (!res.ok) { status.textContent = res.errors.join(" "); return false; }
+      R = res; status.textContent = "Done. Scroll down."; render(); return true;
+    }
+    function render() {
+      $("#result").hidden = false;
+      $("#notices").innerHTML = R.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("");
+      const w = R.rows[R.worstIndex - 1];
+      $("#big").innerHTML = [[money(R.monthlyProfit), "a month profit at this schedule"], [R.rows.filter((x) => x.meets).length + " of " + R.rows.length, "services meet your target hourly"], [cents(R.overheadPerHour), "overhead per booked hour"], [esc(w.name), "lowest profit per hour: " + money(w.perHour)]].map((x) => "<div><strong>" + x[0] + "</strong>" + x[1] + "</div>").join("");
+      $("#out tbody").innerHTML = R.rows.map((x) => "<tr><td>" + esc(x.name) + '</td><td class="num">' + cents(x.price) + '</td><td class="num">' + cents(x.collected) + '</td><td class="num">' + cents(x.cardFees) + '</td><td class="num">' + cents(x.supplyCost) + '</td><td class="num">' + cents(x.overheadCost) + '</td><td class="num">' + cents(x.profit) + '</td><td class="num">' + money(x.perHour) + (x.meets ? "" : " ▼") + '</td><td class="num">' + cents(x.targetPrice) + "</td></tr>").join("");
+      const c = R.client;
+      $("#client").innerHTML = c ? '<h3>A new client over their lifetime</h3><p>' + esc(c.setName) + " plus an expected " + c.expectedFills.toFixed(1) + " × " + esc(c.fillName) + ": <strong>" + money(c.lifetimeProfit) + "</strong> profit in " + c.lifetimeHours.toFixed(1) + " chair hours (<strong>" + money(c.lifetimePerHour) + "/hr</strong>). The set price that makes the lifetime earn your target is <strong>" + cents(c.setPriceFloor) + "</strong>.</p>" : '<p class="note">Add one full set and one fill to see client lifetime value.</p>';
+    }
+    function download(name, text, type) {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    setSvcs(sampleInput().services);
+    $("#add-svc").addEventListener("click", () => { if (document.querySelectorAll("#svc tbody tr").length >= MAX_SERVICES) { status.textContent = "Up to " + MAX_SERVICES + " services."; return; } $("#svc tbody").insertAdjacentHTML("beforeend", svcRow({ name: "", kind: "other", price: "", minutes: 60, supply: 0, perWeek: 1 })); });
+    $("#svc").addEventListener("click", (e) => { if (e.target.classList.contains("rm")) e.target.closest("tr").remove(); });
+    $("#solve").addEventListener("click", () => setTimeout(() => { if (run()) record("scenario_run"); }, 0));
+    $("#load-example").addEventListener("click", () => { fill(sampleInput()); setTimeout(() => { if (run()) { record("example_loaded"); status.textContent = "Example: a small studio, invented numbers. Enter yours above."; } }, 0); });
+    $("#copy-text").addEventListener("click", async () => { if (!R) return; try { await navigator.clipboard.writeText(resultText(R)); status.textContent = "Copied."; record("text_copied"); } catch { status.textContent = "Your browser blocked copying. Use Download CSV instead."; } });
+    $("#dl-csv").addEventListener("click", () => { if (!R) return; download("lash-prices.csv", resultCsv(R), "text/csv"); record("csv_downloaded"); });
+    $("#save-file").addEventListener("click", () => { if (!R) return; download("lash-studio.json", serializeState(R.input), "application/json"); record("file_saved"); });
+    $("#load-file-btn").addEventListener("click", () => $("#load-file").click());
+    $("#load-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; const out = parseState(await f.text()); if (out.error) { status.textContent = out.error; return; } fill(out.state); run(); });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>

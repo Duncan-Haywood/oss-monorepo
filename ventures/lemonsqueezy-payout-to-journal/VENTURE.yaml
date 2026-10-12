@@ -1,0 +1,68 @@
+name: lemonsqueezy-payout-to-journal
+description: >-
+  Free browser tool that turns a Lemon Squeezy earnings export into balanced accounting journals for Xero,
+  QuickBooks Online and QuickBooks Desktop (IIF). It splits every order into product sales income, shipping income,
+  tax collected and Lemon Squeezy's fee, books refunds separately instead of the net payout, proves the rows add up
+  to the payout (from a payout row, a payout ID column, or a deposit typed in from the bank), splits a payout
+  that straddles a month end into one journal per month, and balances each to a Lemon Squeezy clearing account.
+  Differences no rule explains are journalled to an uncategorised account rather than dropped. The export is
+  read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05. The commercial analogue is A2X and Synder (marketplace and payment-platform sync into
+# Xero and QuickBooks, sold per month to sellers and their bookkeepers); this is the no-account, no-upload,
+# one-export-at-a-time version for the large population of indie developers and digital sellers who sell on Lemon Squeezy, who
+# book the net payout as income or pay a monthly sync fee. Sibling of gumroad-sales-to-journal, shopify-payout-to-journal,
+# stripe-payout-to-journal, paypal-activity-to-journal, amazon-settlement-to-journal, etsy-statement-to-journal,
+# square-sales-to-journal and ebay-payout-to-journal, same journal shape, different export. The portfolio
+# already had lemonsqueezy fee tooling, but nothing that produces the journal an
+# accountant actually posts.
+# Search phrases: "Lemon Squeezy to QuickBooks", "Lemon Squeezy to Xero", "Lemon Squeezy earnings journal entry", "how to record
+# Lemon Squeezy earnings and fees in QuickBooks", "Lemon Squeezy bookkeeping payouts", "Lemon Squeezy clearing account".
+# Volume not measured with an external tool.
+#
+# Who: Lemon Squeezy sellers and small digital-product businesses who keep their own books, and the bookkeepers serving
+# several of them, who today book the net payout as income (wrong: Lemon Squeezy's fee and refunds are hidden, and a
+# payout across a month end lands in the wrong month) or pay a monthly sync fee.
+#
+# Path to revenue (payment rails stay off): lead magnet for the creator and bookkeeper audience, linked from
+# the sales fee analyzer. If usage appears, the paid version is what a browser page cannot do: batch many
+# payouts and clients, remember the account mapping per client, pull exports on a schedule (behind an env-var
+# switch), and add Lemon Squeezy, Paddle and Ko-fi exports. Not built.
+#
+# Liability: it writes a journal from the user's own export, shows the check it ran, states what it does not
+# check (tax treatment, revenue recognition, currency conversion), and carries the no-warranty, independent-
+# of-Lemon Squeezy and financial-data clauses.
+#
+# Unverified: the column names of the Lemon Squeezy earnings export, whether a refunded sale's fee is kept, how the
+# deposit is stated, and the Xero, QuickBooks Online and IIF import layouts are from memory of public help
+# documents; nothing ran against a real Lemon Squeezy export or a live import. The first export this misreads, or a
+# journal an importer refuses, is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A Lemon Squeezy creator or their bookkeeper will paste an earnings export into a no-upload page to get a month-split
+      journal, because the alternatives are booking the net payout (hiding fees and refunds) or paying a monthly
+      sync fee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a payout this tool misreads, or a journal that Xero or QuickBooks refuses, at which point the layouts need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/lemonsqueezy-payout-to-journal/
+  analytics: null

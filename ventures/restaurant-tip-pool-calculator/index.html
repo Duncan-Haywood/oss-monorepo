@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Restaurant Tip Pool Calculator</title>
+  <meta name="description" content="Free restaurant tip pool calculator: paste a shift list and split tips by hours, by role points or by server tip-out. Card fee, owner and manager exclusion, payroll CSV. Private, runs in your browser.">
+  <meta property="og:title" content="Split restaurant tips by hours, points or tip-out — free, private">
+  <meta property="og:description" content="Paste your shifts. See what each person gets under each method, to the cent. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Restaurant Tip Pool Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do you split tips fairly between servers, bussers and bartenders?", "acceptedAnswer": {"@type": "Answer", "text": "There is no single legal formula. Common methods are one pool shared by hours worked, a points system where each role earns a weight per hour, or a server tip-out where servers keep their own tips less a percentage of sales that goes to support staff. This page runs all three on your own shift list so you can see what each one pays each person."}}, {"@type": "Question", "name": "What is a points-based tip pool?", "acceptedAnswer": {"@type": "Answer", "text": "Each role gets a number of points per hour (for example server 1.0, busser 0.5, host 0.3). Each person's weight is hours times points, and the pool is shared in proportion. The page shows the payout and payout per hour for every person."}}, {"@type": "Question", "name": "Can managers or owners take part in a tip pool?", "acceptedAnswer": {"@type": "Answer", "text": "Under the federal rule, employers, managers and supervisors may not keep any part of employees' tips. Roles you mark as excluded receive nothing here, and tips recorded against them are shared among staff. State rules can be stricter; this page does not decide that."}}, {"@type": "Question", "name": "Can I deduct the credit card fee from tips?", "acceptedAnswer": {"@type": "Answer", "text": "Many employers deduct the processing fee proportionally from card tips and nothing else. Enter your fee percentage and the page takes it from card tips only, then shows the fee in the totals. Whether it is allowed where you operate is not decided here."}}, {"@type": "Question", "name": "Do the payouts add up exactly?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The pool is split in whole cents using largest remainder, and the page shows whether the payouts equal the pool."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f5f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d4f6e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14384f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14384f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5963; }
+    .card { background: #fff; border: 1px solid #d3dde3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14384f10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebfca; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f6e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dfeaf1; color: #14384f; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #e3eaee; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5963; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #e3eaee; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3eaee; color: #14384f; }
+    .pill.ok { background: #dff3e6; color: #1f5c35; }
+    .stats { font-size: .95rem; color: #2b363d; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dde3; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #aebfca; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.letter { white-space: pre-wrap; font: 14px/1.5 Georgia, serif; background: #fbfdfe; border: 1px solid #d3dde3; border-radius: 8px; padding: 18px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">RESTAURANT TIP POOL CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Split the tips fairly, to the cent, and show your staff the arithmetic.</h1>
+    <p>Paste a shift list: <strong>name, role, hours</strong> and the tips and sales from the shift. Pick a method: <strong>one pool by hours</strong>, <strong>role points</strong>, or <strong>server tip-out</strong>. The page shows what each person receives, what that is per hour, and downloads a payroll-ready CSV.</p>
+    <p class="note">Shifts are read in this browser tab and never leave your device. Tip rules differ by state and by whether staff are paid under a tip credit; this page does the arithmetic, it does not tell you what is lawful.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your shifts</h2>
+    <p class="note">A CSV or pasted spreadsheet range with a header row. Required: name, role, hours (6 or 6:30). Optional: date, card tips, cash tips (or a single tips column), sales (for tip-out).</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="paste">…or paste the lines</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Date,Name,Role,Hours,Card tips,Cash tips,Sales"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>2. Method and roles</h2>
+    <div class="grid">
+      <div><label for="method">How to split</label><select id="method"><option value="points">One pool, by hours x role points</option><option value="hours">One pool, by hours worked</option><option value="tipout">Server tip-out (percent of sales)</option></select></div>
+      <div><label for="fee">Card fee taken from card tips (percent)</label><input id="fee" inputmode="decimal" value="0"></div>
+      <div><label for="tipout">Tip-out percent of sales (tip-out method)</label><input id="tipout" inputmode="decimal" value="3"></div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="credit"><label for="credit">Tipped staff are paid under a tip credit</label></div>
+    <label for="roles">Roles: one per line as role,class,points (class is front, support, boh or excluded)</label>
+    <textarea id="roles" spellcheck="false" wrap="off"></textarea>
+    <p>
+      <button type="button" id="validate">Split the tips</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the shifts, then click Split the tips.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <p class="note" id="report-note"></p>
+    <div class="scroll"><table><thead><tr><th scope="col">Name</th><th scope="col">Role</th><th scope="col" class="n">Hours</th><th scope="col" class="n">Tips collected</th><th scope="col" class="n">Payout</th><th scope="col" class="n">Per hour</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <div id="report-findings"></div>
+    <p><button type="button" id="dl-payroll">Download for payroll (CSV)</button> <button type="button" class="secondary" id="dl-report">Download full report (CSV)</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How it decides, and what it leaves out</h2>
+    <ul>
+      <li><strong>Pool:</strong> card tips less the card fee (card tips only), plus cash tips. Tips recorded against excluded roles go into the pool.</li>
+      <li><strong>Hours / points:</strong> the pool is shared in proportion to hours, or to hours times role points, in whole cents by largest remainder so payouts equal the pool.</li>
+      <li><strong>Tip-out:</strong> each tipped person keeps their own tips (net of their share of the card fee) less the tip-out percent of their sales, capped at what they took in; the tip-out is shared among non-tipped roles by weighted hours.</li>
+      <li><strong>Not decided:</strong> whether your pool is lawful in your state, whether kitchen staff may join, minimum wage and tip-credit compliance, overtime on tips, tax withholding, or what your staff agreed to. Treat warnings as prompts to check, not as findings.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do you split tips fairly between servers, bussers and bartenders?</h3>
+    <p>There is no single legal formula. Common methods are one pool shared by hours worked, a points system where each role earns a weight per hour, or a server tip-out where servers keep their own tips less a percentage of sales that goes to support staff. This page runs all three on your own shift list so you can see what each one pays each person.</p>
+    <h3>What is a points-based tip pool?</h3>
+    <p>Each role gets a number of points per hour (for example server 1.0, busser 0.5, host 0.3). Each person's weight is hours times points, and the pool is shared in proportion. The page shows the payout and payout per hour for every person.</p>
+    <h3>Can managers or owners take part in a tip pool?</h3>
+    <p>Under the federal rule, employers, managers and supervisors may not keep any part of employees' tips. Roles you mark as excluded receive nothing here, and tips recorded against them are shared among staff. State rules can be stricter; this page does not decide that.</p>
+    <h3>Can I deduct the credit card fee from tips?</h3>
+    <p>Many employers deduct the processing fee proportionally from card tips and nothing else. Enter your fee percentage and the page takes it from card tips only, then shows the fee in the totals. Whether it is allowed where you operate is not decided here.</p>
+    <h3>Do the payouts add up exactly?</h3>
+    <p>Yes. The pool is split in whole cents using largest remainder, and the page shows whether the payouts equal the pool.</p>
+    
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace your payroll provider, a labour lawyer, or your own judgment. Check any pool against the rules where you operate before paying staff from it.</p>
+    <p><strong>Not affiliated with any payroll or point-of-sale company.</strong> This tool is independent; it is not sponsored, endorsed or connected to any POS, payroll provider or government agency.</p>
+    <p><strong>Employee data.</strong> A shift list names your staff and their pay. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your lines. Closing the tab discards them; downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your shifts are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>pool_calculated</code>, <code>example_loaded</code>, <code>payroll_downloaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../pour-cost-calculator/">pour cost calculator</a> and the <a href="../supplier-price-creep-checker/">supplier price creep checker</a> cover the cost side of the same restaurant; the <a href="../tip-pool-compliance-calculator/">tip pool compliance calculator</a> checks who may be in a pool at all; the <a href="../tip-fica-credit-calculator/">FICA tip credit calculator</a> sizes the employer tax credit on the tips you pay out.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculate, sampleList, DEFAULT_ROLES, reportCsv, payrollCsv, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    $("#roles").value = DEFAULT_ROLES;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const r = calculate(text, $("#roles").value, { method: $("#method").value, cardFeePct: parseFloat($("#fee").value) || 0, tipOutPct: parseFloat($("#tipout").value) || 0, tipCredit: $("#credit").checked });
+      last = r;
+      const s = r.summary;
+      if (r.errors.length && !r.rows.length) { status.textContent = r.errors[0]; report.hidden = true; return; }
+      $("#report-stats").innerHTML = `<strong>${money(s.pool)} to share</strong> among ${s.people} people over ${s.hours} hours · card fee ${money(s.fee)} · ${s.balanced ? "payouts equal the pool to the cent" : "payouts do not equal the pool"}`;
+      $("#report-note").textContent = (r.errors.length ? `${r.errors.length} row${r.errors.length === 1 ? "" : "s"} skipped: ${r.errors.slice(0, 3).join(" ")} ` : "") + r.detail;
+      $("#rows").innerHTML = r.rows.map((x) => `<tr><td>${esc(x.name)}</td><td>${esc(x.role)}</td><td class="n">${x.hours.toFixed(2)}</td><td class="n">${money(x.ownTips)}</td><td class="n">${money(x.payout)}</td><td class="n">${money(x.perHour)}</td></tr>`).join("");
+      $("#report-findings").innerHTML = r.warnings.map((w) => `<div class="finding"><h4><span class="pill medium">check</span></h4><p>${esc(w)}</p></div>`).join("");
+      report.hidden = false;
+      status.textContent = `${s.people} people paid.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the shifts first."; return; }
+      run(text); record("pool_calculated");
+    });
+    $("#load-ok").addEventListener("click", () => {
+      $("#paste").value = sampleList(); $("#file").value = ""; $("#fee").value = "3";
+      run($("#paste").value); record("example_loaded"); status.textContent = "Worked example: made-up staff and tips; the manager's tips are shared out, not kept, and the cook triggers a kitchen-staff check.";
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the shifts, then click Split the tips."; });
+    $("#dl-payroll").addEventListener("click", () => { if (last) { record("payroll_downloaded"); download("tip-payout-payroll.csv", payrollCsv(last), "text/csv"); } });
+    $("#dl-report").addEventListener("click", () => { if (last) { record("report_downloaded"); download("tip-pool-report.csv", reportCsv(last), "text/csv"); } });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

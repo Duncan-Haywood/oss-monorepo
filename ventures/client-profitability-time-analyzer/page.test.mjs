@@ -65,3 +65,7 @@ test("usage events named on the page are the ones the code records", () => {
     assert.match(html, new RegExp(`<code>${e}</code>`));
   }
 });
+
+test("index links the bookkeeping client fee calculator", () => {
+  assert.ok(page("index.html").includes('href="../bookkeeping-client-fee-calculator/"'));
+});

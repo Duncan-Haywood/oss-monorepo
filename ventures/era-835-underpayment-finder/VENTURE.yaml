@@ -1,0 +1,92 @@
+name: era-835-underpayment-finder
+description: >-
+  Free browser tool that reads an X12 835 electronic remittance file and lists the
+  service lines a payer paid below the practice's own contract fee schedule (or
+  below that payer's usual amount when no schedule is entered), the denied claims
+  with plain-language reasons and a usual next step, provider-level takebacks, and
+  whether the file balances, with an appeal worksheet as CSV. The file is read
+  locally and never uploaded; patient names are never read into the page.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. duplicate_check.py: top score
+# 0.14, nothing near the 0.45 bar. Small medical, dental and therapy practices sign
+# payer fee schedules and then receive 835 remittances that nobody compares to them:
+# the practice-management system posts the payment and writes off the difference as
+# a contractual adjustment, so a payer that pays below contract looks exactly like
+# one that pays at it. Existing answers are enterprise revenue-cycle products sold
+# to billing companies and hospitals (contract-modelling and underpayment-recovery
+# platforms, some on contingency fees) and spreadsheets. The portfolio's own
+# dental-ppo-writeoff-calculator reconciles a total by hand-typed production and
+# adjustment columns; nothing here reads the 835 itself.
+#
+# First visitor: practice managers and billers in r/medicalbilling and r/dentistry
+# practice-management threads asking "how do I find underpayments", "how do I read
+# an 835" and "how do I check payer reimbursement against my contract"; search
+# phrases "835 era underpayment", "how to read an 835 file", "payer underpayment
+# detection small practice". Volume not measured with an external tool.
+#
+# What makes it more than a total: the unit of work is the service line, tested
+# against the practice's own rate for that code and modifier times units; only
+# lines with no adjustment beyond the contractual write-off, patient responsibility
+# or sequestration are tested, so bundling and medical-necessity reductions are
+# counted as skipped rather than as underpayments; with no schedule the payer is
+# compared with its own most common per-unit amount (three clean lines minimum, at
+# least half agreeing) and the finding says it is an inconsistency, not a breach;
+# denials carry the reason in plain language and a usual next step; provider-level
+# adjustments (recoupments, interest) that sit outside every claim are surfaced;
+# and claim, line and deposit totals are checked to add up so a misread file is
+# reported rather than analysed.
+#
+# Privacy is the differentiator and the liability boundary: remittances can carry
+# PHI, so the file never leaves the browser (a test asserts no network calls), the
+# parser keeps no patient name or member ID, and the page says it is not a HIPAA
+# assessment. The portfolio holds no practice or patient data.
+#
+# Path to revenue (payment rails stay off): lead magnet for billing and practice
+# management audiences. A paid version, if usage appears, is a saved payer-by-payer
+# rate history across remittances behind an env-var switch; not built.
+#
+# Liability: arithmetic on the user's own file and rates, model and omissions stated
+# on the page, no billing, legal or compliance advice, no warranty, independent-of-
+# payer clause, PHI note.
+#
+# Unverified: the 835 segment positions (BPR, TRN, N1, CLP, CAS, SVC, AMT*B6, DTM,
+# PLB), the sign convention for provider-level adjustments (a positive amount reduces
+# payment) and the abbreviated reason-code text are from memory of the 005010X221A1
+# guide; no real remittance was available, so the first user report of an unread or
+# mis-totalled file is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A practice manager will paste or open a real 835 and a fee schedule in a
+      no-login page, because the alternative is a revenue-cycle vendor that wants
+      the files on its servers or a share of what it recovers.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the exact lines a payer paid under contract leads at least one practice
+      to dispute a payment and come back with the next remittance, which is the
+      reason to return.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted remittance structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a real 835 the parser cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/era-835-underpayment-finder/
+  analytics: null

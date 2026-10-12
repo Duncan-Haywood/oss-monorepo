@@ -1,0 +1,59 @@
+name: glamping-unit-payback-calculator
+description: >-
+  Free browser tool for people building or running glamping sites (yurts, domes, cabins, safari tents, A-frames): enter the cost of a
+  unit and of the shared infrastructure, nightly rate and occupancy by season, commission, turnover costs, yearly fixed costs, an
+  upkeep reserve and a loan, and see operating income, debt coverage, cash left after the loan, payback in years on the whole
+  investment and on your own money, break-even occupancy, the across-the-board rate change that covers the loan or hits a payback
+  target, an occupancy sensitivity table and what changes with more or fewer units. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture-first session. No glamping or cabin-site investor tool in ventures/:
+# campground-site-profit-calculator prices a site-night operation with cheap pads and no build-cost or loan model, and
+# rv-rental-host-profit-calculator is a single-vehicle rental. Glamping is the opposite shape: a five-figure build cost per unit
+# plus shared infrastructure, strongly seasonal rates, and usually a loan, so the decision is payback and debt coverage rather
+# than nightly profit. Not in screened-out.md.
+#
+# First visitor: a landowner or farm owner weighing a glamping or cabin build, or an operator planning a second phase; search
+# phrases "glamping business profit", "how much does a glamping unit make", "glamping ROI calculator", "yurt rental income".
+# Volume not measured with an external tool.
+#
+# Who: small landowners, farm-diversification owners, couples buying a few acres and the first-time operator pricing a build loan.
+# The money at stake is large (a six-unit build is a six-figure decision), which is why a free, private worksheet that shows the
+# downside is worth more here than another nightly-rate page.
+#
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. A saved-scenarios comparison (two sites,
+# two build options) behind an env-var switch is the possible paid version, not built.
+#
+# Liability: arithmetic on the user's own figures with every rule visible on the page. No market rate or occupancy benchmark is
+# claimed, the sample figures are labelled illustrative, bad input is rejected instead of clamped, and the page carries the
+# no-warranty and not-advice clauses and lists what it does not decide (zoning, permits, taxes, ramp-up, construction overruns).
+# The unit-count table holds shared and fixed costs constant, says so on the page, and stops at twice the entered count. Debt
+# coverage is reported as a ratio and the page tells the reader to ask their lender what it requires instead of asserting a threshold.
+# Unverified: no lender requirement or benchmark yield is claimed.
+
+hypotheses:
+  - claim: >-
+      A landowner or operator weighing a glamping build will enter build cost, seasonal rates, occupancy and a loan to see payback
+      and debt coverage, because a nightly rate multiplied by guesses hides how much of a short season has to book to cover the loan.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that the payback or debt-coverage arithmetic differs from the stated rules on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/glamping-unit-payback-calculator/
+  analytics: null

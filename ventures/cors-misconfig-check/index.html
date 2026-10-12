@@ -315,7 +315,11 @@
   header at all, and
   <a href="../graphql-introspection-exposure-check/">GraphQL introspection exposure checker</a>
   covers a schema-enumeration evidence class again -- whether an unauthenticated introspection
-  query reveals the full query/mutation surface, not a response header or a database table.</p>
+  query reveals the full query/mutation surface, not a response header or a database table, and
+  <a href="../regex-redos-check/">Regex ReDoS Check</a> covers a denial-of-service class in your own
+  source -- regular expressions that backtrack catastrophically on a crafted string, and
+  <a href="../jwt-verification-misuse-check/">JWT Verification Misuse Check</a> finds token
+  handling that decodes without verifying, accepts alg none or signs with a hard-coded secret.</p>
 </footer>
 </body>
 </html>

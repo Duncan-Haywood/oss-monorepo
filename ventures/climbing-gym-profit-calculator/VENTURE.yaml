@@ -1,0 +1,55 @@
+name: climbing-gym-profit-calculator
+description: >-
+  Free browser tool for people planning or running a climbing or bouldering gym: enter day passes,
+  members and the membership fee, youth programs, parties, shop spend, front desk staff, route
+  setting, rent, insurance, the build cost and any loan and see monthly profit, margin, months to
+  pay back the build, break-even members, the lowest day pass and membership fee for a target
+  margin and for a payback target, a crowding check, a sensitivity check at 10% and 20% less
+  demand, and a two-scenario comparison. Copy, CSV, save and load. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture session with duplicate_check.py (nearest 0.23,
+# pickleball-facility-pro-forma, a court-rental model; no membership-led climbing gym venture
+# existed). Why this niche: a climbing gym costs $500k-$2M to build in a 10,000-25,000 sq ft
+# lease and lives or dies on membership count, which is slow to build while rent, front desk
+# and route setters are paid from day one. Owners price day passes and memberships by copying the
+# gym down the road. The money question is how many members, at what fee, cover the fixed costs
+# and the loan, and how much of the plan rests on youth programs and parties. Franchise pro formas
+# answer it only after a sales call. This is the lead magnet for a later paid multi-site planner
+# (payment rails stay off).
+#
+# First visitor: prospective and new climbing and bouldering gym owners searching how much a
+# climbing gym makes. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed numbers. Not tax, legal, lending or financial
+# advice; says so. Names no gym chain, franchise or wall builder. No data fetched, no accounts,
+# nothing stored.
+
+hypotheses:
+  - claim: >-
+      Prospective climbing gym owners will enter their membership, day pass and cost numbers into a
+      no-signup tool and use the break-even members and payback numbers to decide on a lease or
+      the size of the build.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a lowest day pass or membership fee that does not reproduce the tool's own target margin when typed back in as the price.
+  - A user reports a lowest payback day pass that does not reproduce their payback target when typed back in as the price.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/climbing-gym-profit-calculator/
+  analytics: null

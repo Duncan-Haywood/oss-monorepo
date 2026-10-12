@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Expense Tracker for Freelancers — Free, Private, Schedule C Categories</title>
+  <meta name="description" content="Free expense tracker for freelancers and the self-employed: log expenses, import a bank CSV, see deductible totals by Schedule C line and by quarterly payment period, flag missing receipts. No account, works offline, nothing uploaded.">
+  <meta property="og:title" content="Expense Tracker — free, private, Schedule C ready">
+  <meta property="og:description" content="Log business expenses, import your bank CSV, and see what is deductible by Schedule C line. No signup, nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Expense Tracker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "A free expense tracker for freelancers that runs in your browser: expense log, bank CSV import with category suggestions, deductible totals by Schedule C line and quarterly payment period, receipt flags. No account; data stays on your device."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this expense tracker really free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. There is no account, no trial, no entry limit and no paywall on exports. It runs in your browser, so it costs nothing to serve, and it stays free."}}, {"@type": "Question", "name": "Which expenses can a freelancer deduct?", "acceptedAnswer": {"@type": "Answer", "text": "Ordinary and necessary costs of running your business, such as software, supplies, a coworking desk, business travel, advertising and professional fees. Each category here maps to a Schedule C line so you can see the total for the line. Whether a specific cost qualifies is for you and a tax professional to decide."}}, {"@type": "Question", "name": "How are business meals handled?", "acceptedAnswer": {"@type": "Answer", "text": "Meals are counted at 50 percent, the usual limit for business meals. Change the business-use percentage on an entry for anything mixed with personal use, and mark it personal if it is not business at all."}}, {"@type": "Question", "name": "Can I import my bank or card statement?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Paste or open a CSV export with a date, a description and an amount or debit column. Money out is imported with a suggested category, credits are skipped, and rows you already have are flagged so nothing is counted twice. Review the categories before adding them; the suggestions are keyword guesses."}}, {"@type": "Question", "name": "Does it store my receipts?", "acceptedAnswer": {"@type": "Answer", "text": "It records whether you kept a receipt and flags expenses of $75 or more without one. It does not store photos, so keep the receipt itself in a folder or photo album and note where in the entry."}}, {"@type": "Question", "name": "Where is my data stored?", "acceptedAnswer": {"@type": "Answer", "text": "In your browser on this device only. Clearing site data removes it, so use Download backup now and then; the file restores on any device. Nothing is uploaded."}}, {"@type": "Question", "name": "Does this prepare my tax return?", "acceptedAnswer": {"@type": "Answer", "text": "No. It adds up what you enter and groups it by Schedule C line. It does not file anything, and it does not know your depreciation, home office or vehicle method. Use the totals as a starting point with your preparer or tax software."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f4fa; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #3a3fa8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #23277a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #23277a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a4f6a; }
+    .card { background: #fff; border: 1px solid #dcdcee; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #23277a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b3b5d3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3a3fa8; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e6e7f6; color: #23277a; }
+    button.danger { background: #fde8e8; color: #9a3412; }
+    button.stop { background: #b42318; }
+    button.small { padding: 5px 9px; margin: 0 4px 0 0; font-size: .8rem; }
+    button:disabled { opacity: .5; cursor: default; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #ebebf5; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a4f6a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0; }
+    .kpi { background: #eeeffb; border-radius: 10px; padding: 12px; }
+    .kpi b { display: block; font-size: 1.3rem; color: #23277a; }
+    .kpi span { font-size: .8rem; color: #4a4f6a; }
+    .clock { font-size: clamp(2.2rem, 8vw, 3.6rem); font-variant-numeric: tabular-nums; font-weight: 800; color: #23277a; margin: 4px 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: #e6e7f6; color: #23277a; }
+    .pill.billed { background: #d8f0e2; color: #14503a; }
+    .pill.nb { background: #eee; color: #555; }
+    .issues li { color: #7c4a10; }
+    .bars { display: flex; gap: 6px; align-items: flex-end; height: 90px; margin: 10px 0 4px; }
+    .bar { flex: 1; background: #c9cbf0; border-radius: 4px 4px 0 0; min-height: 2px; }
+    .barlabels { display: flex; gap: 6px; font-size: .72rem; color: #4a4f6a; text-align: center; }
+    .barlabels span { flex: 1; }
+    .sr { position: absolute; left: -9999px; }
+    .running { outline: 3px solid #b42318; }
+    #sheet { background: #fff; color: #111; padding: 18px; border: 1px solid #dcdcee; border-radius: 6px; margin-top: 12px; }
+    #sheet h2 { margin: 0 0 6px; color: #111; }
+    @media print { body > :not(#sc-card) { display: none !important; } body { background: #fff; padding: 0; max-width: none; } #sc-card { box-shadow: none; border: 0; padding: 0; margin: 0; } #sheet { border: 0; padding: 0; } }
+    .pill.warn { background: #fdecc8; color: #7c4a10; }
+    footer { margin-top: 28px; border-top: 1px solid #dcdcee; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Expense Tracker: know what you can deduct, before tax time</h1>
+    <p>Log business expenses in seconds or <strong>import your bank CSV</strong>, and see what is <strong>deductible by Schedule C line</strong> and by <strong>quarterly payment period</strong>, with <strong>missing receipts flagged</strong> and an estimate of tax saved. No account, no subscription, no limit, and nothing leaves your device.</p>
+  </header>
+
+  <section class="card" aria-label="Add an expense">
+    <h2>Add an expense</h2>
+    <div class="grid">
+      <div><label for="x-date">Date</label><input id="x-date" type="date"></div>
+      <div><label for="x-vendor">Vendor or what for</label><input id="x-vendor" autocomplete="off" placeholder="e.g. Adobe, Staples"></div>
+      <div><label for="x-amount">Amount</label><input id="x-amount" inputmode="decimal" placeholder="54.99"></div>
+      <div><label for="x-cat">Category (Schedule C line)</label><select id="x-cat"></select></div>
+      <div><label for="x-biz">Business use %</label><input id="x-biz" inputmode="numeric" value="100"></div>
+      <div><label for="x-note">Note (where is the receipt?)</label><input id="x-note" autocomplete="off"></div>
+      <div><label for="x-months">Repeat monthly for</label><select id="x-months"><option value="1">just this once</option><option value="3">3 months</option><option value="6">6 months</option><option value="12">12 months</option></select></div>
+    </div>
+    <p><label style="display:inline-flex;gap:8px;align-items:center;font-weight:600"><input type="checkbox" id="x-receipt" style="width:auto"> I kept the receipt</label></p>
+    <p><button type="button" id="x-add">Add expense</button><button type="button" class="secondary" id="example">Load example data</button></p>
+    <ul class="issues" id="x-err" aria-live="polite"></ul>
+  </section>
+
+  <section class="card" aria-label="Import a bank CSV">
+    <h2>Import a bank or card CSV</h2>
+    <p class="note">Needs a header with a date, a description and an amount (negative is money out) or a debit column. The file is read in this tab and never uploaded.</p>
+    <label for="i-file">CSV file</label><input id="i-file" type="file" accept=".csv,text/csv">
+    <label for="i-text">or paste CSV text</label><textarea id="i-text" rows="4" placeholder="Date,Description,Amount"></textarea>
+    <p><button type="button" id="i-go">Preview import</button></p>
+    <div id="i-out" aria-live="polite"></div>
+  </section>
+
+  <section class="card" aria-label="Summary">
+    <h2>Summary</h2>
+    <div class="grid">
+      <div><label for="r-year">Tax year</label><select id="r-year"></select></div>
+      <div><label for="r-rate">Your combined tax rate % (for the estimate)</label><input id="r-rate" inputmode="numeric" value="30"></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <h3>Income, profit and set-aside <span class="note">(from <a href="../invoice-maker/">Invoice Maker</a> on this device)</span></h3>
+    <div class="grid">
+      <div><label for="n-basis">Count income when</label><select id="n-basis"><option value="paid">money is received (paid)</option><option value="invoiced">invoice is sent</option></select></div>
+      <div><label for="n-manual">Extra income to add (optional)</label><input id="n-manual" inputmode="decimal" placeholder="0.00"></div>
+    </div>
+    <div class="kpis" id="income-kpis"></div>
+    <p class="note" id="income-note">A rough planning figure, not a tax return. See <a href="../self-employment-tax-calculator/">the self-employment tax calculator</a> for a real estimate. The set-aside uses the rate above. Invoice Maker data is only read, never changed or uploaded.</p>
+    <ul class="issues" id="warn" aria-live="polite"></ul>
+    <h3>By Schedule C line</h3>
+    <div class="scroll"><table id="sc-table"></table></div>
+    <h3>Deductible by estimated-tax payment period</h3>
+    <div class="scroll"><table id="period-table"></table></div>
+    <h3>Deductible by month</h3>
+    <div id="bars"></div>
+    <p><button type="button" id="print" class="secondary">Print Schedule C worksheet</button></p>
+  </section>
+
+  <section class="card" id="sc-card" aria-label="Schedule C worksheet">
+    <h2>Schedule C worksheet</h2>
+    <p class="note">Printed worksheet for the selected year. Not a tax form.</p>
+    <div id="sheet"></div>
+  </section>
+
+  <section class="card" aria-label="Expenses">
+    <h2>Expenses</h2>
+    <div class="grid">
+      <div><label for="f-cat">Show category</label><select id="f-cat"></select></div>
+      <div><label for="f-q">Search vendor or note</label><input id="f-q" autocomplete="off"></div>
+    </div>
+    <div class="scroll"><table id="list"></table></div>
+    <p>
+      <button type="button" class="secondary" id="csv">Download CSV</button>
+      <p class="note" id="storage-guard" aria-live="polite"></p>
+      <button type="button" class="secondary" id="backup">Download backup</button>
+    </p>
+    <label for="restore">Restore from a backup file</label><input id="restore" type="file" accept="application/json,.json">
+    <p class="note" id="io-status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" aria-label="Questions">
+    <h2>Questions</h2>
+    <h3>Is this expense tracker really free?</h3>
+    <p>Yes. There is no account, no trial, no entry limit and no paywall on exports. It runs in your browser, so it costs nothing to serve, and it stays free.</p>
+    <h3>Which expenses can a freelancer deduct?</h3>
+    <p>Ordinary and necessary costs of running your business, such as software, supplies, a coworking desk, business travel, advertising and professional fees. Each category here maps to a Schedule C line so you can see the total for the line. Whether a specific cost qualifies is for you and a tax professional to decide.</p>
+    <h3>How are business meals handled?</h3>
+    <p>Meals are counted at 50 percent, the usual limit for business meals. Change the business-use percentage on an entry for anything mixed with personal use, and mark it personal if it is not business at all.</p>
+    <h3>Can I import my bank or card statement?</h3>
+    <p>Yes. Paste or open a CSV export with a date, a description and an amount or debit column. Money out is imported with a suggested category, credits are skipped, and rows you already have are flagged so nothing is counted twice. Review the categories before adding them; the suggestions are keyword guesses.</p>
+    <h3>Does it store my receipts?</h3>
+    <p>It records whether you kept a receipt and flags expenses of $75 or more without one. It does not store photos, so keep the receipt itself in a folder or photo album and note where in the entry.</p>
+    <h3>Where is my data stored?</h3>
+    <p>In your browser on this device only. Clearing site data removes it, so use Download backup now and then; the file restores on any device. Nothing is uploaded.</p>
+    <h3>Does this prepare my tax return?</h3>
+    <p>No. It adds up what you enter and groups it by Schedule C line. It does not file anything, and it does not know your depreciation, home office or vehicle method. Use the totals as a starting point with your preparer or tax software.</p>
+    <h3>What this does not model</h3>
+    <p class="note">Not modelled: depreciation and Section 179, the home office and vehicle deductions (use the linked calculators), sales tax, foreign currency conversion, multiple businesses, and state rules. Clearing site data removes your entries, so download a backup now and then.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. It adds up the amounts and percentages you enter and groups them by the Schedule C line you pick; whether an expense is deductible, and how much, is for you and your tax preparer to decide.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as your only record: download a backup.</p>
+    <p>Everything runs in your browser. Your expenses are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>expense_added</code>, <code>csv_imported</code>, <code>csv_exported</code>, <code>example_loaded</code>, <code>worksheet_printed</code>) are counted only in local storage on your device, never the content. Turn it off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Log hours with the <a href="../time-tracker/">time tracker</a>, bill them with <a href="../invoice-maker/">Invoice Maker</a>, track driving in the <a href="../mileage-log/">mileage log</a>, sort a whole statement with the <a href="../self-employed-schedule-c-categorizer/">Schedule C categorizer</a>, and check the <a href="../home-office-deduction-calculator/">home office deduction</a> and <a href="../quarterly-estimated-tax-calendar/">quarterly tax calendar</a>, then pull it all into the <a href="../freelancer-tax-pack/">freelancer tax pack</a>.</p>
+    <p>See what to do next across all four on the <a href="../freelance-dashboard/">Freelance Dashboard</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+<script type="module">
+    import { CATEGORIES, PERIOD_LABELS, toCents, parseDate, monthlySeries, deductibleCents, needsReceipt, summarize, taxSaved, scheduleCRows, importBankCsv, findDuplicates, entriesToCsv, warnings, formatMoney, yearOf, netProfit, setAside, invoiceIncome, readInvoiceBox } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const KEY = "expense-tracker-data";
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const uid = () => "x" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    const money = (c) => formatMoney(c, "USD");
+    const catOptions = Object.entries(CATEGORIES).map(([k, v]) => `<option value="${esc(k)}">${esc(v.line ? "Line " + v.line + " · " + v.label : v.label)}</option>`).join("");
+    let data = load();
+    let pending = [];
+
+    function load() {
+      try {
+        const d = JSON.parse(localStorage.getItem(KEY) || "null");
+        if (d && Array.isArray(d.entries)) return { entries: d.entries.filter((e) => e && parseDate(e.date) && Number.isFinite(e.cents) && CATEGORIES[e.category]), rate: d.rate ?? "30" };
+      } catch { /* storage is optional */ }
+      return { entries: [], rate: "30" };
+    }
+    function persist() { data.rate = $("#r-rate").value; try { localStorage.setItem(KEY, JSON.stringify(data)); } catch { $("#io-status").textContent = "Could not save: browser storage is full or blocked. Download a backup."; } }
+    const today = () => new Date().toISOString().slice(0, 10);
+    const years = () => { const s = new Set(data.entries.map(yearOf)); s.add(new Date().getFullYear()); return [...s].sort((a, b) => b - a); };
+    const curYear = () => Number($("#r-year").value) || new Date().getFullYear();
+
+    function addExpense() {
+      const date = parseDate($("#x-date").value), cents = toCents($("#x-amount").value), vendor = $("#x-vendor").value.trim();
+      const pct = Number($("#x-biz").value);
+      const errs = [];
+      if (!date) errs.push("Enter a valid date.");
+      if (cents <= 0) errs.push("Enter an amount greater than zero.");
+      if (!vendor) errs.push("Enter a vendor or what the expense was for.");
+      if (!Number.isFinite(pct) || pct < 0 || pct > 100) errs.push("Business use must be between 0 and 100.");
+      $("#x-err").innerHTML = errs.map((m) => `<li>${esc(m)}</li>`).join("");
+      if (errs.length) return;
+      for (const d of monthlySeries(date, Number($("#x-months").value) || 1)) data.entries.push({ id: uid(), date: d, vendor, cents, category: $("#x-cat").value, bizPct: pct, receipt: $("#x-receipt").checked, note: $("#x-note").value.trim() });
+      persist(); record("expense_added");
+      $("#x-vendor").value = ""; $("#x-amount").value = ""; $("#x-note").value = ""; $("#x-receipt").checked = false; $("#x-months").value = "1";
+      renderAll();
+    }
+
+    function previewImport(text) {
+      const r = importBankCsv(text);
+      if (r.problem) { $("#i-out").innerHTML = `<ul class="issues"><li>${esc(r.problem)}</li></ul>`; pending = []; return; }
+      const dup = new Set(findDuplicates(data.entries, r.entries));
+      pending = r.entries.map((e) => ({ ...e, id: uid(), dup: dup.has(e) }));
+      $("#i-out").innerHTML = `<p>${pending.length} expense row(s) found; ${r.skipped} credit(s) skipped, ${r.bad} unreadable. Pick the right category for each; rows already in your log are unticked.</p>
+        <div class="scroll"><table><tr><th>Add</th><th>Date</th><th>Description</th><th class="n">Amount</th><th>Category</th></tr>${pending.map((e, i) => `<tr><td><input type="checkbox" data-i="${i}" class="pk" aria-label="Add row ${i + 1}" style="width:auto" ${e.dup ? "" : "checked"}></td><td>${esc(e.date)}</td><td>${esc(e.vendor)}${e.dup ? ' <span class="pill nb">already logged</span>' : ""}</td><td class="n">${money(e.cents)}</td><td><select data-i="${i}" class="pc" aria-label="Category for row ${i + 1}">${catOptions}</select></td></tr>`).join("")}</table></div>
+        <p><button type="button" id="i-add">Add selected</button></p>`;
+      document.querySelectorAll(".pc").forEach((s) => { s.value = pending[+s.dataset.i].category; s.addEventListener("change", () => { pending[+s.dataset.i].category = s.value; }); });
+      $("#i-add")?.addEventListener("click", () => {
+        const picked = [...document.querySelectorAll(".pk")].filter((c) => c.checked).map((c) => pending[+c.dataset.i]);
+        for (const e of picked) { const { dup, ...rest } = e; data.entries.push(rest); }
+        persist(); record("csv_imported"); pending = [];
+        $("#i-out").innerHTML = `<p>Added ${picked.length} expense(s).</p>`;
+        renderAll();
+      });
+    }
+
+    function renderSummary() {
+      const y = curYear(), s = summarize(data.entries, y), rate = $("#r-rate").value;
+      $("#kpis").innerHTML = `<div class="kpi"><b>${money(s.spent)}</b><span>spent, ${y}</span></div><div class="kpi"><b>${money(s.deductible)}</b><span>deductible</span></div><div class="kpi"><b>${money(taxSaved(s.deductible, rate))}</b><span>est. tax saved at ${esc(rate || 0)}%</span></div><div class="kpi"><b>${s.missing}</b><span>missing receipt(s)</span></div>`;
+      let box = null; try { box = readInvoiceBox(localStorage.getItem("invoice-maker-data")); } catch { /* storage is optional */ }
+      const inc = invoiceIncome(box, y, $("#n-basis").value), extra = toCents($("#n-manual").value) || 0, income = inc.cents + extra, net = netProfit(income, s.deductible);
+      const incLabel = `income, ${y}` + (box ? ` (${inc.count} invoice${inc.count === 1 ? "" : "s"})` : " (no Invoice Maker data found)");
+      $("#income-kpis").innerHTML = `<div class="kpi"><b>${money(income)}</b><span>${esc(incLabel)}</span></div><div class="kpi"><b>${money(net)}</b><span>net profit after deductions</span></div><div class="kpi"><b>${money(setAside(net, rate))}</b><span>suggested set-aside at ${esc(rate || 0)}%</span></div>`;
+      $("#warn").innerHTML = warnings(data.entries, y).map((m) => `<li>${esc(m)}</li>`).join("");
+      const rows = scheduleCRows(s);
+      $("#sc-table").innerHTML = `<tr><th>Line</th><th>Category</th><th class="n">Spent</th><th class="n">Deductible</th></tr>` + (rows.length ? rows.map((r) => `<tr><td>${esc(r.line)}</td><td>${esc(r.label)}</td><td class="n">${money(r.spent)}</td><td class="n">${money(r.deductible)}</td></tr>`).join("") : `<tr><td colspan="4">No expenses for ${y} yet.</td></tr>`);
+      $("#period-table").innerHTML = `<tr><th>Period</th><th class="n">Deductible</th></tr>` + [1, 2, 3, 4].map((p) => `<tr><td>${esc(PERIOD_LABELS[p])}</td><td class="n">${money(s.byPeriod[p])}</td></tr>`).join("");
+      const max = Math.max(1, ...s.byMonth);
+      $("#bars").innerHTML = `<div class="bars">${s.byMonth.map((v) => `<div class="bar" style="height:${Math.round((v / max) * 100)}%" title="${esc(money(v))}"></div>`).join("")}</div><div class="barlabels">${["J","F","M","A","M","J","J","A","S","O","N","D"].map((m) => `<span>${m}</span>`).join("")}</div>`;
+      $("#sheet").innerHTML = `<h2>Schedule C expense worksheet, ${y}</h2><table><tr><th>Line</th><th>Category</th><th class="n">Deductible</th></tr>${rows.map((r) => `<tr><td>${esc(r.line)}</td><td>${esc(r.label)}</td><td class="n">${money(r.deductible)}</td></tr>`).join("")}<tr><th></th><th>Total deductible</th><th class="n">${money(s.deductible)}</th></tr></table><p class="note">Entered by the user; not a tax form and not advice.</p>`;
+    }
+
+    function renderList() {
+      const y = curYear(), cat = $("#f-cat").value, q = $("#f-q").value.trim().toLowerCase();
+      const rows = data.entries.filter((e) => yearOf(e) === y && (!cat || e.category === cat) && (!q || (e.vendor + " " + e.note).toLowerCase().includes(q))).sort((a, b) => b.date.localeCompare(a.date));
+      $("#list").innerHTML = `<tr><th>Date</th><th>Vendor</th><th>Category</th><th class="n">Amount</th><th class="n">Deductible</th><th></th></tr>` + (rows.length ? rows.map((e) => `<tr><td>${esc(e.date)}</td><td>${esc(e.vendor)}${e.note ? `<br><span class="note">${esc(e.note)}</span>` : ""}${needsReceipt(e) ? ' <span class="pill warn">no receipt</span>' : ""}</td><td>${esc(CATEGORIES[e.category].label)}</td><td class="n">${money(e.cents)}</td><td class="n">${money(deductibleCents(e))}</td><td><button type="button" class="small secondary" data-act="receipt" data-id="${esc(e.id)}">${e.receipt ? "Receipt kept" : "Mark receipt"}</button><button type="button" class="small danger" data-act="del" data-id="${esc(e.id)}" aria-label="Delete ${esc(e.vendor)}">Delete</button></td></tr>`).join("") : `<tr><td colspan="6">Nothing to show.</td></tr>`);
+    }
+
+    function renderAll() {
+      const cur = $("#r-year").value;
+      $("#r-year").innerHTML = years().map((y) => `<option>${y}</option>`).join("");
+      if (cur && years().map(String).includes(cur)) $("#r-year").value = cur;
+      renderSummary(); renderList();
+    }
+
+    function download(name, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    }
+
+    function example() {
+      const y = new Date().getFullYear();
+      const mk = (m, d, vendor, c, category, bizPct = 100, receipt = true) => ({ id: uid(), date: `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`, vendor, cents: c, category, bizPct, receipt, note: "example" });
+      data.entries.push(mk(1, 9, "Adobe Creative Cloud", 5499, "other"), mk(2, 14, "Client lunch, Bistro 9", 8600, "meals", 100, false), mk(3, 3, "Verizon", 9000, "utilities", 60), mk(4, 22, "Flight to conference", 41200, "travel"), mk(5, 7, "Coworking desk", 30000, "rent_property"), mk(6, 1, "Accountant", 45000, "legal_professional"));
+      persist(); record("example_loaded"); renderAll();
+    }
+
+    $("#x-cat").innerHTML = catOptions; $("#x-cat").value = "other";
+    $("#f-cat").innerHTML = `<option value="">All categories</option>` + catOptions;
+    $("#x-date").value = today(); $("#r-rate").value = data.rate;
+    $("#x-add").addEventListener("click", addExpense);
+    $("#example").addEventListener("click", example);
+    $("#i-go").addEventListener("click", () => previewImport($("#i-text").value));
+    $("#i-file").addEventListener("change", async (ev) => { const f = ev.target.files[0]; if (f) { const t = await f.text(); $("#i-text").value = t; previewImport(t); } });
+    for (const id of ["#r-year", "#f-cat", "#f-q"]) $(id).addEventListener("input", () => { renderSummary(); renderList(); });
+    $("#r-rate").addEventListener("input", () => { persist(); renderSummary(); });
+    $("#n-basis").addEventListener("change", renderSummary); $("#n-manual").addEventListener("input", renderSummary);
+    $("#list").addEventListener("click", (ev) => {
+      const b = ev.target.closest("button[data-act]"); if (!b) return;
+      const e = data.entries.find((x) => x.id === b.dataset.id); if (!e) return;
+      if (b.dataset.act === "del") data.entries = data.entries.filter((x) => x !== e); else e.receipt = !e.receipt;
+      persist(); renderAll();
+    });
+    $("#csv").addEventListener("click", () => { download(`expenses-${curYear()}.csv`, entriesToCsv(data.entries.filter((e) => yearOf(e) === curYear())), "text/csv"); record("csv_exported"); });
+    $("#backup").addEventListener("click", () => download("expense-tracker-backup.json", JSON.stringify(data), "application/json"));
+    $("#restore").addEventListener("change", async (ev) => {
+      const f = ev.target.files[0]; if (!f) return;
+      try { const d = JSON.parse(await f.text()); if (!d || !Array.isArray(d.entries)) throw new Error("bad"); localStorage.setItem(KEY, JSON.stringify(d)); data = load(); renderAll(); $("#io-status").textContent = `Restored ${data.entries.length} expense(s).`; }
+      catch { $("#io-status").textContent = "That file is not an Expense Tracker backup."; }
+    });
+    $("#print").addEventListener("click", () => { record("worksheet_printed"); window.print(); });
+    const oo = $("#optout"); oo.textContent = usageOptedOut() ? "Usage counting is off" : "Turn usage counting off";
+    oo.addEventListener("click", () => { setUsageOptOut(true); oo.textContent = "Usage counting is off"; });
+    renderAll();
+</script>
+<script data-storage-guard>
+(function () {
+  var KEY = "freelance-suite-last-backup", el = document.getElementById("storage-guard");
+  if (!el) return;
+  var persisted = null;
+  function days() {
+    try {
+      var t = Number(localStorage.getItem(KEY));
+      return t > 0 ? Math.floor((Date.now() - t) / 86400000) : null;
+    } catch (e) { return null; }
+  }
+  function render() {
+    var d = days(), parts = [];
+    parts.push(persisted === true
+      ? "Storage protection: on, so this browser will not clear your data to free space."
+      : persisted === false
+        ? "Storage protection: not granted. This browser may erase your data after a stretch of not visiting, or when it is low on space."
+        : "Storage protection: not supported here, so a backup file is your only safety copy.");
+    parts.push(d === null
+      ? "No backup downloaded from this device yet."
+      : d === 0 ? "Last backup: today."
+      : "Last backup: " + d + (d === 1 ? " day" : " days") + " ago" + (d > 30 ? " - download a new one." : "."));
+    el.textContent = parts.join(" ");
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target && e.target.closest ? e.target.closest("#export-json, #backup") : null;
+    if (!b) return;
+    try { localStorage.setItem(KEY, String(Date.now())); } catch (x) {}
+    render();
+  });
+  render();
+  try {
+    if (navigator.storage && navigator.storage.persist) {
+      navigator.storage.persisted().then(function (p) {
+        return p ? true : navigator.storage.persist();
+      }).then(function (p) { persisted = Boolean(p); render(); }, function () {});
+    }
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>

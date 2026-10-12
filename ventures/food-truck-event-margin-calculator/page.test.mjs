@@ -169,3 +169,15 @@ test('index links one hop to the commissary-kitchen-cost-split-calculator siblin
     'index must link ../commissary-kitchen-cost-split-calculator/ so crawlers reach the commissary kitchen cost split calculator in one hop',
   );
 });
+
+// Market vendors read the same page for the same reason: which recurring
+// booking is worth the day. Without a crawlable link here the farmers market
+// booth calculator is not reachable in one hop.
+test('index links one hop to the farmers-market-booth-calculator sibling', () => {
+  assert.match(html, /href="\.\.\/farmers-market-booth-calculator\/"/);
+});
+
+test('index links fishing-charter-trip-pricing-calculator so crawlers reach it in one hop', () => {
+  const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(html, /href="\.\.\/fishing-charter-trip-pricing-calculator\/"/);
+});

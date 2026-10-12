@@ -98,3 +98,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("LICENSE"), /MIT License/);
   assert.match(page("VENTURE.yaml"), /^name: tax-loss-harvesting-calculator$/m);
 });
+
+test("footer links the NIIT calculator", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/niit-calculator\/"/);
+});

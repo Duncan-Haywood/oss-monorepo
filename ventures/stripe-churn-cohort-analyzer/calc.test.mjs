@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseCsv, normalizeRows, analyze, sampleCsv, parseDate } from "./calc.mjs";
+import { parseCsv, normalizeRows, analyze, sampleCsv, parseDate, simulatePriceIncrease, planChurn } from "./calc.mjs";
 
 const csv = (rows) => rows.join("\n");
 
@@ -117,4 +117,35 @@ test("concentration finding names a subscription over 20% of MRR", () => {
   for (let i = 0; i < 6; i++) rows.push(`s${i},c${i},2026-01-01,50,month`);
   const r = analyze(normalizeRows(parseCsv(csv(rows))).subs, { asOf: new Date("2026-03-31T00:00:00Z") });
   assert.ok(r.findings.some((f) => /over 20% of MRR/.test(f.title) && /BigCo/.test(f.detail)));
+});
+
+test("price rise: no extra cancellations is a pure gain of the rise itself", () => {
+  const { subs } = normalizeRows(parseCsv(sampleCsv()));
+  const r = simulatePriceIncrease(subs, { plan: "all", increasePct: 10, extraLossPct: 0, months: 12 });
+  assert.ok(Math.abs(r.withRevenue / r.withoutRevenue - 1.1) < 1e-9);
+  assert.ok(r.pays && r.delta > 0);
+});
+
+test("price rise: the break-even loss is exactly where the delta crosses zero", () => {
+  const { subs } = normalizeRows(parseCsv(sampleCsv()));
+  const r = simulatePriceIncrease(subs, { plan: "Pro", increasePct: 20, extraLossPct: 0, churnLiftPts: 0, months: 12 });
+  assert.ok(Math.abs(r.breakevenLossPct - (100 * 0.2) / 1.2) < 1e-9);
+  const at = simulatePriceIncrease(subs, { plan: "Pro", increasePct: 20, extraLossPct: r.breakevenLossPct, months: 12 });
+  assert.ok(Math.abs(at.delta) < 1e-6);
+  const worse = simulatePriceIncrease(subs, { plan: "Pro", increasePct: 20, extraLossPct: r.breakevenLossPct + 5, months: 12 });
+  assert.equal(worse.pays, false);
+});
+
+test("price rise: ongoing churn lift lowers the break-even loss", () => {
+  const { subs } = normalizeRows(parseCsv(sampleCsv()));
+  const a = simulatePriceIncrease(subs, { increasePct: 15, churnLiftPts: 0 });
+  const b = simulatePriceIncrease(subs, { increasePct: 15, churnLiftPts: 1.5 });
+  assert.ok(b.breakevenLossPct < a.breakevenLossPct);
+});
+
+test("price rise: unknown plan and empty input are reported, not invented", () => {
+  const { subs } = normalizeRows(parseCsv(sampleCsv()));
+  assert.match(simulatePriceIncrease(subs, { plan: "Nope" }).invalid, /No active/);
+  assert.match(simulatePriceIncrease([]).invalid, /No subscriptions/);
+  assert.ok(planChurn(subs, "Starter") > planChurn(subs, "Team"));
 });

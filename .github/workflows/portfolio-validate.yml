@@ -662,6 +662,15 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_branch_cleanup
 
+      # Branch cleanup's blind spot, from the other side: a branch that never
+      # had a pull request. `unlanded_work.py` is the gate every session runs
+      # before it ends (.github/prompts/land-your-work.md); these tests build
+      # throwaway repositories with real refs/pull/<n>/head refs, so they need
+      # git and nothing else.
+      - name: Unlanded-work gate tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_unlanded_work
+
       - name: Check break-even.md agrees with its pinned snapshot
         run: python3 portfolio/ledger/break_even.py --check
 

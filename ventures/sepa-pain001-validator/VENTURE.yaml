@@ -1,0 +1,96 @@
+name: sepa-pain001-validator
+description: >-
+  Free browser tool that checks a SEPA credit transfer (pain.001.001.03 / .09) or direct
+  debit (pain.008.001.02 / .08) XML file before it goes to the bank: well-formedness,
+  required elements, NbOfTxs and CtrlSum recomputed as exact decimals against the real
+  amounts (per file and per payment block), IBAN mod-97 with the country length, BIC
+  format, EUR, amount format, execution dates in the past or on a weekend or TARGET2
+  holiday with the next TARGET day, Max35/70/140 text lengths, the SEPA character set with
+  suggested replacements, duplicate references, charge bearer and service level, each with
+  its line, path, cause and fix. A repair step recomputes only NbOfTxs and CtrlSum and
+  transliterates disallowed characters. The file is read locally and never uploaded; IBANs
+  are masked in the report.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. duplicate_check.py: top score 0.20
+# (nacha-file-validator, the US sibling; einvoice-preflight 0.20), nothing near the 0.45 bar.
+# Small businesses, associations, bookkeepers and accounting-software integrators in the euro
+# area export a pain.001 bulk payment file (or a pain.008 for collections) from accounting,
+# payroll or a spreadsheet macro and upload it to online banking. Banks answer with a terse
+# rejection ("XML-Schema invalid", "Control sum does not match", "Character not allowed").
+# Existing answers are bank-portal checks that only run after upload, XSD validators that
+# validate structure but not control sums, IBANs or dates, developer libraries that need
+# code, and paid desktop utilities; nothing is a free page that explains each fault with
+# its line and fixes the control totals.
+#
+# First visitor: bookkeepers, treasurers of clubs, and ERP integrators searching "pain.001
+# error", "SEPA XML control sum does not match", "SEPA XML validator", "SEPA character not
+# allowed". Volume not measured with an external tool.
+#
+# What makes it more than an XSD check: every finding names the line and path, the likely
+# cause and the fix; totals are summed as BigInt decimals so a hand-edited amount shows as a
+# control mismatch with the exact difference; the IBAN check reports length and mod-97
+# separately; weekend, TARGET2 holiday and past dates give the next TARGET day; characters
+# outside the SEPA set get a suggested replacement; and the repair step only rewrites
+# NbOfTxs, CtrlSum and disallowed characters in text fields, never an IBAN, amount,
+# currency, date or identifier, so it cannot redirect or resize a payment.
+#
+# Privacy is the liability boundary: SEPA files carry IBANs and names, so the file never
+# leaves the browser (a test asserts no network calls), IBANs are masked in the report and
+# the findings CSV, a DTD is refused and never expanded, and the page says it is not a
+# security assessment.
+#
+# Path to revenue (payment rails stay off): lead magnet for accounting-software and payment
+# automation audiences. A paid version, if usage appears, is bulk validation and a saved
+# per-bank rule set (bank-specific limits, SCT Inst, pain.001.001.09 variants) behind an
+# env-var switch; not built.
+#
+# Liability: arithmetic on the user's own file, model and omissions stated on the page, no
+# banking or compliance advice, no warranty, independent-of-the-EPC-and-banks clause,
+# payment data note.
+#
+# Unverified (all from memory of public sources; no bank validator or XSD was available):
+# the IBAN length table and the SEPA country list (newer scheme participants such as
+# Albania, Moldova, Montenegro, North Macedonia and Serbia are not in the SEPA list and
+# produce a warning); the TARGET2 closing days (1 Jan, Good Friday, Easter Monday, 1 May,
+# 25 and 26 Dec); the SEPA character set and the transliteration table (ue/oe/ae for
+# umlauts is the common German convention, not a rule); the Max35/70/140 limits per
+# element; the .03 versus .09 differences (BIC/BICFI, Dt wrapper); the direct debit
+# scheme codes and creditor identifier shape; the rule that ChrgBr must be SLEV and the
+# reference-field slash rule. The tool does not validate against the XSD or check element
+# order. The first user report of a file that passes here and is rejected by a bank, or the
+# reverse, is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A bookkeeper or club treasurer whose bank rejected a SEPA XML file will paste it into a
+      no-login page, because the alternative is a cryptic rejection message and a support call.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the exact line and cause, and getting the control totals and characters repaired,
+      leads the same person to validate the next file before uploading, which is the reason
+      to return.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted file structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a bank rejecting a file this tool passed, or this tool failing a file a bank accepted, at which point the rules need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/sepa-pain001-validator/
+  analytics: null

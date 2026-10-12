@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Grazing Lease Rate Calculator — AUMs, Head and Fair Rent</title>
+  <meta name="description" content="Free grazing lease calculator for ranchers and landowners: AUMs and head your pasture carries, rent per AUM, per head and per acre, the hay-feeding break-even, and the rent range where both sides win. Runs in your browser.">
+  <meta property="og:title" content="Grazing Lease Rate Calculator — free, private">
+  <meta property="og:description" content="Carrying capacity, rent per AUM and the range where a pasture lease works for landowner and rancher.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Grazing Lease Rate Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free tool for ranchers and landowners: AUMs, head carried, fair rent per AUM and the range where a pasture lease works for both sides."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is an AUM and how do I price a grazing lease per AUM?", "acceptedAnswer": {"@type": "Answer", "text": "An animal unit month is the forage that feeds one 1,000 lb animal unit for a month, about 780 lb of dry matter. Leases are often quoted per AUM, per head per month or per acre. Divide the season's usable forage by what an animal unit eats to get the AUMs, then multiply by the rent per AUM. This tool does that arithmetic from your numbers."}}, {"@type": "Question", "name": "How many cows can my pasture carry?", "acceptedAnswer": {"@type": "Answer", "text": "Acres times forage per acre times the share you can graze, divided by what an animal unit eats per day, gives animal-unit days. Divide by the days in the season for animal units, then by the animal units each head counts for (a cow-calf pair is often about 1.2). Enter your own forage figure; your NRCS office or extension agent can give one for your soil and rainfall."}}, {"@type": "Question", "name": "What rent per AUM makes sense for the rancher?", "acceptedAnswer": {"@type": "Answer", "text": "Up to the cost of feeding the same month as hay, less the extra costs the lease adds (hauling, water, fence checks). Above that, hay is cheaper. The tool computes both from your hay price, moisture and waste."}}, {"@type": "Question", "name": "What should a landowner ask?", "acceptedAnswer": {"@type": "Answer", "text": "At least enough that rent per acre, after the fence, water and tax costs the owner carries, matches what the land would earn another way. The tool shows that floor per AUM and tells you whether it sits below the rancher's ceiling."}}, {"@type": "Question", "name": "What happens in a drought?", "acceptedAnswer": {"@type": "Answer", "text": "Carrying capacity falls with forage. The drought table shows head and total rent at 75% and 50% of the forage you entered, so a lease can include a stocking-reduction clause both sides can see the cost of."}}, {"@type": "Question", "name": "Where do the numbers come from?", "acceptedAnswer": {"@type": "Answer", "text": "From you. The tool contains no rental rate surveys, hay prices or forage data. The example values are made up."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser tab and nothing is sent anywhere. There are no accounts."}}, {"@type": "Question", "name": "Is this legal or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on numbers you enter. A lease needs an attorney's review, and stocking rates should be checked with your extension agent or NRCS office."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2f5d2a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f3d1c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f3d1c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f3d1c10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f5d2a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f3d1c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f3d1c; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">GRAZING LEASE RATE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What does this pasture carry, and what rent works for both sides?</h1>
+    <p>Enter acres, forage and the lease rent. You get the <strong>AUMs and head the pasture carries, rent per AUM, head-month and acre, what the same month costs as hay, and the rent range where the landowner beats the alternative and the rancher beats feeding hay</strong>. A drought table shows what 75% and 50% forage does to head and rent.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The tool contains no rate surveys or forage data, and the example numbers are made up.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The pasture and the lease</h2>
+    <div class="grid">
+      <div><label for="acres">Pasture acres</label><input type="number" id="acres" min="1" step="1" value="320"></div>
+      <div><label for="forage">Forage produced per acre (lb dry matter)</label><input type="number" id="forage" min="0" step="1" value="2000"></div>
+      <div><label for="use">Share you can graze (%)</label><input type="number" id="use" min="0" step="1" value="40"></div>
+      <div><label for="days">Grazing season (days)</label><input type="number" id="days" min="1" step="1" value="150"></div>
+      <div><label for="auhead">Animal units per head (cow-calf pair about 1.2)</label><input type="number" id="auhead" min="0" step="0.1" value="1.2"></div>
+      <div><label for="intake">Dry matter per animal unit per day (lb)</label><input type="number" id="intake" min="0" step="0.5" value="26"></div>
+      <div><label for="rent">Lease rent ($ per AUM)</label><input type="number" id="rent" min="0" step="0.5" value="22"></div>
+      <div><label for="alt">Owner's alternative income ($/acre/yr)</label><input type="number" id="alt" min="0" step="0.5" value="18"></div>
+      <div><label for="ownercost">Owner's costs under the lease ($/acre/yr)</label><input type="number" id="ownercost" min="0" step="0.5" value="3"></div>
+      <div><label for="hay">Hay price ($/ton delivered)</label><input type="number" id="hay" min="0" step="1" value="190"></div>
+      <div><label for="haydm">Hay dry matter (%)</label><input type="number" id="haydm" min="0" step="1" value="86"></div>
+      <div><label for="waste">Hay wasted when fed (%)</label><input type="number" id="waste" min="0" step="1" value="15"></div>
+      <div><label for="extra">Rancher's extra cost on the lease ($/AUM)</label><input type="number" id="extra" min="0" step="0.5" value="3"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Work out the lease</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+    </p>
+    <p class="note" id="form-status">Change the numbers or load the example, then click Work out the lease.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <div class="scroll"><table><thead><tr><th scope="col">Line</th><th class="n" scope="col">Value</th></tr></thead><tbody id="lines"></tbody></table></div>
+    <h3>If forage falls (drought)</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Forage</th><th class="n" scope="col">AUMs</th><th class="n" scope="col">Head</th><th class="n" scope="col">Rent</th></tr></thead><tbody id="drought"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How the numbers work, and what they leave out</h2>
+    <ul>
+      <li><strong>AUMs</strong> = acres × forage per acre × share grazed ÷ daily intake per animal unit ÷ 30.4. <strong>Head</strong> = animal-unit days ÷ season days ÷ animal units per head.</li>
+      <li><strong>Hay cost per AUM</strong> = daily intake × 30.4 ÷ hay dry matter ÷ (1 − waste) ÷ 2,000 × price per ton.</li>
+      <li><strong>Rancher ceiling</strong> = hay cost per AUM − the rancher's extra cost on the lease. <strong>Owner floor</strong> = (alternative income + owner's costs) per acre ÷ AUMs per acre.</li>
+      <li><strong>Not modelled:</strong> water development, cross-fencing, weed or brush control, livestock death-loss liability, gain-based or cattle-price-indexed rent, rotation, taxes and the lease contract itself.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is an AUM and how do I price a grazing lease per AUM?</h3>
+    <p>An animal unit month is the forage that feeds one 1,000 lb animal unit for a month, about 780 lb of dry matter. Leases are often quoted per AUM, per head per month or per acre. Divide the season's usable forage by what an animal unit eats to get the AUMs, then multiply by the rent per AUM. This tool does that arithmetic from your numbers.</p>
+    <h3>How many cows can my pasture carry?</h3>
+    <p>Acres times forage per acre times the share you can graze, divided by what an animal unit eats per day, gives animal-unit days. Divide by the days in the season for animal units, then by the animal units each head counts for (a cow-calf pair is often about 1.2). Enter your own forage figure; your NRCS office or extension agent can give one for your soil and rainfall.</p>
+    <h3>What rent per AUM makes sense for the rancher?</h3>
+    <p>Up to the cost of feeding the same month as hay, less the extra costs the lease adds (hauling, water, fence checks). Above that, hay is cheaper. The tool computes both from your hay price, moisture and waste.</p>
+    <h3>What should a landowner ask?</h3>
+    <p>At least enough that rent per acre, after the fence, water and tax costs the owner carries, matches what the land would earn another way. The tool shows that floor per AUM and tells you whether it sits below the rancher's ceiling.</p>
+    <h3>What happens in a drought?</h3>
+    <p>Carrying capacity falls with forage. The drought table shows head and total rent at 75% and 50% of the forage you entered, so a lease can include a stocking-reduction clause both sides can see the cost of.</p>
+    <h3>Where do the numbers come from?</h3>
+    <p>From you. The tool contains no rental rate surveys, hay prices or forage data. The example values are made up.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything is calculated in your browser tab and nothing is sent anywhere. There are no accounts.</p>
+    <h3>Is this legal or financial advice?</h3>
+    <p>No. It is arithmetic on numbers you enter. A lease needs an attorney's review, and stocking rates should be checked with your extension agent or NRCS office.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional such as an attorney, an extension agent, your NRCS office or a tax adviser. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for any lease you sign.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>lease_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../pollination-contract-checker/">pollination contract checker</a>, <a href="../cow-calf-breakeven-calculator/">cow-calf break-even</a>, <a href="../farmland-lease-cash-rent-vs-crop-share-calculator/">farmland cash rent vs crop share</a> and <a href="../hay-baling-own-vs-hire-calculator/">hay baling own vs hire</a>. Weighing a solar lease instead? See the <a href="../solar-land-lease-offer-calculator/">solar land lease offer calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, droughtTable, sampleInput, toCsv, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const ids = { acres: "acres", forageLbsPerAcre: "forage", usePct: "use", seasonDays: "days", auPerHead: "auhead", auLbsPerDay: "intake", rentPerAum: "rent", cashRentAlt: "alt", ownerCostPerAcre: "ownercost", hayPerTon: "hay", hayDmPct: "haydm", hayWastePct: "waste", extraCostPerAum: "extra" };
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const [k, id] of Object.entries(ids)) input[k] = $("#" + id).value;
+      return input;
+    }
+
+    function run() {
+      const input = read();
+      const r = analyze(input);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding"><span class="pill ${r.dealExists ? "info" : "high"}">${r.dealExists ? "result" : "no overlap"}</span>${esc(a)}</div>`).join("");
+      const rows = [["AUMs", Math.round(r.aums)], ["Head carried", Math.round(r.head)], ["Acres per animal unit", r.acresPerAu], ["Rent per AUM", money(r.inputs.rentPerAum)], ["Rent per head-month", money(r.rentPerHeadMonth)], ["Rent per acre", money(r.rentPerAcre)], ["Annual rent", money(r.rentTotal)], ["Hay cost per AUM", money(r.hayCostPerAum)], ["Rancher ceiling per AUM", money(r.rancherBreakEvenRent)], ["Owner floor per AUM", money(r.ownerBreakEvenRent)]];
+      $("#lines").innerHTML = rows.map(([k, x]) => `<tr><th scope="row">${esc(k)}</th><td class="n">${esc(x)}</td></tr>`).join("");
+      $("#drought").innerHTML = droughtTable(input).map((d) => d.error ? "" : `<tr><th scope="row">${Math.round(d.fraction * 100)}%</th><td class="n">${Math.round(d.aums)}</td><td class="n">${Math.round(d.head)}</td><td class="n">${money(d.rentTotal)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `${Math.round(r.aums)} AUMs, ${Math.round(r.head)} head; rent between ${money(r.ownerBreakEvenRent)} and ${money(r.rancherBreakEvenRent)} per AUM works for both.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("lease_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleInput();
+      for (const [k, id] of Object.entries(ids)) $("#" + id).value = s[k];
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "grazing-lease-rate.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

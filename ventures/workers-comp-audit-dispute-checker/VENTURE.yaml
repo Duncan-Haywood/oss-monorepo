@@ -1,0 +1,59 @@
+name: workers-comp-audit-dispute-checker
+description: >-
+  Free browser tool for small employers who just received a workers' compensation premium audit: type the carrier's audited payroll
+  lines next to your own records and see, in premium dollars, which lines are worth disputing (overtime premium pay the audit did not
+  exclude, subcontractors who carry their own coverage, an executive officer outside the payroll band, payroll in a costlier class),
+  the record that would prove each one, and an editable dispute note. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture-first scheduled session. duplicate_check.py: closest venture 0.31 (workers-comp-premium-calculator,
+# which rebuilds the policy premium and prices a payroll true-up; nothing prices the audit lines a policyholder can dispute). Sibling of
+# workers-comp-premium-calculator and coi-expiry-gap-checker.
+#
+# Why this niche: a final audit bills a contractor thousands of dollars after the policy year is over, and the same four errors recur
+# (overtime premium pay not excluded, a subcontractor with a certificate charged as uninsured, an officer above the state maximum, work
+# booked to a costlier class). Brokers do not price the dispute and no neutral free tool does.
+#
+# First visitor: an owner searching "workers comp audit dispute", "workers comp audit subcontractor certificate", "dispute workers comp
+# audit overtime". Volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a pre-audit readiness checklist and a records-pack export
+# behind an env-var switch. Neither is built.
+#
+# Liability: the one risk is a wrong number or a dispute that fails. Mitigations: no rate or class table is shipped (the user types the
+# audit's own rates), each cause is priced alone with hand-counted unit tests, bad input throws instead of clamping, the premium discount
+# is applied as a flat percentage and said so, and the page states that it is not insurance or legal advice, does not decide who is right
+# and that the carrier's audit and state rules control. It files nothing and contacts no one.
+
+hypotheses:
+  - claim: >-
+      A small employer with a premium audit bill will use a free no-upload tool that prices the disputable lines and lists the records
+      each needs, because a dispute with the right paper is won and one without it is not.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Naming the proving record per line (payroll register, certificate of insurance, officer endorsement) is what makes the owner
+      start the dispute instead of paying the audit.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports relying on the tool's figure instead of their carrier's audit or a licensed professional, despite the disclaimer -- at that point the wording needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/workers-comp-audit-dispute-checker/
+  analytics: null

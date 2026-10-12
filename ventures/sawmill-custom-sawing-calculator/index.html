@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sawmill Custom Sawing Calculator — What to Charge per Board Foot</title>
+  <meta name="description" content="Free custom sawing rate calculator for portable sawmill operators: true cost per sawing hour, break-even and target quote per board foot or per hour, and which log sizes lose money. Runs in your browser.">
+  <meta property="og:title" content="Sawmill Custom Sawing Calculator — free, private">
+  <meta property="og:description" content="What a sawing hour really costs and what to quote per board foot or per hour.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Sawmill Custom Sawing Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free tool for portable-sawmill operators: cost per sawing hour, break-even and target quote per board foot and per hour, and the log sizes that lose money at a flat rate."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What should I charge per board foot for custom sawing?", "acceptedAnswer": {"@type": "Answer", "text": "Whatever covers your cost per board foot plus the margin you want, not the going rate. Add machine cost per hour (ownership, fuel, blades, maintenance) to labor per hour, divide by board feet sawn per hour, then add the time you spend handling logs, setting up and driving. This tool does that for your own numbers and shows the break-even and a target quote."}}, {"@type": "Question", "name": "Should I charge by the hour or by the board foot?", "acceptedAnswer": {"@type": "Answer", "text": "Per board foot pays more on large, straight, easy logs where you saw fast; hourly protects you on small, crooked or dirty logs and on jobs with a lot of turning. The tool works out the net for both on the same job and tells you which paid more."}}, {"@type": "Question", "name": "Why do small logs lose money at a flat per-board-foot rate?", "acceptedAnswer": {"@type": "Answer", "text": "Loading, turning and clamping take about the same time whatever the log size, but a small log yields few board feet. At a flat rate the handling time is paid for by the board feet, so below some small-end diameter each log costs more to saw than it earns. The table shows where that line sits for your rate and a minimum charge per log fixes it."}}, {"@type": "Question", "name": "What is the Doyle log rule and why is it different from what I saw?", "acceptedAnswer": {"@type": "Answer", "text": "Doyle estimates board feet from small-end diameter and length: ((diameter \u2212 4) \u00f7 4) squared times length in feet. It undercounts small logs badly. This tool also estimates sawn board feet from the log's true volume and your recovery percentage, so you can see the overrun."}}, {"@type": "Question", "name": "What is recovery and what is a normal figure?", "acceptedAnswer": {"@type": "Answer", "text": "Recovery is sawn lumber as a share of the log's true volume. Kerf, slabs, edgings and sawdust take the rest. Many portable-mill operators see roughly half or somewhat better; enter what you measure on your own jobs."}}, {"@type": "Question", "name": "Where do the numbers come from?", "acceptedAnswer": {"@type": "Answer", "text": "From you. The tool ships no lumber price, custom-sawing rate or log data. The example values are made up."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser tab and nothing is sent anywhere. There are no accounts."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on numbers you enter. Check tax treatment and insurance for a sawing business with a qualified adviser."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f7f3ea; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #7a3e12; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #5a2d0c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #5a2d0c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #e0d5c0; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #5a2d0c10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #c4b496; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #7a3e12; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #efe5d2; color: #5a2d0c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #efe7d6; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #efe7d6; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.info { background: #efe5d2; color: #5a2d0c; }
+    footer { margin-top: 28px; border-top: 1px solid #e0d5c0; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SAWMILL CUSTOM SAWING CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What does a sawing hour cost you, and what should you charge per board foot?</h1>
+    <p>Enter your mill, blades, fuel, crew and the logs on the job. You get <strong>the true cost per sawing hour, the break-even and target quote per board foot and per hour, which pricing model pays more on this job, and the small-end diameter below which a flat per-board-foot rate loses money</strong>. It also shows how far the Doyle log scale undercounts what you really saw.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The tool ships no lumber or rate data, and the example numbers are made up.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your mill</h2>
+    <div class="grid">
+      <div><label for="millPrice">Mill and trailer price ($)</label><input type="number" id="millPrice" min="0" step="100" value="22000"></div>
+      <div><label for="resalePct">Resale value (% of price)</label><input type="number" id="resalePct" min="0" step="1" value="40"></div>
+      <div><label for="years">Years you will run it</label><input type="number" id="years" min="0" step="1" value="8"></div>
+      <div><label for="annualHours">Sawing hours per year</label><input type="number" id="annualHours" min="0" step="10" value="600"></div>
+      <div><label for="interestPct">Cost of money (% a year)</label><input type="number" id="interestPct" min="0" step="0.5" value="6"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Running costs per sawing hour</h2>
+    <div class="grid">
+      <div><label for="fuelGalPerHour">Fuel (gal/hr)</label><input type="number" id="fuelGalPerHour" min="0" step="0.1" value="1"></div>
+      <div><label for="fuelPrice">Fuel price ($/gal)</label><input type="number" id="fuelPrice" min="0" step="0.05" value="4"></div>
+      <div><label for="bladePrice">Blade price ($)</label><input type="number" id="bladePrice" min="0" step="1" value="18"></div>
+      <div><label for="resharpensPerBlade">Sharpenings per blade</label><input type="number" id="resharpensPerBlade" min="0" step="1" value="4"></div>
+      <div><label for="hoursPerSharpen">Sawing hours between sharpenings</label><input type="number" id="hoursPerSharpen" min="0" step="0.5" value="3"></div>
+      <div><label for="sharpenCost">Cost per sharpening ($)</label><input type="number" id="sharpenCost" min="0" step="0.5" value="5"></div>
+      <div><label for="maintPerHour">Maintenance ($/hr)</label><input type="number" id="maintPerHour" min="0" step="0.5" value="4"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. People and speed</h2>
+    <div class="grid">
+      <div><label for="helpers">Helpers on the job</label><input type="number" id="helpers" min="0" step="1" value="1"></div>
+      <div><label for="helperWage">Helper wage, loaded ($/hr)</label><input type="number" id="helperWage" min="0" step="0.5" value="18"></div>
+      <div><label for="ownerWage">Your own wage target ($/hr)</label><input type="number" id="ownerWage" min="0" step="1" value="30"></div>
+      <div><label for="bfPerHour">Sawn board feet per hour</label><input type="number" id="bfPerHour" min="0" step="5" value="150"></div>
+      <div><label for="handlingMinPerLog">Handling per log (min)</label><input type="number" id="handlingMinPerLog" min="0" step="0.5" value="4"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>4. The job</h2>
+    <div class="grid">
+      <div><label for="logs">Number of logs</label><input type="number" id="logs" min="0" step="1" value="20"></div>
+      <div><label for="smallEndIn">Small-end diameter (in)</label><input type="number" id="smallEndIn" min="0" step="1" value="16"></div>
+      <div><label for="lengthFt">Log length (ft)</label><input type="number" id="lengthFt" min="0" step="1" value="10"></div>
+      <div><label for="taperInPer8Ft">Taper (in per 8 ft)</label><input type="number" id="taperInPer8Ft" min="0" step="0.25" value="1"></div>
+      <div><label for="recoveryPct">Recovery, sawn bf as % of log volume</label><input type="number" id="recoveryPct" min="0" step="1" value="55"></div>
+      <div><label for="setupHours">Setup and tear-down (hrs)</label><input type="number" id="setupHours" min="0" step="0.25" value="1.5"></div>
+      <div><label for="tripMiles">Trip, one way (miles)</label><input type="number" id="tripMiles" min="0" step="1" value="25"></div>
+      <div><label for="perMile">Cost per mile ($)</label><input type="number" id="perMile" min="0" step="0.05" value="0.7"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>5. What you charge</h2>
+    <div class="grid">
+      <div><label for="ratePerBf">Rate per sawn board foot ($)</label><input type="number" id="ratePerBf" min="0" step="0.01" value="0.55"></div>
+      <div><label for="hourlyRate">Hourly rate ($/hr)</label><input type="number" id="hourlyRate" min="0" step="1" value="85"></div>
+      <div><label for="marginPct">Margin you want on a quote (%)</label><input type="number" id="marginPct" min="0" step="1" value="20"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Work out the quote</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+    </p>
+    <p class="note" id="form-status">Change the numbers or load the example, then click Work out the quote.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <div class="scroll"><table><thead><tr><th scope="col">Pricing model</th><th class="n" scope="col">Revenue</th><th class="n" scope="col">Net</th><th class="n" scope="col">Net per clock hour</th><th class="n" scope="col">Break-even</th><th class="n" scope="col">Quote with margin</th></tr></thead><tbody id="lines"></tbody></table></div>
+    <p class="note" id="scale"></p>
+    <h3>Net per log at your flat per-board-foot rate, by small-end diameter</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Diameter</th><th class="n" scope="col">Sawn bf</th><th class="n" scope="col">Minutes</th><th class="n" scope="col">Cost</th><th class="n" scope="col">Revenue</th><th class="n" scope="col">Net</th><th class="n" scope="col">Break-even per bf</th></tr></thead><tbody id="sizes"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How the numbers work, and what they leave out</h2>
+    <ul>
+      <li><strong>Ownership per hour</strong> = (price − resale) ÷ years ÷ hours a year + interest on the average value ÷ hours a year. <strong>Blade per hour</strong> = (blade price + sharpenings × sharpening cost) ÷ (hours between sharpenings × (sharpenings + 1)).</li>
+      <li><strong>Cost per sawing hour</strong> = ownership + fuel + blade + maintenance + (helpers × wage) + your wage target.</li>
+      <li><strong>Sawn board feet</strong> = true log volume (small end plus half the taper) × 12 board feet per cubic foot × recovery. <strong>Doyle</strong> = ((small end − 4) ÷ 4)² × length.</li>
+      <li><strong>Job hours</strong> = board feet ÷ board feet per hour + handling per log; setup and tear-down cost labor only; the trip is cash (miles × 2 × cost per mile).</li>
+      <li><strong>Not modelled:</strong> species and grade, the resale value of the lumber, drying, taxes, insurance and liability, blade breakage from metal in logs, and seasonal demand.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What should I charge per board foot for custom sawing?</h3>
+    <p>Whatever covers your cost per board foot plus the margin you want, not the going rate. Add machine cost per hour (ownership, fuel, blades, maintenance) to labor per hour, divide by board feet sawn per hour, then add the time you spend handling logs, setting up and driving. This tool does that for your own numbers and shows the break-even and a target quote.</p>
+    <h3>Should I charge by the hour or by the board foot?</h3>
+    <p>Per board foot pays more on large, straight, easy logs where you saw fast; hourly protects you on small, crooked or dirty logs and on jobs with a lot of turning. The tool works out the net for both on the same job and tells you which paid more.</p>
+    <h3>Why do small logs lose money at a flat per-board-foot rate?</h3>
+    <p>Loading, turning and clamping take about the same time whatever the log size, but a small log yields few board feet. At a flat rate the handling time is paid for by the board feet, so below some small-end diameter each log costs more to saw than it earns. The table shows where that line sits for your rate and a minimum charge per log fixes it.</p>
+    <h3>What is the Doyle log rule and why is it different from what I saw?</h3>
+    <p>Doyle estimates board feet from small-end diameter and length: ((diameter − 4) ÷ 4) squared times length in feet. It undercounts small logs badly. This tool also estimates sawn board feet from the log's true volume and your recovery percentage, so you can see the overrun.</p>
+    <h3>What is recovery and what is a normal figure?</h3>
+    <p>Recovery is sawn lumber as a share of the log's true volume. Kerf, slabs, edgings and sawdust take the rest. Many portable-mill operators see roughly half or somewhat better; enter what you measure on your own jobs.</p>
+    <h3>Where do the numbers come from?</h3>
+    <p>From you. The tool ships no lumber price, custom-sawing rate or log data. The example values are made up.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything is calculated in your browser tab and nothing is sent anywhere. There are no accounts.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It is arithmetic on numbers you enter. Check tax treatment and insurance for a sawing business with a qualified adviser.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional such as a tax adviser or an insurance agent. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for any quote you give.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>sawing_quoted</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../timber-sale-offer-checker/">timber sale offer checker</a>, <a href="../firewood-profit-calculator/">firewood profit</a>, <a href="../forestry-mulching-bid-calculator/">forestry mulching bid</a>, <a href="../tree-service-bid-calculator/">tree service bid</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, sampleInput, toCsv, money, money2, DEFAULTS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = Object.keys(DEFAULTS);
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run() {
+      const r = analyze(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      const j = r.job;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding"><span class="pill ${r.profitable ? "info" : "high"}">${r.profitable ? "result" : "loss"}</span>${esc(a)}</div>`).join("");
+      $("#lines").innerHTML = [["Per board foot (" + money2(r.inputs.ratePerBf) + "/bf)", j.perBf, money2(j.breakEvenPerBf) + "/bf", money2(j.quotePerBf) + "/bf", "perBf"], ["Hourly (" + money2(r.inputs.hourlyRate) + "/hr)", j.hourly, money2(j.breakEvenHourly) + "/hr", money2(j.quoteHourly) + "/hr", "hourly"]]
+        .map(([l, o, be, q, key]) => `<tr><th scope="row">${esc(l)}${j.better === key ? " ★" : ""}</th><td class="n">${money(o.revenue)}</td><td class="n">${money(o.net)}</td><td class="n">${money2(o.netPerClockHour)}</td><td class="n">${be}</td><td class="n">${q}</td></tr>`).join("");
+      $("#scale").textContent = j.overrunPct == null ? "" : `Doyle scale reads ${Math.round(j.doyleBf)} bf for this job; your estimated sawn total is ${Math.round(j.bf)} bf, ${j.overrunPct}% more.`;
+      $("#sizes").innerHTML = r.byDiameter.map((t) => `<tr><th scope="row">${t.diameter} in.</th><td class="n">${Math.round(t.bf)}</td><td class="n">${t.minutes}</td><td class="n">${money2(t.cost)}</td><td class="n">${money2(t.revenue)}</td><td class="n">${money2(t.net)}</td><td class="n">${money2(t.breakEvenPerBf)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Break-even ${money2(j.breakEvenPerBf)}/bf or ${money2(j.breakEvenHourly)}/hr; quote ${money2(j.quotePerBf)}/bf or ${money2(j.quoteHourly)}/hr.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("sawing_quoted"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleInput();
+      for (const k of keys) if (s[k] !== undefined) $("#" + k).value = s[k];
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "custom-sawing-by-log-size.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

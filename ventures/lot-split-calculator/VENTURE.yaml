@@ -1,0 +1,46 @@
+name: lot-split-calculator
+description: 'Free, zero-network, zero-dependency browser tool and CLI for resellers, estate liquidators, storage-unit buyers and pallet flippers: paste the lines of a bulk lot (item, quantity, expected price, sell-through, shipping, minutes) and a whole-lot offer, and see whether listing item by item beats the offer after marketplace fees, shipping and the value of your time, which lines to list and which to sell on in bulk, a stress test at lower sell-through, profit against what you paid, and the hourly rate at which the offer starts to win (exact per-line optimum, verified against brute force). Numbers are the ones the user supplies, not a forecast.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: raises what a reseller nets from a lot already bought.
+# Checked 2026-10-02: ventures/ has liquidation-pallet-bid-calculator (what to BID for a lot),
+# estate-sale-net-proceeds-calculator (consignor's view) and ticket-resale-profit-calculator;
+# none decides, line by line, which items of a lot to list versus sell on in bulk, or compares
+# the result with a whole-lot offer. Not in screened-out.md.
+#
+# First visitor: searches "sell estate lot whole or piece by piece", "is it worth listing cheap items on
+# ebay", "storage unit flip sell as a lot"; r/Flipping, r/eBaySellerAdvice, storage-auction groups.
+# Volume not measured with an external tool. Resellers decide this by feel and lose hours listing items
+# that net less than a bulk sale. A hosted version that pulls sold-comps prices from marketplace exports
+# is the natural paid upgrade.
+hypotheses:
+  - claim: A reseller holding a whole-lot offer will search for how to compare it with splitting, paste their lines, and leave knowing which to list and whether to take the offer.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A reseller will reuse the CLI on each new lot, so the page earns repeat visits.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No reseller reports changing a list-or-bulk decision because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/lot-split-calculator/
+  analytics: null

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Christmas Tree Farm Profit Calculator — Cost, Payback and Break-Even Price, Free</title>
+  <meta name="description" content="Free Christmas tree farm profit calculator. Plant blocks each year, wait 7-10 years, and see cash flow, payback, NPV and the price per tree you need to break even. Nothing uploaded.">
+  <meta property="og:title" content="Is a Christmas tree farm profitable? Free profit and payback planner">
+  <meta property="og:description" content="Acres, survival, prices and costs in; years of cash flow, payback, NPV and break-even tree price out. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23166534'/%3E%3Cpath d='M16 5l7 9h-4l5 7H8l5-7H9z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Christmas Tree Farm Profit Planner","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Project cash flow, payback, NPV and break-even price per tree for a Christmas tree plantation. Runs in your browser; nothing is uploaded.","featureList":"Multi-year planting cohorts, payback year, NPV, break-even tree price, survival and price sensitivity"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does it cost to start a Christmas tree farm?","acceptedAnswer":{"@type":"Answer","text":"Seedlings are the small part. Site prep, planting labour, years of shearing and weed control, land and equipment all come before the first sale. The planner adds them up per acre and shows the deepest point your cumulative cash reaches, and in which year."}},{"@type":"Question","name":"How long until a Christmas tree farm makes money?","acceptedAnswer":{"@type":"Answer","text":"Most species take 7 to 10 years to reach a sellable size, so a single block earns nothing for most of a decade. Planting a new block every year spreads the wait; the planner shows the year cumulative cash turns positive."}},{"@type":"Question","name":"How many trees per acre can I sell?","acceptedAnswer":{"@type":"Answer","text":"Planted trees per acre, times survival, times the share that are not culls. Survival is often the biggest unknown; the sensitivity table re-runs your plan from 50% to 90%."}},{"@type":"Question","name":"Is this agricultural or financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type in. Species choice, soil, pests, local regulations, insurance and tax are out of scope."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f8f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #166534; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14532d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14532d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5268; }
+    .card { background: #fff; border: 1px solid #cfe3c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14532d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9c9a0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #166534; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dcefd6; color: #14532d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e2efdd; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5268; }
+    .finding { border-bottom: 1px solid #e2efdd; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #dcefd6; color: #14532d; }
+    .stats { font-size: 1rem; color: #2f3348; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #cfe3c8; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .error { color: #9a3412; font-weight: 600; }
+      </style>
+</head>
+<body>
+  <header>
+    <p class="note">CHRISTMAS TREE FARM PROFIT PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Can you wait eight years for the first sale?</h1>
+    <p>Enter acres, survival, prices and costs. The planner lays out cash flow year by year across several planting blocks, finds the year you pay back, the deepest cash hole you will be in, the net present value, and the price per tree you need to break even. It also re-runs your plan at different survival rates and prices, and compares wholesale against choose-and-cut.</p>
+    <p class="note">Planning arithmetic on your own numbers and stated assumptions.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-farm">
+      <h2 id="h-farm">1. Your plantation</h2>
+      <div class="grid">
+        <div><label for="acresPerYear">Acres planted each year</label><input id="acresPerYear" type="number" step="any" value="2"></div>
+        <div><label for="plantYears">Years you keep planting new blocks</label><input id="plantYears" type="number" step="any" value="8"></div>
+        <div><label for="years">Years to project (1-30)</label><input id="years" type="number" step="any" value="20"></div>
+        <div><label for="harvestAge">Years from planting to harvest</label><input id="harvestAge" type="number" step="any" value="8"></div>
+        <div><label for="treesPerAcre">Trees planted per acre</label><input id="treesPerAcre" type="number" step="any" value="1400"></div>
+        <div><label for="survivalPct">Trees that survive to harvest (%)</label><input id="survivalPct" type="number" step="any" value="75"></div>
+        <div><label for="cullPct">Culls at harvest (%)</label><input id="cullPct" type="number" step="any" value="10"></div>
+      </div>
+      <p class="note">One rotation: each block is planted, tended, harvested and then leaves the model. Survival is the share of planted trees still standing; culls are standing trees too misshapen to sell.</p>
+    </section>
+    <section class="card" aria-labelledby="h-sales">
+      <h2 id="h-sales">2. What you sell</h2>
+      <div class="grid">
+        <div><label for="retailSharePct">Share sold retail / choose-and-cut (%)</label><input id="retailSharePct" type="number" step="any" value="40"></div>
+        <div><label for="retailPrice">Retail price per tree ($)</label><input id="retailPrice" type="number" step="any" value="65"></div>
+        <div><label for="wholesalePrice">Wholesale price per tree ($)</label><input id="wholesalePrice" type="number" step="any" value="28"></div>
+        <div><label for="sellCostPerTree">Selling cost per tree: netting, baling, ads, help ($)</label><input id="sellCostPerTree" type="number" step="any" value="4"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-costs">
+      <h2 id="h-costs">3. What it costs</h2>
+      <div class="grid">
+        <div><label for="seedlingCost">Seedling or transplant cost ($)</label><input id="seedlingCost" type="number" step="any" value="1.1"></div>
+        <div><label for="plantCostPerTree">Planting labour per tree ($)</label><input id="plantCostPerTree" type="number" step="any" value="0.9"></div>
+        <div><label for="prepPerAcre">Site prep per acre ($)</label><input id="prepPerAcre" type="number" step="any" value="400"></div>
+        <div><label for="earlyCostPerAcre">Early-years upkeep per acre per year ($)</label><input id="earlyCostPerAcre" type="number" step="any" value="300"></div>
+        <div><label for="earlyYears">How many early years</label><input id="earlyYears" type="number" step="any" value="2"></div>
+        <div><label for="matureCostPerAcre">Shearing, spraying, fertiliser per acre per year ($)</label><input id="matureCostPerAcre" type="number" step="any" value="700"></div>
+        <div><label for="landCostPerAcre">Land rent or opportunity cost per acre per year ($)</label><input id="landCostPerAcre" type="number" step="any" value="150"></div>
+        <div><label for="fixedYear">Insurance, licences, other fixed ($/yr)</label><input id="fixedYear" type="number" step="any" value="1500"></div>
+        <div><label for="startupEquip">Equipment bought in year 1 ($)</label><input id="startupEquip" type="number" step="any" value="9000"></div>
+        <div><label for="equipLifeYears">Equipment life (years, for the per-acre figure)</label><input id="equipLifeYears" type="number" step="any" value="12"></div>
+        <div><label for="discountPct">Discount rate (%)</label><input id="discountPct" type="number" step="any" value="6"></div>
+      </div>
+      <button type="button" id="run">Project my plantation</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+<section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+        <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>How much does it cost to start a Christmas tree farm?</h3>
+      <p>Seedlings are the small part. Site prep, planting labour, years of shearing and weed control, land and equipment all come before the first sale. The planner adds them up per acre and shows the deepest point your cumulative cash reaches, and in which year.</p>
+      <h3>How long until a Christmas tree farm makes money?</h3>
+      <p>Most species take 7 to 10 years to reach a sellable size, so a single block earns nothing for most of a decade. Planting a new block every year spreads the wait; the planner shows the year cumulative cash turns positive.</p>
+      <h3>How many trees per acre can I sell?</h3>
+      <p>Planted trees per acre, times survival, times the share that are not culls. Survival is often the biggest unknown; the sensitivity table re-runs your plan from 50% to 90%.</p>
+      <h3>Is this agricultural or financial advice?</h3>
+      <p>No. It is arithmetic on the numbers you type in. Species choice, soil, pests, local regulations, insurance and tax are out of scope.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Species and variety, soil and drainage, pests and disease, drought and frost years, deer, local agricultural and sales-tax rules, insurance, tax treatment of timber or farm income, and whether your market will actually pay your retail price. Survival, prices and costs vary a lot by region and year; the defaults are placeholders, not forecasts.</p>
+    </section>
+    <section class="card">
+      <p>Running other farm ventures? See the <a href="../u-pick-farm-profit-planner/">u-pick farm profit planner</a>, the <a href="../firewood-profit-calculator/">firewood profit calculator</a>, the <a href="../maple-syrup-sugarbush-profit-calculator/">maple syrup profit calculator</a> and the <a href="../apiary-profit-planner/">apiary profit planner</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any registration, sales-tax or insurance obligation it helps you think about. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this saved you a bad rotation, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { project, steadyAcre, breakEvenPrice, priceSensitivity, survivalSensitivity, channelScenarios, DEFAULTS, num, money, money2 } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const n1 = (x) => (Math.round(x * 10) / 10).toString();
+    const yr = (y) => (y ? "year " + y : "not within the window");
+    function run() {
+      const o = opts();
+      const p = project(o);
+      const s = steadyAcre(o);
+      const be = breakEvenPrice(o);
+      let h = `<div class="finding"><h4>Headline</h4><p class="stats">${p.paybackYear ? "Cumulative cash turns positive in " + yr(p.paybackYear) : "Cumulative cash does not turn positive within " + p.rows.length + " years"} · deepest cash hole ${money(p.peakOutlay)} in year ${p.peakOutlayYear} · first harvest in year ${p.firstHarvestYear} · NPV ${money(p.npv)} at ${o.discountPct}% · ${Math.round(p.treesSold).toLocaleString("en-US")} trees sold</p></div>`;
+      h += `<div class="finding"><h4>Year by year</h4><div class="scroll"><table><thead><tr><th class="n">Year</th><th class="n">Planted ac</th><th class="n">Harvested ac</th><th class="n">Trees sold</th><th class="n">Revenue</th><th class="n">Costs</th><th class="n">Net</th><th class="n">Cumulative</th></tr></thead><tbody>${p.rows.map((r) => `<tr><td class="n">${r.year}</td><td class="n">${n1(r.planted)}</td><td class="n">${n1(r.harvested)}</td><td class="n">${Math.round(r.trees).toLocaleString("en-US")}</td><td class="n">${money(r.revenue)}</td><td class="n">${money(r.revenue - r.cash)}</td><td class="n">${money(r.cash)}</td><td class="n">${money(r.cumulative)}</td></tr>`).join("")}</tbody></table></div><p class="note">One rotation: blocks leave the model after harvest. Costs include planting, upkeep, land, selling and fixed costs; year one also includes the equipment you buy.</p></div>`;
+      h += `<div class="finding"><h4>Per acre and break-even price</h4><p>One acre over its ${s.cycleYears}-year cycle returns ${money(s.perCycle)} (${money(s.perAcreYear)} per acre per year, before equipment and fixed costs). You sell ${Math.round(p.perAcre)} trees per planted acre at a blended ${money2(p.price)} each. ${be === null ? '<span class="pill high">No break-even</span> No price in range makes this plan pay.' : "To reach NPV zero you need a blended <strong>" + money2(be) + "</strong> per tree" + (be > p.price ? ", " + money2(be - p.price) + " above what you entered." : ", below what you entered, so there is headroom.")}</p></div>`;
+      h += `<div class="finding"><h4>Survival sensitivity</h4><div class="scroll"><table><thead><tr><th class="n">Survival</th><th class="n">NPV</th><th class="n">Total cash</th><th class="n">Payback</th></tr></thead><tbody>${survivalSensitivity(o).map((r) => `<tr><td class="n">${r.survivalPct}%</td><td class="n">${money(r.npv)}</td><td class="n">${money(r.totalCash)}</td><td class="n">${yr(r.paybackYear)}</td></tr>`).join("")}</tbody></table></div></div>`;
+      h += `<div class="finding"><h4>Price sensitivity</h4><div class="scroll"><table><thead><tr><th class="n">Prices at</th><th class="n">Blended price</th><th class="n">NPV</th><th class="n">Total cash</th><th class="n">Payback</th></tr></thead><tbody>${priceSensitivity(o).map((r) => `<tr><td class="n">${Math.round(r.mult * 100)}%</td><td class="n">${money2(r.price)}</td><td class="n">${money(r.npv)}</td><td class="n">${money(r.totalCash)}</td><td class="n">${yr(r.paybackYear)}</td></tr>`).join("")}</tbody></table></div></div>`;
+      h += `<div class="finding"><h4>Wholesale vs choose-and-cut</h4><div class="scroll"><table><thead><tr><th>Mix</th><th class="n">Blended price</th><th class="n">NPV</th><th class="n">Total cash</th><th class="n">Payback</th></tr></thead><tbody>${channelScenarios(o).map((r) => `<tr><td>${r.label}</td><td class="n">${money2(r.price)}</td><td class="n">${money(r.npv)}</td><td class="n">${money(r.totalCash)}</td><td class="n">${yr(r.paybackYear)}</td></tr>`).join("")}</tbody></table></div><p class="note">Retail needs customers on the lot and your time; the selling cost per tree you entered is applied to every channel.</p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("plan_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+name: oil-gas-mineral-rights-offer-calculator
+description: >-
+  Free browser tool for oil and gas mineral and royalty owners: type the monthly royalty, production
+  decline, price change, any undrilled well and a lump-sum buyout offer, and see what those royalties
+  are worth at your own discount rate, the return the buyer earns at the offered price, how much rests
+  on a well not yet drilled, and an after-tax comparison. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "oil gas mineral rights
+# royalty offer lump sum decline curve present value" scored 0.12 against the nearest venture
+# (section-174a-catchup-calculator); no venture values a royalty stream against a buyout offer.
+#
+# Why this niche: mineral owners (often heirs with no industry background) are cold-called and mailed
+# offers to buy their royalties for cash, usually quoted as a multiple of monthly checks, and the
+# decision is worth five to six figures. "Mineral rights offer calculator" and "is my mineral rights
+# offer fair" are searches by people holding a real offer.
+#
+# First visitor: a royalty owner or an heir with an offer letter in hand, or an adviser helping one.
+# Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed figures; not legal, tax, engineering or financial
+# advice; embeds no market pricing, no reserve data and names no buyer; says to have the deed read by
+# an oil and gas attorney; nothing stored or uploaded.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a printable offer summary,
+# a multi-offer comparison and CSV import of royalty statements to fit the decline automatically (not built).
+
+hypotheses:
+  - claim: >-
+      Mineral owners holding a buyout offer will type their royalty figures into a private page to see
+      the offer against the present value of their royalties and the return the buyer earns, because the
+      alternative is trusting the buyer's multiple.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - An owner or adviser reports that a worked present value or implied return disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/oil-gas-mineral-rights-offer-calculator/
+  analytics: null

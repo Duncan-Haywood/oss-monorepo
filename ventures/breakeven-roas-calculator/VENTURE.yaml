@@ -1,0 +1,63 @@
+name: breakeven-roas-calculator
+description: >-
+  Free browser calculator for ecommerce and DTC sellers: enter price, discount,
+  cost of goods, shipping, payment and platform fees, return rate and optional
+  repeat-purchase lifetime value, and get break-even ROAS, max CPA and the ROAS
+  needed for a target profit margin on both a first-order and an LTV basis, a
+  scenario table, a sensitivity grid over returns and cost of goods, a campaign
+  checker (spend and revenue against break-even), a MER versus platform-ROAS
+  explainer and CSV export. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture session. duplicate_check.py top hit was
+# print-on-demand-profit-calculator at 0.29, nothing at or above 0.45: that tool
+# prices a print-on-demand product after marketplace fees, not the ad spend a
+# store can afford. Neighbours: shopify-fee-calculator, tiktok-shop-fee-calculator
+# and the other marketplace fee tools compute fee per sale; this one turns the
+# per-sale margin into the ad threshold (break-even ROAS, max CPA) and links to
+# them. Paid alternatives are ad-analytics and profit-dashboard subscriptions
+# that need store and ad-account access; the gap is a private, no-signup,
+# no-integration "what ROAS do I actually need" calculation.
+#
+# First visitor: searches "break even roas calculator", "max cpa calculator",
+# "what roas do i need to be profitable", "target roas for 20% margin", "mer vs
+# roas"; r/FacebookAds, r/ecommerce, r/shopify, r/PPC. Volume not measured with
+# an external tool.
+#
+# Liability boundary: arithmetic on user-typed numbers; never asserts that a
+# campaign will be profitable or that any platform reports a given figure; ad
+# spend, revenue and cost data never leave the browser (tests assert no network
+# calls); no ad platform, store platform or processor is named or ranked.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. A later
+# paid tier could be saved product catalogues, batch SKU break-even tables and
+# CSV import of ad-platform exports; not built.
+
+hypotheses:
+  - claim: >-
+      Ecommerce operators running paid ads will use a private, no-signup
+      calculator that turns their unit economics, returns and repeat purchases
+      into a break-even ROAS and max CPA, and will come back when prices, costs
+      or return rates change.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a break-even ROAS or max CPA that differs from the documented formula for the numbers they typed in.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/breakeven-roas-calculator/
+  analytics: null

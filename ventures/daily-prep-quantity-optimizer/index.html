@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Daily Prep Quantity Optimizer: How Much to Bake or Prep — Free</title>
+  <meta name="description" content="Free daily prep quantity optimizer for bakeries, cafes and food trucks: paste past daily sales, mark sell-out days, and get the prep per item that earns the most after waste, with oven-minute and cash limits. Nothing uploaded.">
+  <meta property="og:title" content="Daily prep quantity optimizer">
+  <meta property="og:description" content="How many should I make today? Profit-maximising prep per item from your own sales, with sell-out days handled correctly. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23b45309'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Daily Prep Quantity Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Find how many units of each perishable item to prep each day from your past sales, treating sell-out days correctly. Runs in your browser.", "featureList": "Profit-maximising prep per item, sell-out aware demand estimate, leftover waste cost, oven-minute and cash limits, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many croissants, loaves or dishes should I prep each day?", "acceptedAnswer": {"@type": "Answer", "text": "Prep up to the point where the next unit is no longer worth making: the chance it sells times the profit from selling it must still beat the loss if it is left over. This is the newsvendor rule. The tool applies it unit by unit to your own daily sales, so a high-margin item that rarely sells out gets a generous prep and a low-margin one gets a lean prep."}}, {"@type": "Question", "name": "Why mark the days I sold out with a plus sign?", "acceptedAnswer": {"@type": "Answer", "text": "On a sell-out day you only learn that demand was at least what you sold. Treating it as the true demand makes you under-prep forever. The tool treats such a day as a lower bound and re-estimates the demand curve with the Kaplan-Meier method used in survival analysis."}}, {"@type": "Question", "name": "What if a limit like oven time or cash binds?", "acceptedAnswer": {"@type": "Answer", "text": "Set the minutes or the cash. The tool ranks every extra unit by profit per share of the limit and takes the best first, so scarce oven time goes to the items that earn the most from it. With a limit the plan is a ranking heuristic, close to best but not guaranteed exact."}}, {"@type": "Question", "name": "Does it know about weekdays, weather or events?", "acceptedAnswer": {"@type": "Answer", "text": "No. It uses the days you paste. For a Saturday plan paste only Saturdays. Seasonality, promotions, weather and events are yours to adjust for."}}, {"@type": "Question", "name": "Is this food-safety, accounting or business advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type. Food-safety holding times, discount rules and donation programs vary; check with your local authority and a qualified advisor."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">DAILY PREP QUANTITY OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How many should I prep today so I waste less and still do not sell out?</h1>
+    <p>For each item, paste the units you sold on past days (add a + to days you sold out) with its price, cost and what a leftover is worth. The tool estimates your real demand, picks the prep quantity with the highest expected profit, and shows the expected leftovers, the chance of selling out, and what it gains over today's prep.</p>
+    <p class="note">Arithmetic on figures you type. Not food-safety, accounting or business advice. The example figures are placeholders, not any business's prices, costs or sales.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-s">
+      <h2 id="h-s">Limits</h2>
+      <div class="grid">
+        <div><label for="prepMinutes">Prep minutes available per day</label><input id="prepMinutes" type="number" step="any" value="0"><p class="note">Total oven, bench or cook minutes you can spend. Zero means no limit.</p></div>
+        <div><label for="budget">Ingredient cash per day ($)</label><input id="budget" type="number" step="any" value="0"><p class="note">Most you will spend on ingredients for a day's prep. Zero means no limit.</p></div>
+        <div><label for="daysPerMonth">Trading days per month</label><input id="daysPerMonth" type="number" step="any" value="0"><p class="note">Used only to turn a daily gain into a monthly one.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t0">
+      <h2 id="h-t0">Item 1</h2>
+      <div class="grid">
+        <div><label for="t0_name">Item name</label><input id="t0_name" type="text" value=""></div>
+        <div><label for="t0_price">Selling price per unit ($)</label><input id="t0_price" type="number" step="any" value="0"><p class="note">Full price a customer pays.</p></div>
+        <div><label for="t0_cost">Cost to make one unit ($)</label><input id="t0_cost" type="number" step="any" value="0"><p class="note">Ingredients, packaging and the labor you count per unit.</p></div>
+        <div><label for="t0_salvage">Value of a leftover unit ($)</label><input id="t0_salvage" type="number" step="any" value="0"><p class="note">Day-old price, staff meal credit or resale. Zero if it is thrown away.</p></div>
+        <div><label for="t0_minutesPerUnit">Prep minutes per unit</label><input id="t0_minutesPerUnit" type="number" step="any" value="0"><p class="note">Only matters if you set a minutes limit above.</p></div>
+        <div><label for="t0_history">Units sold each past day</label><input id="t0_history" type="text" value=""><p class="note">Separate days with spaces. Put + after a day you sold out, like 51+, because that day's real demand was higher.</p></div>
+        <div><label for="t0_current">Units you prep today</label><input id="t0_current" type="number" step="any" value="0"><p class="note">Optional. Shows what the best plan gains over this.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t1">
+      <h2 id="h-t1">Item 2</h2>
+      <div class="grid">
+        <div><label for="t1_name">Item name</label><input id="t1_name" type="text" value=""></div>
+        <div><label for="t1_price">Selling price per unit ($)</label><input id="t1_price" type="number" step="any" value="0"><p class="note">Full price a customer pays.</p></div>
+        <div><label for="t1_cost">Cost to make one unit ($)</label><input id="t1_cost" type="number" step="any" value="0"><p class="note">Ingredients, packaging and the labor you count per unit.</p></div>
+        <div><label for="t1_salvage">Value of a leftover unit ($)</label><input id="t1_salvage" type="number" step="any" value="0"><p class="note">Day-old price, staff meal credit or resale. Zero if it is thrown away.</p></div>
+        <div><label for="t1_minutesPerUnit">Prep minutes per unit</label><input id="t1_minutesPerUnit" type="number" step="any" value="0"><p class="note">Only matters if you set a minutes limit above.</p></div>
+        <div><label for="t1_history">Units sold each past day</label><input id="t1_history" type="text" value=""><p class="note">Separate days with spaces. Put + after a day you sold out, like 51+, because that day's real demand was higher.</p></div>
+        <div><label for="t1_current">Units you prep today</label><input id="t1_current" type="number" step="any" value="0"><p class="note">Optional. Shows what the best plan gains over this.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t2">
+      <h2 id="h-t2">Item 3</h2>
+      <div class="grid">
+        <div><label for="t2_name">Item name</label><input id="t2_name" type="text" value=""></div>
+        <div><label for="t2_price">Selling price per unit ($)</label><input id="t2_price" type="number" step="any" value="0"><p class="note">Full price a customer pays.</p></div>
+        <div><label for="t2_cost">Cost to make one unit ($)</label><input id="t2_cost" type="number" step="any" value="0"><p class="note">Ingredients, packaging and the labor you count per unit.</p></div>
+        <div><label for="t2_salvage">Value of a leftover unit ($)</label><input id="t2_salvage" type="number" step="any" value="0"><p class="note">Day-old price, staff meal credit or resale. Zero if it is thrown away.</p></div>
+        <div><label for="t2_minutesPerUnit">Prep minutes per unit</label><input id="t2_minutesPerUnit" type="number" step="any" value="0"><p class="note">Only matters if you set a minutes limit above.</p></div>
+        <div><label for="t2_history">Units sold each past day</label><input id="t2_history" type="text" value=""><p class="note">Separate days with spaces. Put + after a day you sold out, like 51+, because that day's real demand was higher.</p></div>
+        <div><label for="t2_current">Units you prep today</label><input id="t2_current" type="number" step="any" value="0"><p class="note">Optional. Shows what the best plan gains over this.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t3">
+      <h2 id="h-t3">Item 4</h2>
+      <div class="grid">
+        <div><label for="t3_name">Item name</label><input id="t3_name" type="text" value=""></div>
+        <div><label for="t3_price">Selling price per unit ($)</label><input id="t3_price" type="number" step="any" value="0"><p class="note">Full price a customer pays.</p></div>
+        <div><label for="t3_cost">Cost to make one unit ($)</label><input id="t3_cost" type="number" step="any" value="0"><p class="note">Ingredients, packaging and the labor you count per unit.</p></div>
+        <div><label for="t3_salvage">Value of a leftover unit ($)</label><input id="t3_salvage" type="number" step="any" value="0"><p class="note">Day-old price, staff meal credit or resale. Zero if it is thrown away.</p></div>
+        <div><label for="t3_minutesPerUnit">Prep minutes per unit</label><input id="t3_minutesPerUnit" type="number" step="any" value="0"><p class="note">Only matters if you set a minutes limit above.</p></div>
+        <div><label for="t3_history">Units sold each past day</label><input id="t3_history" type="text" value=""><p class="note">Separate days with spaces. Put + after a day you sold out, like 51+, because that day's real demand was higher.</p></div>
+        <div><label for="t3_current">Units you prep today</label><input id="t3_current" type="number" step="any" value="0"><p class="note">Optional. Shows what the best plan gains over this.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t4">
+      <h2 id="h-t4">Item 5</h2>
+      <div class="grid">
+        <div><label for="t4_name">Item name</label><input id="t4_name" type="text" value=""></div>
+        <div><label for="t4_price">Selling price per unit ($)</label><input id="t4_price" type="number" step="any" value="0"><p class="note">Full price a customer pays.</p></div>
+        <div><label for="t4_cost">Cost to make one unit ($)</label><input id="t4_cost" type="number" step="any" value="0"><p class="note">Ingredients, packaging and the labor you count per unit.</p></div>
+        <div><label for="t4_salvage">Value of a leftover unit ($)</label><input id="t4_salvage" type="number" step="any" value="0"><p class="note">Day-old price, staff meal credit or resale. Zero if it is thrown away.</p></div>
+        <div><label for="t4_minutesPerUnit">Prep minutes per unit</label><input id="t4_minutesPerUnit" type="number" step="any" value="0"><p class="note">Only matters if you set a minutes limit above.</p></div>
+        <div><label for="t4_history">Units sold each past day</label><input id="t4_history" type="text" value=""><p class="note">Separate days with spaces. Put + after a day you sold out, like 51+, because that day's real demand was higher.</p></div>
+        <div><label for="t4_current">Units you prep today</label><input id="t4_current" type="number" step="any" value="0"><p class="note">Optional. Shows what the best plan gains over this.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t5">
+      <h2 id="h-t5">Item 6</h2>
+      <div class="grid">
+        <div><label for="t5_name">Item name</label><input id="t5_name" type="text" value=""></div>
+        <div><label for="t5_price">Selling price per unit ($)</label><input id="t5_price" type="number" step="any" value="0"><p class="note">Full price a customer pays.</p></div>
+        <div><label for="t5_cost">Cost to make one unit ($)</label><input id="t5_cost" type="number" step="any" value="0"><p class="note">Ingredients, packaging and the labor you count per unit.</p></div>
+        <div><label for="t5_salvage">Value of a leftover unit ($)</label><input id="t5_salvage" type="number" step="any" value="0"><p class="note">Day-old price, staff meal credit or resale. Zero if it is thrown away.</p></div>
+        <div><label for="t5_minutesPerUnit">Prep minutes per unit</label><input id="t5_minutesPerUnit" type="number" step="any" value="0"><p class="note">Only matters if you set a minutes limit above.</p></div>
+        <div><label for="t5_history">Units sold each past day</label><input id="t5_history" type="text" value=""><p class="note">Separate days with spaces. Put + after a day you sold out, like 51+, because that day's real demand was higher.</p></div>
+        <div><label for="t5_current">Units you prep today</label><input id="t5_current" type="number" step="any" value="0"><p class="note">Optional. Shows what the best plan gains over this.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t6">
+      <h2 id="h-t6">Item 7</h2>
+      <div class="grid">
+        <div><label for="t6_name">Item name</label><input id="t6_name" type="text" value=""></div>
+        <div><label for="t6_price">Selling price per unit ($)</label><input id="t6_price" type="number" step="any" value="0"><p class="note">Full price a customer pays.</p></div>
+        <div><label for="t6_cost">Cost to make one unit ($)</label><input id="t6_cost" type="number" step="any" value="0"><p class="note">Ingredients, packaging and the labor you count per unit.</p></div>
+        <div><label for="t6_salvage">Value of a leftover unit ($)</label><input id="t6_salvage" type="number" step="any" value="0"><p class="note">Day-old price, staff meal credit or resale. Zero if it is thrown away.</p></div>
+        <div><label for="t6_minutesPerUnit">Prep minutes per unit</label><input id="t6_minutesPerUnit" type="number" step="any" value="0"><p class="note">Only matters if you set a minutes limit above.</p></div>
+        <div><label for="t6_history">Units sold each past day</label><input id="t6_history" type="text" value=""><p class="note">Separate days with spaces. Put + after a day you sold out, like 51+, because that day's real demand was higher.</p></div>
+        <div><label for="t6_current">Units you prep today</label><input id="t6_current" type="number" step="any" value="0"><p class="note">Optional. Shows what the best plan gains over this.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t7">
+      <h2 id="h-t7">Item 8</h2>
+      <div class="grid">
+        <div><label for="t7_name">Item name</label><input id="t7_name" type="text" value=""></div>
+        <div><label for="t7_price">Selling price per unit ($)</label><input id="t7_price" type="number" step="any" value="0"><p class="note">Full price a customer pays.</p></div>
+        <div><label for="t7_cost">Cost to make one unit ($)</label><input id="t7_cost" type="number" step="any" value="0"><p class="note">Ingredients, packaging and the labor you count per unit.</p></div>
+        <div><label for="t7_salvage">Value of a leftover unit ($)</label><input id="t7_salvage" type="number" step="any" value="0"><p class="note">Day-old price, staff meal credit or resale. Zero if it is thrown away.</p></div>
+        <div><label for="t7_minutesPerUnit">Prep minutes per unit</label><input id="t7_minutesPerUnit" type="number" step="any" value="0"><p class="note">Only matters if you set a minutes limit above.</p></div>
+        <div><label for="t7_history">Units sold each past day</label><input id="t7_history" type="text" value=""><p class="note">Separate days with spaces. Put + after a day you sold out, like 51+, because that day's real demand was higher.</p></div>
+        <div><label for="t7_current">Units you prep today</label><input id="t7_current" type="number" step="any" value="0"><p class="note">Optional. Shows what the best plan gains over this.</p></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Find the best prep</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+      <p class="note">An item needs a price and at least three days of sales. Leave the rest blank to leave it out.</p>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions owners ask</h2>
+      <h3>How many croissants, loaves or dishes should I prep each day?</h3>
+      <p>Prep up to the point where the next unit is no longer worth making: the chance it sells times the profit from selling it must still beat the loss if it is left over. This is the newsvendor rule. The tool applies it unit by unit to your own daily sales, so a high-margin item that rarely sells out gets a generous prep and a low-margin one gets a lean prep.</p>
+      <h3>Why mark the days I sold out with a plus sign?</h3>
+      <p>On a sell-out day you only learn that demand was at least what you sold. Treating it as the true demand makes you under-prep forever. The tool treats such a day as a lower bound and re-estimates the demand curve with the Kaplan-Meier method used in survival analysis.</p>
+      <h3>What if a limit like oven time or cash binds?</h3>
+      <p>Set the minutes or the cash. The tool ranks every extra unit by profit per share of the limit and takes the best first, so scarce oven time goes to the items that earn the most from it. With a limit the plan is a ranking heuristic, close to best but not guaranteed exact.</p>
+      <h3>Does it know about weekdays, weather or events?</h3>
+      <p>No. It uses the days you paste. For a Saturday plan paste only Saturdays. Seasonality, promotions, weather and events are yours to adjust for.</p>
+      <h3>Is this food-safety, accounting or business advice?</h3>
+      <p>No. It is arithmetic on figures you type. Food-safety holding times, discount rules and donation programs vary; check with your local authority and a qualified advisor.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Weekday, weather and event effects, demand that depends on what else is on the shelf, substitution between items, food-safety holding times, spoilage that starts before the day ends, and how a stock-out affects tomorrow's customers. Each day is treated as an independent draw from the past days you paste.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../bakery-production-scheduler/">bakery production scheduler</a>, the <a href="../seasonal-buy-quantity-optimizer/">seasonal buy quantity optimizer</a> and the <a href="../shift-cover-optimizer/">shift-cover optimizer</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you rely on them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, ITEM_DEFAULTS, EXAMPLE_ITEMS, money, money2, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const N = 8, SKEYS = Object.keys(SHARED_DEFAULTS), IKEYS = Object.keys(ITEM_DEFAULTS);
+    const fill = () => {
+      for (const k of SKEYS) $(k).value = SHARED_DEFAULTS[k];
+      for (let i = 0; i < N; i++) for (const k of IKEYS) $("t" + i + "_" + k).value = (EXAMPLE_ITEMS[i] || ITEM_DEFAULTS)[k];
+    };
+    const readAll = () => {
+      const shared = {}; for (const k of SKEYS) shared[k] = $(k).value;
+      const items = []; for (let i = 0; i < N; i++) { const t = {}; for (const k of IKEYS) t[k] = $("t" + i + "_" + k).value; items.push(t); }
+      return { shared, items };
+    };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const one = (n) => (Math.round(n * 10) / 10).toLocaleString("en-US");
+    let last = null;
+    function run() {
+      const { shared, items } = readAll();
+      const a = analyze(items, shared);
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      const vs = a.hasCurrent ? ` Against your current prep that is ${a.dayGain > 0.5 ? money(a.dayGain) + " a day better, about " + money(a.monthGain) + " a month" : "no better"}, and leftover cost goes from ${money(a.curWaste)} to ${money(a.bestWaste)} a day.` : "";
+      h += `<div class="finding"><h4>Best plan: ${money(a.bestProfit)} expected profit a day</h4><p>Expected leftover cost is ${money(a.bestWaste)} a day.${vs}</p></div>`;
+      h += `<div class="finding"><h4>Prep by item</h4>${table(["Item", "Prep", "Expected sold", "Expected leftover", "Chance of selling out", "Expected profit", "Your prep"], a.rows.map((r) => [esc(r.name), r.best.prep, one(r.best.sold), one(r.best.left), Math.round(r.best.pSellOut * 100) + "%", money(r.best.profit), r.current ? r.current.prep + " (" + money(r.current.profit) + ")" : ""]))}</div>`;
+      if (a.limited) h += `<div class="finding"><h4>Your limits</h4><p>The plan uses ${one(a.usedMinutes)} prep minutes and ${money(a.usedBudget)} of ingredients.${a.blocked && a.shadow > 0 ? " A limit is holding the plan back: the next unit it could not fit earns about " + money2(a.shadow) + " per whole limit used. Extra oven time or cash is worth having." : " No limit is holding the plan back."}</p></div>`;
+      h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "prep-plan.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

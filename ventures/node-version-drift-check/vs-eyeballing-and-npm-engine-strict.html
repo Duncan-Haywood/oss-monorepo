@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>This checker vs. eyeballing the files and npm engine-strict — Node Version Drift Check</title>
+  <meta name="description" content="What engine-strict and npm ls check, what reading .nvmrc, the Dockerfile and your workflow by eye misses, and what a cross-file Node.js version drift check adds.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="./vs-eyeballing-and-npm-engine-strict.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="This checker vs. eyeballing the files and npm engine-strict">
+  <meta property="og:description" content="engine-strict checks the runtime doing the install. Reading files by eye misses ranges and matrices. This compares every declared Node.js version to every other.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Doesn't npm already warn when my Node.js version is outside engines?","acceptedAnswer":{"@type":"Answer","text":"Only for the Node.js that is running the install, and only as a warning unless engine-strict is turned on. It never looks at the version your Dockerfile or CI workflow will use, so a pin that can never satisfy engines.node is invisible until someone happens to run an install under that exact runtime."}},{"@type":"Question","name":"What does npm ls tell me about Node.js versions?","acceptedAnswer":{"@type":"Answer","text":"It lists the dependency tree installed in node_modules, and it can report packages whose own engines field does not match the running Node.js. It does not read .nvmrc, the Dockerfile or any workflow file, and it cannot tell you that two of your own files name different majors."}},{"@type":"Question","name":"When is eyeballing the files good enough?","acceptedAnswer":{"@type":"Answer","text":"For a small repo where all the versions sit in one or two files, reading them takes seconds and is perfectly adequate. It stops being reliable with a monorepo, several Dockerfiles, a workflow matrix that references matrix.node, and a range such as ^20.5 || >=22 that you have to evaluate in your head against a bare 20."}},{"@type":"Question","name":"Do I have to choose one?","acceptedAnswer":{"@type":"Answer","text":"No. Keep engine-strict if you want installs to fail on an unsupported runtime, and keep reading the files in review. This tool covers the part neither does, which is comparing every declared version to every other one, and to a dated end-of-life table, in a single pass."}}]}</script>
+  <style>
+      :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1a4560; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea, input[type=date] { box-sizing: border-box; width: 100%; padding: 10px 12px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    textarea { min-height: 110px; resize: vertical; }
+    input[type=date] { width: auto; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 12px 0; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; white-space: pre-wrap; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    ul.findings { list-style: none; margin: 10px 0; padding: 0; }
+    ul.findings li { background: #fef3f3; border: 1px solid #f3d1d1; border-radius: 8px; padding: 10px 12px; margin: 0 0 8px; font-size: .92rem; }
+    ul.findings li.notice { background: #f5f7fa; border-color: #d5dbe3; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">&larr; Back to the checker</a></p>
+  <h1>This checker vs. eyeballing the files and npm's engine-strict</h1>
+  <p>There are three ordinary ways to keep a repo's Node.js versions honest: read the files yourself during review, turn on <code>engine-strict</code> so an install under the wrong runtime fails, and look at what <code>npm ls</code> reports. Each answers a real question. None of them compares your Dockerfile, your workflow and your <code>.nvmrc</code> to each other, which is the question this checker is for.</p>
+
+  <h2>What each one is for</h2>
+  <table>
+    <thead><tr><th>Question</th><th>Where to answer it</th></tr></thead>
+    <tbody>
+      <tr><td>Is the Node.js running this install inside <code>engines.node</code>?</td><td><code>engine-strict</code> (an npm configuration setting). It checks the runtime doing the install, and nothing else.</td></tr>
+      <tr><td>Do my installed dependencies declare an <code>engines</code> field this runtime does not meet?</td><td><code>npm ls</code> and the install warnings. This checker does not read <code>node_modules</code> at all.</td></tr>
+      <tr><td>Can the Node.js my <em>Dockerfile</em> or <em>CI</em> uses ever satisfy <code>engines.node</code>?</td><td>This checker. The runtime never meets the range until something runs under it.</td></tr>
+      <tr><td>Do <code>.nvmrc</code>, the Dockerfile and CI name the same major?</td><td>This checker, or a careful read of every file.</td></tr>
+      <tr><td>Is anything pinned past its end-of-life date?</td><td>This checker, against a dated table. Reading the files tells you the number, not whether it is still supported.</td></tr>
+      <tr><td>Is anything uploaded?</td><td>Neither. This checker runs in your browser or reads local files only.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Common questions</h2>
+    <h3>Doesn't npm already warn when my Node.js version is outside engines?</h3>
+    <p>Only for the Node.js that is running the install, and only as a warning unless engine-strict is turned on. It never looks at the version your Dockerfile or CI workflow will use, so a pin that can never satisfy engines.node is invisible until someone happens to run an install under that exact runtime.</p>
+    <h3>What does npm ls tell me about Node.js versions?</h3>
+    <p>It lists the dependency tree installed in node_modules, and it can report packages whose own engines field does not match the running Node.js. It does not read .nvmrc, the Dockerfile or any workflow file, and it cannot tell you that two of your own files name different majors.</p>
+    <h3>When is eyeballing the files good enough?</h3>
+    <p>For a small repo where all the versions sit in one or two files, reading them takes seconds and is perfectly adequate. It stops being reliable with a monorepo, several Dockerfiles, a workflow matrix that references matrix.node, and a range such as ^20.5 || &gt;=22 that you have to evaluate in your head against a bare 20.</p>
+    <h3>Do I have to choose one?</h3>
+    <p>No. Keep engine-strict if you want installs to fail on an unsupported runtime, and keep reading the files in review. This tool covers the part neither does, which is comparing every declared version to every other one, and to a dated end-of-life table, in a single pass.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the linked checker is provided free and as-is, without warranty of any kind, express or implied. It is not engineering advice, and it does not replace running your tests on the Node.js version you actually deploy. The end-of-life dates come from a static table copied from nodejs.org/en/about/previous-releases on 2026-10-11 and may be out of date; check nodejs.org for the current schedule. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Descriptions of <code>engine-strict</code> and <code>npm ls</code> are based on npm's public documentation at docs.npmjs.com and are summarised, not quoted; check it for exact current behaviour. This page says "different job", not "better": npm's own checks remain the right tool for what they check.</p>
+    <p class="note">npm is a trademark of its owner, named here only to describe what this tool is and is not. Node.js is a trademark of the OpenJS Foundation; Volta and nvm are the names of independent projects. They are named here only to describe which files this tool reads. Not affiliated with, endorsed by, or sponsored by Node.js, the OpenJS Foundation, Volta, nvm, npm or GitHub.</p>
+    <p><a href="./">Back to the checker</a></p>
+  </footer>
+</body>
+</html>

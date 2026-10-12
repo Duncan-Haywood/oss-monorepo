@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Store corn or sell at harvest? A worked example</title>
+  <meta name="description" content="How to decide whether to store corn or sell at harvest: water shrink, drying, storage, interest and bin loss, with a worked 50,000-bushel example and the break-even price.">
+  <meta property="og:title" content="Store corn or sell at harvest? A worked example">
+  <meta property="og:description" content="How to decide whether to store corn or sell at harvest: water shrink, drying, storage, interest and bin loss, with a worked 50,000-bushel example and the break-even price.">
+  <link rel="canonical" href="./corn-store-or-sell-at-harvest.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I sell my corn at harvest or store it?","acceptedAnswer":{"@type":"Answer","text":"Compare what you net today against what you net at a later price after every cost of waiting: drying, shrink, storage, interest on the money you do not receive, and quality loss in the bin. Storing wins only when the later price beats the break-even price this tool computes, not merely when it is higher than the harvest price."}},{"@type":"Question","name":"How much does water shrink cost when drying corn?","acceptedAnswer":{"@type":"Answer","text":"Corn dried from 20% to 15% moisture loses (20 - 15) / (100 - 15) = 5.88% of its weight, about 1.18% per point. Drying also costs fuel and electricity, commonly around 3 to 5 cents per bushel per point. Enter your own rate."}},{"@type":"Question","name":"What is the break-even price for storing grain?","acceptedAnswer":{"@type":"Answer","text":"It is the later cash price at which storing and selling at harvest net the same money. Take what you would clear selling today, add drying, storage and interest costs, and divide by the bushels you will actually have left to sell. Any later price above it makes storage profitable."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note"><a href="./index.html">← Grain Store or Sell Calculator</a></p>
+    <h1>Store corn or sell at harvest: the math</h1>
+    <p>A later price that is higher than today's is not the same as a later price that pays. Between the two sit shrink, drying, storage and the interest on money you do not have yet.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>The worked example</h2>
+    <p>50,000 bushels of corn come out of the field at 18% moisture. Selling at harvest pays $3.85, with 3 points to dry to 15% at 4 cents a point. Storing costs 3 cents a bushel a month, bin loss is 0.1% a month, handling shrink is 0.25% each time grain moves, and money costs 7.5% a year.</p>
+    <p>Selling at harvest nets <strong>$179,242</strong> on 48,115 delivered bushels. The later prices, against that:</p>
+    <div class="scroll"><table><thead><tr><th>Later price</th><th>Cash price</th><th>Break-even</th><th>Beats selling now by</th></tr></thead><tbody>
+<tr><td>Dec</td><td>$4.00</td><td>$3.96</td><td>$1,698</td></tr>
+<tr><td>Mar</td><td>$4.22</td><td>$4.14</td><td>$3,951</td></tr>
+<tr><td>Jul</td><td>$4.45</td><td>$4.37</td><td>$3,836</td></tr>
+    </tbody></table></div>
+    <p>The July bid has the highest price but nets slightly less than March: four more months of interest and storage cost more than the extra 23 cents earns. The March bid wins. This is the shape of most storage decisions, and the reason to compare nets rather than prices.</p>
+    <p><a href="./index.html">Run your own numbers</a>.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Should I sell my corn at harvest or store it?</h3>
+    <p>Compare what you net today against what you net at a later price after every cost of waiting: drying, shrink, storage, interest on the money you do not receive, and quality loss in the bin. Storing wins only when the later price beats the break-even price this tool computes, not merely when it is higher than the harvest price.</p>
+    <h3>How much does water shrink cost when drying corn?</h3>
+    <p>Corn dried from 20% to 15% moisture loses (20 - 15) / (100 - 15) = 5.88% of its weight, about 1.18% per point. Drying also costs fuel and electricity, commonly around 3 to 5 cents per bushel per point. Enter your own rate.</p>
+    <h3>What is the break-even price for storing grain?</h3>
+    <p>It is the later cash price at which storing and selling at harvest net the same money. Take what you would clear selling today, add drying, storage and interest costs, and divide by the bushels you will actually have left to sell. Any later price above it makes storage profitable.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type, not marketing, financial, tax or agronomic advice. <strong>Use at your own risk.</strong> Grain prices can move against you and stored grain can lose quality; check any decision with your marketing adviser, lender or tax professional.</p>
+    <p><strong>Independent.</strong> Not affiliated with any elevator, broker, exchange, bank or grain-marketing service, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or backups of anything you enter.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>scenario_run</code>, <code>example_loaded</code>, <code>text_copied</code>, <code>csv_downloaded</code>, <code>file_saved</code>) are counted in this browser only, and you can switch that off below.</p>
+    <p>Related tools: the <a href="../owner-operator-cpm-calculator/">owner-operator cost per mile calculator</a> and the <a href="../beef-cattle-ration-optimizer/">beef cattle ration optimizer</a>.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+  <script type="module">
+    import { setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    document.getElementById("optout").addEventListener("click", () => { setUsageOptOut(true); const c = document.getElementById("optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>

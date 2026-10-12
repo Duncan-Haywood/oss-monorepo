@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sell Grapes or Make Wine Calculator — Vineyard Profit Per Acre</title>
+  <meta name="description" content="Free vineyard calculator: compare selling grapes by the ton with making and selling your own wine. Net profit, cost per bottle, and the direct-sales share where bottling wins. Runs in your browser.">
+  <meta property="og:title" content="Sell Grapes or Make Wine Calculator — free, private">
+  <meta property="og:description" content="Net profit per acre selling grapes versus bottling your own wine, with break-even cost per bottle.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Vineyard Grape vs Wine Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free tool for vineyard owners: net profit from selling grapes by the ton versus making and selling your own wine, with cost per bottle and the break-even direct-sales share."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I sell my grapes or make my own wine?", "acceptedAnswer": {"@type": "Answer", "text": "Compare the same year both ways. Selling grapes nets tons times the per-ton price, less farming and harvest cost. Making wine nets bottles sold times your blended net price, less farming, cellar, packaging, excise, marketing and the fixed overhead of running a winery. Enter your own numbers; the tool shows both and which wins."}}, {"@type": "Question", "name": "How many bottles come from a ton of grapes?", "acceptedAnswer": {"@type": "Answer", "text": "Roughly 150 gallons of finished wine per ton, about 63 twelve-bottle cases or 750 bottles, before losses. Pressing method, grape type and racking loss change it, so the tool lets you set gallons per ton and a loss percentage."}}, {"@type": "Question", "name": "What is a break-even price per bottle for a small winery?", "acceptedAnswer": {"@type": "Answer", "text": "Total cost divided by bottles actually sold. Total cost includes the farming you already pay for, cellar and packaging cost on every bottle made, excise on bottles sold, marketing and fixed overhead. Unsold bottles still carry cost, which is why sell-through moves the answer so much."}}, {"@type": "Question", "name": "Why does direct-to-consumer share matter so much?", "acceptedAnswer": {"@type": "Answer", "text": "A bottle sold in the tasting room or to a club keeps most of the retail price; a bottle sold through a distributor nets you far less. The tool finds the direct share at which wine profit equals the grape-sale profit."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Start-up capital for tanks, press, barrels and a building, interest on aging inventory, vintage variation, bulk-wine sales, and taxes. Those can decide the choice, so treat the result as the annual operating comparison only."}}, {"@type": "Question", "name": "Where do the prices come from?", "acceptedAnswer": {"@type": "Answer", "text": "From you. The tool ships no grape price report, wine price data or tax tables. The example numbers are made up. Excise is a per-gallon figure you enter for your own situation."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser tab and nothing is sent anywhere. There are no accounts."}}, {"@type": "Question", "name": "Is this financial or tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on numbers you enter. Check excise, permits and tax treatment with the relevant agency and a tax adviser."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1b24; background: #f8f3f5; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #6b1f3d; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #55142f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #55142f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c4a58; }
+    .card { background: #fff; border: 1px solid #e4d6dc; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #55142f10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9a3ad; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #6b1f3d; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #f0e4e9; color: #55142f; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #efe5e9; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c4a58; }
+    .finding { border-bottom: 1px solid #efe5e9; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #f0e4e9; color: #55142f; }
+    footer { margin-top: 28px; border-top: 1px solid #e4d6dc; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">VINEYARD GRAPE VS WINE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>Sell the grapes, or make your own wine?</h1>
+    <p>Enter your acres, yield, the per-ton price a buyer offers, and what you expect to get per bottle. You get <strong>net profit both ways, your all-in cost per bottle, the grape price that would match the wine, and the direct-sales share at which bottling starts to win</strong>, plus a table of how wine profit moves with direct share and unsold bottles.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The tool ships no price data, and the example numbers are made up.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The vineyard and the grape offer</h2>
+    <div class="grid">
+      <div><label for="acres">Vineyard acres</label><input type="number" id="acres" min="0" step="1" value="10"></div>
+      <div><label for="tons">Tons per acre per year</label><input type="number" id="tons" min="0" step="0.1" value="3.5"></div>
+      <div><label for="grow">Farming cost ($/acre/yr)</label><input type="number" id="grow" min="0" step="1" value="4200"></div>
+      <div><label for="harvest">Picking and hauling ($/ton)</label><input type="number" id="harvest" min="0" step="1" value="120"></div>
+      <div><label for="grape">Grape price offered ($/ton)</label><input type="number" id="grape" min="0" step="10" value="2400"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Making the wine</h2>
+    <div class="grid">
+      <div><label for="gal">Finished wine per ton (gallons)</label><input type="number" id="gal" min="0" step="1" value="150"></div>
+      <div><label for="loss">Wine loss in cellar (%)</label><input type="number" id="loss" min="0" step="1" value="5"></div>
+      <div><label for="cellar">Winemaking cost ($/case)</label><input type="number" id="cellar" min="0" step="0.5" value="30"></div>
+      <div><label for="pack">Glass, closure, label ($/bottle)</label><input type="number" id="pack" min="0" step="0.1" value="3.5"></div>
+      <div><label for="fixed">Fixed winery overhead ($/yr)</label><input type="number" id="fixed" min="0" step="500" value="90000"></div>
+      <div><label for="excise">Excise tax ($/gallon sold)</label><input type="number" id="excise" min="0" step="0.01" value="1.07"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. Selling the wine</h2>
+    <div class="grid">
+      <div><label for="share">Bottles sold direct (%)</label><input type="number" id="share" min="0" step="1" value="35"></div>
+      <div><label for="dtcprice">Direct price per bottle ($)</label><input type="number" id="dtcprice" min="0" step="0.5" value="32"></div>
+      <div><label for="dtccost">Direct selling cost (% of revenue)</label><input type="number" id="dtccost" min="0" step="1" value="12"></div>
+      <div><label for="wholesale">Wholesale net per bottle ($)</label><input type="number" id="wholesale" min="0" step="0.5" value="14"></div>
+      <div><label for="mkt">Marketing (% of wine revenue)</label><input type="number" id="mkt" min="0" step="1" value="8"></div>
+      <div><label for="unsold">Bottles left unsold (%)</label><input type="number" id="unsold" min="0" step="1" value="25"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Compare the two routes</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+    </p>
+    <p class="note" id="form-status">Change the numbers or load the example, then click Compare the two routes.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <div class="scroll"><table><thead><tr><th scope="col">Route</th><th class="n" scope="col">Revenue</th><th class="n" scope="col">Cost</th><th class="n" scope="col">Net</th><th class="n" scope="col">Net/acre</th></tr></thead><tbody id="lines"></tbody></table></div>
+    <h3>Wine net if direct share and unsold bottles move (rows direct share, columns unsold)</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Direct share</th><th class="n" scope="col" id="u0"></th><th class="n" scope="col" id="u1"></th><th class="n" scope="col" id="u2"></th></tr></thead><tbody id="sens"></tbody></table></div>
+    <p class="note" id="sens-note"></p>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How the numbers work, and what they leave out</h2>
+    <ul>
+      <li><strong>Selling grapes</strong> = tons × price per ton − (farming cost × acres + harvest cost × tons).</li>
+      <li><strong>Making wine</strong>: gallons = tons × gallons per ton × (1 − loss); a case is 2.3775 gallons (9 litres). Net = bottles sold × blended net price − farming and harvest − winemaking and packaging on every bottle made − excise on bottles sold − marketing − fixed overhead.</li>
+      <li><strong>Blended net price</strong> = direct share × direct price × (1 − direct selling cost) + (1 − direct share) × wholesale net price.</li>
+      <li><strong>Not modelled:</strong> start-up capital for tanks, press, barrels and building, interest on aging inventory, vintage variation, bulk-wine sales, state excise tiers (you enter a per-gallon figure) and taxes.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Should I sell my grapes or make my own wine?</h3>
+    <p>Compare the same year both ways. Selling grapes nets tons times the per-ton price, less farming and harvest cost. Making wine nets bottles sold times your blended net price, less farming, cellar, packaging, excise, marketing and the fixed overhead of running a winery. Enter your own numbers; the tool shows both and which wins.</p>
+    <h3>How many bottles come from a ton of grapes?</h3>
+    <p>Roughly 150 gallons of finished wine per ton, about 63 twelve-bottle cases or 750 bottles, before losses. Pressing method, grape type and racking loss change it, so the tool lets you set gallons per ton and a loss percentage.</p>
+    <h3>What is a break-even price per bottle for a small winery?</h3>
+    <p>Total cost divided by bottles actually sold. Total cost includes the farming you already pay for, cellar and packaging cost on every bottle made, excise on bottles sold, marketing and fixed overhead. Unsold bottles still carry cost, which is why sell-through moves the answer so much.</p>
+    <h3>Why does direct-to-consumer share matter so much?</h3>
+    <p>A bottle sold in the tasting room or to a club keeps most of the retail price; a bottle sold through a distributor nets you far less. The tool finds the direct share at which wine profit equals the grape-sale profit.</p>
+    <h3>What does this leave out?</h3>
+    <p>Start-up capital for tanks, press, barrels and a building, interest on aging inventory, vintage variation, bulk-wine sales, and taxes. Those can decide the choice, so treat the result as the annual operating comparison only.</p>
+    <h3>Where do the prices come from?</h3>
+    <p>From you. The tool ships no grape price report, wine price data or tax tables. The example numbers are made up. Excise is a per-gallon figure you enter for your own situation.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything is calculated in your browser tab and nothing is sent anywhere. There are no accounts.</p>
+    <h3>Is this financial or tax advice?</h3>
+    <p>No. It is arithmetic on numbers you enter. Check excise, permits and tax treatment with the relevant agency and a tax adviser.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional such as a tax adviser, an accountant or your state alcohol regulator. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for any investment you make.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>wine_compared</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../craft-brewery-batch-margin-calculator/">craft brewery batch margin</a>, <a href="../farmland-lease-cash-rent-vs-crop-share-calculator/">farmland lease cash rent vs crop share</a>, <a href="../farmers-market-booth-calculator/">farmers market booth</a>, <a href="../cottage-food-pricing-calculator/">cottage food pricing</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, sensitivity, sampleInput, toCsv, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const ids = { acres: "acres", tonsPerAcre: "tons", growCostPerAcre: "grow", harvestCostPerTon: "harvest", grapePricePerTon: "grape", gallonsPerTon: "gal", wineLossPct: "loss",
+      cellarCostPerCase: "cellar", packageCostPerBottle: "pack", fixedCostPerYear: "fixed", exciseTaxPerGallon: "excise", dtcShare: "share", dtcPricePerBottle: "dtcprice",
+      dtcCostPct: "dtccost", wholesalePricePerBottle: "wholesale", marketingPct: "mkt", unsoldPct: "unsold" };
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const [k, id] of Object.entries(ids)) input[k] = $("#" + id).value;
+      return input;
+    }
+
+    function run() {
+      const input = read();
+      const r = analyze(input);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding"><span class="pill">result</span>${esc(a)}</div>`).join("");
+      $("#lines").innerHTML = [["Sell the grapes", r.grapes.revenue, r.grapes.cost, r.grapes.net, r.grapes.netPerAcre, r.winner === "grapes"], ["Make and sell wine", r.wine.revenue, r.wine.totalCost, r.wine.net, r.wine.netPerAcre, r.winner === "wine"]]
+        .map((x) => `<tr><th scope="row">${x[0]}${x[5] ? " ★" : ""}</th><td class="n">${money(x[1])}</td><td class="n">${money(x[2])}</td><td class="n">${money(x[3])}</td><td class="n">${money(x[4])}</td></tr>`).join("");
+      const grid = sensitivity(input);
+      grid[0].cells.forEach((c, i) => { $("#u" + i).textContent = c.unsold + "% unsold"; });
+      $("#sens").innerHTML = grid.map((row) => `<tr><th scope="row">${row.share}% direct</th>${row.cells.map((c) => `<td class="n">${money(c.net)}</td>`).join("")}</tr>`).join("");
+      $("#sens-note").textContent = "Compare each cell with the grape-sale net of " + money(r.grapes.net) + ".";
+      report.hidden = false;
+      status.textContent = r.winner === "wine" ? `Wine ahead by ${money(r.gap)} a year.` : `Selling grapes ahead by ${money(-r.gap)} a year.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("wine_compared"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleInput();
+      for (const [k, id] of Object.entries(ids)) if (s[k] !== undefined) $("#" + id).value = s[k];
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "grapes-vs-wine.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

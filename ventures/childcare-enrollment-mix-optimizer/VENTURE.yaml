@@ -1,0 +1,56 @@
+name: childcare-enrollment-mix-optimizer
+description: >-
+  Free browser tool for childcare center and daycare owners: enter usable floor space, teacher cost and, per age group,
+  tuition, licensing ratio, largest group, space per child and waiting list, and get the enrolment mix with the highest
+  weekly profit, checked exactly (dynamic programming over children and floor space). Shows the ratio staircase and where
+  each hire is triggered, what the next child adds or costs, the gap to filling the highest-tuition room first, what more
+  floor space would earn, and exposure to a tighter ratio rule or higher wages. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: closest childcare-center-break-even-calculator 0.35 (takes
+# enrolment as an input and finds break-even and ratio cliffs; this chooses the enrolment), childcare-tuition-calculator
+# (one family's side). Dropped before this one because the tree already has them: self-storage-unit-mix-optimizer 0.87,
+# market-event-picker, market-garden-bed-planner, ad-spend-saturation-optimizer, str-turnover-scheduler.
+#
+# Commercial analogues: childcare management suites (Brightwheel, Procare, Jackrabbit, HiMama) and consultants' enrolment
+# spreadsheets; none offers a free no-signup page that optimises the mix under a floor-space limit and the whole-teacher step.
+#
+# Why this niche: a centre has fixed square footage and a different margin per child by age. Infant rooms charge most but need
+# the most staff and space, so "fill the infant room first" is often wrong, and the answer changes with ratios, wages and the
+# waiting list. Owners solve it by hand each time they open or close a room.
+#
+# First visitor: people searching "daycare enrollment mix", "how many infants should a daycare take", "daycare profit per
+# square foot", "childcare ratio cliff"; owner groups on Facebook, r/ChildCare. Volume not measured.
+#
+# Liability boundary: arithmetic on typed figures; not licensing advice (ratios are user input, none are looked up); nothing
+# stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural front end for a paid multi-site model with
+# seasonal turnover, subsidy cash timing and a saved scenario history.
+
+hypotheses:
+  - claim: >-
+      Childcare owners deciding which rooms to fill or open will use a free tool that turns their own ratios, wages and waiting
+      list into an enrolment plan, and will return when a wage, a rule or the waiting list changes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/childcare-enrollment-mix-optimizer/
+  analytics: null

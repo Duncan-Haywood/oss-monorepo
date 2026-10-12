@@ -15,6 +15,7 @@ from review import (
     fetch_reviews,
     list_open_prs,
     load_config,
+    pr_from_same_repo,
     review_pull_request,
     reviewer_already_approved,
     untrusted_reason,
@@ -44,6 +45,10 @@ def main(argv: list[str] | None = None) -> int:
         if reviewed >= args.max:
             break
         number = pr["number"]
+        same_repo, origin_reason = pr_from_same_repo(pr)
+        if not same_repo:
+            print(f"skip #{number}: {origin_reason}")
+            continue
         author = (pr.get("user") or {}).get("login", "")
         untrusted = untrusted_reason(pr)
         if untrusted:

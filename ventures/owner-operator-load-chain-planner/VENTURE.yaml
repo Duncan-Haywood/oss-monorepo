@@ -1,0 +1,46 @@
+name: owner-operator-load-chain-planner
+description: 'Free, zero-network, zero-dependency browser tool and CLI for owner-operators, hotshot and box-truck drivers who pick their own loads: paste a shortlist of loads with your own rates, pickup windows and delivery deadlines, say where you are and how long you are free, and get the exact best chain to run (which loads, in what order), the lowest rate each one is worth, the loads to leave and what leaving or forcing each costs, with deadhead, waiting for pickup windows and a simplified drive-then-rest rule priced in. Exact dynamic programme over every load subset and order, checked against exhaustive search. Numbers are the ones the user supplies, an estimate and not a market rate, route plan or hours-of-service tool.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: raises what an independent truck earns per week by choosing the loads and the order, not by working more hours.
+# Checked 2026-10-02: ventures/ has owner-operator-cpm-calculator (what a week costs, whether one rate covers its empty miles),
+# freight-broker-load-margin-calculator (the broker side of a load), route-stop-optimizer (a stop order with no pay, windows or rest) and
+# crew-dispatch-optimizer (crews, not a truck choosing among paid loads); none chooses and sequences paid loads across pickup windows,
+# deadlines and rest time with the empty run between them priced in. Not in screened-out.md (the rejected Moober row was a cattle-transport
+# marketplace needing insurance and dispatch staff; this is a calculator on numbers the driver already has).
+#
+# First visitor: searches "how to string loads together owner operator", "reduce deadhead miles owner operator", "which load to take
+# next load board"; owner-operator forums and groups. Volume not measured with an external tool. Drivers rank load-board rows by posted
+# rate per mile and book on gut feel for the next leg; nothing multiplies out the empty run, the wait and the rest they cause. A hosted
+# version that reads a load-board export is the natural paid upgrade.
+hypotheses:
+  - claim: An owner-operator will paste a load-board shortlist, see the best chain and the walk-away rate per load, and change which load they book or counter.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A driver will return every time they plan a week or the next leg, so the page earns repeat visits.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No driver reports changing which load they booked or what rate they countered because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/owner-operator-load-chain-planner/
+  analytics: null

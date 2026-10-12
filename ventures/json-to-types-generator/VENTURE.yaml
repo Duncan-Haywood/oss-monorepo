@@ -1,0 +1,47 @@
+name: json-to-types-generator
+description: 'Free tool that turns JSON samples into TypeScript interfaces, Zod schemas, JSON Schema or Go structs: merges many samples to find optional and nullable fields, recognises dates/UUIDs/emails/URLs, shares identical nested shapes, and lists what it guessed -- in the browser or as a zero-dependency Node CLI; nothing uploaded, no network calls.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as the other
+# zero-dependency developer tools. duplicate_check.py closest match for
+# "JSON schema to TypeScript types converter in browser" was 0.34
+# (helm-values-schema-check, unrelated); no existing venture infers types from
+# JSON samples. Not in screened-out.md. Free incumbents exist (quicktype,
+# json2ts, transform.tools); this one merges many samples to find optional and
+# nullable fields and reports what it guessed. Honest revenue view: lead magnet,
+# not a business; payment rails stay off, optional GitHub Sponsors only.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are high.
+# Pure text transformation on the visitor's device; no secrets, no network.
+#
+# First visitor channel: searches for "json to typescript", "json to zod",
+# "json to go struct", "generate types from api response".
+hypotheses:
+  - claim: 'Developers integrating an undocumented or loosely documented API will paste several responses into a no-install page and keep the generated types, because hand-writing interfaces misses the optional and nullable fields.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'Developers will choose the Zod output over plain interfaces when the tool explains that types are erased at runtime.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using cli.mjs or types.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/json-to-types-generator/
+  analytics: null

@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>On-Call Load Analyzer — Is Your Pager Rotation Fair and Quiet?</title>
+  <meta name="description" content="Free on-call load analyzer: paste a PagerDuty, Opsgenie or Grafana OnCall incident CSV and see who carries the pager, night and weekend pages, noisy and self-resolving alerts, and the hours a cleanup would give back. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="On-Call Load Analyzer — free, private, paste-the-export">
+  <meta property="og:description" content="Fairness, broken nights and alert noise from one incident export. Nothing is uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "On-Call Load Analyzer", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste an incident export and see who carries the pager, which nights cost sleep, which alerts are noise and how many hours a cleanup would give back. Runs in your browser; nothing is uploaded.", "featureList": "On-call fairness by weighted load, night and weekend page counts, noisy and flapping alert finder, repeat alert detection, broken-night streaks, interruption hours"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I tell if my on-call rotation is unfair?", "acceptedAnswer": {"@type": "Answer", "text": "Export your incident history as CSV, paste it here and read the share-of-load column. Each page is weighted by when it landed (a night page counts three times a business-hours page, an evening or weekend page twice) and each person is compared with an even split. Anyone at 1.5 times an even split or more is flagged, and the Gini figure summarises how uneven the whole team is."}}, {"@type": "Question", "name": "What counts as a noisy or avoidable page?", "acceptedAnswer": {"@type": "Answer", "text": "A page is flagged as avoidable when it resolved within a few minutes (default 5), which usually means the alert fixed itself and nobody needed to wake up, or when the same alert on the same service fired again within 30 minutes, which adds a page but no new information. A page is counted once, never as both."}}, {"@type": "Question", "name": "Which export format does it read?", "acceptedAnswer": {"@type": "Answer", "text": "Any CSV with a timestamp column and a responder column. It recognises the common PagerDuty, Opsgenie and Grafana OnCall column names (created_at, resolved_at, service, assigned_to, urgency, title) and tells you the columns it found if it cannot match them."}}, {"@type": "Question", "name": "Is my incident data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is parsed in your browser tab and nothing is sent anywhere. Incident titles can name internal systems, which is why there is no upload and no account."}}, {"@type": "Question", "name": "How are night pages decided, and what about people in other timezones?", "acceptedAnswer": {"@type": "Answer", "text": "By the local hour of the page after you set one UTC offset for the team. The window defaults to 22:00 to 07:00. Per-person timezones are not modelled, so for a follow-the-sun rotation run the tool once per region with that region's offset."}}, {"@type": "Question", "name": "Is this HR or management advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies fixed counting rules to the file you give it. Pages are not the same as effort, severity or stress, so use the output to start a conversation with your team, not to rate a person."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ON-CALL LOAD ANALYZER · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>Who is carrying the pager, and how much of it didn't need to wake anyone?</h1>
+    <p>Paste an <strong>incident export</strong> from PagerDuty, Opsgenie, Grafana OnCall or any tool that can write CSV. You get <strong>load per person against an even split</strong>, the nights that were broken, the alerts that fix themselves or repeat, and <strong>how many hours of interruption cleaning them up would give back</strong>.</p>
+    <p class="note">The file is read in this browser tab. No account, no API key, no upload. Incident titles often name internal systems, so nothing leaves your machine.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Add your incidents</h2>
+    <label for="file">Choose the CSV file</label>
+    <input type="file" id="file" accept=".csv,text/csv">
+    <label for="paste">…or paste the CSV text</label>
+    <textarea id="paste" spellcheck="false" placeholder="created_at,resolved_at,service,assigned_to,urgency,title"></textarea>
+    <p class="note">Needs a timestamp column and a responder column. Resolved time, service, urgency and title make the answer better.</p>
+    <div class="grid">
+      <div><label for="tz">Team UTC offset (hours)</label><input type="number" id="tz" min="-12" max="14" step="0.5" value="0"></div>
+      <div><label for="nstart">Night starts (local hour)</label><input type="number" id="nstart" min="0" max="23" step="1" value="22"></div>
+      <div><label for="nend">Night ends (local hour)</label><input type="number" id="nend" min="0" max="23" step="1" value="7"></div>
+      <div><label for="flap">Self-resolved within (minutes)</label><input type="number" id="flap" min="0" step="1" value="5"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste CSV text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <h3>What to do first</h3>
+    <div id="advice"></div>
+    <h3>Load per person</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Person</th><th class="n" scope="col">Pages</th><th class="n" scope="col">Night</th><th class="n" scope="col">Evening / weekend</th><th class="n" scope="col">Business hours</th><th class="n" scope="col">Share of load</th><th class="n" scope="col">vs even split</th><th class="n" scope="col">Median resolve</th></tr></thead><tbody id="people"></tbody></table></div>
+    <h3>Noisiest alerts</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Alert</th><th scope="col">Service</th><th class="n" scope="col">Pages</th><th class="n" scope="col">At night</th><th class="n" scope="col">Self-resolved</th><th class="n" scope="col">Repeats</th></tr></thead><tbody id="alerts"></tbody></table></div>
+    <h3>Worst nights (three or more pages)</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Night beginning</th><th class="n" scope="col">Pages</th><th class="n" scope="col">People woken</th></tr></thead><tbody id="nights"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download per-person table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Weighted load</strong> — a night page counts 3, an evening or weekend page 2, a business-hours page 1. Each person is compared with an even split of the total.</li>
+      <li><strong>Overloaded</strong> — 1.5 times an even split or more, with at least two people in the file.</li>
+      <li><strong>Self-resolved</strong> — resolved within the minutes you set, which usually means nobody had to act.</li>
+      <li><strong>Repeat</strong> — the same alert (numbers, hosts and ids ignored) on the same service within 30 minutes of its last page. A page is counted as one or the other, never both.</li>
+      <li><strong>Hours</strong> — an assumption, not a measurement: 20 minutes of lost focus per daytime page and 45 per night page.</li>
+      <li><strong>Reconciles.</strong> People, services, alerts and the three time-of-day groups all add up to the same page total.</li>
+      <li><strong>Not modelled:</strong> per-person timezones, who was primary or secondary, severity beyond the urgency column, and the effort behind a page. Pages are not stress, so use this to start a conversation, not to rate a person.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I tell if my on-call rotation is unfair?</h3>
+    <p>Export your incident history as CSV, paste it here and read the share-of-load column. Each page is weighted by when it landed (a night page counts three times a business-hours page, an evening or weekend page twice) and each person is compared with an even split. Anyone at 1.5 times an even split or more is flagged, and the Gini figure summarises how uneven the whole team is.</p>
+    <h3>What counts as a noisy or avoidable page?</h3>
+    <p>A page is flagged as avoidable when it resolved within a few minutes (default 5), which usually means the alert fixed itself and nobody needed to wake up, or when the same alert on the same service fired again within 30 minutes, which adds a page but no new information. A page is counted once, never as both.</p>
+    <h3>Which export format does it read?</h3>
+    <p>Any CSV with a timestamp column and a responder column. It recognises the common PagerDuty, Opsgenie and Grafana OnCall column names (created_at, resolved_at, service, assigned_to, urgency, title) and tells you the columns it found if it cannot match them.</p>
+    <h3>Is my incident data uploaded anywhere?</h3>
+    <p>No. The file is parsed in your browser tab and nothing is sent anywhere. Incident titles can name internal systems, which is why there is no upload and no account.</p>
+    <h3>How are night pages decided, and what about people in other timezones?</h3>
+    <p>By the local hour of the page after you set one UTC offset for the team. The window defaults to 22:00 to 07:00. Per-person timezones are not modelled, so for a follow-the-sun rotation run the tool once per region with that region's offset.</p>
+    <h3>Is this HR or management advice?</h3>
+    <p>No. It applies fixed counting rules to the file you give it. Pages are not the same as effort, severity or stress, so use the output to start a conversation with your team, not to rate a person.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. It is not HR, employment or management advice either. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for any decision you make about people or systems. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Not affiliated with or endorsed by PagerDuty, Atlassian (Opsgenie) or Grafana Labs. Product names are trademarks of their respective owners. Also see the <a href="../slo-burn-rate-alerts/">SLO burn-rate alert generator</a> and the <a href="../incident-postmortem-timeline/">incident postmortem timeline</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, normalizeRows, analyze, sampleCsv, humanHours, humanMin, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const num = (id, d) => { const v = Number($(id).value); return Number.isFinite(v) ? v : d; };
+    let last = [];
+
+    function run(text) {
+      const n = normalizeRows(parseCsv(text));
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const r = analyze(n.incidents, { tzOffsetHours: num("#tz", 0), nightStart: num("#nstart", 22), nightEnd: num("#nend", 7), flapMinutes: Math.max(0, num("#flap", 5)) });
+      last = r.people;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `<strong>${s.pages}</strong> pages to <strong>${s.people}</strong> people across ${s.services} service${s.services === 1 ? "" : "s"}, ${s.from} to ${s.to} (${s.perDay.toFixed(1)} a day). <strong>${(s.nightShare * 100).toFixed(0)}%</strong> landed at night. <strong>${(s.avoidableShare * 100).toFixed(0)}%</strong> were self-resolved or repeats, about <strong>${humanHours(s.avoidableHours)}</strong> of an estimated ${humanHours(s.hours)} of interruption.`;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding"><span class="pill ${a.level}">${a.level}</span>${esc(a.text)}</div>`).join("");
+      $("#people").innerHTML = r.people.map((p) => `<tr><th scope="row">${esc(p.person)}${p.overloaded ? ' <span class="pill high">overloaded</span>' : ""}</th><td class="n">${p.pages}</td><td class="n">${p.night}</td><td class="n">${p.offHours}</td><td class="n">${p.business}</td><td class="n">${(p.share * 100).toFixed(0)}%</td><td class="n">${p.ratio.toFixed(2)}x</td><td class="n">${humanMin(p.medianResolveMin)}</td></tr>`).join("");
+      $("#alerts").innerHTML = r.alerts.slice(0, 10).map((a) => `<tr><th scope="row">${esc(a.example || a.fingerprint)}</th><td>${esc(a.service)}</td><td class="n">${a.pages}</td><td class="n">${a.night}</td><td class="n">${a.flaps}</td><td class="n">${a.repeats}</td></tr>`).join("");
+      $("#nights").innerHTML = r.badNights.map((x) => `<tr><th scope="row">${esc(x.night)}</th><td class="n">${x.pages}</td><td class="n">${x.people}</td></tr>`).join("") || '<tr><td colspan="3">No night had three or more pages.</td></tr>';
+      $("#skipped").textContent = n.skipped.length ? `${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : "") : "";
+      report.hidden = false;
+      status.textContent = `Read ${n.incidents.length} incidents.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste CSV text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: a synthetic five-person team over six weeks."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = []; status.textContent = "Choose a file or paste CSV text, then click Analyze."; });
+    $("#download").addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "oncall-load.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

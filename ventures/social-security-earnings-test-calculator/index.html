@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Social Security Earnings Test Calculator</title>
+  <meta name="description" content="Free Social Security earnings test calculator: if you claim before full retirement age and keep working, see how many months of benefits are withheld each year, the net dollars held back, the higher benefit you get at full retirement age and when it pays back. Private, runs in your browser.">
+  <meta property="og:title" content="Social Security earnings test calculator: how much is withheld if you work? Free, private">
+  <meta property="og:description" content="Enter your earnings. See the months withheld each year, the credit at full retirement age and the payback date.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Social Security Earnings Test Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the Social Security earnings test?", "acceptedAnswer": {"@type": "Answer", "text": "If you claim retirement benefits before full retirement age and keep working, Social Security withholds part of your benefits when your earnings pass an annual limit. In 2026 it is $1 withheld for every $2 earned over $24,480. In the calendar year you reach full retirement age the limit is $65,160 and $1 is withheld for every $3 over it, counting only earnings before the month you reach that age. After full retirement age there is no test."}}, {"@type": "Question", "name": "Is the withheld money gone for good?", "acceptedAnswer": {"@type": "Answer", "text": "No, but it comes back slowly. At full retirement age Social Security recalculates your benefit as if the months it withheld had not been claimed early, so the monthly check rises. The calculator shows the new benefit and how many months it takes the higher benefit to repay what was withheld."}}, {"@type": "Question", "name": "Which earnings count?", "acceptedAnswer": {"@type": "Answer", "text": "Wages before deductions and net earnings from self-employment, yours only. Pensions, annuities, investment income, rental income, capital gains, interest and other Social Security benefits do not count."}}, {"@type": "Question", "name": "How does Social Security actually withhold?", "acceptedAnswer": {"@type": "Answer", "text": "In whole monthly benefits, starting with the first checks of the year. If the amount owed is less than the last month withheld, the difference is normally paid back after the year ends."}}, {"@type": "Question", "name": "What is the first-year monthly rule?", "acceptedAnswer": {"@type": "Answer", "text": "In your first year of benefits, a month in which you earn no more than one twelfth of the annual limit, and do no substantial work in your own business, is paid in full even if your annual total is over the limit. Enter how many such months you expect."}}, {"@type": "Question", "name": "Does this tell me when to claim?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a worksheet that does arithmetic on the figures you enter, using a flat benefit and flat earnings. It does not cover spousal or survivor benefits on your record, taxes on benefits, Medicare premiums, cost-of-living adjustments, or the future limits. Check your own figures on ssa.gov or with a financial planner before deciding."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is worked out in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SOCIAL SECURITY EARNINGS TEST CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Claiming Social Security early and still working: how much is withheld, and does it come back?</h1>
+    <p>Before full retirement age, Social Security withholds <strong>$1 of benefits for every $2</strong> you earn over the annual limit (<strong>$24,480</strong> in 2026), and <strong>$1 for every $3</strong> over <strong>$65,160</strong> in the year you reach full retirement age. Enter your figures to see the months withheld each year, the net dollars held back, the raise you get at full retirement age and the month it repays what was withheld.</p>
+    <p class="note">The numbers stay in this browser tab. It does arithmetic on what you type; it is a worksheet, not advice. The limits change every year, so check them on ssa.gov.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>You and your benefit</h2>
+    <div class="grid">
+      <div><label for="birth">Date of birth</label><input id="birth" inputmode="decimal" value="" placeholder="1963-06-15 or 6/15/1963"></div>
+      <div><label for="claim">First month of retirement benefits</label><input id="claim" inputmode="decimal" value="" placeholder="2026-01"></div>
+      <div><label for="startyear">First calendar year to test</label><input id="startyear" inputmode="decimal" value="" placeholder="2026"></div>
+      <div><label for="pia">Monthly benefit at full retirement age (PIA), dollars</label><input id="pia" inputmode="decimal" value="" placeholder="2400"></div>
+      <div><label for="earn">Yearly earnings you expect, dollars (wages plus net self-employment)</label><input id="earn" inputmode="decimal" value="" placeholder="55000"></div>
+      <div><label for="free">Months in your first year with pay under the monthly limit (0 if unsure)</label><input id="free" inputmode="decimal" value="" placeholder="0"></div>
+      <div><label for="limlow">Annual limit before the FRA year, dollars (2026: $24,480)</label><input id="limlow" inputmode="decimal" value="" placeholder="24480"></div>
+      <div><label for="limhigh">Annual limit in the FRA year, dollars (2026: $65,160)</label><input id="limhigh" inputmode="decimal" value="" placeholder="65160"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out the withholding</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Work out the withholding.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>Year by year</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Year</th><th scope="col" class="n">Months</th><th scope="col" class="n">Earnings counted</th><th scope="col" class="n">Limit</th><th scope="col" class="n">Withheld months</th><th scope="col" class="n">Net withheld</th></tr></thead><tbody id="years"></tbody></table></div>
+    <h3>If you earned more or less (first year)</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Yearly earnings</th><th scope="col" class="n">Withheld months</th><th scope="col" class="n">Net withheld</th><th scope="col" class="n">Benefits paid</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p class="note">Earnings are held flat and the limits are held at the figures you entered, so later years are rough.</p>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download table (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Counts:</strong> your earnings above the limit, divided by 2 (or by 3 in the FRA year, using only the months before the FRA month), withheld in whole monthly benefits with the excess paid back after the year ends. Withheld months are credited at FRA by cutting the early-claiming reduction (5/9 of 1% a month for the first 36 months, 5/12 of 1% after).</li>
+      <li><strong>Not decided:</strong> your real PIA and earnings record; spousal, child or survivor benefits on your record (they can be withheld too); taxes on benefits; Medicare premiums; cost-of-living adjustments and future limits; and whether claiming early is right for you.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is the Social Security earnings test?</h3>
+    <p>If you claim retirement benefits before full retirement age and keep working, Social Security withholds part of your benefits when your earnings pass an annual limit. In 2026 it is $1 withheld for every $2 earned over $24,480. In the calendar year you reach full retirement age the limit is $65,160 and $1 is withheld for every $3 over it, counting only earnings before the month you reach that age. After full retirement age there is no test.</p>
+    <h3>Is the withheld money gone for good?</h3>
+    <p>No, but it comes back slowly. At full retirement age Social Security recalculates your benefit as if the months it withheld had not been claimed early, so the monthly check rises. The calculator shows the new benefit and how many months it takes the higher benefit to repay what was withheld.</p>
+    <h3>Which earnings count?</h3>
+    <p>Wages before deductions and net earnings from self-employment, yours only. Pensions, annuities, investment income, rental income, capital gains, interest and other Social Security benefits do not count.</p>
+    <h3>How does Social Security actually withhold?</h3>
+    <p>In whole monthly benefits, starting with the first checks of the year. If the amount owed is less than the last month withheld, the difference is normally paid back after the year ends.</p>
+    <h3>What is the first-year monthly rule?</h3>
+    <p>In your first year of benefits, a month in which you earn no more than one twelfth of the annual limit, and do no substantial work in your own business, is paid in full even if your annual total is over the limit. Enter how many such months you expect.</p>
+    <h3>Does this tell me when to claim?</h3>
+    <p>No. It is a worksheet that does arithmetic on the figures you enter, using a flat benefit and flat earnings. It does not cover spousal or survivor benefits on your record, taxes on benefits, Medicare premiums, cost-of-living adjustments, or the future limits. Check your own figures on ssa.gov or with a financial planner before deciding.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is worked out in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace the Social Security Administration or a qualified financial planner. You are responsible for reviewing and verifying its output before relying on it. Treat it as a worksheet to check, not a recommendation to claim or delay.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../social-security-claiming-age-calculator/">Social Security claiming age calculator</a> and the <a href="../medicare-irmaa-cliff-calculator/">Medicare IRMAA cliff calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, sweepCsv, dollars } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { birth: "birthDate", claim: "claimMonth", startyear: "startYear", pia: "pia", earn: "earnings", free: "freeMonths", limlow: "limitLow", limhigh: "limitHigh" };
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = r.totals.months > 0 ? `${r.totals.months} month(s) withheld, net ${dollars(r.totals.netLost)}; benefit ${dollars(r.benefit)} rises to ${dollars(r.newBenefit)} at full retirement age` : "No benefits withheld on these figures";
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#years").innerHTML = r.years.map((y) => `<tr><td>${y.year}</td><td class="n">${y.months}</td><td class="n">${dollars(y.earn)}</td><td class="n">${dollars(y.limit)}</td><td class="n">${y.withheldMonths}</td><td class="n">${dollars(y.netLost)}</td></tr>`).join("");
+      $("#rows").innerHTML = r.sweep.map((x) => `<tr><td class="n">${dollars(x.annual)}</td><td class="n">${x.withheldMonths}</td><td class="n">${dollars(x.netLost)}</td><td class="n">${dollars(x.paid)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: claimed at 62 and 7 months, earning $55,000 a year until full retirement age.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = "Fill in the figures, then click Work out the withholding."; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("earnings-test-summary.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("earnings-test-table.csv", sweepCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

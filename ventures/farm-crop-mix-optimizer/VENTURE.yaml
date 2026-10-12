@@ -1,0 +1,52 @@
+name: farm-crop-mix-optimizer
+description: >-
+  Free browser tool for row-crop and hay growers: enter acres, peak-season labor hours and operating capital, plus each crop's
+  yield, price, cost and labor, and get the exact acreage plan that earns the most gross margin (a linear program solved by
+  the simplex method), a comparison with the current plan, and shadow prices for one more acre, labor hour or dollar of
+  capital. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: closest rows were fertilizer-blend-optimizer 0.32 (inputs for
+# one crop, not the crop choice), custom-farm-rate-calculator 0.29 and market-garden-bed-planner 0.29 (bed layout for a
+# market garden, not field-scale acreage under labor and capital limits).
+#
+# Why this niche: farm operators decide the crop mix every winter against land, labor and cash limits. The accepted method is
+# linear programming, which extension services teach and few farms run; the free tools are spreadsheets and university Excel
+# Solver templates. Shadow prices (what a rented acre, a seasonal hire or a bigger operating line is worth) are the part
+# growers cannot get from a margin table.
+#
+# First visitor: people searching "crop mix linear programming", "how many acres of corn vs soybeans" and "farm planning
+# spreadsheet"; farm-management extension audiences, r/farming, agricultural lender and crop-consultant circles.
+# Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on typed figures; not agronomic, financial, lending or insurance advice; nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural front end for a paid multi-season farm budget
+# with scenario sets, or referrals to ag lenders and farm-management consultants.
+
+hypotheses:
+  - claim: >-
+      Growers and farm advisers planning a season will use a free tool that returns the margin-maximising acreage under their
+      own land, labor and capital limits, and will use the shadow prices to price leases, hires and operating loans.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/farm-crop-mix-optimizer/
+  analytics: null

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Postgres Index Auditor — Find Unused, Duplicate and Redundant Indexes</title>
+  <meta name="description" content="Free Postgres index auditor: run one read-only query, paste the result, and see unused, duplicate, redundant and invalid indexes, the disk they waste and DROP INDEX statements to review. Runs in your browser, never touches your database.">
+  <meta property="og:title" content="Postgres Index Auditor — free, private, paste-the-output">
+  <meta property="og:description" content="Unused, duplicate, redundant and invalid indexes from one query. Nothing is uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Postgres Index Auditor", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste the output of one read-only query and find unused, duplicate, redundant and invalid Postgres indexes, with the disk each frees and DROP INDEX CONCURRENTLY statements to review. Runs in your browser; nothing is uploaded and it never connects to your database.", "featureList": "Unused index finder, duplicate index finder, redundant prefix index finder, invalid index finder, reclaimable disk, drop script"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I find unused indexes in Postgres?", "acceptedAnswer": {"@type": "Answer", "text": "Run the query on this page in psql or your SQL client. It reads pg_stat_user_indexes, whose idx_scan column counts how many times each index was used since the statistics were last reset. Paste the output here and the tool lists every index that was never scanned, plus invalid, duplicate and prefix-redundant ones, with the disk each would free."}}, {"@type": "Question", "name": "Is it safe to drop an index with zero scans?", "acceptedAnswer": {"@type": "Answer", "text": "Not automatically. idx_scan resets when statistics are reset or after a crash recovery, it is counted per server so an index used only on a read replica shows zero on the primary, and a monthly or quarterly job may not have run since the reset. Check how old your statistics are, check replicas, and keep a copy of each definition so you can recreate it. Primary keys, unique indexes and indexes behind constraints are never suggested."}}, {"@type": "Question", "name": "What counts as a duplicate or redundant index?", "acceptedAnswer": {"@type": "Answer", "text": "A duplicate has the same method, columns, INCLUDE list and WHERE clause as another index on the same table. A redundant index is a plain btree whose columns are the leading columns of another btree with the same WHERE clause, so a query that could use the short one can use the longer one. Both still cost a write on every insert and delete."}}, {"@type": "Question", "name": "Does the tool connect to my database?", "acceptedAnswer": {"@type": "Answer", "text": "No. It never sees a connection string. You run one read-only query yourself and paste the result; the text is parsed in your browser and not sent anywhere."}}, {"@type": "Question", "name": "What does it not see?", "acceptedAnswer": {"@type": "Answer", "text": "Foreign keys that need a supporting index, queries that would use an index you are about to drop, replicas, how long the statistics have been collecting, and bloat. It reads only the file you give it, so treat the output as a list of candidates to check, not a decision."}}, {"@type": "Question", "name": "Is this database advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies fixed rules to the text you provide and writes statements for a person to review. You are responsible for checking and for any change you make to your database."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">POSTGRES INDEX AUDITOR · RUNS IN YOUR BROWSER · NEVER TOUCHES YOUR DATABASE</p>
+    <h1>Which of your Postgres indexes are just costing you writes?</h1>
+    <p>Run <strong>one read-only query</strong>, paste the output, and get the <strong>unused, duplicate, redundant and invalid indexes</strong>, how much disk dropping them frees, and <code>DROP INDEX CONCURRENTLY</code> statements to review. Primary keys, unique indexes and anything backing a constraint are never suggested.</p>
+    <p class="note">The text is read in this browser tab. No connection string, no credentials, no upload. Only index names and definitions are in what you paste.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Run this query</h2>
+    <p class="note">Read-only. Run it on the primary, and also on each replica that serves reads, because Postgres counts index use per server.</p>
+    <textarea id="query" readonly spellcheck="false" aria-label="The query to run" style="min-height:230px"></textarea>
+    <p><button type="button" class="secondary" id="copy-query">Copy the query</button></p>
+    <p class="note">In psql: <code>\copy ( …query… ) TO 'indexes.csv' WITH CSV HEADER</code>. Any SQL client's "export as CSV" works.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Paste the result</h2>
+    <label for="file">Choose the CSV file</label>
+    <input type="file" id="file" accept=".csv,text/csv">
+    <label for="paste">…or paste the CSV text</label>
+    <textarea id="paste" spellcheck="false" placeholder="schemaname,tablename,indexname,indexdef,idx_scan,size_bytes,indisunique,indisprimary,indisvalid,table_writes,constraints"></textarea>
+    <div class="grid">
+      <div><label for="minsize">Ignore indexes smaller than (MB)</label><input type="number" id="minsize" min="0" step="1" value="0"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Audit</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste CSV text, then click Audit.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div class="scroll"><table><thead><tr><th scope="col">Kind</th><th class="n" scope="col">Indexes</th><th class="n" scope="col">Disk</th></tr></thead><tbody id="kinds"></tbody></table></div>
+    <h3>Candidates to drop</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Kind</th><th scope="col">Table</th><th scope="col">Index</th><th class="n" scope="col">Size</th><th class="n" scope="col">Scans</th><th scope="col">Why</th></tr></thead><tbody id="findings"></tbody></table></div>
+    <h3>Tables with the most flagged disk</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Table</th><th class="n" scope="col">Indexes</th><th class="n" scope="col">Index disk</th><th class="n" scope="col">Flagged</th><th class="n" scope="col">Flagged disk</th></tr></thead><tbody id="tables"></tbody></table></div>
+    <h3>Statements to review</h3>
+    <textarea id="script" readonly spellcheck="false" aria-label="DROP INDEX statements to review" style="min-height:180px"></textarea>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="copy-script">Copy the statements</button><button type="button" class="secondary" id="download">Download findings as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Invalid</strong> — Postgres marked the index invalid (usually a failed <code>CREATE INDEX CONCURRENTLY</code>). It is written on every change and never read.</li>
+      <li><strong>Duplicate</strong> — same method, columns, INCLUDE list, WHERE clause and uniqueness as another index on the table. One is kept: a constraint-backing one first, then the most scanned.</li>
+      <li><strong>Redundant</strong> — a plain btree whose columns are the leading columns of another btree with the same WHERE clause. If the longer index is itself unused, the shorter one is left alone.</li>
+      <li><strong>Unused</strong> — zero scans since the statistics were last reset, and not unique, primary, or behind a constraint.</li>
+      <li><strong>Reconciles.</strong> The kinds, the candidate list and the reclaimed total add up to the same numbers.</li>
+      <li><strong>Not modelled:</strong> foreign keys needing an index, replicas, statistics age, bloat, partial usage by rare jobs. Check each candidate before running anything.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I find unused indexes in Postgres?</h3>
+    <p>Run the query on this page in psql or your SQL client. It reads pg_stat_user_indexes, whose idx_scan column counts how many times each index was used since the statistics were last reset. Paste the output here and the tool lists every index that was never scanned, plus invalid, duplicate and prefix-redundant ones, with the disk each would free.</p>
+    <h3>Is it safe to drop an index with zero scans?</h3>
+    <p>Not automatically. idx_scan resets when statistics are reset or after a crash recovery, it is counted per server so an index used only on a read replica shows zero on the primary, and a monthly or quarterly job may not have run since the reset. Check how old your statistics are, check replicas, and keep a copy of each definition so you can recreate it. Primary keys, unique indexes and indexes behind constraints are never suggested.</p>
+    <h3>What counts as a duplicate or redundant index?</h3>
+    <p>A duplicate has the same method, columns, INCLUDE list and WHERE clause as another index on the same table. A redundant index is a plain btree whose columns are the leading columns of another btree with the same WHERE clause, so a query that could use the short one can use the longer one. Both still cost a write on every insert and delete.</p>
+    <h3>Does the tool connect to my database?</h3>
+    <p>No. It never sees a connection string. You run one read-only query yourself and paste the result; the text is parsed in your browser and not sent anywhere.</p>
+    <h3>What does it not see?</h3>
+    <p>Foreign keys that need a supporting index, queries that would use an index you are about to drop, replicas, how long the statistics have been collecting, and bloat. It reads only the file you give it, so treat the output as a list of candidates to check, not a decision.</p>
+    <h3>Is this database advice?</h3>
+    <p>No. It applies fixed rules to the text you provide and writes statements for a person to review. You are responsible for checking and for any change you make to your database.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. The statements it writes are suggestions only. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, for backing up your index definitions, and for any change you make to your database. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Not affiliated with or endorsed by the PostgreSQL Global Development Group. “PostgreSQL” and “Postgres” are trademarks of their respective owners. Also see the <a href="../postgres-explain-analyzer/">Postgres EXPLAIN analyzer</a> and the <a href="../sql-migration-lock-check/">SQL migration lock check</a>.</p>
+    <p>Also see the <a href="../pg-stat-statements-analyzer/">pg_stat_statements analyzer</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, normalizeRows, analyze, sampleCsv, humanBytes, toCsv, QUERY } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = [];
+    $("#query").value = QUERY;
+
+    function run(text) {
+      const n = normalizeRows(parseCsv(text));
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const minMb = Number($("#minsize").value);
+      const r = analyze(n.indexes, { minSize: Number.isFinite(minMb) && minMb > 0 ? minMb * 1048576 : 0 });
+      last = r.findings;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `${s.indexes} indexes on ${s.tables} tables use <strong>${humanBytes(s.totalSize)}</strong>. <strong>${s.flagged}</strong> are candidates to drop, about <strong>${humanBytes(s.reclaim)}</strong> (${(s.share * 100).toFixed(0)}% of index disk).`;
+      $("#kinds").innerHTML = Object.entries(r.kinds).map(([k, v]) => `<tr><th scope="row">${k}</th><td class="n">${v.count}</td><td class="n">${humanBytes(v.size)}</td></tr>`).join("") || '<tr><td colspan="3">Nothing flagged.</td></tr>';
+      $("#findings").innerHTML = r.findings.map((f) => `<tr><td><span class="pill ${f.kind === "unused" ? "medium" : "high"}">${f.kind}</span></td><td>${esc(f.schema)}.${esc(f.table)}</td><th scope="row">${esc(f.name)}</th><td class="n">${humanBytes(f.size)}</td><td class="n">${f.scans}</td><td>${esc(f.reason)}</td></tr>`).join("") || '<tr><td colspan="6">No candidates.</td></tr>';
+      $("#tables").innerHTML = r.tables.map((t) => `<tr><th scope="row">${esc(t.table)}</th><td class="n">${t.indexes}</td><td class="n">${humanBytes(t.size)}</td><td class="n">${t.flagged}</td><td class="n">${humanBytes(t.flaggedSize)}</td></tr>`).join("");
+      $("#script").value = r.script;
+      $("#skipped").textContent = n.skipped.length ? `${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : "") : "";
+      report.hidden = false;
+      status.textContent = `Read ${n.indexes.length} indexes.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste CSV text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: a synthetic database with orders, events and users tables."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = []; status.textContent = "Choose a file or paste CSV text, then click Audit."; });
+    const copy = async (id, btn) => { try { await navigator.clipboard.writeText($(id).value); btn.textContent = "Copied"; } catch { $(id).select(); btn.textContent = "Select and copy by hand"; } };
+    $("#copy-query").addEventListener("click", (e) => copy("#query", e.target));
+    $("#copy-script").addEventListener("click", (e) => copy("#script", e.target));
+    $("#download").addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "index-audit.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mobile Tire Van Job Picker — Which Calls to Run Today</title>
+  <meta name="description" content="Paste the day's requested mobile tire and roadside jobs and get the most profitable set and order for one van, with time windows, drive cost and a price for every job it turns down. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Which jobs should a one-van mobile tire business run today?">
+  <meta property="og:description" content="The best set and order of jobs for one van, what each declined job would need to pay, and what first-come dispatch leaves behind. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Mobile Tire Van Job Picker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste the day's requested jobs with price, materials, service time, time window and location and get the most profitable set and order for one van, what each declined job would need to pay, and what first-come dispatch leaves behind. Browser or zero-dependency Node CLI."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does it upload my job list?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page works on the text you paste, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call."}}, {"@type": "Question", "name": "How is the best day found?", "acceptedAnswer": {"@type": "Answer", "text": "The tool tries the jobs as a search over which have been done and which was last, keeping every way to get there that is not both later and less profitable than another. That finds the exact best set and order for the numbers you give, and the tests compare it with trying every ordering of every subset."}}, {"@type": "Question", "name": "Why would it turn down a job I would normally take?", "acceptedAnswer": {"@type": "Answer", "text": "Because a van can only be in one place. A job that pays well but drives you across the map, or sits in a window that collides with two better jobs, can cost more than the two it displaces. The tool says what the job would need to pay to earn its place."}}, {"@type": "Question", "name": "Where do the costs come from?", "acceptedAnswer": {"@type": "Answer", "text": "From your own books: fuel and wear per mile, and the hourly cost of the van and the technician. They are your estimates, so treat the plan as a decision aid, not a forecast."}}, {"@type": "Question", "name": "Who is it for?", "acceptedAnswer": {"@type": "Answer", "text": "Mobile tire and roadside service operators, mobile mechanics and other one-van field-service businesses choosing which requested jobs to run today."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    input[type=number] { width: 6.5em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MOBILE TIRE VAN JOB PICKER · RUNS IN YOUR BROWSER</p>
+    <h1>One van, ten requests: which jobs should it run today?</h1>
+    <p>Taking calls in the order they ring, or the biggest ticket first, fills the day with the wrong work. Paste the queue — <strong>price, materials, minutes on site, the window each customer gives you and where they are</strong> — and get <strong>the exact set and order of jobs with the highest profit for the day</strong>, the drive and idle time it implies, <strong>what each job it turns down would need to pay</strong>, and what first-come dispatch leaves behind.</p>
+    <p class="note">For mobile tire, roadside service and other one-van field businesses. Nothing is uploaded: the text box is analysed in this browser and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste the queue</h2>
+    <label for="ev-input">One row per job: name, price, materials cost, service minutes, window opens, latest start, miles east of the depot, miles north, optional note (up to 14 jobs)</label>
+    <textarea id="ev-input" spellcheck="false" placeholder="Flat repair,85,12,30,08:00,10:00,3,4&#10;Two new tires,310,190,60,08:30,11:30,-6,5"></textarea>
+    <p>
+      <label for="start">Van leaves at</label><input type="text" id="start" value="08:00" size="6">
+      <label for="end">Back by</label><input type="text" id="end" value="17:00" size="6">
+      <label for="hourly">Van and tech cost per hour ($)</label><input type="number" id="hourly" value="35" min="0" step="1">
+      <label for="permile">Cost per mile ($)</label><input type="number" id="permile" value="0.7" min="0" step="0.05">
+      <label for="speed">Average speed (mph)</label><input type="number" id="speed" value="30" min="1" step="1">
+      <label for="circuity">Road miles per straight-line mile</label><input type="number" id="circuity" value="1.3" min="1" step="0.05">
+    </p>
+    <p>
+      <button type="button" id="analyze">Pick the day</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. The day</h2>
+    <p id="summary"></p>
+    <h3>Route</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>#</th><th>Job</th><th>Arrive</th><th>Wait (min)</th><th>Start</th><th>Finish</th><th>Miles driven</th><th>Margin after drive</th></tr></thead>
+      <tbody id="route-rows"></tbody>
+    </table></div>
+    <h3>Jobs turned down</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Job</th><th>Why</th><th>Quoted price</th><th>Worth taking at</th></tr></thead>
+      <tbody id="decline-rows"></tbody>
+    </table></div>
+    <h3>Against simple rules</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Rule</th><th>Jobs</th><th>Day profit</th></tr></thead>
+      <tbody id="compare-rows"></tbody>
+    </table></div>
+    <ul id="findings"></ul>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI?</h2>
+    <p>Same logic, zero dependencies, one command — reads a file or stdin:</p>
+    <pre class="cmd">node cli.mjs plan jobs.csv --start 08:00 --end 17:00 --hourly 35 --per-mile 0.70 --json
+cat jobs.csv | node cli.mjs plan - --speed 25</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="which-mobile-tire-jobs-should-a-van-take.html">Which mobile tire jobs should a van take? Window and drive-time math</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">The plan is exact for the numbers you type (a search over every set and order, up to 14 jobs). One van and one depot; real traffic, one-way streets, a second technician, jobs that must follow each other, customer cancellations and the value of a repeat customer are not modelled. Distance is straight-line miles times your circuity factor, not a routing service.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does it upload my job list?</h3>
+    <p>No. The browser page works on the text you paste, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+    <h3>How is the best day found?</h3>
+    <p>The tool tries the jobs as a search over which have been done and which was last, keeping every way to get there that is not both later and less profitable than another. That finds the exact best set and order for the numbers you give, and the tests compare it with trying every ordering of every subset.</p>
+    <h3>Why would it turn down a job I would normally take?</h3>
+    <p>Because a van can only be in one place. A job that pays well but drives you across the map, or sits in a window that collides with two better jobs, can cost more than the two it displaces. The tool says what the job would need to pay to earn its place.</p>
+    <h3>Where do the costs come from?</h3>
+    <p>From your own books: fuel and wear per mile, and the hourly cost of the van and the technician. They are your estimates, so treat the plan as a decision aid, not a forecast.</p>
+    <h3>Who is it for?</h3>
+    <p>Mobile tire and roadside service operators, mobile mechanics and other one-van field-service businesses choosing which requested jobs to run today.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, for the accuracy of the prices, costs, times and distances you type, for the promises you have made to customers, and for any contract, motor-club or fleet agreement that requires you to take a call. Roadside and on-road work is safety-sensitive: do not use the plan to skip a call that involves a stranded or unsafe driver. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It chooses between options using the numbers you supply; it is not a forecast of what will happen on the road.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../tire-shop-ticket-margin-calculator/">Tire Shop Ticket Margin Calculator</a>, <a href="../route-stop-optimizer/">Route Stop Optimizer</a>, <a href="../tow-motor-club-call-calculator/">Tow Motor Club Call Calculator</a> <a href="../mobile-detailing-bid-calculator/">Mobile Detailing Bid Calculator</a> and <a href="../mobile-mechanic-visit-pricing-calculator/">Mobile Mechanic Visit Pricing Calculator</a>.</p>
+    <p class="support">Free and open source. If this earned your van a better day, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseJobs, plan, summarize, money, clock, INPUT_NOTES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    function renderReport() {
+      const status = $("#status");
+      const text = $("#ev-input").value;
+      if (!text.trim()) {
+        status.innerHTML = `<span class="error">Paste some rows first (or load the worked example).</span>`;
+        return;
+      }
+      const parsed = parseJobs(text);
+      if (parsed.errors.length) {
+        status.innerHTML = `<span class="error">${parsed.errors.map(escapeHtml).join("<br>")}</span>`;
+        return;
+      }
+      if (!parsed.jobs.length) {
+        status.innerHTML = `<span class="error">No job rows found.</span>`;
+        return;
+      }
+      let p;
+      try {
+        p = plan(parsed, { shiftStart: $("#start").value, shiftEnd: $("#end").value, hourly: $("#hourly").value, perMile: $("#permile").value, speed: $("#speed").value, circuity: $("#circuity").value });
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarize(p);
+      $("#summary").innerHTML = `<span class="${s.status === "gain" ? "gain" : s.status === "none" ? "error" : "ok"}">${escapeHtml(s.text)}</span>`;
+      $("#route-rows").innerHTML = p.route.map((x, i) => `<tr><td>${i + 1}</td><td>${escapeHtml(x.name)}</td><td>${clock(x.arrive)}</td><td>${Math.round(x.wait)}</td><td>${clock(x.start)}</td><td>${clock(x.finish)}</td><td>${x.miles.toFixed(1)}</td><td>${money(x.margin)}</td></tr>`).join("") || `<tr><td colspan="8">No job is worth running.</td></tr>`;
+      $("#decline-rows").innerHTML = p.declined.map((d) => `<tr><td>${escapeHtml(d.name)}</td><td>${escapeHtml(d.reason)}</td><td>${money(d.price)}</td><td>${d.minPrice === null ? "never fits" : money(d.minPrice)}</td></tr>`).join("") || `<tr><td colspan="4">Every job fits.</td></tr>`;
+      $("#compare-rows").innerHTML = [["Best set and order (this tool)", p.accepted, p.profit], ...p.baselines.map((b) => [b.label, b.jobs, b.profit])]
+        .map(([l, n, v]) => `<tr><td>${escapeHtml(l)}</td><td>${n}</td><td>${money(v)}</td></tr>`).join("");
+      $("#findings").innerHTML = p.findings.filter((f) => f.rule === "idle").map((f) => `<li>${escapeHtml(f.message)}</li>`).join("");
+      $("#report-card").hidden = false;
+      record("plan_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `name,price,materials,service_min,earliest,latest,east_miles,north_miles,note
+Flat repair - sedan,85,12,30,08:00,10:00,3,4,Cash
+Two new tires - SUV,310,190,60,08:30,11:30,-6,5,Fleet
+Fleet check - 4 vans,260,40,90,09:00,12:00,8,-2,Contract
+TPMS reset - truck,70,6,25,08:00,16:00,-2,-9,Call-in
+Four new tires - truck,620,430,100,10:00,13:00,12,10,Fleet
+Roadside spare swap,120,0,35,08:00,09:30,1,1,Rush
+Flat repair - van,85,12,30,13:00,15:30,5,-6,Cash
+Rotation and balance,95,10,45,12:30,16:00,-4,3,Regular
+Tire swap - trailer,150,45,50,14:00,16:00,-10,-5,Farm
+Valve stem and plug,55,5,20,08:00,17:00,15,12,Far`;
+
+    $("#load-example").addEventListener("click", () => {
+      $("#ev-input").value = EXAMPLE_SOURCE;
+      $("#start").value = "08:00"; $("#end").value = "17:00"; $("#hourly").value = 35; $("#permile").value = 0.7; $("#speed").value = 30; $("#circuity").value = 1.3;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      $("#ev-input").value = "";
+      $("#status").textContent = "";
+      $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

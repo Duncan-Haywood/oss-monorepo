@@ -1,0 +1,60 @@
+name: roofing-insurance-supplement-finder
+description: >-
+  Free browser tool for roofing contractors and homeowners after a storm claim: type the quantities
+  from a roof measurement report beside the quantities on the insurance adjuster's estimate and
+  your own unit prices; it prices every missing or short line (drip edge, starter, ridge cap, ice
+  and water, steep-slope and high-roof charges, flashing, vents, haul-off, permit), the waste and
+  per-square price gap, adds overhead, profit and tax, and shows what the claim pays now and after
+  depreciation and what is kept at different acceptance rates and supplement-service fees. Nothing
+  leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py on the niche scored 0.12
+# against the nearest entry (cat-adjuster-fee-calculator, which prices the adjuster's own fee, not the
+# contractor's side of an estimate). roofing-bid-calculator, metal-roof-bid-calculator and
+# flat-roof-bid-calculator price the job from scratch; none compares a measurement to a carrier estimate.
+#
+# Why this niche: storm-restoration roofers earn their margin on supplements, and today they either
+# do the line-by-line comparison by hand in a spreadsheet or pay a supplement service 10-20% of what
+# is recovered. A free, private calculator that prices the gap, keeps measurement and price arguments
+# apart, and shows the net after a service fee is a lead magnet for that buyer and for homeowners
+# trying to understand their own estimate.
+#
+# First visitor: small storm-restoration roofing contractors and estimators searching "roofing
+# insurance supplement", "missing drip edge on adjuster estimate", "roof waste factor insurance".
+# Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed numbers; no coverage, legal, bad-faith or
+# public-adjuster advice; the page says who may negotiate a claim varies by state and is not decided
+# here; no policy or homeowner data is asked for; defaults are placeholders; nothing stored.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; possible later paid
+# document-pack export for supplements, not built.
+
+hypotheses:
+  - claim: >-
+      Storm-restoration roofers will use a private line-by-line supplement calculator that separates
+      quantity gaps from price gaps and shows net of a supplement-service fee, because the
+      alternatives are a hand-built spreadsheet or giving 10-20% of the recovery away.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A roofing estimator reports that the arithmetic disagrees with their own worked example.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/roofing-insurance-supplement-finder/
+  analytics: null

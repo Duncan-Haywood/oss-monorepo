@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Solar Panel Cleaning Pricing Calculator — Quote Per Job and Per Panel, Free</title>
+  <meta name="description" content="Free solar panel cleaning quote calculator. Enter your rate, speed per panel and costs; get a price per job and per panel at your target margin, a day route pack, and a payback check for the homeowner. Nothing uploaded.">
+  <meta property="og:title" content="How much to charge to clean solar panels, free calculator">
+  <meta property="og:description" content="Your rate and speed in; job price, price per panel and day plan out. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M6 22l4-12h16l-4 12z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Solar Panel Cleaning Quote Planner", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Price solar panel cleaning jobs to a target margin, pack a list of jobs into working days, and show the customer whether a clean pays for itself. Runs in your browser; nothing is uploaded.", "featureList": "Quote per job, price per panel curve, day route pack, annual plan, customer payback"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should I charge to clean solar panels?", "acceptedAnswer": {"@type": "Answer", "text": "Work out your cost for the job: crew labour over set-up, travel and cleaning time, plus vehicle and consumables. Then divide by one minus your target margin. This tool does that for each job and shows the price per panel, so you can see whether a flat per-panel rate or a minimum call-out is doing the work."}}, {"@type": "Question", "name": "Why is a small array not worth a visit at a per-panel price?", "acceptedAnswer": {"@type": "Answer", "text": "Set-up and travel cost the same for 6 panels as for 30. The price curve shows the panel count at which your per-panel price covers that fixed time, and that is where a minimum call-out should sit."}}, {"@type": "Question", "name": "Does cleaning solar panels pay for itself for the homeowner?", "acceptedAnswer": {"@type": "Answer", "text": "Only if the output dirt costs them is worth more than the clean. Enter their system size, yearly yield, electricity rate and an honest soiling-loss guess; the tool shows the value recovered, the net, and the soiling loss at which a clean breaks even."}}, {"@type": "Question", "name": "Is this business advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the numbers you type in. Check access factors, roof safety, insurance and panel warranty terms before you rely on it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f6fc; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4ed8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14307d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14307d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5268; }
+    .card { background: #fff; border: 1px solid #d3def5; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14307d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aabbe0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4ed8; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e1e9fb; color: #14307d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e3eaf8; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5268; }
+    .finding { border-bottom: 1px solid #e3eaf8; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #dfe8fb; color: #14307d; }
+    .stats { font-size: 1rem; color: #2f3348; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d3def5; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .error { color: #9a3412; font-weight: 600; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 170px; padding: 9px 10px; border: 1px solid #aabbe0; border-radius: 7px; font: 14px ui-monospace, monospace; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SOLAR PANEL CLEANING QUOTE PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should you charge to clean this array?</h1>
+    <p>Put in your hourly rate, minutes per panel and costs. The planner prices each job to your target margin, shows the price per panel across array sizes so you can place your minimum call-out, packs a list of jobs into working days, sizes an annual plan, and gives you a payback check to show the homeowner why the clean is worth buying.</p>
+    <p class="note">Planning arithmetic on your own numbers and stated assumptions.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-set">
+      <h2 id="h-set">1. Your business</h2>
+      <div class="grid">
+        <div><label for="rate">Crew labour rate per person-hour ($)</label><input id="rate" type="number" step="any" value="35"></div>
+        <div><label for="crew">Crew size (people on site)</label><input id="crew" type="number" step="any" value="1"></div>
+        <div><label for="minPerPanel">Minutes to clean one panel (ground level)</label><input id="minPerPanel" type="number" step="any" value="2.5"></div>
+        <div><label for="setupMin">Set-up and pack-down minutes per job</label><input id="setupMin" type="number" step="any" value="15"></div>
+        <div><label for="overheadPct">Overhead on labour (%)</label><input id="overheadPct" type="number" step="any" value="15"></div>
+        <div><label for="perKm">Vehicle cost per km ($)</label><input id="perKm" type="number" step="any" value="0.6"></div>
+        <div><label for="consumables">Water, pads, chemicals per job ($)</label><input id="consumables" type="number" step="any" value="4"></div>
+        <div><label for="marginPct">Target margin on price (%)</label><input id="marginPct" type="number" step="any" value="40"></div>
+        <div><label for="minCharge">Minimum call-out ($)</label><input id="minCharge" type="number" step="any" value="120"></div>
+        <div><label for="dayHours">Productive hours in a working day</label><input id="dayHours" type="number" step="any" value="7"></div>
+      </div>
+      <p class="note">Access factors on minutes per panel: ground 1.0, flat roof 1.15, single-storey roof 1.4, two-storey or steep roof 1.9.</p>
+    </section>
+    <section class="card" aria-labelledby="h-jobs">
+      <h2 id="h-jobs">2. Jobs</h2>
+      <p class="note">One per line: label, panels, access (ground, single, double or flat), travel minutes, travel km. Lines starting with # are ignored.</p>
+      <label for="jobs">Jobs</label>
+      <textarea id="jobs" spellcheck="false"></textarea>
+      <div class="grid">
+        <div><label for="custPer">Plan: cleans per customer per year</label><input id="custPer" type="number" step="any" value="2"></div>
+        <div><label for="custN">Plan: number of customers</label><input id="custN" type="number" step="any" value="60"></div>
+      </div>
+      <button type="button" id="run">Price my jobs</button>
+      <button type="button" class="secondary" id="example">Load an example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card" aria-labelledby="h-cust">
+      <h2 id="h-cust">3. Does the clean pay for itself? (for the customer)</h2>
+      <div class="grid">
+        <div><label for="sysKw">System size (kW)</label><input id="sysKw" type="number" step="any" value="6"></div>
+        <div><label for="yield">Yearly output per kW (kWh)</label><input id="yield" type="number" step="any" value="1300"></div>
+        <div><label for="loss">Output lost to dirt between cleans (%)</label><input id="loss" type="number" step="any" value="6"></div>
+        <div><label for="kwh">Electricity value per kWh ($)</label><input id="kwh" type="number" step="any" value="0.22"></div>
+        <div><label for="cleans">Cleans per year</label><input id="cleans" type="number" step="any" value="1"></div>
+        <div><label for="cleanPrice">Price per clean ($)</label><input id="cleanPrice" type="number" step="any" value="150"></div>
+      </div>
+      <button type="button" id="pay">Check payback</button>
+      <div id="payout" aria-live="polite"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>How much should I charge to clean solar panels?</h3>
+      <p>Work out your cost for the job: crew labour over set-up, travel and cleaning time, plus vehicle and consumables. Then divide by one minus your target margin. This tool does that for each job and shows the price per panel, so you can see whether a flat per-panel rate or a minimum call-out is doing the work.</p>
+      <h3>Why is a small array not worth a visit at a per-panel price?</h3>
+      <p>Set-up and travel cost the same for 6 panels as for 30. The price curve shows the panel count at which your per-panel price covers that fixed time, and that is where a minimum call-out should sit.</p>
+      <h3>Does cleaning solar panels pay for itself for the homeowner?</h3>
+      <p>Only if the output dirt costs them is worth more than the clean. Enter their system size, yearly yield, electricity rate and an honest soiling-loss guess; the tool shows the value recovered, the net, and the soiling loss at which a clean breaks even.</p>
+      <h3>Is this business advice?</h3>
+      <p>No. It is arithmetic on the numbers you type in. Check access factors, roof safety, insurance and panel warranty terms before you rely on it.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Roof safety and working-at-height rules, insurance, whether cleaning affects a panel warranty, water quality, weather and rain that cleans for free, panel tilt, and tax. Access factors are rough defaults, not measurements. The soiling loss is the customer's guess, not a reading from their inverter.</p>
+    </section>
+    <section class="card">
+      <p>Also cleaning windows or gutters? See the <a href="../window-cleaning-bid-calculator/">window cleaning bid calculator</a>, the <a href="../gutter-cleaning-bid-calculator/">gutter cleaning bid calculator</a> and the <a href="../pressure-washing-bid-calculator/">pressure washing bid calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any safety or insurance obligation it helps you think about. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>pricing_run</code>, <code>example_loaded</code>, <code>payback_run</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this saved you a quote, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { parseJobs, quote, priceCurve, dayPlan, annualPlan, customerPayback, num, money, money2, EXAMPLE_JOBS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const $ = (id) => document.getElementById(id);
+    const v = (id, d) => { const n = num($(id).value); return Number.isFinite(n) ? n : d; };
+    const hrs = (m) => (Math.round(m / 6) / 10) + " h";
+    function opts() {
+      return { rate: Math.max(0, v("rate", 0)), crew: Math.max(1, v("crew", 1)), minPerPanel: Math.max(0.1, v("minPerPanel", 2.5)), setupMin: Math.max(0, v("setupMin", 0)), overheadPct: Math.max(0, v("overheadPct", 0)), perKm: Math.max(0, v("perKm", 0)), consumables: Math.max(0, v("consumables", 0)), marginPct: Math.min(90, Math.max(0, v("marginPct", 0))), minCharge: Math.max(0, v("minCharge", 0)), dayHours: Math.max(1, v("dayHours", 7)) };
+    }
+    function run() {
+      const { jobs, errors } = parseJobs($("jobs").value);
+      const o = opts();
+      let h = "";
+      if (errors.length) h += `<div class="finding"><h4><span class="pill high">Fix</span>Some lines were not understood</h4>${errors.map((e) => `<p class="error">${esc(e)}</p>`).join("")}</div>`;
+      if (!jobs.length) { $("result").innerHTML = h || '<p class="error">Add at least one job.</p>'; $("out").hidden = false; return; }
+      const qs = jobs.map((j) => quote(j, o));
+      h += `<div class="finding"><h4>Quote per job</h4><div class="scroll"><table><thead><tr><th>Job</th><th class="n">Time</th><th class="n">Your cost</th><th class="n">Quote</th><th class="n">Per panel</th><th class="n">Profit / hour</th></tr></thead><tbody>${jobs.map((j, i) => `<tr><td>${esc(j.label)} <span class="note">(${j.panels} panels, ${esc(j.access)})</span>${qs[i].minChargeApplies ? ' <span class="pill medium">minimum call-out</span>' : ""}</td><td class="n">${hrs(qs[i].wall)}</td><td class="n">${money(qs[i].total)}</td><td class="n">${money(qs[i].price)}</td><td class="n">${money2(qs[i].perPanel)}</td><td class="n">${money(qs[i].profitPerHour)}</td></tr>`).join("")}</tbody></table></div></div>`;
+      const curve = priceCurve({ access: "single", travelMin: Math.round(jobs.reduce((a, j) => a + j.travelMin, 0) / jobs.length), travelKm: jobs.reduce((a, j) => a + j.travelKm, 0) / jobs.length }, o);
+      h += `<div class="finding"><h4>Price per panel by array size (single-storey roof, your average travel)</h4><div class="scroll"><table><thead><tr><th class="n">Panels</th><th class="n">Quote</th><th class="n">Per panel</th><th>Note</th></tr></thead><tbody>${curve.map((c) => `<tr><td class="n">${c.panels}</td><td class="n">${money(c.price)}</td><td class="n">${money2(c.perPanel)}</td><td>${c.minChargeApplies ? "minimum call-out applies" : ""}</td></tr>`).join("")}</tbody></table></div><p class="note">Where the note disappears, a flat per-panel price covers your fixed time and earns your margin.</p></div>`;
+      const plan = dayPlan(jobs, o);
+      h += `<div class="finding"><h4>Day plan: ${plan.days.length} working day${plan.days.length === 1 ? "" : "s"} · ${money(plan.revenue)} billed · ${money(plan.profit)} profit</h4>${plan.days.map((d, i) => `<p><strong>Day ${i + 1}</strong> — ${hrs(d.minutes)} (${Math.round(d.utilisation * 100)}% of the day)${d.overrun ? ' <span class="pill high">longer than a day</span>' : ""}: ${d.items.map((x) => esc(x.job.label)).join(", ")} · ${money(d.revenue)}</p>`).join("")}${plan.unquotable.length ? `<p class="error">Longer than one working day: ${plan.unquotable.map(esc).join(", ")}. Split it or add crew.</p>` : ""}<p class="note">Jobs are packed biggest-first into the first day with room. Order within a day, and driving between jobs beyond the travel you entered, are not optimised.</p></div>`;
+      const avg = { panels: Math.round(jobs.reduce((a, j) => a + j.panels, 0) / jobs.length), access: "single", travelMin: Math.round(jobs.reduce((a, j) => a + j.travelMin, 0) / jobs.length), travelKm: jobs.reduce((a, j) => a + j.travelKm, 0) / jobs.length };
+      const ap = annualPlan(avg, o, Math.max(1, v("custPer", 1)), Math.max(1, v("custN", 1)));
+      h += `<div class="finding"><h4>Annual plan</h4><p>${v("custN", 1)} customers x ${v("custPer", 1)} cleans a year of an average ${avg.panels}-panel job is ${ap.cleans} cleans, ${money(ap.revenue)} billed, ${money(ap.profit)} profit, about ${Math.round(ap.workDays)} working days of cleaning.</p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("pricing_run");
+    }
+    function pay() {
+      const p = customerPayback({ systemKw: v("sysKw", 0), yieldKwhPerKw: v("yield", 0), soilingLossPct: v("loss", 0), ratePerKwh: v("kwh", 0), cleanPrice: v("cleanPrice", 0), cleansPerYear: Math.max(1, v("cleans", 1)) });
+      $("payout").innerHTML = `<div class="finding"><h4><span class="pill ${p.worthIt ? "info" : "high"}">${p.worthIt ? "Pays for itself" : "Does not pay for itself"}</span>${money(p.recoverValue)} of output recovered against ${money(p.spend)} of cleaning a year</h4><p>${Math.round(p.recoverKwh).toLocaleString("en-US")} kWh a year are lost to dirt at the loss you entered; net ${money(p.net)} a year. A clean breaks even when dirt costs ${Number.isFinite(p.breakEvenLossPct) ? p.breakEvenLossPct.toFixed(1) : "—"}% of yearly output. Check the real figure against the customer's inverter data before promising anything.</p></div>`;
+      record("payback_run");
+    }
+    $("jobs").value = EXAMPLE_JOBS;
+    $("run").addEventListener("click", run);
+    $("pay").addEventListener("click", pay);
+    $("example").addEventListener("click", () => { $("jobs").value = EXAMPLE_JOBS; record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

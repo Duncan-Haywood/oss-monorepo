@@ -1,0 +1,53 @@
+name: pollination-contract-checker
+description: >-
+  Free browser tool and CLI for beekeepers weighing a pollination contract: net per hive and break-even fee after trucking,
+  labour, feed, losses, inspection failures, broker share and forgone honey income; plus the grower's cost per acre and the
+  yield lift that pays for it. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. Repo search of ventures/ for "pollinat" found nothing; nearest is
+# apiary-profit-planner (honey and hive economics, not a rented-hive contract). Not in screened-out.md.
+#
+# Why this niche: commercial beekeepers move thousands of hives a year to almonds and other orchards under per-hive contracts,
+# the fee is negotiated against hauling distance, inspection minimums and winter losses, and the break-even is rebuilt in a
+# spreadsheet each season. Growers have the mirror question: what a stocking rate costs per acre.
+#
+# First visitor: beekeepers searching "pollination fee per hive", "almond pollination contract worth it", "how much to charge
+# for pollination". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user enters. No market data is shipped. Not business, legal or tax advice;
+# the page says so and carries the no-warranty and no-SLA clauses. No data leaves the browser; no broker or grower is named.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. The natural paid layer is a hosted contract tracker
+# (hive counts, inspection results, payment schedule) for brokers; needs accounts and payments, so an owner decision; not built.
+
+hypotheses:
+  - claim: >-
+      Beekeepers with a contract offer in hand will type their costs into a no-signup checker to find the break-even fee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing inspection failure and hauling distance priced per hive changes the fee a beekeeper asks for.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - Beekeepers report that a single fee-per-hive model misses how their contracts really pay (frame-count tiers, split payments), at which point the tool should model tiers.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/pollination-contract-checker/
+  analytics: null

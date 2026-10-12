@@ -1,0 +1,38 @@
+name: bigcommerce-product-csv-check
+description: >-
+  Free browser tool that checks a BigCommerce product import CSV before it is uploaded: header
+  typos, SKU rows with no product or option set, duplicate option combinations, repeated SKUs,
+  price and weight formats, Y/N and P/D flags, category separators, custom URLs, barcode check
+  digits, image addresses and thumbnails, Excel scientific-notation SKUs and semicolon-separated
+  files, each with its line number, plus a safe-fixes pass that cleans the mechanical faults and
+  never changes the characters of a name, description, SKU, barcode, stock, category or image
+  address. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session as the third file-model sibling after
+# shopify-product-csv-check (Handle grouping) and woocommerce-product-csv-check (Parent links).
+# BigCommerce's legacy import is a different model again: Item Type rows (Product, SKU, Rule,
+# Image) where a SKU row belongs to the product above it and carries its option values in the
+# Product Name cell as [RB]Name=Value. Existing answers are the importer's own error report,
+# paid migration apps and generic CSV linters that know nothing about that structure.
+#
+# First visitor: store owners and migration agencies searching the literal fault ("BigCommerce
+# CSV import failed", "BigCommerce import SKU rows no option set", "BigCommerce product CSV
+# scientific notation SKU", "BigCommerce import price invalid"), BigCommerce community threads
+# and r/BigCommerce. Volume not measured with an external tool.
+#
+# What makes it more than a CSV linter: it understands the Item Type / SKU-row structure, so the
+# findings are the ones BigCommerce users actually hit; it recovers from the Excel round trip
+# (scientific notation, semicolons, decimal commas, currency symbols); and the repair step is
+# deliberately narrow and lists every change.
+#
+# Privacy is the liability boundary: catalogues can be commercially sensitive, so the file never
+# leaves the browser (a test asserts no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet for the BigCommerce store-owner and
+# agency audience, cross-linked to the Shopify and WooCommerce siblings. A paid version, if usage
+# appears, is bulk checks across store exports behind an env-var switch; not built.
+#
+# Liability: format checks on the user's own file, rules stated as read from memory, covers the
+# legacy template only, no warranty, independent-of-BigCommerce clause, trademark used nominatively.

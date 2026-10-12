@@ -1,0 +1,52 @@
+name: wedding-videographer-profit-calculator
+description: >-
+  Free browser calculator for wedding and event videographers: package price, shoot hours, second shooter, travel, gear and
+  insurance amortization, highlight-film, ceremony and speeches edit hours, revision rounds past the cap and processing fees
+  become the true hourly rate, profit per booking, the minimum package price for a target hourly rate, a sensitivity table on
+  edit hours, and a deliverable ladder. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 (duplicate_check top score 0.34 photo-addon-pricing-calculator, 0.27 wedding-photographer-profit-
+# calculator; below the 0.45 line). surface-budget for the photographer sibling shows no marketing pages to collide with.
+# Differentiated from the photographer sibling on three things video makes dominant: edit hours (highlight film + full
+# ceremony + speeches edits usually outweigh the shoot), an explicit revision cap with an extra-round fee, and a deliverable
+# ladder pricing each tier by its edit hours. Commercial analogues: generic "freelance hourly rate" calculators ignore edit
+# hours and revision creep; videographer pricing blog posts quote ranges, not a per-booking true rate.
+# Where the first visitor comes from: search phrases "wedding videographer pricing calculator", "how much to charge for a
+# wedding video", "wedding videography profit per hour", "videographer revision policy"; r/videography and wedding-business
+# Facebook groups. Volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet for videographers; a later paid layer could be a hosted quote and
+# revision tracker. Not built: live market rate data.
+#
+# Liability: arithmetic on user-editable numbers; says presets are unverified, carries no-warranty / not-advice clauses.
+#
+# Unverified: ALL example prices and hours are illustrative approximations from general knowledge, not survey data.
+
+hypotheses:
+  - claim: >-
+      A wedding or event videographer pricing packages will use a free calculator that shows their true hourly rate after
+      edit and revision hours and the minimum price for a target rate, because package-price-over-shoot-hours hides most of
+      the work and no existing page models revision creep.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars) engage within 90 days of being reachable from the published site.
+  - Users report the example presets as misleading and the page cannot be kept honest without market data it does not have.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/wedding-videographer-profit-calculator/
+  analytics: null

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>529 to Roth IRA Rollover Calculator: SECURE 2.0 Plan — Free</title>
+  <meta name="description" content="Free 529-to-Roth IRA rollover calculator: the 15-year rule, five-year contribution lock, $35,000 lifetime cap, annual limit and earned income, year by year. Nothing uploaded.">
+  <meta property="og:title" content="529 to Roth IRA rollover calculator">
+  <meta property="og:description" content="How much leftover 529 money can move to a Roth IRA, and when. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M8 22 16 8l8 14z' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "529 to Roth IRA Rollover Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Plan a 529-to-Roth IRA rollover under SECURE 2.0: the 15-year rule, the five-year contribution lock, the $35,000 lifetime cap, annual limits and earned income, year by year. Runs in your browser.", "featureList": "Year-by-year rollover schedule, five-year lock, lifetime cap, non-qualified withdrawal comparison, value at retirement, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I move leftover 529 money into a Roth IRA?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, since 2024, under SECURE 2.0: up to $35,000 per beneficiary over their lifetime, if the 529 has been open for the same beneficiary at least 15 years. The money goes directly from the 529 to a Roth IRA in the beneficiary's name, and it is not taxed or penalised when the rules are met."}}, {"@type": "Question", "name": "Why can't I roll over contributions I made recently?", "acceptedAnswer": {"@type": "Answer", "text": "Contributions made in the last five years, and the earnings on them, are not eligible. This tool keeps each recent contribution locked until it is five full years old, with its growth, and lets only the older money move."}}, {"@type": "Question", "name": "How much can be rolled over each year?", "acceptedAnswer": {"@type": "Answer", "text": "No more than the Roth IRA contribution limit for the year, minus any other IRA contributions the beneficiary makes, and no more than the beneficiary's earned income. Roth income phase-outs do not apply to the rollover. At the usual limit it takes about five years to move the full $35,000."}}, {"@type": "Question", "name": "Is this better than a non-qualified withdrawal?", "acceptedAnswer": {"@type": "Answer", "text": "A non-qualified withdrawal taxes the earnings part at the beneficiary's rate and adds a 10% penalty on it. The tool shows that cost for the same amount next to the rollover, and what the rolled money could grow to by retirement."}}, {"@type": "Question", "name": "What about switching the beneficiary instead?", "acceptedAnswer": {"@type": "Answer", "text": "Often the best answer: changing the 529 beneficiary to a sibling, a cousin or yourself keeps the money for education at no tax cost. This tool covers only the Roth rollover path; it does not decide which is best for your family."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type. IRS guidance on the rollover is still developing, and state rules can differ: some states recapture a deduction you took. Confirm with your plan administrator and a qualified professional before moving money."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">529 TO ROTH ROLLOVER CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much of the leftover 529 can you move into a Roth IRA, and when?</h1>
+    <p>Type the balance, what you added in the last five years and the beneficiary's income. The tool applies the 15-year rule, the five-year lock on recent contributions, the lifetime cap and the yearly Roth limit, and lays out a year-by-year rollover plan.</p>
+    <p class="note">Arithmetic on assumptions you type. Not tax, legal or financial advice. The example figures are placeholders, not a recommendation; check current limits and IRS guidance.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The 529 account</h2>
+      <div class="grid">
+        <div><label for="balance">Current balance ($)</label><input id="balance" type="number" step="any" value="0"></div>
+        <div><label for="basis">Total you contributed, ever ($)</label><input id="basis" type="number" step="any" value="0"></div>
+        <div><label for="accountAgeYears">Years the account has been open for this beneficiary</label><input id="accountAgeYears" type="number" step="any" value="0"></div>
+        <div><label for="growthPct">Expected yearly growth (%)</label><input id="growthPct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Money added in the last five years (locked)</h2>
+      <div class="grid">
+        <div><label for="contrib0">Contributed this year ($)</label><input id="contrib0" type="number" step="any" value="0"></div>
+        <div><label for="contrib1">Contributed 1 year ago ($)</label><input id="contrib1" type="number" step="any" value="0"></div>
+        <div><label for="contrib2">Contributed 2 years ago ($)</label><input id="contrib2" type="number" step="any" value="0"></div>
+        <div><label for="contrib3">Contributed 3 years ago ($)</label><input id="contrib3" type="number" step="any" value="0"></div>
+        <div><label for="contrib4">Contributed 4 years ago ($)</label><input id="contrib4" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. The beneficiary and the Roth IRA</h2>
+      <div class="grid">
+        <div><label for="earnedIncome">Beneficiary's earned income per year ($)</label><input id="earnedIncome" type="number" step="any" value="0"></div>
+        <div><label for="annualLimit">Roth IRA contribution limit this year ($)</label><input id="annualLimit" type="number" step="any" value="0"></div>
+        <div><label for="limitGrowthPct">Yearly rise in that limit (%)</label><input id="limitGrowthPct" type="number" step="any" value="0"></div>
+        <div><label for="otherIraContrib">Other IRA contributions each year ($)</label><input id="otherIraContrib" type="number" step="any" value="0"></div>
+        <div><label for="lifetimeCap">Lifetime rollover cap ($)</label><input id="lifetimeCap" type="number" step="any" value="0"></div>
+        <div><label for="beneficiaryAge">Beneficiary's age now</label><input id="beneficiaryAge" type="number" step="any" value="0"></div>
+        <div><label for="retireAge">Retirement age</label><input id="retireAge" type="number" step="any" value="0"></div>
+        <div><label for="rothGrowthPct">Roth IRA growth (%)</label><input id="rothGrowthPct" type="number" step="any" value="0"></div>
+        <div><label for="withdrawalTaxPct">Tax rate on a non-qualified withdrawal (%)</label><input id="withdrawalTaxPct" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Plan the rollover</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Can I move leftover 529 money into a Roth IRA?</h3>
+      <p>Yes, since 2024, under SECURE 2.0: up to $35,000 per beneficiary over their lifetime, if the 529 has been open for the same beneficiary at least 15 years. The money goes directly from the 529 to a Roth IRA in the beneficiary&#x27;s name, and it is not taxed or penalised when the rules are met.</p>
+      <h3>Why can&#x27;t I roll over contributions I made recently?</h3>
+      <p>Contributions made in the last five years, and the earnings on them, are not eligible. This tool keeps each recent contribution locked until it is five full years old, with its growth, and lets only the older money move.</p>
+      <h3>How much can be rolled over each year?</h3>
+      <p>No more than the Roth IRA contribution limit for the year, minus any other IRA contributions the beneficiary makes, and no more than the beneficiary&#x27;s earned income. Roth income phase-outs do not apply to the rollover. At the usual limit it takes about five years to move the full $35,000.</p>
+      <h3>Is this better than a non-qualified withdrawal?</h3>
+      <p>A non-qualified withdrawal taxes the earnings part at the beneficiary&#x27;s rate and adds a 10% penalty on it. The tool shows that cost for the same amount next to the rollover, and what the rolled money could grow to by retirement.</p>
+      <h3>What about switching the beneficiary instead?</h3>
+      <p>Often the best answer: changing the 529 beneficiary to a sibling, a cousin or yourself keeps the money for education at no tax cost. This tool covers only the Roth rollover path; it does not decide which is best for your family.</p>
+      <h3>Is this tax advice?</h3>
+      <p>No. It is arithmetic on figures you type. IRS guidance on the rollover is still developing, and state rules can differ: some states recapture a deduction you took. Confirm with your plan administrator and a qualified professional before moving money.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether a rollover beats changing the beneficiary or paying for more education, state recapture of deductions or credits, how IRS rules are finally interpreted (including the exact five-year window), the beneficiary's Roth IRA eligibility details, and what to invest in. Limits change every year.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../401k-loan-vs-withdrawal-calculator/">401(k) loan vs withdrawal calculator</a>, the <a href="../roth-conversion-bracket-fill-calculator/">Roth conversion bracket-fill calculator</a> and the <a href="../backdoor-roth-pro-rata-calculator/">backdoor Roth pro-rata calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with the IRS, your state agency and a qualified professional before you file or pay anyone.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { DEFAULTS, num, money, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const r = a.result;
+      for (const n of a.notes) h += `<div class="finding"><span class="pill">Note</span> ${esc(n)}</div>`;
+      if (r.total > 0) {
+        h += `<div class="finding"><h4>You can move ${money(r.total)} into the Roth IRA over ${r.yearsToFinish} year${r.yearsToFinish === 1 ? "" : "s"}</h4><p>That is ${pct(r.capUsedPct, 0)} of the lifetime cap, starting ${r.firstYearOffset === 0 ? "this year" : "in " + r.firstYearOffset + " year(s)"}. ${money(r.remainingInAccount)} stays in the 529 afterwards (still usable for education, or for a new beneficiary).</p></div>`;
+        h += `<div class="finding"><h4>What it could be worth</h4><p>If the rolled money grows at ${a.opts.rothGrowthPct}% a year in the Roth IRA, it is about ${money(r.rothValueAtRetirement)} at age ${a.opts.retireAge}, tax-free in retirement if the Roth rules are met. Taking the same amount out as a non-qualified withdrawal would cost about ${money(r.altTaxAndPenalty)} in tax and penalty on its earnings (${pct(r.earningsShare, 0)} of the account is earnings).</p></div>`;
+      }
+      const rows = a.schedule.filter((s) => s.roll > 0 || s.year < 8).slice(0, 12).map((s) => [s.year === 0 ? "This year" : "+" + s.year + " yr", s.open ? money(s.roll) : "waiting (under 15 years)", s.roll > 0 ? s.binding : "-", money(s.eligibleAfter)]);
+      h += `<div class="finding"><h4>Year by year</h4>${table(["Year", "Rollover", "Limited by", "Eligible left in 529"], rows)}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "529-to-roth-rollover.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

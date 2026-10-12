@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bail Bond Agency Exposure Calculator — Free, Runs in Your Browser</title>
+  <meta name="description" content="Free tool for bail bond agents: enter your open bonds, collateral and surety terms to see net premium, the loss if bonds are forfeited, whether cash covers the largest ones, and a court-date call list. Runs in your browser.">
+  <meta property="og:title" content="Bail Bond Agency Exposure Calculator — free">
+  <meta property="og:description" content="Know what your open bond book earns, what it owes if defendants miss court, and who to call this week. Nothing is uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Bail Bond Agency Exposure Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free browser tool for bail bond agents: type the open bonds and your surety terms, see net premium, the loss if bonds are forfeited, whether cash covers the largest ones, and the court-date call list."}
+  </script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a bail bond build-up fund?", "acceptedAnswer": {"@type": "Answer", "text": "A build-up fund is a share of each premium that the surety holds back as security against forfeitures, released when the bonds are exonerated. Your amount comes from your general indemnity agreement with the surety, so type that figure rather than a typical one."}}, {"@type": "Question", "name": "How much can a bail bond agent lose on one failure to appear?", "acceptedAnswer": {"@type": "Answer", "text": "If the court forfeits a bond, the agency answers for the bond amount less the collateral it holds and whatever it recovers by finding the defendant or collecting from the indemnitor. The uncollateralized part of the largest bonds is what threatens the agency, not the average bond."}}, {"@type": "Question", "name": "What is a safe bail bond writing limit?", "acceptedAnswer": {"@type": "Answer", "text": "The limit is set by your surety, not by this tool. Type the figure from your agreement and the page shows how much of it the open book uses, and whether cash on hand would cover the largest forfeitures."}}, {"@type": "Question", "name": "Is this legal or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It adds up the bonds, collateral, premium split and rates you type in. It ships no state premium schedule, forfeiture deadline or licensing rule, and your surety agreement, your state's rules and a qualified professional control."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    [hidden] { display: none !important; }
+      .cls td { padding: 4px 6px; } .cls input { padding: 7px 8px; }
+    .total { font-size: 1.6rem; font-weight: 700; color: #1f4a5d; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">BAIL BOND AGENCY EXPOSURE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does your open bond book owe if defendants miss court?</h1>
+    <p>List your open bonds with the collateral you hold and your surety's terms. The tool shows <strong>net premium after the surety's share and the build-up fund</strong>,
+    the <strong>loss if bonds are forfeited</strong>, how many of the largest forfeitures your cash would cover, how much of your writing limit is used, and a
+    <strong>court-date call list</strong> for the week. Every rate is the one in your own agreement.</p>
+    <p class="note">Nothing is uploaded. Defendant names and amounts are read in this browser and never leave your device. Use initials or case numbers as labels if you prefer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Open bonds</h2>
+    <table class="cls">
+      <thead><tr><th>Label (initials or case no.)</th><th>Bond amount ($)</th><th>Premium rate % (blank = default)</th><th>Collateral held ($)</th><th>Next court date</th><th>Remove</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <p><button type="button" class="secondary" id="add-row">Add a bond</button></p>
+  </section>
+
+  <section class="card">
+    <h2>2. Your terms</h2>
+    <div class="grid">
+      <div><label for="premium">Default premium rate, %</label><input type="number" id="premium" step="any" value="10"></div>
+      <div><label for="surety">Share of premium remitted to the surety, %</label><input type="number" id="surety" step="any" value="0"></div>
+      <div><label for="buf">Build-up fund withheld, % of premium</label><input type="number" id="buf" step="any" value="0"></div>
+      <div><label for="fta">Expected failure-to-appear rate, %</label><input type="number" id="fta" step="any" value="5"></div>
+      <div><label for="recovery">Recovery on uncollateralized forfeitures, %</label><input type="number" id="recovery" step="any" value="0"></div>
+      <div><label for="limit">Surety writing limit ($, optional)</label><input type="number" id="limit" step="any" value=""></div>
+      <div><label for="reserve">Cash reserve you could put up ($)</label><input type="number" id="reserve" step="any" value="0"></div>
+      <div><label for="window">Call-list window, days</label><input type="number" id="window" step="any" value="30"></div>
+      <div><label for="today">Today</label><input type="date" id="today"></div>
+    </div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Check the book</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Add at least one bond with an amount, then click Check the book.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="total" id="report-total"></p>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Court-date call list</h3>
+    <textarea id="note" rows="10" style="width:100%;box-sizing:border-box" aria-label="Court-date call list"></textarea>
+    <p><button type="button" class="secondary" id="copy-note">Copy list</button></p>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not legal, tax, or financial advice.</strong> Your surety agreement, your state's rules and your licence conditions control.</li>
+      <li><strong>No premium schedule or forfeiture-deadline lookup.</strong> You type the rates and terms; the tool does not know your state's maximum premium or how long you have after a forfeiture notice.</li>
+      <li><strong>It does not decide who to bond.</strong> The failure-to-appear rate is your own estimate; the page only shows what that estimate implies.</li>
+      <li><strong>Estimates.</strong> Premium split and the build-up fund are flat percentages of premium; real agreements can differ.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a bail bond build-up fund?</h3>
+    <p>A build-up fund is a share of each premium that the surety holds back as security against forfeitures, released when the bonds are exonerated. Your amount comes from your general indemnity agreement with the surety, so type that figure rather than a typical one.</p>
+    <h3>How much can a bail bond agent lose on one failure to appear?</h3>
+    <p>If the court forfeits a bond, the agency answers for the bond amount less the collateral it holds and whatever it recovers by finding the defendant or collecting from the indemnitor. The uncollateralized part of the largest bonds is what threatens the agency, not the average bond.</p>
+    <h3>What is a safe bail bond writing limit?</h3>
+    <p>The limit is set by your surety, not by this tool. Type the figure from your agreement and the page shows how much of it the open book uses, and whether cash on hand would cover the largest forfeitures.</p>
+    <h3>Is this legal or financial advice?</h3>
+    <p>No. It adds up the bonds, collateral, premium split and rates you type in. It ships no state premium schedule, forfeiture deadline or licensing rule, and your surety agreement, your state's rules and a qualified professional control.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your surety, your attorney, or a qualified professional. Check every figure against your agreement and your own records.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or backups of anything you type.</p>
+    <p>Everything runs in your browser. Your bonds and rates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>book_checked</code>, <code>example_loaded</code>, <code>list_copied</code>) are counted in this browser only, and stay off if you turn counting off or your browser sends Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: the <a href="../business-insurance-policy-reader/">business insurance policy reader</a> and the <a href="../employee-cost-calculator/">employee cost calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+
+  <script type="module">
+    import { bookExposure, callList, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const cell = (cls, label, type = "number", v = "") => `<td><input aria-label="${label}" class="${cls}" type="${type}" ${type === "number" ? 'step="any"' : ""} value="${esc(v)}"></td>`;
+    const g = (tr, c) => tr.querySelector(c).value;
+    function addBond(v = {}) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = cell("b-label", "Label", "text", v.label) + cell("b-face", "Bond amount", "number", v.face) + cell("b-rate", "Premium rate percent", "number", v.rate) +
+        cell("b-col", "Collateral held", "number", v.col) + cell("b-date", "Next court date", "date", v.date) + `<td><button type="button" class="secondary r-del" aria-label="Remove this bond">×</button></td>`;
+      tr.querySelector(".r-del").addEventListener("click", () => tr.remove());
+      $("#rows").appendChild(tr);
+    }
+    const num = (id) => $("#" + id).value;
+    function inputs() {
+      return {
+        premiumPct: num("premium"), suretyPct: num("surety"), bufPct: num("buf"), ftaPct: num("fta"), recoveryPct: num("recovery"),
+        writingLimit: num("limit"), reserve: num("reserve"), windowDays: num("window"), today: num("today"),
+        bonds: [...$("#rows").querySelectorAll("tr")].map((tr) => ({ label: g(tr, ".b-label"), face: g(tr, ".b-face"), premiumPct: g(tr, ".b-rate"), collateral: g(tr, ".b-col"), courtDate: g(tr, ".b-date") })),
+      };
+    }
+    const todayIso = () => new Date().toISOString().slice(0, 10);
+    function reset() { $("#rows").innerHTML = ""; addBond(); }
+    $("#today").value = todayIso();
+    reset();
+
+    function run() {
+      const out = $("#report");
+      try {
+        const r = bookExposure(inputs());
+        $("#report-total").textContent = money(r.expectedNet) + " expected net premium after forfeitures";
+        $("#report-stats").textContent = `${money(r.premium)} premium on ${money(r.liability)} open liability. After the surety's share and build-up fund (${money(r.buf)}, held until exoneration): ${money(r.netPremium)}. ` +
+          `If every forfeitable bond failed: ${money(r.lossIfAllForfeit)}. Expected loss at your rate: ${money(r.expectedLoss)}. Break-even failure-to-appear rate: ${r.breakEvenFtaPct === null ? "n/a (fully collateralized)" : r.breakEvenFtaPct + "%"}. ` +
+          `Cash on hand ${money(r.cash)} covers ${r.covered} of ${r.forfeitableCount} forfeitable bonds.` + (r.utilizationPct !== null ? ` Writing limit used: ${r.utilizationPct}%.` : "");
+        $("#report-findings").innerHTML = r.flags.length ? r.flags.map((f) => `<div class="finding"><h4><span class="pill ${f.level}">${f.level === "high" ? "act" : "watch"}</span>${esc(f.text)}</h4></div>`).join("") : '<div class="finding"><h4><span class="pill info">ok</span>Nothing in this book trips a check you typed.</h4></div>';
+        $("#note").value = callList(r);
+        out.hidden = false;
+        $("#form-status").textContent = "";
+        record("book_checked");
+        out.scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (e) {
+        out.hidden = true;
+        $("#form-status").textContent = e.message;
+      }
+    }
+    $("#calculate").addEventListener("click", run);
+    $("#add-row").addEventListener("click", () => addBond());
+
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").innerHTML = "";
+      const d = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
+      addBond({ label: "A.R.", face: 10000, col: 0, date: d(8) });
+      addBond({ label: "M.T.", face: 50000, col: 25000, date: d(49) });
+      addBond({ label: "J.K.", face: 5000, col: 5000, date: d(-7) });
+      for (const [id, v] of [["premium", "10"], ["surety", "20"], ["buf", "10"], ["fta", "5"], ["recovery", "50"], ["limit", "200000"], ["reserve", "15000"], ["window", "30"]]) $("#" + id).value = v;
+      $("#today").value = todayIso();
+      run();
+      record("example_loaded");
+      $("#form-status").textContent = "Worked example: three open bonds, 10% premium, 20% remitted to the surety, 10% build-up fund, a 5% failure-to-appear estimate and half of uncollateralized losses recovered.";
+    });
+    $("#clear-all").addEventListener("click", () => {
+      reset();
+      for (const [id, v] of [["premium", "10"], ["surety", "0"], ["buf", "0"], ["fta", "5"], ["recovery", "0"], ["limit", ""], ["reserve", "0"], ["window", "30"]]) $("#" + id).value = v;
+      $("#report").hidden = true;
+      $("#form-status").textContent = "Add at least one bond with an amount, then click Check the book.";
+    });
+    $("#copy-note").addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText($("#note").value); $("#copy-note").textContent = "Copied"; } catch { $("#note").select(); $("#copy-note").textContent = "Select and copy"; }
+      record("list_copied");
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

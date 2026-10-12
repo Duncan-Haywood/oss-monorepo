@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Escape Room Pricing and Capacity Planner — Free</title>
+  <meta name="description" content="Free escape room pricing calculator: rooms, hours, game and reset length, price per player, occupancy and costs in; monthly profit, break-even occupancy, best price per player and build-cost payback out. Nothing uploaded.">
+  <meta property="og:title" content="What should my escape room charge, and how full must it be? Free planner">
+  <meta property="og:description" content="Slots, price, occupancy and costs in; profit, break-even occupancy and best price out. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%236d28d9'/%3E%3Crect x='9' y='6' width='14' height='20' rx='2' fill='%23fff'/%3E%3Ccircle cx='20' cy='16' r='1.6' fill='%236d28d9'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Escape Room Pricing and Capacity Planner","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Plan escape room pricing and capacity from rooms, hours, game and reset length, price per player, occupancy and costs: monthly profit, break-even occupancy, best price along a demand curve you set, and build-cost payback. Runs in your browser; nothing is uploaded.","featureList":"Slots per day, monthly profit, break-even occupancy, best price search, price and occupancy grid, reset time sensitivity, minimum players charged, payback on build cost"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What price should an escape room charge per player?","acceptedAnswer":{"@type":"Answer","text":"The best price is where the extra money from a higher price stops outweighing the games you lose. The planner lowers or raises your price along a demand curve you set (how much bookings fall for each 1% rise) and shows monthly profit at each price, so you can see how flat or steep the top is before changing anything."}},{"@type":"Question","name":"How many games can an escape room run per day?","acceptedAnswer":{"@type":"Answer","text":"Each game blocks its length plus the reset time, except the last, which needs no reset. Nine open hours with 60-minute games and 20-minute resets fit seven games per room. Cutting the reset to 10 minutes fits eight, which the planner shows as a capacity ceiling."}},{"@type":"Question","name":"What occupancy does an escape room need to break even?","acceptedAnswer":{"@type":"Answer","text":"Staff, rent and marketing are paid whether or not a room sells, so break-even is the share of slots you must fill for contribution to cover them. The planner shows it as a blended occupancy and as bookings per week, next to what you book today."}},{"@type":"Question","name":"Should I charge a minimum number of players?","acceptedAnswer":{"@type":"Answer","text":"If many groups are smaller than your room is priced for, a minimum charge lifts those bookings. The table shows revenue per booking at each minimum for your usual group size; it does not predict whether small groups would book elsewhere."}},{"@type":"Question","name":"Is this business, tax or financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type in plus a demand assumption you choose. Leases, insurance, fire and safety rules, wages law and tax are out of scope."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1b18; background: #f6f4fa; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #6d28d9; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #3b0f6b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #3b0f6b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #57534e; }
+    .card { background: #fff; border: 1px solid #ddd3ec; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3b0f6b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #c4b5e0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #6d28d9; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #ece4f8; color: #3b0f6b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #ebe5f3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #57534e; }
+    .finding { border-bottom: 1px solid #ebe5f3; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #ede9fe; color: #6d28d9; }
+    .stats { font-size: 1rem; color: #2f2a26; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #ddd3ec; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ESCAPE ROOM PRICING AND CAPACITY PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should your escape room charge, and how full does it have to be?</h1>
+    <p>Enter your rooms, hours, game and reset length, price and costs. It counts the slots you can sell, shows monthly profit, the occupancy you need to break even, searches for the price that earns the most along a demand curve you set, and shows what a shorter reset or a minimum group charge would change.</p>
+    <p class="note">Planning arithmetic on your own numbers and a demand assumption you choose.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Your rooms and hours</h2>
+      <div class="grid">
+        <div><label for="rooms">Number of rooms</label><input id="rooms" type="number" step="any" value="0"></div>
+        <div><label for="gameMinutes">Game length (minutes)</label><input id="gameMinutes" type="number" step="any" value="0"></div>
+        <div><label for="resetMinutes">Reset between games (minutes)</label><input id="resetMinutes" type="number" step="any" value="0"></div>
+        <div><label for="openHoursPerDay">Open hours per day</label><input id="openHoursPerDay" type="number" step="any" value="0"></div>
+        <div><label for="openDaysPerWeek">Open days per week</label><input id="openDaysPerWeek" type="number" step="any" value="0"></div>
+        <div><label for="peakSlotSharePct">Share of slots that are peak: evenings and weekends (%)</label><input id="peakSlotSharePct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Price and groups</h2>
+      <div class="grid">
+        <div><label for="pricePerPlayer">Off-peak price per player ($)</label><input id="pricePerPlayer" type="number" step="any" value="0"></div>
+        <div><label for="peakPremiumPct">Peak premium over off-peak (%)</label><input id="peakPremiumPct" type="number" step="any" value="0"></div>
+        <div><label for="groupSize">Typical group size (players)</label><input id="groupSize" type="number" step="any" value="0"></div>
+        <div><label for="minPlayersCharged">Minimum players charged per game</label><input id="minPlayersCharged" type="number" step="any" value="0"></div>
+        <div><label for="peakOccupancyPct">Peak slots booked at these prices (%)</label><input id="peakOccupancyPct" type="number" step="any" value="0"></div>
+        <div><label for="offPeakOccupancyPct">Off-peak slots booked at these prices (%)</label><input id="offPeakOccupancyPct" type="number" step="any" value="0"></div>
+        <div><label for="elasticity">Bookings lost per 1% price rise (%, try 0.5 to 2)</label><input id="elasticity" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Costs</h2>
+      <div class="grid">
+        <div><label for="hostHourly">Game host cost per hour, loaded ($)</label><input id="hostHourly" type="number" step="any" value="0"></div>
+        <div><label for="roomsPerHost">Rooms one host can run</label><input id="roomsPerHost" type="number" step="any" value="0"></div>
+        <div><label for="rentMonthly">Rent per month ($)</label><input id="rentMonthly" type="number" step="any" value="0"></div>
+        <div><label for="utilitiesMonthly">Utilities per month ($)</label><input id="utilitiesMonthly" type="number" step="any" value="0"></div>
+        <div><label for="insuranceMonthly">Insurance per month ($)</label><input id="insuranceMonthly" type="number" step="any" value="0"></div>
+        <div><label for="marketingMonthly">Marketing per month ($)</label><input id="marketingMonthly" type="number" step="any" value="0"></div>
+        <div><label for="softwareOtherMonthly">Manager, software and other fixed per month ($)</label><input id="softwareOtherMonthly" type="number" step="any" value="0"></div>
+        <div><label for="cardFeePct">Card processing (% of sales)</label><input id="cardFeePct" type="number" step="any" value="0"></div>
+        <div><label for="bookingPlatformPct">Booking platform (% of sales)</label><input id="bookingPlatformPct" type="number" step="any" value="0"></div>
+        <div><label for="perGameSupplies">Supplies and prop wear per game ($)</label><input id="perGameSupplies" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-3">
+      <h2 id="h-3">4. Private events and build cost</h2>
+      <div class="grid">
+        <div><label for="eventsPerMonth">Private or corporate events per month</label><input id="eventsPerMonth" type="number" step="any" value="0"></div>
+        <div><label for="eventFee">Fee per event ($)</label><input id="eventFee" type="number" step="any" value="0"></div>
+        <div><label for="buildCostPerRoom">Build cost per room ($)</label><input id="buildCostPerRoom" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Plan</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What price should an escape room charge per player?</h3>
+      <p>The best price is where the extra money from a higher price stops outweighing the games you lose. The planner lowers or raises your price along a demand curve you set (how much bookings fall for each 1% rise) and shows monthly profit at each price, so you can see how flat or steep the top is before changing anything.</p>
+      <h3>How many games can an escape room run per day?</h3>
+      <p>Each game blocks its length plus the reset time, except the last, which needs no reset. Nine open hours with 60-minute games and 20-minute resets fit seven games per room. Cutting the reset to 10 minutes fits eight, which the planner shows as a capacity ceiling.</p>
+      <h3>What occupancy does an escape room need to break even?</h3>
+      <p>Staff, rent and marketing are paid whether or not a room sells, so break-even is the share of slots you must fill for contribution to cover them. The planner shows it as a blended occupancy and as bookings per week, next to what you book today.</p>
+      <h3>Should I charge a minimum number of players?</h3>
+      <p>If many groups are smaller than your room is priced for, a minimum charge lifts those bookings. The table shows revenue per booking at each minimum for your usual group size; it does not predict whether small groups would book elsewhere.</p>
+      <h3>Is this business, tax or financial advice?</h3>
+      <p>No. It is arithmetic on the numbers you type in plus a demand assumption you choose. Leases, insurance, fire and safety rules, wages law and tax are out of scope.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>How many players will actually book at a price (the sensitivity is your assumption, not a measurement; test any price change on a few weeks of real bookings), your lease and insurance terms, fire, safety and accessibility obligations, wage and employment rules, tax treatment, seasonality, review scores and competitors nearby, and the cost of new puzzles and repairs. The defaults are placeholders, not forecasts: check occupancy and costs against your own booking system.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../pickleball-facility-pro-forma/">pickleball facility pro forma</a>, the <a href="../food-truck-event-margin-calculator/">food truck event margin calculator</a>, the <a href="../campground-site-profit-calculator/">campground site profit calculator</a> the <a href="../golf-simulator-bay-profit-calculator/">golf simulator bay profit calculator</a> and the <a href="../trampoline-park-profit-calculator/">trampoline park profit calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any licence, insurance or safety obligation it helps you think about. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you price your rooms, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, money2, model, breakEven, optimizePrice, priceSensitivity, occupancyGrid, resetSensitivity, groupMinimumSensitivity, payback } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const pct = (x) => (x * 100).toFixed(0) + "%";
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    function run() {
+      const o = opts();
+      const m = model(o);
+      let h = "";
+      if (!(m.slotsWeek > 0)) { $("result").innerHTML = '<div class="finding"><span class="pill">No slots</span> Enter rooms, open days and open hours long enough for one game.</div>'; $("out").hidden = false; return; }
+      const be = breakEven(o);
+      const opt = optimizePrice(o);
+      const pb = payback(o);
+      h += `<div class="finding"><h4>Headline</h4><p class="stats">${m.slotsPerRoomDay} games per room per day, ${Math.round(m.slotsMonth)} sellable slots a month, ${Math.round(m.bookings)} booked (${pct(m.blendedOcc)}). Revenue ${money(m.revenue)} a month, costs ${money(m.variable + m.fixed)}, <strong>${m.profit >= 0 ? "profit" : "loss"} ${money(Math.abs(m.profit))} a month</strong>.</p></div>`;
+      h += `<div class="finding"><h4>Break-even occupancy</h4>` + (be.possible ? `<p>You need about <strong>${pct(be.blendedOcc)}</strong> of slots booked (${Math.round(be.bookingsPerWeek)} games a week) to cover costs; you book ${Math.round(be.nowBookingsPerWeek)} a week now.${be.reachable ? "" : " That is above what any room can sell, so these costs cannot be covered at this price."}</p>` : `<p>No occupancy covers these costs at this price: each game contributes nothing, or there are no slots.</p>`) + `</div>`;
+      h += `<div class="finding"><h4>Where the month goes</h4>${table(["Line", "Per month"], [["Game revenue", money(m.gameRevenue)], ["Private events", money(m.eventRevenue)], ["Fees and supplies", "-" + money(m.variable)], ["Hosts (paid every open hour)", "-" + money(m.hostCost)], ["Rent, utilities, insurance, marketing, other", "-" + money(m.overhead)], ["Profit", money(m.profit)]])}</div>`;
+      h += `<div class="finding"><h4>Best price on your demand assumption</h4><p>Searching ${money(opt.rows[0].price)} to ${money(opt.rows[opt.rows.length - 1].price)} per off-peak player: the most profit is at <strong>${money(opt.best.price)}</strong> (peak ${money2(opt.best.price * (1 + o.peakPremiumPct / 100))}), ${money(opt.best.profit)} a month at ${pct(opt.best.blendedOcc)} occupancy. Today's ${money(o.pricePerPlayer)} earns ${money(opt.now.profit)}, a difference of ${money(opt.gain)} a month. This rests on bookings falling ${o.elasticity}% for each 1% rise; test it before you rely on it.</p></div>`;
+      h += `<div class="finding"><h4>If the price changes</h4>${table(["Off-peak price", "Peak price", "Occupancy", "Revenue", "Profit"], priceSensitivity(o).map((x) => [money2(x.price), money2(x.peakPrice), pct(x.blendedOcc), money(x.revenue), money(x.profit)]))}</div>`;
+      const g = occupancyGrid(o);
+      h += `<div class="finding"><h4>A slow month and a busy one</h4>${table(["Off-peak price", ...g[0].cells.map((c) => pct(c.scale) + " of today's bookings")], g.map((r) => [money2(r.price), ...r.cells.map((c) => money(c.profit))]))}</div>`;
+      h += `<div class="finding"><h4>If your reset is faster</h4>${table(["Reset (min)", "Games per room per day", "Profit if booked share holds"], resetSensitivity(o).map((x) => [x.reset, x.slotsPerRoomDay, money(x.profit)]))}<p class="note">Capacity ceiling only: more slots help when your busy slots are already full.</p></div>`;
+      h += `<div class="finding"><h4>If you charge a minimum number of players</h4>${table(["Minimum", "Revenue per game", "Profit"], groupMinimumSensitivity(o).map((x) => [x.minPlayers, money(x.revenuePerBooking), money(x.profit)]))}</div>`;
+      h += `<div class="finding"><h4>Build cost payback</h4><p>${money(pb.capex)} for ${o.rooms} rooms. ` + (pb.months === null ? "At these numbers the rooms do not pay back." : `Paid back in about <strong>${pb.months.toFixed(1)} months</strong> of this profit, before any owner pay or tax.`) + `</p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("compare_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

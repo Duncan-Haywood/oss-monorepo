@@ -1,0 +1,52 @@
+name: funeral-price-list-checker
+description: 'Free tool for families: paste a funeral home''s General Price List or quote and see which lines are the fee you cannot decline, what is usually needed, what is your choice and what is paid to others, with FTC Funeral Rule red flags (casket handling fees, "embalming required") and a two-home comparison -- in the browser or as a zero-dependency Node CLI; nothing uploaded, no network calls.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate. duplicate_check.py closest matches for "funeral home
+# general price list FTC Funeral Rule itemized quote checker" were construction-delay-claim-
+# calculator / cake-pricing-calculator at 0.20-0.25 (different problems); no funeral venture
+# exists. Not in screened-out.md. Funeral-cost searches are high intent and spiky, a family
+# decides within days, and the free alternatives are either a bare price-list lookup or a
+# generic cost article. This is the one place that reads the family's own quote line by line.
+# Honest revenue view: a consumer lead magnet with a real, time-pressured problem; payment
+# rails stay off, optional GitHub Sponsors only. A later B2B angle (pre-need counsellors,
+# hospice social workers, estate attorneys handing it to families) would be a separate decision.
+#
+# Gate self-assessment: liability_containment is the one to watch -- grief-adjacent and it
+# cites a federal rule. Mitigations: states plainly it is a reading aid and not legal advice;
+# makes no claim about a fair price; cites no dollar benchmarks; every claim about the Rule is
+# one the FTC states on its own consumer page; flags are phrased as questions to ask, never
+# as accusations. Ethical_robustness is high: it hands power back to a person at a bad moment.
+# No personal data, no network.
+#
+# First visitor channel: searches for "funeral home price list", "is embalming required",
+# "do I need a casket for cremation", "funeral home casket handling fee", "FTC funeral rule".
+hypotheses:
+  - claim: 'A family holding a funeral home quote will paste it into a checker to see which lines are their choice, because the price list is long, unfamiliar and read under time pressure.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'People searching "is embalming required" or "casket for cremation" will land on the guide and use the checker for the actual quote.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct visitors engage with the tool within 90 days of it being reachable from the published site.
+  - No search impression for any funeral-pricing query within 90 days of indexing.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/funeral-price-list-checker/
+  analytics: null

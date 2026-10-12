@@ -112,6 +112,7 @@ node check.mjs --fail-on-risk      # exit 2 if a statement can block the table</
     <p>Everything runs in your browser. The SQL you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>A migration is one step in a deploy that can break quietly: <a href="../k8s-rollout-safety-check/">Kubernetes Rollout Safety Check</a> asks whether the rollout shipping this change drops requests, and <a href="../pinned-actions-check/">Pinned Actions Check</a> asks whether the workflow that ships it is pinned to immutable references — three slices of the same question.</p>
+    <p>Slow queries are the other half of database trouble: <a href="../postgres-explain-analyzer/">Postgres EXPLAIN Analyzer</a> reads an EXPLAIN ANALYZE plan and finds the missing index or disk spill.</p>
     <p class="support">Free and open source. If this caught a migration that would have locked your table, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 

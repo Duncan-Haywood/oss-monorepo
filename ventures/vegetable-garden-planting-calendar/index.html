@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Vegetable Garden Planting Calendar — free, by your frost dates</title>
+  <meta name="description" content="Free vegetable garden planting calendar. Enter your last and first frost dates, pick your crops, and get a dated plan: when to start seeds indoors, transplant, sow, make succession plantings, plant a fall garden and expect the first harvest. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Vegetable Garden Planting Calendar — free, private, in your browser">
+  <meta property="og:description" content="A dated plan from your frost dates: seed starting, transplanting, succession sowing, fall crops, garlic and first harvest, as a calendar file.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Vegetable Garden Planting Calendar","applicationCategory":"LifestyleApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free vegetable garden planting calendar. Enter your average last and first frost dates, pick your crops, and get a dated plan: when to start seeds indoors, transplant, sow, make succession plantings and expect the first harvest, with fall plantings and a calendar file. Runs in your browser; nothing is uploaded.","featureList":"planting calendar by frost date, when to start seeds indoors, succession planting schedule, fall garden planting dates, last frost date planner, garlic planting date, calendar export ics, csv export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I find my last frost date?","acceptedAnswer":{"@type":"Answer","text":"Look up the average last spring frost and average first fall frost for your town from your local cooperative extension service, a regional frost-date table or an almanac, and enter them here. They are averages, so some years the last frost comes a week or two later. Choose the cautious setting if a late frost has caught you before."}},{"@type":"Question","name":"When should I start tomato seeds indoors?","acceptedAnswer":{"@type":"Answer","text":"About six weeks before you plan to move the seedlings outside, and the move itself happens about a week after your average last frost. With a last frost on May 1 that means starting seeds around March 27 and transplanting around May 8. Peppers and eggplant like a longer head start of about eight weeks."}},{"@type":"Question","name":"What does succession planting mean?","acceptedAnswer":{"@type":"Answer","text":"Sowing a small amount every couple of weeks instead of everything at once, so lettuce, radishes, beans and carrots arrive a few at a time instead of all in one week. The calendar lists each sowing date for the crops where this pays off and stops when there is no longer time to mature before frost."}},{"@type":"Question","name":"Why does lettuce stop in summer and start again in late summer?","acceptedAnswer":{"@type":"Answer","text":"Lettuce, spinach, radish, broccoli and other cool-season crops bolt or turn bitter in hot weather. The calendar stops spring sowing early enough to finish before the heat, then offers a second planting window in late summer for a fall harvest. You can set the date hot weather usually starts where you live."}},{"@type":"Question","name":"Does this work in the southern hemisphere?","acceptedAnswer":{"@type":"Answer","text":"Yes. Enter your last frost in spring (for example September 30) and your first frost in autumn (for example June 1 of the next calendar year). When the fall frost date falls before the spring one, the page treats it as the following year, so the plan runs across New Year."}},{"@type":"Question","name":"Can I put the dates in my phone calendar?","acceptedAnswer":{"@type":"Answer","text":"Yes. Download the calendar file and open it in Google Calendar, Apple Calendar or Outlook. Every sowing, transplanting and first-harvest date becomes an all-day event. You can also download a CSV for a spreadsheet or copy the plan as plain text."}},{"@type":"Question","name":"Is my garden plan uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculation runs in your browser, nothing is sent to a server and there are no accounts. Use Save plan if you want a file to load again next season."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f2a1f; background: #f4f7f1; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #1f5a2b; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1d3a22; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1d3a22; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #435243; }
+    .card { background: #fff; border: 1px solid #d3dccf; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1d3a2212; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=date], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #55664f; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5a2b; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebdf; color: #1d3a22; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e3ebdf; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #435243; }
+    .row4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    fieldset { border: 1px solid #d3dccf; border-radius: 10px; margin: 14px 0 0; padding: 8px 14px 12px; }
+    legend { font-weight: 700; padding: 0 6px; }
+    .pick { display: inline-block; font-weight: 400; margin: 6px 16px 0 0; }
+    .pick input { width: auto; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #eaf1e6; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1d3a22; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.g { text-align: center; font-weight: 700; font-size: .8rem; min-width: 46px; }
+    td.g.hasS { background: #dbe8f7; } td.g.hasP { background: #cfe8c9; } td.g.hasH { background: #f6e3b4; }
+    td.g.hasP.hasH { background: linear-gradient(90deg, #cfe8c9 50%, #f6e3b4 50%); }
+    .legend span { display: inline-block; padding: 2px 8px; border-radius: 6px; margin-right: 10px; font-size: .84rem; }
+    ul.tasks { padding-left: 18px; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dccf; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">VEGETABLE GARDEN PLANTING CALENDAR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Your vegetable garden planting calendar, from two frost dates</h1>
+    <p>Enter your <strong>average last spring frost</strong> and <strong>first fall frost</strong>, tick the crops you want, and get every date in order: <strong>when to start seeds indoors</strong>, when to <strong>transplant or sow</strong>, how often to make <strong>succession plantings</strong>, when a <strong>fall garden</strong> can go in, when to plant garlic, and when the first <strong>harvest</strong> arrives. Put it in your phone as a <strong>calendar file</strong>.</p>
+    <p class="note">New to this? Read <a href="./when-to-start-seeds-indoors.html">when to start seeds indoors, with worked dates</a>.</p>
+  </header>
+
+  <main>
+  <section class="card" id="setup">
+    <h2>1. Your frost dates</h2>
+    <div class="row4">
+      <div><label for="last-frost">Average last spring frost</label><input type="date" id="last-frost"></div>
+      <div><label for="first-frost">Average first fall frost</label><input type="date" id="first-frost"></div>
+      <div><label for="heat">Hot weather usually starts (optional)</label><input type="date" id="heat"></div>
+      <div><label for="today">Today</label><input type="date" id="today"></div>
+    </div>
+    <p class="note">Find the two frost dates for your town from your local cooperative extension service or a regional frost-date table. In the southern hemisphere enter the spring date and the next autumn's date; the page treats an earlier fall date as next year's. Leave the hot-weather date blank to assume about ten weeks after the last frost.</p>
+    <div class="check"><label style="display:flex;gap:8px;align-items:center;font-weight:400"><input type="checkbox" id="cautious" style="width:auto"> Cautious: add a week before tender and half-hardy crops go out (for gardens where a late frost has caught you)</label></div>
+
+    <h2 style="margin-top:20px">2. Your crops</h2>
+    <p><button type="button" class="secondary" id="pick-starter" style="margin-top:0">Common starter set</button><button type="button" class="secondary" id="pick-all" style="margin-top:0">All crops</button><button type="button" class="secondary" id="pick-none" style="margin-top:0">None</button></p>
+      <fieldset><legend>Leafy greens and herbs</legend>
+          <label class="pick"><input type="checkbox" name="crop" value="lettuce" checked> Lettuce</label>
+          <label class="pick"><input type="checkbox" name="crop" value="spinach" checked> Spinach</label>
+          <label class="pick"><input type="checkbox" name="crop" value="arugula"> Arugula</label>
+          <label class="pick"><input type="checkbox" name="crop" value="kale"> Kale</label>
+          <label class="pick"><input type="checkbox" name="crop" value="chard"> Swiss chard</label>
+          <label class="pick"><input type="checkbox" name="crop" value="cilantro"> Cilantro</label>
+          <label class="pick"><input type="checkbox" name="crop" value="dill"> Dill</label>
+          <label class="pick"><input type="checkbox" name="crop" value="parsley"> Parsley</label>
+          <label class="pick"><input type="checkbox" name="crop" value="basil" checked> Basil</label>
+      </fieldset>
+      <fieldset><legend>Roots and alliums</legend>
+          <label class="pick"><input type="checkbox" name="crop" value="radish" checked> Radish</label>
+          <label class="pick"><input type="checkbox" name="crop" value="carrot" checked> Carrot</label>
+          <label class="pick"><input type="checkbox" name="crop" value="beet"> Beet</label>
+          <label class="pick"><input type="checkbox" name="crop" value="turnip"> Turnip</label>
+          <label class="pick"><input type="checkbox" name="crop" value="potato"> Potato (seed pieces)</label>
+          <label class="pick"><input type="checkbox" name="crop" value="onion"> Onion (sets)</label>
+          <label class="pick"><input type="checkbox" name="crop" value="garlic" checked> Garlic</label>
+          <label class="pick"><input type="checkbox" name="crop" value="sweetpotato"> Sweet potato (slips)</label>
+      </fieldset>
+      <fieldset><legend>Cabbage family</legend>
+          <label class="pick"><input type="checkbox" name="crop" value="broccoli" checked> Broccoli</label>
+          <label class="pick"><input type="checkbox" name="crop" value="cabbage"> Cabbage</label>
+          <label class="pick"><input type="checkbox" name="crop" value="cauliflower"> Cauliflower</label>
+          <label class="pick"><input type="checkbox" name="crop" value="kohlrabi"> Kohlrabi</label>
+      </fieldset>
+      <fieldset><legend>Peas and beans</legend>
+          <label class="pick"><input type="checkbox" name="crop" value="peas" checked> Peas</label>
+          <label class="pick"><input type="checkbox" name="crop" value="bushbean" checked> Bush beans</label>
+          <label class="pick"><input type="checkbox" name="crop" value="polebean"> Pole beans</label>
+      </fieldset>
+      <fieldset><legend>Tomatoes, peppers and other fruiting crops</legend>
+          <label class="pick"><input type="checkbox" name="crop" value="tomato" checked> Tomato</label>
+          <label class="pick"><input type="checkbox" name="crop" value="pepper" checked> Pepper</label>
+          <label class="pick"><input type="checkbox" name="crop" value="eggplant"> Eggplant</label>
+          <label class="pick"><input type="checkbox" name="crop" value="okra"> Okra</label>
+      </fieldset>
+      <fieldset><legend>Vines, squash and corn</legend>
+          <label class="pick"><input type="checkbox" name="crop" value="cucumber" checked> Cucumber</label>
+          <label class="pick"><input type="checkbox" name="crop" value="summersquash" checked> Summer squash / zucchini</label>
+          <label class="pick"><input type="checkbox" name="crop" value="wintersquash"> Winter squash</label>
+          <label class="pick"><input type="checkbox" name="crop" value="pumpkin"> Pumpkin</label>
+          <label class="pick"><input type="checkbox" name="crop" value="watermelon"> Watermelon</label>
+          <label class="pick"><input type="checkbox" name="crop" value="cantaloupe"> Cantaloupe</label>
+          <label class="pick"><input type="checkbox" name="crop" value="corn"> Sweet corn</label>
+      </fieldset>
+
+    <button type="button" id="build">Build my calendar</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="load-file-btn">Load saved plan</button>
+    <input type="file" id="load-file" accept=".json,application/json" hidden aria-label="Saved plan file">
+    <p id="form-status" role="status" class="note">Enter both frost dates and choose crops, then click Build.</p>
+  </section>
+
+  <section id="result" class="card" hidden>
+    <h2>Your plan</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h2 style="margin-top:18px">Coming up in the next 30 days</h2>
+    <ul class="tasks" id="soon"></ul>
+    <h2 style="margin-top:22px">Month by month</h2>
+    <p class="note legend"><span style="background:#dbe8f7">S start indoors</span><span style="background:#cfe8c9">P plant or transplant</span><span style="background:#f6e3b4">H harvest</span></p>
+    <div class="scroll"><table id="grid"><thead></thead><tbody></tbody></table></div>
+    <h2 style="margin-top:22px">Every date, in order</h2>
+    <div class="scroll"><table id="tasks"><thead><tr><th>Date</th><th>What to do</th></tr></thead><tbody></tbody></table></div>
+    <h2 style="margin-top:22px">Notes for your crops</h2>
+    <div id="crop-notes"></div>
+    <button type="button" id="dl-ics">Download calendar file (.ics)</button>
+    <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="copy-text">Copy as plain text</button>
+    <button type="button" class="secondary" id="save-file">Save plan</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Timing rules:</strong> each crop carries a planting date measured in weeks before or after your average last spring frost (hardy crops go in four to six weeks early, tender ones a week or two after), the weeks of indoor head start for transplants, and the days from planting to first harvest. These are common extension-service rules of thumb.</p>
+    <p><strong>Succession and the end of the season:</strong> sowings repeat at the crop's interval until there is no longer time to mature before the first fall frost (hardy crops get four weeks of grace, half-hardy two, tender none). Cool-season crops also stop before summer heat and get a second window in late summer for a fall harvest, with two extra weeks allowed because autumn days are shorter.</p>
+    <p><strong>Dates, not a forecast:</strong> the plan is for a typical year. A cold spring or an early frost moves everything, so treat each date as a target and watch the weather.</p>
+    <p><strong>Checked:</strong> the test suite builds plans for dozens of frost-date combinations and every crop and confirms that no tender crop is planned before the last frost, no planting is too late to mature, cool crops finish before the heat, and dates always run in order.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I find my last frost date?</h3>
+    <p>Look up the average last spring frost and average first fall frost for your town from your local cooperative extension service, a regional frost-date table or an almanac, and enter them here. They are averages, so some years the last frost comes a week or two later. Choose the cautious setting if a late frost has caught you before.</p>
+    <h3>When should I start tomato seeds indoors?</h3>
+    <p>About six weeks before you plan to move the seedlings outside, and the move itself happens about a week after your average last frost. With a last frost on May 1 that means starting seeds around March 27 and transplanting around May 8. Peppers and eggplant like a longer head start of about eight weeks.</p>
+    <h3>What does succession planting mean?</h3>
+    <p>Sowing a small amount every couple of weeks instead of everything at once, so lettuce, radishes, beans and carrots arrive a few at a time instead of all in one week. The calendar lists each sowing date for the crops where this pays off and stops when there is no longer time to mature before frost.</p>
+    <h3>Why does lettuce stop in summer and start again in late summer?</h3>
+    <p>Lettuce, spinach, radish, broccoli and other cool-season crops bolt or turn bitter in hot weather. The calendar stops spring sowing early enough to finish before the heat, then offers a second planting window in late summer for a fall harvest. You can set the date hot weather usually starts where you live.</p>
+    <h3>Does this work in the southern hemisphere?</h3>
+    <p>Yes. Enter your last frost in spring (for example September 30) and your first frost in autumn (for example June 1 of the next calendar year). When the fall frost date falls before the spring one, the page treats it as the following year, so the plan runs across New Year.</p>
+    <h3>Can I put the dates in my phone calendar?</h3>
+    <p>Yes. Download the calendar file and open it in Google Calendar, Apple Calendar or Outlook. Every sowing, transplanting and first-harvest date becomes an all-day event. You can also download a CSV for a spreadsheet or copy the plan as plain text.</p>
+    <h3>Is my garden plan uploaded anywhere?</h3>
+    <p>No. The calculation runs in your browser, nothing is sent to a server and there are no accounts. Use Save plan if you want a file to load again next season.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is general gardening guidance, not agricultural, horticultural, legal or financial advice, and it is not a forecast. <strong>You are responsible for checking your local frost dates, weather and your seed packet's instructions</strong> before you plant. To the maximum extent permitted by law, the authors accept no liability for any loss, including lost plants or crops, arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any seed company, extension service, almanac or gardening brand, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere, so use Save plan and keep the file.</p>
+    <p>Everything runs in your browser. Your dates and crop choices are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_built</code>, <code>example_loaded</code>, <code>ics_downloaded</code>, <code>csv_downloaded</code>, <code>text_copied</code>, <code>file_saved</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Related tools: the <a href="../market-garden-bed-planner/">market garden bed planner</a> for choosing a crop mix under bed and labor limits, and the <a href="../greenhouse-bench-planner/">greenhouse bench planner</a> for seedling bench space.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { CROPS, STARTER_SET, buildSeason, planGarden, upcoming, monthGrid, parseDate, isoDate, prettyDate, prettyDateYear, tasksCsv, tasksIcs, tasksText, serializeState, parseState, sampleFields } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let G = null;
+
+    const boxes = () => [...document.querySelectorAll('input[name="crop"]')];
+    const chosen = () => boxes().filter((b) => b.checked).map((b) => b.value);
+    const setChosen = (ids) => boxes().forEach((b) => { b.checked = ids.includes(b.value); });
+    const today = () => { const n = new Date(); return new Date(n.getTime() - n.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
+
+    function build() {
+      const season = buildSeason({ lastFrost: $("#last-frost").value, firstFrost: $("#first-frost").value, heat: $("#heat").value || null, cautious: $("#cautious").checked });
+      if (!season.ok) { status.textContent = season.errors.join(" "); return false; }
+      const ids = chosen();
+      if (!ids.length) { status.textContent = "Tick at least one crop."; return false; }
+      G = planGarden(ids, season);
+      status.textContent = "Calendar built. Scroll down.";
+      render();
+      return true;
+    }
+
+    function render() {
+      const s = G.season;
+      $("#result").hidden = false;
+      const planned = G.plans.filter((p) => p.segments.length);
+      $("#notices").innerHTML = [...G.warnings, ...(s.heatAssumed ? ["Hot weather is assumed to start about ten weeks after the last frost. Enter your own date above to change when cool-season crops stop."] : [])].map((n) => '<div class="warn">' + esc(n) + "</div>").join("");
+      const firstTask = G.tasks[0];
+      $("#big").innerHTML = [[s.frostFreeDays, "frost-free days"], [planned.length + " of " + G.plans.length, "crops with a planting window"], [G.tasks.filter((t) => t.type === "plant").length, "planting dates"], [firstTask ? prettyDate(firstTask.date) : "-", "first job"]].map(([a, b]) => "<div><strong>" + esc(a) + "</strong>" + esc(b) + "</div>").join("");
+      const t0 = parseDate($("#today").value) ?? parseDate(today());
+      const soon = upcoming(G, t0, 30);
+      $("#soon").innerHTML = soon.length ? soon.map((t) => "<li><strong>" + esc(prettyDate(t.date)) + "</strong> " + esc(t.text) + "</li>").join("") : "<li>Nothing falls in the next 30 days from the date above. Change Today to see another window.</li>";
+      const grid = monthGrid(G);
+      $("#grid thead").innerHTML = "<tr><th>Crop</th>" + grid.months.map((m) => "<th>" + esc(m.label) + "</th>").join("") + "</tr>";
+      $("#grid tbody").innerHTML = grid.rows.map((r) => "<tr><td>" + esc(r.crop.name) + "</td>" + r.cells.map((c) => '<td class="g' + [...c].map((l) => " has" + l).join("") + '">' + esc(c) + "</td>").join("") + "</tr>").join("");
+      $("#tasks tbody").innerHTML = G.tasks.map((t) => "<tr><td>" + esc(prettyDateYear(t.date)) + "</td><td>" + esc(t.text) + "</td></tr>").join("");
+      $("#crop-notes").innerHTML = G.plans.filter((p) => p.notes.length).map((p) => "<p><strong>" + esc(p.crop.name) + ":</strong> " + esc(p.notes.join(" ")) + "</p>").join("");
+    }
+
+    function stateNow() { return { lastFrost: $("#last-frost").value, firstFrost: $("#first-frost").value, heat: $("#heat").value, cautious: $("#cautious").checked, crops: chosen() }; }
+    function fill(f) { $("#last-frost").value = f.lastFrost; $("#first-frost").value = f.firstFrost; $("#heat").value = f.heat || ""; $("#cautious").checked = Boolean(f.cautious); setChosen(f.crops); }
+
+    function download(fileName, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = fileName;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    $("#today").value = today();
+    $("#build").addEventListener("click", () => setTimeout(() => { if (build()) record("plan_built"); }, 0));
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleFields(new Date().getFullYear()));
+      setTimeout(() => { if (build()) { record("example_loaded"); status.textContent = "Sample plan: invented frost dates for a mid-latitude garden. Enter yours above."; } }, 0);
+    });
+    $("#pick-starter").addEventListener("click", () => setChosen(STARTER_SET));
+    $("#pick-all").addEventListener("click", () => setChosen(CROPS.map((c) => c.id)));
+    $("#pick-none").addEventListener("click", () => setChosen([]));
+    $("#today").addEventListener("change", () => { if (G) render(); });
+    $("#dl-ics").addEventListener("click", () => { if (!G) return; download("garden-calendar.ics", tasksIcs(G, new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "")), "text/calendar"); record("ics_downloaded"); });
+    $("#dl-csv").addEventListener("click", () => { if (!G) return; download("garden-calendar.csv", tasksCsv(G), "text/csv"); record("csv_downloaded"); });
+    $("#copy-text").addEventListener("click", async () => {
+      if (!G) return;
+      try { await navigator.clipboard.writeText(tasksText(G)); status.textContent = "Copied. Paste it into a note or message."; record("text_copied"); }
+      catch { status.textContent = "Your browser blocked copying. Use Download CSV instead."; }
+    });
+    $("#save-file").addEventListener("click", () => { if (!G) return; download("garden-plan.json", serializeState(stateNow()), "application/json"); record("file_saved"); });
+    $("#load-file-btn").addEventListener("click", () => $("#load-file").click());
+    $("#load-file").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const out = parseState(await f.text());
+      if (out.error) { status.textContent = out.error; return; }
+      fill(out.state);
+      build();
+    });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

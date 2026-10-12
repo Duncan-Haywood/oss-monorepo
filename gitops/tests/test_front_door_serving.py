@@ -164,7 +164,7 @@ def front_door(tmp_path_factory) -> str:
         served[canonical_key] = tools[canonical_key]
     root = tmp_path_factory.mktemp("front-door")
     for sub, keys in (
-        ("html", maps["portfolio-front-html"]),
+        ("html", {**maps["portfolio-front-html"], **maps["portfolio-front-html-index"]}),
         ("tools", served),
         ("conf", maps["portfolio-front-nginx"]),
     ):
@@ -671,7 +671,7 @@ def test_the_comparison_index_and_its_product_pages_serve(front_door: str) -> No
     # than only on what each member does.
     products = sorted(
         key[len("vs__") : -len(".html.gz")]
-        for key in _front_door_configmaps()["portfolio-front-html"]
+        for key in _front_door_configmaps()["portfolio-front-html-index"]
         if key.startswith("vs__") and key.endswith(".html.gz")
     )
     assert products, "no per-product comparison pages are mounted, so there is nothing to route"

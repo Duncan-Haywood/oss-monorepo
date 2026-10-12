@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Truck Detention Pay Calculator — Free, With Claim Email</title>
+  <meta name="description" content="Free calculator for truck drivers and owner-operators: enter arrival and departure times, free time and the detention rate from your rate confirmation, and get the billable detention hours, the amount owed, your real hourly pay with and without it, and a claim email ready to send. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Truck Detention Pay Calculator — free">
+  <meta property="og:description" content="Turn your gate times into the detention you are owed, plus a claim email for the broker. Runs in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Truck Detention Pay Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free calculator for truck drivers and owner-operators: enter arrival and departure times, free time and the detention rate from your rate confirmation, and get the billable detention hours, the amount owed, your real hourly pay with and without it, and a claim email ready to send. Entirely client-side, nothing uploaded.", "featureList": "Detention hours from arrival and departure times, free time, appointment-aware clock, billing increments, cap, multi-stop total, claim email, hourly pay with and without detention"}
+  </script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much detention can an owner-operator charge?", "acceptedAnswer": {"@type": "Answer", "text": "Whatever the rate confirmation says. The usual terms are two hours of free time, then $40 to $100 an hour billed in 15 or 30 minute increments, often capped at 8 to 12 hours. Check the rate confirmation: if it is silent, you are negotiating, not claiming, and the broker is not obliged to pay."}}, {"@type": "Question", "name": "When does the detention clock start?", "acceptedAnswer": {"@type": "Answer", "text": "Usually at the later of your arrival time and the appointment time. Arriving early does not start it. If you arrive after the appointment, it starts when you arrive. This calculator reads each stop that way."}}, {"@type": "Question", "name": "What proof do brokers want for a detention claim?", "acceptedAnswer": {"@type": "Answer", "text": "Signed or stamped in and out times from the bill of lading or a gate receipt, the rate confirmation showing the detention terms, and your request sent inside the broker's window, often 24 to 72 hours after delivery or with the proof of delivery. Photograph the times before you leave."}}, {"@type": "Question", "name": "Is detention pay taxable?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. It is ordinary business income, reported with the rest of your freight revenue. This tool only totals the claim; it does not compute tax."}}, {"@type": "Question", "name": "Is this legal or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does arithmetic on the times and terms you enter. Whether a claim is owed depends on your contract, which this tool has not read."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+  <style>.stop { border-top: 1px solid #ece7f2; margin-top: 10px; } textarea { width: 100%; box-sizing: border-box; min-height: 190px; font: 14px ui-monospace, monospace; padding: 10px; border: 1px solid #adc3cc; border-radius: 7px; }</style>
+</head>
+<body>
+  <header>
+    <p class="note">TRUCK DETENTION PAY CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much detention are you owed?</h1>
+    <p>Enter your gate times and the terms from the rate confirmation. You get the billable detention hours, the dollars,
+    what the wait did to your real hourly pay, and a <strong>claim email</strong> to paste to the broker. Time spent waiting
+    is the most commonly unbilled money in trucking; this makes the claim a two-minute job.</p>
+    <p class="note">Nothing is uploaded. Your times and rates are read in this browser and never leave your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Terms from your rate confirmation</h2>
+    <div class="grid">
+      <div><label for="rate">Detention rate ($ per hour)</label><input type="number" id="rate" min="0" step="1" placeholder="e.g. 50"></div>
+      <div><label for="free">Free time (hours)</label><input type="number" id="free" min="0" step="0.25" value="2"></div>
+      <div><label for="inc">Billing increment</label>
+        <select id="inc"><option value="15">15 minutes</option><option value="30" selected>30 minutes</option><option value="60">1 hour</option></select></div>
+      <div><label for="cap">Max billable hours per stop (0 = no cap)</label><input type="number" id="cap" min="0" step="1" value="0"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Times from the bill of lading or gate receipt</h2>
+      <div class="stop" data-stop>
+        <h3>Pickup</h3>
+        <div class="grid">
+          <div><label for="arr1">Arrived</label><input type="datetime-local" id="arr1"></div>
+          <div><label for="appt1">Appointment (optional)</label><input type="datetime-local" id="appt1"></div>
+          <div><label for="dep1">Departed</label><input type="datetime-local" id="dep1"></div>
+        </div>
+      </div>
+      <div class="stop" data-stop>
+        <h3>Delivery</h3>
+        <div class="grid">
+          <div><label for="arr2">Arrived</label><input type="datetime-local" id="arr2"></div>
+          <div><label for="appt2">Appointment (optional)</label><input type="datetime-local" id="appt2"></div>
+          <div><label for="dep2">Departed</label><input type="datetime-local" id="dep2"></div>
+        </div>
+      </div>
+    <p class="note">Enter each stop's local wall-clock times. A stop that spans a daylight-saving change is off by an hour.</p>
+  </section>
+
+  <section class="card">
+    <h2>3. Optional: what the wait does to your pay</h2>
+    <div class="grid">
+      <div><label for="linehaul">Load rate, before detention ($)</label><input type="number" id="linehaul" min="0" step="1" placeholder="e.g. 1800"></div>
+      <div><label for="drive">Driving hours on this load</label><input type="number" id="drive" min="0" step="0.5" placeholder="e.g. 9"></div>
+      <div><label for="perMonth">Loads a month with detention</label><input type="number" id="perMonth" min="0" step="1" placeholder="e.g. 4"></div>
+      <div><label for="loadno">Load number (for the email)</label><input type="text" id="loadno" placeholder="e.g. L-48213"></div>
+    </div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate detention</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter your rate and at least one stop's arrival and departure, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table>
+      <thead><tr><th scope="col">Stop</th><th scope="col">On the clock</th><th scope="col">Billable</th><th scope="col">Owed</th></tr></thead>
+      <tbody id="result-table"></tbody>
+    </table>
+    <div id="report-findings"></div>
+    <h2 style="margin-top:22px">Claim email</h2>
+    <textarea id="claim" readonly aria-label="Claim email text"></textarea>
+    <button type="button" id="copy-claim">Copy email</button>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Your contract decides.</strong> If the rate confirmation has no detention clause, the broker is not obliged to pay; this tool cannot tell you what you agreed to.</li>
+      <li><strong>Hours, not law.</strong> It does arithmetic on the times and terms you enter. It does not check them against a document.</li>
+      <li><strong>Layover, TONU and lumper fees</strong> are separate accessorials and are not calculated here.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much detention can an owner-operator charge?</h3>
+    <p>Whatever the rate confirmation says. The usual terms are two hours of free time, then $40 to $100 an hour billed in 15 or 30 minute increments, often capped at 8 to 12 hours. Check the rate confirmation: if it is silent, you are negotiating, not claiming, and the broker is not obliged to pay.</p>
+    <h3>When does the detention clock start?</h3>
+    <p>Usually at the later of your arrival time and the appointment time. Arriving early does not start it. If you arrive after the appointment, it starts when you arrive. This calculator reads each stop that way.</p>
+    <h3>What proof do brokers want for a detention claim?</h3>
+    <p>Signed or stamped in and out times from the bill of lading or a gate receipt, the rate confirmation showing the detention terms, and your request sent inside the broker's window, often 24 to 72 hours after delivery or with the proof of delivery. Photograph the times before you leave.</p>
+    <h3>Is detention pay taxable?</h3>
+    <p>Yes. It is ordinary business income, reported with the rest of your freight revenue. This tool only totals the claim; it does not compute tax.</p>
+    <h3>Is this legal or financial advice?</h3>
+    <p>No. It does arithmetic on the times and terms you enter. Whether a claim is owed depends on your contract, which this tool has not read.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own contract terms before sending a claim. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your times and rates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>detention_calculated</code>, <code>example_loaded</code>, <code>claim_copied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Want the cost side? The <a href="../owner-operator-cpm-calculator/">owner-operator cost-per-mile calculator</a> shows what a mile costs you.</p>
+    <p>Paid a lumper at the dock? The <a href="../lumper-fee-reimbursement-calculator/">lumper fee reimbursement calculator</a> shows what you are out after fees, caps and days to payment.</p>
+    <p>Chaining loads? The <a href="../owner-operator-load-chain-planner/">load chain planner</a> compares sequences of loads.</p>
+    <p>Hauling cars? The <a href="../car-hauler-load-planner/">car hauler load planner</a> picks which vehicles to carry and on which deck.</p>
+    <p>Tax side of the road? The <a href="../owner-operator-per-diem-calculator/">owner-operator per diem calculator</a> compares per diem with receipts.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateDetention, claimText, hoursText, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const ids = ["rate", "free", "inc", "cap", "linehaul", "drive", "perMonth", "loadno", "arr1", "appt1", "dep1", "arr2", "appt2", "dep2"];
+    const el = Object.fromEntries(ids.map((i) => [i, document.getElementById(i)]));
+    const status = $("#form-status"), report = $("#report");
+
+    function runCalculate() {
+      const r = calculateDetention({
+        ratePerHour: el.rate.value, freeHours: el.free.value, incrementMinutes: Number(el.inc.value), capHours: el.cap.value,
+        linehaul: el.linehaul.value, driveHours: el.drive.value, detentionLoadsPerMonth: el.perMonth.value,
+        stops: [
+          { name: "Pickup", arrival: el.arr1.value, appointment: el.appt1.value, departure: el.dep1.value },
+          { name: "Delivery", arrival: el.arr2.value, appointment: el.appt2.value, departure: el.dep2.value },
+        ],
+      });
+      if (r.error) { report.hidden = true; status.textContent = r.error; return; }
+      let stats = `Detention owed: <strong>${money(r.total)}</strong> across <strong>${r.billableHours}</strong> billable hour(s).`;
+      if (r.hourlyUnpaid !== null) stats += ` Your pay on this load: <strong>${money(r.hourlyUnpaid)}/h</strong> unpaid wait, <strong>${money(r.hourlyPaid)}/h</strong> if detention is paid.`;
+      if (r.yearly !== null) stats += ` At this rate and your loads a month, that is <strong>${money(r.yearly)}</strong> a year.`;
+      $("#report-stats").innerHTML = stats;
+      $("#result-table").innerHTML = r.stops.map((s) =>
+        `<tr><th scope="row">${s.label}</th><td>${hoursText(s.clockMinutes)}</td><td>${s.billableHours} h</td><td>${money(s.amount)}</td></tr>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) =>
+        `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4><p>${f.detail}</p></div>`).join("");
+      $("#claim").value = claimText(r, { loadNumber: el.loadno.value });
+      report.hidden = false;
+      status.textContent = "";
+      record("detention_calculated");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+    $("#load-example").addEventListener("click", () => {
+      Object.assign(el.rate, { value: "50" }); el.free.value = "2"; el.inc.value = "30"; el.cap.value = "0";
+      el.arr1.value = "2026-10-05T06:00"; el.appt1.value = "2026-10-05T08:00"; el.dep1.value = "2026-10-05T12:20";
+      el.arr2.value = "2026-10-06T09:00"; el.appt2.value = "2026-10-06T09:00"; el.dep2.value = "2026-10-06T10:15";
+      el.linehaul.value = "1800"; el.drive.value = "9"; el.perMonth.value = "4"; el.loadno.value = "L-48213";
+      runCalculate();
+      record("example_loaded");
+      status.textContent = "Worked example: early arrival, 4h20m at pickup against a 08:00 appointment, $50/h, 2h free.";
+    });
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of ids) if (id !== "inc" && id !== "free") el[id].value = "";
+      el.free.value = "2"; el.inc.value = "30"; el.cap.value = "0";
+      report.hidden = true;
+      status.textContent = "Enter your rate and at least one stop's arrival and departure, then click Calculate.";
+    });
+    $("#copy-claim").addEventListener("click", async () => {
+      const box = $("#claim");
+      try { await navigator.clipboard.writeText(box.value); } catch { box.select(); document.execCommand("copy"); }
+      record("claim_copied");
+      $("#copy-claim").textContent = "Copied";
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

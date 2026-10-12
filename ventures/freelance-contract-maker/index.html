@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Freelance Contract Maker — Free Service Agreement Generator, No Signup</title>
+  <meta name="description" content="Free freelance contract generator: describe the project, pick fixed, hourly or retainer, set deposit, revisions, ownership, kill fee and late fee, and get a plain-language service agreement to print or download. No account, nothing uploaded.">
+  <meta property="og:title" content="Freelance Contract Maker — free service agreement generator, no signup">
+  <meta property="og:description" content="Build a freelance service agreement in minutes: scope, payment schedule, revisions, ownership, cancellation and liability. Free, private, no account.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Freelance Contract Maker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "A free freelance service agreement generator that runs in your browser: scope, fee, deposit and milestones, revisions, ownership, kill fee, late fee and liability, printed or downloaded as plain text. No account; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is this contract maker really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. There is no account, no watermark, no trial and no paywall on printing or downloading. It runs in your browser, so it costs nothing to serve, and it stays free."}},{"@type":"Question","name":"Is the contract it writes legally binding?","acceptedAnswer":{"@type":"Answer","text":"A written agreement that both sides sign is generally enforceable, but whether a particular clause holds up depends on where you and the client are. This is a plain-language starting point, not legal advice and not a substitute for a lawyer. For a large project or an unusual deal, have a qualified lawyer read it."}},{"@type":"Question","name":"Who owns the work when the project is done?","acceptedAnswer":{"@type":"Answer","text":"You choose. The default passes copyright to the client only once they have paid in full, so a client who does not pay cannot use the work. You can instead keep ownership and license it, or keep all rights. Whatever you pick, the contract says it in one paragraph."}},{"@type":"Question","name":"What is a kill fee and should I include one?","acceptedAnswer":{"@type":"Answer","text":"A kill fee is what the client pays if they cancel before delivery, on top of the work already done. It covers the schedule you held open for them. The default is 25% of a fixed project fee. Set it to 0 to leave it out."}},{"@type":"Question","name":"How many revisions should a contract include?","acceptedAnswer":{"@type":"Answer","text":"Two rounds per deliverable is common for fixed-fee creative and web work. Anything beyond that is billed at an hourly rate. The point is to fix a number before the project starts, so the third round is a conversation about price, not an argument."}},{"@type":"Question","name":"Can I use it for hourly or retainer work?","acceptedAnswer":{"@type":"Answer","text":"Yes. Pick Fixed fee, Hourly rate or Monthly retainer. Hourly adds an estimate that is stated as not a cap, and retainer adds monthly advance invoicing with no rollover. Deposit and milestone schedules apply to fixed fees."}},{"@type":"Question","name":"Where are my drafts stored?","acceptedAnswer":{"@type":"Answer","text":"In your browser on this device only. Clearing site data removes them, so use Download backup now and then. Nothing you type is uploaded."}},{"@type":"Question","name":"What should I do after the client signs?","acceptedAnswer":{"@type":"Answer","text":"Send the quote with Estimate Maker, track hours with Time Tracker, and bill with Invoice Maker. If a client sends you their contract instead, run it through the Freelance Contract Checker before you sign."}}]}</script>
+<style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f4fa; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #3a3fa8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #23277a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #23277a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a4f6a; }
+    .card { background: #fff; border: 1px solid #dcdcee; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #23277a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b3b5d3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3a3fa8; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e6e7f6; color: #23277a; }
+    button.danger { background: #fde8e8; color: #9a3412; }
+    button.stop { background: #b42318; }
+    button.small { padding: 5px 9px; margin: 0 4px 0 0; font-size: .8rem; }
+    button:disabled { opacity: .5; cursor: default; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #ebebf5; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a4f6a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0; }
+    .kpi { background: #eeeffb; border-radius: 10px; padding: 12px; }
+    .kpi b { display: block; font-size: 1.3rem; color: #23277a; }
+    .kpi span { font-size: .8rem; color: #4a4f6a; }
+    .clock { font-size: clamp(2.2rem, 8vw, 3.6rem); font-variant-numeric: tabular-nums; font-weight: 800; color: #23277a; margin: 4px 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: #e6e7f6; color: #23277a; }
+    .pill.billed { background: #d8f0e2; color: #14503a; }
+    .pill.nb { background: #eee; color: #555; }
+    .issues li { color: #7c4a10; }
+    .bars { display: flex; gap: 6px; align-items: flex-end; height: 90px; margin: 10px 0 4px; }
+    .bar { flex: 1; background: #c9cbf0; border-radius: 4px 4px 0 0; min-height: 2px; }
+    .barlabels { display: flex; gap: 6px; font-size: .72rem; color: #4a4f6a; text-align: center; }
+    .barlabels span { flex: 1; }
+    .sr { position: absolute; left: -9999px; }
+    .running { outline: 3px solid #b42318; }
+    #doc { background: #fff; color: #111; padding: 18px; border: 1px solid #dcdcee; border-radius: 6px; margin-top: 12px; }
+    #doc h2 { margin: 0 0 6px; color: #111; }
+    @media print { body > :not(#doc-card) { display: none !important; } body { background: #fff; padding: 0; max-width: none; } #doc-card { box-shadow: none; border: 0; padding: 0; margin: 0; } #doc-card .noprint { display: none !important; } #doc { border: 0; padding: 0; } }
+    footer { margin-top: 28px; border-top: 1px solid #dcdcee; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Freelance Contract Maker: a service agreement before you start work</h1>
+    <p>Describe the project, choose how you are paid, and get a <strong>plain-language service agreement</strong> with scope, a <strong>deposit and payment schedule</strong>, included revisions, who owns the work, a <strong>kill fee</strong>, a late fee and a liability cap. Print it, save it as PDF or copy the text. No account, no watermark, and <strong>nothing leaves your device</strong>.</p>
+  </header>
+
+  <section class="card" aria-label="Parties and project">
+    <h2>1. Who and what</h2>
+    <div class="grid">
+      <div><label for="f-contractor">Your name or business</label><input id="f-contractor" autocomplete="organization"></div>
+      <div><label for="f-client">Client name</label><input id="f-client" autocomplete="off"></div>
+      <div><label for="f-effective">Effective date</label><input id="f-effective" type="date"></div>
+      <div><label for="f-law">Governing law (state or country)</label><input id="f-law" placeholder="e.g. Colorado, USA"></div>
+    </div>
+    <label for="f-project">The project in one sentence</label>
+    <input id="f-project" placeholder="e.g. Design and build a five-page marketing website">
+    <label for="f-deliverables">Deliverables (one per line)</label>
+    <textarea id="f-deliverables" rows="4" placeholder="Home page&#10;Pricing page&#10;Contact form"></textarea>
+  </section>
+
+  <section class="card" aria-label="Fee and payment">
+    <h2>2. Fee and payment</h2>
+    <div class="grid">
+      <div><label for="f-feeType">How you are paid</label><select id="f-feeType"><option value="fixed">Fixed project fee</option><option value="hourly">Hourly rate</option><option value="retainer">Monthly retainer</option></select></div>
+      <div><label for="f-amount" id="amount-label">Project fee</label><input id="f-amount" inputmode="decimal" placeholder="0.00"></div>
+      <div><label for="f-currency">Currency</label><select id="f-currency"><option>USD</option><option>CAD</option><option>EUR</option><option>GBP</option><option>AUD</option><option>NZD</option><option>CHF</option><option>JPY</option><option>MXN</option><option>INR</option></select></div>
+      <div id="hours-wrap" hidden><label for="f-hoursEstimate">Estimated hours</label><input id="f-hoursEstimate" inputmode="decimal"></div>
+      <div id="deposit-wrap"><label for="f-depositPct">Deposit on signing (%)</label><input id="f-depositPct" inputmode="decimal"></div>
+      <div><label for="f-payDays">Invoices due in (days, 0 = on receipt)</label><input id="f-payDays" inputmode="numeric"></div>
+      <div><label for="f-lateFeePct">Late fee per month (%)</label><input id="f-lateFeePct" inputmode="decimal"></div>
+    </div>
+    <div id="ms-wrap"><label for="f-milestones">Milestone payments (optional, one per line: name | percent)</label>
+    <textarea id="f-milestones" rows="3" placeholder="First draft approved | 25"></textarea>
+    <p class="note">The balance is whatever is left after the deposit and milestones, due on final delivery. Rounding goes to the last payment so the parts add up to the fee to the cent.</p></div>
+    <div class="kpis" id="sched" aria-live="polite"></div>
+  </section>
+
+  <section class="card" aria-label="Terms">
+    <h2>3. Revisions, ownership and ending early</h2>
+    <div class="grid">
+      <div id="rev-wrap"><label for="f-revisions">Revision rounds included</label><input id="f-revisions" inputmode="numeric"></div>
+      <div id="xrev-wrap"><label for="f-extraRevisionRate">Rate for extra revisions / hour (optional)</label><input id="f-extraRevisionRate" inputmode="decimal"></div>
+      <div id="kill-wrap"><label for="f-killFeePct">Kill fee if the client cancels (%)</label><input id="f-killFeePct" inputmode="decimal"></div>
+      <div><label for="f-noticeDays">Notice to end the agreement (days)</label><input id="f-noticeDays" inputmode="numeric"></div>
+      <div><label for="f-ip">Who owns the finished work</label><select id="f-ip"><option value="on-payment">Client, once paid in full</option><option value="license">I keep it; client gets a licence</option><option value="contractor">I keep all rights</option></select></div>
+    </div>
+    <p><label style="display:flex;gap:8px;align-items:center;font-weight:600"><input id="f-portfolio" type="checkbox" style="width:auto"> I may show the work in my portfolio</label>
+    <label style="display:flex;gap:8px;align-items:center;font-weight:600"><input id="f-confidential" type="checkbox" style="width:auto"> Include a confidentiality clause</label>
+    <label style="display:flex;gap:8px;align-items:center;font-weight:600"><input id="f-expenses" type="checkbox" style="width:auto"> Client reimburses approved expenses</label>
+    <label style="display:flex;gap:8px;align-items:center;font-weight:600"><input id="f-liabilityCap" type="checkbox" style="width:auto"> Cap my liability at the fees paid</label></p>
+  </section>
+
+  <section class="card" id="doc-card" aria-label="Your agreement">
+    <h2 class="noprint">Your agreement</h2>
+    <ul class="issues noprint" id="issues" aria-live="polite"></ul>
+    <ul class="noprint" id="notes"></ul>
+    <p class="noprint"><button type="button" id="print">Print / Save as PDF</button><button type="button" class="secondary" id="copy">Copy text</button><button type="button" class="secondary" id="dl-txt">Download .txt</button></p>
+    <p class="note noprint" id="copy-status" aria-live="polite"></p>
+    <div id="doc"></div>
+  </section>
+
+  <section class="card" aria-label="Back up and restore">
+    <h2>Back up, restore</h2>
+    <p><button type="button" class="secondary" id="export-json">Download backup</button><button type="button" class="secondary" id="import-btn">Restore from backup</button><button type="button" class="secondary" id="load-example">Load an example</button><button type="button" class="danger" id="clear-all">Clear everything on this device</button>
+    <input type="file" id="import-file" accept=".json,application/json" hidden aria-label="Backup file to restore"></p>
+    <p class="note" id="io-status" aria-live="polite"></p>
+  </section>
+
+  <section class="card">
+    <h2>What it does and does not do</h2>
+    <ul>
+      <li><strong>Plain-language clauses, fixed rules.</strong> The agreement is assembled from your answers by a template, not by a model, so the same answers always give the same text.</li>
+      <li><strong>Money to the cent.</strong> The deposit, milestones and balance add up to the fee exactly, and the kill fee and late fee are priced for you.</li>
+      <li><strong>A starting point.</strong> It covers scope, fees, revisions, ownership, confidentiality, ending early, independent-contractor status, liability and governing law. It does not cover non-competes, data protection terms, subcontractors, insurance, tax forms, or rules specific to your trade or place.</li>
+      <li><strong>Checks before you send.</strong> It tells you what is missing and flags choices that tend to cause trouble, such as no deposit, net 60 terms or a late fee over 5% a month.</li>
+      <li><strong>Not modelled:</strong> e-signature, counter-party editing, version history across devices, and translation.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Is this contract maker really free?</h3>
+    <p>Yes. There is no account, no watermark, no trial and no paywall on printing or downloading. It runs in your browser, so it costs nothing to serve, and it stays free.</p>
+    <h3>Is the contract it writes legally binding?</h3>
+    <p>A written agreement that both sides sign is generally enforceable, but whether a particular clause holds up depends on where you and the client are. This is a plain-language starting point, not legal advice and not a substitute for a lawyer. For a large project or an unusual deal, have a qualified lawyer read it.</p>
+    <h3>Who owns the work when the project is done?</h3>
+    <p>You choose. The default passes copyright to the client only once they have paid in full, so a client who does not pay cannot use the work. You can instead keep ownership and license it, or keep all rights. Whatever you pick, the contract says it in one paragraph.</p>
+    <h3>What is a kill fee and should I include one?</h3>
+    <p>A kill fee is what the client pays if they cancel before delivery, on top of the work already done. It covers the schedule you held open for them. The default is 25% of a fixed project fee. Set it to 0 to leave it out.</p>
+    <h3>How many revisions should a contract include?</h3>
+    <p>Two rounds per deliverable is common for fixed-fee creative and web work. Anything beyond that is billed at an hourly rate. The point is to fix a number before the project starts, so the third round is a conversation about price, not an argument.</p>
+    <h3>Can I use it for hourly or retainer work?</h3>
+    <p>Yes. Pick Fixed fee, Hourly rate or Monthly retainer. Hourly adds an estimate that is stated as not a cap, and retainer adds monthly advance invoicing with no rollover. Deposit and milestone schedules apply to fixed fees.</p>
+    <h3>Where are my drafts stored?</h3>
+    <p>In your browser on this device only. Clearing site data removes them, so use Download backup now and then. Nothing you type is uploaded.</p>
+    <h3>What should I do after the client signs?</h3>
+    <p>Send the quote with Estimate Maker, track hours with Time Tracker, and bill with Invoice Maker. If a client sends you their contract instead, run it through the Freelance Contract Checker before you sign.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. The text it produces is a template built from your answers; whether any clause is valid or enforceable where you and your client are is for you to confirm, with a lawyer if the project matters.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as your only record: download a backup.</p>
+    <p>Everything runs in your browser. What you type is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>agreement_printed</code>, <code>agreement_copied</code>, <code>agreement_downloaded</code>, <code>example_loaded</code>) are counted only in local storage on your device, never the content. Turn it off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Before this, win the job with the <a href="../freelance-proposal-maker/">Freelance Proposal Maker</a>. Before you sign someone else's contract, run it through the <a href="../freelance-contract-checker/">Freelance Contract Checker</a>. After this one is signed, quote with <a href="../estimate-maker/">Estimate Maker</a>, bill hours with <a href="../time-tracker/">Time Tracker</a> and <a href="../invoice-maker/">Invoice Maker</a>, and see what to do next on the <a href="../freelance-dashboard/">Freelance Dashboard</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { DEFAULTS, parseHandoff, parseCents, paymentSchedule, lateFeeExample, killFee, check, buildAgreement, agreementText, reviewNotes, formatMoney } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const KEY = "freelance-contract-maker-data";
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const TEXT = ["contractor", "client", "effective", "law", "project", "deliverables", "feeType", "amount", "currency", "hoursEstimate", "depositPct", "payDays", "lateFeePct", "milestones", "revisions", "extraRevisionRate", "killFeePct", "noticeDays", "ip"];
+    const BOOL = ["portfolio", "confidential", "expenses", "liabilityCap"];
+    let data = load();
+
+    function load() {
+      try {
+        const d = JSON.parse(localStorage.getItem(KEY) || "null");
+        if (d && typeof d === "object" && !Array.isArray(d)) return { ...DEFAULTS, ...d };
+      } catch { /* storage is optional */ }
+      return { ...DEFAULTS };
+    }
+    function persist() { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch { $("#io-status").textContent = "Could not save: browser storage is full or blocked. Download a backup."; } }
+    function fill() {
+      for (const k of TEXT) $("#f-" + k).value = data[k] ?? "";
+      for (const k of BOOL) $("#f-" + k).checked = !!data[k];
+    }
+    for (const k of TEXT) $("#f-" + k).addEventListener("input", () => { data[k] = $("#f-" + k).value; persist(); render(); });
+    for (const k of BOOL) $("#f-" + k).addEventListener("change", () => { data[k] = $("#f-" + k).checked; persist(); render(); });
+
+    function render() {
+      const fixed = data.feeType === "fixed", hourly = data.feeType === "hourly";
+      $("#amount-label").textContent = fixed ? "Project fee" : hourly ? "Hourly rate" : "Monthly retainer";
+      $("#hours-wrap").hidden = !hourly;
+      for (const id of ["#deposit-wrap", "#ms-wrap", "#kill-wrap"]) $(id).hidden = !fixed;
+      for (const id of ["#rev-wrap", "#xrev-wrap"]) $(id).hidden = hourly;
+      const m = (c) => formatMoney(c, data.currency);
+      const sched = paymentSchedule(data), kf = killFee(data), lf = lateFeeExample(data);
+      const kp = [];
+      for (const r of sched.rows) kp.push([m(r.cents), `${r.name} (${r.pct}%)`]);
+      if (kf) kp.push([m(kf), "kill fee if cancelled"]);
+      if (lf) kp.push([m(lf), "late fee, first month, on the full fee"]);
+      $("#sched").innerHTML = kp.map(([b, l]) => `<div class="kpi"><b>${esc(b)}</b><span>${esc(l)}</span></div>`).join("");
+      $("#issues").innerHTML = check(data).map((w) => `<li>${esc(w)}</li>`).join("");
+      $("#notes").innerHTML = reviewNotes(data).map((w) => `<li>${esc(w)}</li>`).join("");
+      const doc = $("#doc");
+      doc.textContent = "";
+      const h = document.createElement("h2"); h.textContent = "Freelance Services Agreement"; doc.append(h);
+      for (const s of buildAgreement(data)) {
+        const h3 = document.createElement("h3"); h3.textContent = s.title; doc.append(h3);
+        for (const para of s.body) { const p = document.createElement("p"); p.style.whiteSpace = "pre-wrap"; p.textContent = para; doc.append(p); }
+      }
+    }
+    const text = () => "Freelance Services Agreement\n\n" + agreementText(buildAgreement(data));
+    function download(name, body, type) {
+      const url = URL.createObjectURL(new Blob([body], { type }));
+      const a = Object.assign(document.createElement("a"), { href: url, download: name });
+      document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    $("#print").onclick = () => { record("agreement_printed"); window.print(); };
+    $("#dl-txt").onclick = () => { download("service-agreement.txt", text(), "text/plain"); record("agreement_downloaded"); };
+    $("#copy").onclick = async () => {
+      try { await navigator.clipboard.writeText(text()); $("#copy-status").textContent = "Copied."; record("agreement_copied"); }
+      catch { $("#copy-status").textContent = "Your browser blocked copying. Select the text below, or use Download .txt."; }
+    };
+    $("#export-json").onclick = () => download("freelance-contract-maker-backup.json", JSON.stringify(data, null, 2), "application/json");
+    $("#import-btn").onclick = () => $("#import-file").click();
+    $("#import-file").onchange = async (ev) => {
+      try {
+        const d = JSON.parse(await ev.target.files[0].text());
+        if (!d || typeof d !== "object" || Array.isArray(d) || !("feeType" in d)) throw new Error("shape");
+        data = { ...DEFAULTS, ...d }; persist(); fill(); render(); $("#io-status").textContent = "Backup restored.";
+      } catch { $("#io-status").textContent = "That file is not a Freelance Contract Maker backup."; }
+      ev.target.value = "";
+    };
+    $("#clear-all").onclick = () => { if (!confirm("Clear everything on this device? This cannot be undone.")) return; data = { ...DEFAULTS }; persist(); fill(); render(); };
+    $("#load-example").onclick = () => {
+      data = { ...DEFAULTS, contractor: "Ada Dev Studio (example)", client: "Acme Co (example)", effective: new Date().toISOString().slice(0, 10), law: "Colorado, USA",
+        project: "Design and build a five-page marketing website", deliverables: "Home page\nPricing page\nAbout page\nContact form\nHandover document",
+        amount: "6000", depositPct: "40", milestones: "Designs approved | 30", revisions: "2", extraRevisionRate: "90" };
+      persist(); fill(); render(); record("example_loaded");
+    };
+    $("#optout").onclick = () => { setUsageOptOut(true); $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; };
+    if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
+    const ho = parseHandoff(location.hash);
+    if (ho) {
+      data = { ...DEFAULTS, ...ho }; persist();
+      history.replaceState(null, "", location.pathname + location.search);
+      $("#io-status").textContent = "Filled in from your proposal. Review every field before you send it.";
+    }
+    fill(); render();
+  </script>
+</body>
+</html>

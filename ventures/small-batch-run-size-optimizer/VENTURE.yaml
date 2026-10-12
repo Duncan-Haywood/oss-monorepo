@@ -1,0 +1,54 @@
+name: small-batch-run-size-optimizer
+description: >-
+  Free browser tool for small makers who produce in batches (candles, soap, sauces, prints, baked goods, apparel): enter yearly
+  volume, changeover cost and holding cost per product and get the run size with the lowest yearly setup plus stock cost.
+  Applies the economic production quantity with a finite production rate, then rounds to the pack or mould multiple, caps the
+  run at what sells within shelf life, respects smallest and largest run, and, when machine hours are limited, prices each
+  changeover hour so setup-heavy products get the bigger runs. Shows the saving against today's run size and the range of run
+  sizes within 5 percent of the best. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: closest rows were seasonal-buy-quantity-optimizer 0.36 (one
+# buy per season) and cut-list-optimizer 0.22; candle-batch-cost-calculator prices one batch but does not choose its size, and
+# production-mix-optimizer picks what to make under a capacity limit, not how big each run should be. Ideas dropped before this
+# one because the tree already has them: bid-win-rate-optimizer (0.81), pest-control-bid-calculator (0.80), renewal-rent-optimizer.
+#
+# Why this niche: small makers set run sizes by habit or by the size of the pot. Each changeover is cash and hours, each unit
+# on the shelf is cash tied up and, for food and cosmetics, a clock. The method (EPQ with a finite rate, an integer pack size
+# and a shared-hours constraint priced by bisection) is textbook operations research that is absent from free tools aimed at
+# makers.
+#
+# First visitor: people searching "how many candles per batch", "economic batch size small business", "production run size
+# calculator"; r/candlemaking, r/soapmaking, r/smallbusiness, cottage-food and hot-sauce maker groups. Volume not measured.
+#
+# Liability boundary: arithmetic on typed figures; not accounting or business advice; nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural front end for a paid multi-product scheduler
+# that also sequences runs, or referrals to inventory and production software vendors.
+
+hypotheses:
+  - claim: >-
+      Small makers who produce in batches will use a free tool that turns their own volumes and changeover costs into a run size per product,
+      and will return when a product or a cost changes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/small-batch-run-size-optimizer/
+  analytics: null

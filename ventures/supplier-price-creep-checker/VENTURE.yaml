@@ -1,0 +1,61 @@
+name: supplier-price-creep-checker
+description: >-
+  Free browser tool for restaurants, cafes and small shops: paste supplier invoice lines (date, item, quantity, unit
+  price, optional contract price) and it lines up every purchase of each item, flags the ones that crept up past a
+  threshold, finds single invoices priced well above the ones either side (likely errors), lists lines over a contract
+  price, annualises the cost of the creep, shows a price index per supplier, and drafts a credit-request email per
+  supplier. Downloads the emails as text and a per-item report as CSV. Invoices are read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check.py: pour-cost-calculator 0.51 (works out menu
+# cost from recipes; does not read invoices), import-landed-cost-calculator 0.23, edi-x12-order-checker 0.21. No venture
+# compares the same item's price across invoices over time.
+# Search phrases: "supplier price increase tracker", "food cost creep", "how to track vendor price changes",
+# "invoice price variance report", "restaurant invoice audit".
+# Volume not measured with an external tool.
+#
+# Who: owners of restaurants, cafes, bakeries, florists, repair shops and retailers with a handful of weekly suppliers,
+# who see food or parts cost rise and cannot say which line did it. Paying buyer, if any: a bookkeeper or restaurant
+# group that wants the check inside a monthly close.
+#
+# What makes it more than a spreadsheet: it separates a step that stays (creep) from a single bad invoice (credit
+# request), checks a contract price line by line, annualises at the pace in the data, and weights a per-supplier index
+# by typical order size so one cheap item cannot hide a creeping one.
+#
+# Path to revenue (payment rails stay off): lead magnet for the restaurant and small-retail bookkeeping audience. A
+# paid version, if usage appears, is a QuickBooks/Xero bill import and a monthly emailed variance report behind an
+# env-var switch; not built.
+#
+# Liability: it reads the user's own prices, shows the arithmetic, never says a supplier is wrong or a credit is owed,
+# and carries the no-warranty and not-advice clauses. Unit and pack-size changes are not decided and are flagged.
+#
+# Unverified: no real distributor export has been tested; column names are guesses at common ones. The first report of
+# an export it cannot read is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A restaurant or small-shop owner will paste a few weeks of invoice lines into a no-upload page to find the item
+      behind rising costs, because their accounting software shows totals by vendor, not the price of one item over
+      time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted invoice structure) engage with the tool by 2027-03-15.
+  - Users report that real distributor exports cannot be read and the column mapping cannot be fixed cheaply.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/supplier-price-creep-checker/
+  analytics: null
