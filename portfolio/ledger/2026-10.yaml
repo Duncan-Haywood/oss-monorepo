@@ -3671,6 +3671,22 @@ entries:
         duplicate_check.py (nearest 0.22, eu-vat-oss-calculator; no per-country price table existed). Linked from
         saas-tier-price-optimizer. First visitor: developers searching PPP or regional pricing for SaaS; volume unmeasured.
     mrr_end: 0
+  - venture: 3pl-invoice-audit-checker
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built 3pl-invoice-audit-checker: a browser-only checker for e-commerce brands that takes the rate card from
+        a 3PL contract (receiving, storage, pick first and additional, pack, returns, kitting, account minimum, long-term storage,
+        fuel and handling surcharges), the brand's own counts (order export, receiving log, WMS average on-hand, returns) and the
+        invoice as CSV, recomputes every line, and flags rates above contract, quantities the records do not support, storage
+        billed above average on-hand, duplicate lines, charges not in the rate card, account-minimum double billing and
+        surcharges on the wrong base. Totals and ranks the recoverable dollars, names the proving record per line, and writes a
+        dispute note. CSV export and shareable URL state. Hand-computed unit tests (worked example totals $3,607.80). Guide page
+        vs reviewing 3PL invoices in a spreadsheet. Screened with duplicate_check.py (nearest 0.38, exemption-certificate-audit-check;
+        freight-accessorial-auditor audits carrier charges and 3pl-quote-normalizer compares quotes, neither checks a warehouse
+        invoice). First visitor: people searching 3PL invoice audit or 3PL billing errors; volume unmeasured.
+    mrr_end: 0
   - venture: patent-maintenance-fee-planner
     agent_spend_usd: 0
     human_hours: 0

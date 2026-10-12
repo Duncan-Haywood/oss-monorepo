@@ -1567,9 +1567,10 @@ const RELATIVE_SELF = relative(
 // +1: `cannabis-280e-tax-calculator` graduated.
 // +1: `sales-quota-capacity-planner` graduated.
 // +1: `ppp-pricing-table-generator` graduated.
+// +1: `3pl-invoice-audit-checker` graduated.
 // +1: `npm-lockfile-duplicates-check` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1078;
+const SWITCHES_IN_THE_CATALOGUE = 1079;
 // +1: `retreat-profit-pricing-calculator` graduated.
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.
