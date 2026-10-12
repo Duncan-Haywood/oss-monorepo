@@ -3555,6 +3555,7 @@ entries:
     mrr_end: 0
   - venture: kids-birthday-party-package-profit-calculator
   - venture: event-rental-inventory-payback-calculator
+  - venture: pilot-car-escort-run-profit-calculator
     agent_spend_usd: 0
     human_hours: 0
     outcomes:
@@ -3573,4 +3574,11 @@ entries:
         whose worked example the tests recompute; 400 random items confirm the lowest price reproduces the payback target.
         Screened with duplicate_check.py (nearest 0.24). First visitor: party rental owner groups searching how long a chair
         rental takes to pay for itself and what to buy next; volume unmeasured.
+        Graduated and built pilot-car-escort-run-profit-calculator: a browser-only calculator for pilot car and oversize-load escort
+        operators turning a per-mile or flat/day quote with a minimum charge, loaded and deadhead miles, driver hours, days and
+        hotel nights, tolls, card fees, vehicle cost and yearly insurance, certification and equipment overhead into true profit per
+        run, margin, profit per driver hour, the lowest quote that earns a target margin, break-even runs a year and a two-run
+        comparison. Guide page whose worked example the tests recompute; 400 random runs in both quote modes confirm the lowest
+        quote reproduces the target margin. Screened against ls ventures (no pilot car or escort venture). First visitor: escort
+        operator groups searching how much a pilot car should charge per mile; volume unmeasured.
     mrr_end: 0

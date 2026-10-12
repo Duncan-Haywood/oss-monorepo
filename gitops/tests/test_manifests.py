@@ -3038,7 +3038,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `json-ld-rich-result-validator` graduated (browser JSON-LD validator and builder).
     # +1: `amusement-route-location-calculator` graduated (browser coin-op route location check: take, commission, visits and miles to profit per route hour, the weekly take needed and the highest commission worth paying).
     # +1: `courier-van-route-profit-calculator` graduated (browser delivery van route check: route pay, stops, miles and van costs to true profit per route, per hour and per stop, break-even stops, the lowest route pay for a target hourly and a two-offer comparison).
-    total = 1076  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1076 tools" wording.
+    # +1: `pilot-car-escort-run-profit-calculator` graduated (browser pilot car and oversize-load escort run check: per-mile or day quote, minimum charge, deadhead, hours, hotel and yearly overhead to true profit per run and per driver hour, the lowest quote for a target margin, break-even runs and a two-run comparison).
+    total = 1077  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1077 tools" wording.
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
     # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
