@@ -1,0 +1,44 @@
+name: payroll-deposit-penalty-calculator
+description: 'Free tool that estimates the IRS failure-to-deposit penalty and interest on late payroll tax deposits, days to the next penalty tier, the cost of waiting 30 more days, and the trust-fund tax personally at risk -- in the browser or as a zero-dependency Node CLI; nothing uploaded, no network calls.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate. Closest existing tools are estimated-tax-penalty-calculator
+# (Form 2210, individuals) and quarterly-estimated-tax-calendar; neither covers employer
+# payroll deposits. Not in screened-out.md.
+# Honest revenue view: lead magnet for small employers, restaurants, contractors and their
+# bookkeepers in a cash crunch, a high-urgency search ("late 941 deposit penalty"). Payment
+# rails stay off, optional GitHub Sponsors only. A later paid layer (payroll-service referral,
+# abatement-letter drafting) would be a separate decision.
+#
+# Gate self-assessment: liability_containment medium -- tax estimator, mitigated by the
+# visitor supplying the interest rate and trust-fund share, an explicit omission list in the
+# disclaimer (failure-to-pay, failure-to-file, interest on penalties, deposit ordering), and
+# a "have a professional confirm" disclaimer. No personal data, no network.
+#
+# First visitor channel: searches for "payroll tax deposit penalty calculator",
+# "late 941 deposit penalty", "trust fund recovery penalty".
+hypotheses:
+  - claim: 'Small employers behind on payroll deposits will use a private penalty calculator to see the cost of waiting and the trust-fund exposure before calling the IRS or a CPA.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct visitors engage with the tool within 90 days of it being reachable from the published site.
+  - No search impression for any payroll deposit penalty query within 90 days of indexing.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/payroll-deposit-penalty-calculator/
+  analytics: null

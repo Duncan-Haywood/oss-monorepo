@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Payroll Deposit Penalty Calculator — Late Payroll Tax Penalty and Interest</title>
+  <meta name="description" content="Calculate the IRS failure-to-deposit penalty (2%, 5%, 10%, 15%) and interest on late payroll tax deposits, see how many days until the next tier, and how much trust fund tax is personally at risk. Free, in your browser.">
+  <meta property="og:title" content="Payroll deposit penalty calculator, in your browser">
+  <meta property="og:description" content="Late 941 deposits? See the penalty tier, interest, the cost of waiting and trust-fund exposure. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Payroll Deposit Penalty Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Estimate the IRS failure-to-deposit penalty and interest on late payroll tax deposits, the cost of waiting, and the trust-fund portion at risk. Runs in the browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the penalty for depositing payroll taxes late?", "acceptedAnswer": {"@type": "Answer", "text": "Under IRC section 6656 the failure-to-deposit penalty is 2% of the late amount if it is 1 to 5 days late, 5% if 6 to 15 days late, and 10% if more than 15 days late. It rises to 15% if the amount is still unpaid more than 10 days after the first IRS notice or the day the IRS demands immediate payment. Interest is charged on top."}}, {"@type": "Question", "name": "What is the trust fund recovery penalty?", "acceptedAnswer": {"@type": "Answer", "text": "Income tax withheld from employees and the employee share of Social Security and Medicare are held in trust for the government. If they are not paid over, the IRS can assess a penalty equal to 100% of the unpaid trust-fund amount against each responsible person personally, under IRC section 6672. The tool shows the trust-fund portion of any deposit still unpaid, using the share you set."}}, {"@type": "Question", "name": "Can the penalty be reduced or removed?", "acceptedAnswer": {"@type": "Answer", "text": "Sometimes. The IRS can abate penalties for reasonable cause, and first-time penalty abatement may be available to filers with a clean recent record. Whether you qualify depends on facts this tool cannot see; ask a tax professional or the IRS."}}, {"@type": "Question", "name": "Does waiting to pay make it worse?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Each late deposit moves up a penalty tier at day 6 and day 16 and keeps accruing interest. The calculator shows how many days remain before each unpaid deposit steps up, and what 30 more days would cost."}}, {"@type": "Question", "name": "Is my payroll data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. All arithmetic runs in this page and the page makes no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+    label { display: block; font-weight: 600; font-size: .9rem; }
+    input[type=number] { width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; font: inherit; margin-top: 4px; }
+    label.check { font-weight: 400; display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a3412; color: #fff; font-weight: 700; cursor: pointer; margin: 12px 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.25rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+    .stat { background: #f7f9fb; border-radius: 8px; padding: 10px; } .stat b { display: block; font-size: 1.25rem; color: #17324a; }
+    .error { color: #9a3412; font-weight: 600; }
+    .tableWrap { overflow-x: auto; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PAYROLL DEPOSIT PENALTY CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>What do your late payroll tax deposits cost?</h1>
+    <p>List each deposit with its due date and the date you paid it (leave blank if unpaid). See the failure-to-deposit penalty tier, interest, how long until the next tier, and the trust-fund tax that could become personal liability.</p>
+  </header>
+  <main>
+    <section class="card">
+      <h2>Your deposits</h2>
+      <div class="grid">
+        <label>As-of date<input type="date" id="asof"></label>
+        <label>Interest rate, % per year (IRS underpayment rate)<input type="number" id="rate" min="0" max="30" step="0.25" value="7"></label>
+        <label>Trust-fund share of each deposit, %<input type="number" id="trust" min="0" max="100" step="1" value="75"></label>
+        <label>Date of first IRS notice (optional)<input type="date" id="notice"></label>
+      </div>
+      <div class="tableWrap"><table id="deps"><thead><tr><th>Label</th><th>Amount</th><th>Due date</th><th>Paid date (blank = unpaid)</th><th></th></tr></thead><tbody></tbody></table></div>
+      <button type="button" class="secondary" id="add">Add deposit</button>
+      <button type="button" id="calc">Estimate</button>
+      <button type="button" class="secondary" id="load-example">Load example</button>
+      <p class="error" id="err" role="alert"></p>
+    </section>
+    <section class="card" id="result" hidden>
+      <p class="verdict risk" id="verdict"></p>
+      <div class="stats" id="stats"></div>
+      <h4>By deposit</h4>
+      <div class="tableWrap"><table id="out"><thead><tr><th>Deposit</th><th>Days late</th><th>Penalty</th><th>Interest</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+      <p id="wait" class="note"></p>
+    </section>
+    <section class="card">
+      <h2>Questions</h2>
+      <h3>What is the penalty for depositing payroll taxes late?</h3>
+      <p>Under IRC section 6656 the failure-to-deposit penalty is 2% of the late amount if it is 1 to 5 days late, 5% if 6 to 15 days late, and 10% if more than 15 days late. It rises to 15% if the amount is still unpaid more than 10 days after the first IRS notice or the day the IRS demands immediate payment. Interest is charged on top.</p>
+      <h3>What is the trust fund recovery penalty?</h3>
+      <p>Income tax withheld from employees and the employee share of Social Security and Medicare are held in trust for the government. If they are not paid over, the IRS can assess a penalty equal to 100% of the unpaid trust-fund amount against each responsible person personally, under IRC section 6672. The tool shows the trust-fund portion of any deposit still unpaid, using the share you set.</p>
+      <h3>Can the penalty be reduced or removed?</h3>
+      <p>Sometimes. The IRS can abate penalties for reasonable cause, and first-time penalty abatement may be available to filers with a clean recent record. Whether you qualify depends on facts this tool cannot see; ask a tax professional or the IRS.</p>
+      <h3>Does waiting to pay make it worse?</h3>
+      <p>Yes. Each late deposit moves up a penalty tier at day 6 and day 16 and keeps accruing interest. The calculator shows how many days remain before each unpaid deposit steps up, and what 30 more days would cost.</p>
+      <h3>Is my payroll data uploaded anywhere?</h3>
+      <p>No. All arithmetic runs in this page and the page makes no network calls.</p>
+      <p><a href="trust-fund-recovery-penalty-explained.html">Trust fund recovery penalty explained: who is personally liable</a></p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is a simplified estimator, not tax, legal or accounting advice. Penalty tiers, interest rates, deposit-application ordering and abatement rules change and depend on facts this tool cannot see; it also omits failure-to-file and failure-to-pay penalties and interest on penalties. <strong>Have a qualified tax professional confirm your position before you rely on any figure here.</strong></p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The figures you enter are never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>estimate_shown</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: <a href="../quarterly-estimated-tax-calendar/">Quarterly Estimated Tax Calendar</a> and <a href="../estimated-tax-penalty-calculator/">Estimated Tax Penalty Calculator</a>.</p>
+    <p class="support">Free and open source. If this saved you an afternoon, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { estimate, costOfWaiting, EXAMPLE } from "./penalty.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const money = (n) => "$" + n.toLocaleString("en-US", { maximumFractionDigits: 0 });
+    const body = $("#deps tbody");
+    function addRow(d = {}) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td><input type="text" class="l" value="${esc(d.label || "")}"></td><td><input type="number" class="a" min="0" step="50" value="${esc(d.amount ?? "")}"></td><td><input type="date" class="d" value="${esc(d.due || "")}"></td><td><input type="date" class="p" value="${esc(d.paid || "")}"></td><td><button type="button" class="secondary x" aria-label="Remove deposit">×</button></td>`;
+      tr.querySelector(".x").addEventListener("click", () => tr.remove());
+      body.appendChild(tr);
+    }
+    const read = () => ({ asOf: $("#asof").value, ratePct: $("#rate").value, trustSharePct: $("#trust").value, noticeDate: $("#notice").value,
+      deposits: [...body.querySelectorAll("tr")].map((tr) => ({ label: tr.querySelector(".l").value, amount: tr.querySelector(".a").value, due: tr.querySelector(".d").value, paid: tr.querySelector(".p").value })) });
+    function show() {
+      $("#err").textContent = "";
+      try {
+        const input = read();
+        const r = estimate(input);
+        $("#result").hidden = false;
+        $("#verdict").textContent = r.totalCost > 0 ? `Estimated penalty and interest so far: ${money(r.totalCost)}.` : "No penalty in this scenario.";
+        const cell = (k, v) => `<div class="stat">${esc(k)}<b>${esc(v)}</b></div>`;
+        $("#stats").innerHTML = cell("Penalty", money(r.totalPenalty)) + cell("Interest", money(r.totalInterest)) + cell("Still unpaid", money(r.unpaidAmount)) + cell("Trust-fund tax at risk", money(r.trustFundAtRisk));
+        $("#out tbody").innerHTML = r.lines.map((l) => `<tr><td>${esc(l.label)}</td><td>${l.daysLate}</td><td>${l.penaltyPct}% = ${money(l.penalty)}</td><td>${money(l.interest)}</td><td>${l.unpaid ? "Unpaid" + (l.daysToNextTier ? `, next tier in ${l.daysToNextTier} day(s)` : ", top tier") : "Paid"}</td></tr>`).join("");
+        if (r.unpaidAmount > 0) { const w = costOfWaiting(input, 30); $("#wait").textContent = `Waiting 30 more days (to ${w.asOf}) would add about ${money(w.extra)}. Paying the unpaid deposits now stops further penalty tiers and interest.`; }
+        else $("#wait").textContent = "";
+        record("estimate_shown");
+      } catch (e) { $("#err").textContent = e.message; }
+    }
+    $("#asof").value = new Date().toISOString().slice(0, 10);
+    addRow();
+    $("#add").addEventListener("click", () => addRow());
+    $("#calc").addEventListener("click", show);
+    $("#load-example").addEventListener("click", () => {
+      $("#asof").value = EXAMPLE.asOf; $("#rate").value = EXAMPLE.ratePct; $("#trust").value = EXAMPLE.trustSharePct; $("#notice").value = EXAMPLE.noticeDate;
+      body.innerHTML = ""; EXAMPLE.deposits.forEach(addRow); show(); record("example_loaded");
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      usageControl.textContent = "Usage counting is off";
+      usageControl.disabled = true;
+    }
+  </script>
+</body>
+</html>
