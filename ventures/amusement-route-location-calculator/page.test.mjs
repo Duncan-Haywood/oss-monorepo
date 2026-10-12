@@ -77,3 +77,7 @@ test("the guide's worked example is the engine's answer", () => {
   // prose claim: the truck stop and pizza parlour are the two that lose money
   assert.deepEqual(r.rows.filter((x) => x.profit < 0).map((x) => x.name), ["Truck stop (three games)", "Pizza parlour (kiddie rides)"]);
 });
+
+test("the footer links the venue-side arcade game payback calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/arcade-game-payback-calculator\/"/);
+});
