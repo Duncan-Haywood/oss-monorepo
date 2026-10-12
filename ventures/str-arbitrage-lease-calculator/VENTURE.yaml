@@ -1,0 +1,54 @@
+name: str-arbitrage-lease-calculator
+description: >-
+  Free browser tool for people who lease an apartment or house to sublet it by the night (rental arbitrage): enter rent, utilities,
+  furnishing and setup cost, deposit, nightly rate, occupancy, stay length, cleaning fee, turnover cost, commission, months left on
+  the lease and a ramp-up period, and see profit in a steady month, break-even occupancy, the month furnishing and setup are earned
+  back, the net over the lease after resale, the steady occupancy and nightly rate that net zero over the lease, an occupancy table
+  and what a rent increase does. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture-first session. duplicate_check.py nearest was midterm-rental-calculator (0.56), which is the
+# landlord's furnished-versus-long-term-lease decision; this is the tenant-operator's lease-and-sublet decision, where the money at
+# risk is furniture bought against a fixed lease term. str-nightly-rate-optimizer, str-host-payout-calculator and the tax tools
+# answer other questions. Not in screened-out.md.
+#
+# First visitor: someone pricing a rental-arbitrage unit before signing a lease or buying furniture; search phrases "rental
+# arbitrage calculator", "airbnb arbitrage calculator", "airbnb sublet profit". Volume not measured with an external tool.
+#
+# Who: first-time and small-portfolio arbitrage operators. A lease plus furnishing is a five-figure commitment, so a free, private
+# worksheet that shows the downside before signing is worth more than another rate page.
+#
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. A multi-unit portfolio view and saved
+# scenarios behind an env-var switch is the possible paid version, not built.
+#
+# Liability: arithmetic on the user's own figures with every rule visible on the page. No market rate or occupancy benchmark is
+# claimed, the sample figures are labelled illustrative (the example is deliberately marginal), bad input is rejected instead of
+# clamped, and the page carries the no-warranty and not-advice clauses. It tells the user to check lease and local-law permission
+# to sublet short-term and lists what it does not decide (permits, taxes, damage, seasonality, comparable listings).
+
+hypotheses:
+  - claim: >-
+      A prospective arbitrage operator will enter rent, furnishing and a nightly rate before signing a lease, because a nightly
+      rate multiplied by guessed occupancy hides whether the furniture is earned back before the lease ends.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that the profit or lease-total arithmetic differs from the stated rules on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/str-arbitrage-lease-calculator/
+  analytics: null

@@ -3687,12 +3687,20 @@ entries:
         freight-accessorial-auditor audits carrier charges and 3pl-quote-normalizer compares quotes, neither checks a warehouse
         invoice). First visitor: people searching 3PL invoice audit or 3PL billing errors; volume unmeasured.
     mrr_end: 0
+  - venture: prop-firm-challenge-calculator
   - venture: glamping-unit-payback-calculator
   - venture: patent-maintenance-fee-planner
     agent_spend_usd: 0
     human_hours: 0
     outcomes:
       - >-
+        Graduated and built prop-firm-challenge-calculator: a browser-only Monte Carlo for funded-trader challenge entrants. From
+        the firm's rules (profit target, daily loss limit, static or trailing drawdown, time limit, minimum days) and the user's win
+        rate, reward:risk and risk per trade it reports pass probability, how failed attempts ended, expected attempts and fees to
+        pass, funded-phase payouts, the break-even win rate and a pass-rate-by-risk table. Seeded and deterministic; engine checked
+        against hand-counted all-win/all-loss paths and the gambler's-ruin closed form. CSV export, summary, shareable URL state.
+        Guide page vs a trading spreadsheet. Screened with duplicate_check.py (nearest 0.16; no trading tool in the portfolio).
+        First visitor: people searching prop firm challenge calculator or pass probability; volume unmeasured.
         Graduated and built glamping-unit-payback-calculator: a browser-only worksheet for people building or running glamping
         sites (yurts, domes, cabins, safari tents). Takes unit and shared-infrastructure cost, nightly rate and occupancy for up to
         three seasons, stay length, cleaning fee, turnover cost, commission, fixed costs, an upkeep reserve and a loan, and returns
@@ -3723,4 +3731,18 @@ entries:
         cancellation, reset, multi-change, leap February and input rejection; a thousands-comma amount bug found and fixed
         while testing. Screened with duplicate_check.py (nearest venture 0.16). First visitor: people searching how to prorate a
         subscription upgrade; volume unmeasured.
+    mrr_end: 0
+  - venture: str-arbitrage-lease-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built str-arbitrage-lease-calculator: a browser-only worksheet for people who lease a unit to sublet it by
+        the night. Takes rent, utilities, furnishing and setup cost, deposit, nightly rate, occupancy, stay length, cleaning fee,
+        turnover cost, commission, months left on the lease and a ramp-up period, and returns profit in a steady month,
+        break-even occupancy, the month furnishing is earned back, net over the lease after resale, the steady occupancy and
+        nightly rate that net zero over the lease (closed form, checked by plugging the answer back in), an occupancy table and a
+        rent-increase table. Hand-computed unit tests (12). Screened with duplicate_check.py (nearest 0.56,
+        midterm-rental-calculator, which is the landlord's furnished-versus-lease decision, not the tenant-operator's).
+        First visitor: people searching rental arbitrage calculator; volume unmeasured.
     mrr_end: 0
