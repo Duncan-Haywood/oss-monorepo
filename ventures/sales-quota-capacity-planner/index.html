@@ -177,7 +177,7 @@
     const values = () => Object.fromEntries(FIELDS.map((id) => [id, $(id).value]));
 
     try {
-      const saved = decodeState(location.search);
+      const saved = decodeState(location.hash.replace(/^#/, '') || location.search);
       for (const [k, v] of Object.entries(saved)) if ($(k)) $(k).value = v;
     } catch { /* a malformed link just falls back to the defaults */ }
 
@@ -271,7 +271,7 @@
     });
 
     $('share').addEventListener('click', async () => {
-      const url = location.origin + location.pathname + '?' + encodeState(values());
+      const url = location.origin + location.pathname + '#' + encodeState(values());
       try { history.replaceState(null, '', url); } catch { /* optional */ }
       try { await navigator.clipboard.writeText(url); $('shareMsg').textContent = 'Link copied. It contains your inputs, so share it only with people who may see them.'; }
       catch { $('shareMsg').textContent = 'Copy this link from the address bar. It contains your inputs.'; }

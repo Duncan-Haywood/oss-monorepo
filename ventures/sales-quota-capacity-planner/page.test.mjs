@@ -48,7 +48,7 @@ test('the FAQPage JSON-LD questions match the visible FAQ', () => {
 });
 
 test('shareable URL state, CSV export and the error path are wired', () => {
-  assert.match(html, /decodeState\(location\.search\)/);
+  assert.match(html, /decodeState\(location\.hash/);
   assert.match(html, /encodeState\(values\(\)\)/);
   assert.match(html, /toCsv\(last\)/);
   assert.match(html, /errors\.textContent = e\.message; errors\.hidden = false; out\.hidden = true/);
