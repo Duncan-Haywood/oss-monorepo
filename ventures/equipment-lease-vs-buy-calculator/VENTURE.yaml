@@ -1,0 +1,57 @@
+name: equipment-lease-vs-buy-calculator
+description: >-
+  Free browser tool for owners of trucking, construction, medical, restaurant and shop businesses: enter a purchase-loan quote and a
+  lease quote for the same equipment and see the after-tax present-value cost of each, the interest rate the lease actually charges,
+  the break-even resale value, and how Section 179, bonus or MACRS depreciation changes the answer. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Inspiration only, not copied and not named on any page: the lease-versus-buy worksheets published by equipment finance brokers and
+# banks. Those are lead-generation forms that end in a call from a broker; this is the same arithmetic with no signup, and it adds
+# the two numbers brokers rarely show (the lease's implied rate and the break-even resale value).
+#
+# Why this niche: equipment is bought or leased by millions of small businesses, the decision is five or six figures, and the
+# monthly payment comparison hides the lease's rate, the tax treatment and the resale value. The money question is arithmetic on
+# numbers the owner already holds.
+#
+# First visitor: someone searching "lease vs buy equipment calculator", "equipment lease or loan", "section 179 lease vs buy".
+# Volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a multi-quote compare and a printable lender-ready
+# summary behind an env-var switch. Neither is built.
+#
+# Liability: the risk is a result read as tax or financing advice. Mitigations: every figure is a deterministic function of the
+# user's own inputs and is hand-counted in unit tests, bad input throws instead of clamping, no tax limits or rates are hardcoded
+# (the user enters their own), the page lists what it does not model, and it says it is not financial, tax, legal or accounting
+# advice. It stores nothing and contacts no one.
+
+hypotheses:
+  - claim: >-
+      A small-business owner holding a loan quote and a lease quote will use a free no-upload tool that reports the lease's implied
+      interest rate and the break-even resale value, because the monthly-payment comparison they get from the seller hides both.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the same quotes under full expensing versus MACRS changes whether an owner chooses to lease.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports relying on the result instead of their accountant's advice, despite the disclaimer -- at that point the wording needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/equipment-lease-vs-buy-calculator/
+  analytics: null

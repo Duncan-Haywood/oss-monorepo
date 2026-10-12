@@ -1,0 +1,49 @@
+name: csv-to-sql-generator
+description: 'Free tool that turns a CSV into CREATE TABLE plus batched INSERT statements for PostgreSQL, MySQL, SQLite, SQL Server or BigQuery: column types inferred from every row (integers, sized decimals, booleans, dates, timestamps, UUIDs), leading-zero codes kept as text, ambiguous dates flagged, and every guess listed -- in the browser or as a zero-dependency Node CLI; nothing uploaded, no network calls.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as json-to-types-generator
+# and the other zero-dependency developer tools. duplicate_check.py for "CSV to SQL
+# insert schema inference tool" matched only unrelated ventures (best 0.47,
+# backup-file-exposure-check); no existing venture converts CSV to SQL. Not in
+# screened-out.md. Free incumbents exist (convertcsv.com, TablePlus import, DBeaver,
+# csvkit's csvsql); this one needs no install, account or upload, covers five
+# dialects with their own quoting and batch limits, and reports what it guessed.
+# Honest revenue view: lead magnet, not a business; payment rails stay off,
+# optional GitHub Sponsors only.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are high.
+# Pure text transformation on the visitor's device; no secrets, no network. The
+# output is a script the user reviews and runs themselves, and the page says so.
+#
+# First visitor channel: searches for "csv to sql", "csv to sql insert statements",
+# "import csv into postgres", "csv to create table", "load csv into bigquery".
+hypotheses:
+  - claim: 'Developers and analysts with a one-off CSV will paste it into a no-install page and run the generated script, because writing CREATE TABLE types and escaping quotes by hand is slower than the import itself.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'Users will trust the output more when the page lists what it guessed (leading zeros, ambiguous dates, empty cells as NULL) than when it only prints SQL.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using cli.mjs or sql.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/csv-to-sql-generator/
+  analytics: null

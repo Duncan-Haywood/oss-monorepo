@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CSV to SQL Converter — CREATE TABLE and INSERT for Postgres, MySQL, SQLite — Free, Private</title>
+  <meta name="description" content="Convert a CSV to SQL: CREATE TABLE with inferred column types plus batched INSERT statements for PostgreSQL, MySQL, SQLite, SQL Server and BigQuery. Free, runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="CSV to SQL, in your browser">
+  <meta property="og:description" content="Paste a CSV, get CREATE TABLE and INSERT statements with the right column types. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "CSV to SQL Generator", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Convert a CSV to CREATE TABLE and INSERT statements for PostgreSQL, MySQL, SQLite, SQL Server or BigQuery, with column types inferred from every row. Runs in the browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I convert a CSV file to SQL INSERT statements?", "acceptedAnswer": {"@type": "Answer", "text": "Paste the CSV, pick your database and click Generate. The tool writes a CREATE TABLE with a type for every column, then INSERT statements for every row, batched so a big file stays loadable. Copy the result into psql, mysql, sqlite3, SQL Server Management Studio or the BigQuery console."}}, {"@type": "Question", "name": "How does it choose column types?", "acceptedAnswer": {"@type": "Answer", "text": "It reads every row, not just the first. A column becomes INTEGER or BIGINT when every value is a whole number, NUMERIC(p,s) sized to the longest value when decimals appear, BOOLEAN for true/false/yes/no, DATE or TIMESTAMP when every value parses as one, UUID for UUIDs, and text otherwise. A single odd value turns a column into text rather than failing the import."}}, {"@type": "Question", "name": "Why is my ZIP code or phone number kept as text?", "acceptedAnswer": {"@type": "Answer", "text": "Numbers with leading zeros, such as the ZIP code 02134, lose the zero if stored as an integer. The tool keeps those columns as text and tells you it did."}}, {"@type": "Question", "name": "Which databases are supported?", "acceptedAnswer": {"@type": "Answer", "text": "PostgreSQL, MySQL, SQLite, SQL Server and BigQuery. Each gets its own type names, quoting, boolean literals and batch limits, so the script runs as written."}}, {"@type": "Question", "name": "Does this upload my CSV?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in this page and the page makes no network calls, so a file full of customer data stays on your device. The command-line version reads a file or stdin on your machine and prints to your terminal."}}, {"@type": "Question", "name": "What about very large files?", "acceptedAnswer": {"@type": "Answer", "text": "The page handles up to 200,000 rows. Beyond that use your database's bulk loader (PostgreSQL COPY, MySQL LOAD DATA, sqlite3 .import, bq load), which is faster than INSERT statements anyway. The guide shows how, and the command-line tool can still generate the CREATE TABLE."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 170px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; width: min(100%, 360px); }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a3412; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.25rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: #e3e9ef; color: #17324a; }
+    .pill.error { background: #fde8e8; color: #9a3412; }
+    .pill.warn { background: #fdf1d8; color: #7a4a05; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+    .pill.ok { background: #dcf3e3; color: #14532d; }
+    .finding { margin: 8px 0; padding: 10px 12px; border-radius: 8px; background: #f7f9fb; border-left: 4px solid #a8b3c1; }
+    .finding.error { border-color: #9a3412; } .finding.warn { border-color: #b7791f; } .finding.ok { border-color: #14532d; }
+    select, input[type=text] { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; font: inherit; }
+    label.block { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea.short { min-height: 90px; }
+  
+    textarea.log { min-height: 220px; }
+    textarea.out { min-height: 300px; background: #f7f9fb; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CSV TO SQL GENERATOR · RUNS IN YOUR BROWSER</p>
+    <h1>Turn a CSV into SQL for Postgres, MySQL, SQLite, SQL Server or BigQuery</h1>
+    <p>Paste a CSV and get a <strong>CREATE TABLE</strong> with a real type for every column, plus <strong>batched INSERT statements</strong>. Types come from reading every row: integers, decimals sized to fit, booleans, dates, timestamps and UUIDs are recognised, and leading-zero codes such as ZIPs stay text.</p>
+    <p class="note">Nothing is uploaded. Your CSV stays in this tab and the page makes no network calls.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your CSV</h2>
+    <p class="note">Comma, semicolon, tab or pipe separated; the delimiter is detected. Quoted fields with commas and line breaks are handled.</p>
+    <textarea id="csv" class="log" spellcheck="false" placeholder="id,name,signup_date,amount&#10;1,Ada,2024-03-01,49.50"></textarea>
+    <p>
+      <label for="dialect">Database: </label><select id="dialect"><option value="postgres">PostgreSQL</option><option value="mysql">MySQL</option><option value="sqlite">SQLite</option><option value="sqlserver">SQL Server</option><option value="bigquery">BigQuery</option></select>
+      <label for="table">Table name: </label><input type="text" id="table" size="16" value="imported_data">
+    </p>
+    <p>
+      <label><input type="checkbox" id="header" checked> first row is a header</label>
+      <label><input type="checkbox" id="drop"> add DROP TABLE IF EXISTS</label>
+      <label><input type="checkbox" id="tx" checked> wrap in a transaction</label>
+      <label><input type="checkbox" id="pk" checked> detect PRIMARY KEY</label>
+      <label><input type="checkbox" id="float"> decimals as float</label>
+      <label><input type="checkbox" id="bool01"> treat 0/1 as boolean</label>
+      <label><input type="checkbox" id="keep"> keep original column names</label>
+    </p>
+    <p>
+      <label for="dateorder">Ambiguous dates (03/04/2024): </label><select id="dateorder"><option value="mdy">month first (US)</option><option value="dmy">day first</option></select>
+      <label for="batch">Rows per INSERT: </label><input type="text" id="batch" size="5" value="500">
+    </p>
+    <p>
+      <button type="button" id="generate">Generate SQL</button>
+      <button type="button" class="secondary" id="load-example">Load example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste a CSV and click Generate.</p>
+  </section>
+
+  <section class="card" id="result-card" aria-live="polite" hidden>
+    <h2>Generated SQL</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap"><table id="cols"><thead><tr><th>Column</th><th>From header</th><th>Type</th><th>Nullable</th></tr></thead><tbody></tbody></table></div>
+    <div id="warnings"></div>
+    <textarea id="out" class="out" readonly spellcheck="false"></textarea>
+    <p><button type="button" id="copy">Copy SQL</button><button type="button" class="secondary" id="download">Download .sql</button></p>
+  </section>
+
+  <section class="card">
+    <h2>Run it on files from the command line</h2>
+    <pre class="cmd"><code>node cli.mjs data.csv                              # PostgreSQL
+node cli.mjs data.csv --dialect mysql --table orders --drop
+cat export.csv | node cli.mjs --dialect sqlite | sqlite3 app.db
+node cli.mjs data.csv --dialect bigquery --dmy --no-header</code></pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="sql.mjs" rel="noopener">sql.mjs</a> from the repo. Node 18+, no dependencies.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I convert a CSV file to SQL INSERT statements?</h3>
+    <p>Paste the CSV, pick your database and click Generate. The tool writes a CREATE TABLE with a type for every column, then INSERT statements for every row, batched so a big file stays loadable. Copy the result into psql, mysql, sqlite3, SQL Server Management Studio or the BigQuery console.</p>
+    <h3>How does it choose column types?</h3>
+    <p>It reads every row, not just the first. A column becomes INTEGER or BIGINT when every value is a whole number, NUMERIC(p,s) sized to the longest value when decimals appear, BOOLEAN for true/false/yes/no, DATE or TIMESTAMP when every value parses as one, UUID for UUIDs, and text otherwise. A single odd value turns a column into text rather than failing the import.</p>
+    <h3>Why is my ZIP code or phone number kept as text?</h3>
+    <p>Numbers with leading zeros, such as the ZIP code 02134, lose the zero if stored as an integer. The tool keeps those columns as text and tells you it did.</p>
+    <h3>Which databases are supported?</h3>
+    <p>PostgreSQL, MySQL, SQLite, SQL Server and BigQuery. Each gets its own type names, quoting, boolean literals and batch limits, so the script runs as written.</p>
+    <h3>Does this upload my CSV?</h3>
+    <p>No. Everything runs in this page and the page makes no network calls, so a file full of customer data stays on your device. The command-line version reads a file or stdin on your machine and prints to your terminal.</p>
+    <h3>What about very large files?</h3>
+    <p>The page handles up to 200,000 rows. Beyond that use your database's bulk loader (PostgreSQL COPY, MySQL LOAD DATA, sqlite3 .import, bq load), which is faster than INSERT statements anyway. The guide shows how, and the command-line tool can still generate the CREATE TABLE.</p>
+    <p>More: <a href="how-to-import-a-csv-into-a-database.html">how to import a CSV into PostgreSQL, MySQL, SQLite and BigQuery (INSERT vs COPY vs LOAD DATA)</a></p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. Column types are inferred from the rows you paste and may not fit rows you have not seen. <strong>You are responsible for reviewing and verifying its output, and for testing it on a copy of your data, before running it against a database you care about.</strong></p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The CSV you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>sql_generated</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: <a href="../json-to-types-generator/">JSON to Types Generator</a> and <a href="../release-notes-generator/">Release Notes Generator</a>.</p>
+    <p class="support">Free and open source. If this saved you an afternoon, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { convert } from "./sql.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const EXAMPLE = 'id,Full Name,Signup Date,Plan,Monthly Fee,Active,ZIP,Notes\n1,"Lovelace, Ada",2024-03-01,pro,"1,249.50",yes,02134,"Asked about the API\nWants an invoice"\n2,Bob O\'Neil,2024-03-02,free,0,no,10001,\n3,Cy Young,2024-03-09,pro,49.5,yes,94105,NULL';
+
+    function run() {
+      try {
+        const batch = Math.max(1, parseInt($("#batch").value, 10) || 500);
+        const r = convert($("#csv").value, {
+          dialect: $("#dialect").value, table: $("#table").value.trim() || "imported_data", header: $("#header").checked,
+          drop: $("#drop").checked, transaction: $("#tx").checked, pk: $("#pk").checked, decimal: $("#float").checked ? "float" : "numeric",
+          zeroOneBool: $("#bool01").checked, keepNames: $("#keep").checked, dateOrder: $("#dateorder").value, batch,
+        });
+        $("#out").value = r.sql;
+        $("#verdict").textContent = `${r.stats.rows.toLocaleString("en-US")} row${r.stats.rows === 1 ? "" : "s"} · ${r.stats.columns} columns · ${r.stats.statements} INSERT statement${r.stats.statements === 1 ? "" : "s"}`;
+        $("#cols tbody").innerHTML = r.columns.map((c) => `<tr><td><code>${escapeHtml(c.name)}</code></td><td>${escapeHtml(c.original)}</td><td><code>${escapeHtml(c.type)}</code></td><td>${c.nullable ? "yes" : "no"}</td></tr>`).join("");
+        $("#warnings").innerHTML = r.warnings.map((w) => `<div class="finding warn"><span class="pill warn">note</span> ${escapeHtml(w)}</div>`).join("");
+        $("#result-card").hidden = false;
+        $("#status").textContent = "";
+        record("sql_generated");
+      } catch (e) {
+        $("#result-card").hidden = true;
+        $("#status").innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+      }
+    }
+
+    $("#generate").addEventListener("click", run);
+    for (const id of ["#dialect", "#dateorder"]) $(id).addEventListener("change", () => { if ($("#csv").value.trim()) run(); });
+    $("#load-example").addEventListener("click", () => { $("#csv").value = EXAMPLE; run(); record("example_loaded"); });
+    $("#clear").addEventListener("click", () => {
+      $("#csv").value = "";
+      $("#result-card").hidden = true;
+      $("#status").textContent = "Paste a CSV and click Generate.";
+    });
+    $("#copy").addEventListener("click", async (event) => {
+      try { await navigator.clipboard.writeText($("#out").value); event.target.textContent = "Copied"; }
+      catch { $("#out").select(); event.target.textContent = "Press Ctrl+C to copy"; }
+    });
+    $("#download").addEventListener("click", () => {
+      const url = URL.createObjectURL(new Blob([$("#out").value], { type: "application/sql" }));
+      const a = document.createElement("a");
+      a.href = url; a.download = `${$("#table").value.trim() || "imported_data"}.sql`; a.click();
+      URL.revokeObjectURL(url);
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      usageControl.textContent = "Usage counting is off";
+      usageControl.disabled = true;
+    }
+  </script>
+</body>
+</html>
