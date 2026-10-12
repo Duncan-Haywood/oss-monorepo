@@ -1,0 +1,43 @@
+name: cannabis-280e-tax-calculator
+description: 'Free tool that estimates what IRC 280E costs a cannabis business: tax on gross profit versus real profit, the extra tax, tax owed on a real loss, sensitivity to operating expenses and the value of a COGS reclassification -- in the browser or as a zero-dependency Node CLI; nothing uploaded, no network calls.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate. duplicate_check.py closest matches for the 280E
+# niche were freelancer-tax-pack at 0.33 (different problem). Not in screened-out.md.
+# Honest revenue view: lead magnet for dispensary owners and their bookkeepers, a
+# high-money-at-stake niche (the tax gap is often six figures); payment rails stay
+# off, optional GitHub Sponsors only. A later paid layer (multi-location, CPA export)
+# would be a separate decision.
+#
+# Gate self-assessment: liability_containment medium -- tax estimator, mitigated by
+# the visitor supplying every rate, an explicit switch for 280E applying at all (federal
+# rescheduling is unsettled), a "have a professional confirm" disclaimer, and the tool
+# declining to say which costs qualify as COGS. No personal data, no network.
+#
+# First visitor channel: searches for "280E tax calculator", "280E tax burden",
+# "dispensary 280E cost of goods sold".
+hypotheses:
+  - claim: 'Cannabis operators and bookkeepers will use a private 280E estimator to size the tax gap and the value of COGS classification before talking to a CPA.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct visitors engage with the tool within 90 days of it being reachable from the published site.
+  - No search impression for any 280E query within 90 days of indexing.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/cannabis-280e-tax-calculator/
+  analytics: null

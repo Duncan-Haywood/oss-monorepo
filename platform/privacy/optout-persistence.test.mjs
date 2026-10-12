@@ -1563,8 +1563,10 @@ const RELATIVE_SELF = relative(
 // +1: `release-notes-generator` graduated.
 // +1: `bail-bond-agency-exposure-calculator` graduated.
 // +1: `shift-rotation-schedule-generator` graduated.
+// +1: `funeral-price-list-checker` graduated.
+// +1: `cannabis-280e-tax-calculator` graduated.
 // +1: `sales-quota-capacity-planner` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1072;
+const SWITCHES_IN_THE_CATALOGUE = 1073;
 // +1: `retreat-profit-pricing-calculator` graduated.
 // +1: `sms-segment-cost-calculator` graduated.
 // +1: `tow-truck-rate-calculator` graduated.

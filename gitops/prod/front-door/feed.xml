@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1093 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1095 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -46,6 +46,14 @@
     <updated>2026-10-12T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free California meal and rest break premium pay checker for restaurants, retail and any hourly employer. Paste timecards, find late, short and missed meal periods and rest break shortfalls, and total the one-hour premium owed per workday. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Cannabis 280E Tax Calculator — Tax on Gross Profit vs Real Profit</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cannabis-280e-tax-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/cannabis-280e-tax-calculator</id>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Estimate what 280E costs a cannabis business: federal and state tax on gross profit versus real profit, the extra tax, whether you owe tax while losing money, and what moving costs into COGS is worth. Free, in your browser.</summary>
   </entry>
   <entry>
     <title>Climbing Gym Profit Calculator — monthly profit, payback and break-even members</title>
@@ -94,6 +102,14 @@
     <updated>2026-10-12T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free franchise Item 19 reality check. Enter the earnings tiers from a franchise disclosure document and see owner earnings after royalty and ad fund, payback, the average versus the median, and how many units fall below your salary target. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Funeral Price List Checker — What Is Required, What Is Your Choice</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/funeral-price-list-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/funeral-price-list-checker</id>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Paste a funeral home&#39;s price list or quote and see which charges you cannot decline, which are your choice, which are paid to others, and which the FTC Funeral Rule questions, such as casket handling fees. Compare two homes. Free, in your browser.</summary>
   </entry>
   <entry>
     <title>Golf Simulator Bay Profit Calculator — monthly profit, payback and break-even utilization</title>
@@ -150,21 +166,5 @@
     <updated>2026-10-12T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator for pilot car and oversize-load escort operators. Enter your quote (flat, day rate or per loaded mile), minimum charge, loaded and deadhead miles, driver hours, fuel, per diem and yearly overhead; it shows true profit per run, profit per driver hour and the lowest quote for your margin. Nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Release Notes Generator — Changelog From Git Commits, Free and Private</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/release-notes-generator/"/>
-    <id>tag:marisstella.dev,2026:tool/release-notes-generator</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Generate release notes and a CHANGELOG.md entry from git log: grouped by Conventional Commit type, breaking changes first, with a suggested semantic version bump. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Sales Quota Capacity Planner — How Many Reps Do I Need to Hire, and by When?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sales-quota-capacity-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/sales-quota-capacity-planner</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">How many quota-carrying reps must you hire, and by when, to hit next year&#39;s bookings target? Month-by-month ramped capacity, attrition, hiring lead time, a latest-start date per hire cohort, sensitivity, and hire-early vs hire-late cost. Free, runs in your browser.</summary>
   </entry>
 </feed>
