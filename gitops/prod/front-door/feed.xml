@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1083 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1084 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-10-12T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Axe Throwing Bar Profit Calculator — monthly profit, payback and break-even fill</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/axe-throwing-bar-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/axe-throwing-bar-profit-calculator</id>
+    <updated>2026-10-12T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free calculator for axe throwing bars and venues. Enter thrower capacity, sessions, fill, ticket price, private events, leagues, staff, rent and the build; it shows monthly profit, margin, payback, break-even fill and the lowest ticket for your target margin and payback. Private, in your browser.</summary>
+  </entry>
   <entry>
     <title>Band Tour Profit Planner — free tour budget and gig profit calculator</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/band-tour-profit-planner/"/>
@@ -158,13 +166,5 @@
     <updated>2026-10-11T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free barbershop calculator: enter haircut, beard and combo prices, chair minutes, supplies, no-show rate, rent and commission, and see profit per cut and per chair hour, the price for your target margin, break-even cuts per week and whether to rent the chair or employ a barber. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Bed Bug Heat Treatment Bid Calculator — Price Per Job and Per Square Foot</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bed-bug-heat-treatment-price-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/bed-bug-heat-treatment-price-calculator</id>
-    <updated>2026-10-11T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free bed bug heat treatment bid calculator: enter the floor area, clutter, heaters, crew, fuel and callback rate, and get a price, a price per square foot and a comparison with a chemical programme. Runs in your browser.</summary>
   </entry>
 </feed>
