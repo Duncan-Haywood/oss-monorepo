@@ -60,7 +60,7 @@ test('every .html file is reachable from the sitemap', async () => {
 });
 
 test('index links one hop to sibling tools that exist', () => {
-  for (const s of ['release-notes-generator', 'llms-txt-generator']) {
+  for (const s of ['csv-to-sql-generator', 'release-notes-generator', 'llms-txt-generator']) {
     assert.match(index, new RegExp(`href="\\.\\./${s}/"`));
     assert.ok(readdirSync(new URL(`../${s}/`, import.meta.url)).includes('index.html'));
   }
