@@ -3499,4 +3499,17 @@ entries:
         duplicate_check.py: closest fair-workweek-schedule-checker 0.21, a different statute. First visitor: owners and
         bookkeepers searching california meal break violation calculator / 226.7 premium pay; volume unmeasured. Not run against
         real timecards.
+  - venture: laundromat-acquisition-offer-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built laundromat-acquisition-offer-calculator: a browser-local walk-away-price tool for people buying a
+        laundromat. From revenue, utilities, rent, labor, repairs, other costs, a paid manager and a machine replacement reserve it
+        derives adjusted cash flow, prices it two ways (a cash-flow multiple, and the largest price whose amortising loan the cash flow
+        covers at a required debt coverage, solved in closed form), takes the lower, and tests up to six offers for coverage, cash-on-cash
+        and payback, with coverage restated at 10% and 20% lower revenue (utilities flex, other costs fixed). Guide page whose worked
+        example the tests recompute. Duplicate check found no laundromat purchase-pricing tool; the two laundromat ventures serve existing
+        owners. 23 venture tests including 300 random stores confirming coverage equals the requirement at the debt limit. First visitor
+        expected from "laundromat valuation calculator" and "how much is a laundromat worth" searches; volume unmeasured.
     mrr_end: 0

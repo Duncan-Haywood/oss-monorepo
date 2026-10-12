@@ -105,3 +105,7 @@ test("related-tool links point at ventures that exist", () => {
     assert.ok(existsSync(new URL(`../${m[1]}/index.html`, import.meta.url)), m[1]);
   }
 });
+
+test("the footer names the laundromat acquisition offer calculator", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/laundromat-acquisition-offer-calculator\/"/);
+});
