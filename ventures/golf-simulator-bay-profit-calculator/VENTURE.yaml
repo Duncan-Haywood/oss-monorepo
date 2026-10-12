@@ -2,9 +2,10 @@ name: golf-simulator-bay-profit-calculator
 description: >-
   Free browser tool for people planning or running an indoor golf simulator lounge or other
   bay-rental venue: enter bays, open hours, peak and off-peak rates and utilization, members,
-  food and drink, staff, rent and the build cost and see monthly profit, margin, months to
-  pay back the build, break-even utilization, the lowest rates for a target margin, and a
-  two-scenario comparison (for example three bays against five). Copy, CSV, save and load.
+  food and drink, league nights, staff, rent, software per bay, the build cost and any loan and
+  see monthly profit, margin, months to pay back the build, break-even utilization, the lowest
+  rates for a target margin, the lowest peak rate for a payback target, profit per bay, a
+  sensitivity check at 10% and 20% fewer bookings, and a two-scenario comparison (for example three bays against five). Copy, CSV, save and load.
   Nothing leaves the browser.
 stage: prototype
 owner: duncan
@@ -47,6 +48,7 @@ budget:
 kill_criteria:
   - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
   - A user reports lowest rates that do not reproduce the tool's own target margin when typed back in as the rates.
+  - A user reports a lowest peak rate that does not reproduce their payback target when typed back in as the peak rate.
 
 links:
   production: https://duncan-haywood.github.io/monorepo-projects/golf-simulator-bay-profit-calculator/
