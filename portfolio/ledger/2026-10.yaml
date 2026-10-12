@@ -3689,7 +3689,6 @@ entries:
     mrr_end: 0
   - venture: prop-firm-challenge-calculator
   - venture: glamping-unit-payback-calculator
-  - venture: patent-maintenance-fee-planner
     agent_spend_usd: 0
     human_hours: 0
     outcomes:
@@ -3710,6 +3709,12 @@ entries:
         the answer back in. Screened with duplicate_check.py (nearest 0.16, laundromat-acquisition-offer-calculator;
         campground-site-profit-calculator has no build-cost or loan model and rv-rental-host-profit-calculator is one vehicle).
         First visitor: landowners searching glamping ROI or yurt rental income; volume unmeasured.
+    mrr_end: 0
+  - venture: patent-maintenance-fee-planner
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
         Graduated and built patent-maintenance-fee-planner: a browser-only planner for inventors, startups and small IP teams.
         Paste US patents with grant date and entity size and it returns, for the next fee on each, the window-open date,
         no-surcharge due date, surcharge deadline and expiry date (weekend deadlines rolled to Monday, month-end clamping),
@@ -3745,4 +3750,20 @@ entries:
         rent-increase table. Hand-computed unit tests (12). Screened with duplicate_check.py (nearest 0.56,
         midterm-rental-calculator, which is the landlord's furnished-versus-lease decision, not the tenant-operator's).
         First visitor: people searching rental arbitrage calculator; volume unmeasured.
+    mrr_end: 0
+  - venture: mini-golf-course-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built mini-golf-course-profit-calculator: a browser-only pro forma for people building or buying a mini-golf,
+        putt-putt, batting-cage or small family-fun-center business. Takes build cost per hole and shared build cost, rounds per
+        open day and price per round for up to three seasons, a rain-out share of open days, party packages, concession and arcade
+        spend and margin, staff hours and wage, card fees, fixed costs, an upkeep reserve and a loan, and returns operating income,
+        debt coverage, cash after the loan, payback on the whole investment and on the owner's own money, break-even rounds per open
+        day, the across-the-board price change that covers the loan or hits a payback target, an attendance sensitivity table, a
+        price-by-attendance grid and a weather table. Hand-computed unit tests (18), break-even and price solves checked by plugging
+        the answer back in; bad input rejected, not clamped. Screened with ls ventures | grep -i golf (only
+        golf-simulator-bay-profit-calculator, an indoor bay-hour business) and screened-out.md (no mini-golf entry); cross-linked from
+        that page. First visitor: people searching mini golf course profit or putt putt business plan; volume unmeasured.
     mrr_end: 0
