@@ -168,6 +168,8 @@ const NO_SHARED_SHOP_RATES = {
     'cost, so it carries two of the four: see PARTIAL_SHOP_RATE_PAGES.',
   'hydroseeding-job-bid-calculator':
     'it has no overhead-percentage or shop-rate field: labour is a per-person hourly rate applied to setup, spraying and tank-refill hours, and the hydroseeder and overhead are season fixed costs spread over jobs, so sharing the four canonical rates would prefill figures that mean different things.',
+  'lawn-aeration-overseeding-bid-calculator':
+    'it has no overhead-percentage or shop-rate field: labour is a per-person hourly rate applied to aerator, seeding, drive and load hours, and overhead is a season fixed cost spread over jobs, so sharing the four canonical rates would prefill figures that mean different things.',
   'hoarding-cleanout-bid-calculator':
     'it has no payroll-burden or overhead field: labour is a per-person hourly rate applied to whole paid crew days, ' +
     'and its risk allowance is a share of cost for pests and sharps rather than overhead, so sharing the four ' +
