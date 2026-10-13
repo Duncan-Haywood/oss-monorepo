@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1139 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1140 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -46,6 +46,14 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free convenience store and gas station profit calculator: fuel margin after card fees, inside sales mix, labor and rent become monthly profit, break-even gallons, debt coverage and fuel margin sensitivity. Private, runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>DAC7 Seller Reporting Checker — Will Etsy, eBay, Vinted or Airbnb Report You?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dac7-seller-reporting-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/dac7-seller-reporting-checker</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free DAC7 checker for online sellers and hosts: will the platform report your sales or rentals to the tax authority this year? Checks the 30-sales / EUR 2,000 goods exemption, headroom, what is sent and the TIN deadline. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Dry Cleaner Profit Calculator — Break-Even Pieces and Price Per Piece</title>
@@ -112,6 +120,14 @@
     <summary type="text">Free EU Packaging and Packaging Waste Regulation (PPWR, 2025/40) checker for brand owners, importers and online sellers: which duties reach your packaging, when each applies (producer registration, PFAS limits, label, recyclability, recycled content, 50 percent empty-space rule), and what is still open. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>EU Product Liability Directive Checker — Software, AI and Product Makers (2026)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-product-liability-directive-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/eu-product-liability-directive-checker</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free EU Product Liability Directive checker: is your software, AI system or product in scope from 9 December 2026, who is liable in the supply chain, what damage is claimable and what to prepare. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>EU Whistleblower Channel Checker — Do You Need a Reporting Channel and Is It Compliant?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-whistleblower-channel-checker/"/>
     <id>tag:marisstella.dev,2026:tool/eu-whistleblower-channel-checker</id>
@@ -150,21 +166,5 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free indoor play center profit calculator: weekday and weekend visits, memberships, birthday parties, cafe spend, staffing, rent and a loan become monthly profit, break-even visits a week, the price change that hits a target margin, the ramp-up cash reserve and payback. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Kombucha Brewery Profit Calculator — Break-Even, Gallons a Week, Payback</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/kombucha-brewery-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/kombucha-brewery-profit-calculator</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free kombucha brewery profit calculator: fermenter capacity, batch cycle, wholesale and taproom prices, packaging, labour and rent become gallons a week, monthly profit, break-even, the cash reserve for ramp-up, loan coverage and payback. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>NIS2 Scope Checker — Am I an Essential or Important Entity?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/nis2-scope-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/nis2-scope-checker</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free NIS2 scope checker: pick your sector and enter staff, turnover and balance sheet to see whether Directive (EU) 2022/2555 likely applies to you, as an essential or important entity, with the main duties. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
