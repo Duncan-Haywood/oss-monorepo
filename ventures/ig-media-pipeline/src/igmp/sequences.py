@@ -432,7 +432,7 @@ def render_clip(seq: Asset, members: list[Asset], cfg: Config, fps: int, start: 
 
 # --- reels -------------------------------------------------------------------------------
 
-def reel_source(seq: Asset, store, cfg: Config) -> dict:
+def reel_source(seq: Asset, store, cfg: Config, keep_aspect: bool = False) -> dict:
     """What a reel shows for a sequence: the clip Claude asked for when it judged the run a
     timelapse or stop-motion ({"kind": "video"}), else its sharpest frame as a still."""
     score = store.get("scores", seq.id, Score)
@@ -445,7 +445,9 @@ def reel_source(seq: Asset, store, cfg: Config) -> dict:
     if score is not None and score.sequence_style in ("timelapse", "stop-motion"):
         fps = min(max(score.sequence_fps or DEFAULT_FPS[score.sequence_style], 1), 60)
         focus = (score.vertical_focus.x, score.vertical_focus.y)
-        clip = render_clip(seq, members, cfg, fps, start, end, size=CLIP_SIZE, focus=focus)
+        # a fit or pan shot needs the whole frame; otherwise cut the 9:16 clip here, around the focus
+        clip = render_clip(seq, members, cfg, fps, start, end, size=None if keep_aspect else CLIP_SIZE,
+                           focus=(0.5, 0.5) if keep_aspect else focus)
         return {"kind": "video", "path": str(clip)}
     stretch = members[start:end + 1]
 

@@ -78,12 +78,13 @@ def sheet(images: list[Path], labels: list[str], cols: int = 6, cell: int = 300)
     return out
 
 
-def source_for(a: Asset, store: Store, cfg: Config | None = None) -> dict:
+def source_for(a: Asset, store: Store, cfg: Config | None = None, shot: Shot | None = None) -> dict:
     if a.kind == "sequence":    # timelapse / stop-motion: the rendered clip, or its sharpest frame (needs cfg)
         from . import sequences
         if cfg is None:
             raise ValueError(f"sequence {a.id}: source_for needs cfg to render the clip")
-        return sequences.reel_source(a, store, cfg)
+        keep = shot is not None and (shot.layout == "fit" or shot.focus_to is not None)
+        return sequences.reel_source(a, store, cfg, keep_aspect=keep)
     edit = store.get("edits", a.id)
     if a.kind == "photo" and edit and edit.get("status") == "shipped":
         return {"kind": "photo", "path": edit["full"]}
@@ -92,10 +93,32 @@ def source_for(a: Asset, store: Store, cfg: Config | None = None) -> dict:
     return {"kind": a.kind, "path": a.preview or a.raw}
 
 
-def listing(opts: list[tuple[Asset, Score]]) -> str:
+def shape(a: Asset, cfg: Config | None) -> str:
+    """'landscape 3:2', 'portrait 4:5', '16:9'... so the story pass knows what a 9:16 crop would cost."""
+    if cfg is None or a.kind.endswith("360"):
+        return ""
+    try:
+        if a.kind in ("video", "sequence"):
+            info = media.probe(a.preview, cfg) if a.kind == "video" else {}
+            w, h = info.get("width"), info.get("height")
+        else:
+            with Image.open(media.preview_image(a, cfg)) as im:
+                w, h = im.size
+    except Exception:
+        return ""
+    if not w or not h:
+        return ""
+    r = w / h
+    named = min(((3 / 2, "3:2"), (16 / 9, "16:9"), (4 / 3, "4:3"), (1, "1:1"), (2 / 3, "2:3"), (4 / 5, "4:5"),
+                 (3 / 4, "3:4"), (9 / 16, "9:16")), key=lambda x: abs(x[0] - r))[1]
+    kind = "landscape" if r > 1.05 else "portrait" if r < 0.95 else "square"
+    return f", {kind} {named}"
+
+
+def listing(opts: list[tuple[Asset, Score]], cfg: Config | None = None) -> str:
     lines = []
     for i, (a, s) in enumerate(opts):
-        extra = ""
+        extra = shape(a, cfg)
         if a.kind.startswith("video"):
             extra = f", clip {a.duration_s or 0:.1f}s, best {s.best_in_s}-{s.best_out_s}s"
         if a.kind.endswith("360"):
@@ -124,9 +147,14 @@ def story_task(key: str, opts: list[tuple[Asset, Score]], cfg: Config, sheet_pat
         key=key, output=ReelPlan, images=[sheet_path], effort="high", max_tokens=16000,
         instructions=(
             f"Build one Instagram reel for the event '{key}'. The image shows the candidates, labelled #n. "
-            f"Candidates:\n{listing(opts)}\n\n" + timing +
+            f"Candidates:\n{listing(opts, cfg)}\n\n" + timing +
             "Use the candidate ids exactly. For videos set start_s inside the clip (use the best stretch); "
             "for stills start_s is 0. focus is the centre of the 9:16 crop. Set view_yaw_deg for 360 items. "
+            "A 9:16 crop keeps only about a third of a landscape frame's width: when the subject or the "
+            "composition spans the width (a building, a skyline, a road curve), don't crop it off - either use "
+            "layout 'fit' (the whole frame at full width over a blurred copy of itself) or a slow pan with "
+            "focus_to (the crop travels across the frame over the shot, e.g. left third to right third). "
+            "Portrait frames and tight details suit 'fill'. "
             "Pick a cover from the shots used. Write the caption by the style guide."))
 
 
@@ -145,7 +173,14 @@ def hook_strip(video: Path, cfg: Config, out: Path, step: float = 0.25) -> Path:
 
 
 def critic_task(key: str, plan: ReelPlan, hook: Path, contact: Path, options: str,
-                music_note: str = "") -> JudgeTask:
+                music_note: str = "", earlier: list[str] | None = None) -> JudgeTask:
+    memory = ""
+    if earlier:
+        memory = ("Earlier critiques of this reel (each led to the revision you are looking at):\n"
+                  + "\n".join(f"- round {i + 1}: {n}" for i, n in enumerate(earlier)) + "\n"
+                  "Stay consistent with them: don't reverse an earlier call (such as which shot should open) "
+                  "unless this render shows something new, and don't re-raise problems that are now fixed. "
+                  "Judge the hook against the best the candidates allow, not against an ideal they don't contain.\n\n")
     return JudgeTask(
         key=key, output=Critique, images=[hook, contact], effort="high", max_tokens=16000,
         instructions=(
@@ -153,7 +188,7 @@ def critic_task(key: str, plan: ReelPlan, hook: Path, contact: Path, options: st
             "account. The first image is its opening, a frame every quarter second; the second is the whole "
             f"reel, a frame every half second. The plan that made it: {plan.model_dump_json()}\n"
             + (f"Music: {music_note}\n" if music_note else "") +
-            f"Candidates it could have used:\n{options}\n\n"
+            f"Candidates it could have used:\n{options}\n\n" + memory +
             "Fill in every check from the style guide's critique checklist. verdict 'ship' only if every check "
             "passes. Otherwise 'revise' with a complete revised plan, using only candidate ids."))
 
@@ -313,12 +348,13 @@ def build(key: str, opts: list[tuple[Asset, Score]], cfg: Config, store: Store, 
     history = []
     shipped = False
     for round_ in range(CRITIC_ROUNDS + 1):
-        sources = {s.asset_id: source_for(valid[s.asset_id], store, cfg) for s in plan.shots}
+        sources = {s.asset_id: source_for(valid[s.asset_id], store, cfg, s) for s in plan.shots}
         plan = _render(plan, sources, video, cfg, tracks)
         contact = work / f"contact-{round_}.jpg"
         render.reel_contact_sheet(video, cfg).save(contact, quality=85)
         verdict = judge.judge(critic_task(key, plan, hook_strip(video, cfg, work / f"hook-{round_}.jpg"),
-                                          contact, listing(opts), music_note(plan, tracks, cfg)))
+                                          contact, listing(opts, cfg), music_note(plan, tracks, cfg),
+                                          [h["notes"] for h in history]))
         history.append(verdict.model_dump())
         if verdict.verdict == "ship" and verdict.passes:
             shipped = True
