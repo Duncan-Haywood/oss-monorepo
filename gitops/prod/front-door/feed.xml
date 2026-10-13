@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1141 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1144 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -112,12 +112,36 @@
     <summary type="text">Free EU green claims checker (Directive 2024/825, Empowering Consumers): tick the eco, climate and durability claims you use and see which are banned for consumer marketing from 27 September 2026 (generic eco-friendly, climate neutral by offsetting, own-made labels, net zero without a plan, fake repairability) and what to say instead. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>EU Green Claims Copy Scanner — Greenwashing Scan for Directive 2024/825</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-green-claims-copy-scanner/"/>
+    <id>tag:marisstella.dev,2026:tool/eu-green-claims-copy-scanner</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free greenwashing scanner for product pages, ads and packaging text under the EU Empowering Consumers Directive (2024/825), in force since 27 September 2026: flags carbon-neutral claims, vague words like eco-friendly, home-made badges, future net-zero promises and legal-minimum claims, with the fix for each. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>EU Packaging Regulation Checker — PPWR Deadlines and Duties</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-packaging-regulation-checker/"/>
     <id>tag:marisstella.dev,2026:tool/eu-packaging-regulation-checker</id>
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free EU Packaging and Packaging Waste Regulation (PPWR, 2025/40) checker for brand owners, importers and online sellers: which duties reach your packaging, when each applies (producer registration, PFAS limits, label, recyclability, recycled content, 50 percent empty-space rule), and what is still open. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>EU Platform Work Directive Checker — Are Your Gig Workers Presumed Employees?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-platform-work-directive-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/eu-platform-work-directive-checker</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free EU Platform Work Directive (2024/2831) checker for gig and app platforms and platform workers: is the platform in scope, how strong is the employment presumption, which algorithmic-management rules apply, and how long until 2 December 2026. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>EU Price Reduction Checker — Is Your “Was” Price Legal Under the 30-Day Rule?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-price-reduction-claim-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/eu-price-reduction-claim-checker</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free EU 30-day lowest price checker for webshops: paste a price history and see the prior price you may show next to a sale, the true percentage off, and whether your crossed-out price or advertised discount holds up. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>EU Product Liability Directive Checker — Software, AI and Product Makers (2026)</title>
@@ -142,29 +166,5 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free EU Deforestation Regulation (EUDR) checker: tick your role, size and commodities to see whether Regulation (EU) 2023/1115 covers you, your duties with the Articles, and your application date. Screens customs codes against Annex I. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>GPSR Checker — Do You Need an EU Responsible Person?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/gpsr-product-safety-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/gpsr-product-safety-checker</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free EU General Product Safety Regulation (GPSR) checker for online sellers: is your product in scope, is an EU responsible person behind it, and which basic duties are still open. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Ice Cream Shop Seasonal Profit Calculator — Break-Even and Off-Season Cash</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ice-cream-shop-seasonal-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/ice-cream-shop-seasonal-profit-calculator</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free ice cream shop profit calculator: twelve months of days open and customers per day become monthly profit, break-even customers, open-or-close verdicts, loan coverage and the cash reserve the slow months need. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Indoor Play Center Profit Calculator — Break-Even Visits, Parties, Payback</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/indoor-play-center-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/indoor-play-center-profit-calculator</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free indoor play center profit calculator: weekday and weekend visits, memberships, birthday parties, cafe spend, staffing, rent and a loan become monthly profit, break-even visits a week, the price change that hits a target margin, the ramp-up cash reserve and payback. Private, runs in your browser.</summary>
   </entry>
 </feed>

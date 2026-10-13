@@ -72,6 +72,6 @@ test("footer links the related EU tools and the page owns up to dates from memor
   assert.match(html, /written from memory/);
 });
 
-test("footer links the EU product liability directive checker", () => {
-  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/eu-product-liability-directive-checker\/"/);
+test("footer links the green claims copy scanner", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/eu-green-claims-copy-scanner\/"/);
 });
