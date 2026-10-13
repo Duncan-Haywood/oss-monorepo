@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EU ESPR Readiness Checker — Unsold Clothes Destruction Ban, Disclosure Table and Digital Product Passport</title>
+  <meta name="description" content="Free EU ESPR checker for brands, importers and retailers: whether the ban on destroying unsold apparel and footwear reaches you, a draft of the annual unsold-goods disclosure table from your own numbers, and which Digital Product Passport data to start collecting. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="EU ESPR checker: unsold-clothes destruction ban, disclosure table, Digital Product Passport. Free, private">
+  <meta property="og:description" content="Product, role and size in; ban status, a draft disclosure table and passport data to-do out.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"EU ESPR Readiness Checker","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can a fashion brand still destroy unsold clothes in the EU?","acceptedAnswer":{"@type":"Answer","text":"Not if it is a large enterprise. Under the Ecodesign for Sustainable Products Regulation (EU) 2024/1781, large enterprises may not destroy unsold apparel, clothing accessories or footwear from 19 July 2026. Medium-sized enterprises follow from 19 July 2030, and micro and small enterprises are exempt. Destroying means disposal or energy recovery; resale, donation, remanufacture and recycling stay open."}},{"@type":"Question","name":"What do large companies have to publish about unsold goods?","acceptedAnswer":{"@type":"Answer","text":"Enterprises that are not SMEs must publish each year the number and weight of unsold consumer products they discard, the reasons, and the share sent to preparation for reuse, remanufacture, recycling, energy recovery and disposal. This page drafts that table from your own numbers."}},{"@type":"Question","name":"What is a Digital Product Passport?","acceptedAnswer":{"@type":"Answer","text":"A structured record of a product's materials, origin, repair and end-of-life information, reached through a QR code or similar data carrier on the product. The ESPR creates it; product-specific delegated acts decide the data and the dates. Textiles are in the first wave of the Commission's working plan."}},{"@type":"Question","name":"Does this apply to me if I sell from outside the EU?","acceptedAnswer":{"@type":"Answer","text":"The rules attach to products placed on the EU market, so a non-EU brand selling to EU consumers is covered, usually through an importer or authorised representative in the EU. Marketplaces have their own duties."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is calculated in your browser and nothing is sent. Stock figures stay on your device; closing the tab discards them."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ESPR READINESS CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Can you still destroy unsold stock in the EU, what must you publish, and is your product passport-ready?</h1>
+    <p>Pick your product, role and size. You get whether the <strong>ban on destroying unsold apparel and footwear</strong> binds you, a <strong>draft of the annual unsold-goods disclosure table</strong> built from your own numbers, and the <strong>Digital Product Passport data</strong> to start collecting now.</p>
+    <p class="note">A first read of Regulation (EU) 2024/1781 (ESPR). It is not legal advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>Who you are</h2>
+    <div class="grid"><div><label for="product">What do you sell?</label><select id="product"><option value="">Choose one</option><option value="apparel">Clothing, clothing accessories or footwear</option><option value="textiles">Other textiles (home textiles, fabrics)</option><option value="furniture">Furniture</option><option value="mattress">Mattresses</option><option value="tyres">Tyres</option><option value="metal">Iron, steel or aluminium (intermediate products)</option><option value="electronics">Consumer electronics, phones, tablets or other ICT</option><option value="battery">Batteries</option><option value="other">Something else</option></select></div>
+      <div><label for="role">Your role</label><select id="role"><option value="manufacturer">Brand owner or manufacturer placing goods on the EU market</option><option value="importer">Importer bringing goods into the EU</option><option value="retailer">Retailer or distributor selling goods made by others</option><option value="marketplace">Online marketplace or platform hosting other sellers</option></select></div>
+      <div><label for="size">Size of your enterprise (including linked and partner enterprises)</label><select id="size"><option value="micro">Microenterprise (fewer than 10 staff and turnover or balance sheet of 2 million euro or less)</option><option value="small">Small enterprise (fewer than 50 staff and turnover or balance sheet of 10 million euro or less)</option><option value="medium">Medium-sized enterprise (fewer than 250 staff and turnover up to 50 million euro or balance sheet up to 43 million euro)</option><option value="large">Large enterprise (above the medium thresholds)</option></select></div>
+      <div><label for="sellsInEu">Do you place goods on the EU market?</label><select id="sellsInEu"><option value="yes">Yes</option><option value="no">No</option></select></div></div>
+    <h2 style="margin-top:22px">Unsold consumer products you discarded last year (optional)</h2>
+    <p class="note">Count products that left stock without a sale. Enter units and kilograms for each route; leave blank for none. Totals only, no customer data.</p>
+    <div class="grid"><div><label for="units_reuse">Preparation for reuse (resale, outlet, donation, repair): units</label><input id="units_reuse" type="number" min="0" step="1" inputmode="numeric"></div><div><label for="kg_reuse">Preparation for reuse (resale, outlet, donation, repair): weight in kg</label><input id="kg_reuse" type="number" min="0" step="any" inputmode="decimal"></div><div><label for="units_remanufacture">Remanufacture: units</label><input id="units_remanufacture" type="number" min="0" step="1" inputmode="numeric"></div><div><label for="kg_remanufacture">Remanufacture: weight in kg</label><input id="kg_remanufacture" type="number" min="0" step="any" inputmode="decimal"></div><div><label for="units_recycle">Recycling: units</label><input id="units_recycle" type="number" min="0" step="1" inputmode="numeric"></div><div><label for="kg_recycle">Recycling: weight in kg</label><input id="kg_recycle" type="number" min="0" step="any" inputmode="decimal"></div><div><label for="units_energy">Energy recovery (incineration with energy recovery): units</label><input id="units_energy" type="number" min="0" step="1" inputmode="numeric"></div><div><label for="kg_energy">Energy recovery (incineration with energy recovery): weight in kg</label><input id="kg_energy" type="number" min="0" step="any" inputmode="decimal"></div><div><label for="units_disposal">Disposal (landfill or incineration without recovery): units</label><input id="units_disposal" type="number" min="0" step="1" inputmode="numeric"></div><div><label for="kg_disposal">Disposal (landfill or incineration without recovery): weight in kg</label><input id="kg_disposal" type="number" min="0" step="any" inputmode="decimal"></div></div>
+    <label for="reasons">Reasons for discarding (short text, shown in the disclosure)</label><input id="reasons" type="text" maxlength="400">
+    <h2 style="margin-top:22px">Digital Product Passport: what you already have</h2>
+    <div class="grid"><div><label for="identifier">A unique product identifier for each model or batch (for example a GS1 GTIN), kept stable over the product's life</label><select id="identifier"><option value="">Not yet or not sure</option><option value="1">Ready</option></select></div><div><label for="operators">Identifiers for the economic operator and each production facility (for example GLN or EORI), with the importer or authorised representative named</label><select id="operators"><option value="">Not yet or not sure</option><option value="1">Ready</option></select></div><div><label for="composition">Material composition by component with percentages, including recycled content where claimed</label><select id="composition"><option value="">Not yet or not sure</option><option value="1">Ready</option></select></div><div><label for="supplyChain">A supplier map with the location of each production step, back at least to the finishing and dyeing sites</label><select id="supplyChain"><option value="">Not yet or not sure</option><option value="1">Ready</option></select></div><div><label for="substances">Substances of concern in the product, checked against the REACH candidate list, with supplier declarations</label><select id="substances"><option value="">Not yet or not sure</option><option value="1">Ready</option></select></div><div><label for="careRepair">Care, repair and end-of-life instructions that a consumer or recycler can act on</label><select id="careRepair"><option value="">Not yet or not sure</option><option value="1">Ready</option></select></div><div><label for="footprint">Environmental footprint figures (carbon, water) with the method used, where the delegated act asks for them</label><select id="footprint"><option value="">Not yet or not sure</option><option value="1">Ready</option></select></div><div><label for="carrier">A data carrier (QR code or GS1 Digital Link) planned for the product, label or packaging, linking to the passport</label><select id="carrier"><option value="">Not yet or not sure</option><option value="1">Ready</option></select></div><div><label for="export">Product data held in one structured file (CSV or JSON), with a named owner, instead of scattered documents</label><select id="export"><option value="">Not yet or not sure</option><option value="1">Ready</option></select></div></div>
+    <h2 style="margin-top:22px">Date</h2>
+    <div class="grid"><div><label for="now">Today (leave empty for the current date)</label><input id="now" type="date"></div></div>
+    <p>
+      <button type="button" id="calc">Check my readiness</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose what kind of product you sell, then click Check my readiness.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download table and checklist (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Destruction ban:</strong> large enterprises may not destroy unsold apparel, clothing accessories or footwear from 19 July 2026; medium-sized enterprises from 19 July 2030; micro and small enterprises are exempt.</li>
+      <li><strong>Disclosure:</strong> enterprises that are not SMEs publish each year the number and weight of discarded unsold consumer products, the reasons, and the share per treatment route.</li>
+      <li><strong>Passport:</strong> the Digital Product Passport is set product group by product group. Textiles are in the first wave of the Commission's working plan; the checklist is a starting list, not the final data set.</li>
+      <li><strong>Not decided:</strong> the delegated act's exceptions to the ban, how your group counts for size, which of your items fall in a product group, final passport data fields and dates, and national enforcement rules.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>Can a fashion brand still destroy unsold clothes in the EU?</h3>
+    <p>Not if it is a large enterprise. Under the Ecodesign for Sustainable Products Regulation (EU) 2024/1781, large enterprises may not destroy unsold apparel, clothing accessories or footwear from 19 July 2026. Medium-sized enterprises follow from 19 July 2030, and micro and small enterprises are exempt. Destroying means disposal or energy recovery; resale, donation, remanufacture and recycling stay open.</p>
+    <h3>What do large companies have to publish about unsold goods?</h3>
+    <p>Enterprises that are not SMEs must publish each year the number and weight of unsold consumer products they discard, the reasons, and the share sent to preparation for reuse, remanufacture, recycling, energy recovery and disposal. This page drafts that table from your own numbers.</p>
+    <h3>What is a Digital Product Passport?</h3>
+    <p>A structured record of a product's materials, origin, repair and end-of-life information, reached through a QR code or similar data carrier on the product. The ESPR creates it; product-specific delegated acts decide the data and the dates. Textiles are in the first wave of the Commission's working plan.</p>
+    <h3>Does this apply to me if I sell from outside the EU?</h3>
+    <p>The rules attach to products placed on the EU market, so a non-EU brand selling to EU consumers is covered, usually through an importer or authorised representative in the EU. Marketplaces have their own duties.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent. Stock figures stay on your device; closing the tab discards them.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your supervisor or counsel before relying on it. Article numbers, dates and the product working plan were written without access to the Official Journal and must be checked against Regulation (EU) 2024/1781 and the Commission's delegated acts before you rely on them.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device. Do not enter customer or supplier personal data.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../eu-green-claims-checker/">EU green claims checker</a>, the <a href="../eu-packaging-regulation-checker/">EU packaging regulation checker</a>, the <a href="../eu-battery-regulation-checker/">EU battery regulation checker</a> and the <a href="../eu-price-reduction-claim-checker/">EU price-reduction claim checker</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, checklistCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const ids = ["product","role","size","sellsInEu","identifier","operators","composition","supplyChain","substances","careRepair","footprint","carrier","export","units_reuse","kg_reuse","units_remanufacture","kg_remanufacture","units_recycle","kg_recycle","units_energy","kg_energy","units_disposal","kg_disposal","reasons","now"];
+    const DEFAULTS = { role: "manufacturer", size: "small", sellsInEu: "yes" };
+    const IDLE = "Choose what kind of product you sell, then click Check my readiness.";
+    const LABEL = { inForce: "The ban on destroying unsold apparel is in force for you", upcoming: "The ban on destroying unsold apparel is coming for you", exempt: "You are exempt from the destruction ban", none: "The destruction ban does not cover your product", out: "The EU rules do not reach you directly" };
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const id of ids) o[id] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = LABEL[r.destruction.ban.status];
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Confirm with counsel or your regulator before relying on this.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const id of ids) $("#" + id).value = SAMPLE[id];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a large apparel brand with last year's unsold stock. Illustrative, not a real firm.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ids) $("#" + id).value = DEFAULTS[id] || ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("espr-readiness-check.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("espr-readiness-checklist.csv", checklistCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
