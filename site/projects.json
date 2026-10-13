@@ -1440,6 +1440,11 @@
      "slug": "simdesign-dfm",
      "title": "What do manufacturing rules cost a sized bracket on FDM, CNC routing, laser cutting and casting?",
      "summary": "The L-bracket of <em>simdesign-bracket</em> is sized for minimum mass under a stress and a deflection limit with and without each process&rsquo;s rules (tool radius, plate or sheet gauges, minimum walls, draft, an even-section rule), in the same material, so the ratio isolates the rules. Sand casting pays +43% (best of three seeds), driven by its wall-ratio rule rather than draft; CNC routing +24%, from the thinnest plate on the stock list; laser cutting and FDM about nothing, within optimiser noise (three seeds spread over 20%). Re-solved on a fine mesh, every chosen design exceeds its stress limit by 17&ndash;26%. Stylised: rule values and materials are assumed, the model is 2D, nothing was built. Exports an STL and DXF profiles."
+    },
+    {
+     "slug": "simdesign-holes",
+     "title": "How much does a bolt hole cost a tension plate, and which rule sets its width?",
+     "summary": "A flat plate carrying one required hole is sized for minimum mass under a working-stress limit with three stress models (net section, a fixed Kt&nbsp;=&nbsp;3, and 2D finite elements over <em>d/W</em>) and with per-process hole rules (minimum hole, centre-to-edge distance, ligament, stock thickness). FE reproduces the large-plate limit of Kt&nbsp;=&nbsp;3 as the hole shrinks. Ignoring the concentration gives plates 1.9&ndash;2.7&times; overstressed where stress binds; Kt&nbsp;=&nbsp;3 is safe but 8&ndash;26% heavier for FDM. Where an edge-distance rule binds (CNC routing, laser from 8&nbsp;mm, casting from 8&nbsp;mm) the stress model is irrelevant and the plate is 2&ndash;4&times; stronger than needed. Stylised: rule values, load and materials are assumed, 2D plane stress, no bolt contact or fatigue, mesh not fully converged (about 1% low), nothing built."
     }
    ]
   },
