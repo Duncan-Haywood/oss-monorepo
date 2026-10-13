@@ -1612,7 +1612,7 @@
      "summary": "A negative result (stylised). Raising the laser-cutting inner-fillet floor from 0.2 to 1 and 3.175&nbsp;mm over five seeds does not explain the scatter in the mass price of the rules: the peak-stress designs already use fillets of 7.6&ndash;14.3&nbsp;mm, so the 0.2 and 1&nbsp;mm floors give identical designs (sd of the price 0.063), and under a 3&nbsp;mm patch average the price is steady (sd 0.006&ndash;0.011) at every floor. The cause of the peak-stress scatter is not identified. Limits: five seeds, one process and load, uncalibrated limit, assumed values, 2D plane stress."
     },
     {
-     "slug": "simdesign-gaugescatter",
+     "slug": "simdesign-gaugebudget",
      "title": "Where does the peak-stress price scatter of laser-cutting rules come from?",
      "summary": "A stylised follow-up to the fillet-floor negative result. Keeping the best mass of each of the ten stock-gauge sub-searches shows that the scatter in the rules mass (price 0.990&ndash;1.145 over five seeds) sits in the 2&nbsp;mm gauge: in one seed that sub-search found nothing feasible and the 3&nbsp;mm gauge won, giving the 1.145 outlier, while gauges of 3&nbsp;mm and above agree across seeds to within 0.05&nbsp;g at four times the budget. Quadrupling the search budget cuts the price sd from 0.063 to 0.025, but not monotonically, the no-rules twin moves too, and the 2&nbsp;mm gauge still spreads over 2&nbsp;g, so the data are consistent with several nearby optima there, not proof of it. Five seeds, one process and load case, 2D plane stress, assumed rules. Simulated only. Produced with AI assistance."
     },

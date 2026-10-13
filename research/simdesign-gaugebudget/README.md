@@ -1,8 +1,8 @@
-# simdesign-gaugescatter: where does the peak-stress price scatter of laser-cutting rules come from?
+# simdesign-gaugebudget: how much of the peak-stress price scatter of laser-cutting rules is search budget?
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5) to `simdesign-filletfloor`, which ruled out a near-sharp fillet floor as the cause of the scatter in the mass price of laser-cutting rules under the peak element stress (price 0.990–1.145 over seeds 0–4) and listed "per-gauge sub-search results, more seeds, or a different optimiser" as next steps. This project looks at the per-gauge sub-searches and at the search budget. Produced with AI assistance (Claude). Everything is a stylised 2D plane-stress model with assumed rule values, materials and load.
 
-**Builds on.** `research/simdesign-filletfloor` and, through it, `simdesign-patchsearch`, `simdesign-dfm` and `simdesign-bracket` in this repository (the model, rules and optimiser are copied into `src/simdesign_gaugescatter/` so the project stays self-contained; only the experiment script and tests differ); scikit-fem (Gustafsson and McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>); SciPy's `differential_evolution` (Storn and Price, 1997, "Differential Evolution – A Simple and Efficient Heuristic for Global Optimization over Continuous Spaces", *Journal of Global Optimization* 11:341–359). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
+**Builds on.** `research/simdesign-filletfloor` and, through it, `simdesign-patchsearch`, `simdesign-dfm` and `simdesign-bracket` in this repository (the model, rules and optimiser are copied into `src/simdesign_gaugebudget/` so the project stays self-contained; only the experiment script and tests differ); scikit-fem (Gustafsson and McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>); SciPy's `differential_evolution` (Storn and Price, 1997, "Differential Evolution – A Simple and Efficient Heuristic for Global Optimization over Continuous Spaces", *Journal of Global Optimization* 11:341–359). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method
 Peak element stress, laser cutting (floor 0.2 mm, stock gauges 1–12 mm) and the no-rules steel-sheet twin (continuous depth), search mesh h = 2.5 mm, seeds 0–4, the same settings as `simdesign-filletfloor`. The minimum-mass search runs one differential-evolution sub-search per stock gauge. This project keeps the best feasible mass of every sub-search (instead of only the overall winner) at two budgets: the base budget of `optimise()` (popsize 4, 17 iterations per gauge; popsize 8, 25 iterations for the continuous twin) and a larger one, about four times the evaluations (popsize 8, 35 iterations per gauge; popsize 16, 50 for the twin). Masses are at the search mesh; no fine-mesh check was run here.
@@ -10,7 +10,7 @@ Peak element stress, laser cutting (floor 0.2 mm, stock gauges 1–12 mm) and th
 ## Reproduce
 ```bash
 pip install numpy scipy scikit-fem matplotlib shapely pytest
-cd research/simdesign-gaugescatter
+cd research/simdesign-gaugebudget
 python -m pytest -q tests            # 8 tests
 python experiments/run.py            # writes experiments/results.txt and results.json (about 15 minutes on 4 cores)
 ```

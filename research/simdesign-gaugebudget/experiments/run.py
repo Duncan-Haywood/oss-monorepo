@@ -9,8 +9,8 @@ Writes results.json and results.txt.
 import json, os, sys, time, statistics as st
 from multiprocessing import Pool
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
-from simdesign_gaugescatter import PROCESSES, FREE, evaluate
-from simdesign_gaugescatter.optimise import _search
+from simdesign_gaugebudget import PROCESSES, FREE, evaluate
+from simdesign_gaugebudget.optimise import _search
 
 OUT = os.path.dirname(os.path.abspath(__file__))
 SEEDS = (0, 1, 2, 3, 4)

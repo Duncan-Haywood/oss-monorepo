@@ -1,6 +1,6 @@
 import os, sys, unittest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
-from simdesign_gaugescatter import Params, PROCESSES, evaluate, rule_violations, solve, patch_max, PATCH_RHO
+from simdesign_gaugebudget import Params, PROCESSES, evaluate, rule_violations, solve, patch_max, PATCH_RHO
 
 
 class T(unittest.TestCase):
@@ -41,13 +41,13 @@ class T(unittest.TestCase):
         self.assertEqual(PATCH_RHO, 3.0)
 
     def test_single_gauge_search_returns_that_gauge(self):
-        from simdesign_gaugescatter.optimise import _search
+        from simdesign_gaugebudget.optimise import _search
         p, n = _search(PROCESSES["laser cutting"], 3, seed=0, popsize=4, maxiter=3, h=2.5, measure="peak")
         self.assertEqual(p.b, 3)
         self.assertGreater(n, 0)
 
     def test_search_is_deterministic_for_a_seed(self):
-        from simdesign_gaugescatter.optimise import _search
+        from simdesign_gaugebudget.optimise import _search
         a = _search(PROCESSES["laser cutting"], 3, seed=1, popsize=4, maxiter=3, h=2.5, measure="peak")[0]
         b = _search(PROCESSES["laser cutting"], 3, seed=1, popsize=4, maxiter=3, h=2.5, measure="peak")[0]
         self.assertEqual((a.w, a.r), (b.w, b.r))
