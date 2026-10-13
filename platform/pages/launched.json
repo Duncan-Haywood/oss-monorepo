@@ -349,6 +349,7 @@
     "eu-bank-statement-reader": "2026-10-04",
     "eu-battery-regulation-checker": "2026-10-13",
     "eu-data-act-checker": "2026-10-13",
+    "eu-green-claims-checker": "2026-10-13",
     "eu-packaging-regulation-checker": "2026-10-13",
     "eu-pay-gap-report-calculator": "2026-10-10",
     "eu-vat-oss-calculator": "2026-10-04",
