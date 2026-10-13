@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'bowling-center-profit-calculator':
+    'the hourly wage prices paid front-desk, bar, kitchen and mechanic hours across the open week of a bowling center, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollar totals, and the target margin is a share of net center revenue.',
   'padel-club-profit-calculator':
     'the hourly wage prices paid front-desk, bar and cleaning hours across the open week of a padel club, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollar totals, and the target margin is a share of net club revenue.',
   'indoor-play-center-profit-calculator':

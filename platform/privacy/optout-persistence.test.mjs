@@ -1598,7 +1598,8 @@ const RELATIVE_SELF = relative(
 // +1: `padel-club-profit-calculator` graduated.
 // +1: `eu-data-act-checker` graduated.
 // +1: `eu-packaging-regulation-checker` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1112;
+// +1: `bowling-center-profit-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1113;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
