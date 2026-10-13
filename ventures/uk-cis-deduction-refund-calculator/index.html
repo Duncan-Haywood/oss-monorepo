@@ -115,50 +115,50 @@
   </footer>
 
   <script type="module">
-    import {{ compute, SAMPLE, summaryText, gbp }} from "./calc.mjs";
-    import {{ record, setUsageOptOut, usageOptedOut }} from "./usage.mjs";
+    import { compute, SAMPLE, summaryText, gbp } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
-    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({{ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }}[c]));
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     let last = null;
-    const map = {{ status: "status", labour: "labour", materials: "materials", costs: "costs", deducted: "deducted", invLabour: "invLabour", invMaterials: "invMaterials", invVat: "invVat" }};
+    const map = { status: "status", labour: "labour", materials: "materials", costs: "costs", deducted: "deducted", invLabour: "invLabour", invMaterials: "invMaterials", invVat: "invVat" };
     const IDLE = "Fill in the figures, then click Work out my CIS position.";
 
-    function download(name, body, type) {{
+    function download(name, body, type) {
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(new Blob([body], {{ type }}));
+      a.href = URL.createObjectURL(new Blob([body], { type }));
       a.download = name;
       a.click();
-    }}
-    const read = () => {{ const o = {{}}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; }};
-    function run() {{
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
       const r = compute(read());
-      if (r.errors.length) {{ report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }}
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
       last = r;
-      $("#due").textContent = r.bill === undefined ? `Deduction on this invoice: ${{gbp(r.invoice.deduction)}}` : r.refund > 0 ? `Estimated refund: ${{gbp(r.refund)}}` : `Estimated still to pay: ${{gbp(r.due)}}`;
+      $("#due").textContent = r.bill === undefined ? `Deduction on this invoice: ${gbp(r.invoice.deduction)}` : r.refund > 0 ? `Estimated refund: ${gbp(r.refund)}` : `Estimated still to pay: ${gbp(r.due)}`;
       $("#summary").textContent = summaryText(r);
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${{f.severity}}">${{f.severity}}</span>${{esc(f.title)}}</div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
       const rows = [];
       if (r.invoice) rows.push(["Invoice: deduction", r.invoice.deduction], ["Invoice: you receive", r.invoice.paid]);
       if (r.bill !== undefined) rows.push(["Estimated profit", r.profit], ["Income tax", r.tax], ["Class 4 NI", r.ni], ["Estimated bill", r.bill], ["CIS held back", r.deducted], [r.refund > 0 ? "Refund" : "Still to pay", r.refund > 0 ? r.refund : r.due]);
-      $("#tests").innerHTML = rows.map(([k, v]) => `<tr><td>${{esc(k)}}</td><td class="n">${{gbp(v)}}</td></tr>`).join("");
+      $("#tests").innerHTML = rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td class="n">${gbp(v)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Verify against the source named in the summary.";
-      report.scrollIntoView({{ behavior: "smooth", block: "start" }});
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
       return true;
-    }}
-    $("#calc").addEventListener("click", () => {{ if (run()) record("analysis_run"); }});
-    $("#load-ok").addEventListener("click", () => {{
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
       for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
       run(); record("example_loaded");
       status.textContent = "Worked example: a registered bricklayer with £42,000 of labour and £11,000 of costs.";
-    }});
-    $("#clear-all").addEventListener("click", () => {{ for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; }});
-    $("#dl-summary").addEventListener("click", () => {{ if (last) {{ record("summary_downloaded"); download("uk-cis-check.txt", summaryText(last), "text/plain"); }} }});
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("uk-cis-check.txt", summaryText(last), "text/plain"); } });
     $("#print").addEventListener("click", () => window.print());
-    $("#optout").addEventListener("click", (event) => {{ setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; }});
-    if (usageOptedOut()) {{ const c = document.getElementById("optout"); if (c) {{ c.textContent = "Usage counting is off"; c.disabled = true; }} }}
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
   </script>
 </body>
 </html>
