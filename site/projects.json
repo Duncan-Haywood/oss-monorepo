@@ -1589,6 +1589,11 @@
      "summary": "A thin-sheet shielding model of a conductive square weave (sheet resistance, aperture bound, metal mass) plus a Monte Carlo of random yarn breakage. Every design tried has a sheet shielding of 54&ndash;87&nbsp;dB, but the aperture bound limits it: 36&nbsp;dB at 2.4&nbsp;GHz for a 1&nbsp;mm pitch, about 15&nbsp;dB at 28&nbsp;GHz. Breakage raises resistance as the effective-medium estimate 1/(1&minus;2<em>f</em>) up to 30% broken segments and the weave stops conducting near 50% (bond percolation). Stylised: plane wave, ideal crossings, recalled constants, no measurement; covers only the RF part of the optics milestone."
     },
     {
+  "slug": "garment-thincolor",
+  "title": "How thin must a coating be to colour a fibre without dye, and how fragile is that colour?",
+  "summary": "A transfer-matrix model of dielectric quarter-wave stacks on a flat nylon-like substrate, with colour computed under an equal-energy illuminant. Six-pair stacks reach 99% reflectance with 2&ndash;3 g/m<sup>2</sup> of oxide and saturated colour, but the peak blue-shifts from 620 to 540 nm by 60&deg; incidence (&Delta;E<sub>76</sub> 48), and 10% layer-thickness error moves hue by &Delta;E&asymp;10 while roughly preserving chroma. Stylised: flat substrate, constant indices, no fibre scattering."
+ },
+    {
      "slug": "garment-assist",
      "title": "Does an assistive garment pay for its own mass?",
      "summary": "A one-joint ankle model of an exosuit-style garment: a suit adding a fraction of the biological push-off torque cuts modelled whole-body metabolic cost by 3.1, 8.8 and 14.1% at gains 0.1, 0.3 and 0.5, but a delay of 0.25 of the gait cycle removes the benefit and a stiff passive spring raises ankle cost 17%. Added mass erases the saving at 8.9&nbsp;kg if each kg costs 1% of whole-body power and at 1.8&nbsp;kg if it costs 5%; the break-even scales as 1/sensitivity, a number the project does not supply. Stylised: lumped muscle, prescribed gait, assumed constants; not OpenSim or MyoSuite."
