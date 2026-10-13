@@ -1801,6 +1801,8 @@ const CATEGORY_RULES = [
       || slug === 'ca-gst-hst-small-supplier-checker'
       // `au-gst-registration-checker` joined 2026-10-13 on its first commit: the Australian sibling of the GST/HST small-supplier test, same compliance-arithmetic job.
       || slug === 'au-gst-registration-checker'
+      // `nz-gst-registration-checker` joined 2026-10-13 on its first commit: the New Zealand sibling of the AU/CA registration tests, same compliance-arithmetic job.
+      || slug === 'nz-gst-registration-checker'
       // `uk-statutory-sick-pay-calculator` joined 2026-10-13 on its first commit: UK employer payroll-compliance arithmetic, same back-office job.
       || slug === 'uk-statutory-sick-pay-calculator'
       // `au-redundancy-pay-calculator` joined 2026-10-13 on its first commit: employer termination-pay compliance arithmetic, same back-office job.
