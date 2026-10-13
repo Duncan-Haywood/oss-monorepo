@@ -1370,6 +1370,11 @@
      "slug": "simdesign-bracket",
      "title": "Can a parametric L-bracket be sized by finite elements for minimum mass and come out printable?",
      "summary": "A 2D plane-stress scikit-fem model of an L-bracket with a filleted inner corner (arm width, fillet radius, depth) under a 100&nbsp;N tip load. Differential evolution reaches 19.6&nbsp;g against 25.6&nbsp;g for random search and 31.4&nbsp;g for a grid at 144&ndash;150 evaluations each, under a 20&nbsp;MPa stress and 4&nbsp;mm deflection limit. The design is exported as a binary STL and checked for minimum wall and overhang. Stylised: material properties and limits are assumed, the optimum stress rises about 7% on mesh refinement (just over the limit), the sharp-corner stress diverges, and the thin optimum was not checked for out-of-plane buckling."
+    },
+    {
+     "slug": "simdesign-topopt",
+     "title": "Can Sigmund's 99-line topology optimisation be reproduced in Python and carried through to a printable part?",
+     "summary": "A Q4 plane-stress SIMP code with the 99-line sensitivity filter and optimality-criteria update, tested against Hooke's law and finite-difference sensitivities. It gives truss-like cantilever (compliance 351.9&nbsp;&rarr;&nbsp;52.4) and half-MBB (1007.0&nbsp;&rarr;&nbsp;203.3) designs. Without the filter 11.5% of 2&times;2 cells are checkerboards; with it none, at the same compliance within 0.03%. The thresholded MBB design is one connected body and is written as an extruded, mirrored STL. Stylised: dimensionless 2D compliance only, no stress or 3D check, not compared with the published codes."
     }
    ]
   },
