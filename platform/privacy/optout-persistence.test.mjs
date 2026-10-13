@@ -1602,7 +1602,8 @@ const RELATIVE_SELF = relative(
 // +1: `pay-transparency-directive-checker` graduated.
 // +1: `eu-whistleblower-channel-checker` graduated.
 // +1: `eu-einvoicing-mandate-checker` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1116;
+// +1: `eu-green-claims-checker` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1117;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
