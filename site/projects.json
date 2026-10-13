@@ -1269,6 +1269,18 @@
      "summary": "Installs Yosys, Icarus Verilog and Verilator, records versions, and synthesises adders, a multiplier and a FIFO to a generic gate library: a ripple-carry adder is 5<em>W</em>&minus;3 gates deep 2<em>W</em>&minus;1, and the operator form <code>+</code> gets the same depth with a few more gates. A SAT miter proves the two adders equivalent and rejects a deliberately broken one. Stylised: gate counts, not silicon area; OpenROAD and a PDK are not yet part of the flow."
     }
    ]
+  },
+  {
+   "id": "robofab",
+   "name": "Robot manufacturing loops",
+   "blurb": "Can general-purpose robot arms make and assemble things, planned and checked in simulation first? Assembly sequences, insertion and cells, with every claim kept to the simulator.",
+   "projects": [
+    {
+     "slug": "robofab-sequence",
+     "title": "Which assembly orders survive a better checker?",
+     "summary": "Exact subset dynamic programming over assembly orders for a twelve-part printed gearbox, checked at three fidelity levels. Collision-only admits 4,227,168 of 39,916,800 orders (10.6%); adding quasi-static support leaves 30,760 (0.077%), and the collision-only optimum is infeasible once support is checked. Greedy disassembly needs 4 insertion-direction changes against an optimum of 1; one order written by the session agent (a single attempt, not a benchmark) passes with 2. Stylised axis-aligned boxes, no physics engine."
+    }
+   ]
   }
  ],
  "featured": [
