@@ -1,0 +1,47 @@
+== A. Comfort benefit (C) of each lever alone, and of pairs (solved jointly, not summed) ==
+positive = benefit in the scenario's direction (cooler for the two warm scenarios, warmer for the cool room)
+warm room 28 C: ir_transparent +2.37, low_emissivity -1.57, white -0.00, thin +0.89, thick -1.24
+sunny outdoors 32 C: ir_transparent -0.31, low_emissivity -0.84, white +3.57, thin -1.38, thick +1.40
+cool room 16 C: ir_transparent -7.31, low_emissivity +4.00, white +0.00, thin -3.10, thick +4.04
+non-additivity, warm room 28 C: ir_transparent +2.37 + thin +0.89 = +3.25 summed, +2.58 jointly
+non-additivity, sunny outdoors 32 C: white +3.57 + thick +1.40 = +4.97 summed, +3.77 jointly
+
+== B. Added cost and cost per degree at the assumed premiums ==
+premiums (USD/m2, assumed): ir_transparent 12.0, low_emissivity 6.0, white 0.5; shell cloth price scales linearly with clo (thickness exponent 1)
+-- designer trench (retail chain x2.2 x 2.2); shell cloth on the marker 3.73 m2
+  warm room 28 C: ir_transparent: +271 USD, 114 USD/C; low_emissivity: +136 USD, no benefit; white: +11 USD, no benefit; thin: -253 USD, -286 USD/C; thick: +506 USD, no benefit
+  sunny outdoors 32 C: ir_transparent: +271 USD, no benefit; low_emissivity: +136 USD, no benefit; white: +11 USD, 3 USD/C; thin: -253 USD, no benefit; thick: +506 USD, 363 USD/C
+  cool room 16 C: ir_transparent: +271 USD, no benefit; low_emissivity: +136 USD, 34 USD/C; white: +11 USD, no benefit; thin: -253 USD, no benefit; thick: +506 USD, 125 USD/C
+-- replica trench (no brand or retail multiplier); shell cloth on the marker 3.73 m2
+  warm room 28 C: ir_transparent: +45 USD, 19 USD/C; low_emissivity: +22 USD, no benefit; white: +2 USD, no benefit; thin: -10 USD, -12 USD/C; thick: +21 USD, no benefit
+  sunny outdoors 32 C: ir_transparent: +45 USD, no benefit; low_emissivity: +22 USD, no benefit; white: +2 USD, 1 USD/C; thin: -10 USD, no benefit; thick: +21 USD, 15 USD/C
+  cool room 16 C: ir_transparent: +45 USD, no benefit; low_emissivity: +22 USD, 6 USD/C; white: +2 USD, no benefit; thin: -10 USD, no benefit; thick: +21 USD, 5 USD/C
+
+== C. Largest premium (USD/m2) a treatment can carry and still cost <= 10 USD per C, added retail ==
+designer, warm room 28 C: ir_transparent: 1.0; low_emissivity: n/a; white: n/a
+designer, sunny outdoors 32 C: ir_transparent: n/a; low_emissivity: n/a; white: 1.6
+designer, cool room 16 C: ir_transparent: n/a; low_emissivity: 1.8; white: n/a
+replica, warm room 28 C: ir_transparent: 6.3; low_emissivity: n/a; white: n/a
+replica, sunny outdoors 32 C: ir_transparent: n/a; low_emissivity: n/a; white: 9.6
+replica, cool room 16 C: ir_transparent: n/a; low_emissivity: 10.7; white: n/a
+
+== D. Best lever set under an added-retail budget (exhaustive over 2^5 subsets, thin+thick excluded) ==
+warm room 28 C, designer: <= 5: thin +0.89 C for -253 USD | <= 10: thin +0.89 C for -253 USD | <= 20: ir_transparent+thin +2.58 C for 18 USD | <= 40: ir_transparent+thin +2.58 C for 18 USD | <= 80: ir_transparent+thin +2.58 C for 18 USD
+warm room 28 C, replica: <= 5: thin +0.89 C for -10 USD | <= 10: thin +0.89 C for -10 USD | <= 20: thin +0.89 C for -10 USD | <= 40: ir_transparent+thin +2.58 C for 34 USD | <= 80: ir_transparent+thin +2.58 C for 34 USD
+sunny outdoors 32 C, designer: <= 5: white+thin +3.35 C for -242 USD | <= 10: white+thin +3.35 C for -242 USD | <= 20: white +3.57 C for 11 USD | <= 40: white +3.57 C for 11 USD | <= 80: white +3.57 C for 11 USD
+sunny outdoors 32 C, replica: <= 5: white +3.57 C for 2 USD | <= 10: white +3.57 C for 2 USD | <= 20: white +3.57 C for 2 USD | <= 40: white+thick +3.77 C for 23 USD | <= 80: ir_transparent+white+thick +4.10 C for 68 USD
+cool room 16 C, designer: <= 5: low_emissivity+thin +2.36 C for -117 USD | <= 10: low_emissivity+thin +2.36 C for -117 USD | <= 20: low_emissivity+thin +2.36 C for -117 USD | <= 40: low_emissivity+thin +2.36 C for -117 USD | <= 80: low_emissivity+thin +2.36 C for -117 USD
+cool room 16 C, replica: <= 5: none +0.00 C for 0 USD | <= 10: none +0.00 C for 0 USD | <= 20: low_emissivity+thin +2.36 C for 12 USD | <= 40: thick +4.04 C for 21 USD | <= 80: low_emissivity+thick +6.46 C for 43 USD
+
+== E. Cost per degree (USD/C, added retail) against the premium multiplier (x assumed premium) ==
+designer, warm room 28 C, ir_transparent: x0.1: 11.4, x0.3: 34.3, x1: 114.5, x3: 343.4, x10: 1144.8
+designer, sunny outdoors 32 C, white: x0.1: 0.3, x0.3: 0.9, x1: 3.2, x3: 9.5, x10: 31.6
+designer, cool room 16 C, low_emissivity: x0.1: 3.4, x0.3: 10.2, x1: 33.9, x3: 101.7, x10: 339.0
+replica, warm room 28 C, ir_transparent: x0.1: 1.9, x0.3: 5.7, x1: 18.9, x3: 56.8, x10: 189.2
+replica, sunny outdoors 32 C, white: x0.1: 0.1, x0.3: 0.2, x1: 0.5, x3: 1.6, x10: 5.2
+replica, cool room 16 C, low_emissivity: x0.1: 0.6, x0.3: 1.7, x1: 5.6, x3: 16.8, x10: 56.0
+
+== F. Thickness pricing: what 'thin' (0.5 -> 0.3 clo) does to cost, designer trench ==
+cloth price ~ (clo/0.5)^0.0: added retail +0 USD for +0.89 C of cooling at 28 C
+cloth price ~ (clo/0.5)^0.5: added retail -143 USD for +0.89 C of cooling at 28 C
+cloth price ~ (clo/0.5)^1.0: added retail -253 USD for +0.89 C of cooling at 28 C
