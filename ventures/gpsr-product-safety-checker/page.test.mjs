@@ -70,3 +70,7 @@ test("footer links the related EU tools", () => {
   assert.match(html, /href="\.\.\/eaa-accessibility-act-checker\/"/);
   assert.match(html, /href="\.\.\/eu-ai-act-risk-checker\/"/);
 });
+
+test("footer links the EU Batteries Regulation checker", () => {
+  assert.match(page("index.html"), /href="\.\.\/eu-battery-regulation-checker\/"/);
+});

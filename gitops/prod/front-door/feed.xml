@@ -64,12 +64,28 @@
     <summary type="text">Free EU AI Act risk checker: tick what your AI system does and your role to see whether it is prohibited, high-risk, or only has transparency duties under Regulation (EU) 2024/1689, with the Articles, your duties and the dates. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>EU Battery Regulation Checker — Deadlines and Duties</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-battery-regulation-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/eu-battery-regulation-checker</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free EU Batteries Regulation (2023/1542) checker for makers, importers and online sellers: which duties reach your battery, when each applies (label, removability, QR code, battery passport, due diligence), and what is still open. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>EUDR Scope Checker — Is My Product Covered?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eudr-scope-checker/"/>
     <id>tag:marisstella.dev,2026:tool/eudr-scope-checker</id>
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free EU Deforestation Regulation (EUDR) checker: tick your role, size and commodities to see whether Regulation (EU) 2023/1115 covers you, your duties with the Articles, and your application date. Screens customs codes against Annex I. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>GPSR Checker — Do You Need an EU Responsible Person?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/gpsr-product-safety-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/gpsr-product-safety-checker</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free EU General Product Safety Regulation (GPSR) checker for online sellers: is your product in scope, is an EU responsible person behind it, and which basic duties are still open. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Ice Cream Shop Seasonal Profit Calculator — Break-Even and Off-Season Cash</title>
@@ -150,21 +166,5 @@
     <updated>2026-10-12T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free arcade game payback calculator: plays, credits, ticket payout, floor space and upkeep become weekly profit, payback, break-even plays and a keep, watch or cut verdict for every game. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Axe Throwing Bar Profit Calculator — monthly profit, payback and break-even fill</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/axe-throwing-bar-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/axe-throwing-bar-profit-calculator</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free calculator for axe throwing bars and venues. Enter thrower capacity, sessions, fill, ticket price, private events, leagues, staff, rent and the build; it shows monthly profit, margin, payback, break-even fill and the lowest ticket for your target margin and payback. Private, in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Bail Bond Agency Exposure Calculator — Free, Runs in Your Browser</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bail-bond-agency-exposure-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/bail-bond-agency-exposure-calculator</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free tool for bail bond agents: enter your open bonds, collateral and surety terms to see net premium, the loss if bonds are forfeited, whether cash covers the largest ones, and a court-date call list. Runs in your browser.</summary>
   </entry>
 </feed>

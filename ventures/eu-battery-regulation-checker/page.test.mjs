@@ -70,3 +70,7 @@ test("footer links the related EU tools", () => {
   assert.match(html, /href="\.\.\/eaa-accessibility-act-checker\/"/);
   assert.match(html, /href="\.\.\/cbam-cost-estimator\/"/);
 });
+
+test("footer links the GPSR checker", () => {
+  assert.match(page("index.html"), /href="\.\.\/gpsr-product-safety-checker\/"/);
+});
