@@ -1,0 +1,13 @@
+[project]
+name = "garment-markercost"
+version = "0.1.0"
+description = "Seam allowance and mixed sizes in the marker, fed into the garment cost model"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../garment-nesting/src", "../garment-teardown/src"]
