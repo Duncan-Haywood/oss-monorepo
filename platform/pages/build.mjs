@@ -3393,6 +3393,8 @@ const CATEGORY_RULES = [
         'ats-resume-checker',
         'house-hack-calculator',
         'brand-deal-rate-calculator',
+        // `ugc-creator-rate-calculator` joined 2026-10-13 on its first commit: a creator pricing content plus ad rights is the same solo earner as brand-deal-rate-calculator.
+        'ugc-creator-rate-calculator',
         'cat-adjuster-fee-calculator',
         'ad-slot-sell-through-planner',
         'candle-batch-cost-calculator',
