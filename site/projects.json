@@ -1422,6 +1422,11 @@
      "slug": "garment-pattern-fit",
      "title": "Can a cheap cloth drape score how well a flat pattern fits a body, and is a fitted pattern body-specific?",
      "summary": "A flat skirt-tube pattern is draped by position-based-dynamics cloth on two synthetic elliptical-section bodies and scored by circumferential strain and waist ease. The best waist is close to the body&rsquo;s waist perimeter (&times;1.01 and &times;1.03); tighter patterns strain, looser ones leave ease. A pattern optimised for one body costs 2.1&ndash;2.9 on the other against own optima of 0.15&ndash;0.75 (arbitrary cost units). Stylised: the body is a stack of ellipses, the cost weights are assumptions, the hem optimum sits at the edge of the search range, and the optimum cost moves from 0.75 to 1.34 on a finer mesh."
+    },
+    {
+     "slug": "garment-nesting",
+     "title": "How much cloth does marker making waste, and do annealing and exact methods beat greedy nesting?",
+     "summary": "Marker making as strip packing. On 20 random 8-box markers an exact MILP proves optimality on 19; shelf heuristics (NFDH, FFDH) are on average 20% and 17% longer than optimal, bottom-left 7.3%, and simulated annealing over placement order 0.5%. On two stylised garments (a shirt and a four-gore skirt, no seam allowance, one ply) true-polygon nesting with 180&deg; turns beats bounding-box packing at the same annealing budget in every case, by about 5&ndash;9% for the shirt and 9&ndash;43% for the skirt. Stylised: the shapes are invented, polygon results have no exact reference, and the raster is conservative."
     }
    ]
   }
