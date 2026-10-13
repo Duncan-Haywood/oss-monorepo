@@ -3395,6 +3395,8 @@ const CATEGORY_RULES = [
         'brand-deal-rate-calculator',
         // `ugc-creator-rate-calculator` joined 2026-10-13 on its first commit: a creator pricing content plus ad rights is the same solo earner as brand-deal-rate-calculator.
         'ugc-creator-rate-calculator',
+        // `uk-sole-trader-vs-limited-company-calculator` joined 2026-10-13 on its first commit: one UK freelancer deciding whether to incorporate, the same solo earner.
+        'uk-sole-trader-vs-limited-company-calculator',
         'cat-adjuster-fee-calculator',
         'ad-slot-sell-through-planner',
         'candle-batch-cost-calculator',
