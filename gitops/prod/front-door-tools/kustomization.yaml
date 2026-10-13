@@ -33,49 +33,49 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548295 bytes
-#   portfolio-front-tools-1: 92 files, 555574 bytes
-#   portfolio-front-tools-2: 144 files, 553483 bytes
-#   portfolio-front-tools-3: 128 files, 549689 bytes
-#   portfolio-front-tools-4: 136 files, 554023 bytes
-#   portfolio-front-tools-5: 130 files, 549911 bytes
-#   portfolio-front-tools-6: 124 files, 556230 bytes
-#   portfolio-front-tools-7: 121 files, 556776 bytes
-#   portfolio-front-tools-8: 134 files, 555956 bytes
-#   portfolio-front-tools-9: 136 files, 549480 bytes
-#   portfolio-front-tools-10: 134 files, 555492 bytes
-#   portfolio-front-tools-11: 136 files, 555178 bytes
-#   portfolio-front-tools-12: 127 files, 553512 bytes
-#   portfolio-front-tools-13: 130 files, 552592 bytes
-#   portfolio-front-tools-14: 126 files, 551766 bytes
-#   portfolio-front-tools-15: 127 files, 552368 bytes
-#   portfolio-front-tools-16: 127 files, 547036 bytes
-#   portfolio-front-tools-17: 121 files, 551569 bytes
-#   portfolio-front-tools-18: 126 files, 551367 bytes
-#   portfolio-front-tools-19: 122 files, 550208 bytes
-#   portfolio-front-tools-20: 124 files, 550292 bytes
-#   portfolio-front-tools-21: 120 files, 542432 bytes
-#   portfolio-front-tools-22: 115 files, 556432 bytes
-#   portfolio-front-tools-23: 123 files, 554578 bytes
-#   portfolio-front-tools-24: 129 files, 550446 bytes
-#   portfolio-front-tools-25: 127 files, 553233 bytes
-#   portfolio-front-tools-26: 142 files, 549310 bytes
-#   portfolio-front-tools-27: 118 files, 554130 bytes
-#   portfolio-front-tools-28: 125 files, 553334 bytes
-#   portfolio-front-tools-29: 134 files, 552631 bytes
-#   portfolio-front-tools-30: 136 files, 556587 bytes
-#   portfolio-front-tools-31: 116 files, 556471 bytes
-#   portfolio-front-tools-32: 136 files, 553876 bytes
-#   portfolio-front-tools-33: 114 files, 553088 bytes
-#   portfolio-front-tools-34: 95 files, 546511 bytes
-#   portfolio-front-tools-35: 129 files, 556550 bytes
-#   portfolio-front-tools-36: 120 files, 553369 bytes
-#   portfolio-front-tools-37: 130 files, 553192 bytes
-#   portfolio-front-tools-38: 123 files, 553148 bytes
-#   portfolio-front-tools-39: 130 files, 556501 bytes
-#   portfolio-front-tools-40: 122 files, 551769 bytes
-#   portfolio-front-tools-41: 114 files, 555775 bytes
-#   portfolio-front-tools-42: 53 files, 283285 bytes
+#   portfolio-front-tools-0: 145 files, 548261 bytes
+#   portfolio-front-tools-1: 92 files, 555556 bytes
+#   portfolio-front-tools-2: 144 files, 553465 bytes
+#   portfolio-front-tools-3: 128 files, 549667 bytes
+#   portfolio-front-tools-4: 136 files, 554002 bytes
+#   portfolio-front-tools-5: 130 files, 549870 bytes
+#   portfolio-front-tools-6: 124 files, 556215 bytes
+#   portfolio-front-tools-7: 121 files, 556756 bytes
+#   portfolio-front-tools-8: 134 files, 556010 bytes
+#   portfolio-front-tools-9: 136 files, 549478 bytes
+#   portfolio-front-tools-10: 134 files, 555483 bytes
+#   portfolio-front-tools-11: 136 files, 555155 bytes
+#   portfolio-front-tools-12: 127 files, 553454 bytes
+#   portfolio-front-tools-13: 130 files, 552616 bytes
+#   portfolio-front-tools-14: 126 files, 551756 bytes
+#   portfolio-front-tools-15: 127 files, 552351 bytes
+#   portfolio-front-tools-16: 127 files, 546965 bytes
+#   portfolio-front-tools-17: 121 files, 551552 bytes
+#   portfolio-front-tools-18: 126 files, 551353 bytes
+#   portfolio-front-tools-19: 122 files, 550206 bytes
+#   portfolio-front-tools-20: 124 files, 550279 bytes
+#   portfolio-front-tools-21: 120 files, 542425 bytes
+#   portfolio-front-tools-22: 115 files, 556413 bytes
+#   portfolio-front-tools-23: 123 files, 554503 bytes
+#   portfolio-front-tools-24: 129 files, 550447 bytes
+#   portfolio-front-tools-25: 127 files, 553264 bytes
+#   portfolio-front-tools-26: 142 files, 549291 bytes
+#   portfolio-front-tools-27: 118 files, 554162 bytes
+#   portfolio-front-tools-28: 126 files, 556390 bytes
+#   portfolio-front-tools-29: 134 files, 554316 bytes
+#   portfolio-front-tools-30: 134 files, 556644 bytes
+#   portfolio-front-tools-31: 118 files, 556764 bytes
+#   portfolio-front-tools-32: 137 files, 551737 bytes
+#   portfolio-front-tools-33: 113 files, 552295 bytes
+#   portfolio-front-tools-34: 97 files, 555851 bytes
+#   portfolio-front-tools-35: 129 files, 556402 bytes
+#   portfolio-front-tools-36: 120 files, 553225 bytes
+#   portfolio-front-tools-37: 130 files, 553230 bytes
+#   portfolio-front-tools-38: 123 files, 553042 bytes
+#   portfolio-front-tools-39: 130 files, 556306 bytes
+#   portfolio-front-tools-40: 122 files, 551735 bytes
+#   portfolio-front-tools-41: 114 files, 555716 bytes
+#   portfolio-front-tools-42: 53 files, 283276 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3870,6 +3870,9 @@ configMapGenerator:
       - pipedrive-import-csv-check__calc.mjs.gz=pipedrive-import-csv-check__calc.mjs.gz
       - pipedrive-import-csv-check__index.html.gz=pipedrive-import-csv-check__index.html.gz
       - pipedrive-import-csv-check__usage.mjs.gz=pipedrive-import-csv-check__usage.mjs.gz
+      - pizzeria-profit-calculator__calc.mjs.gz=pizzeria-profit-calculator__calc.mjs.gz
+      - pizzeria-profit-calculator__index.html.gz=pizzeria-profit-calculator__index.html.gz
+      - pizzeria-profit-calculator__usage.mjs.gz=pizzeria-profit-calculator__usage.mjs.gz
       - plantation-shutter-bid-calculator__calc.mjs.gz=plantation-shutter-bid-calculator__calc.mjs.gz
       - plantation-shutter-bid-calculator__how-much-to-charge-to-install-plantation-shutters.html.gz=plantation-shutter-bid-calculator__how-much-to-charge-to-install-plantation-shutters.html.gz
       - plantation-shutter-bid-calculator__index.html.gz=plantation-shutter-bid-calculator__index.html.gz
@@ -3925,13 +3928,13 @@ configMapGenerator:
       - popcorn-ceiling-bid-calculator__how-much-to-charge-to-remove-popcorn-ceiling.html.gz=popcorn-ceiling-bid-calculator__how-much-to-charge-to-remove-popcorn-ceiling.html.gz
       - popcorn-ceiling-bid-calculator__index.html.gz=popcorn-ceiling-bid-calculator__index.html.gz
       - popcorn-ceiling-bid-calculator__usage.mjs.gz=popcorn-ceiling-bid-calculator__usage.mjs.gz
-      - popcorn-ceiling-bid-calculator__vs-a-flat-price-per-square-foot.html.gz=popcorn-ceiling-bid-calculator__vs-a-flat-price-per-square-foot.html.gz
-      - popcorn-ceiling-bid-calculator__vs-jobber.html.gz=popcorn-ceiling-bid-calculator__vs-jobber.html.gz
   - name: portfolio-front-tools-29
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - popcorn-ceiling-bid-calculator__vs-a-flat-price-per-square-foot.html.gz=popcorn-ceiling-bid-calculator__vs-a-flat-price-per-square-foot.html.gz
+      - popcorn-ceiling-bid-calculator__vs-jobber.html.gz=popcorn-ceiling-bid-calculator__vs-jobber.html.gz
       - poshmark-fee-calculator__calc.mjs.gz=poshmark-fee-calculator__calc.mjs.gz
       - poshmark-fee-calculator__how-much-does-poshmark-take.html.gz=poshmark-fee-calculator__how-much-does-poshmark-take.html.gz
       - poshmark-fee-calculator__index.html.gz=poshmark-fee-calculator__index.html.gz
@@ -4064,13 +4067,13 @@ configMapGenerator:
       - proposal-maker__index.html.gz=proposal-maker__index.html.gz
       - proposal-maker__usage.mjs.gz=proposal-maker__usage.mjs.gz
       - provider-credentialing-delay-cost-calculator__calc.mjs.gz=provider-credentialing-delay-cost-calculator__calc.mjs.gz
-      - provider-credentialing-delay-cost-calculator__index.html.gz=provider-credentialing-delay-cost-calculator__index.html.gz
-      - provider-credentialing-delay-cost-calculator__usage.mjs.gz=provider-credentialing-delay-cost-calculator__usage.mjs.gz
   - name: portfolio-front-tools-30
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - provider-credentialing-delay-cost-calculator__index.html.gz=provider-credentialing-delay-cost-calculator__index.html.gz
+      - provider-credentialing-delay-cost-calculator__usage.mjs.gz=provider-credentialing-delay-cost-calculator__usage.mjs.gz
       - pslf-vs-refinance-calculator__calc.mjs.gz=pslf-vs-refinance-calculator__calc.mjs.gz
       - pslf-vs-refinance-calculator__index.html.gz=pslf-vs-refinance-calculator__index.html.gz
       - pslf-vs-refinance-calculator__usage.mjs.gz=pslf-vs-refinance-calculator__usage.mjs.gz
@@ -4203,15 +4206,15 @@ configMapGenerator:
       - regex-redos-check__how-regex-denial-of-service-works-and-how-to-find-it-before-an-attacker-does.html.gz=regex-redos-check__how-regex-denial-of-service-works-and-how-to-find-it-before-an-attacker-does.html.gz
       - regex-redos-check__index.html.gz=regex-redos-check__index.html.gz
       - regex-redos-check__probe.mjs.gz=regex-redos-check__probe.mjs.gz
-      - regex-redos-check__usage.mjs.gz=regex-redos-check__usage.mjs.gz
-      - release-notes-generator__changelog.mjs.gz=release-notes-generator__changelog.mjs.gz
-      - release-notes-generator__cli.mjs.gz=release-notes-generator__cli.mjs.gz
-      - release-notes-generator__how-to-write-a-changelog.html.gz=release-notes-generator__how-to-write-a-changelog.html.gz
   - name: portfolio-front-tools-31
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - regex-redos-check__usage.mjs.gz=regex-redos-check__usage.mjs.gz
+      - release-notes-generator__changelog.mjs.gz=release-notes-generator__changelog.mjs.gz
+      - release-notes-generator__cli.mjs.gz=release-notes-generator__cli.mjs.gz
+      - release-notes-generator__how-to-write-a-changelog.html.gz=release-notes-generator__how-to-write-a-changelog.html.gz
       - release-notes-generator__index.html.gz=release-notes-generator__index.html.gz
       - release-notes-generator__usage.mjs.gz=release-notes-generator__usage.mjs.gz
       - renewal-rent-optimizer__calc.mjs.gz=renewal-rent-optimizer__calc.mjs.gz
@@ -4326,13 +4329,13 @@ configMapGenerator:
       - rule-72t-sepp-calculator__usage.mjs.gz=rule-72t-sepp-calculator__usage.mjs.gz
       - rush-job-sequencer__calc.mjs.gz=rush-job-sequencer__calc.mjs.gz
       - rush-job-sequencer__index.html.gz=rush-job-sequencer__index.html.gz
-      - rush-job-sequencer__usage.mjs.gz=rush-job-sequencer__usage.mjs.gz
-      - rv-boat-storage-lot-calculator__calc.mjs.gz=rv-boat-storage-lot-calculator__calc.mjs.gz
   - name: portfolio-front-tools-32
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - rush-job-sequencer__usage.mjs.gz=rush-job-sequencer__usage.mjs.gz
+      - rv-boat-storage-lot-calculator__calc.mjs.gz=rv-boat-storage-lot-calculator__calc.mjs.gz
       - rv-boat-storage-lot-calculator__index.html.gz=rv-boat-storage-lot-calculator__index.html.gz
       - rv-boat-storage-lot-calculator__usage.mjs.gz=rv-boat-storage-lot-calculator__usage.mjs.gz
       - rv-rental-host-profit-calculator__calc.mjs.gz=rv-rental-host-profit-calculator__calc.mjs.gz
@@ -4468,12 +4471,12 @@ configMapGenerator:
       - section-1256-futures-tax-calculator__index.html.gz=section-1256-futures-tax-calculator__index.html.gz
       - section-1256-futures-tax-calculator__usage.mjs.gz=section-1256-futures-tax-calculator__usage.mjs.gz
       - section-174a-catchup-calculator__calc.mjs.gz=section-174a-catchup-calculator__calc.mjs.gz
-      - section-174a-catchup-calculator__index.html.gz=section-174a-catchup-calculator__index.html.gz
   - name: portfolio-front-tools-33
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - section-174a-catchup-calculator__index.html.gz=section-174a-catchup-calculator__index.html.gz
       - section-174a-catchup-calculator__should-i-take-the-174a-catchup-in-one-year-or-two.html.gz=section-174a-catchup-calculator__should-i-take-the-174a-catchup-in-one-year-or-two.html.gz
       - section-174a-catchup-calculator__usage.mjs.gz=section-174a-catchup-calculator__usage.mjs.gz
       - section-174a-catchup-calculator__vs-doing-the-math-by-hand.html.gz=section-174a-catchup-calculator__vs-doing-the-math-by-hand.html.gz
@@ -4586,13 +4589,13 @@ configMapGenerator:
       - shaved-ice-stand-profit-calculator__calc.mjs.gz=shaved-ice-stand-profit-calculator__calc.mjs.gz
       - shaved-ice-stand-profit-calculator__index.html.gz=shaved-ice-stand-profit-calculator__index.html.gz
       - shaved-ice-stand-profit-calculator__usage.mjs.gz=shaved-ice-stand-profit-calculator__usage.mjs.gz
-      - shed-install-bid-calculator__calc.mjs.gz=shed-install-bid-calculator__calc.mjs.gz
-      - shed-install-bid-calculator__how-much-to-charge-to-install-a-shed.html.gz=shed-install-bid-calculator__how-much-to-charge-to-install-a-shed.html.gz
   - name: portfolio-front-tools-34
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shed-install-bid-calculator__calc.mjs.gz=shed-install-bid-calculator__calc.mjs.gz
+      - shed-install-bid-calculator__how-much-to-charge-to-install-a-shed.html.gz=shed-install-bid-calculator__how-much-to-charge-to-install-a-shed.html.gz
       - shed-install-bid-calculator__index.html.gz=shed-install-bid-calculator__index.html.gz
       - shed-install-bid-calculator__usage.mjs.gz=shed-install-bid-calculator__usage.mjs.gz
       - shed-install-bid-calculator__vs-a-flat-price-per-square-foot.html.gz=shed-install-bid-calculator__vs-a-flat-price-per-square-foot.html.gz

@@ -735,6 +735,9 @@ const CATEGORY_RULES = [
       // `boba-tea-shop-profit-calculator` joined 2026-10-13 on its first commit: a leased-store pro forma (break-even cups a day with the
       // loan, delivery commission, ramp-up reserve) beside `cafe-drink-margin-calculator`'s per-drink margin.
       'boba-tea-shop-profit-calculator',
+      // `pizzeria-profit-calculator` joined 2026-10-13 on its first commit: a pizzeria pro forma (break-even orders a day with the loan,
+      // own-driver and delivery-app channel cost) beside `boba-tea-shop-profit-calculator`'s per-cup pro forma.
+      'pizzeria-profit-calculator',
       // `ice-cream-shop-seasonal-profit-calculator` joined 2026-10-13 on its first commit: a seasonal frozen-dessert shop's twelve-month P&L and open-or-close decision per month, beside `shaved-ice-stand-profit-calculator`'s event stands and `cafe-drink-margin-calculator`'s per-drink margins.
       'ice-cream-shop-seasonal-profit-calculator',
       // `daily-prep-quantity-optimizer` joined 2026-10-09 on its first commit: how many to make, beside `bakery-production-scheduler`'s when to bake.
