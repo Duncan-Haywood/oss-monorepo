@@ -3879,3 +3879,15 @@ entries:
         requirements-pin-check. Known gap: no dependency graph, so transitive-only packages read not-referenced. First visitor:
         searches for pip-audit noise; volume unmeasured. Natural paid upgrade is a GitHub Action commenting on Dependabot PRs.
     mrr_end: 0
+  - venture: nis2-scope-checker
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built nis2-scope-checker: a browser-only first read of whether the EU NIS2 Directive (2022/2555) applies to a company. Sector
+        (Annex I and II types) plus whole-group staff, turnover and balance sheet become a size class on the Recommendation 2003/361 ceilings, an
+        essential, important or out-of-scope result with the Article it rests on, regardless-of-size types, CER and Member State designation flags,
+        the result at other sizes, and the main duties, with text summary and CSV. 21 hand-checked unit tests plus page and usage tests.
+        portfolio/pipeline/duplicate_check.py top score 0.12; no NIS2 tool existed in ventures/. First visitor: EU SME staff asked "are you NIS2
+        in scope?" by a customer; volume unmeasured. National transposition is not modelled and the page says so.
+    mrr_end: 0

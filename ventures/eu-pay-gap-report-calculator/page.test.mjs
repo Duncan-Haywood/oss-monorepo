@@ -52,3 +52,7 @@ test("robots and sitemap let crawlers find the page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
 });
+
+test("footer links the NIS2 scope checker", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/nis2-scope-checker\/"/);
+});
