@@ -73,3 +73,8 @@ test("the sample loads through the same path the page uses", async () => {
 test("footer links the whistleblower channel checker", () => {
   assert.match(page("index.html"), /href="\.\.\/eu-whistleblower-channel-checker\/"/);
 });
+
+test("footer links the platform work and product liability directive checkers", () => {
+  assert.match(page("index.html"), /href="\.\.\/eu-platform-work-directive-checker\/"/);
+  assert.match(page("index.html"), /href="\.\.\/eu-product-liability-directive-checker\/"/);
+});
