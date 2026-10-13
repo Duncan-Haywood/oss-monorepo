@@ -67,3 +67,7 @@ test("every column the page lists as checked is a column the code knows", async 
 test("footer links to the payroll register to journal converter", () => {
   assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/payroll-register-to-journal\/"/);
 });
+
+test("footer links to the employer payroll tax calculator", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/employer-payroll-tax-cost-calculator\/"/);
+});

@@ -1,0 +1,43 @@
+name: employer-payroll-tax-cost-calculator
+description: >-
+  Free browser tool for small employers and bookkeepers: enter a salary and state to get employer Social Security, Medicare, FUTA, state unemployment (wage-base caps applied), workers' comp, retirement match and health cost, and the true all-in cost of a hire, including part-year hires. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session. Gap: payroll-tax-deposit-penalty-calculator and worker-classification-checker cover penalties and
+# classification; nothing in ventures/ answers "what does a hire cost me on top of wages, with the FUTA and SUI wage-base caps". Gusto/ADP/Rippling publish
+# "employer cost" calculators as lead magnets for paid payroll; this is the free private version.
+#
+# First visitor: first-time employer, restaurant or shop owner, or bookkeeper pricing a hire, searching "employer payroll tax calculator",
+# "true cost of an employee", "FUTA SUI wage base". Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet into the payroll/HR tools; GitHub Sponsors. Paid version, not built: multi-employee headcount plans,
+# all 50 states' rates behind a maintained data feed, and a PDF hiring-budget export.
+#
+# Liability: federal figures are 2026 as generally published; state wage bases and new-employer rates are editable starting points from memory, the page
+# says to replace them with the state rate notice, names sources, and carries no-warranty and not-tax-advice clauses. Risk is under-budgeting a hire from a
+# stale rate; mitigated by editable fields, source links and a kill criterion on any reported figure error.
+hypotheses:
+  - claim: >-
+      First-time employers will use a free private cost-of-hire calculator that applies the wage-base caps instead of a flat 7.65% rule of thumb, and return for each hire.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a federal rate or wage base differs from the IRS or SSA figure for the stated year.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/employer-payroll-tax-cost-calculator/
+  analytics: null
