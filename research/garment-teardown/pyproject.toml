@@ -1,0 +1,13 @@
+[project]
+name = "garment-teardown"
+version = "0.1.0"
+description = "Cost model for a garment: where a retail price goes, and what a replica keeps or loses"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

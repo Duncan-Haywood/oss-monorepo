@@ -1362,6 +1362,18 @@
      "summary": "A 2D plane-stress scikit-fem model of an L-bracket with a filleted inner corner (arm width, fillet radius, depth) under a 100&nbsp;N tip load. Differential evolution reaches 19.6&nbsp;g against 25.6&nbsp;g for random search and 31.4&nbsp;g for a grid at 144&ndash;150 evaluations each, under a 20&nbsp;MPa stress and 4&nbsp;mm deflection limit. The design is exported as a binary STL and checked for minimum wall and overhang. Stylised: material properties and limits are assumed, the optimum stress rises about 7% on mesh refinement (just over the limit), the sharp-corner stress diverges, and the thin optimum was not checked for out-of-plane buckling."
     }
    ]
+  },
+  {
+   "id": "garment",
+   "name": "Engineered clothing",
+   "blurb": "Fashion from an engineering point of view: what garments cost to make, and what materials, mechanics and electronics could do for clothes.",
+   "projects": [
+    {
+     "slug": "garment-teardown",
+     "title": "Where does a designer coat's price go, and what does a $20 to $50 replica keep?",
+     "summary": "A bottom-up cost model for a lined woven coat (fabric from pattern area and marker efficiency, trims, sewing minutes times wage, overhead, brand and retail multipliers) applied to two reported designer prices. Under assumed inputs the factory cost is $186&ndash;248 for a $2,850 trench and $469&ndash;551 for a $3,850 coat, under 15% of the price in every wage scenario, and the assumed multipliers do not close the gap. A cheap-cloth replica costs $46&ndash;100 to make; only a very lean case reaches $29&ndash;34. Stylised: every cost input is assumed, prices are from search snippets, and fit and durability are not scored."
+    }
+   ]
   }
  ],
  "featured": [
