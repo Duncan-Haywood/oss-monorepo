@@ -1,12 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1114 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1117 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-10-13T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Boba Tea Shop Profit Calculator — Break-Even and Ramp-Up</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/boba-tea-shop-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/boba-tea-shop-profit-calculator</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free pro forma for boba, bubble tea and specialty drink shops: profit per cup, break-even cups a day with the loan, the price for your target margin, delivery-app cost, and a 60-month ramp-up with the cash reserve you need. Runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Ice Cream Shop Seasonal Profit Calculator — Break-Even and Off-Season Cash</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ice-cream-shop-seasonal-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/ice-cream-shop-seasonal-profit-calculator</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free ice cream shop profit calculator: twelve months of days open and customers per day become monthly profit, break-even customers, open-or-close verdicts, loan coverage and the cash reserve the slow months need. Private, runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Kombucha Brewery Profit Calculator — Break-Even, Gallons a Week, Payback</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/kombucha-brewery-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/kombucha-brewery-profit-calculator</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free kombucha brewery profit calculator: fermenter capacity, batch cycle, wholesale and taproom prices, packaging, labour and rent become gallons a week, monthly profit, break-even, the cash reserve for ramp-up, loan coverage and payback. Private, runs in your browser.</summary>
+  </entry>
   <entry>
     <title>npm Audit Triage — Which npm audit Vulnerabilities Does Your Code Actually Use?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/npm-audit-triage/"/>
@@ -142,29 +166,5 @@
     <updated>2026-10-12T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator for party and event rental companies. Enter what each item costs, what a rental earns, how often it goes out, handling, breakage and storage; it ranks your inventory by return, shows payback and the lowest price per item. Nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>FLSA Regular-Rate Overtime Audit — free payroll check</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/flsa-regular-rate-overtime-audit/"/>
-    <id>tag:marisstella.dev,2026:tool/flsa-regular-rate-overtime-audit</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free FLSA regular rate of pay and overtime audit for restaurants, retailers, staffing agencies and bookkeepers. Paste payroll rows, see the regular rate with bonuses and shift differentials, the half-time premium owed, back pay and lookback exposure. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Franchise Item 19 Reality Check — what the earnings claim leaves out</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/franchise-item-19-reality-check/"/>
-    <id>tag:marisstella.dev,2026:tool/franchise-item-19-reality-check</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free franchise Item 19 reality check. Enter the earnings tiers from a franchise disclosure document and see owner earnings after royalty and ad fund, payback, the average versus the median, and how many units fall below your salary target. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Funeral Price List Checker — What Is Required, What Is Your Choice</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/funeral-price-list-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/funeral-price-list-checker</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Paste a funeral home&#39;s price list or quote and see which charges you cannot decline, which are your choice, which are paid to others, and which the FTC Funeral Rule questions, such as casket handling fees. Compare two homes. Free, in your browser.</summary>
   </entry>
 </feed>

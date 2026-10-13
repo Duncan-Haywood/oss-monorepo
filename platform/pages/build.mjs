@@ -732,6 +732,11 @@ const CATEGORY_RULES = [
       'ghost-kitchen-brand-picker',
       // `cafe-drink-margin-calculator` joined 2026-10-09 on its first commit: per-drink margin for coffee shops after card fees and make-time labor, beside `menu-engineering-calculator`'s dish margins.
       'cafe-drink-margin-calculator',
+      // `boba-tea-shop-profit-calculator` joined 2026-10-13 on its first commit: a leased-store pro forma (break-even cups a day with the
+      // loan, delivery commission, ramp-up reserve) beside `cafe-drink-margin-calculator`'s per-drink margin.
+      'boba-tea-shop-profit-calculator',
+      // `ice-cream-shop-seasonal-profit-calculator` joined 2026-10-13 on its first commit: a seasonal frozen-dessert shop's twelve-month P&L and open-or-close decision per month, beside `shaved-ice-stand-profit-calculator`'s event stands and `cafe-drink-margin-calculator`'s per-drink margins.
+      'ice-cream-shop-seasonal-profit-calculator',
       // `daily-prep-quantity-optimizer` joined 2026-10-09 on its first commit: how many to make, beside `bakery-production-scheduler`'s when to bake.
       'daily-prep-quantity-optimizer',
       // `brewery-tank-schedule-optimizer` joined 2026-10-09 on its first commit: when and where each batch goes, beside `craft-brewery-batch-margin-calculator`'s profit per barrel.
@@ -816,6 +821,9 @@ const CATEGORY_RULES = [
       // `hydroponic-farm-profit-calculator` joined 2026-10-12 on its first commit: an indoor or hydroponic grower sizing a build, selling
       // at the same restaurants and markets, one hop from `microgreens-tray-planner`.
       'hydroponic-farm-profit-calculator',
+      // `kombucha-brewery-profit-calculator` joined 2026-10-13 on its first commit: a brewer selling drink by the gallon, one hop from
+      // `craft-brewery-batch-margin-calculator` and `cafe-drink-margin-calculator`.
+      'kombucha-brewery-profit-calculator',
       // `maple-syrup-sugarbush-profit-calculator` joined 2026-10-07 on its first commit: producers selling syrup at the
       // same farm stands and markets, one hop from `backyard-honey-profit-calculator`.
       'maple-syrup-sugarbush-profit-calculator',
